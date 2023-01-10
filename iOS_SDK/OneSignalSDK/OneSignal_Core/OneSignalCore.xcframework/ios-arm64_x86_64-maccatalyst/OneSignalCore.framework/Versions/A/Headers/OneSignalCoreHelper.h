@@ -37,4 +37,12 @@
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
 + (NSString*)trimURLSpacing:(NSString*)url;
++ (NSString*)parseNSErrorAsJsonString:(NSError*)error;
++ (BOOL)isOneSignalPayload:(NSDictionary *)payload;
++ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
++ (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
++ (BOOL)isDisplayableNotification:(NSDictionary*)msg;
++ (NSString*)randomStringWithLength:(int)length;
++ (BOOL)verifyURL:(NSString *)urlString;
++ (BOOL)isWWWScheme:(NSURL*)url;
 @end
