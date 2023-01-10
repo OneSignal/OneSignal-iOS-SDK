@@ -40,7 +40,7 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 
 ## SDK Installation
 
-### Import Changes
+### Code Import Changes
 **Objective-C**
 
 ```objc
@@ -59,7 +59,11 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
     import OneSignalFramework
 ```
 
-Update the version of the OneSignal iOS SDK your application uses to `5.0.0`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+### Option 1. Swift Package Manager
+Update the version of the OneSignal-XCFramework your application uses to `5.0.0-alpha-01`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+
+### Option 2. CocoaPods
+Update the version of the OneSignalXCFramework your application uses to `5.0.0-alpha-01`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
