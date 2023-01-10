@@ -367,6 +367,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     request.additionalHeaders = headers;
     return request;
 }
+@end
 
 @implementation OSRequestLiveActivityEnter
 + (instancetype)withUserId:(NSString * _Nonnull)userId
