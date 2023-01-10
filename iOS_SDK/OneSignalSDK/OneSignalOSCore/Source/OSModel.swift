@@ -63,16 +63,14 @@ open class OSModel: NSObject, NSCoding {
     /**
      This function receives a server response and updates the model's properties.
      */
-    public func hydrate(_ response: [String: String]) {
+    public func hydrate(_ response: [String: Any]) {
         // TODO: Thread safety when processing server responses to hydrate models.
         self.hydrating = true
         hydrateModel(response) // Calls model-specific hydration logic
         self.hydrating = false
     }
 
-    open func hydrateModel(_ response: [String: String]) {
-        // Log as an error.
-        print("Error: Function must be overridden.")
+    open func hydrateModel(_ response: [String: Any]) {
         fatalError("hydrateModel(response:) has not been implemented")
     }
 }

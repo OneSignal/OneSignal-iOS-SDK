@@ -55,4 +55,72 @@ public extension OneSignal {
     static var Location: OSLocation.Type {
         return __location()
     }
+
+    static var requiresPrivacyConsent: Bool {
+        get {
+            return __requiresPrivacyConsent()
+        }
+        set {
+            __setRequiresPrivacyConsent(newValue)
+        }
+    }
+
+    static var privacyConsent: Bool {
+        get {
+            return __getPrivacyConsent()
+        }
+        set {
+            __setPrivacyConsent(newValue)
+        }
+    }
+}
+
+public extension OSInAppMessages {
+    static var Paused: Bool {
+        get {
+            return __paused()
+        }
+        set {
+            __paused(newValue)
+        }
+    }
+}
+
+public extension OSSession {
+    static func addOutcome(_ name: String, _ value: NSNumber) {
+        __addOutcome(withValue: name, value: value)
+    }
+}
+
+public extension OSNotifications {
+    static var permission: Bool {
+        return __permission()
+    }
+
+    static var canRequestPermission: Bool {
+        return __canRequestPermission()
+    }
+
+    static func registerForProvisionalAuthorization(_ block: OSUserResponseBlock?) {
+        return __register(forProvisionalAuthorization: block)
+    }
+
+    static func addPermissionObserver(_ observer: OSPermissionObserver) {
+        return __add(observer)
+    }
+
+    static func removePermissionObserver(_ observer: OSPermissionObserver) {
+        return __remove(observer)
+    }
+}
+
+public extension OSLocation {
+    static var isShared: Bool {
+        get {
+            return __isShared()
+        }
+        set {
+            __setShared(newValue)
+        }
+    }
 }

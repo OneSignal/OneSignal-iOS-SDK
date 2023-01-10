@@ -137,14 +137,6 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 static NSString* mSDKType = @"native";
 
-static NSMutableArray* pendingSendTagCallbacks;
-static OSResultSuccessBlock pendingGetTagsSuccessBlock;
-static OSFailureBlock pendingGetTagsFailureBlock;
-
-static NSMutableArray* pendingLiveActivityUpdates;
-static OSSubscriptionObserver* _subscriptionObserver;
-
-
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
 
@@ -165,22 +157,13 @@ static NSDictionary* appSettings;
 // Called after successfully calling setAppId and setLaunchOptions
 static BOOL initDone = false;
 
-//used to ensure registration occurs even if APNS does not respond
-static NSDate *initializationTime;
-static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
-static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+// Used to track last time SDK was initialized, for whether or not to start a new session
+static NSTimeInterval initializationTime;
 
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
 
-NSString* emailToSet;
 static LanguageContext* languageContext;
-
-BOOL usesAutoPrompt = false;
-
-static BOOL performedOnSessionRequest = false;
-
-static NSString* subscriptionId;
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -256,7 +239,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     launchOptions = false;
     appSettings = nil;
     initDone = false;
-    usesAutoPrompt = false;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
@@ -266,20 +248,14 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
     
-    maxApnsWait = APNS_TIMEOUT;
-    reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
-
     sessionLaunchTime = [NSDate date];
-    performedOnSessionRequest = false;
 
     [OSOutcomes clearStatics];
     
     [OSSessionManager resetSharedSessionManager];
 }
 
-#pragma mark User Model 🔥
-
-#pragma mark User Model - User Identity 🔥
+#pragma mark Namespaces
 
 + (id<OSUser>)User {
     return [OneSignalUserManagerImpl.sharedInstance User];
@@ -307,7 +283,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
-#pragma mark User Model - Notifications namespace 🔥
 + (Class<OSNotifications>)Notifications {
     return [OSNotificationsManager Notifications];
 }
@@ -323,6 +298,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 + (Class<OSLocation>)Location {
     return [OneSignalLocation Location];
 }
+
+#pragma mark Initialization
 
 /*
  This is should be set from all OneSignal entry points.
@@ -396,6 +373,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 }
 
+// TODO: Should this be in the InAppMessages namespace?
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
@@ -409,131 +387,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
 }
-
-#pragma mark: LIVE ACTIVITIES
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
-}
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called enterLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-
-    if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:activityId token:token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        _subscriptionObserver = [OSSubscriptionObserver new];
-        [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
-    }
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self exitLiveActivity:activityId withSuccess:nil withFailure:nil];
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"exitLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called exitLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-    
-    if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        _subscriptionObserver = [OSSubscriptionObserver new];
-        [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
-    }
-}
-
-+ (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
-    if (failureBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            failureBlock(error);
-        });
-    }
-}
-
-+ (void)callSuccessBlockOnMainThread:(OSResultSuccessBlock)successBlock withResult:(NSDictionary *)result{
-    if (successBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            successBlock(result);
-        });
-    }
-}
-
-+ (void)addPendingLiveActivityUpdate:(NSString * _Nonnull)activityId
-                           withToken:(NSString * _Nullable)token
-                             isEnter:(BOOL)isEnter
-                         withSuccess:(OSResultSuccessBlock _Nullable)successBlock
-                         withFailure:(OSFailureBlock _Nullable)failureBlock {
-    OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
-    
-    if (!pendingLiveActivityUpdates) {
-        pendingLiveActivityUpdates = [NSMutableArray new];
-    }
-    [pendingLiveActivityUpdates addObject:pendingLiveActivityUpdate];
-}
-
-+ (void)executePendingLiveActivityUpdates {
-    
-    subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
-    if(pendingLiveActivityUpdates.count <= 0) {
-        return;
-    }
-    
-    OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
-    [pendingLiveActivityUpdates removeObjectAtIndex: 0];
-    if (updateToProcess.isEnter) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    }
-}
-
-#pragma mark Initialization
 
 + (BOOL)shouldStartNewSession {
     // return if the user has not granted privacy permissions
@@ -551,17 +404,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
 
-    if (lastTimeClosed == 0) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"shouldStartNewSession:lastTimeClosed: default."];
-        return true;
-    }
-
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
-    NSTimeInterval delta = now - lastTimeClosed;
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSincelastClosed: %f", delta]];
+    NSTimeInterval timeSinceLastClosed = now - lastTimeClosed;
+    NSTimeInterval timeSinceInitialization = now - initializationTime;
 
-    return delta >= minTimeThreshold;
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceLastClosed: %f", timeSinceLastClosed]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceInitialization: %f", timeSinceInitialization]];
+
+    return MIN(timeSinceLastClosed, timeSinceInitialization) >= minTimeThreshold;
 }
 
 + (void)startNewSession:(BOOL)fromInit {
@@ -598,14 +449,12 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
     sessionLaunchTime = [NSDate date];
 
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
-
     // TODO: Figure out if Create User also sets session_count automatically on backend
-    [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
+    [OneSignalUserManagerImpl.sharedInstance startNewSession];
     
     // This is almost always going to be nil the first time.
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
-    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (subscriptionId) {
         [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
     }
@@ -742,6 +591,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startInAppMessages];
     [self startNewSession:YES];
     
+    initializationTime = [[NSDate date] timeIntervalSince1970];
     initDone = true;
 }
 
@@ -771,10 +621,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
         
         // Remove player_id from both standard and shared NSUserDefaults
-        [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
-        [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
-        // TODO: Clear all cached data, is it sufficient to call logout
-        [self logout];
+        [standardUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
+        [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
+        
+        // Clear all cached data, does not start User Module nor call logout.
+        [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
     }
     
     // Always save appId and player_id as it will not be present on shared if:
@@ -822,14 +673,17 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
     // This will be nil unless we have a cached user
-    NSString *userId = OneSignalUserManagerImpl.sharedInstance.User.pushSubscription.subscriptionId;
+    // TODO: Commented out. This will init the User Manager too early, and userId is not needed anyway.
+    // NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    NSString *userId = nil;
+
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
             OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
         }
 
-        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+        if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
 
             [OSNotificationsManager checkProvisionalAuthorizationStatus];
@@ -930,7 +784,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     
     NSString* onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
-    NSString* pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    NSString* pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     
     if (!onesignalId || !pushSubscriptionId) {
         return false;
@@ -1013,27 +867,12 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
 
-    // Swizzle - UIApplication delegate
-    //TODO: do the equivalent in the notificaitons module
-    injectSelector(
-        [UIApplication class],
-        @selector(setDelegate:),
-        [OneSignalAppDelegate class],
-        @selector(setOneSignalDelegate:)
-   );
-    //TODO: This swizzling is done from notifications module
-    injectSelector(
-        [UIApplication class],
-        @selector(setApplicationIconBadgeNumber:),
-        [OneSignalAppDelegate class],
-        @selector(onesignalSetApplicationIconBadgeNumber:)
-    );
-    //TODO: Do this in the notifications module
-    [self setupUNUserNotificationCenterDelegate];
+    [OSNotificationsManager start];
+
     [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
     
-    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController new]];
+    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
 }
 
 /*
@@ -1044,14 +883,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
     
     [self onesignalSetApplicationIconBadgeNumber:badge];
-}
-
-+(void)setupUNUserNotificationCenterDelegate {
-    // Swizzle - UNUserNotificationCenter delegate - iOS 10+
-    if (!NSClassFromString(@"UNUserNotificationCenter"))
-        return;
-
-    //[OneSignalUNUserNotificationCenter setup]; TODO: do this is notifications
 }
 
 +(BOOL) shouldDisableBasedOnProcessArguments {

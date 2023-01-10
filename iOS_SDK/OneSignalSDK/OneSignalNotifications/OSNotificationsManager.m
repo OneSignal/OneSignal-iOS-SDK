@@ -32,6 +32,8 @@
 #import "OSNotification+OneSignal.h"
 #import <OneSignalExtension/OneSignalAttachmentHandler.h>
 #import "OneSignalWebViewManager.h"
+#import "UNUserNotificationCenter+OneSignalNotifications.h"
+#import "UIApplicationDelegate+OneSignalNotifications.h"
 
 @implementation OSNotificationOpenedResult
 @synthesize notification = _notification, action = _action;
@@ -176,12 +178,47 @@ static OSPermissionStateInternal* _lastPermissionState;
     return _lastPermissionState;
 }
 
+// TODO: pushToken, pushSubscriptionId needs to be available... is this the right setup
 static NSString *_pushToken;
++ (NSString*)pushToken {
+    if (!_pushToken) {
+        _pushToken = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_TOKEN defaultValue:nil];
+    }
+    return _pushToken;
+}
 
 static NSString *_pushSubscriptionId;
++ (NSString*)pushSubscriptionId {
+    if (!_pushSubscriptionId) {
+        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
+    }
+    return _pushSubscriptionId;
+}
 + (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
     _pushSubscriptionId = pushSubscriptionId;
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
++ (void)start {
+    // Swizzle - UIApplication delegate
+    //TODO: do the equivalent in the notificaitons module
+    injectSelector(
+        [UIApplication class],
+        @selector(setDelegate:),
+        [OneSignalNotificationsAppDelegate class],
+        @selector(setOneSignalDelegate:)
+   );
+    //TODO: This swizzling is done from notifications module
+    injectSelector(
+        [UIApplication class],
+        @selector(setApplicationIconBadgeNumber:),
+        [OneSignalNotificationsAppDelegate class],
+        @selector(onesignalSetApplicationIconBadgeNumber:)
+    );
+    [OneSignalNotificationsUNUserNotificationCenter setup];
+}
+#pragma clang diagnostic pop
 
 + (void)resetLocals {
     _lastMessageReceived = nil;
@@ -203,7 +240,6 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)requestPermission:(OSUserResponseBlock)block {
-    NSLog(@"🔥 requestPermission:(OSUserResponseBlock)block called");
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"requestPermission:"])
         return;
@@ -354,10 +390,11 @@ static NSString *_pushSubscriptionId;
 
     self.waitingForApnsResponse = false;
 
-    if (!_appId)
-        return;
-
     _pushToken = parsedDeviceToken;
+    
+    // Cache push token
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PUSH_TOKEN withValue:_pushToken];
+
     [self sendPushTokenToDelegate];
 }
 
@@ -379,7 +416,8 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)sendPushTokenToDelegate {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
+    // TODO: Keep this as a check on _pushToken instead of self.pushToken?
+    if (_pushToken != nil && self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
         [self.delegate setPushToken:_pushToken];
     }
 }
@@ -449,7 +487,8 @@ static NSString *_pushSubscriptionId;
     if (mSubscriptionStatus < -9)
         return mSubscriptionStatus;
     
-    if (OSNotificationsManager.waitingForApnsResponse && !_pushToken)
+    // This was previously nil if just accessing _pushToken
+    if (OSNotificationsManager.waitingForApnsResponse && !self.pushToken)
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
     OSPermissionStateInternal* permissionStatus = [OSNotificationsManager.osNotificationSettings getNotificationPermissionState];

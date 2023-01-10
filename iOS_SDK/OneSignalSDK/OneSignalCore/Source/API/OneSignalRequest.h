@@ -28,7 +28,7 @@
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
 #import <Foundation/Foundation.h>
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCommonDefines.h>
 
 
 #ifndef OneSignalRequest_h

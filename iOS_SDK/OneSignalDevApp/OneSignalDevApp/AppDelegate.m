@@ -50,12 +50,15 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
-    
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
+    
+    [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
+    
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
+        // TODO: opened handler Not triggered
         NSLog(@"OSNotificationOpenedResult: %@", result.action);
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wdeprecated"
@@ -80,7 +83,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
-    [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
+    
     
     [OneSignal.Notifications requestPermission:^(BOOL accepted) {
         NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
@@ -92,13 +95,18 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
+    OSPushSubscriptionState* state = [OneSignal.User.pushSubscription addObserver:self];
+    NSLog(@"OneSignal Demo App push subscription observer added, current state: %@", state);
+    
+    [OneSignal.Notifications addPermissionObserver:self];
+    
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
+#define ONESIGNAL_APP_ID_DEFAULT @"YOUR_APP_ID_HERE"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
@@ -118,10 +126,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
 }
 
-- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {
+    NSLog(@"onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.optedIn;
 }
 
 #pragma mark OSInAppMessageDelegate

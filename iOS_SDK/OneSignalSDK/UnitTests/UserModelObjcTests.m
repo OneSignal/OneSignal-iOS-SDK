@@ -26,7 +26,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 
 @interface UserModelObjcTests : XCTestCase
 
@@ -197,6 +197,14 @@
     // IAM Pausing
     [OneSignal.InAppMessages paused:true];
     BOOL paused = [OneSignal.InAppMessages paused];
+}
+
+- (void)testOnJwtExpired {
+    // TODO: Fix autocompletion. It isn't auto completing parameter names which makes this unreadable
+    [OneSignal.User onJwtExpiredWithExpiredHandler:^(NSString * _Nonnull externalId, void (^ _Nonnull completion)(NSString * _Nonnull)) {
+        NSString *newToken = externalId;
+        completion(newToken);
+    }];
 }
 
 @end
