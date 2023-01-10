@@ -85,7 +85,7 @@
     BOOL last = self.hasPrompted;
     _hasPrompted = inHasPrompted;
     if (last != self.hasPrompted)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)hasPrompted {
@@ -104,7 +104,7 @@
     _provisional = provisional;
     
     if (previous != _provisional)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)isProvisional {
@@ -115,7 +115,7 @@
     BOOL last = self.answeredPrompt;
     _answeredPrompt = inansweredPrompt;
     if (last != self.answeredPrompt)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)answeredPrompt {
@@ -129,14 +129,14 @@
     BOOL changed = _accepted != accepted;
     _accepted = accepted;
     if (changed)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (void)setEphemeral:(BOOL)ephemeral {
     BOOL changed = _ephemeral != ephemeral;
     _ephemeral = ephemeral;
     if (changed)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (void)setProvidesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
@@ -159,6 +159,37 @@
     return OSNotificationPermissionNotDetermined;
 }
 
+- (BOOL)compare:(OSPermissionStateInternal*)from {
+    return self.accepted != from.accepted ||
+           self.ephemeral != from.ephemeral ||
+           self.answeredPrompt != from.answeredPrompt ||
+           self.hasPrompted != from.hasPrompted;
+}
+
+- (OSPermissionState *)getExternalState {
+    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
+}
+
+- (NSString*)description {
+    static NSString* format = @"<OSPermissionStateInternal: hasPrompted: %d, status: %@, provisional: %d>";
+    return [NSString stringWithFormat:format, self.hasPrompted, self.status, self.provisional];
+}
+
+
+
+@end
+
+@implementation OSPermissionState
+    
+- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
+    _status = status;
+    _reachable = reachable;
+    _hasPrompted = hasPrompted;
+    _providesAppNotificationSettings = providesAppNotificationSettings;
+    _provisional = provisional;
+    return self;
+}
+
 - (NSString*)statusAsString {
     switch(self.status) {
         case OSNotificationPermissionNotDetermined:
@@ -175,35 +206,9 @@
     return @"NotDetermined";
 }
 
-- (BOOL)compare:(OSPermissionStateInternal*)from {
-    return self.accepted != from.accepted ||
-           self.ephemeral != from.ephemeral ||
-           self.answeredPrompt != from.answeredPrompt ||
-           self.hasPrompted != from.hasPrompted;
-}
-
-- (OSPermissionState *)getExternalState {
-    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
-}
-
 - (NSString*)description {
     static NSString* format = @"<OSPermissionState: hasPrompted: %d, status: %@, provisional: %d>";
     return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString, self.provisional];
-}
-
-
-
-@end
-
-@implementation OSPermissionState
-    
-- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
-    _status = status;
-    _reachable = reachable;
-    _hasPrompted = hasPrompted;
-    _providesAppNotificationSettings = providesAppNotificationSettings;
-    _provisional = provisional;
-    return self;
 }
 
 - (NSDictionary*)toDictionary {
@@ -241,7 +246,7 @@
 @implementation OSPermissionStateChanges
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
+    static NSString* format = @"<OSPermissionStateChanges:\nfrom: %@,\nto:   %@\n>";
     return [NSString stringWithFormat:format, _from, _to];
 }
 

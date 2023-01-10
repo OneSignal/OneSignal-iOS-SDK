@@ -112,7 +112,10 @@ static dispatch_once_t once;
 
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-variable"
     OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
+    #pragma clang diagnostic pop
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -188,29 +191,30 @@ static BOOL _isInAppMessagingPaused = false;
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
-        if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
-            let messages = [NSMutableArray new];
-            
-            for (NSDictionary *messageJson in result[@"in_app_messages"]) {
-                let message = [OSInAppMessageInternal instanceWithJson:messageJson];
-                if (message) {
-                    [messages addObject:message];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
+            if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
+                let messages = [NSMutableArray new];
+                
+                for (NSDictionary *messageJson in result[@"in_app_messages"]) {
+                    let message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                    if (message) {
+                        [messages addObject:message];
+                    }
                 }
+                
+                [self updateInAppMessagesFromServer:messages];
+                return;
             }
             
-            [self updateInAppMessagesFromServer:messages];
-            return;
-        }
-        
-        // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
-        // This is the existing implementation but it could mean this user has no IAMs?
-        
-        // Default is using cached IAMs in the messaging controller
-        [self updateInAppMessagesFromCache];
-        
+            // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
+            // This is the existing implementation but it could mean this user has no IAMs?
+            
+            // Default is using cached IAMs in the messaging controller
+            [self updateInAppMessagesFromCache];
+        });
     } onFailure:^(NSError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer failure"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
         [self updateInAppMessagesFromCache];
     }];
 }
@@ -423,7 +427,7 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
-                                                       withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                       withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                       withMessageId:message.messageId
                                                          withPageId:pageId
                                                        forVariantId:message.variantId];
@@ -463,7 +467,7 @@ static BOOL _isInAppMessagingPaused = false;
     
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
-                                                   withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                   withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
     
@@ -521,10 +525,11 @@ static BOOL _isInAppMessagingPaused = false;
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
     let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
 
-    NSLog(@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description]];
 
     if (messageDismissed && redisplayMessageSavedData) {
-        NSLog(@"Redisplay IAM: %@", message.jsonRepresentation.description);
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentation.description]];
+        
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
 
@@ -568,7 +573,7 @@ static BOOL _isInAppMessagingPaused = false;
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
            ![message isFinished] &&
-           OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId != nil;
+           OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId != nil;
     return true;
 }
 
@@ -849,7 +854,7 @@ static BOOL _isInAppMessagingPaused = false;
     [message addClickId:clickId];
     
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
-                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
                                                       withAction:action];
@@ -964,16 +969,21 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSPushSubscriptionObserver Methods
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
-    if (stateChanges.to.subscriptionId == nil) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
+    // Don't pull IAMs if the new subscription ID is nil
+    if (stateChanges.to.id == nil) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
         return;
     }
-    // Pull new IAMs when the subscription id changes to a new valid subscription id
-    if (stateChanges.from.subscriptionId != nil &&
-        [stateChanges.to.subscriptionId isEqualToString:stateChanges.from.subscriptionId]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
-        [self getInAppMessagesFromServer:stateChanges.to.subscriptionId];
+    // Don't pull IAMs if the subscription ID has not changed
+    if (stateChanges.from.id != nil &&
+        [stateChanges.to.id isEqualToString:stateChanges.from.id]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to the same subscription id"];
+        return;
     }
+
+    // Pull new IAMs when the subscription id changes to a new valid subscription id
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
+    [self getInAppMessagesFromServer:stateChanges.to.id];
 }
 
 @end
