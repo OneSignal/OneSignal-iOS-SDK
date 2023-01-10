@@ -1,4 +1,4 @@
-<h1 align="center">OneSignal iOS SDK v5.0.0-alpha1 Migration Guide</h1>
+<h1 align="center">OneSignal iOS SDK v5.0.0-alpha-01 Migration Guide</h1>
 
 ![OneSignal Omni Channel Banner](https://user-images.githubusercontent.com/11739227/208625336-d28c8d01-a7cf-4f8e-9643-ac8d1948e9ae.png)
 
@@ -8,7 +8,7 @@ In this release, we are making a significant shift from a device-centered model 
 
 To facilitate this change, the `externalId` approach for identifying users is being replaced by the `login` and `logout` methods. In addition, the SDK now makes use of namespaces such as `User`, `Notifications`, and `InAppMessages` to better separate code.
 
-The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `v5.0.0-alpha1` changes as a result of this shift.
+The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-alpha-01` changes as a result of this shift.
 
 # Overview
 
@@ -205,7 +205,7 @@ Email and/or SMS subscriptions can be added or removed via the following methods
 
 # API Reference
 
-Below is a comprehensive reference to the `v5.0.0-alpha1` OneSignal SDK.
+Below is a comprehensive reference to the `5.0.0-alpha-01` OneSignal SDK.
 
 ## OneSignal
 
