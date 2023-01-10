@@ -10,26 +10,31 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-struct OneSignalWidgetExtensionAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        // Dynamic stateful properties about your activity go here!
-        var value: Int
-    }
-
-    // Fixed non-changing properties about your activity go here!
-    var name: String
-}
 
 struct OneSignalWidgetExtensionLiveActivity: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: OneSignalWidgetExtensionAttributes.self) { context in
-            // Lock screen/banner UI goes here
+        ActivityConfiguration(for: OneSignalWidgetAttributes.self) { context in
+            // Lock screen/banner UI goes here\VStack(alignment: .leading) {
             VStack {
-                Text("Hello")
+                Spacer()
+                Text(context.attributes.title).font(.headline)
+                Spacer()
+                HStack {
+                    Spacer()
+                    Label {
+                        Text(context.state.message)
+                    } icon: {
+                        Image("onesignaldemo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40.0, height: 40.0)
+                    }
+                    Spacer()
+                }
+                Spacer()
             }
-            .activityBackgroundTint(Color.cyan)
-            .activitySystemActionForegroundColor(Color.black)
-            
+            .activitySystemActionForegroundColor(.black)
+            .activityBackgroundTint(.white)
         } dynamicIsland: { context in
             DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
