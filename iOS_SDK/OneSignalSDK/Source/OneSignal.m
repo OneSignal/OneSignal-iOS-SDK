@@ -180,6 +180,7 @@ BOOL usesAutoPrompt = false;
 
 static BOOL performedOnSessionRequest = false;
 
+static NSString* subscriptionId;
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -429,7 +430,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
 
-    NSString *subscriptionId = [OneSignalUserManagerImpl.sharedInstance addObserver:_subscriptionObserver].subscriptionId;
     if(subscriptionId) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:activityId token:token]
                                            onSuccess:^(NSDictionary *result) {
@@ -439,9 +439,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         }];
     } else {
         _subscriptionObserver = [OSSubscriptionObserver new];
-        
         [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
-        
     }
 }
 
@@ -463,7 +461,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
     
-    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
     if(subscriptionId) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:activityId]
                                            onSuccess:^(NSDictionary *result) {
@@ -472,6 +469,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
+        _subscriptionObserver = [OSSubscriptionObserver new];
         [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
     }
 }
@@ -506,6 +504,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)executePendingLiveActivityUpdates {
+    
+    subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
     if(pendingLiveActivityUpdates.count <= 0) {
         return;
     }
@@ -513,7 +513,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
     [pendingLiveActivityUpdates removeObjectAtIndex: 0];
     if (updateToProcess.isEnter) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
             [self executePendingLiveActivityUpdates];
@@ -522,7 +522,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
             [self executePendingLiveActivityUpdates];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId]
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
             [self executePendingLiveActivityUpdates];
@@ -741,6 +741,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startUserManager]; // By here, app_id exists, and consent is granted.
     [self startInAppMessages];
     [self startNewSession:YES];
+    
     initDone = true;
 }
 
