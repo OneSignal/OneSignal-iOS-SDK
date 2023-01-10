@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 The Blindsight Corporation. All rights reserved.
 //  Released under the BSD 2-Clause License (see LICENSE)
 
-typedef NS_ENUM(NSInteger, UIApplicationReleaseMode) {
+typedef NS_ENUM(NSInteger, OSUIApplicationReleaseMode) {
     UIApplicationReleaseUnknown,
     UIApplicationReleaseDev,
     UIApplicationReleaseAdHoc,
@@ -18,6 +18,6 @@ typedef NS_ENUM(NSInteger, UIApplicationReleaseMode) {
 
 @interface OneSignalMobileProvision : NSObject
 
-+ (UIApplicationReleaseMode) releaseMode;
++ (OSUIApplicationReleaseMode) releaseMode;
 
 @end

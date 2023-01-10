@@ -131,14 +131,6 @@ static BOOL _coldStartFromTapOnNotification = NO;
     _coldStartFromTapOnNotification = coldStartFromTapOnNotification;
 }
 
-static NSString *_appId;
-+ (void)setAppId:(NSString *)appId {
-    _appId = appId;
-}
-+ (NSString *_Nullable)getAppId {
-    return _appId;
-}
-
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
@@ -537,8 +529,9 @@ static NSString *_lastnonActiveMessageId;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (!_appId)
+    if (![OneSignalConfigManager getAppId]) {
         return;
+    }
     
     // This method should not continue to be executed for non-OS push notifications
     if (![OneSignalCoreHelper isOneSignalPayload:messageDict])
@@ -670,8 +663,8 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:_pushSubscriptionId
-                                                                                             appId:_appId
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:[self pushSubscriptionId]
+                                                                                             appId:[OneSignalConfigManager getAppId]
                                                                                          wasOpened:YES
                                                                                          messageId:messageId
                                                                                     withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
