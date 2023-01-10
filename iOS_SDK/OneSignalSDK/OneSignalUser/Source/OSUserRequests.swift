@@ -66,6 +66,13 @@ class OSUserExecutor {
      Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
      */
     static func parseFetchUserResponse(response: [AnyHashable: Any], identityModel: OSIdentityModel, originalPushToken: String?) {
+
+        // If this was a create user, it hydrates the onesignal_id of the request's identityModel
+        // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
+        if let identityObject = parseIdentityObjectResponse(response) {
+            identityModel.hydrate(identityObject)
+        }
+
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
@@ -167,13 +174,14 @@ class OSUserExecutor {
             return
         }
         OneSignalClient.shared().execute(request) { response in
-            // TODO: Differentiate if we need to fetch based on response code 200, 201, 202
-            // Create User's response won't send us the user's complete info if this user already existed.
-            // We can parse the response OR fetch user (and then parse response then)
-            // For now, do both, as we should parse to get the subscription_id from this request
+            // TODO: Differentiate if we need to fetch the user based on response code of 200, 201, 202
+            // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
+                // Parse the response for any data we need to update
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: originalPushToken)
-                // If we logged into an external_id, fetch the user data
+
+                // If this user already exists and we logged into an external_id, fetch the user data
+                // TODO: Only do this if response code is 200 or 202
                 if let identity = request.parameters?["identity"] as? [String: String],
                    let externalId = identity[OS_EXTERNAL_ID] {
                     fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
@@ -208,12 +216,8 @@ class OSUserExecutor {
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
-            // the anonymous user has been identified, still need to Fetch User
-            // TODO: Is the above true, do we need to Fetch? If the anon user is identified, then no user with this external_id existed, correct?
-            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-
-            executePendingRequests() // TODO: Here or after fetch or after transfer?
-
+            // the anonymous user has been identified, no further action needed, no need to fetch user
+            executePendingRequests()
         } onFailure: { error in
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             if error?._code == 409 {
@@ -270,6 +274,8 @@ class OSUserExecutor {
 
         OneSignalClient.shared().execute(request) { response in
             if let response = response {
+                // Clear local data in preparation for hydration
+                OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }
         } onFailure: { _ in
@@ -324,6 +330,11 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
         pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
+
+        pushSubscriptionObject["test_type"] = pushSubscriptionModel.testType
+        pushSubscriptionObject["device_os"] = pushSubscriptionModel.deviceOs
+        pushSubscriptionObject["sdk"] = pushSubscriptionModel.sdk
+        pushSubscriptionObject["device_model"] = pushSubscriptionModel.deviceModel
 
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
         if pushSubscriptionModel.notificationTypes != -1 {
