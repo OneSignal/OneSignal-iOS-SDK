@@ -40,6 +40,9 @@ class OSIdentityModel: OSModel {
 
     var aliases: [String: String] = [:]
 
+    // TODO: We need to make this token secure
+    public var jwtBearerToken: String?
+
     // MARK: - Initialization
 
     // Initialize with aliases, if any
@@ -65,7 +68,6 @@ class OSIdentityModel: OSModel {
     // MARK: - Alias Methods
 
     func addAliases(_ aliases: [String: String]) {
-        print("🔥 OSIdentityModel.addAliases \(aliases).")
         for (label, id) in aliases {
             self.aliases[label] = id
         }
@@ -73,7 +75,6 @@ class OSIdentityModel: OSModel {
     }
 
     func removeAliases(_ labels: [String]) {
-        print("🔥 OSIdentityModel.removeAliases \(labels).")
         var aliasesToSend: [String: String] = [:]
         for label in labels {
             self.aliases.removeValue(forKey: label)
@@ -82,13 +83,18 @@ class OSIdentityModel: OSModel {
         self.set(property: "aliases", newValue: aliasesToSend)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
-        print("🔥 OSIdentityModel hydrateModel()")
-        // TODO: Update Model properties with the response
+    public override func hydrateModel(_ response: [String: Any]) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel()")
         for property in response {
-            if property.key != "external_id" && property.key != "onesignal_id" {
-                aliases[property.key] = property.value
+            switch property.key {
+            case "external_id":
+                aliases[OS_EXTERNAL_ID] = property.value as? String
+            case "onesignal_id":
+                aliases[OS_ONESIGNAL_ID] = property.value as? String
+            default:
+                aliases[property.key] = property.value as? String
             }
+            self.set(property: "aliases", newValue: aliases)
         }
     }
 }

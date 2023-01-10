@@ -293,7 +293,7 @@ void finishProcessingNotification(UNNotification *notification,
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
     
-    if ([OSNotificationsManager getAppId])
+    if ([OneSignalConfigManager getAppId])
         [OSNotificationsManager notificationReceived:notification.request.content.userInfo wasOpened:NO];
 
     
@@ -385,7 +385,7 @@ void finishProcessingNotification(UNNotification *notification,
 }
 
 + (void)processiOS10Open:(UNNotificationResponse*)response {
-    if (![OSNotificationsManager getAppId])
+    if (![OneSignalConfigManager getAppId])
         return;
     
     if ([OneSignalNotificationsUNUserNotificationCenter isDismissEvent:response])

@@ -428,7 +428,7 @@ static OneSignalLocation* singleInstance = nil;
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-        NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+        NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
         if (!lastLocation || !userId)
             return;
         
