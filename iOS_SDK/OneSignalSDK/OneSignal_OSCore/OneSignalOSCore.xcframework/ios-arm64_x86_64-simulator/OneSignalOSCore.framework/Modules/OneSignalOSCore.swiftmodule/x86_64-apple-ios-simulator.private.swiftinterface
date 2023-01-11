@@ -1,0 +1,117 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.7.1 (swiftlang-5.7.1.135.2 clang-1400.0.29.51)
+// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import Foundation
+import OneSignalCore
+@_exported import OneSignalOSCore
+import Swift
+import _Concurrency
+import _StringProcessing
+@objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
+  public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+  public func start()
+  public func addExecutor(_ executor: OneSignalOSCore.OSOperationExecutor)
+  @objc public func flushDeltaQueue()
+  @objc override dynamic public init()
+  @objc deinit
+}
+@_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
+  public func subscribe(_ handler: THandler)
+  public func unsubscribe(_ handler: THandler)
+  public func fire(callback: (THandler) -> Swift.Void)
+  @objc override dynamic public init()
+  @objc deinit
+}
+open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
+  public init(changeSubscription: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
+  public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
+  @objc deinit
+  public func getModel(key: Swift.String) -> TModel?
+  public func getModel(modelId: Swift.String) -> TModel?
+  public func getModels() -> [Swift.String : TModel]
+  public func add(id: Swift.String, model: TModel, hydrating: Swift.Bool)
+  public func remove(_ id: Swift.String) -> Swift.Bool
+  public func clearModelsFromStore()
+}
+extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
+  public func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+@objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
+  final public let modelId: Swift.String
+  public var changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>
+  public init(changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>)
+  @objc open func encode(with coder: Foundation.NSCoder)
+  @objc required public init?(coder: Foundation.NSCoder)
+  public func set<T>(property: Swift.String, newValue: T)
+  public func hydrate(_ response: [Swift.String : Any])
+  open func hydrateModel(_ response: [Swift.String : Any])
+  @objc deinit
+}
+@objc public protocol OSBackgroundTaskManagerDelegate {
+  @objc func beginBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc func endBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc func setTaskInvalid(_ taskIdentifier: Swift.String)
+}
+@_inheritsConvenienceInitializers @objc public class OSBackgroundTaskManager : ObjectiveC.NSObject {
+  @objc weak public static var delegate: OneSignalOSCore.OSBackgroundTaskManagerDelegate?
+  @objc public static func beginBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc public static func endBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc public static func setTaskInvalid(_ taskIdentifier: Swift.String)
+  @objc override dynamic public init()
+  @objc deinit
+}
+public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandler {
+  associatedtype TModel : OneSignalOSCore.OSModel
+  var store: OneSignalOSCore.OSModelStore<Self.TModel> { get }
+  init(store: OneSignalOSCore.OSModelStore<Self.TModel>)
+  func getAddModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
+  func getRemoveModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
+  func getUpdateModelDelta(_ args: OneSignalOSCore.OSModelChangedArgs) -> OneSignalOSCore.OSDelta?
+}
+extension OneSignalOSCore.OSModelStoreListener {
+  public func start()
+  public func onAdded(_ model: OneSignalOSCore.OSModel)
+  public func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
+  public func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+public protocol OSModelStoreChangedHandler {
+  func onAdded(_ model: OneSignalOSCore.OSModel)
+  func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
+  func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+@objc open class OSDelta : ObjectiveC.NSObject, Foundation.NSCoding {
+  final public let name: Swift.String
+  final public let deltaId: Swift.String
+  final public let timestamp: Foundation.Date
+  public var model: OneSignalOSCore.OSModel
+  final public let property: Swift.String
+  final public let value: Any
+  @objc override dynamic open var description: Swift.String {
+    @objc get
+  }
+  public init(name: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
+  @objc public func encode(with coder: Foundation.NSCoder)
+  @objc required public init?(coder: Foundation.NSCoder)
+  @objc deinit
+}
+@objc @_hasMissingDesignatedInitializers public class OSModelChangedArgs : ObjectiveC.NSObject {
+  final public let model: OneSignalOSCore.OSModel
+  final public let property: Swift.String
+  final public let newValue: Any
+  @objc override dynamic public var description: Swift.String {
+    @objc get
+  }
+  @objc deinit
+}
+public protocol OSModelChangedHandler {
+  func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+public protocol OSOperationExecutor {
+  var supportedDeltas: [Swift.String] { get }
+  var deltaQueue: [OneSignalOSCore.OSDelta] { get }
+  func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
+  func cacheDeltaQueue()
+  func processDeltaQueue()
+  func processRequestQueue()
+}

@@ -105,7 +105,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"YOUR_APP_ID_HERE"
+#define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
 
 + (NSString*)getOneSignalAppId {
