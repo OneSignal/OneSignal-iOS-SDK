@@ -30,6 +30,7 @@
 #import "OSOutcomeEventsFactory.h"
 #import "OSInAppMessageOutcome.h"
 #import "OSOutcomeEvent.h"
+#import "OSFocusInfluenceParam.h"
 
 @interface OneSignalOutcomeEventsController : NSObject
 
@@ -37,25 +38,20 @@
                            outcomeEventsFactory:(OSOutcomeEventsFactory *_Nonnull)outcomeEventsFactory;
 
 - (void)clearOutcomes;
+- (void)cleanUniqueOutcomeNotifications;
+
+- (void)addOutcome:(NSString * _Nonnull)name;
+- (void)addUniqueOutcome:(NSString * _Nonnull)name;
+- (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
 
 - (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *_Nonnull)outcomes
                           appId:(NSString * _Nonnull)appId
                      deviceType:(NSNumber * _Nonnull)deviceType;
 
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
-            successBlock:(OSSendOutcomeSuccess _Nullable)success;
-
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+- (void)sendSessionEndOutcomes:(NSNumber* _Nonnull)timeElapsed
                          appId:(NSString * _Nonnull)appId
-                    deviceType:(NSNumber * _Nonnull)deviceType
-                  successBlock:(OSSendOutcomeSuccess _Nullable)success;
-
-- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
-                            value:(NSNumber * _Nullable)weight
-                            appId:(NSString * _Nonnull)appId
-                       deviceType:(NSNumber * _Nonnull)deviceType
-                     successBlock:(OSSendOutcomeSuccess _Nullable)success;
+            pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                   onesignalId:(NSString * _Nonnull)onesignalId
+               influenceParams:(NSArray<OSFocusInfluenceParam *> *_Nonnull)influenceParams;
 
 @end

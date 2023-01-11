@@ -186,6 +186,12 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
+    // Properties for push subscription
+    var testType: Int?
+    let deviceOs = UIDevice.current.systemVersion
+    let sdk = ONESIGNAL_VERSION
+    let deviceModel: String? = OSDeviceUtils.getDeviceVariant()
+
     // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
     init(type: OSSubscriptionType,
          address: String?,
@@ -198,6 +204,22 @@ class OSSubscriptionModel: OSModel {
         self.subscriptionId = subscriptionId
         _accepted = accepted
         _isDisabled = isDisabled
+
+        // Set test_type if subscription model is PUSH
+        if type == .push {
+            let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
+            // Workaround to unsure how to extract the Int value in 1 step...
+            if releaseMode == .UIApplicationReleaseDev {
+                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+            }
+            if releaseMode == .UIApplicationReleaseAdHoc {
+                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
+            }
+            if releaseMode == .UIApplicationReleaseWildcard {
+                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
+            }
+        }
+
         super.init(changeNotifier: changeNotifier)
     }
 
