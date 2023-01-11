@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"031207"
+#define ONESIGNAL_VERSION                                                   @"050000-alpha-01"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -65,27 +65,9 @@
 #define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 #define OSUD_LANGUAGE                                                       @"OSUD_LANGUAGE"                                                    // * OSUD_LANGUAGE
 #define DEFAULT_LANGUAGE                                                    @"en"                                                               // * OSUD_LANGUAGE
-// Player
-#define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
-#define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
-#define OSUD_PLAYER_ID_FROM                                                 @"GT_PLAYER_ID_LAST"                                                // * OSUD_PLAYER_ID_FROM
-#define OSUD_PUSH_TOKEN_TO                                                  @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN_TO
-#define OSUD_PUSH_TOKEN_FROM                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_FROM
-#define OSUD_USER_SUBSCRIPTION_TO                                           @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION_TO
-#define OSUD_USER_SUBSCRIPTION_FROM                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_FROM
-#define OSUD_EXTERNAL_ID_AUTH_CODE                                          @"OSUD_EXTERNAL_ID_AUTH_CODE"                                       
-// Email
-#define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
-#define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
-#define OSUD_EMAIL_EXTERNAL_USER_ID                                         @"OSUD_EMAIL_EXTERNAL_USER_ID"                                      // OSUD_EMAIL_EXTERNAL_USER_ID
-#define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
-#define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
-// SMS
-#define OSUD_SMS_NUMBER                                                     @"OSUD_SMS_NUMBER"
-#define OSUD_SMS_PLAYER_ID                                                  @"OSUD_SMS_PLAYER_ID"
-#define OSUD_SMS_EXTERNAL_USER_ID                                           @"OSUD_SMS_EXTERNAL_USER_ID"
-#define OSUD_REQUIRE_SMS_AUTH                                               @"OSUD_REQUIRE_SMS_AUTH"
-#define OSUD_SMS_AUTH_CODE                                                  @"OSUD_SMS_AUTH_CODE"
+// Push Subscription
+#define OSUD_PUSH_SUBSCRIPTION_ID                                           @"GT_PLAYER_ID"                                                     // * OSUD_PUSH_SUBSCRIPTION_ID
+#define OSUD_PUSH_TOKEN                                                     @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
@@ -118,8 +100,6 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
-#define OSUD_PLAYER_TAGS                                                    @"OSUD_PLAYER_TAGS"
-    // * OSUD_PLAYER_TAGS
 
 // Deprecated Selectors
 #define DEPRECATED_SELECTORS @[ @"application:didReceiveLocalNotification:", \
@@ -200,6 +180,11 @@ typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
 
+// OneSignal Background Task Identifiers
+#define ATTRIBUTED_FOCUS_TASK           @"ATTRIBUTED_FOCUS_TASK"
+#define UNATTRIBUTED_FOCUS_TASK         @"UNATTRIBUTED_FOCUS_TASK"
+#define USER_MANAGER_BACKGROUND_TASK    @"USER_MANAGER_BACKGROUND_TASK"
+
 // OneSignal constants
 #define OS_PUSH @"push"
 #define OS_EMAIL @"email"
@@ -209,8 +194,8 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define OS_CHANNELS @[OS_PUSH, OS_EMAIL, OS_SMS]
 
 // OneSignal API Client Defines
-typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
-#define OS_API_CLIENT_STRINGS @[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"]
+typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTPMethod;
+#define OS_API_CLIENT_STRINGS @[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE", @"PATCH"]
 #define httpMethodString(enum) [OS_API_CLIENT_STRINGS objectAtIndex:enum]
 
 // Notification types
@@ -232,13 +217,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
 // 1 week in seconds
 #define WEEK_IN_SECONDS 604800.0
-
-// Registration delay
-#define REGISTRATION_DELAY_SECONDS 30.0
-
-// How long the SDK will wait for APNS to respond
-// before registering the user anyways
-#define APNS_TIMEOUT 25.0
 
 // The SDK saves a list of category ID's allowing multiple notifications
 // to have their own unique buttons/etc.
@@ -300,5 +278,53 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define OS_ROUGHLY_EQUAL(left, right) (fabs(left - right) < 0.03)
 
 #define MAX_NOTIFICATION_MEDIA_SIZE_BYTES 50000000
+
+#pragma mark User Model
+
+#define OS_ONESIGNAL_ID                                                     @"onesignal_id"
+#define OS_EXTERNAL_ID                                                      @"external_id"
+
+#define OS_RETAIN_PREVIOUS_USER                                             @"retain_previous_user"
+#define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
+
+// Models and Model Stores
+#define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
+#define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
+#define OS_PROPERTIES_MODEL_KEY                                             @"OS_PROPERTIES_MODEL_KEY"
+#define OS_PROPERTIES_MODEL_STORE_KEY                                       @"OS_PROPERTIES_MODEL_STORE_KEY"
+#define OS_PUSH_SUBSCRIPTION_MODEL_KEY                                      @"OS_PUSH_SUBSCRIPTION_MODEL_KEY"
+#define OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY                                @"OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY"
+#define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
+
+// Deltas
+#define OS_ADD_ALIAS_DELTA                                                  @"OS_ADD_ALIAS_DELTA"
+#define OS_REMOVE_ALIAS_DELTA                                               @"OS_REMOVE_ALIAS_DELTA"
+
+#define OS_UPDATE_PROPERTIES_DELTA                                          @"OS_UPDATE_PROPERTIES_DELTA"
+
+#define OS_ADD_SUBSCRIPTION_DELTA                                           @"OS_ADD_SUBSCRIPTION_DELTA"
+#define OS_REMOVE_SUBSCRIPTION_DELTA                                        @"OS_REMOVE_SUBSCRIPTION_DELTA"
+#define OS_UPDATE_SUBSCRIPTION_DELTA                                        @"OS_UPDATE_SUBSCRIPTION_DELTA"
+
+// Operation Repo
+#define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
+
+// User Executor
+#define OS_USER_EXECUTOR_REQUEST_QUEUE_KEY                                  @"OS_USER_EXECUTOR_REQUEST_QUEUE_KEY"
+
+// Identity Executor
+#define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY                          @"OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
+#define OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                       @"OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
+
+// Property Executor
+#define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                     @"OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+
+// Subscription Executor
+#define OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY                            @"OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY                      @"OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
 
 #endif /* OneSignalCommonDefines_h */

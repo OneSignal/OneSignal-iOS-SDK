@@ -1,0 +1,11 @@
+framework module OneSignalOSCore {
+  umbrella header "OneSignalOSCore.h"
+
+  export *
+  module * { export * }
+}
+
+module OneSignalOSCore.Swift {
+  header "OneSignalOSCore-Swift.h"
+  requires objc
+}

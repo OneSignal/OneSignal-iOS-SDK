@@ -28,7 +28,7 @@
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
 #import <Foundation/Foundation.h>
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCommonDefines.h>
 
 
 #ifndef OneSignalRequest_h
@@ -47,6 +47,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 @property (strong, nonatomic, nullable) NSDictionary<NSString *, NSString *> *additionalHeaders;
 @property (nonatomic) int reattemptCount;
 @property (nonatomic) BOOL dataRequest; //false for JSON based requests
+@property (nonatomic) NSDate *timestamp;
 -(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
 -(NSMutableURLRequest * _Nonnull )urlRequest;
 
