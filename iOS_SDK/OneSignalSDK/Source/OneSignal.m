@@ -487,7 +487,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)executePendingLiveActivityUpdates {
-    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     subscriptionId =  OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if(pendingLiveActivityUpdates.count <= 0) {
         return;
