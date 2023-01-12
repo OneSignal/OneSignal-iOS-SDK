@@ -11,7 +11,6 @@
 
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
-
 @interface OneSignalLiveActivityController: NSObject<OSPushSubscriptionObserver>
 
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
