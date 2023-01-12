@@ -203,6 +203,7 @@
 		918CB0301E73388E0067130F /* OneSignalFramework.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignalFramework.h */; };
 		91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */; };
 		91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */; };
+		944F7ECF296F890900AEBA54 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
 		9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9D3300F623145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
@@ -853,6 +854,8 @@
 		91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalInternal.h; sourceTree = "<group>"; };
 		91F60F7B1E80E49A00706E60 /* UncaughtExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UncaughtExceptionHandler.h; sourceTree = "<group>"; };
 		91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UncaughtExceptionHandler.m; sourceTree = "<group>"; };
+		944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLiveActivityController.m; sourceTree = "<group>"; };
+		944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLiveActivityController.h; sourceTree = "<group>"; };
 		9D1BD95D237663BF00A064F7 /* OSInfluenceDataDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInfluenceDataDefines.h; sourceTree = "<group>"; };
 		9D1BD95E2379E7A900A064F7 /* OSOutcomeEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSOutcomeEvent.h; sourceTree = "<group>"; };
 		9D1BD95F2379E7C300A064F7 /* OSOutcomeEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomeEvent.m; sourceTree = "<group>"; };
@@ -1642,6 +1645,8 @@
 				CA70E3382023F24500019273 /* OneSignalCommonDefines.h */,
 				7AD8DDE8234BD3CF00747A8A /* OneSignalUserDefaults.h */,
 				7AD8DDE6234BD3BE00747A8A /* OneSignalUserDefaults.m */,
+				944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */,
+				944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */,
 				912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */,
 				912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */,
 				4529DF0A1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.h */,
@@ -2824,6 +2829,7 @@
 				DEF78497291479C100A1F3A5 /* SwizzlingForwarder.m in Sources */,
 				3CE8CC542911B037000DB0D3 /* OneSignalReachability.m in Sources */,
 				DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */,
+				944F7ECF296F890900AEBA54 /* OneSignalLiveActivityController.m in Sources */,
 				DE7D18702703751B002D3A5D /* OSRequests.m in Sources */,
 				DEF7845D2912E89200A1F3A5 /* OSObservable.m in Sources */,
 				DE971752274C48B700FC409E /* OSPrivacyConsentController.m in Sources */,

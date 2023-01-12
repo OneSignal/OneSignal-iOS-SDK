@@ -92,53 +92,9 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 @interface OneSignal (SessionStatusDelegate)
 @end
 
-@interface OSPendingLiveActivityUpdate: NSObject
-    @property NSString* token;
-    @property NSString* activityId;
-    @property BOOL isEnter;
-    @property OSResultSuccessBlock successBlock;
-    @property OSFailureBlock failureBlock;
-    - (id)initWith:(NSString * _Nonnull)activityId
-         withToken:(NSString * _Nonnull)token
-           isEnter:(BOOL)isEnter
-       withSuccess:(OSResultSuccessBlock _Nullable)successBlock
-       withFailure:(OSFailureBlock _Nullable)failureBlock;
-@end
-
-@implementation OSPendingLiveActivityUpdate
-
-- (id)initWith:(NSString *)activityId
-     withToken:(NSString *)token
-       isEnter:(BOOL)isEnter
-   withSuccess:(OSResultSuccessBlock)successBlock
-   withFailure:(OSFailureBlock)failureBlock {
-    self.token = token;
-    self.activityId = activityId;
-    self.isEnter = isEnter;
-    self.successBlock = successBlock;
-    self.failureBlock = failureBlock;
-    return self;
-};
-@end
-
-@interface OSSubscriptionObserver: NSObject<OSPushSubscriptionObserver>
-@end
-
-@implementation OSSubscriptionObserver
-
-- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
-    if(stateChanges.to.id){
-        [OneSignal executePendingLiveActivityUpdates];
-    }
-}
-@end
-
 @implementation OneSignal
 
 static NSString* mSDKType = @"native";
-
-static NSMutableArray* pendingLiveActivityUpdates;
-static OSSubscriptionObserver* _subscriptionObserver;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
@@ -167,8 +123,6 @@ static NSTimeInterval initializationTime;
 static NSDate *sessionLaunchTime;
 
 static LanguageContext* languageContext;
-
-static NSString* subscriptionId;
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -412,18 +366,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         }
         return;
     }
-
-    if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:activityId token:token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        _subscriptionObserver = [OSSubscriptionObserver new];
-        [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
-    }
+    
+    [OneSignalLiveActivityController enterLiveActivity:activityId  appId:appId withToken:token withSuccess: successBlock withFailure: failureBlock];
 }
 
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId{
@@ -444,76 +388,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
     
-    if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        _subscriptionObserver = [OSSubscriptionObserver new];
-        [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
-    }
+    [OneSignalLiveActivityController exitLiveActivity:activityId appId:appId withSuccess: successBlock withFailure: failureBlock];
 }
 
-+ (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
-    if (failureBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            failureBlock(error);
-        });
-    }
-}
-
-+ (void)callSuccessBlockOnMainThread:(OSResultSuccessBlock)successBlock withResult:(NSDictionary *)result{
-    if (successBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            successBlock(result);
-        });
-    }
-}
-
-+ (void)addPendingLiveActivityUpdate:(NSString * _Nonnull)activityId
-                           withToken:(NSString * _Nullable)token
-                             isEnter:(BOOL)isEnter
-                         withSuccess:(OSResultSuccessBlock _Nullable)successBlock
-                         withFailure:(OSFailureBlock _Nullable)failureBlock {
-    OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
-    
-    if (!pendingLiveActivityUpdates) {
-        pendingLiveActivityUpdates = [NSMutableArray new];
-    }
-    [pendingLiveActivityUpdates addObject:pendingLiveActivityUpdate];
-}
-
-+ (void)executePendingLiveActivityUpdates {
-    subscriptionId =  OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
-    if(pendingLiveActivityUpdates.count <= 0) {
-        return;
-    }
-    
-    OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
-    [pendingLiveActivityUpdates removeObjectAtIndex: 0];
-    if (updateToProcess.isEnter) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:updateToProcess.activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    }
-}
 
 #pragma mark Initialization
 
@@ -719,8 +596,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startUserManager]; // By here, app_id exists, and consent is granted.
     [self startInAppMessages];
     [self startNewSession:YES];
-    
-    subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     
     initializationTime = [[NSDate date] timeIntervalSince1970];
     initDone = true;
