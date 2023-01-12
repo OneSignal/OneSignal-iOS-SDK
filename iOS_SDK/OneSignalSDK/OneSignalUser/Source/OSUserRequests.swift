@@ -216,8 +216,9 @@ class OSUserExecutor {
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
-            // the anonymous user has been identified, no further action needed, no need to fetch user
-            executePendingRequests()
+            // the anonymous user has been identified, still need to Fetch User as we cleared local data
+            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
+            executePendingRequests() // TODO: Here or before fetch?
         } onFailure: { error in
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             if error?._code == 409 {
