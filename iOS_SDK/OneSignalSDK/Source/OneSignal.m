@@ -33,6 +33,8 @@
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
 #import "OneSignalHelper.h"
+#import "OneSignalLiveActivityController.h"
+
 // #import "UNUserNotificationCenter+OneSignal.h" // TODO: This is in Notifications
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
@@ -367,7 +369,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
     
-    [OneSignalLiveActivityController enterLiveActivity:activityId  appId:appId withToken:token withSuccess: successBlock withFailure: failureBlock];
+    [OneSignalLiveActivityController enterLiveActivity:activityId appId:appId withToken:token withSuccess: successBlock withFailure: failureBlock];
 }
 
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId{
