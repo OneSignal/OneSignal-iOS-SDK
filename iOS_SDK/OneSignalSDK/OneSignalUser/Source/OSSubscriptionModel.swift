@@ -293,13 +293,13 @@ extension OSSubscriptionModel {
     // Calculates if the device is opted in to push notification.
     // Must have permission and not be opted out.
     func calculateIsOptedIn(accepted: Bool, isDisabled: Bool) -> Bool {
-        return _accepted && !_isDisabled
+        return accepted && !isDisabled
     }
 
     // Calculates if push notifications are enabled on the device.
     // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
     func calculateIsEnabled(address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return (self.address != nil) && _accepted && !_isDisabled
+        return address != nil && accepted && !isDisabled
     }
 
     func updateNotificationTypes() {
