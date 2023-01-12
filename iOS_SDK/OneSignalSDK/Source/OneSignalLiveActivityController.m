@@ -49,6 +49,10 @@
 static NSMutableArray* pendingLiveActivityUpdates;
 static NSString* subscriptionId;
 
++ (void) initialize {
+    subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+}
+
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
     if(stateChanges.to.id){
         subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
