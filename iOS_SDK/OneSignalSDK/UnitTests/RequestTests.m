@@ -57,6 +57,8 @@
     NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
     NSString *testInAppMessagePageId;
+    NSString *testLiveActivityId;
+    NSString *testLiveActivityToken;
     NSString *testNotificationId;
     OSOutcomeEvent *testOutcome;
     NSNumber *testDeviceType;
@@ -84,6 +86,8 @@
     testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
     testInAppMessagePageId = @"test_in_app_message_page_id";
+    testLiveActivityId = @"test_live_activity_id";
+    testLiveActivityToken = @"test_live_activity_token";
     testNotificationId = @"test_notification_id";
     
     testOutcome = [[OSOutcomeEvent new] initWithSession:UNATTRIBUTED
@@ -761,6 +765,39 @@ BOOL checkHttpHeaders(NSDictionary *additionalHeaders, NSDictionary *correct) {
     XCTAssertTrue(checkHttpHeaders(request.additionalHeaders, @{@"app_id" : testAppId,
                                                                 @"OS-Usage-Data" : testUsageData,
                                                               }));
+}
+
+- (void)testEnterLiveActivity {
+    let request = [OSRequestLiveActivityEnter withUserId:testUserId appId:testAppId activityId:testLiveActivityId token:testLiveActivityToken];
+    
+    let testEnterLiveActivityUrlPath = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token",
+                                        testAppId,
+                                        testLiveActivityId];
+    
+    let correctUrl = correctUrlWithPath(testEnterLiveActivityUrlPath);
+
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"push_token" : testLiveActivityToken, @"subscription_id" : testUserId, @"device_type" : @0 }));
+    
+    XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"POST");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/vnd.onesignal.v1+json");
+}
+
+- (void)testExitLiveActivity {
+    let request = [OSRequestLiveActivityExit withUserId:testUserId appId:testAppId activityId:testLiveActivityId];
+    
+    let testExitLiveActivityUrlPath = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@",
+                                        testAppId,
+                                        testLiveActivityId,
+                                        testUserId];
+    
+    let correctUrl = correctUrlWithPath(testExitLiveActivityUrlPath);
+
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertEqualObjects(request.urlRequest.HTTPBody, nil);
+    XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"DELETE");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/vnd.onesignal.v1+json");
 }
 
 - (void)testAdditionalHeaders {
