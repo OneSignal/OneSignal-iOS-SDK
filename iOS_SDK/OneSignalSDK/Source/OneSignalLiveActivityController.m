@@ -57,7 +57,7 @@ static dispatch_once_t once;
     });
     return sharedInstance;
 }
-+ (void) initialize {
++ (void)initialize {
     subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     OneSignalLiveActivityController *shared = OneSignalLiveActivityController.sharedInstance;
     #pragma clang diagnostic push
