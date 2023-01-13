@@ -1,4 +1,4 @@
-<h1 align="center">OneSignal iOS SDK v5.0.0-alpha-01 Migration Guide</h1>
+<h1 align="center">OneSignal iOS SDK v5.0.0-alpha-02 Migration Guide</h1>
 
 ![OneSignal Omni Channel Banner](https://user-images.githubusercontent.com/11739227/208625336-d28c8d01-a7cf-4f8e-9643-ac8d1948e9ae.png)
 
@@ -8,7 +8,7 @@ In this release, we are making a significant shift from a device-centered model 
 
 To facilitate this change, the `externalId` approach for identifying users is being replaced by the `login` and `logout` methods. In addition, the SDK now makes use of namespaces such as `User`, `Notifications`, and `InAppMessages` to better separate code.
 
-The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-alpha-01` changes as a result of this shift.
+The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-alpha-02` changes as a result of this shift.
 
 # Overview
 
@@ -60,10 +60,10 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0-alpha-01`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+Update the version of the OneSignal-XCFramework your application uses to `5.0.0-alpha-02`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0-alpha-01`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+Update the version of the OneSignalXCFramework your application uses to `5.0.0-alpha-02`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
@@ -209,7 +209,7 @@ Email and/or SMS subscriptions can be added or removed via the following methods
 
 # API Reference
 
-Below is a comprehensive reference to the `5.0.0-alpha-01` OneSignal SDK.
+Below is a comprehensive reference to the `5.0.0-alpha-02` OneSignal SDK.
 
 ## OneSignal
 
@@ -222,10 +222,66 @@ The SDK is still accessible via a `OneSignal` static class. It provides access t
 | `OneSignal.logout()`                                                                                     | `[OneSignal logout]`                                                                                     | *Logout the user previously logged in via [login]. The [user] property now references a new device-scoped user. A device-scoped user has no user identity that can later be retrieved, except through this device as long as the app remains installed and the app data is not cleared.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `let granted: Bool = OneSignal.privacyConsent`<br><br>`OneSignal.privacyConsent = true`                  | `BOOL granted = OneSignal.getPrivacyConsent`<br><br>`[OneSignal setPrivacyConsent:true]`                 | *Indicates whether privacy consent has been granted. This field is only relevant when the application has opted into data privacy protections. See [requiresPrivacyConsent].*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `let required: Bool = OneSignal.requiresPrivacyConsent`<br><br>`OneSignal.requiresPrivacyConsent = true` | `BOOL required = [OneSignal requiresPrivacyConsent]`<br><br>`[OneSignal setRequiresPrivacyConsent:true]` | *Determines whether a user must consent to privacy prior to their user data being sent up to OneSignal.  This should be set to `true` prior to the invocation of `initialize` to ensure compliance.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to `true` to launch all notifications with a URL in the app instead of the default web browser. Make sure to call `setLaunchURLsInApp` before the `initialize` call.*                                                                                                                                                                                                                                                                   |                                                                                                                                                  
-      
+| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to `true` to launch all notifications with a URL in the app instead of the default web browser. Make sure to call `setLaunchURLsInApp` before the `initialize` call.*                                                                                                                                                                                                                                                                   |                                                      
+| `OneSignal.enterLiveActivity("ACTIVITY_ID", withToken: "TOKEN")`<br><br>***See below for usage of callbacks***<br><br>`enterLiveActivity(activityId: String, withToken token: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)` | `[OneSignal enterLiveActivity:@"ACTIVITY_ID" withToken:@"TOKEN"]`<br><br>***See below for usage of callbacks***<br><br>`(void)enterLiveActivity:(NSString *)activityId withToken:(NSString *)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>|*Entering a Live Activity associates an `activityId` with a live activity temporary push `token` on OneSignal's server. The activityId is then used with the OneSignal REST API to update one or multiple Live Activities at one time.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `OneSignal.exitLiveActivity("ACTIVITY_ID")`<br><br>***See below for usage of callbacks***<br><br>`exitLiveActivity(activityId: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)`                                                | `[OneSignal exitLiveActivity:@"ACTIVITY_ID"]`<br><br>***See below for usage of callbacks***<br><br>`(void)exitLiveActivity:(NSString *)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>                                                  |*Exiting a Live activity deletes the association between a customer defined `activityId` with a Live Activity temporary push `token` on OneSignal's server.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 
+
+## Live Activities
+
+Live Activities are a type of interactive push notification. Apple introduced them in October 2022 to enable iOS apps to provide real-time updates to their users that are visible from the lock screen and the dynamic island.
+
+Please refer to OneSignal’s guide on [Live Activities](https://documentation.onesignal.com/docs/live-activities), the [Live Activities Quickstart](https://documentation.onesignal.com/docs/live-activities-quickstart) tutorial, and the [existing SDK reference](https://documentation.onesignal.com/docs/sdk-reference#live-activities) on Live Activities. 
+
+**Objective-C**
+```objc
+    // Enter a Live Activity
+    [OneSignal enterLiveActivity:@"ACTIVITY_ID" withToken:@"TOKEN" withSuccess:^(NSDictionary *result) {
+        NSLog(@"enterLiveActivity success with result: %@", result);
+    } withFailure:^(NSError *error) {
+        NSLog(@"enterLiveActivity error: %@", error);
+    }];
+    
+    // Exit a Live Activity
+    [OneSignal exitLiveActivity:@"ACTIVITY_ID" withSuccess:^(NSDictionary *result) {
+        NSLog(@"exitLiveActivity success with result: %@", result);
+    } withFailure:^(NSError *error) {
+        NSLog(@"exitLiveActivity error: %@", error);
+        // handle failure case
+    }];
+    
+    // Success Output Example:
+    /*
+      {
+          success = 1
+      }
+     */
+```
+**Swift**
+```swift
+    // Enter a Live Activity
+    OneSignal.enterLiveActivity("ACTIVITY_ID", withToken: "TOKEN") { result in
+        print("enterLiveActivity success with result: \(result ?? [:])")
+    } withFailure: { error in
+        print("enterLiveActivity error: \(String(describing: error))")
+    }
+    
+    // Exit a Live Activity
+    OneSignal.exitLiveActivity("ACTIVITY_ID") { result in
+        print("exitLiveActivity success with result: \(result ?? [:])")
+    } withFailure: { error in
+        print("exitLiveActivity error: \(String(describing: error))")
+        // handle failure case
+    }
+    
+    // Success Output Example:
+    /*
+      {
+          success = 1
+      }
+     */
+```
 
 ## User Namespace
 
