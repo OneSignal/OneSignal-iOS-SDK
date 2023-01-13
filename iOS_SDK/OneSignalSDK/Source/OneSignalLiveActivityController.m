@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <OneSignalCore/OneSignalCore.h>
-
+#import <OneSignalFramework.h>
+#import <OneSignalUser/OneSignalUser-Swift.h>
 #import "OneSignalLiveActivityController.h"
 
 @interface OSPendingLiveActivityUpdate: NSObject
@@ -49,8 +49,21 @@
 static NSMutableArray* pendingLiveActivityUpdates;
 static NSString* subscriptionId;
 
+static OneSignalLiveActivityController *sharedInstance = nil;
+static dispatch_once_t once;
++ (OneSignalLiveActivityController *)sharedInstance {
+    dispatch_once(&once, ^{
+        sharedInstance = [OneSignalLiveActivityController new];
+    });
+    return sharedInstance;
+}
 + (void) initialize {
     subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    OneSignalLiveActivityController *shared = OneSignalLiveActivityController.sharedInstance;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-variable"
+    OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
+    #pragma clang diagnostic pop
 }
 
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
@@ -61,6 +74,7 @@ static NSString* subscriptionId;
 }
 
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"enterLiveActivity called with activityId: %@ token: %@", activityId, token]];
     
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:onSuccess:onFailure:"]) {
         if (failureBlock) {
@@ -83,7 +97,7 @@ static NSString* subscriptionId;
 }
 
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"exitLiveActivity called with activityId: %@", activityId]];
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"exitLiveActivity:onSuccess:onFailure:"]) {
         if (failureBlock) {
             NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called exitLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
@@ -126,6 +140,7 @@ static NSString* subscriptionId;
                              isEnter:(BOOL)isEnter
                          withSuccess:(OSResultSuccessBlock _Nullable)successBlock
                          withFailure:(OSFailureBlock _Nullable)failureBlock {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"addPendingLiveActivityUpdate called with activityId: %@", activityId]];
     OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId appId:appId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
     
     if (!pendingLiveActivityUpdates) {
@@ -136,6 +151,7 @@ static NSString* subscriptionId;
 
 + (void)executePendingLiveActivityUpdates {
     subscriptionId =  OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"executePendingLiveActivityUpdates called with subscriptionId: %@", subscriptionId]];
     if(pendingLiveActivityUpdates.count <= 0) {
         return;
     }
