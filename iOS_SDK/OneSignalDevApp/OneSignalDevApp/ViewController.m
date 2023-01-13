@@ -221,7 +221,6 @@
     if (self.activityId.text && self.activityId.text.length) {
         [OneSignal exitLiveActivity:self.activityId.text];
     }
-   
 }
 
 @end

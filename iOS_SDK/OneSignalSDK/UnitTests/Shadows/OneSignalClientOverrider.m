@@ -223,7 +223,7 @@ static NSDictionary* remoteParams;
         } else if (!parameters[@"app_id"]) {
             _XCTPrimitiveFail(currentTestInstance, @"All request must include an app_id");
         }
-     
+        
         [self didCompleteRequest:request];
 
         if (successBlock) {

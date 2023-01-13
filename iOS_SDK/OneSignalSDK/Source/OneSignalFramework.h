@@ -86,7 +86,6 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
-
 #pragma mark Live Activity
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
