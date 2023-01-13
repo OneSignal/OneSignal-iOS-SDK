@@ -3456,70 +3456,70 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
       "offset": 1573,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Dictionary",
       "offset": 1711,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
       "offset": 1758,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
       "offset": 1793,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "IntegerLiteral",
       "offset": 1901,
       "length": 1,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
       "kind": "StringLiteral",
       "offset": 1257,
       "length": 12,
       "value": "\"OneSignalOSCore.OSModelStore\""
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "BooleanLiteral",
       "offset": 1419,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "StringLiteral",
       "offset": 1260,
       "length": 7,
       "value": "\"OneSignalOSCore.OSModel\""
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
       "offset": 1455,
       "length": 7,
       "value": "\"OneSignalOSCore.OSDelta\""
     },
     {
-      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
       "kind": "StringLiteral",
       "offset": 1256,
       "length": 18,
