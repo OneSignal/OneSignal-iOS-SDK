@@ -25,12 +25,17 @@
  * THE SOFTWARE.
  */
 
-import WidgetKit
-import SwiftUI
+#ifndef OneSignalLiveActivityController_h
+#define OneSignalLiveActivityController_h
 
-@main
-struct OneSignalWidgetExtensionBundle: WidgetBundle {
-    var body: some Widget {
-        OneSignalWidgetExtensionLiveActivity()
-    }
-}
+#import <OneSignalUser/OneSignalUser-Swift.h>
+
+@interface OneSignalLiveActivityController: NSObject<OSPushSubscriptionObserver>
+
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
+
+
+@end
+
+#endif /* OneSignalLiveActivityController_h */
