@@ -82,6 +82,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSNotifications>)Notifications NS_REFINED_FOR_SWIFT;
 
 #pragma mark Initialization
++ (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions; // meant for use by wrappers
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;

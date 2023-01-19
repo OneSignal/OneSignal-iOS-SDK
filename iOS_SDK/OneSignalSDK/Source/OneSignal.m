@@ -321,9 +321,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
  1/2 steps in OneSignal init, relying on setAppId (usage order does not matter)
  Sets the iOS sepcific app settings
  Method must be called to successfully init OneSignal
+ Note: While this is called via `initialize`, it is also called directly from wrapper SDKs.
  */
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
+
+    // Don't continue if the newLaunchOptions are nil
+    if (!newLaunchOptions) {
+        return;
+    }
 
     launchOptions = newLaunchOptions;
     
