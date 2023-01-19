@@ -54,7 +54,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @property (readonly, nonatomic) BOOL provisional;
 @property (readonly, nonatomic) BOOL providesAppNotificationSettings;
 @property (readonly, nonatomic) OSNotificationPermission status;
-- (NSDictionary* _Nonnull)toDictionary;
+- (NSDictionary * _Nonnull)jsonRepresentation;
 - (instancetype _Nonnull )initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings;
 @end
 
@@ -96,7 +96,7 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 
 @property (readonly, nonnull) OSPermissionState* to;
 @property (readonly, nonnull) OSPermissionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
+- (NSDictionary * _Nonnull)jsonRepresentation;
 - (instancetype _Nonnull)initAsTo:(OSPermissionState * _Nonnull)to from:(OSPermissionState * _Nonnull)from;
 @end
 

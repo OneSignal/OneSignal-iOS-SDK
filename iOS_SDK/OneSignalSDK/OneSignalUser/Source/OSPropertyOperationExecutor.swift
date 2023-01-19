@@ -144,7 +144,7 @@ extension OSPropertyOperationExecutor {
 
         let request = OSRequestUpdateProperties(
             properties: [:],
-            deltas: propertiesDeltas.toDictionary(),
+            deltas: propertiesDeltas.jsonRepresentation(),
             refreshDeviceMetadata: refreshDeviceMetadata,
             modelToUpdate: propertiesModel,
             identityModel: identityModel)

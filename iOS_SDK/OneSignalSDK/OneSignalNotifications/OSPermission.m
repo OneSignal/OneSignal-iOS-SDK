@@ -211,7 +211,7 @@
     return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString, self.provisional];
 }
 
-- (NSDictionary*)toDictionary {
+- (NSDictionary*)jsonRepresentation {
     return @{@"hasPrompted": @(self.hasPrompted),
              @"status": @(self.status),
              @"provisional" : @(self.provisional)};
@@ -250,8 +250,8 @@
     return [NSString stringWithFormat:format, _from, _to];
 }
 
-- (NSDictionary*)toDictionary {
-    return @{@"from": [_from toDictionary], @"to": [_to toDictionary]};
+- (NSDictionary*)jsonRepresentation {
+    return @{@"from": [_from jsonRepresentation], @"to": [_to jsonRepresentation]};
 }
 
 - (instancetype)initAsTo:(OSPermissionState *)to from:(OSPermissionState *)from {
