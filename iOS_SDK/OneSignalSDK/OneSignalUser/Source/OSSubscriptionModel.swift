@@ -191,6 +191,8 @@ class OSSubscriptionModel: OSModel {
     let deviceOs = UIDevice.current.systemVersion
     let sdk = ONESIGNAL_VERSION
     let deviceModel: String? = OSDeviceUtils.getDeviceVariant()
+    let appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    let netType: Int? = OSNetworkingUtils.getNetType() as? Int
 
     // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
     init(type: OSSubscriptionType,
@@ -231,6 +233,7 @@ class OSSubscriptionModel: OSModel {
         coder.encode(_accepted, forKey: "_accepted")
         coder.encode(_isDisabled, forKey: "_isDisabled")
         coder.encode(notificationTypes, forKey: "notificationTypes")
+        coder.encode(testType, forKey: "testType")
     }
 
     required init?(coder: NSCoder) {
@@ -247,6 +250,7 @@ class OSSubscriptionModel: OSModel {
         self._accepted = coder.decodeBool(forKey: "_accepted")
         self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
         self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
+        self.testType = coder.decodeObject(forKey: "testType") as? Int
         super.init(coder: coder)
     }
 
