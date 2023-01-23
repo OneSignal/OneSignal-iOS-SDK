@@ -35,7 +35,7 @@ struct OSPropertiesDeltas {
     let amountSpent: NSNumber?
     let purchases: [[String: AnyObject]]?
 
-    func toDictionary() -> [String: Any] {
+    func jsonRepresentation() -> [String: Any] {
         var deltas = [String: Any]()
         deltas["session_count"] = sessionCount
         deltas["session_time"] = sessionTime?.intValue // server expects an int

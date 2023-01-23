@@ -52,7 +52,7 @@ public class OSPushSubscriptionState: NSObject {
         self.optedIn = optedIn
     }
 
-    @objc public func toDictionary() -> NSDictionary {
+    @objc public func jsonRepresentation() -> NSDictionary {
         let id = self.id ?? "nil"
         let token = self.token ?? "nil"
         return [
@@ -77,8 +77,8 @@ public class OSPushSubscriptionStateChanges: NSObject {
         self.from = from
     }
 
-    @objc public func toDictionary() -> NSDictionary {
-        return ["from": from.toDictionary(), "to": to.toDictionary()]
+    @objc public func jsonRepresentation() -> NSDictionary {
+        return ["from": from.jsonRepresentation(), "to": to.jsonRepresentation()]
     }
 }
 
@@ -353,7 +353,7 @@ extension OSSubscriptionModel {
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 
         // TODO: Don't fire observer until server is udated
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "firePushSubscriptionChanged from \(prevSubscriptionState.toDictionary()) to \(newSubscriptionState.toDictionary())")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "firePushSubscriptionChanged from \(prevSubscriptionState.jsonRepresentation()) to \(newSubscriptionState.jsonRepresentation())")
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionStateChangesObserver.notifyChange(stateChanges)
     }
 }
