@@ -423,14 +423,14 @@ static NSString *_pushSubscriptionId;
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    [_permissionStateChangesObserver addObserver:observer];
+    [self.permissionStateChangesObserver addObserver:observer];
     
     if ([self.currentPermissionState compare:self.lastPermissionState])
         [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
 }
 
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    [_permissionStateChangesObserver removeObserver:observer];
+    [self.permissionStateChangesObserver removeObserver:observer];
 }
 
 //    User just responed to the iOS native notification permission prompt.
