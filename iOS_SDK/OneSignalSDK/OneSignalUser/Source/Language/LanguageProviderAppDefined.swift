@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021 OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,15 +25,17 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "LanguageProvider.h"
+import Foundation
+import OneSignalCore
 
-NS_ASSUME_NONNULL_BEGIN
+class LanguageProviderAppDefined: LanguageProvider {
+    var language: String {
+        get {
+            return OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LANGUAGE, defaultValue: DEFAULT_LANGUAGE) ?? DEFAULT_LANGUAGE
+        }
 
-@interface LanguageProviderAppDefined : NSObject<LanguageProvider>
-
-@property (nonnull)NSString* language;
-
-@end
-
-NS_ASSUME_NONNULL_END
+        set {
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LANGUAGE, withValue: newValue)
+        }
+    }
+}

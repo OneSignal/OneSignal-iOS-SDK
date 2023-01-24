@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021 OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,17 +25,18 @@
  * THE SOFTWARE.
  */
 
-#import "LanguageProviderDevice.h"
-#import "OneSignalHelper.h"
-#import "LanguageContext.h"
+import Foundation
+import OneSignalCore
 
-@implementation LanguageProviderDevice
+class LanguageProviderDevice: LanguageProvider {
+    var language: String {
+        get {
+            let preferredLanguages = NSLocale.preferredLanguages
 
-- (NSString *)language {
-    let preferredLanguages = [NSLocale preferredLanguages];
-    if (preferredLanguages && preferredLanguages.count > 0)
-        return [preferredLanguages objectAtIndex:0];
-    return DEFAULT_LANGUAGE;
+            if !preferredLanguages.isEmpty {
+                return preferredLanguages[0]
+            }
+            return DEFAULT_LANGUAGE
+        }
+    }
 }
-
-@end

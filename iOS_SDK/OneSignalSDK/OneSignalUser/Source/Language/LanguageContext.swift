@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021 OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#import "LanguageProviderAppDefined.h"
-#import "OneSignalHelper.h"
-#import "LanguageContext.h"
 
-@implementation LanguageProviderAppDefined
+import Foundation
+import OneSignalCore
 
-- (void)setLanguage:(NSString *)language {
-    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
+public class LanguageContext {
+    var strategy: LanguageProvider
+
+    var language: String {
+        return strategy.language
+    }
+
+    init() {
+        let languageAppDefined = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LANGUAGE, defaultValue: nil)
+
+        if languageAppDefined == nil {
+            strategy = LanguageProviderDevice()
+        } else {
+            strategy = LanguageProviderAppDefined()
+        }
+    }
 }
-
-- (NSString *)language {
-    return [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_LANGUAGE defaultValue:DEFAULT_LANGUAGE];
-}
-
-@end
