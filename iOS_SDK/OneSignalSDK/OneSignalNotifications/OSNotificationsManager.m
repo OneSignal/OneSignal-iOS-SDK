@@ -228,7 +228,7 @@ static NSString *_pushSubscriptionId;
 }
 
 + (BOOL)canRequestPermission {
-    return !self.currentPermissionState.hasPrompted;
+    return !self.currentPermissionState.answeredPrompt;
 }
 
 + (void)requestPermission:(OSUserResponseBlock)block {
