@@ -162,9 +162,13 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "notificationTypes", newValue: notificationTypes)
         }
     }
+
     // swiftlint:disable identifier_name
-    // This is set by the permission state changing
-    // Defaults to true for email & SMS, defaults to false for push
+    /**
+     This is set by the permission state changing.
+     Defaults to true for email & SMS, defaults to false for push.
+     Note that this property reflects the `reachable` property of a permission state. As provisional permission is considered to be `optedIn` and `enabled`.
+     */
     var _accepted: Bool {
         didSet {
             guard self.type == .push && _accepted != oldValue else {
