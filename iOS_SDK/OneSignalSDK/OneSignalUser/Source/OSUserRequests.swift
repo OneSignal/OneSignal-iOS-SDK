@@ -331,12 +331,12 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
         pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
-
         pushSubscriptionObject["test_type"] = pushSubscriptionModel.testType
         pushSubscriptionObject["device_os"] = pushSubscriptionModel.deviceOs
         pushSubscriptionObject["sdk"] = pushSubscriptionModel.sdk
         pushSubscriptionObject["device_model"] = pushSubscriptionModel.deviceModel
-
+        pushSubscriptionObject["app_version"] = pushSubscriptionModel.appVersion
+        pushSubscriptionObject["net_type"] = pushSubscriptionModel.netType
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
         if pushSubscriptionModel.notificationTypes != -1 {
             pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
