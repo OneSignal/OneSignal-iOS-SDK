@@ -373,7 +373,7 @@
        externalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestUpdateLanguage new];
     
-    NSLog(@"Attempting Update to Language");
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Attempting Update to Language"]];
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
