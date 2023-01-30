@@ -71,6 +71,16 @@ class OSPropertiesModel: OSModel {
     // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
     override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
+        self.language = getPreferredLanguage()
+    }
+
+    private func getPreferredLanguage() -> String {
+        let preferredLanguages = NSLocale.preferredLanguages
+        if !preferredLanguages.isEmpty {
+            return preferredLanguages[0]
+        } else {
+            return DEFAULT_LANGUAGE
+        }
     }
 
     override func encode(with coder: NSCoder) {
