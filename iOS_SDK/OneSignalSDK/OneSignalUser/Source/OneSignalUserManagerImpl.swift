@@ -65,7 +65,7 @@ import OneSignalNotifications
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
     // Language
-    func setLanguage(_ language: String?) // TODO: why optional? As a remove?
+    func setLanguage(_ language: String)
     // JWT Token Expire
     typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
     typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
@@ -646,10 +646,16 @@ extension OneSignalUserManagerImpl: OSUser {
         return self.subscriptionModelStore.remove(number)
     }
 
-    public func setLanguage(_ language: String?) {
+    public func setLanguage(_ language: String) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLanguage") else {
             return
         }
+
+        if language == "" {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User.setLanguage cannot be called with an empty language code.")
+            return
+        }
+
         user.setLanguage(language)
     }
 }
