@@ -64,10 +64,6 @@
 		3C11518E289AF83600565C41 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		3C11518F289AF83600565C41 /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C115197289AF86C00565C41 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
-		3C1F3179297F5E920040F4DA /* LanguageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1F3178297F5E920040F4DA /* LanguageProvider.swift */; };
-		3C1F317B297F601D0040F4DA /* LanguageProviderDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1F317A297F601D0040F4DA /* LanguageProviderDevice.swift */; };
-		3C1F317D297F60340040F4DA /* LanguageProviderAppDefined.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1F317C297F60340040F4DA /* LanguageProviderAppDefined.swift */; };
-		3C1F317F297F60690040F4DA /* LanguageContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1F317E297F60690040F4DA /* LanguageContext.swift */; };
 		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
@@ -673,10 +669,6 @@
 		3C115188289ADEA300565C41 /* OSModelStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStore.swift; sourceTree = "<group>"; };
 		3C11518A289ADEEB00565C41 /* OSEventProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSEventProducer.swift; sourceTree = "<group>"; };
 		3C11518C289AF5E800565C41 /* OSModelChangedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelChangedHandler.swift; sourceTree = "<group>"; };
-		3C1F3178297F5E920040F4DA /* LanguageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageProvider.swift; sourceTree = "<group>"; };
-		3C1F317A297F601D0040F4DA /* LanguageProviderDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageProviderDevice.swift; sourceTree = "<group>"; };
-		3C1F317C297F60340040F4DA /* LanguageProviderAppDefined.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageProviderAppDefined.swift; sourceTree = "<group>"; };
-		3C1F317E297F60690040F4DA /* LanguageContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageContext.swift; sourceTree = "<group>"; };
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
@@ -1261,17 +1253,6 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
-		3C1F3177297F5DA00040F4DA /* Language */ = {
-			isa = PBXGroup;
-			children = (
-				3C1F3178297F5E920040F4DA /* LanguageProvider.swift */,
-				3C1F317A297F601D0040F4DA /* LanguageProviderDevice.swift */,
-				3C1F317C297F60340040F4DA /* LanguageProviderAppDefined.swift */,
-				3C1F317E297F60690040F4DA /* LanguageContext.swift */,
-			);
-			path = Language;
-			sourceTree = "<group>";
-		};
 		3E2400391D4FFC31008BDE70 /* OneSignalFramework */ = {
 			isa = PBXGroup;
 			children = (
@@ -1564,7 +1545,6 @@
 		DE69E1A8282ED8360090BB3D /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				3C1F3177297F5DA00040F4DA /* Language */,
 				DE69E19D282ED8060090BB3D /* OneSignalUser.h */,
 				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				DE69E1AA282ED8790090BB3D /* OneSignalUserManagerImpl.swift */,
@@ -2770,17 +2750,13 @@
 				DE69E1AC282ED87A0090BB3D /* OneSignalUserManagerImpl.swift in Sources */,
 				3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */,
 				3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */,
-				3C1F317D297F60340040F4DA /* LanguageProviderAppDefined.swift in Sources */,
-				3C1F317B297F601D0040F4DA /* LanguageProviderDevice.swift in Sources */,
 				3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
 				3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */,
 				3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */,
 				3CE795FB28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift in Sources */,
-				3C1F3179297F5E920040F4DA /* LanguageProvider.swift in Sources */,
 				3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */,
-				3C1F317F297F60690040F4DA /* LanguageContext.swift in Sources */,
 				DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */,
 				3CA6CE0A28E4F19B00CA0585 /* OSUserRequests.swift in Sources */,
 			);
