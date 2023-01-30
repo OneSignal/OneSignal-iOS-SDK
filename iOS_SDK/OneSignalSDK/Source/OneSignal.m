@@ -76,9 +76,6 @@
 
 #import "OneSignalLifecycleObserver.h"
 
-#import "LanguageProviderAppDefined.h"
-#import "LanguageContext.h"
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -123,8 +120,6 @@ static NSTimeInterval initializationTime;
 
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
-
-static LanguageContext* languageContext;
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -574,9 +569,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     
     // Now really initializing the SDK!
-
-    // TODO: Language move to user?
-    languageContext = [LanguageContext new];
     
     [self initInAppLaunchURLSettings:appSettings];
     
