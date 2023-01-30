@@ -27,6 +27,7 @@
 
 #import "OSInAppMessageController.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalUser/OneSignalUser.h>
 #import "OSInAppMessagingDefines.h"
 #import "OSInAppMessagingRequests.h"
 
@@ -38,7 +39,7 @@
     
     if (!variantId) {
         if (failureBlock)
-            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for languages (%@) for message ID: %@", NSLocale.preferredLanguages, self.messageId]}]);
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for languages (%@) for message ID: %@", OneSignalUserManagerImpl.sharedInstance.language, self.messageId]}]);
         
         return;
     }
@@ -62,20 +63,16 @@
     matching language.
 */
 - (NSString * _Nullable)variantId {
-    let isoLanguageCodes = [NSLocale preferredLanguages];
+    // we only want the first two characters, ie. "en-US" we want "en"
+    NSString *userLanguageCode = [OneSignalUserManagerImpl.sharedInstance.language substringToIndex:2];
     
     NSString *variantId;
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
         if (self.variants[type]) {
-            for (NSString *code in isoLanguageCodes) {
-                // we only want the first two characters, ie. "en-US" we want "en"
-                let isoLanguageCode = [code substringToIndex:2];
-                
-                if (self.variants[type][isoLanguageCode]) {
-                    variantId = self.variants[type][isoLanguageCode];
-                    break;
-                }
+            if (self.variants[type][userLanguageCode]) {
+                variantId = self.variants[type][userLanguageCode];
+                break;
             }
             
             if (!variantId && self.variants[type][@"default"]) {
