@@ -97,6 +97,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public var pushSubscriptionId: String? {
         return _user?.pushSubscriptionModel.subscriptionId
     }
+    
+    @objc public var language: String? {
+        return _user?.propertiesModel.language
+    }
 
     private var hasCalledStart = false
 
