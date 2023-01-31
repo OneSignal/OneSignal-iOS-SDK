@@ -477,10 +477,10 @@ static BOOL _isInAppMessagingPaused = false;
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
     let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
 
-    NSLog(@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description]];
 
     if (messageDismissed && redisplayMessageSavedData) {
-        NSLog(@"Redisplay IAM: %@", message.jsonRepresentation.description);
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentation.description]];
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
 
