@@ -382,13 +382,12 @@ class OSUserExecutor {
         }
     }
 
-    static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String, retainPreviousUser: Bool?) {
+    static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String) {
         // TODO: Where to get pushSubscriptionModel for this request
         let request = OSRequestTransferSubscription(
             subscriptionModel: OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel,
             aliasLabel: aliasLabel,
-            aliasId: aliasId,
-            retainPreviousUser: retainPreviousUser // Need to update logic to determine this, for now, default to true
+            aliasId: aliasId
         )
 
         appendToQueue(request)
@@ -1036,9 +1035,6 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     func prepareForExecution() -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/owner"
-            // Check alias pair
-            // parameters should be set in init(), so not optional
-            self.parameters?["identity"] = [aliasLabel: aliasId]
             // TODO: self.addJWTHeader(identityModel: identityModel) ??
             return true
         } else {
@@ -1049,20 +1045,18 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
 
     /**
      Must pass an Alias pair to identify the User.
-     If `retainPreviousUser` flag is not passed in, it defaults to `true`.
      */
     init(
         subscriptionModel: OSSubscriptionModel,
         aliasLabel: String,
-        aliasId: String,
-        retainPreviousUser: Bool?
+        aliasId: String
     ) {
         self.subscriptionModel = subscriptionModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
         self.stringDescription = "OSRequestTransferSubscription"
         super.init()
-        self.parameters = [OS_RETAIN_PREVIOUS_USER: retainPreviousUser ?? true]
+        self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
         _ = prepareForExecution() // sets the path property
     }
