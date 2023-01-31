@@ -31,34 +31,136 @@ import OneSignalOSCore
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
+ Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestTransferSubscription`, `OSRequestFetchUser`.
  */
 class OSUserExecutor {
-    static var requestQueue: [OSUserRequest] = []
+    static var userRequestQueue: [OSUserRequest] = []
+    static var transferSubscriptionRequestQueue: [OSRequestTransferSubscription] = []
+    static var identityModels: [String: OSIdentityModel] = [:]
 
+    // Read in requests from the cache, do not read in FetchUser requests as this is not needed.
     static func start() {
-        // Read unfinished requests from cache, if any...
-        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
-            self.requestQueue = requestQueue
+        var userRequestQueue: [OSUserRequest] = []
+
+        // Read unfinished Create User + Identify User requests from cache, if any...
+        if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
+            // Hook each uncached Request to the right model reference
+            for request in cachedRequestQueue {
+                if request.isKind(of: OSRequestCreateUser.self), let req = request as? OSRequestCreateUser {
+                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModel.modelId) {
+                        // 1. The model exist in the store, set it to be the Request's model
+                        req.identityModel = identityModel
+                    } else if let identityModel = identityModels[req.identityModel.modelId] {
+                        // 2. The model exists in the dict of identityModels already processed to use
+                        req.identityModel = identityModel
+                    } else {
+                        // 3. The models do not exist, use the model on the request, and add to dict.
+                        identityModels[req.identityModel.modelId] = req.identityModel
+                    }
+                    userRequestQueue.append(req)
+
+                } else if request.isKind(of: OSRequestIdentifyUser.self), let req = request as? OSRequestIdentifyUser {
+
+                    if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
+                       let identityModelToUpdate = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModelToUpdate.modelId) {
+                        // 1. A model exist in the dict and a model exist in the store, set it to be the Request's models
+                        req.identityModelToIdentify = identityModelToIdentify
+                        req.identityModelToUpdate = identityModelToUpdate
+                    } else if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
+                              let identityModelToUpdate = identityModels[req.identityModelToUpdate.modelId] {
+                        // 2. The two models exist in the dict, set it to be the Request's models
+                        req.identityModelToIdentify = identityModelToIdentify
+                        req.identityModelToUpdate = identityModelToUpdate
+                    } else if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
+                              identityModels[req.identityModelToUpdate.modelId] == nil {
+                        // 3. A model is in the dict, the other model does not exist
+                        req.identityModelToIdentify = identityModelToIdentify
+                        identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
+                    } else {
+                        // 4. Both models don't exist yet
+                        identityModels[req.identityModelToIdentify.modelId] = req.identityModelToIdentify
+                        identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
+                    }
+                    userRequestQueue.append(req)
+                }
+            }
+        }
+        self.userRequestQueue = userRequestQueue
+
+        // Read unfinished Transfer Subscription requests from cache, if any...
+        if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestTransferSubscription] {
+            // We only care about the last transfer subscription request
+            if let request = transferSubscriptionRequestQueue.last {
+                // Hook the uncached Request to the model in the store
+                if request.subscriptionModel.modelId == OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.modelId {
+                    // The model exist, set it to be the Request's model
+                    request.subscriptionModel = OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel
+                    self.transferSubscriptionRequestQueue = [request]
+                } else if !request.prepareForExecution() {
+                    // The model do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() reading request \(request) from cache failed. Dropping request.")
+                    self.transferSubscriptionRequestQueue = []
+                }
+            }
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor error encountered reading from cache for \(OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)")
+        }
+
+        executePendingRequests()
+    }
+
+    static func appendToQueue(_ request: OSUserRequest) {
+        if request.isKind(of: OSRequestTransferSubscription.self), let req = request as? OSRequestTransferSubscription {
+            self.transferSubscriptionRequestQueue.append(req)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
+        } else {
+            self.userRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
+        }
+    }
+
+    static func removeFromQueue(_ request: OSUserRequest) {
+        if request.isKind(of: OSRequestTransferSubscription.self), let req = request as? OSRequestTransferSubscription {
+            transferSubscriptionRequestQueue.removeAll(where: { $0 == req})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
+        } else {
+            userRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
         }
     }
 
     static func executePendingRequests() {
-        for request in requestQueue {
+        let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
+
+        if requestQueue.isEmpty {
+            return
+        }
+
+        // Sort the requestQueue by timestamp
+        for request in requestQueue.sorted(by: { first, second in
+            return first.timestamp < second.timestamp
+        }) {
             // Return as soon as we reach an un-executable request
             if !request.prepareForExecution() {
                 return
             }
-            // This request is Identify User
-            if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
+
+            if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
+                executeCreateUserRequest(createUserRequest)
+                return
+            } else if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
                 executeIdentifyUserRequest(identifyUserRequest)
+                return
+            } else if request.isKind(of: OSRequestTransferSubscription.self), let transferSubscriptionRequest = request as? OSRequestTransferSubscription {
+                executeTransferPushSubscriptionRequest(transferSubscriptionRequest)
+                return
+            } else if request.isKind(of: OSRequestFetchUser.self), let fetchUserRequest = request as? OSRequestFetchUser {
+                executeFetchUserRequest(fetchUserRequest)
+                return
             } else {
                 // Log Error
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor met incompatible Request type that cannot be executed.")
             }
-            // Remove the request from queue and cache
-            requestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
         }
     }
 
@@ -167,31 +269,58 @@ class OSUserExecutor {
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
         let originalPushToken = user.pushSubscriptionModel.address
-        let request = OSRequestCreateUser(identityModel: user.identityModel, pushSubscriptionModel: user.pushSubscriptionModel)
+        let request = OSRequestCreateUser(identityModel: user.identityModel, propertiesModel: user.propertiesModel, pushSubscriptionModel: user.pushSubscriptionModel, originalPushToken: originalPushToken)
 
-        // Currently there are no requirements needed before sending this request
-        guard request.prepareForExecution() else {
+        appendToQueue(request)
+
+        executePendingRequests()
+    }
+
+    static func executeCreateUserRequest(_ request: OSRequestCreateUser) {
+        guard !request.sentToClient else {
             return
         }
+        guard request.prepareForExecution() else {
+            // Currently there are no requirements needed before sending this request
+            return
+        }
+        request.sentToClient = true
+
+        // Hook up push subscription model, it may be updated with a subscription_id, etc.
+        if let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: request.pushSubscriptionModel.modelId) {
+            request.pushSubscriptionModel = pushSubscriptionModel
+            request.updatePushSubscriptionModel(pushSubscriptionModel)
+        }
+
         OneSignalClient.shared().execute(request) { response in
+            removeFromQueue(request)
+
             // TODO: Differentiate if we need to fetch the user based on response code of 200, 201, 202
             // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
                 // Parse the response for any data we need to update
-                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: originalPushToken)
+                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: request.originalPushToken)
 
                 // If this user already exists and we logged into an external_id, fetch the user data
                 // TODO: Only do this if response code is 200 or 202
-                if let identity = request.parameters?["identity"] as? [String: String],
+                // Fetch the user only if its the current user
+                if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId),
+                   let identity = request.parameters?["identity"] as? [String: String],
                    let externalId = identity[OS_EXTERNAL_ID] {
                     fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
+                } else {
+                    executePendingRequests()
                 }
             }
-            executePendingRequests()
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
-            // Depending on error, Client is responsible for retrying.
-            // executePendingRequests() ?
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                removeFromQueue(request)
+            }
+            executePendingRequests()
         }
     }
 
@@ -203,34 +332,52 @@ class OSUserExecutor {
             identityModelToUpdate: identityModelToUpdate
         )
 
-        guard request.prepareForExecution() else {
-            // Missing onesignal_id
-            // This request still stays in the queue and cache
-            requestQueue.append(request)
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
-            return
-        }
+        appendToQueue(request)
 
-        executeIdentifyUserRequest(request)
+        executePendingRequests()
     }
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
-        OneSignalClient.shared().execute(request) { _ in
-            // the anonymous user has been identified, still need to Fetch User as we cleared local data
-            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-            executePendingRequests() // TODO: Here or before fetch?
-        } onFailure: { error in
-            // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
-            if error?._code == 409 {
-                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest returned 409, failed due to alias already assigned to a different user. Now switch to this user.")
+        guard !request.sentToClient else {
+            return
+        }
+        guard request.prepareForExecution() else {
+            // Missing onesignal_id
+            return
+        }
+        request.sentToClient = true
 
+        OneSignalClient.shared().execute(request) { _ in
+            removeFromQueue(request)
+
+            // the anonymous user has been identified, still need to Fetch User as we cleared local data
+            // Fetch the user only if its the current user
+            if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModelToUpdate.modelId) {
                 fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-                // TODO: Link ^ to the new user... what was this todo for?
-                transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
-                executePendingRequests() // Here or after fetch or after transfer?
             } else {
-                // If not 409, we retry, depending on what the error is?
-                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed without returning a 409.")
+                executePendingRequests()
+            }
+        } onFailure: { error in
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed with error \(error.debugDescription)")
+            removeFromQueue(request)
+            // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
+            if let nsError = error as? NSError {
+                if nsError.code == 409 {
+                    OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest returned 409, failed due to alias already assigned to a different user. Now switch to this user.")
+
+                    removeFromQueue(request)
+                    // Fetch the user only if its the current user
+                    if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModelToUpdate.modelId) {
+                        fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
+                        // TODO: Link ^ to the new user... what was this todo for?
+                    }
+                    transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
+                } else if nsError.code < 500 && nsError.code != 0 {
+                    removeFromQueue(request)
+                    executePendingRequests()
+                }
+            } else {
+                executePendingRequests()
             }
         }
     }
@@ -241,46 +388,78 @@ class OSUserExecutor {
             subscriptionModel: OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel,
             aliasLabel: aliasLabel,
             aliasId: aliasId,
-            identityModel: nil,
             retainPreviousUser: retainPreviousUser // Need to update logic to determine this, for now, default to true
         )
 
-        guard request.prepareForExecution() else {
-            // Missing subscriptionId. This request still stays in the queue and cache
-            requestQueue.append(request)
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
-            return
-        }
+        appendToQueue(request)
 
-        executeTransferPushSubscriptionRequest(request)
+        executePendingRequests()
     }
 
     static func executeTransferPushSubscriptionRequest(_ request: OSRequestTransferSubscription) {
+        guard !request.sentToClient else {
+            return
+        }
+        guard request.prepareForExecution() else {
+            // Missing subscriptionId
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor.executeTransferPushSubscriptionRequest with request \(request) cannot be executed due to failing prepareForExecution()")
+            return
+        }
+        request.sentToClient = true
         OneSignalClient.shared().execute(request) { _ in
+            removeFromQueue(request)
+
             // TODO: ... hydrate with returned identity object?
             executePendingRequests()
 
-        } onFailure: { _ in
-            // TODO: What happened? Client responsible for retrying.
+        } onFailure: { error in
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
+
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                removeFromQueue(request)
+            }
+            executePendingRequests()
         }
     }
 
     static func fetchUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
         let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: aliasLabel, aliasId: aliasId)
 
-        guard request.prepareForExecution() else {
-            // This should not happen as we set the alias to use for the request path, log error
+        appendToQueue(request)
+
+        executePendingRequests()
+    }
+
+    static func executeFetchUserRequest(_ request: OSRequestFetchUser) {
+        guard !request.sentToClient else {
             return
         }
-
+        guard request.prepareForExecution() else {
+            // This should not happen as we set the alias to use for the request path
+            return
+        }
+        request.sentToClient = true
         OneSignalClient.shared().execute(request) { response in
+            removeFromQueue(request)
+
             if let response = response {
                 // Clear local data in preparation for hydration
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }
-        } onFailure: { _ in
-            // TODO: What?
+            executePendingRequests()
+        } onFailure: { error in
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                removeFromQueue(request)
+            }
+            executePendingRequests()
         }
     }
 }
