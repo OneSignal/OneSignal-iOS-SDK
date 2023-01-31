@@ -381,7 +381,8 @@
     NSMutableDictionary* innerJson;
     
     if (data != nil && [data length] > 0) {
-        innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+        innerJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
+        innerJson[@"httpStatusCode"] = [NSNumber numberWithLong:statusCode];
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@): %@", NSStringFromClass([request class]), innerJson]];
         if (jsonError) {
             if (failureBlock != nil)
