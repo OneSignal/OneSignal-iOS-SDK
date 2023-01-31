@@ -467,6 +467,7 @@ class OSUserExecutor {
 // MARK: - User Request Classes
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
+    var sentToClient: Bool { get set }
     func prepareForExecution() -> Bool
 }
 
@@ -479,13 +480,15 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
  There will be no properties sent.
  */
 class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
     }
 
-    let identityModel: OSIdentityModel
-    let pushSubscriptionModel: OSSubscriptionModel
+    var identityModel: OSIdentityModel
+    var pushSubscriptionModel: OSSubscriptionModel
+    let originalPushToken: String?
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -498,13 +501,10 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         return true
     }
 
-    init(identityModel: OSIdentityModel, pushSubscriptionModel: OSSubscriptionModel) {
-        self.identityModel = identityModel
+    // When reading from the cache, update the push subscription model
+    func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
         self.pushSubscriptionModel = pushSubscriptionModel
-        self.stringDescription = "OSRequestCreateUser"
-
-        super.init()
-
+        // Push Subscription Object
         var pushSubscriptionObject: [String: Any] = [:]
         pushSubscriptionObject["id"] = pushSubscriptionModel.subscriptionId
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
@@ -520,22 +520,38 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         if pushSubscriptionModel.notificationTypes != -1 {
             pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
         }
+        self.parameters?["subscriptions"] = [pushSubscriptionObject]
+    }
+
+    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
+        self.identityModel = identityModel
+        self.pushSubscriptionModel = pushSubscriptionModel
+        self.originalPushToken = originalPushToken
+        self.stringDescription = "OSRequestCreateUser"
+        super.init()
 
         var params: [String: Any] = [:]
+
+        // Identity Object
         params["identity"] = [:]
         if let externalId = identityModel.externalId {
             params["identity"] = [OS_EXTERNAL_ID: externalId]
         }
-        params["subscriptions"] = [pushSubscriptionObject]
-        params["properties"] = [:]
+
+        // Properties Object
+        var propertiesObject: [String: Any] = [:]
+        propertiesObject["language"] = propertiesModel.language
+        params["properties"] = propertiesObject
 
         self.parameters = params
+        self.updatePushSubscriptionModel(pushSubscriptionModel)
         self.method = POST
     }
 
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
+        coder.encode(originalPushToken, forKey: "originalPushToken")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(path, forKey: "path")
@@ -556,6 +572,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         }
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
+        self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
         self.stringDescription = "OSRequestCreateUser"
         super.init()
         self.parameters = parameters
@@ -569,18 +586,18 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
  The `identityModelToIdentify` is used for the `onesignal_id` of the user we want to associate with this alias.
  This request will tell us if we should continue with the previous user who is now identitfied, or to change users to the one this alias already exists on.
  
- Note: The SDK needs an user to operate on before this request returns. However, at the time of this request's creation, the SDK does not know if there is already
- an user associated with this alias. So, it creates a blank new user (whose identity model is passed in as `identityModelToUpdate`,
+ Note: The SDK needs an user to operate on before this request returns. However, at the time of this request's creation, the SDK does not know if there is already an user associated with this alias. So, it creates a blank new user (whose identity model is passed in as `identityModelToUpdate`,
  which is the model used to make a subsequent ``OSRequestFetchUser``).
  */
 class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
     }
 
-    let identityModelToIdentify: OSIdentityModel
-    let identityModelToUpdate: OSIdentityModel
+    var identityModelToIdentify: OSIdentityModel
+    var identityModelToUpdate: OSIdentityModel
     let aliasLabel: String
     let aliasId: String
 
@@ -657,40 +674,31 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
  The `identityModel` is also used to reference the user that is updated with the response.
  */
 class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
     }
 
     let identityModel: OSIdentityModel
-    let aliasLabel: String?
-    let aliasId: String?
+    let aliasLabel: String
+    let aliasId: String
 
     func prepareForExecution() -> Bool {
-        // If there is an alias, use that
-        if let aliasLabelToUse = aliasLabel,
-           let appId = OneSignalConfigManager.getAppId(),
-           let aliasIdToUse = aliasId {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(aliasLabelToUse)/\(aliasIdToUse)"
-            return true
-        }
-        // Otherwise, use the onesignal_id
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
-            return true
-        } else {
-            // self.path is non-nil, so set to empty string
-            self.path = ""
+        guard let appId = OneSignalConfigManager.getAppId() else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request due to null app ID.")
             return false
         }
+        self.addJWTHeader(identityModel: identityModel)
+        self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
+        return true
     }
 
-    init(identityModel: OSIdentityModel, aliasLabel: String?, aliasId: String?) {
+    init(identityModel: OSIdentityModel, aliasLabel: String, aliasId: String) {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel ?? "nil") aliasId: \(aliasId ?? "nil")"
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = GET
         _ = prepareForExecution() // sets the path property
@@ -707,6 +715,8 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
+            let aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String,
+            let aliasId = coder.decodeObject(forKey: "aliasId") as? String,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
@@ -714,9 +724,9 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
-        self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
-        self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel ?? "nil") aliasId: \(aliasId ?? "nil")"
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
@@ -725,6 +735,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
@@ -782,6 +793,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
@@ -839,15 +851,19 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
     }
 
     // TODO: does updating properties even have a response in which we need to hydrate from? Then we can get rid of modelToUpdate
+    // Yes we may, if we cleared local state
     var modelToUpdate: OSPropertiesModel
     var identityModel: OSIdentityModel
 
+    // TODO: Decide if addPushSubscriptionIdToAdditionalHeadersIfNeeded should block.
+    // Note Android adds it to requests, if the push sub ID exists
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId,
             let appId = OneSignalConfigManager.getAppId(),
@@ -866,7 +882,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         guard let parameters = self.parameters else {
             return true
         }
-        if parameters["deltas"] != nil {
+        if parameters["deltas"] != nil { // , !parameters["deltas"].isEmpty
             if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
                 var additionalHeaders = self.additionalHeaders ?? [String: String]()
                 additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
@@ -931,6 +947,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
  this request because they will be created with ``OSRequestCreateUser``.
  */
 class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
@@ -1001,38 +1018,29 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
 
 /**
  Transfers the Subscription specified by the subscriptionId to the User identified by the identity in the payload.
- Only one entry is allowed, `onesignal_id` or an Alias. We will not use the identityModel at all if there is an alias specified.
+ Only one entry is allowed, `onesignal_id` or an Alias. We will use the alias specified.
  The anticipated usage of this request is only for push subscriptions.
  */
 class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
     }
 
-    let subscriptionModel: OSSubscriptionModel
-    let identityModel: OSIdentityModel?
-    let aliasLabel: String?
-    let aliasId: String?
+    var subscriptionModel: OSSubscriptionModel
+    let aliasLabel: String
+    let aliasId: String
 
     // Need an alias and subscription_id
     func prepareForExecution() -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/owner"
             // Check alias pair
-            if let label = aliasLabel,
-               let id = aliasId {
-                // parameters should be set in init(), so not optional
-                self.parameters?["identity"] = [label: id]
-                return true
-            }
-            if let identityModel = identityModel, let onesignalId = identityModel.onesignalId {
-                self.parameters?["identity"] = [OS_ONESIGNAL_ID: onesignalId]
-                self.addJWTHeader(identityModel: identityModel)
-                return true
-            } else {
-                return false
-            }
+            // parameters should be set in init(), so not optional
+            self.parameters?["identity"] = [aliasLabel: aliasId]
+            // TODO: self.addJWTHeader(identityModel: identityModel) ??
+            return true
         } else {
             self.path = "" // self.path is non-nil, so set to empty string
             return false
@@ -1040,18 +1048,16 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     }
 
     /**
-     Must pass either an `identityModel` or an Alias pair to identify the User.
+     Must pass an Alias pair to identify the User.
      If `retainPreviousUser` flag is not passed in, it defaults to `true`.
      */
     init(
         subscriptionModel: OSSubscriptionModel,
-        aliasLabel: String?,
-        aliasId: String?,
-        identityModel: OSIdentityModel?,
+        aliasLabel: String,
+        aliasId: String,
         retainPreviousUser: Bool?
     ) {
         self.subscriptionModel = subscriptionModel
-        self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
         self.stringDescription = "OSRequestTransferSubscription"
@@ -1063,7 +1069,6 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
-        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(aliasLabel, forKey: "aliasLabel")
         coder.encode(aliasId, forKey: "aliasId")
         coder.encode(parameters, forKey: "parameters")
@@ -1074,6 +1079,8 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
+            let aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String,
+            let aliasId = coder.decodeObject(forKey: "aliasId") as? String,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
@@ -1082,9 +1089,8 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel = subscriptionModel
-        self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
-        self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
-        self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
         self.stringDescription = "OSRequestTransferSubscription"
         super.init()
         self.parameters = parameters
@@ -1098,6 +1104,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
  Currently, only the Push Subscription will make this Update Request.
  */
 class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
@@ -1176,6 +1183,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
  - Remark: If this model did not already exist in the store, no request is created.
  */
 class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
     let stringDescription: String
     override var description: String {
         return stringDescription
