@@ -231,13 +231,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #ifndef OS_TEST
     // OneSignal API Client Defines
-    #define REATTEMPT_DELAY 30.0
+    #define REATTEMPT_DELAY 5.0
     #define REQUEST_TIMEOUT_REQUEST 120.0 //for most HTTP requests
     #define REQUEST_TIMEOUT_RESOURCE 120.0 //for loading a resource like an image
-    #define MAX_ATTEMPT_COUNT 3
-
-    // Send tags batch delay
-    #define SEND_TAGS_DELAY 5.0
+    #define MAX_ATTEMPT_COUNT 5
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 128
@@ -253,9 +250,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
     #define REQUEST_TIMEOUT_REQUEST 0.02 //for most HTTP requests
     #define REQUEST_TIMEOUT_RESOURCE 0.02 //for loading a resource like an image
     #define MAX_ATTEMPT_COUNT 3
-
-    // Send tags batch delay
-    #define SEND_TAGS_DELAY 0.005
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 5

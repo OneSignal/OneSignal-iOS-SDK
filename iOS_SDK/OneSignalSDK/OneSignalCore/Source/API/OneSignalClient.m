@@ -59,8 +59,8 @@
 
 - (NSURLSessionConfiguration *)configurationWithCachingPolicy:(NSURLRequestCachePolicy)policy {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST;
-    configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE;
+    configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST; // TODO: Are these anything?
+    configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE; // TODO: Are these anything?
     
     //prevent caching of requests, this mainly impacts OSRequestGetIosParams,
     //since the OSRequestGetTags endpoint has a caching header policy
@@ -333,10 +333,11 @@
         OSReattemptRequest *reattempt = [OSReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
         
         if (async) {
-            //retry again in 15 seconds
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), REATTEMPT_DELAY, (int)statusCode]];
+            //retry again in an increasing interval calculated with reattemptDelay
+            double reattemptDelay = [self calculateReattemptDelay:request.reattemptCount];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), reattemptDelay, (int)statusCode]];
             [OneSignalCoreHelper dispatch_async_on_main_queue:^{
-                [self performSelector:@selector(reattemptRequest:) withObject:reattempt afterDelay:REATTEMPT_DELAY];
+                [self performSelector:@selector(reattemptRequest:) withObject:reattempt afterDelay:reattemptDelay];
             }];
         } else {
             //retry again immediately
@@ -347,6 +348,11 @@
     }
     
     return false;
+}
+
+// A request will retry with intervals of 5, 15 , 45, 135 seconds...
+- (double)calculateReattemptDelay:(int)reattemptCount {
+    return REATTEMPT_DELAY * pow(3, reattemptCount);
 }
 
 - (void)prettyPrintDebugStatementWithRequest:(OneSignalRequest *)request {
