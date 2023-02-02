@@ -84,11 +84,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     
-    
-    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
-        NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
-    }];
-    
     [OneSignal.InAppMessages setLifecycleHandler:self];
     [OneSignal.InAppMessages paused:true];
 
