@@ -462,6 +462,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 extension OneSignalUserManagerImpl {
     @objc
     public func startNewSession() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl starting new session")
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
