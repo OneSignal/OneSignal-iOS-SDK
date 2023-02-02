@@ -35,6 +35,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var addRequestQueue: [OSRequestCreateSubscription] = []
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
+    var subscriptionModels: [String: OSSubscriptionModel] = [:]
 
     init() {
         // Read unfinished deltas from cache, if any...
@@ -56,20 +57,36 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         // Read unfinished requests from cache, if any...
 
-        if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
+        var requestQueue: [OSRequestCreateSubscription] = []
+
+        if var cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
             // Hook each uncached Request to the model in the store
-            for (index, request) in addRequestQueue.enumerated().reversed() {
-                if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId),
-                   let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // The models exist in the stores, set it to be the Request's models
+            for request in cachedAddRequestQueue {
+                // 1. Hook up the subscription model
+                if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
+                    // a. The model exist in the store, set it to be the Request's models
                     request.subscriptionModel = subscriptionModel
+                } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
+                    // b. The model exists in the dictionary of seen models
+                    request.subscriptionModel = subscriptionModel
+                } else {
+                    // c. The model has not been seen yet, add to dict
+                    subscriptionModels[request.subscriptionModel.modelId] = request.subscriptionModel
+                }
+                // 2. Hook up the identity model
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
+                    // a. The model exist in the store
+                    request.identityModel = identityModel
+                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
+                    // b. The model exist in the user executor
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
-                    // The models do not exist AND this request cannot be sent, drop this Request
-                    addRequestQueue.remove(at: index)
+                    // The model do not exist AND this request cannot be sent, drop this Request
+                    continue
                 }
+                requestQueue.append(request)
             }
-            self.addRequestQueue = addRequestQueue
+            self.addRequestQueue = requestQueue
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
@@ -78,10 +95,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
                 if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
-                    // The model exists in the store, set it to be the Request's model
+                    // 1. The model exists in the store, set it to be the Request's model
+                    request.subscriptionModel = subscriptionModel
+                } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
+                    // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
                 } else if !request.prepareForExecution() {
-                    // The model does not exist AND this request cannot be sent, drop this Request
+                    // 3. The model does not exist AND this request cannot be sent, drop this Request
                     removeRequestQueue.remove(at: index)
                 }
             }
@@ -94,10 +114,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
                 if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
-                    // The model exists in the store, set it to be the Request's model
+                    // 1. The model exists in the store, set it to be the Request's model
+                    request.subscriptionModel = subscriptionModel
+                } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
+                    // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
                 } else if !request.prepareForExecution() {
-                    // The models do not exist AND this request cannot be sent, drop this Request
+                    // 3. The models do not exist AND this request cannot be sent, drop this Request
                     updateRequestQueue.remove(at: index)
                 }
             }
@@ -202,13 +225,17 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription) {
+        guard !request.sentToClient else {
+            return
+        }
         guard request.prepareForExecution() else {
             return
         }
+        request.sentToClient = true
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
-            // For example, if app restarts and we read in operations between sending this off and getting the response
             self.addRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
@@ -217,17 +244,26 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 return
             }
             request.subscriptionModel.hydrate(response)
-
         } onFailure: { error in
-            self.addRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.addRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            }
         }
     }
 
     func executeDeleteSubscriptionRequest(_ request: OSRequestDeleteSubscription) {
+        guard !request.sentToClient else {
+            return
+        }
         guard request.prepareForExecution() else {
             return
         }
+        request.sentToClient = true
 
         // This request can be executed as-is.
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
@@ -239,17 +275,28 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
 
         } onFailure: { error in
-            self.removeRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.removeRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            }
         }
     }
 
     func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
-
+        guard !request.sentToClient else {
+            return
+        }
         guard request.prepareForExecution() else {
             return
         }
+        request.sentToClient = true
+
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
+
         OneSignalClient.shared().execute(request) { _ in
 
             // On success, remove request from cache. No model hydration occurs.
@@ -258,8 +305,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
         } onFailure: { error in
-            self.updateRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.updateRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            }
         }
     }
 }
