@@ -29,7 +29,7 @@
 #import <ifaddrs.h>
 #import <netdb.h>
 #import <sys/socket.h>
-
+// TODO: Before GA: There is a better native way to work with this, using different imports
 #import <CoreFoundation/CoreFoundation.h>
 
 #import "OneSignalReachability.h"
