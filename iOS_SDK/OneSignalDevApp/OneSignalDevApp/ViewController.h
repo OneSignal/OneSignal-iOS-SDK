@@ -38,17 +38,29 @@
 @property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIButton *updateAppIdButton;
 @property (weak, nonatomic) IBOutlet UIButton *sendTagButton;
-@property (weak, nonatomic) IBOutlet UIButton *getTagsButton;
+@property (weak, nonatomic) IBOutlet UIButton *getInfoButton;
 @property (weak, nonatomic) IBOutlet UIButton *sendTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptLocationButton;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITextField *emailTextField;
-@property (weak, nonatomic) IBOutlet UIButton *setEmailButton;
-@property (weak, nonatomic) IBOutlet UIButton *logoutEmailButton;
+@property (weak, nonatomic) IBOutlet UIButton *addEmailButton;
+@property (weak, nonatomic) IBOutlet UIButton *removeEmailButton;
+
+@property (weak, nonatomic) IBOutlet UITextField *smsTextField;
+@property (weak, nonatomic) IBOutlet UIButton *addSmsButton;
+@property (weak, nonatomic) IBOutlet UIButton *removeSmsButton;
+
 @property (weak, nonatomic) IBOutlet UITextField *externalUserIdTextField;
-@property (weak, nonatomic) IBOutlet UIButton *setExternalUserIdButton;
-@property (weak, nonatomic) IBOutlet UIButton *removeExternalUserIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *loginExternalUserIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *logoutButton;
+
+@property (weak, nonatomic) IBOutlet UITextField *addAliasLabelTextField;
+@property (weak, nonatomic) IBOutlet UITextField *addAliasIdTextField;
+@property (weak, nonatomic) IBOutlet UIButton *addAliasButton;
+@property (weak, nonatomic) IBOutlet UITextField *removeAliasLabelTextField;
+@property (weak, nonatomic) IBOutlet UIButton *removeAliasButton;
+
 @property (weak, nonatomic) IBOutlet UISegmentedControl *locationSharedSegementedControl;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
@@ -61,10 +73,11 @@
 @property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
-@property (weak, nonatomic) IBOutlet UITextView *result;
 @property (weak, nonatomic) IBOutlet UITextField *tagKey;
 @property (weak, nonatomic) IBOutlet UITextField *tagValue;
 @property (weak, nonatomic) IBOutlet UITextField *activityId;
+
+@property (weak, nonatomic) IBOutlet UITextField *languageTextField;
 
 @end
 
