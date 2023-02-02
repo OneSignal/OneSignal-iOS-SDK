@@ -97,7 +97,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public var pushSubscriptionId: String? {
         return _user?.pushSubscriptionModel.subscriptionId
     }
-    
+
     @objc public var language: String? {
         return _user?.propertiesModel.language
     }
@@ -194,14 +194,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
         }
 
-        // Creates an anonymous user if there isn't one in the cache
-        createUserIfNil()
-
-        // Model store listeners subscribe to their models
-        identityModelStoreListener.start()
-        propertiesModelStoreListener.start()
-        subscriptionModelStoreListener.start()
-        pushSubscriptionModelStoreListener.start()
+        // TODO: Update the push sub model with any new state from NotificationsManager
 
         // Setup the executors
         OSUserExecutor.start()
@@ -217,6 +210,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+
+        // Creates an anonymous user if there isn't one in the cache
+        createUserIfNil()
+
+        // Model store listeners subscribe to their models
+        identityModelStoreListener.start()
+        propertiesModelStoreListener.start()
+        subscriptionModelStoreListener.start()
+        pushSubscriptionModelStoreListener.start()
     }
 
     @objc
