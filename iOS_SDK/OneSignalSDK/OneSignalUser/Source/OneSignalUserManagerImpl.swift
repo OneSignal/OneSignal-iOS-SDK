@@ -322,10 +322,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     The SDK needs to have a user at all times, so this method will create a new anonymous user.
+     The SDK needs to have a user at all times, so this method will create a new anonymous user. If the current user is already anonymous, calling `logout` results in a no-op.
      */
     @objc
     public func logout() {
+        guard user.identityModel.externalId != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.User logout called, but the user is currently anonymous, so not logging out.")
+            return
+        }
         prepareForNewUser()
         _user = nil
         createUserIfNil()
@@ -670,9 +674,7 @@ extension OneSignalUserManagerImpl: OSUser {
 extension OneSignalUserManagerImpl: OSPushSubscription {
 
     public func addObserver(_ observer: OSPushSubscriptionObserver) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.addObserver") else {
-            return
-        }
+        // This is a method in the User namespace that doesn't require privacy consent first
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
     }
 

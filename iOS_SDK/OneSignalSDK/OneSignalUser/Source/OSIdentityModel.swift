@@ -82,12 +82,10 @@ class OSIdentityModel: OSModel {
     }
 
     func removeAliases(_ labels: [String]) {
-        var aliasesToSend: [String: String] = [:]
         for label in labels {
             self.aliases.removeValue(forKey: label)
-            aliasesToSend[label] = ""
+            self.set(property: "aliases", newValue: [label: ""])
         }
-        self.set(property: "aliases", newValue: aliasesToSend)
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
