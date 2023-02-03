@@ -35,14 +35,15 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     init() {
         // Read unfinished deltas from cache, if any...
+        // Note that we should only have deltas for the current user as old ones are flushed..
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if let modelInStore = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: delta.model.modelId) {
-                    // The model exists in the properties model store, set it to be the Delta's model
+                    // 1. The model exists in the properties model store, set it to be the Delta's model
                     delta.model = modelInStore
                 } else {
-                    // The model does not exist, drop this Delta
+                    // 2. The model does not exist, drop this Delta
                     deltaQueue.remove(at: index)
                 }
             }
@@ -55,13 +56,18 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
-                if let propertiesModel = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: request.modelToUpdate.modelId),
-                   let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // The models exist in the stores, set it to be the Request's models
+                // 0. Hook up the properties model if its the current user's so it can hydrate
+                if let propertiesModel = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: request.modelToUpdate.modelId) {
                     request.modelToUpdate = propertiesModel
+                }
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
+                    // 1. The identity model exist in the store, set it to be the Request's models
+                    request.identityModel = identityModel
+                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
+                    // 2. The model exists in the user executor
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
-                    // The models do not exist AND this request cannot be sent, drop this Request
+                    // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
                     updateRequestQueue.remove(at: index)
                 }
             }
@@ -119,21 +125,28 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties) {
+        guard !request.sentToClient else {
+            return
+        }
         guard request.prepareForExecution() else {
             return
         }
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
-        OneSignalClient.shared().execute(request) { _ in
+        request.sentToClient = true
 
-            // On success, remove request from cache, and hydrate model
-            // TODO: Do we actually hydrate model though?
-            // For example, if app restarts and we read in operations between sending this off and getting the response
+        OneSignalClient.shared().execute(request) { _ in
+            // On success, remove request from cache, and we do need to hydrate
+            // TODO: We need to hydrate after all
             self.updateRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-
         } onFailure: { error in
-            self.updateRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.updateRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            }
         }
     }
 }
