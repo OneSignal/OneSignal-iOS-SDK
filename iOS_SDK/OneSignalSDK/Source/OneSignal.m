@@ -519,7 +519,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)delayInitializationForPrivacyConsent {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
     _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
     // Init was not successful, set appId back to nil
