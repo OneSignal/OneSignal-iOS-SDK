@@ -371,9 +371,6 @@ static NSString *_pushSubscriptionId;
 
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app
                               deviceToken:(NSData *)inDeviceToken {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-
     let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
 
     [OneSignalLog onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
