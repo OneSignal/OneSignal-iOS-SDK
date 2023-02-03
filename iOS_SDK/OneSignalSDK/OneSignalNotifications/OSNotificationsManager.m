@@ -143,6 +143,7 @@ static OneSignalNotificationSettings *_osNotificationSettings;
     return _osNotificationSettings;
 }
 
+// static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
 + (ObservablePermissionStateChangesType*)permissionStateChangesObserver {
     if (!_permissionStateChangesObserver)
@@ -421,11 +422,11 @@ static NSString *_pushSubscriptionId;
     [self sendNotificationTypesUpdateToDelegate];
 }
 
-// onOSPermissionChanged should only fire if something changed.
+// onOSPermissionChanged should only fire if the reachable property changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
     
-    if ([self.currentPermissionState compare:self.lastPermissionState])
+    if (self.currentPermissionState.reachable != self.lastPermissionState.reachable)
         [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
 }
 
