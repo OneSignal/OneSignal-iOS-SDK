@@ -128,7 +128,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private let _mockUser = OSUserInternalImpl(
         identityModel: OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer()),
         propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
-        pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, accepted: false, isDisabled: true, changeNotifier: OSEventProducer()))
+        pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: true, changeNotifier: OSEventProducer()))
 
     @objc public var requiresUserAuth = false
 
@@ -387,14 +387,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     func createDefaultPushSubscription() -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
-        let accepted = OSNotificationsManager.currentPermissionState.accepted
+        let reachable = OSNotificationsManager.currentPermissionState.reachable
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
         let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,
                                    subscriptionId: subscriptionId,
-                                   accepted: accepted,
+                                   reachable: reachable,
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
     }
@@ -600,7 +600,7 @@ extension OneSignalUserManagerImpl: OSUser {
             type: .email,
             address: email,
             subscriptionId: nil,
-            accepted: true,
+            reachable: true,
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
@@ -632,7 +632,7 @@ extension OneSignalUserManagerImpl: OSUser {
             type: .sms,
             address: number,
             subscriptionId: nil,
-            accepted: true,
+            reachable: true,
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
@@ -739,10 +739,10 @@ extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
         user.pushSubscriptionModel.address = pushToken
     }
 
-    public func setAccepted(_ inAccepted: Bool) {
+    public func setReachable(_ inReachable: Bool) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        user.pushSubscriptionModel._accepted = inAccepted
+        user.pushSubscriptionModel._reachable = inReachable
     }
 }
