@@ -112,7 +112,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      Returns false if this model does not exist in the store.
      This can happen if remove email or SMS is called and it doesn't exist in the store.
      */
-    public func remove(_ id: String) -> Bool {
+    public func remove(_ id: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
         // TODO: Nothing will happen if model doesn't exist in the store
         if let model = models[id] {
@@ -127,9 +127,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
-            return true
         }
-        return false
     }
 
     /**
