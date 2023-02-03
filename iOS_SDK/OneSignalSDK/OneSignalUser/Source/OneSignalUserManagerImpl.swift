@@ -60,10 +60,10 @@ import OneSignalNotifications
     func removeTags(_ tags: [String])
     // Email
     func addEmail(_ email: String)
-    func removeEmail(_ email: String) -> Bool
+    func removeEmail(_ email: String)
     // SMS
-    func addSmsNumber(_ number: String)
-    func removeSmsNumber(_ number: String) -> Bool
+    func addSms(_ number: String)
+    func removeSms(_ number: String)
     // Language
     func setLanguage(_ language: String)
     // JWT Token Expire
@@ -612,16 +612,16 @@ extension OneSignalUserManagerImpl: OSUser {
      This will be a no-op and no request will be made.
      Error handling needs to be implemented in the future.
      */
-    public func removeEmail(_ email: String) -> Bool {
+    public func removeEmail(_ email: String) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeEmail") else {
-            return false
+            return
         }
         // Check if is valid email?
         createUserIfNil()
-        return self.subscriptionModelStore.remove(email)
+        self.subscriptionModelStore.remove(email)
     }
 
-    public func addSmsNumber(_ number: String) {
+    public func addSms(_ number: String) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addSmsNumber") else {
             return
         }
@@ -644,13 +644,13 @@ extension OneSignalUserManagerImpl: OSUser {
      This will be a no-op and no request will be made.
      Error handling needs to be implemented in the future.
      */
-    public func removeSmsNumber(_ number: String) -> Bool {
+    public func removeSms(_ number: String) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeSmsNumber") else {
-            return false
+            return
         }
         // Check if is valid SMS?
         createUserIfNil()
-        return self.subscriptionModelStore.remove(number)
+        self.subscriptionModelStore.remove(number)
     }
 
     public func setLanguage(_ language: String) {
