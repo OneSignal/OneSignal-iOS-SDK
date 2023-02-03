@@ -29,7 +29,6 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
-
 struct OneSignalWidgetExtensionLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: OneSignalWidgetAttributes.self) { context in
@@ -54,7 +53,7 @@ struct OneSignalWidgetExtensionLiveActivity: Widget {
             }
             .activitySystemActionForegroundColor(.black)
             .activityBackgroundTint(.white)
-        } dynamicIsland: { context in
+        } dynamicIsland: { _ in
             DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
                 // various regions, like leading/trailing/center/bottom

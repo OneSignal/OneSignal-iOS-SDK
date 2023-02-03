@@ -159,15 +159,8 @@
     return OSNotificationPermissionNotDetermined;
 }
 
-- (BOOL)compare:(OSPermissionStateInternal*)from {
-    return self.accepted != from.accepted ||
-           self.ephemeral != from.ephemeral ||
-           self.answeredPrompt != from.answeredPrompt ||
-           self.hasPrompted != from.hasPrompted;
-}
-
 - (OSPermissionState *)getExternalState {
-    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
+    return [[OSPermissionState alloc] initWithPermission:self.reachable];
 }
 
 - (NSString*)description {
@@ -181,40 +174,18 @@
 
 @implementation OSPermissionState
     
-- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
-    _status = status;
-    _reachable = reachable;
-    _hasPrompted = hasPrompted;
-    _providesAppNotificationSettings = providesAppNotificationSettings;
-    _provisional = provisional;
+- (instancetype)initWithPermission:(BOOL)permission {
+    _permission = permission;
     return self;
 }
 
-- (NSString*)statusAsString {
-    switch(self.status) {
-        case OSNotificationPermissionNotDetermined:
-            return @"NotDetermined";
-        case OSNotificationPermissionAuthorized:
-            return @"Authorized";
-        case OSNotificationPermissionDenied:
-            return @"Denied";
-        case OSNotificationPermissionProvisional:
-            return @"Provisional";
-        case OSNotificationPermissionEphemeral:
-            return @"Ephemeral";
-    }
-    return @"NotDetermined";
-}
-
 - (NSString*)description {
-    static NSString* format = @"<OSPermissionState: hasPrompted: %d, status: %@, provisional: %d>";
-    return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString, self.provisional];
+    static NSString* format = @"<OSPermissionState: permission: %d>";
+    return [NSString stringWithFormat:format, self.permission];
 }
 
 - (NSDictionary*)jsonRepresentation {
-    return @{@"hasPrompted": @(self.hasPrompted),
-             @"status": @(self.status),
-             @"provisional" : @(self.provisional)};
+    return @{@"permission": @(self.permission)};
 }
 
 @end
@@ -227,37 +198,21 @@
 + (void)fireChangesObserver:(OSPermissionStateInternal*)state  {
     OSPermissionState *externalToState = [state getExternalState];
     OSPermissionState *externalFromState = [OSNotificationsManager.lastPermissionState getExternalState];
-    OSPermissionStateChanges* stateChanges = [[OSPermissionStateChanges alloc] initAsTo:externalToState from:externalFromState];
     
-    BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:stateChanges];
+    if (externalToState.permission == externalFromState.permission) {
+        return;
+    }
+    
+    BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:externalToState];
     if (hasReceiver) {
         OSNotificationsManager.lastPermissionState = [state copy];
         [OSNotificationsManager.lastPermissionState persistAsFrom];
     }
     // Update the push subscription's _accepted property
     // TODO: This can be called before the User Manager has set itself as the delegate
-    if (OSNotificationsManager.delegate && [OSNotificationsManager.delegate respondsToSelector:@selector(setAccepted:)]) {
-        [OSNotificationsManager.delegate setAccepted:state.reachable];
+    if (OSNotificationsManager.delegate && [OSNotificationsManager.delegate respondsToSelector:@selector(setReachable:)]) {
+        [OSNotificationsManager.delegate setReachable:state.reachable];
     }
-}
-
-@end
-
-@implementation OSPermissionStateChanges
-
-- (NSString*)description {
-    static NSString* format = @"<OSPermissionStateChanges:\nfrom: %@,\nto:   %@\n>";
-    return [NSString stringWithFormat:format, _from, _to];
-}
-
-- (NSDictionary*)jsonRepresentation {
-    return @{@"from": [_from jsonRepresentation], @"to": [_to jsonRepresentation]};
-}
-
-- (instancetype)initAsTo:(OSPermissionState *)to from:(OSPermissionState *)from {
-    _to = to;
-    _from = from;
-    return self;
 }
 
 @end

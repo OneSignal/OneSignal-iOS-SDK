@@ -46,7 +46,7 @@ class LiveActivityController: NSObject {
     @objc
     static func createActivity() async -> String? {
         if #available(iOS 16.1, *) {
-            counter += 1;
+            counter += 1
             let attributes = OneSignalWidgetAttributes(title: "#" + String(counter) + " OneSignal Dev App Live Activity")
             let contentState = OneSignalWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
             do {
@@ -58,7 +58,7 @@ class LiveActivityController: NSObject {
                     let myToken = data.map {String(format: "%02x", $0)}.joined()
                     return myToken
                 }
-            } catch (let error) {
+            } catch let error {
                 print(error.localizedDescription)
                 return nil
             }

@@ -143,6 +143,7 @@ static OneSignalNotificationSettings *_osNotificationSettings;
     return _osNotificationSettings;
 }
 
+// static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
 + (ObservablePermissionStateChangesType*)permissionStateChangesObserver {
     if (!_permissionStateChangesObserver)
@@ -336,6 +337,8 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)clearAll {
+    [[UNUserNotificationCenter currentNotificationCenter] removeAllDeliveredNotifications];
+    // TODO: Determine if we also need to call clearBadgeCount
     [self clearBadgeCount:false];
 }
 
@@ -368,9 +371,6 @@ static NSString *_pushSubscriptionId;
 
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app
                               deviceToken:(NSData *)inDeviceToken {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-
     let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
 
     [OneSignalLog onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
@@ -421,11 +421,11 @@ static NSString *_pushSubscriptionId;
     [self sendNotificationTypesUpdateToDelegate];
 }
 
-// onOSPermissionChanged should only fire if something changed.
+// onOSPermissionChanged should only fire if the reachable property changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
     
-    if ([self.currentPermissionState compare:self.lastPermissionState])
+    if (self.currentPermissionState.reachable != self.lastPermissionState.reachable)
         [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
 }
 
@@ -455,8 +455,8 @@ static NSString *_pushSubscriptionId;
 + (void)sendNotificationTypesUpdateToDelegate {
     // We don't delay observer update to wait until the OneSignal server is notified
     // TODO: We can do the above and delay observers until server is updated.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(setAccepted:)]) {
-        [self.delegate setAccepted:[self getNotificationTypes] > 0];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setReachable:)]) {
+        [self.delegate setReachable:[self getNotificationTypes] > 0];
     }
     if (self.delegate && [self.delegate respondsToSelector:@selector(setNotificationTypes:)]) {
         [self.delegate setNotificationTypes:[self getNotificationTypes]];

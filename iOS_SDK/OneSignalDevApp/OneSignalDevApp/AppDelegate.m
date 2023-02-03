@@ -51,7 +51,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
-    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     
     [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
     
@@ -84,19 +84,14 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     
-    
-    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
-        NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
-    }];
-    
     [OneSignal.InAppMessages setLifecycleHandler:self];
     [OneSignal.InAppMessages paused:true];
 
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
-    OSPushSubscriptionState* state = [OneSignal.User.pushSubscription addObserver:self];
-    NSLog(@"OneSignal Demo App push subscription observer added, current state: %@", state);
+    [OneSignal.User.pushSubscription addObserver:self];
+    NSLog(@"OneSignal Demo App push subscription observer added");
     
     [OneSignal.Notifications addPermissionObserver:self];
     
@@ -122,12 +117,12 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // [OneSignal setAppId:onesignalAppId];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+- (void)onOSPermissionChanged:(OSPermissionState*)state {
+    NSLog(@"Dev App onOSPermissionChanged: %@", state);
 }
 
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {
-    NSLog(@"onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
+    NSLog(@"Dev App onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
     mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.optedIn;
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -18,7 +20,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="820"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="Dse-f7-S3F">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="820"/>
+                                <rect key="frame" x="0.0" y="59" width="375" height="759"/>
                                 <subviews>
                                     <view contentMode="scaleAspectFit" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" translatesAutoresizingMaskIntoConstraints="NO" id="6dV-2z-2jJ">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="1174"/>
@@ -38,9 +40,9 @@
                                                     <constraint firstAttribute="width" constant="68" id="com-ja-CVD"/>
                                                 </constraints>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Get Tags"/>
+                                                <state key="normal" title="Get Info"/>
                                                 <connections>
-                                                    <action selector="getTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Pp8-oA-Zrh"/>
+                                                    <action selector="getInfoButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Pp8-oA-Zrh"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UPh-ZU-o2e">
@@ -52,7 +54,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YNF-Jm-wDq">
-                                                <rect key="frame" x="88" y="239" width="89.5" height="30"/>
+                                                <rect key="frame" x="88" y="239" width="89.333333333333314" height="30"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Prompt Push"/>
                                                 <connections>
@@ -90,7 +92,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Consent Status:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3e-42-uww">
-                                                <rect key="frame" x="112.5" y="45" width="150" height="20"/>
+                                                <rect key="frame" x="112.66666666666669" y="45" width="150" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="150" id="daY-4q-YV2"/>
                                                 </constraints>
@@ -162,7 +164,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="OneSignal App Id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="TVC-yc-aRa">
-                                                <rect key="frame" x="14.5" y="122" width="346" height="34"/>
+                                                <rect key="frame" x="14.666666666666657" y="122" width="345.66666666666674" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
@@ -280,21 +282,21 @@
                                                 </connections>
                                             </segmentedControl>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="srQ-s9-3O9" userLabel="Update App Id">
-                                                <rect key="frame" x="120.5" y="519" width="136" height="30"/>
+                                                <rect key="frame" x="120.66666666666669" y="519" width="136" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Set External User Id"/>
+                                                <state key="normal" title="Login to External User Id"/>
                                                 <connections>
-                                                    <action selector="setExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DXf-1K-Lkc"/>
+                                                    <action selector="loginExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DXf-1K-Lkc"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OiG-L7-Ot2" userLabel="Update App Id">
                                                 <rect key="frame" x="104" y="557" width="168" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Remove External User Id"/>
+                                                <state key="normal" title="Logout"/>
                                                 <connections>
-                                                    <action selector="removeExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="F3N-HQ-tSv"/>
+                                                    <action selector="logout:" destination="BYZ-38-t0r" eventType="touchUpInside" id="F3N-HQ-tSv"/>
                                                 </connections>
                                             </button>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="External user id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="H7c-2l-Pkl">
@@ -303,12 +305,12 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fmV-3f-ILa" userLabel="Update App Id">
-                                                <rect key="frame" x="157.5" y="394" width="64" height="30"/>
+                                                <rect key="frame" x="157.66666666666666" y="394" width="64" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Set Email"/>
+                                                <state key="normal" title="Add Email"/>
                                                 <connections>
-                                                    <action selector="setEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UBX-EX-GGk"/>
+                                                    <action selector="addEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UBX-EX-GGk"/>
                                                 </connections>
                                             </button>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9me-S6-lrh">
@@ -328,9 +330,9 @@
                                                 <rect key="frame" x="143" y="432" width="89" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Logout Email"/>
+                                                <state key="normal" title="Remove Email"/>
                                                 <connections>
-                                                    <action selector="logoutEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="WKC-pn-1O6"/>
+                                                    <action selector="removeEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="WKC-pn-1O6"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="App Clip Experience" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qus-pf-JoD">
@@ -476,24 +478,24 @@
                         <outlet property="consentSegmentedControl" destination="05S-ud-V2e" id="9HS-Rj-OmM"/>
                         <outlet property="emailTextField" destination="9me-S6-lrh" id="uDb-iR-fog"/>
                         <outlet property="externalUserIdTextField" destination="H7c-2l-Pkl" id="t1X-F3-GWv"/>
-                        <outlet property="getTagsButton" destination="Htv-x2-aPb" id="EK5-1t-g6g"/>
+                        <outlet property="getInfoButton" destination="Htv-x2-aPb" id="EK5-1t-g6g"/>
                         <outlet property="getTriggerKey" destination="bmb-ib-r40" id="Sge-3X-okn"/>
                         <outlet property="inAppMessagingSegmentedControl" destination="saG-x9-o6U" id="gox-lD-D3j"/>
                         <outlet property="infoLabel" destination="7au-a5-gty" id="CMF-lK-qHp"/>
                         <outlet property="locationSharedSegementedControl" destination="udx-VH-OPB" id="ByV-wf-96W"/>
-                        <outlet property="logoutEmailButton" destination="7ll-OX-6Qj" id="cTQ-3S-iCj"/>
+                        <outlet property="removeEmailButton" destination="7ll-OX-6Qj" id="cTQ-3S-iCj"/>
                         <outlet property="outcomeName" destination="Whw-1A-6W0" id="19x-BU-e6z"/>
                         <outlet property="outcomeUniqueName" destination="9Tw-qJ-FVq" id="f2a-wB-awc"/>
                         <outlet property="outcomeValue" destination="knZ-rP-bRU" id="EnV-7t-ETR"/>
                         <outlet property="outcomeValueName" destination="Xj9-lX-hR2" id="Dhu-Pd-sBU"/>
                         <outlet property="promptLocationButton" destination="UPh-ZU-o2e" id="pAW-KU-PZX"/>
                         <outlet property="promptPushButton" destination="YNF-Jm-wDq" id="J0U-WU-1w0"/>
-                        <outlet property="removeExternalUserIdButton" destination="OiG-L7-Ot2" id="60f-Lo-ePF"/>
+                        <outlet property="logoutButton" destination="OiG-L7-Ot2" id="60f-Lo-ePF"/>
                         <outlet property="removeTriggerKey" destination="cWh-Hu-7CP" id="j0S-4T-AXs"/>
                         <outlet property="result" destination="XKn-G6-r2q" id="bPC-p9-k4N"/>
                         <outlet property="sendTagsButton" destination="H3K-GA-smE" id="rCS-pd-avT"/>
-                        <outlet property="setEmailButton" destination="fmV-3f-ILa" id="7BW-qA-1Zl"/>
-                        <outlet property="setExternalUserIdButton" destination="srQ-s9-3O9" id="yVV-xK-CdB"/>
+                        <outlet property="addEmailButton" destination="fmV-3f-ILa" id="7BW-qA-1Zl"/>
+                        <outlet property="loginExternalUserIdButton" destination="srQ-s9-3O9" id="yVV-xK-CdB"/>
                         <outlet property="subscriptionSegmentedControl" destination="gZI-5K-94s" id="CCF-Qh-9Xg"/>
                         <outlet property="updateAppIdButton" destination="Kp7-Oh-BQ1" id="jFd-CJ-ExJ"/>
                     </connections>
