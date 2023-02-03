@@ -21,10 +21,10 @@ import _StringProcessing
   @objc func removeTag(_ tag: Swift.String)
   @objc func removeTags(_ tags: [Swift.String])
   @objc func addEmail(_ email: Swift.String)
-  @objc func removeEmail(_ email: Swift.String) -> Swift.Bool
-  @objc func addSmsNumber(_ number: Swift.String)
-  @objc func removeSmsNumber(_ number: Swift.String) -> Swift.Bool
-  @objc func setLanguage(_ language: Swift.String?)
+  @objc func removeEmail(_ email: Swift.String)
+  @objc func addSms(_ number: Swift.String)
+  @objc func removeSms(_ number: Swift.String)
+  @objc func setLanguage(_ language: Swift.String)
   typealias OSJwtCompletionBlock = (_ newJwtToken: Swift.String) -> Swift.Void
   typealias OSJwtExpiredHandler = (_ externalId: Swift.String, _ completion: (_ newJwtToken: Swift.String) -> Swift.Void) -> Swift.Void
   @objc func onJwtExpired(expiredHandler: @escaping Self.OSJwtExpiredHandler)
@@ -35,7 +35,7 @@ import _StringProcessing
   @objc var optedIn: Swift.Bool { get }
   @objc func optIn()
   @objc func optOut()
-  @objc func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver) -> OneSignalUser.OSPushSubscriptionState?
+  @objc func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
   @objc func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OneSignalUserManagerImpl : ObjectiveC.NSObject {
@@ -44,6 +44,9 @@ import _StringProcessing
     @objc get
   }
   @objc public var pushSubscriptionId: Swift.String? {
+    @objc get
+  }
+  @objc public var language: Swift.String? {
     @objc get
   }
   @objc public var requiresUserAuth: Swift.Bool
@@ -78,13 +81,13 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public func removeTag(_ tag: Swift.String)
   @objc dynamic public func removeTags(_ tags: [Swift.String])
   @objc dynamic public func addEmail(_ email: Swift.String)
-  @objc dynamic public func removeEmail(_ email: Swift.String) -> Swift.Bool
-  @objc dynamic public func addSmsNumber(_ number: Swift.String)
-  @objc dynamic public func removeSmsNumber(_ number: Swift.String) -> Swift.Bool
-  @objc dynamic public func setLanguage(_ language: Swift.String?)
+  @objc dynamic public func removeEmail(_ email: Swift.String)
+  @objc dynamic public func addSms(_ number: Swift.String)
+  @objc dynamic public func removeSms(_ number: Swift.String)
+  @objc dynamic public func setLanguage(_ language: Swift.String)
 }
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSPushSubscription {
-  @objc dynamic public func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver) -> OneSignalUser.OSPushSubscriptionState?
+  @objc dynamic public func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
   @objc dynamic public func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
   @objc dynamic public var id: Swift.String? {
     @objc get
@@ -101,7 +104,7 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSPushSubscript
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalNotifications.OneSignalNotificationsDelegate {
   @objc dynamic public func setNotificationTypes(_ notificationTypes: Swift.Int32)
   @objc dynamic public func setPushToken(_ pushToken: Swift.String)
-  @objc dynamic public func setAccepted(_ inAccepted: Swift.Bool)
+  @objc dynamic public func setReachable(_ inReachable: Swift.Bool)
 }
 @objc public protocol OSPushSubscriptionObserver {
   @objc func onOSPushSubscriptionChanged(stateChanges: OneSignalUser.OSPushSubscriptionStateChanges)
@@ -113,7 +116,7 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalNotifications.OneSig
   @objc override dynamic public var description: Swift.String {
     @objc get
   }
-  @objc public func toDictionary() -> Foundation.NSDictionary
+  @objc public func jsonRepresentation() -> Foundation.NSDictionary
   @objc deinit
 }
 @_hasMissingDesignatedInitializers @objc public class OSPushSubscriptionStateChanges : ObjectiveC.NSObject {
@@ -122,6 +125,6 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalNotifications.OneSig
   @objc override dynamic public var description: Swift.String {
     @objc get
   }
-  @objc public func toDictionary() -> Foundation.NSDictionary
+  @objc public func jsonRepresentation() -> Foundation.NSDictionary
   @objc deinit
 }

@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050000-alpha-02"
+#define ONESIGNAL_VERSION                                                   @"050000-beta-01"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -231,13 +231,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #ifndef OS_TEST
     // OneSignal API Client Defines
-    #define REATTEMPT_DELAY 30.0
+    #define REATTEMPT_DELAY 5.0
     #define REQUEST_TIMEOUT_REQUEST 120.0 //for most HTTP requests
     #define REQUEST_TIMEOUT_RESOURCE 120.0 //for loading a resource like an image
-    #define MAX_ATTEMPT_COUNT 3
-
-    // Send tags batch delay
-    #define SEND_TAGS_DELAY 5.0
+    #define MAX_ATTEMPT_COUNT 5
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 128
@@ -253,9 +250,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
     #define REQUEST_TIMEOUT_REQUEST 0.02 //for most HTTP requests
     #define REQUEST_TIMEOUT_RESOURCE 0.02 //for loading a resource like an image
     #define MAX_ATTEMPT_COUNT 3
-
-    // Send tags batch delay
-    #define SEND_TAGS_DELAY 0.005
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 5
@@ -284,7 +278,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_ONESIGNAL_ID                                                     @"onesignal_id"
 #define OS_EXTERNAL_ID                                                      @"external_id"
 
-#define OS_RETAIN_PREVIOUS_USER                                             @"retain_previous_user"
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 
 // Models and Model Stores
@@ -310,7 +303,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
 // User Executor
-#define OS_USER_EXECUTOR_REQUEST_QUEUE_KEY                                  @"OS_USER_EXECUTOR_REQUEST_QUEUE_KEY"
+#define OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY                             @"OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY"
+#define OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY            @"OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY"
 
 // Identity Executor
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"

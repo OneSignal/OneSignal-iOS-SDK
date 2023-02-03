@@ -57,7 +57,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 // can check responds to selector
 - (void)setNotificationTypes:(int)notificationTypes;
 - (void)setPushToken:(NSString * _Nonnull)pushToken;
-- (void)setAccepted:(BOOL)inAccepted;
+- (void)setReachable:(BOOL)inReachable;
 
 @end
 
