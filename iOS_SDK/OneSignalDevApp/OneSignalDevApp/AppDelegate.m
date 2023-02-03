@@ -90,8 +90,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
-    OSPushSubscriptionState* state = [OneSignal.User.pushSubscription addObserver:self];
-    NSLog(@"OneSignal Demo App push subscription observer added, current state: %@", state);
+    [OneSignal.User.pushSubscription addObserver:self];
+    NSLog(@"OneSignal Demo App push subscription observer added");
     
     [OneSignal.Notifications addPermissionObserver:self];
     
