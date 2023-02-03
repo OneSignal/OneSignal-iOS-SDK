@@ -658,6 +658,51 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "OSDebug",
+        "printedName": "OSDebug",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "setAlertLevel",
+            "printedName": "setAlertLevel(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "ONE_S_LOG_LEVEL",
+                "printedName": "OneSignalCore.ONE_S_LOG_LEVEL",
+                "usr": "c:@E@ONE_S_LOG_LEVEL"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So7OSDebugP18OneSignalFrameworkE13setAlertLevelyySo15ONE_S_LOG_LEVELVFZ",
+            "mangledName": "$sSo7OSDebugP18OneSignalFrameworkE13setAlertLevelyySo15ONE_S_LOG_LEVELVFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSDebug>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSDebug>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "c:objc(pl)OSDebug",
+        "moduleName": "OneSignalCore",
+        "genericSig": "<τ_0_0 : ObjectiveC.NSObjectProtocol>",
+        "sugared_genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
+        "objc_name": "OSDebug",
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "isExternal": true
+      },
+      {
+        "kind": "TypeDecl",
         "name": "OSInAppMessages",
         "printedName": "OSInAppMessages",
         "children": [
