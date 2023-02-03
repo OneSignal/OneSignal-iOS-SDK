@@ -51,7 +51,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
-    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     
     [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
     
