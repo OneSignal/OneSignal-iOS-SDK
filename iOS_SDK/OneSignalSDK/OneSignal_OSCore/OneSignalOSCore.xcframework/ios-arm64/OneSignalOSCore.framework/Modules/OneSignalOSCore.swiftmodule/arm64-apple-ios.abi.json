@@ -710,9 +710,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -722,8 +721,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "s:15OneSignalOSCore12OSModelStoreC6removeySbSSF",
-            "mangledName": "$s15OneSignalOSCore12OSModelStoreC6removeySbSSF",
+            "usr": "s:15OneSignalOSCore12OSModelStoreC6removeyySSF",
+            "mangledName": "$s15OneSignalOSCore12OSModelStoreC6removeyySSF",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSModel>",
             "sugared_genericSig": "<TModel where TModel : OneSignalOSCore.OSModel>",
