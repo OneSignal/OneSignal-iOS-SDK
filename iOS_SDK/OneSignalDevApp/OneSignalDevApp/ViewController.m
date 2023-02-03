@@ -131,13 +131,7 @@
 }
 
 - (IBAction)getInfoButton:(id)sender {
-    NSLog(@"💛 Dev App: get User and Device information");
-    [OneSignalUserManagerImpl.sharedInstance internalDumpInfo];
-    NSLog(@"💛 Dev App: OneSignal.Notifications permission: %d", [OneSignal.Notifications permission]);
-    NSLog(@"💛 Dev App: OneSignal.Notifications.canRequestPermission: %d", [OneSignal.Notifications canRequestPermission]);
-    [OneSignal internalDumpInfo];
-    NSLog(@"💛 Dev App: getPrivacyConsent: %d", OneSignal.getPrivacyConsent);
-    NSLog(@"💛 Dev App: requiresPrivacyConsent: %d", [OneSignal requiresPrivacyConsent]);
+    NSLog(@"Dev App: get User and Device information, you need to fill in");
 }
 
 - (IBAction)sendTagsButton:(id)sender {
