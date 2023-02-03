@@ -111,10 +111,7 @@ static dispatch_once_t once;
 
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-variable"
-    OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
-    #pragma clang diagnostic pop
+    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;
