@@ -31,7 +31,7 @@ open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOS
   public func getModel(modelId: Swift.String) -> TModel?
   public func getModels() -> [Swift.String : TModel]
   public func add(id: Swift.String, model: TModel, hydrating: Swift.Bool)
-  public func remove(_ id: Swift.String) -> Swift.Bool
+  public func remove(_ id: Swift.String)
   public func clearModelsFromStore()
 }
 extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {

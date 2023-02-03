@@ -441,9 +441,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -454,7 +453,7 @@
             ],
             "declKind": "Func",
             "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeEmail:",
-            "mangledName": "$s13OneSignalUser6OSUserP11removeEmailySbSSF",
+            "mangledName": "$s13OneSignalUser6OSUserP11removeEmailyySSF",
             "moduleName": "OneSignalUser",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
             "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
@@ -467,8 +466,8 @@
           },
           {
             "kind": "Function",
-            "name": "addSmsNumber",
-            "printedName": "addSmsNumber(_:)",
+            "name": "addSms",
+            "printedName": "addSms(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -483,8 +482,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addSmsNumber:",
-            "mangledName": "$s13OneSignalUser6OSUserP12addSmsNumberyySSF",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addSms:",
+            "mangledName": "$s13OneSignalUser6OSUserP6addSmsyySSF",
             "moduleName": "OneSignalUser",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
             "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
@@ -498,14 +497,13 @@
           },
           {
             "kind": "Function",
-            "name": "removeSmsNumber",
-            "printedName": "removeSmsNumber(_:)",
+            "name": "removeSms",
+            "printedName": "removeSms(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -515,8 +513,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeSmsNumber:",
-            "mangledName": "$s13OneSignalUser6OSUserP15removeSmsNumberySbSSF",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeSms:",
+            "mangledName": "$s13OneSignalUser6OSUserP9removeSmsyySSF",
             "moduleName": "OneSignalUser",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
             "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
@@ -539,22 +537,14 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
               }
             ],
             "declKind": "Func",
             "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)setLanguage:",
-            "mangledName": "$s13OneSignalUser6OSUserP11setLanguageyySSSgF",
+            "mangledName": "$s13OneSignalUser6OSUserP11setLanguageyySSF",
             "moduleName": "OneSignalUser",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
             "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
@@ -885,17 +875,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "OneSignalUser.OSPushSubscriptionState?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OSPushSubscriptionState",
-                    "printedName": "OneSignalUser.OSPushSubscriptionState",
-                    "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionState"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -906,7 +887,7 @@
             ],
             "declKind": "Func",
             "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)addObserver:",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP11addObserveryAA0dE5StateCSgAA0deG0_pF",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP11addObserveryyAA0deG0_pF",
             "moduleName": "OneSignalUser",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
             "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
@@ -1130,6 +1111,66 @@
                 "declKind": "Accessor",
                 "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)pushSubscriptionId",
                 "mangledName": "$s13OneSignalUser0abC11ManagerImplC18pushSubscriptionIdSSSgvg",
+                "moduleName": "OneSignalUser",
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "language",
+            "printedName": "language",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(py)language",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC8languageSSSgvp",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)language",
+                "mangledName": "$s13OneSignalUser0abC11ManagerImplC8languageSSSgvg",
                 "moduleName": "OneSignalUser",
                 "declAttributes": [
                   "ObjC"
@@ -2074,9 +2115,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -2087,7 +2127,7 @@
             ],
             "declKind": "Func",
             "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)removeEmail:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11removeEmailySbSSF",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11removeEmailyySSF",
             "moduleName": "OneSignalUser",
             "objc_name": "removeEmail:",
             "declAttributes": [
@@ -2101,8 +2141,8 @@
           },
           {
             "kind": "Function",
-            "name": "addSmsNumber",
-            "printedName": "addSmsNumber(_:)",
+            "name": "addSms",
+            "printedName": "addSms(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2117,10 +2157,10 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)addSmsNumber:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC12addSmsNumberyySSF",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)addSms:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC6addSmsyySSF",
             "moduleName": "OneSignalUser",
-            "objc_name": "addSmsNumber:",
+            "objc_name": "addSms:",
             "declAttributes": [
               "Dynamic",
               "ObjC",
@@ -2131,14 +2171,13 @@
           },
           {
             "kind": "Function",
-            "name": "removeSmsNumber",
-            "printedName": "removeSmsNumber(_:)",
+            "name": "removeSms",
+            "printedName": "removeSms(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -2148,10 +2187,10 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)removeSmsNumber:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC15removeSmsNumberySbSSF",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)removeSms:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC9removeSmsyySSF",
             "moduleName": "OneSignalUser",
-            "objc_name": "removeSmsNumber:",
+            "objc_name": "removeSms:",
             "declAttributes": [
               "Dynamic",
               "ObjC",
@@ -2173,22 +2212,14 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
               }
             ],
             "declKind": "Func",
             "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)setLanguage:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11setLanguageyySSSgF",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11setLanguageyySSF",
             "moduleName": "OneSignalUser",
             "objc_name": "setLanguage:",
             "declAttributes": [
@@ -2206,17 +2237,8 @@
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "OneSignalUser.OSPushSubscriptionState?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OSPushSubscriptionState",
-                    "printedName": "OneSignalUser.OSPushSubscriptionState",
-                    "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionState"
-                  }
-                ],
-                "usr": "s:Sq"
+                "name": "Void",
+                "printedName": "()"
               },
               {
                 "kind": "TypeNominal",
@@ -2227,7 +2249,7 @@
             ],
             "declKind": "Func",
             "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)addObserver:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11addObserveryAA23OSPushSubscriptionStateCSgAA0hiG0_pF",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11addObserveryyAA018OSPushSubscriptionG0_pF",
             "moduleName": "OneSignalUser",
             "objc_name": "addObserver:",
             "declAttributes": [
@@ -2562,8 +2584,8 @@
           },
           {
             "kind": "Function",
-            "name": "setAccepted",
-            "printedName": "setAccepted(_:)",
+            "name": "setReachable",
+            "printedName": "setReachable(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2578,10 +2600,10 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)setAccepted:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC11setAcceptedyySbF",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)setReachable:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC12setReachableyySbF",
             "moduleName": "OneSignalUser",
-            "objc_name": "setAccepted:",
+            "objc_name": "setReachable:",
             "declAttributes": [
               "Dynamic",
               "ObjC",
@@ -3091,8 +3113,8 @@
           },
           {
             "kind": "Function",
-            "name": "toDictionary",
-            "printedName": "toDictionary()",
+            "name": "jsonRepresentation",
+            "printedName": "jsonRepresentation()",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -3102,8 +3124,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionState(im)toDictionary",
-            "mangledName": "$s13OneSignalUser23OSPushSubscriptionStateC12toDictionarySo12NSDictionaryCyF",
+            "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionState(im)jsonRepresentation",
+            "mangledName": "$s13OneSignalUser23OSPushSubscriptionStateC18jsonRepresentationSo12NSDictionaryCyF",
             "moduleName": "OneSignalUser",
             "declAttributes": [
               "AccessControl",
@@ -3361,8 +3383,8 @@
           },
           {
             "kind": "Function",
-            "name": "toDictionary",
-            "printedName": "toDictionary()",
+            "name": "jsonRepresentation",
+            "printedName": "jsonRepresentation()",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -3372,8 +3394,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionStateChanges(im)toDictionary",
-            "mangledName": "$s13OneSignalUser30OSPushSubscriptionStateChangesC12toDictionarySo12NSDictionaryCyF",
+            "usr": "c:@M@OneSignalUser@objc(cs)OSPushSubscriptionStateChanges(im)jsonRepresentation",
+            "mangledName": "$s13OneSignalUser30OSPushSubscriptionStateChangesC18jsonRepresentationSo12NSDictionaryCyF",
             "moduleName": "OneSignalUser",
             "declAttributes": [
               "AccessControl",
@@ -3569,56 +3591,56 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 3549,
+      "offset": 3551,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4570,
+      "offset": 4573,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4589,
+      "offset": 4592,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4672,
+      "offset": 4675,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 1885,
+      "offset": 1847,
+      "length": 15,
+      "value": "\"OneSignalUser.OSLocationPoint\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
+      "kind": "StringLiteral",
+      "offset": 2423,
       "length": 10,
       "value": "\"language\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 2004,
-      "length": 5,
-      "value": "\"lat\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
-      "kind": "StringLiteral",
-      "offset": 2114,
-      "length": 6,
-      "value": "\"long\""
+      "offset": 2557,
+      "length": 10,
+      "value": "\"location\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "Dictionary",
-      "offset": 2188,
+      "offset": 2639,
       "length": 3,
       "value": "[]"
     },
@@ -3674,91 +3696,98 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2259,
+      "offset": 2265,
       "length": 30,
       "value": "\"OneSignalUser.OSPushSubscriptionStateChanges\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2893,
+      "offset": 2917,
       "length": 9,
       "value": "\"iOSPush\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2920,
+      "offset": 2944,
       "length": 7,
       "value": "\"Email\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2943,
+      "offset": 2967,
       "length": 5,
       "value": "\"SMS\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2893,
+      "offset": 2917,
       "length": 9,
       "value": "\"iOSPush\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2920,
+      "offset": 2944,
       "length": 7,
       "value": "\"Email\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2943,
+      "offset": 2967,
       "length": 5,
       "value": "\"SMS\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 3272,
+      "offset": 3296,
       "length": 9,
       "value": "\"address\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 3703,
+      "offset": 3727,
       "length": 16,
       "value": "\"subscriptionId\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 5019,
+      "offset": 5047,
       "length": 2,
       "value": "2"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 5093,
+      "offset": 5121,
       "length": 19,
       "value": "\"notificationTypes\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 4745,
+      "offset": 4773,
       "length": 2,
       "value": "1"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 2996,
+      "offset": 6446,
+      "length": 28,
+      "value": "\"CFBundleShortVersionString\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "kind": "StringLiteral",
+      "offset": 3020,
       "length": 19,
       "value": "\"OneSignalUser.OSSubscriptionModel\""
     },
@@ -3805,79 +3834,170 @@
       "value": "[]"
     },
     {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionOperationExecutor.swift",
+      "kind": "Dictionary",
+      "offset": 1815,
+      "length": 3,
+      "value": "[]"
+    },
+    {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "Array",
-      "offset": 1459,
+      "offset": 1579,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "Array",
+      "offset": 1665,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "Dictionary",
+      "offset": 1727,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 24822,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 14600,
+      "offset": 24744,
       "length": 19,
       "value": "\"OneSignalUser.OSRequestCreateUser\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 30124,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 18892,
+      "offset": 30044,
       "length": 21,
       "value": "\"OneSignalUser.OSRequestIdentifyUser\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 34038,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 22780,
+      "offset": 33961,
       "length": 18,
       "value": "\"OneSignalUser.OSRequestFetchUser\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 36401,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 25465,
+      "offset": 36323,
       "length": 19,
       "value": "\"OneSignalUser.OSRequestAddAliases\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 38611,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 27645,
+      "offset": 38532,
       "length": 20,
       "value": "\"OneSignalUser.OSRequestRemoveAlias\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 40823,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 29823,
+      "offset": 40739,
       "length": 25,
       "value": "\"OneSignalUser.OSRequestUpdateProperties\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 45270,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 33706,
+      "offset": 45184,
       "length": 27,
       "value": "\"OneSignalUser.OSRequestCreateSubscription\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 48712,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 37157,
+      "offset": 48624,
       "length": 29,
       "value": "\"OneSignalUser.OSRequestTransferSubscription\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 51563,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 40855,
+      "offset": 51477,
       "length": 27,
       "value": "\"OneSignalUser.OSRequestUpdateSubscription\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
+      "kind": "BooleanLiteral",
+      "offset": 54988,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserRequests.swift",
       "kind": "StringLiteral",
-      "offset": 44251,
+      "offset": 54902,
       "length": 27,
       "value": "\"OneSignalUser.OSRequestDeleteSubscription\""
     }
