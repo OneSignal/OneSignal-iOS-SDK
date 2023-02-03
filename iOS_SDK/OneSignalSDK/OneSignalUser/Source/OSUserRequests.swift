@@ -229,7 +229,7 @@ class OSUserExecutor {
                             type: type,
                             address: address,
                             subscriptionId: subModel["id"] as? String,
-                            accepted: true,
+                            reachable: true,
                             isDisabled: false,
                             changeNotifier: OSEventProducer()), hydrating: true
                         )
