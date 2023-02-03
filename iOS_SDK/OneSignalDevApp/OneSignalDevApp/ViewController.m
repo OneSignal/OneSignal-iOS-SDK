@@ -42,7 +42,7 @@
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal requiresPrivacyConsent];
 
-//    self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getDeviceState.isSubscribed;
+    self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.User.pushSubscription.optedIn;
     
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) [OneSignal.Location isShared];
     
@@ -60,7 +60,8 @@
 }
 
 - (IBAction)updateAppId:(id)sender {
-    [AppDelegate setOneSignalAppId:self.appIdTextField.text];
+    // [AppDelegate setOneSignalAppId:self.appIdTextField.text];
+    NSLog(@"Dev App: Not a feature, can't change app id, no op!");
 }
 
 - (IBAction)addTriggerAction:(id)sender {
@@ -84,16 +85,41 @@
     NSLog(@"Getting triggers no longer supported");
 }
 
-- (IBAction)setEmailButton:(id)sender {
+- (IBAction)addEmailButton:(id)sender {
     NSString *email = self.emailTextField.text;
-    NSLog(@"Adding email with email: %@", email);
+    NSLog(@"Dev App: add email: %@", email);
     [OneSignal.User addEmail:email];
 }
 
-- (IBAction)logoutEmailButton:(id)sender {
+- (IBAction)removeEmailButton:(id)sender {
     NSString *email = self.emailTextField.text;
-    BOOL canRemove = [OneSignal.User removeEmail:email];
-    NSLog(@"Removing email with email: %@ and canRemove: %d", email, canRemove);
+    NSLog(@"Dev App: Removing email: %@", email);
+    [OneSignal.User removeEmail:email];
+}
+
+- (IBAction)addSmsButton:(id)sender {
+    NSString *sms = self.smsTextField.text;
+    NSLog(@"Dev App: Add sms: %@", sms);
+    [OneSignal.User addSms:sms];
+}
+
+- (IBAction)removeSmsButton:(id)sender {
+    NSString *sms = self.smsTextField.text;
+    NSLog(@"Dev App: Removing sms: %@", sms);
+    [OneSignal.User removeSms:sms];
+}
+
+- (IBAction)addAliasButton:(UIButton *)sender {
+    NSString* label = self.addAliasLabelTextField.text;
+    NSString* id = self.addAliasIdTextField.text;
+    NSLog(@"Dev App: Add alias with label %@ and ID %@", label, id);
+    [OneSignal.User addAliasWithLabel:label id:id];
+}
+
+- (IBAction)removeAliasButton:(UIButton *)sender {
+    NSString* label = self.removeAliasLabelTextField.text;
+    NSLog(@"Dev App: Removing alias with label %@", label);
+    [OneSignal.User removeAlias:label];
 }
 
 - (IBAction)sendTagButton:(id)sender {
@@ -104,8 +130,8 @@
     }
 }
 
-- (IBAction)getTagsButton:(id)sender {
-    NSLog(@"getTags no longer supported");
+- (IBAction)getInfoButton:(id)sender {
+    NSLog(@"Dev App: get User and Device information, you need to fill in");
 }
 
 - (IBAction)sendTagsButton:(id)sender {
@@ -147,7 +173,13 @@
 
 - (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller subscription status: %i", (int) sender.selectedSegmentIndex);
-    // [OneSignal disablePush:(bool) !sender.selectedSegmentIndex];
+    if (sender.selectedSegmentIndex) {
+        [OneSignal.User.pushSubscription optIn];
+    } else {
+        [OneSignal.User.pushSubscription optOut];
+    }
+    sender.selectedSegmentIndex = (NSInteger) OneSignal.User.pushSubscription.optedIn;
+
 }
 
 - (IBAction)locationSharedSegmentedControlValueChanged:(UISegmentedControl *)sender {
@@ -164,13 +196,13 @@
     NSLog(@"View controller did get action: %@", actionId);
 }
 
-- (IBAction)setExternalUserId:(UIButton *)sender {
+- (IBAction)loginExternalUserId:(UIButton *)sender {
     NSString* externalUserId = self.externalUserIdTextField.text;
     NSLog(@"Dev App: Logging in to external user ID %@", externalUserId);
     [OneSignal login:externalUserId];
 }
 
-- (IBAction)removeExternalUserId:(UIButton *)sender {
+- (IBAction)logout:(UIButton *)sender {
     NSLog(@"Dev App: Logout called.");
     [OneSignal logout];
 }
@@ -221,6 +253,27 @@
     if (self.activityId.text && self.activityId.text.length) {
         [OneSignal exitLiveActivity:self.activityId.text];
     }
+}
+
+- (IBAction)setLanguage:(id)sender {
+    NSLog(@"Dev App: set language called.");
+    NSString *language = self.languageTextField.text;
+    [OneSignal.User setLanguage:language];
+}
+
+- (IBAction)clearAllNotifications:(id)sender {
+    NSLog(@"Dev App: clear All Notifications called.");
+    [OneSignal.Notifications clearAll];
+}
+
+- (IBAction)requireConsent:(id)sender {
+    NSLog(@"Dev App: setting setRequiresPrivacyConsent to true.");
+    [OneSignal setRequiresPrivacyConsent:true];
+}
+
+- (IBAction)dontRequireConsent:(id)sender {
+    NSLog(@"Dev App: setting setRequiresPrivacyConsent to false.");
+    [OneSignal setRequiresPrivacyConsent:false];
 }
 
 @end

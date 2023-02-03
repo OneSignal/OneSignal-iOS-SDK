@@ -45,6 +45,27 @@ struct OSPropertiesDeltas {
     }
 }
 
+// Both lat and long must exist to be accepted by the server
+class OSLocationPoint: NSObject, NSCoding {
+    let lat: Float
+    let long: Float
+
+    init(lat: Float, long: Float) {
+        self.lat = lat
+        self.long = long
+    }
+
+    public func encode(with coder: NSCoder) {
+        coder.encode(lat, forKey: "lat")
+        coder.encode(long, forKey: "long")
+    }
+
+    public required init?(coder: NSCoder) {
+        self.lat = coder.decodeFloat(forKey: "lat")
+        self.long = coder.decodeFloat(forKey: "long")
+    }
+}
+
 class OSPropertiesModel: OSModel {
     var language: String? {
         didSet {
@@ -52,15 +73,9 @@ class OSPropertiesModel: OSModel {
         }
     }
 
-    var lat: Float? {
+    var location: OSLocationPoint? {
         didSet {
-            self.set(property: "lat", newValue: lat)
-        }
-    }
-
-    var long: Float? {
-        didSet {
-            self.set(property: "long", newValue: long)
+            self.set(property: "location", newValue: location)
         }
     }
 
