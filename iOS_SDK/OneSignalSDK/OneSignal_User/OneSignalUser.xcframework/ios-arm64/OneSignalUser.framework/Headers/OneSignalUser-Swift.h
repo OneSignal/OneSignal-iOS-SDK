@@ -255,7 +255,6 @@ using UInt = size_t;
 #if defined(__OBJC__)
 @class NSString;
 @protocol OSPushSubscriptionObserver;
-@class OSPushSubscriptionState;
 
 /// This is the push subscription interface exposed to the public.
 SWIFT_PROTOCOL("_TtP13OneSignalUser18OSPushSubscription_")
@@ -265,7 +264,7 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser18OSPushSubscription_")
 @property (nonatomic, readonly) BOOL optedIn;
 - (void)optIn;
 - (void)optOut;
-- (OSPushSubscriptionState * _Nullable)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer SWIFT_WARN_UNUSED_RESULT;
+- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
 - (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
 @end
 
@@ -284,7 +283,7 @@ SWIFT_CLASS("_TtC13OneSignalUser23OSPushSubscriptionState")
 @property (nonatomic, readonly, copy) NSString * _Nullable token;
 @property (nonatomic, readonly) BOOL optedIn;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
-- (NSDictionary * _Nonnull)toDictionary SWIFT_WARN_UNUSED_RESULT;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -295,7 +294,7 @@ SWIFT_CLASS("_TtC13OneSignalUser30OSPushSubscriptionStateChanges")
 @property (nonatomic, readonly, strong) OSPushSubscriptionState * _Nonnull to;
 @property (nonatomic, readonly, strong) OSPushSubscriptionState * _Nonnull from;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
-- (NSDictionary * _Nonnull)toDictionary SWIFT_WARN_UNUSED_RESULT;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -314,10 +313,10 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 - (void)removeTag:(NSString * _Nonnull)tag;
 - (void)removeTags:(NSArray<NSString *> * _Nonnull)tags;
 - (void)addEmail:(NSString * _Nonnull)email;
-- (BOOL)removeEmail:(NSString * _Nonnull)email SWIFT_WARN_UNUSED_RESULT;
-- (void)addSmsNumber:(NSString * _Nonnull)number;
-- (BOOL)removeSmsNumber:(NSString * _Nonnull)number SWIFT_WARN_UNUSED_RESULT;
-- (void)setLanguage:(NSString * _Nullable)language;
+- (void)removeEmail:(NSString * _Nonnull)email;
+- (void)addSms:(NSString * _Nonnull)number;
+- (void)removeSms:(NSString * _Nonnull)number;
+- (void)setLanguage:(NSString * _Nonnull)language;
 - (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @end
 
@@ -329,12 +328,13 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 + (OneSignalUserManagerImpl * _Nonnull)sharedInstance SWIFT_WARN_UNUSED_RESULT;
 @property (nonatomic, readonly, copy) NSString * _Nullable onesignalId;
 @property (nonatomic, readonly, copy) NSString * _Nullable pushSubscriptionId;
+@property (nonatomic, readonly, copy) NSString * _Nullable language;
 @property (nonatomic) BOOL requiresUserAuth;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (void)start;
 - (void)loginWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nullable)token;
-/// The SDK needs to have a user at all times, so this method will create a new anonymous user.
+/// The SDK needs to have a user at all times, so this method will create a new anonymous user. If the current user is already anonymous, calling <code>logout</code> results in a no-op.
 - (void)logout;
 - (void)clearAllModelsFromStores;
 - (NSDictionary<NSString *, NSString *> * _Nullable)getTags SWIFT_WARN_UNUSED_RESULT;
@@ -356,12 +356,12 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OneSignalNotificationsDelegate>
 - (void)setNotificationTypes:(int32_t)notificationTypes;
 - (void)setPushToken:(NSString * _Nonnull)pushToken;
-- (void)setAccepted:(BOOL)inAccepted;
+- (void)setReachable:(BOOL)inReachable;
 @end
 
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OSPushSubscription>
-- (OSPushSubscriptionState * _Nullable)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer SWIFT_WARN_UNUSED_RESULT;
+- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
 - (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
 @property (nonatomic, readonly, copy) NSString * _Nullable id;
 @property (nonatomic, readonly, copy) NSString * _Nullable token;
@@ -388,13 +388,13 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 /// If this email doesn’t already exist on the user, it cannot be removed.
 /// This will be a no-op and no request will be made.
 /// Error handling needs to be implemented in the future.
-- (BOOL)removeEmail:(NSString * _Nonnull)email SWIFT_WARN_UNUSED_RESULT;
-- (void)addSmsNumber:(NSString * _Nonnull)number;
+- (void)removeEmail:(NSString * _Nonnull)email;
+- (void)addSms:(NSString * _Nonnull)number;
 /// If this email doesn’t already exist on the user, it cannot be removed.
 /// This will be a no-op and no request will be made.
 /// Error handling needs to be implemented in the future.
-- (BOOL)removeSmsNumber:(NSString * _Nonnull)number SWIFT_WARN_UNUSED_RESULT;
-- (void)setLanguage:(NSString * _Nullable)language;
+- (void)removeSms:(NSString * _Nonnull)number;
+- (void)setLanguage:(NSString * _Nonnull)language;
 @end
 
 #endif
