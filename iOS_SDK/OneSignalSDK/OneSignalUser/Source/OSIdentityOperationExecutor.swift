@@ -59,10 +59,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // The model exists in the store, set it to be the Request's models
+                    // 1. The model exists in the store, so set it to be the Request's models
+                    request.identityModel = identityModel
+                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
+                    // 2. The model exists in the user executor
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
-                    // The models do not exist AND this request cannot be sent, drop this Request
+                    // 3. The models do not exist AND this request cannot be sent, drop this Request
                     addRequestQueue.remove(at: index)
                 }
             }
@@ -75,10 +78,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // The model exists in the store, set it to be the Request's model
+                    // 1. The model exists in the store, so set it to be the Request's model
+                    request.identityModel = identityModel
+                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
+                    // 2. The model exists in the user executor
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
-                    // The model does not exist AND this request cannot be sent, drop this Request
+                    // 3. The model does not exist AND this request cannot be sent, drop this Request
                     removeRequestQueue.remove(at: index)
                 }
             }
@@ -158,47 +164,59 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
+        guard !request.sentToClient else {
+            return
+        }
+        guard request.prepareForExecution() else {
+            return
+        }
+        request.sentToClient = true
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
 
         OneSignalClient.shared().execute(request) { _ in
-            // Mock a response
-            // TODO: Is there even a response to hydrate?
-            let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
-
-            // On success, remove request from cache, and hydrate model
-            // For example, if app restarts and we read in operations between sending this off and getting the response
+            // No hydration from response
+            // On success, remove request from cache
             self.addRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-
-            // instead: modelstore.hydratewithresponse with modelid passed in.. request.modeltoupdate.modelId
-                // store can determine if modelid is same, then hydrate or do nothign
-            request.identityModel.hydrate(response)
-
         } onFailure: { error in
-            self.addRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            // TODO: What happened, maybe alias exists on another user
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.addRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            }
         }
     }
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
+        guard !request.sentToClient else {
+            return
+        }
+        guard request.prepareForExecution() else {
+            return
+        }
+        request.sentToClient = true
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
 
         OneSignalClient.shared().execute(request) { _ in
-
-            // Mock a response
-            // TODO: Is there even a response to hydrate?
-            let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
-
-            // On success, remove request from cache, and hydrate model
-            // For example, if app restarts and we read in operations between sending this off and getting the response
+            // There is nothing to hydrate
+            // On success, remove request from cache
             self.removeRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-
-            request.identityModel.hydrate(response)
-
         } onFailure: { error in
-            self.removeRequestQueue.removeAll(where: { $0 == request})
-            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
+            // TODO: Differentiate error cases
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                self.removeRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            }
         }
     }
 }
