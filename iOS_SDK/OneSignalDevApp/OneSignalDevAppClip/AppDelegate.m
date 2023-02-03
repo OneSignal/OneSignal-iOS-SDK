@@ -52,7 +52,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
-    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
@@ -112,8 +112,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal initialize:onesignalAppId withLaunchOptions:nil];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+- (void) onOSPermissionChanged:(OSPermissionState*)state {
+    NSLog(@"onOSPermissionChanged: %@", state);
 }
 
 // TODO: Add push sub observer
