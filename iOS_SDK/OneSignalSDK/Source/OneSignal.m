@@ -76,9 +76,6 @@
 
 #import "OneSignalLifecycleObserver.h"
 
-#import "LanguageProviderAppDefined.h"
-#import "LanguageContext.h"
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -123,17 +120,6 @@ static NSTimeInterval initializationTime;
 
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
-
-static LanguageContext* languageContext;
-
-// static property def to add developer's OSPermissionStateChanges observers to.
-static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
-+ (ObservablePermissionStateChangesType*)permissionStateChangesObserver {
-    if (!_permissionStateChangesObserver)
-        _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
-    return _permissionStateChangesObserver;
-}
-
 
 /*
  Indicates if the iOS params request has started
@@ -203,9 +189,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
-    
-    _permissionStateChangesObserver = nil;
-    
+        
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
     
@@ -535,7 +519,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)delayInitializationForPrivacyConsent {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
     _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
     // Init was not successful, set appId back to nil
@@ -574,9 +558,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     
     // Now really initializing the SDK!
-
-    // TODO: Language move to user?
-    languageContext = [LanguageContext new];
     
     [self initInAppLaunchURLSettings:appSettings];
     

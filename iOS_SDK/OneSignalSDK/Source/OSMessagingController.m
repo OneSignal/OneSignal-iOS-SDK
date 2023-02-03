@@ -30,7 +30,6 @@
 #import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
@@ -112,10 +111,7 @@ static dispatch_once_t once;
 
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wunused-variable"
-    OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
-    #pragma clang diagnostic pop
+    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -317,7 +313,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {
     if (!message.variantId) {
-        let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
+        let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", OneSignalUserManagerImpl.sharedInstance.language, message.variants];
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
         return;
     }

@@ -214,21 +214,8 @@
 		9D59C2F92321C7780008ECCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
 		9DDFEEF223189C0800EAE0BB /* OneSignalViewHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D3300F423145AF3000F0A83 /* OneSignalViewHelper.h */; };
 		9DDFEEF323189C0E00EAE0BB /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
-		A63E9E3826742B4100EA273E /* LanguageProviderAppDefined.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */; };
-		A63E9E3926742B4200EA273E /* LanguageProviderAppDefined.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */; };
-		A63E9E3A26742B4600EA273E /* LanguageProviderDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519AC2669749100AED40E /* LanguageProviderDevice.m */; };
-		A63E9E3B26742B4700EA273E /* LanguageProviderDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519AC2669749100AED40E /* LanguageProviderDevice.m */; };
-		A63E9E3C26742B5F00EA273E /* LanguageContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A52669614A00AED40E /* LanguageContext.m */; };
-		A63E9E3D26742B6000EA273E /* LanguageContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A52669614A00AED40E /* LanguageContext.m */; };
-		A63E9E3E26742C1000EA273E /* LanguageContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519A42669614A00AED40E /* LanguageContext.h */; };
-		A63E9E3F26742C1400EA273E /* LanguageProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519A7266964BA00AED40E /* LanguageProvider.h */; };
-		A63E9E4026742C1600EA273E /* LanguageProviderAppDefined.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519A82669747B00AED40E /* LanguageProviderAppDefined.h */; };
-		A63E9E4126742C1800EA273E /* LanguageProviderDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519AB2669749100AED40E /* LanguageProviderDevice.h */; };
 		A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A662399026850DDE00D52FD8 /* LanguageTest.m */; };
 		A66239952686612F00D52FD8 /* OneSignalFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignalFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A6B519A62669614A00AED40E /* LanguageContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A52669614A00AED40E /* LanguageContext.m */; };
-		A6B519AA2669747B00AED40E /* LanguageProviderAppDefined.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */; };
-		A6B519AD2669749100AED40E /* LanguageProviderDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519AC2669749100AED40E /* LanguageProviderDevice.m */; };
 		CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */; };
 		CA1A6E6920DC2E31001C41B9 /* OneSignalDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = CA1A6E6720DC2E31001C41B9 /* OneSignalDialogController.h */; };
 		CA1A6E6A20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */; };
@@ -869,13 +856,6 @@
 		9D348538233D2DCF00EB81C9 /* OneSignalLocationOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLocationOverrider.h; sourceTree = "<group>"; };
 		9D348539233D2E3600EB81C9 /* OneSignalLocationOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLocationOverrider.m; sourceTree = "<group>"; };
 		A662399026850DDE00D52FD8 /* LanguageTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LanguageTest.m; sourceTree = "<group>"; };
-		A6B519A42669614A00AED40E /* LanguageContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LanguageContext.h; sourceTree = "<group>"; };
-		A6B519A52669614A00AED40E /* LanguageContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LanguageContext.m; sourceTree = "<group>"; };
-		A6B519A7266964BA00AED40E /* LanguageProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LanguageProvider.h; sourceTree = "<group>"; };
-		A6B519A82669747B00AED40E /* LanguageProviderAppDefined.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LanguageProviderAppDefined.h; sourceTree = "<group>"; };
-		A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LanguageProviderAppDefined.m; sourceTree = "<group>"; };
-		A6B519AB2669749100AED40E /* LanguageProviderDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LanguageProviderDevice.h; sourceTree = "<group>"; };
-		A6B519AC2669749100AED40E /* LanguageProviderDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LanguageProviderDevice.m; sourceTree = "<group>"; };
 		CA08FC821FE99BB4004C445F /* OneSignalClientOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientOverrider.h; sourceTree = "<group>"; };
 		CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientOverrider.m; sourceTree = "<group>"; };
 		CA1A6E6720DC2E31001C41B9 /* OneSignalDialogController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalDialogController.h; sourceTree = "<group>"; };
@@ -1428,7 +1408,6 @@
 			isa = PBXGroup;
 			children = (
 				DE7D18D92703B3EA002D3A5D /* Requests */,
-				A63E9E42267A847800EA273E /* Language */,
 				7AAA606B2485D0D70004FADE /* Migration */,
 				7A674F172360D7DB001F9ACD /* OnFocus */,
 				454F94F31FAD263300D74CCF /* Model */,
@@ -1477,20 +1456,6 @@
 				DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */,
 			);
 			name = Categories;
-			sourceTree = "<group>";
-		};
-		A63E9E42267A847800EA273E /* Language */ = {
-			isa = PBXGroup;
-			children = (
-				A6B519A42669614A00AED40E /* LanguageContext.h */,
-				A6B519A52669614A00AED40E /* LanguageContext.m */,
-				A6B519A7266964BA00AED40E /* LanguageProvider.h */,
-				A6B519A82669747B00AED40E /* LanguageProviderAppDefined.h */,
-				A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */,
-				A6B519AB2669749100AED40E /* LanguageProviderDevice.h */,
-				A6B519AC2669749100AED40E /* LanguageProviderDevice.m */,
-			);
-			name = Language;
 			sourceTree = "<group>";
 		};
 		CA6B3CB621B5CF2600AA6A65 /* Model */ = {
@@ -1998,12 +1963,9 @@
 				7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */,
 				CA47439D2190FEA80020DC8C /* OSTrigger.h in Headers */,
 				9DDFEEF223189C0800EAE0BB /* OneSignalViewHelper.h in Headers */,
-				A63E9E4126742C1800EA273E /* LanguageProviderDevice.h in Headers */,
-				A63E9E3F26742C1400EA273E /* LanguageProvider.h in Headers */,
 				A66239952686612F00D52FD8 /* OneSignalFramework.h in Headers */,
 				7A93269325AF4E6700BBEC27 /* OSPendingCallbacks.h in Headers */,
 				944F7ED1296F9F0700AEBA54 /* OneSignalLiveActivityController.h in Headers */,
-				A63E9E3E26742C1000EA273E /* LanguageContext.h in Headers */,
 				CA4742E4218B8FF30020DC8C /* OSTriggerController.h in Headers */,
 				DE7D18EC2703B5AA002D3A5D /* OSInAppMessagingRequests.h in Headers */,
 				DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */,
@@ -2017,7 +1979,6 @@
 				912412351E73342200E41FD7 /* OneSignalTrackIAP.h in Headers */,
 				7AECE59423674AA700537907 /* OSAttributedFocusTimeProcessor.h in Headers */,
 				912412311E73342200E41FD7 /* OneSignalTracker.h in Headers */,
-				A63E9E4026742C1600EA273E /* LanguageProviderAppDefined.h in Headers */,
 				3C79BEB9293DC88F0034CB10 /* OneSignalInAppMessaging.h in Headers */,
 				9124123D1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.h in Headers */,
 				7AF9865324451F3900C36EAE /* OSFocusCallParams.h in Headers */,
@@ -2575,7 +2536,6 @@
 				7A1F2D8F2406EFC5007799A9 /* OSInAppMessageTag.m in Sources */,
 				7A72EB0E23E252C200B4D50F /* OSInAppMessageDisplayStats.m in Sources */,
 				9124121E1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
-				A6B519A62669614A00AED40E /* LanguageContext.m in Sources */,
 				912412471E73369600E41FD7 /* OneSignalHelper.m in Sources */,
 				7A880F312404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
 				CA8E19062193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
@@ -2583,7 +2543,6 @@
 				DE7D18DF2703B49B002D3A5D /* OSFocusRequests.m in Sources */,
 				7A674F1B2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
 				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
-				A6B519AA2669747B00AED40E /* LanguageProviderAppDefined.m in Sources */,
 				9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CA47439E2190FEA80020DC8C /* OSTrigger.m in Sources */,
@@ -2591,7 +2550,6 @@
 				CA1A6E7020DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				CA4742E5218B8FF30020DC8C /* OSTriggerController.m in Sources */,
-				A6B519AD2669749100AED40E /* LanguageProviderDevice.m in Sources */,
 				CAB269E021B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,
 				DE7D18EE2703B5B9002D3A5D /* OSInAppMessagingRequests.m in Sources */,
 				DE367CC724EEF2BE00165207 /* OSInAppMessagePage.m in Sources */,
@@ -2654,11 +2612,9 @@
 				9DDFEEF323189C0E00EAE0BB /* OneSignalViewHelper.m in Sources */,
 				DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				CA47439F2190FEA80020DC8C /* OSTrigger.m in Sources */,
-				A63E9E3826742B4100EA273E /* LanguageProviderAppDefined.m in Sources */,
 				CAB4112A20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				7AECE59F23675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
-				A63E9E3A26742B4600EA273E /* LanguageProviderDevice.m in Sources */,
 				DEC08B012947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */,
 				CA1A6E7120DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				CA4742E6218B8FF30020DC8C /* OSTriggerController.m in Sources */,
@@ -2666,7 +2622,6 @@
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				DE367CC824EEF2BE00165207 /* OSInAppMessagePage.m in Sources */,
 				DE7D18EF2703B5B9002D3A5D /* OSInAppMessagingRequests.m in Sources */,
-				A63E9E3C26742B5F00EA273E /* LanguageContext.m in Sources */,
 				CACBAAA2218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */,
 				7A674F1C2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
 				7AFE856C2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
@@ -2702,7 +2657,6 @@
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
-				A63E9E3D26742B6000EA273E /* LanguageContext.m in Sources */,
 				7ABAF9D22457C3650074DFA0 /* CommonAsserts.m in Sources */,
 				03217239238278EB004F0E85 /* DelayedSelectors.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
@@ -2736,7 +2690,6 @@
 				03866CBD2378A33B0009C1D8 /* OutcomeIntegrationTests.m in Sources */,
 				DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */,
 				CA36F35B21C33A2500300C77 /* OSInAppMessageController.m in Sources */,
-				A63E9E3926742B4200EA273E /* LanguageProviderAppDefined.m in Sources */,
 				03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */,
 				7ABAF9D62457D3FF0074DFA0 /* ChannelTrackersTests.m in Sources */,
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
@@ -2784,7 +2737,6 @@
 				03866CC12378A67B0009C1D8 /* RestClientAsserts.m in Sources */,
 				7ADF891C230DB5BD0054E0D6 /* UnitTestAppDelegate.m in Sources */,
 				4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */,
-				A63E9E3B26742B4700EA273E /* LanguageProviderDevice.m in Sources */,
 				CA1A6E7220DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
 			);
