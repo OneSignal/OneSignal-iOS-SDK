@@ -32,7 +32,7 @@
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
-static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
+static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
 
 + (Class<OSDebug>)Debug {
     return self;
@@ -42,8 +42,8 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
     _nsLogLevel = nsLogLevel;
 }
 
-+ (void)setVisualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    _visualLogLevel = visualLogLevel;
++ (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel {
+    _alertLogLevel = logLevel;
 }
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
@@ -79,7 +79,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (logLevel <= _nsLogLevel)
         NSLog(@"%@", [levelString stringByAppendingString:message]);
     
-    if (logLevel <= _visualLogLevel) {
+    if (logLevel <= _alertLogLevel) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
 }
