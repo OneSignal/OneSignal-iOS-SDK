@@ -59,7 +59,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         var requestQueue: [OSRequestCreateSubscription] = []
 
-        if var cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
+        if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
             // Hook each uncached Request to the model in the store
             for request in cachedAddRequestQueue {
                 // 1. Hook up the subscription model
