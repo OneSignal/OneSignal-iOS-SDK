@@ -75,6 +75,12 @@ public extension OneSignal {
     }
 }
 
+public extension OSDebug {
+    static func setAlertLevel(_ logLevel: ONE_S_LOG_LEVEL) {
+        __setAlert(logLevel)
+    }
+}
+
 public extension OSInAppMessages {
     static var Paused: Bool {
         get {

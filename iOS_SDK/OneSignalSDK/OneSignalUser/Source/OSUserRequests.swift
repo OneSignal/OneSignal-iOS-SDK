@@ -229,7 +229,7 @@ class OSUserExecutor {
                             type: type,
                             address: address,
                             subscriptionId: subModel["id"] as? String,
-                            accepted: true,
+                            reachable: true,
                             isDisabled: false,
                             changeNotifier: OSEventProducer()), hydrating: true
                         )
@@ -900,8 +900,14 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))"
         super.init()
 
+        var propertiesObject = properties
+        if let location = propertiesObject["location"] as? OSLocationPoint {
+            propertiesObject["lat"] = location.lat
+            propertiesObject["long"] = location.long
+            propertiesObject.removeValue(forKey: "location")
+        }
         var params: [String: Any] = [:]
-        params["properties"] = properties
+        params["properties"] = propertiesObject
         params["refresh_device_metadata"] = refreshDeviceMetadata
         if let deltas = deltas {
             params["deltas"] = deltas
