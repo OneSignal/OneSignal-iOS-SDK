@@ -82,7 +82,7 @@ import OneSignalNotifications
 
     func optIn()
     func optOut()
-    func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState?
+    func addObserver(_ observer: OSPushSubscriptionObserver)
     func removeObserver(_ observer: OSPushSubscriptionObserver)
 }
 
@@ -669,12 +669,11 @@ extension OneSignalUserManagerImpl: OSUser {
 
 extension OneSignalUserManagerImpl: OSPushSubscription {
 
-    public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState? {
+    public func addObserver(_ observer: OSPushSubscriptionObserver) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.addObserver") else {
-            return nil
+            return
         }
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
-        return user.pushSubscriptionModel.currentPushSubscriptionState
     }
 
     public func removeObserver(_ observer: OSPushSubscriptionObserver) {
