@@ -38,6 +38,9 @@ extension OneSignalFramework.OneSignal {
     set
   }
 }
+extension OneSignalCore.OSDebug {
+  public static func setAlertLevel(_ logLevel: OneSignalCore.ONE_S_LOG_LEVEL)
+}
 extension OneSignalFramework.OSInAppMessages {
   public static var Paused: Swift.Bool {
     get
