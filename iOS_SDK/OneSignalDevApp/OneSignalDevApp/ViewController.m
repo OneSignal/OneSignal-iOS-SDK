@@ -100,13 +100,13 @@
 - (IBAction)addSmsButton:(id)sender {
     NSString *sms = self.smsTextField.text;
     NSLog(@"Dev App: Add sms: %@", sms);
-    [OneSignal.User addSmsNumber:sms];
+    [OneSignal.User addSms:sms];
 }
 
 - (IBAction)removeSmsButton:(id)sender {
     NSString *sms = self.smsTextField.text;
     NSLog(@"Dev App: Removing sms: %@", sms);
-    [OneSignal.User removeSmsNumber:sms];
+    [OneSignal.User removeSms:sms];
 }
 
 - (IBAction)addAliasButton:(UIButton *)sender {
