@@ -125,8 +125,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     func setLocation(lat: Float, long: Float) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User setLocation called with lat: \(lat) long: \(long)")
 
-        propertiesModel.lat = lat
-        propertiesModel.long = long
+        propertiesModel.location = OSLocationPoint(lat: lat, long: long)
     }
 
     // MARK: - Language
