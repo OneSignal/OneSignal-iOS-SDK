@@ -272,4 +272,14 @@
     [OneSignal.Notifications clearAll];
 }
 
+- (IBAction)requireConsent:(id)sender {
+    NSLog(@"Dev App: setting setRequiresPrivacyConsent to true.");
+    [OneSignal setRequiresPrivacyConsent:true];
+}
+
+- (IBAction)dontRequireConsent:(id)sender {
+    NSLog(@"Dev App: setting setRequiresPrivacyConsent to false.");
+    [OneSignal setRequiresPrivacyConsent:false];
+}
+
 @end
