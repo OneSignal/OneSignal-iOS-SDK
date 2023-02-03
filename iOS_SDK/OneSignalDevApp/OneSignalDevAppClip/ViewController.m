@@ -78,19 +78,19 @@
     NSLog(@"Getting triggers no longer supported");
 }
 
-- (IBAction)setEmailButton:(id)sender {
+- (IBAction)addEmailButton:(id)sender {
     NSString *email = self.emailTextField.text;
-    NSLog(@"Adding email with email: %@", email);
+    NSLog(@"Dev App Clip: Adding email: %@", email);
     [OneSignal.User addEmail:email];
 }
 
-- (IBAction)logoutEmailButton:(id)sender {
+- (IBAction)removeEmailButton:(id)sender {
     NSString *email = self.emailTextField.text;
-    BOOL canRemove = [OneSignal.User removeEmail:email];
-    NSLog(@"Removing email with email: %@ and canRemove: %d", email, canRemove);
+    NSLog(@"Dev App Clip: Removing email: %@", email);
+    [OneSignal.User removeEmail:email];
 }
 
-- (IBAction)getTagsButton:(id)sender {
+- (IBAction)getInfoButton:(id)sender {
     NSLog(@"getTags no longer supported");
 }
 
@@ -150,12 +150,14 @@
     NSLog(@"View controller did get action: %@", actionId);
 }
 
-- (IBAction)setExternalUserId:(UIButton *)sender {
+- (IBAction)loginExternalUserId:(UIButton *)sender {
     NSLog(@"setExternalUserId is no longer supported. Please use login or addAlias.");
+    // TODO: Update
 }
 
-- (IBAction)removeExternalUserId:(UIButton *)sender {
-    NSLog(@"setExternalUserId is no longer supported. Please use logout or removeAlias.");
+- (IBAction)logout:(UIButton *)sender {
+    NSLog(@"removeExternalUserId is no longer supported. Please use logout or removeAlias.");
+    // TODO: Update
 }
 
 #pragma mark UITextFieldDelegate Methods
