@@ -337,6 +337,8 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)clearAll {
+    [[UNUserNotificationCenter currentNotificationCenter] removeAllDeliveredNotifications];
+    // TODO: Determine if we also need to call clearBadgeCount
     [self clearBadgeCount:false];
 }
 
