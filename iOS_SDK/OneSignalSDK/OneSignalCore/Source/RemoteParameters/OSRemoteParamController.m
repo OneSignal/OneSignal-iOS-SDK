@@ -35,6 +35,8 @@ THE SOFTWARE.
 
 static OSRemoteParamController *_sharedController;
 + (OSRemoteParamController *)sharedController {
+    if (!_sharedController)
+        _sharedController = [OSRemoteParamController new];
     return _sharedController;
 }
 
