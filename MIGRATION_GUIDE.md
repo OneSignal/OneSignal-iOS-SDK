@@ -143,11 +143,15 @@ The current device’s push subscription can be retrieved via:
 
 **Objective-C**
 ```objc
-    id<OSPushSubscription> pushSubscription = OneSignal.User.pushSubscription;
+    OneSignal.User.pushSubscription.id;
+    OneSignal.User.pushSubscription.token;
+    OneSignal.User.pushSubscription.optedIn;
 ```
 **Swift**
 ```swift
-    let pushSubscription: OSPushSubscription = OneSignal.User.pushSubscription
+    OneSignal.User.pushSubscription.id
+    OneSignal.User.pushSubscription.token
+    OneSignal.User.pushSubscription.optedIn
 ```
 
 ### **Opting In and Out of Push Notifications**
@@ -186,12 +190,12 @@ Email and/or SMS subscriptions can be added or removed via the following methods
     // Add email subscription
     [OneSignal.User addEmail:@"customer@company.com"];
     // Remove previously added email subscription
-    BOOL success = [OneSignal.User removeEmail:@"customer@company.com"];
+    [OneSignal.User removeEmail:@"customer@company.com"];
     
     // Add SMS subscription
-    [OneSignal.User addSmsNumber:@"+15558675309"];
+    [OneSignal.User addSms:@"+15558675309"];
     // Remove previously added SMS subscription
-    BOOL succss = [OneSignal.User removeSmsNumber:@"+15558675309"];
+    [OneSignal.User removeSms:@"+15558675309"];
 ```
 
 **Swift**
@@ -199,12 +203,12 @@ Email and/or SMS subscriptions can be added or removed via the following methods
     // Add email subscription
     OneSignal.User.addEmail("customer@company.com")
     // Remove previously added email subscription
-    let success: Bool = OneSignal.User.removeEmail("customer@company.com")
+    OneSignal.User.removeEmail("customer@company.com")
     
     // Add SMS subscription
-    OneSignal.User.addSmsNumber("+15558675309")
+    OneSignal.User.addSms("+15558675309")
     // Remove previously added SMS subscription
-    let success: Bool = OneSignal.User.removeSmsNumber("+15558675309")     
+    OneSignal.User.removeSms("+15558675309")     
 ```
 
 # API Reference
@@ -291,15 +295,15 @@ The User name space is accessible via `OneSignal.User` and provides access to us
 | **Swift**                                                                                                       | **Objective-C**                                                                                       | **Description**                                                                                                                                                                                                                          |
 | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `OneSignal.User.setLanguage("en")`                                                                              | `[OneSignal.User setLanguage:@"en"]`                                                                  | *Set the 2-character language  for this user.*                                                                                                                                                                                         |
-| `let pushSubscription: OSPushSubscription = OneSignal.User.pushSubscription`                                    | `id<OSPushSubscription> pushSubscription = OneSignal.User.pushSubscription`                           | *The push subscription associated to the current user.*                                                                                                                                                                                  |
+| `let pushSubscriptionProperty = OneSignal.User.pushSubscription.<PROPERTY>`                                    | `id pushSubscriptionProperty = OneSignal.User.pushSubscription.<PROPERTY>`                           | *The push subscription associated to the current user.*                                                                                                                                                                                  |
 | `OneSignal.User.addAlias(label: "ALIAS_LABEL", id: "ALIAS_ID")`                                         | `[OneSignal.User addAliasWithLabel:@"ALIAS_LABEL" id:@"ALIAS_ID"]`                                    | *Set an alias for the current user.  If this alias label already exists on this user, it will be overwritten with the new alias id.*                                                                                         |
 | `OneSignal.User.addAliases(["ALIAS_LABEL_01": "ALIAS_ID_01", "ALIAS_LABEL_02": "ALIAS_ID_02"])` | `[OneSignal.User addAliases:@{@"ALIAS_LABEL_01": @"ALIAS_ID_01", @"ALIAS_LABEL_02": @"ALIAS_ID_02"}]` | *Set aliases for the current user. If any alias already exists, it will be overwritten to the new values.*                                                                                                                       |
 | `OneSignal.User.removeAlias("ALIAS_LABEL")`                                                                 | `[OneSignal.User removeAlias:@"ALIAS_LABEL"]`                                                         | *Remove an alias from the current user.*                                                                                                                                                                                                 |
 | `OneSignal.User.removeAliases(["ALIAS_LABEL_01", "ALIAS_LABEL_02"])`                                    | `[OneSignal.User removeAliases:@[@"ALIAS_LABEL_01", @"ALIAS_LABEL_02"]]`                              | *Remove aliases from the current user.*                                                                                                                                                                                              |
 | `OneSignal.User.addEmail("customer@company.com")`                                                           | `[OneSignal.User addEmail:@"customer@company.com"]`                                               | *Add a new email subscription to the current user.*                                                                                                                                                                                      |
-| `let success: Bool = OneSignal.User.removeEmail("customer@company.com")`                                | `BOOL success = [OneSignal.User removeEmail:@"customer@company.com"]`                             | *Remove an email subscription from the current user. Returns `false` if the specified email does not exist on the user within the SDK, and no request will be made.*                                                               |
-| `OneSignal.User.addSmsNumber("+15558675309")`                                                               | `[OneSignal.User addSmsNumber:@"+15558675309"]`                                                   | *Add a new SMS subscription to the current user.*                                                                                                                                                                                        |
-| `let success: Bool = OneSignal.User.removeSmsNumber("+15558675309")`                                    | `BOOL success = [OneSignal.User removeSmsNumber:@"+15558675309"]`                                 | *Remove an SMS subscription from the current user. Returns `false` if the specified SMS number does not exist on the user within the SDK, and no request will be made.*                                                            |
+| `OneSignal.User.removeEmail("customer@company.com")`                                | `[OneSignal.User removeEmail:@"customer@company.com"]`                             | *Remove an email subscription from the current user. Returns `false` if the specified email does not exist on the user within the SDK, and no request will be made.*                                                               |
+| `OneSignal.User.addSms("+15558675309")`                                                               | `[OneSignal.User addSms:@"+15558675309"]`                                                   | *Add a new SMS subscription to the current user.*                                                                                                                                                                                        |
+| `OneSignal.User.removeSms("+15558675309")`                                    | `[OneSignal.User removeSms:@"+15558675309"]`                                 | *Remove an SMS subscription from the current user. Returns `false` if the specified SMS number does not exist on the user within the SDK, and no request will be made.*                                                            |
 | `OneSignal.User.addTag(key: "KEY", value: "VALUE")`                                                     | `[OneSignal.User addTagWithKey:@"KEY" value:@"VALUE"]`                                                | *Add a tag for the current user.  Tags are key:value pairs used as building blocks for targeting specific users and/or personalizing messages. If the tag key already exists, it will be replaced with the value provided here.*         |
 | `OneSignal.User.addTags(["KEY_01": "VALUE_01", "KEY_02": "VALUE_02"])`                          | `[OneSignal.User addTags:@{@"KEY_01": @"VALUE_01", @"KEY_02": @"VALUE_02"}]`                          | *Add multiple tags for the current user.  Tags are key:value pairs used as building blocks for targeting specific users and/or personalizing messages. If the tag key already exists, it will be replaced with the value provided here.* |
 | `OneSignal.User.removeTag("KEY")`                                                                           | `[OneSignal.User removeTag:@"KEY"]`                                                                   | *Remove the data tag with the provided key from the current user.*                                                                                                                                                                       |
@@ -319,7 +323,7 @@ The Push Subscription name space is accessible via `OneSignal.User.pushSubscript
 | `let optedIn: Bool = OneSignal.User.pushSubscription.optedIn`                                                     | `BOOL optedIn = OneSignal.User.pushSubscription.optedIn`                                                                               | *Gets a boolean value indicating whether the current user is opted in to push notifications. This returns `true` when the app has notifications permission and `optedOut` is called. ***Note:*** Does not take into account the existence of the subscription ID and push token. This boolean may return `true` but push notifications may still not be received by the user.* |
 | `OneSignal.User.pushSubscription.optIn()`                                                                         | `[OneSignal.User.pushSubscription optIn]`                                                                                              | *Call this method to receive push notifications on the device or to resume receiving of push notifications after calling `optOut`. If needed, this method will prompt the user for push notifications permission.*                                                                                                                                                                     |
 | `OneSignal.User.pushSubscription.optOut()`                                                                        | `[OneSignal.User.pushSubscription optOut]`                                                                                             | *If at any point you want the user to stop receiving push notifications on the current device (regardless of system-level permission status), you can call this method to opt out.*                                                                                                                                                                                                              |
-| `addObserver(_ observer: OSPushSubscriptionObserver) → OSPushSubscriptionState?`<br><br>***See below for usage*** | `(OSPushSubscriptionState * _Nullable)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage*** | *The `OSPushSubscriptionObserver.onOSPushSubscriptionChanged` method will be fired on the passed-in object when the push subscription changes. This method returns the current `OSPushSubscriptionState` at the time of adding this observer.*                                                                                                                                 |
+| `addObserver(_ observer: OSPushSubscriptionObserver)`<br><br>***See below for usage*** | `(void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage*** | *The `OSPushSubscriptionObserver.onOSPushSubscriptionChanged` method will be fired on the passed-in object when the push subscription changes. This method returns the current `OSPushSubscriptionState` at the time of adding this observer.*                                                                                                                                 |
 | `removeObserver(_ observer: OSPushSubscriptionObserver)`<br><br>***See below for usage***                         | `(void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage***                             | *Remove a push subscription observer that has been previously added.*                                                                                                                                                                                                                                                                                                                      |
 
 ### Push Subscription Observer
@@ -338,7 +342,7 @@ Any object implementing the `OSPushSubscriptionObserver` protocol can be added a
       
     - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
       // Add your AppDelegate as an observer
-      OSPushSubscriptionState* state = [OneSignal.User.pushSubscription addObserver:self];
+      [OneSignal.User.pushSubscription addObserver:self];
     }
     
     // Add this new method
@@ -359,7 +363,7 @@ Any object implementing the `OSPushSubscriptionObserver` protocol can be added a
     
        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Add your AppDelegate as an observer, and the current OSPushSubscriptionState will be returned
-        let state: OSPushSubscriptionState? = OneSignal.User.pushSubscription.addObserver(self as OSPushSubscriptionObserver)
+        OneSignal.User.pushSubscription.addObserver(self as OSPushSubscriptionObserver)
         print("Current pushSubscriptionState: \n\(state)")
        }
     
@@ -464,26 +468,22 @@ Any object implementing the `OSPermissionObserver` protocol can be added as an o
     }
     
     // Add this new method
-    - (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-        // Example of detecting anwsering the permission prompt
-        if (stateChanges.from.status == OSNotificationPermissionNotDetermined) {
-          if (stateChanges.to.status == OSNotificationPermissionAuthorized)
-             NSLog(@"Thanks for accepting notifications!");
-          else if (stateChanges.to.status == OSNotificationPermissionDenied)
-             NSLog(@"Notifications not accepted. You can turn them on later under your iOS settings.");
+    - (void)onOSPermissionChanged:(OSPermissionState*)state {
+        // Example of detecting the curret permission
+        if (state.permission == true) {
+            NSLog(@"Device has permission to display notifications");
+        } else {
+             NSLog(@"Device does not have permission to display notifications");
         }
         // prints out all properties
-        NSLog(@"PermissionStateChanges:\n%@", stateChanges);
+        NSLog(@"PermissionState:\n%@", state);
     }
     
     // Output:
     /*
-     Thanks for accepting notifications!
-     PermissionStateChanges:
-     <OSPermissionStateChanges:
-     from: <OSPermissionState: hasPrompted: 1, status: NotDetermined, provisional: 0>,
-     to:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>
-     >
+     Device has permission to display notifications
+     PermissionState:
+     <OSPermissionState: permission: 1>
      */
     
     @end
@@ -498,33 +498,28 @@ Any object implementing the `OSPermissionObserver` protocol can be added as an o
     class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver {
     
        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Add your AppDelegate as an observer
-        OneSignal.Notifications.addPermissionObserver(self as OSPermissionObserver)
-       }
-    
-      // Add this new method
-      func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges) {
-        // Example of detecting answering the permission prompt
-        if stateChanges.from.status == OSNotificationPermission.notDetermined {
-           if stateChanges.to.status == OSNotificationPermission.authorized {
-              print("Thanks for accepting notifications!")
-           } else if stateChanges.to.status == OSNotificationPermission.denied {
-              print("Notifications not accepted. You can turn them on later under your iOS settings.")
-           }
+            // Add your AppDelegate as an observer
+            OneSignal.Notifications.addPermissionObserver(self as OSPermissionObserver)
         }
-        // prints out all properties
-        print("PermissionStateChanges: \n\(stateChanges)")
-      }
+
+        // Add this new method
+        func onOSPermissionChanged(_ state: OSPermissionState) {
+            // Example of detecting the curret permission
+            if state.permission == true {
+                print("Device has permission to display notifications")
+            } else {
+                print("Device does not have permission to display notifications")
+            }
+            // prints out all properties
+            print("PermissionState: \n\(state)")
+        }
     }
     
     // Output:
     /*
-     Thanks for accepting notifications!
-     PermissionStateChanges:
-     <OSPermissionStateChanges:
-     from: <OSPermissionState: hasPrompted: 1, status: NotDetermined, provisional: 0>,
-     to:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>
-     >
+     Device has permission to display notifications
+     PermissionState:
+     <OSPermissionState: permission: 1>
      */
     
     // Remove the observer
@@ -722,7 +717,7 @@ The Debug namespace is accessible via `OneSignal.Debug` and provide access to de
 | **Swift**                                  | **Objective-C**                                  | **Description**                                                                    |
 | ------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | `OneSignal.Debug.setLogLevel(.LL_VERBOSE)` | `[OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE]` | *Sets the log level the OneSignal SDK should be writing to the Xcode log.* |
-| `OneSignal.Debug.setVisualLevel(.LL_NONE)` | `[OneSignal.Debug setVisualLevel:ONE_S_LL_NONE]` | *Sets the logging level to show as alert dialogs.*                                 |
+| `OneSignal.Debug.setAlertLevel(.LL_NONE)` | `[OneSignal.Debug setAlertLevel:ONE_S_LL_NONE]` | *Sets the logging level to show as alert dialogs.*                                 |
 
 
 # Glossary
