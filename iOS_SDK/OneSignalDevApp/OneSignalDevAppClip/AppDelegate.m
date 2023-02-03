@@ -112,8 +112,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal initialize:onesignalAppId withLaunchOptions:nil];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+- (void) onOSPermissionChanged:(OSPermissionState*)state {
+    NSLog(@"onOSPermissionChanged: %@", state);
 }
 
 // TODO: Add push sub observer

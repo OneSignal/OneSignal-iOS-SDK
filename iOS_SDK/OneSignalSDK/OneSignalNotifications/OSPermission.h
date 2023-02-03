@@ -49,13 +49,9 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Permission Classes
 @interface OSPermissionState : NSObject
 // TODO: Decide: remove/change properties after addition of canRequestPermission and permission boolean
-@property (readonly, nonatomic) BOOL reachable;
-@property (readonly, nonatomic) BOOL hasPrompted;
-@property (readonly, nonatomic) BOOL provisional;
-@property (readonly, nonatomic) BOOL providesAppNotificationSettings;
-@property (readonly, nonatomic) OSNotificationPermission status;
+@property (readonly, nonatomic) BOOL permission;
 - (NSDictionary * _Nonnull)jsonRepresentation;
-- (instancetype _Nonnull )initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings;
+- (instancetype _Nonnull )initWithPermission:(BOOL)permission;
 @end
 
 @protocol OSPermissionStateObserver<NSObject>
@@ -87,24 +83,15 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 - (instancetype _Nonnull )initAsTo;
 - (instancetype _Nonnull )initAsFrom;
 
-- (BOOL)compare:(OSPermissionStateInternal * _Nonnull)from;
 - (OSPermissionState * _Nonnull)getExternalState;
-
-@end
-
-@interface OSPermissionStateChanges : NSObject
-
-@property (readonly, nonnull) OSPermissionState* to;
-@property (readonly, nonnull) OSPermissionState* from;
 - (NSDictionary * _Nonnull)jsonRepresentation;
-- (instancetype _Nonnull)initAsTo:(OSPermissionState * _Nonnull)to from:(OSPermissionState * _Nonnull)from;
 @end
 
 @protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges * _Nonnull)stateChanges;
+- (void)onOSPermissionChanged:(OSPermissionState * _Nonnull)state;
 @end
 
-typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObservablePermissionStateChangesType;
+typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionState*> ObservablePermissionStateChangesType;
 
 
 @interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>

@@ -117,12 +117,12 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // [OneSignal setAppId:onesignalAppId];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+- (void)onOSPermissionChanged:(OSPermissionState*)state {
+    NSLog(@"Dev App onOSPermissionChanged: %@", state);
 }
 
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {
-    NSLog(@"onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
+    NSLog(@"Dev App onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
     mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.optedIn;
 }
