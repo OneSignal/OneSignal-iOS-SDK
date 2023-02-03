@@ -135,14 +135,14 @@ class OSSubscriptionModel: OSModel {
     // Internal property to send to server, not meant for outside access
     var enabled: Bool { // Does not consider subscription_id in the calculation
         get {
-            return calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
+            return calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
         }
     }
 
     var optedIn: Bool {
         // optedIn = permission + userPreference
         get {
-            return calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+            return calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
         }
     }
 
@@ -169,13 +169,13 @@ class OSSubscriptionModel: OSModel {
      Defaults to true for email & SMS, defaults to false for push.
      Note that this property reflects the `reachable` property of a permission state. As provisional permission is considered to be `optedIn` and `enabled`.
      */
-    var _accepted: Bool {
+    var _reachable: Bool {
         didSet {
-            guard self.type == .push && _accepted != oldValue else {
+            guard self.type == .push && _reachable != oldValue else {
                 return
             }
             updateNotificationTypes()
-            firePushSubscriptionChanged(.accepted(oldValue))
+            firePushSubscriptionChanged(.reachable(oldValue))
         }
     }
 
@@ -202,13 +202,13 @@ class OSSubscriptionModel: OSModel {
     init(type: OSSubscriptionType,
          address: String?,
          subscriptionId: String?,
-         accepted: Bool,
+         reachable: Bool,
          isDisabled: Bool,
          changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.type = type
         self.address = address
         self.subscriptionId = subscriptionId
-        _accepted = accepted
+        _reachable = reachable
         _isDisabled = isDisabled
 
         // Set test_type if subscription model is PUSH
@@ -234,7 +234,7 @@ class OSSubscriptionModel: OSModel {
         coder.encode(type.rawValue, forKey: "type") // Encodes as String
         coder.encode(address, forKey: "address")
         coder.encode(subscriptionId, forKey: "subscriptionId")
-        coder.encode(_accepted, forKey: "_accepted")
+        coder.encode(_reachable, forKey: "_reachable")
         coder.encode(_isDisabled, forKey: "_isDisabled")
         coder.encode(notificationTypes, forKey: "notificationTypes")
         coder.encode(testType, forKey: "testType")
@@ -251,7 +251,7 @@ class OSSubscriptionModel: OSModel {
         self.type = type
         self.address = coder.decodeObject(forKey: "address") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
-        self._accepted = coder.decodeBool(forKey: "_accepted")
+        self._reachable = coder.decodeBool(forKey: "_reachable")
         self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
         self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
         self.testType = coder.decodeObject(forKey: "testType") as? Int
@@ -300,14 +300,14 @@ extension OSSubscriptionModel {
 
     // Calculates if the device is opted in to push notification.
     // Must have permission and not be opted out.
-    func calculateIsOptedIn(accepted: Bool, isDisabled: Bool) -> Bool {
-        return accepted && !isDisabled
+    func calculateIsOptedIn(reachable: Bool, isDisabled: Bool) -> Bool {
+        return reachable && !isDisabled
     }
 
     // Calculates if push notifications are enabled on the device.
     // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
-    func calculateIsEnabled(address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return address != nil && accepted && !isDisabled
+    func calculateIsEnabled(address: String?, reachable: Bool, isDisabled: Bool) -> Bool {
+        return address != nil && reachable && !isDisabled
     }
 
     func updateNotificationTypes() {
@@ -316,7 +316,7 @@ extension OSSubscriptionModel {
 
     enum OSPushPropertyChanged {
         case subscriptionId(String?)
-        case accepted(Bool)
+        case reachable(Bool)
         case isDisabled(Bool)
         case address(String?)
     }
@@ -328,29 +328,29 @@ extension OSSubscriptionModel {
 
         switch changedProperty {
         case .subscriptionId(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+            prevIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
+            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
             prevSubscriptionState = OSPushSubscriptionState(id: oldValue, token: address, optedIn: prevIsOptedIn)
 
-        case .accepted(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, accepted: oldValue, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(accepted: oldValue, isDisabled: _isDisabled)
+        case .reachable(let oldValue):
+            prevIsEnabled = calculateIsEnabled(address: address, reachable: oldValue, isDisabled: _isDisabled)
+            prevIsOptedIn = calculateIsOptedIn(reachable: oldValue, isDisabled: _isDisabled)
             prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
 
         case .isDisabled(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: oldValue)
-            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: oldValue)
+            prevIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: oldValue)
+            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: oldValue)
             prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
 
         case .address(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+            prevIsEnabled = calculateIsEnabled(address: oldValue, reachable: _reachable, isDisabled: _isDisabled)
+            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
             prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: oldValue, optedIn: prevIsOptedIn)
         }
 
-        let newIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+        let newIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
 
-        let newIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
+        let newIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
 
         if prevIsEnabled != newIsEnabled {
             self.set(property: "enabled", newValue: newIsEnabled)
