@@ -674,9 +674,7 @@ extension OneSignalUserManagerImpl: OSUser {
 extension OneSignalUserManagerImpl: OSPushSubscription {
 
     public func addObserver(_ observer: OSPushSubscriptionObserver) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.addObserver") else {
-            return
-        }
+        // This is a method in the User namespace that doesn't require privacy consent first
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
     }
 
