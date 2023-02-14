@@ -28,8 +28,10 @@
 #import "OneSignalRequest.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalLog.h"
+#import "OneSignalWrapper.h"
 
 #define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
+#define HTTP_HEADER_KEY_OS_WRAPPER @"SDK-Wrapper"
 #define HTTP_HEADER_PREFIX_OS_VERSION @"onesignal/ios/"
 
 @implementation OneSignalRequest
@@ -71,6 +73,12 @@
     
     NSString *versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
     [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
+    
+    // Set header field if this is used in a wrapper SDK
+    if (OneSignalWrapper.sdkType && OneSignalWrapper.sdkVersion) {
+        NSString *wrapperString = [NSString stringWithFormat:@"onesignal/%@/%@", OneSignalWrapper.sdkType, OneSignalWrapper.sdkVersion];
+        [request setValue:wrapperString forHTTPHeaderField:HTTP_HEADER_KEY_OS_WRAPPER];
+    }
     
     [request setHTTPMethod:httpMethodString(self.method)];
     
