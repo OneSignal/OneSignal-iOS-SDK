@@ -739,11 +739,4 @@ extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
         }
         user.pushSubscriptionModel.address = pushToken
     }
-
-    public func setReachable(_ inReachable: Bool) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
-            return
-        }
-        user.pushSubscriptionModel._reachable = inReachable
-    }
 }
