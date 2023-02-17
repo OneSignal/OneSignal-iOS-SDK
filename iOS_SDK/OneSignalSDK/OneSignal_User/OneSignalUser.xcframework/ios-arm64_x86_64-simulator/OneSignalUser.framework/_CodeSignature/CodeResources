@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalUser-Swift.h</key>
 		<data>
-		Ud42d562mDtIa50gUd06+g1dwNs=
+		H5n62881fk6DuqYL8pgQhQNBYMY=
 		</data>
 		<key>Headers/OneSignalUser.h</key>
 		<data>
@@ -18,11 +18,11 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		MoiA9QiSB0GEKbmPnDPGRW0tllo=
+		khQHHKyOKfJ79KG8XDzpBWhObJ4=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		o737M6tpkfjKn8mi+IIC2lgboxY=
+		8zeI2e29NDFUvpVhX84Z6BDGbKY=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -30,19 +30,19 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		o737M6tpkfjKn8mi+IIC2lgboxY=
+		8zeI2e29NDFUvpVhX84Z6BDGbKY=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		RdERh2XSod1ZNWUjWx8yyRodOy8=
+		L+3D9ffGYXZTSNHeIWWaO7FdLTQ=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		MoiA9QiSB0GEKbmPnDPGRW0tllo=
+		khQHHKyOKfJ79KG8XDzpBWhObJ4=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		gLMhN9T/3m/qwiI0oZ22S4QM6kA=
+		iSHkm/rmhoN7rzeKe91PdkTeonk=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -50,11 +50,11 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		gLMhN9T/3m/qwiI0oZ22S4QM6kA=
+		iSHkm/rmhoN7rzeKe91PdkTeonk=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		ksya7Nil5IRSrYvn/GPO+sm4Qz8=
+		c12QCpeHW0YM47xbczqLNYDa3ic=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -67,7 +67,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XVHvxHVdsN7QAIZtJg79SOSfKOl+Fe6hu+gHER/bZ/U=
+			S2AgV9fEhpFrfIam7ErL3iml9hyfSfLNg/pNmOPhiHc=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -81,14 +81,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mtcFVPhmCXc8F3J9ILftbBSP7mVES98+Tqo8GMfr2PY=
+			z6JWBfq0sF6wovucJ9qeHeZUxgXUk390qHrjfNlxP80=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			BAHgPxoAwmOpFDRdzqtln+LinmGhboWgOa/2TlsBICQ=
+			M/Aa/i8vNuD1toBz1WZ+kRyo7mxVuInVmQddQhyEOLI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
@@ -102,28 +102,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			BAHgPxoAwmOpFDRdzqtln+LinmGhboWgOa/2TlsBICQ=
+			M/Aa/i8vNuD1toBz1WZ+kRyo7mxVuInVmQddQhyEOLI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			WP491cazcvZ42y8gDcd+V+0JXl9aPjzczSH3s0tOzD0=
+			Ai9/FBi9F3AUo5dShcJpy2q0IaVqcOIp0kBcuCCwRHk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			mtcFVPhmCXc8F3J9ILftbBSP7mVES98+Tqo8GMfr2PY=
+			z6JWBfq0sF6wovucJ9qeHeZUxgXUk390qHrjfNlxP80=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1CtgufU3oJUUm8WqgeXl+XpGPkdiPmq8XFXswcS2XAM=
+			N9FWa+jq4yRWJ25ji//2vwEmOc7zpE4mVNXJatL/4RQ=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -137,14 +137,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			1CtgufU3oJUUm8WqgeXl+XpGPkdiPmq8XFXswcS2XAM=
+			N9FWa+jq4yRWJ25ji//2vwEmOc7zpE4mVNXJatL/4RQ=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			06xs+/VmyfD7lIY4LGXVJ8GOhBnm7GwM1m2w3oh6tXQ=
+			y0XW7IxvJDXVPPMMmShFxm5JryFKi+Hr+ipHxpcamCA=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

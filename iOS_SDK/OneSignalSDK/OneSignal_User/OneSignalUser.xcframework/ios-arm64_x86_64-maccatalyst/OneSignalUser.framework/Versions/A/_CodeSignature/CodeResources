@@ -15,7 +15,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XVHvxHVdsN7QAIZtJg79SOSfKOl+Fe6hu+gHER/bZ/U=
+			S2AgV9fEhpFrfIam7ErL3iml9hyfSfLNg/pNmOPhiHc=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -29,14 +29,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mtcFVPhmCXc8F3J9ILftbBSP7mVES98+Tqo8GMfr2PY=
+			z6JWBfq0sF6wovucJ9qeHeZUxgXUk390qHrjfNlxP80=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			A5T+NSzTRHqoV0xfsuDX8sNFlaYW6Ue+xo7axIziLA0=
+			jVoM8Vco8mK+UOaWK9HMrhhL5i3P5HcfzaGaLGbNZiA=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.swiftdoc</key>
@@ -50,28 +50,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			A5T+NSzTRHqoV0xfsuDX8sNFlaYW6Ue+xo7axIziLA0=
+			jVoM8Vco8mK+UOaWK9HMrhhL5i3P5HcfzaGaLGbNZiA=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GtISMxuHSeSdWgju9JFKTz9nNLqqKvop4LrWQl0hOYQ=
+			oXgw00P1OxMD2d6OxvUDjfhlcvySDwOYE6Ja+Pf+svQ=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			mtcFVPhmCXc8F3J9ILftbBSP7mVES98+Tqo8GMfr2PY=
+			z6JWBfq0sF6wovucJ9qeHeZUxgXUk390qHrjfNlxP80=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bMWHMFWZKIW+ERzgFtBbRx7P/DRkpvIZW7OYVFWUvhE=
+			TjHzjCKX50THoefEJ7oeH9Fp+HyMqvHMKeyx/FSFUHc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.swiftdoc</key>
@@ -85,14 +85,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			bMWHMFWZKIW+ERzgFtBbRx7P/DRkpvIZW7OYVFWUvhE=
+			TjHzjCKX50THoefEJ7oeH9Fp+HyMqvHMKeyx/FSFUHc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KT4rBf9m+FOKamtZIrjefvV+J55t1Dyn69ql3kwyGe4=
+			062pI4XTnga9KwZplRCnzf9xfomhQc/MO7dA+jsA4lY=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
