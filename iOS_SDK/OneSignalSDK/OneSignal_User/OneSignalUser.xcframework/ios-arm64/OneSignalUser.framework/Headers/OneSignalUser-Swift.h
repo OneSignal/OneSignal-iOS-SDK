@@ -342,6 +342,12 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 - (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
 @end
 
+
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OneSignalNotificationsDelegate>
+- (void)setNotificationTypes:(int32_t)notificationTypes;
+- (void)setPushToken:(NSString * _Nonnull)pushToken;
+@end
+
 @class NSNumber;
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
@@ -350,13 +356,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 /// App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
 /// Need to consider app killed vs app backgrounded and handle gracefully.
 - (void)runBackgroundTasks;
-@end
-
-
-@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OneSignalNotificationsDelegate>
-- (void)setNotificationTypes:(int32_t)notificationTypes;
-- (void)setPushToken:(NSString * _Nonnull)pushToken;
-- (void)setReachable:(BOOL)inReachable;
 @end
 
 
