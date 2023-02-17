@@ -68,9 +68,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
 
-// Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
-+ (void)setMSDKType:(NSString* _Nonnull)type;
-
 #pragma mark User
 + (id<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;

@@ -127,7 +127,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			XP9ZPfxT6H+albNmTdkhFeb46G3aaf6zPiHU6UN4eqE=
+			KPryvk78pq8IvU1KQvIFknis9B2nltKpAZa+5o34jh4=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -141,7 +141,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			iHKL75wMiv4mJ4emUkeYjDhpelhCMWjQE0+DCGnjbuo=
+			L/9ryhNcAUeUcmGAiQTxvnvLv28WcSUGLAoyu381nmI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -191,6 +191,13 @@
 			<key>hash2</key>
 			<data>
 			QIYtzchiCKQguyJOSY6PEhV0H98JRi2PdXSBmZxxLN4=
+			</data>
+		</dict>
+		<key>Headers/OneSignalWrapper.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			9rcG3BS5U4BNIRWmGWNlhOqrxsdC9FulAIj+pruvlMo=
 			</data>
 		</dict>
 		<key>Headers/SwizzlingForwarder.h</key>
