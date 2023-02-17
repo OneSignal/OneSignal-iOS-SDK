@@ -208,11 +208,6 @@
         OSNotificationsManager.lastPermissionState = [state copy];
         [OSNotificationsManager.lastPermissionState persistAsFrom];
     }
-    // Update the push subscription's _accepted property
-    // TODO: This can be called before the User Manager has set itself as the delegate
-    if (OSNotificationsManager.delegate && [OSNotificationsManager.delegate respondsToSelector:@selector(setReachable:)]) {
-        [OSNotificationsManager.delegate setReachable:state.reachable];
-    }
 }
 
 @end
