@@ -104,7 +104,6 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSPushSubscript
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalNotifications.OneSignalNotificationsDelegate {
   @objc dynamic public func setNotificationTypes(_ notificationTypes: Swift.Int32)
   @objc dynamic public func setPushToken(_ pushToken: Swift.String)
-  @objc dynamic public func setReachable(_ inReachable: Swift.Bool)
 }
 @objc public protocol OSPushSubscriptionObserver {
   @objc func onOSPushSubscriptionChanged(stateChanges: OneSignalUser.OSPushSubscriptionStateChanges)
