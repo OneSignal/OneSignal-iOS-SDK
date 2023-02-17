@@ -455,9 +455,6 @@ static NSString *_pushSubscriptionId;
 + (void)sendNotificationTypesUpdateToDelegate {
     // We don't delay observer update to wait until the OneSignal server is notified
     // TODO: We can do the above and delay observers until server is updated.
-    if (self.delegate && [self.delegate respondsToSelector:@selector(setReachable:)]) {
-        [self.delegate setReachable:[self getNotificationTypes] > 0];
-    }
     if (self.delegate && [self.delegate respondsToSelector:@selector(setNotificationTypes:)]) {
         [self.delegate setNotificationTypes:[self getNotificationTypes]];
     }
