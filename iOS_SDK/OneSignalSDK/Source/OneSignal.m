@@ -93,8 +93,6 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 @implementation OneSignal
 
-static NSString* mSDKType = @"native";
-
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
 
@@ -164,6 +162,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 	return ONESIGNAL_VERSION;
 }
 
+// TODO: Is this method used by wrappers? It is not used by this SDK. Can we remove?
 + (NSString*)sdkSemanticVersion {
 	// examples:
 	// ONESIGNAL_VERSION = @"020402" returns 2.4.2
@@ -173,10 +172,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 	// c.f. http://semver.org/
 
 	return [ONESIGNAL_VERSION one_getSemanticVersion];
-}
-
-+ (void)setMSDKType:(NSString*)type {
-    mSDKType = type;
 }
 
 //TODO: This is related to unit tests and will change with um tests
