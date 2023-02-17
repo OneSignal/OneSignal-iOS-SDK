@@ -61,6 +61,10 @@ public class OSPushSubscriptionState: NSObject {
             "optedIn": optedIn
         ]
     }
+
+    func equals(_ state: OSPushSubscriptionState) -> Bool {
+        return self.id == state.id && self.token ==  state.token && self.optedIn == state.optedIn
+    }
 }
 
 @objc
@@ -156,9 +160,10 @@ class OSSubscriptionModel: OSModel {
 
             // If _isDisabled is set, this supersedes as the value to send to server.
             if _isDisabled && notificationTypes != -2 {
+                notificationTypes = -2
                 return
             }
-
+            _reachable = notificationTypes > 0
             self.set(property: "notificationTypes", newValue: notificationTypes)
         }
     }
@@ -174,7 +179,6 @@ class OSSubscriptionModel: OSModel {
             guard self.type == .push && _reachable != oldValue else {
                 return
             }
-            updateNotificationTypes()
             firePushSubscriptionChanged(.reachable(oldValue))
         }
     }
@@ -185,7 +189,7 @@ class OSSubscriptionModel: OSModel {
             guard self.type == .push && _isDisabled != oldValue else {
                 return
             }
-            updateNotificationTypes()
+            notificationTypes = -2
             firePushSubscriptionChanged(.isDisabled(oldValue))
         }
     }
@@ -321,6 +325,7 @@ extension OSSubscriptionModel {
         case address(String?)
     }
 
+    // TODO: Fix when isDisabled is set to true, the push subscription observer is not fired due to known bug.
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
         var prevIsOptedIn = true
         var prevIsEnabled = true
@@ -357,6 +362,11 @@ extension OSSubscriptionModel {
         }
 
         let newSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: newIsOptedIn)
+
+        // TODO: Make this method less hacky, this is a final check before firing push observer
+        guard !prevSubscriptionState.equals(newSubscriptionState) else {
+            return
+        }
 
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 
