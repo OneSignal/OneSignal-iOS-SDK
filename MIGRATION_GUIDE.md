@@ -732,10 +732,8 @@ The Debug namespace is accessible via `OneSignal.Debug` and provide access to de
 - Changing app IDs is not supported.
 - Any `User` namespace calls must be invoked **after** initialization. Example: `OneSignal.User.addTag("tag", "2")`
 - In the SDK, the user state is only refreshed from the server when a new session is started (cold start or backgrounded for over 30 seconds) or when the user is logged in. This is by design.
-- Limited support for migrating from `3.x.x` of the SDK. Currently recommend using for new app installs only.
+- Limited support for migrating cached data in an existing app installation from `3.x.x` of the SDK to `5.x.x`. Currently, we recommend using this release in **fresh app installations** only.
 
 # Known issues
-- User properties may not update correctly when Subscriptions are transferred
-    - Please report any issues you find with this
 - Identity Verification 
     - We will be introducing JWT in a follow up Beta release
