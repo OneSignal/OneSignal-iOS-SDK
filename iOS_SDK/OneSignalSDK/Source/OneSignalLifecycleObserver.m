@@ -37,6 +37,9 @@ THE SOFTWARE.
 
 @implementation OneSignalLifecycleObserver
 
+static BOOL willResignActiveTriggered = NO;
+static BOOL didEnterBackgroundTriggered = NO;
+
 static OneSignalLifecycleObserver* _instance = nil;
 
 +(OneSignalLifecycleObserver*) sharedInstance {
@@ -80,6 +83,8 @@ static OneSignalLifecycleObserver* _instance = nil;
      
 - (void)didBecomeActive {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
+    BOOL fromBackgroundedState = [self applicationForegroundedFromBackgroundedState];
+    [self resetBackgroundDetection];
     
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:NO];
@@ -90,7 +95,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)willResignActive {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
-    
+    willResignActiveTriggered = YES;
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:YES];
         [OneSignal sendTagsOnBackground];
@@ -99,9 +104,23 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)didEnterBackground {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
-    
+    didEnterBackgroundTriggered = YES;
     if ([OneSignal appId])
         [OneSignalLocation onFocus:NO];
+}
+
+/**
+ Returns true if application truly did come from a backgrounded state.
+ Returns false if the application bypassed `didEnterBackground` after entering `willResignActive`.
+ This can happen if the app resumes after a native dialog displays over the app or after the app is in a suspended state and not backgrounded.
+**/
+- (BOOL)applicationForegroundedFromBackgroundedState {
+    return !(willResignActiveTriggered && !didEnterBackgroundTriggered);
+}
+
+- (void)resetBackgroundDetection {
+    willResignActiveTriggered = NO;
+    didEnterBackgroundTriggered = NO;
 }
 
 - (void)dealloc {
