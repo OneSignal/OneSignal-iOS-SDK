@@ -606,6 +606,40 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return shouldDelaySubscriptionUpdate;
 }
 
+// The application has resumed focus from an inactive or backgrounded state
++ (void)onAppFocus:(BOOL)fromBackgroundedState {
+    if (_appEntryState != NOTIFICATION_CLICK) {
+        _appEntryState = APP_OPEN;
+    }
+
+    // on_session tracking when resumming app.
+    if ([self shouldRegisterNow]) {
+        [self registerUser];
+    }
+    else {
+        if (fromBackgroundedState) {
+            // This checks if notification permissions changed when app was backgrounded and uses cached IAMs
+            [self sendNotificationTypesUpdate];
+            [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+        }
+        
+        [OSSessionManager.sharedSessionManager attemptSessionUpgrade:OneSignal.appEntryState];
+    }
+  
+    [OSMessagingController.sharedInstance onApplicationDidBecomeActive];
+
+    BOOL wasBadgeSet = [self clearBadgeCount:false];
+    
+    if (![self mUserId]) {
+        return;
+    }
+    
+    // If badge was set, clear it on the server as well.
+    if (wasBadgeSet) {
+        [self.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
+    }
+}
+
 /*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application

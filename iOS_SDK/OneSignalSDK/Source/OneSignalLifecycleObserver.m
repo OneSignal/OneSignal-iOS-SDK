@@ -35,6 +35,12 @@ THE SOFTWARE.
 #import "OSMessagingController.h"
 #import "UIApplication+OneSignal.h"
 
+@interface OneSignal ()
+
++ (void)onAppFocus:(BOOL)fromBackgroundedState;
+
+@end
+
 @implementation OneSignalLifecycleObserver
 
 static BOOL willResignActiveTriggered = NO;
@@ -87,9 +93,9 @@ static OneSignalLifecycleObserver* _instance = nil;
     [self resetBackgroundDetection];
     
     if ([OneSignal appId]) {
+        [OneSignal onAppFocus:fromBackgroundedState];
         [OneSignalTracker onFocus:NO];
         [OneSignalLocation onFocus:YES];
-        [[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
     }
 }
 

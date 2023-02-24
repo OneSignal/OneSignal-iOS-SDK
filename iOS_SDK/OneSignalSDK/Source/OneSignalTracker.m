@@ -38,18 +38,13 @@
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
 #import "OSMessagingController.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 
-+ (void)registerUser;
-+ (BOOL)sendNotificationTypesUpdate;
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
-+ (OSStateSynchronizer *)stateSynchronizer;
 
 @end
 
@@ -102,30 +97,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 + (void)applicationForegrounded {
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
-    
-    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
-        OneSignal.appEntryState = APP_OPEN;
-   
     lastOpenedTime = [NSDate date].timeIntervalSince1970;
-    
-    // on_session tracking when resumming app.
-    if ([OneSignal shouldRegisterNow])
-        [OneSignal registerUser];
-    else {
-        // This checks if notification permissions changed when app was backgrounded
-        [OneSignal sendNotificationTypesUpdate];
-        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
-        [OneSignal receivedInAppMessageJson:nil];
-    }
-    
-    let wasBadgeSet = [OneSignal clearBadgeCount:false];
-    
-    if (![OneSignal mUserId])
-        return;
-    
-    // If badge was set, clear it on the server as well.
-    if (wasBadgeSet)
-        [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
 }
 
 + (void)applicationBackgrounded {
