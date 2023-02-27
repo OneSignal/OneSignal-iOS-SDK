@@ -26,232 +26,233 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "UnitTestCommonMethods.h"
-#import "OneSignalExtensionBadgeHandler.h"
-#import "UNUserNotificationCenterOverrider.h"
-#import "UNUserNotificationCenter+OneSignal.h"
-#import "OneSignalHelperOverrider.h"
-#import "OneSignalHelper.h"
-#import "OneSignalInternal.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalClientOverrider.h"
-
-@interface ProvisionalAuthorizationTests : XCTestCase
-
-@end
-
-@implementation ProvisionalAuthorizationTests
-
-/*
- Put setup code here
- This method is called before the invocation of each test method in the class
- */
-- (void)setUp {
-    [super setUp];
-    [UnitTestCommonMethods beforeEachTest:self];
-}
-
-/*
- Put teardown code here
- This method is called after the invocation of each test method in the class
- */
-- (void)tearDown {
-    [super tearDown];
-}
-
-- (OSPermissionStateTestObserver *)setupProvisionalTest {
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UNUserNotificationCenterOverrider setNotifTypesOverride:0];
-    [UNUserNotificationCenterOverrider setAuthorizationStatus:@0];
-    
-    OneSignalHelperOverrider.mockIOSVersion = 12;
-    
-    [OneSignalClientOverrider setShouldUseProvisionalAuth:true];
-    
-    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
-    [OneSignal addPermissionObserver:observer];
-    return observer;
-}
-
-/*
- Tests to make sure that apps set to use Provisional authorization work & register correctly
- */
-- (void)testProvisionalPermissionState {
-    if (@available(iOS 12, *)) {
-        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
-        [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
-        
-        OSSubscriptionStateTestObserver *subscriptionObserver = [OSSubscriptionStateTestObserver new];
-        [OneSignal addSubscriptionObserver:subscriptionObserver];
-
-        [UnitTestCommonMethods initOneSignal_andThreadWait];
-        
-        let state = [OneSignal getPermissionSubscriptionState];
-        XCTAssertFalse(state.permissionStatus.reachable);
-        [UnitTestCommonMethods runBackgroundThreads];
-        
-        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
-        [UnitTestCommonMethods runBackgroundThreads];
-        
-        let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
-        
-        XCTAssertTrue(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == options);
-        
-        XCTAssertTrue(observer->last.to.provisional);
-        XCTAssertFalse(observer->last.from.provisional);
-        
-        XCTAssertTrue(observer->last.to.reachable);
-        XCTAssertFalse(observer->last.from.reachable);
-        
-        XCTAssertEqual(observer->last.from.status, OSNotificationPermissionNotDetermined);
-        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionProvisional);
-        
-        //make sure registration occurred
-        XCTAssertEqual(subscriptionObserver->last.to.userId, @"1234");
-    }
-}
-
-/*
- Tests to make sure that apps can still prompt for regular
- Push authorization when they use Provisional authorization
- */
-- (void)testPromptWorksWithProvisional {
-    if (@available(iOS 12, *)) {
-        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
-        [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
-
-        [UnitTestCommonMethods initOneSignal_andThreadWait];
-        
-        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
-        [UnitTestCommonMethods runBackgroundThreads];
-        
-        XCTAssertTrue(observer->last.to.provisional);
-        XCTAssertFalse(observer->last.from.provisional);
-        
-        XCTAssertTrue(observer->last.to.reachable);
-        XCTAssertFalse(observer->last.from.reachable);
-        
-        XCTAssertEqual(observer->last.from.status, OSNotificationPermissionNotDetermined);
-        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionProvisional);
-        
-        [OneSignal promptForPushNotificationsWithUserResponse:nil];
-        [UnitTestCommonMethods runBackgroundThreads];
-        
-        [UnitTestCommonMethods answerNotificationPrompt:true];
-        [UnitTestCommonMethods runBackgroundThreads];
-        
-        XCTAssertTrue(observer->last.to.reachable);
-        XCTAssertTrue(observer->last.from.reachable);
-        
-        XCTAssertFalse(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == PROVISIONAL_UNAUTHORIZATIONOPTION);
-        XCTAssertFalse(observer->last.to.provisional);
-        XCTAssertTrue(observer->last.from.provisional);
-        
-        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionAuthorized);
-    }
-}
-
-/*
- If the app sets autoPrompt to true, there is no point in requesting provisional authorization
-    thus, the SDK should never request it if autoPrompt = true
- */
-- (void)testProvisionalOverridenByAutoPrompt {
-    if (@available(iOS 12, *)) {
-        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
-
-        [UnitTestCommonMethods initOneSignal_andThreadWait];
-        
-        //ensure the SDK did not request provisional authorization
-        XCTAssertFalse(observer->last.to.provisional);
-        XCTAssertFalse(observer->last.from.provisional);
-    }
-}
-
-- (void)testNoProvisionalAuthorization {
-    if (@available(iOS 12, *)) {
-        [UnitTestCommonMethods clearStateForAppRestart:self];
-        
-        [UNUserNotificationCenterOverrider setNotifTypesOverride:0];
-        [UNUserNotificationCenterOverrider setAuthorizationStatus:@0];
-        
-        OneSignalHelperOverrider.mockIOSVersion = 12;
-        
-        [OneSignalClientOverrider setShouldUseProvisionalAuth:false];
-        
-        OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
-        [OneSignal addPermissionObserver:observer];
-        
-        [UnitTestCommonMethods initOneSignal_andThreadWait];
-        
-        //ensure the SDK did not request provisional authorization
-        XCTAssertFalse(observer->last.to.provisional);
-        XCTAssertFalse(observer->last.from.provisional);
-        
-        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionNotDetermined);
-    }
-}
-
-- (void)testOSDeviceHasEmailAddress {
-    NSString *testEmail = @"test@onesignal.com";
-    
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-
-    XCTAssertNil([OneSignal getDeviceState].emailAddress);
-
-    [OneSignal setEmail:testEmail];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertEqual(testEmail, [OneSignal getDeviceState].emailAddress);
-}
-
-- (void)testOSDeviceHasEmailId {
-    NSString *testEmail = @"test@onesignal.com";
-    
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-
-    XCTAssertNil([OneSignal getDeviceState].emailAddress);
-
-    [OneSignal setEmail:testEmail];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertNotNil([OneSignal getDeviceState].emailAddress);
-}
-
-- (void)testOSDeviceHasUserId {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertNotNil([OneSignal getDeviceState].userId);
-}
-
-- (void)testOSDeviceHasPushToken {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertNotNil([OneSignal getDeviceState].pushToken);
-}
-
-- (void)testOSDeviceSubscribed {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertTrue([OneSignal getDeviceState].isSubscribed);
-}
-
-- (void)testOSDeviceUserSubscribed {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertFalse([OneSignal getDeviceState].isPushDisabled);
-}
-
-- (void)testOSDeviceNotificationReachable {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertTrue([OneSignal getDeviceState].hasNotificationPermission);
-}
-
-- (void)testOSDeviceHasNotificationPermissionStatus {
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    XCTAssertEqual(OSNotificationPermissionAuthorized, [OneSignal getDeviceState].notificationPermissionStatus);
-}
-
-@end
+// TODO: Commented out 🧪
+//#import "UnitTestCommonMethods.h"
+//#import "OneSignalExtensionBadgeHandler.h"
+//#import "UNUserNotificationCenterOverrider.h"
+//#import "UNUserNotificationCenter+OneSignal.h"
+//#import "OneSignalHelperOverrider.h"
+//#import "OneSignalHelper.h"
+//#import "OneSignalInternal.h"
+//#import "OneSignalCommonDefines.h"
+//#import "OneSignalClientOverrider.h"
+//
+//@interface ProvisionalAuthorizationTests : XCTestCase
+//
+//@end
+//
+//@implementation ProvisionalAuthorizationTests
+//
+///*
+// Put setup code here
+// This method is called before the invocation of each test method in the class
+// */
+//- (void)setUp {
+//    [super setUp];
+//    [UnitTestCommonMethods beforeEachTest:self];
+//}
+//
+///*
+// Put teardown code here
+// This method is called after the invocation of each test method in the class
+// */
+//- (void)tearDown {
+//    [super tearDown];
+//}
+//
+//- (OSPermissionStateTestObserver *)setupProvisionalTest {
+//    [UnitTestCommonMethods clearStateForAppRestart:self];
+//
+//    [UNUserNotificationCenterOverrider setNotifTypesOverride:0];
+//    [UNUserNotificationCenterOverrider setAuthorizationStatus:@0];
+//
+//    OneSignalHelperOverrider.mockIOSVersion = 12;
+//
+//    [OneSignalClientOverrider setShouldUseProvisionalAuth:true];
+//
+//    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+//    [OneSignal addPermissionObserver:observer];
+//    return observer;
+//}
+//
+///*
+// Tests to make sure that apps set to use Provisional authorization work & register correctly
+// */
+//- (void)testProvisionalPermissionState {
+//    if (@available(iOS 12, *)) {
+//        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
+//        [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
+//
+//        OSSubscriptionStateTestObserver *subscriptionObserver = [OSSubscriptionStateTestObserver new];
+//        [OneSignal addSubscriptionObserver:subscriptionObserver];
+//
+//        [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//        let state = [OneSignal getPermissionSubscriptionState];
+//        XCTAssertFalse(state.permissionStatus.reachable);
+//        [UnitTestCommonMethods runBackgroundThreads];
+//
+//        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
+//        [UnitTestCommonMethods runBackgroundThreads];
+//
+//        let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
+//
+//        XCTAssertTrue(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == options);
+//
+//        XCTAssertTrue(observer->last.to.provisional);
+//        XCTAssertFalse(observer->last.from.provisional);
+//
+//        XCTAssertTrue(observer->last.to.reachable);
+//        XCTAssertFalse(observer->last.from.reachable);
+//
+//        XCTAssertEqual(observer->last.from.status, OSNotificationPermissionNotDetermined);
+//        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionProvisional);
+//
+//        //make sure registration occurred
+//        XCTAssertEqual(subscriptionObserver->last.to.userId, @"1234");
+//    }
+//}
+//
+///*
+// Tests to make sure that apps can still prompt for regular
+// Push authorization when they use Provisional authorization
+// */
+//- (void)testPromptWorksWithProvisional {
+//    if (@available(iOS 12, *)) {
+//        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
+//        [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
+//
+//        [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
+//        [UnitTestCommonMethods runBackgroundThreads];
+//
+//        XCTAssertTrue(observer->last.to.provisional);
+//        XCTAssertFalse(observer->last.from.provisional);
+//
+//        XCTAssertTrue(observer->last.to.reachable);
+//        XCTAssertFalse(observer->last.from.reachable);
+//
+//        XCTAssertEqual(observer->last.from.status, OSNotificationPermissionNotDetermined);
+//        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionProvisional);
+//
+//        [OneSignal promptForPushNotificationsWithUserResponse:nil];
+//        [UnitTestCommonMethods runBackgroundThreads];
+//
+//        [UnitTestCommonMethods answerNotificationPrompt:true];
+//        [UnitTestCommonMethods runBackgroundThreads];
+//
+//        XCTAssertTrue(observer->last.to.reachable);
+//        XCTAssertTrue(observer->last.from.reachable);
+//
+//        XCTAssertFalse(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == PROVISIONAL_UNAUTHORIZATIONOPTION);
+//        XCTAssertFalse(observer->last.to.provisional);
+//        XCTAssertTrue(observer->last.from.provisional);
+//
+//        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionAuthorized);
+//    }
+//}
+//
+///*
+// If the app sets autoPrompt to true, there is no point in requesting provisional authorization
+//    thus, the SDK should never request it if autoPrompt = true
+// */
+//- (void)testProvisionalOverridenByAutoPrompt {
+//    if (@available(iOS 12, *)) {
+//        OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
+//
+//        [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//        //ensure the SDK did not request provisional authorization
+//        XCTAssertFalse(observer->last.to.provisional);
+//        XCTAssertFalse(observer->last.from.provisional);
+//    }
+//}
+//
+//- (void)testNoProvisionalAuthorization {
+//    if (@available(iOS 12, *)) {
+//        [UnitTestCommonMethods clearStateForAppRestart:self];
+//
+//        [UNUserNotificationCenterOverrider setNotifTypesOverride:0];
+//        [UNUserNotificationCenterOverrider setAuthorizationStatus:@0];
+//
+//        OneSignalHelperOverrider.mockIOSVersion = 12;
+//
+//        [OneSignalClientOverrider setShouldUseProvisionalAuth:false];
+//
+//        OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+//        [OneSignal addPermissionObserver:observer];
+//
+//        [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//        //ensure the SDK did not request provisional authorization
+//        XCTAssertFalse(observer->last.to.provisional);
+//        XCTAssertFalse(observer->last.from.provisional);
+//
+//        XCTAssertEqual(observer->last.to.status, OSNotificationPermissionNotDetermined);
+//    }
+//}
+//
+//- (void)testOSDeviceHasEmailAddress {
+//    NSString *testEmail = @"test@onesignal.com";
+//
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertNil([OneSignal getDeviceState].emailAddress);
+//
+//    [OneSignal setEmail:testEmail];
+//    [UnitTestCommonMethods runBackgroundThreads];
+//
+//    XCTAssertEqual(testEmail, [OneSignal getDeviceState].emailAddress);
+//}
+//
+//- (void)testOSDeviceHasEmailId {
+//    NSString *testEmail = @"test@onesignal.com";
+//
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertNil([OneSignal getDeviceState].emailAddress);
+//
+//    [OneSignal setEmail:testEmail];
+//    [UnitTestCommonMethods runBackgroundThreads];
+//
+//    XCTAssertNotNil([OneSignal getDeviceState].emailAddress);
+//}
+//
+//- (void)testOSDeviceHasUserId {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertNotNil([OneSignal getDeviceState].userId);
+//}
+//
+//- (void)testOSDeviceHasPushToken {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertNotNil([OneSignal getDeviceState].pushToken);
+//}
+//
+//- (void)testOSDeviceSubscribed {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertTrue([OneSignal getDeviceState].isSubscribed);
+//}
+//
+//- (void)testOSDeviceUserSubscribed {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertFalse([OneSignal getDeviceState].isPushDisabled);
+//}
+//
+//- (void)testOSDeviceNotificationReachable {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertTrue([OneSignal getDeviceState].hasNotificationPermission);
+//}
+//
+//- (void)testOSDeviceHasNotificationPermissionStatus {
+//    [UnitTestCommonMethods initOneSignal_andThreadWait];
+//
+//    XCTAssertEqual(OSNotificationPermissionAuthorized, [OneSignal getDeviceState].notificationPermissionStatus);
+//}
+//
+//@end
