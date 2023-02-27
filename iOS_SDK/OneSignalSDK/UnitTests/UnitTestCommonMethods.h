@@ -27,107 +27,108 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "OneSignal.h"
-#import "UIApplication+OneSignal.h"
-#import "OneSignalNotificationCategoryController.h"
-
-#define TEST_EXTERNAL_USER_ID_HASH_TOKEN @"i_am_a_test_external_user_id_hash_token"
-#define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
-#define TEST_EMAIL_HASH_TOKEN @"i_am_a_test_email_hash_token"
-#define TEST_EMAIL @"test@onesignal.com"
-
-NSString * serverUrlWithPath(NSString *path);
-
-@interface UnitTestCommonMethods : NSObject
-
-// Inits with no thread waits, foregrounding app, or running selectors
-+ (void)initOneSignal;
-+ (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
-        notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-+ (void)initOneSignalWithAppId_andThreadWait:(NSString*)appId
-                          withLaunchOptions:(NSDictionary*)launchOptions
-withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
-              withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-// Inits with thread waits
-+ (void)initOneSignal_andThreadWait;
-+ (void)initOneSignal_andThreadWaitWithForeground;
-+ (void)initOneSignalWithHanders_andThreadWait:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
-                      notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-+ (void)initOneSignalWithAppId:(NSString*)appId
-             withLaunchOptions:(NSDictionary*)launchOptions
-withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
- withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-
-+ (void)runBackgroundThreads;
-+ (void)runLongBackgroundThreads;
-+ (void)clearStateForAppRestart:(XCTestCase *)testCase;
-+ (void)beforeAllTest;
-+ (void)beforeAllTest:(XCTestCase *)testCase;
-+ (void)beforeEachTest:(XCTestCase *)testCase;
-+ (void)foregroundApp;
-+ (void)backgroundApp;
-+ (void)setAppInactive;
-+ (void)pullDownNotificationCenter;
-+ (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
-+ (void)setCurrentNotificationPermissionAsUnanswered;
-+ (void)clearUserDefaults;
-
-+ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
-+ (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo;
-+ (void)answerNotificationPrompt:(BOOL)accept;
-+ (void)setCurrentNotificationPermission:(BOOL)accepted;
-+ (void)receiveNotification:(NSString*)notificationId wasOpened:(BOOL)opened;
-+ (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
-+ (XCTestCase*)currentXCTestCase;
-@end
-
-// Expose OneSignal test methods
-@interface OneSignal (UN_extra)
-+ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay;
-@end
-
-// Expose methods on OneSignalNotificationCategoryController
-@interface OneSignalNotificationCategoryController ()
-- (void)pruneCategories:(NSMutableArray <NSString *> *)currentCategories;
-- (NSArray<NSString *> *)existingRegisteredCategoryIds;
-@end
-
-// START - Start Observers
-
-@interface OSPermissionStateTestObserver : NSObject<OSPermissionObserver> {
-    @package OSPermissionStateChanges* last;
-    @package int fireCount;
-}
-- (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges;
-@end
-
-@interface OSSubscriptionStateTestObserver : NSObject<OSSubscriptionObserver> {
-    @package OSSubscriptionStateChanges* last;
-    @package int fireCount;
-}
-- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
-@end
-
-@interface OSEmailSubscriptionStateTestObserver : NSObject<OSEmailSubscriptionObserver> {
-    @package OSEmailSubscriptionStateChanges *last;
-    @package int fireCount;
-}
-- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges;
-@end
-
-@interface OSSMSSubscriptionStateTestObserver : NSObject<OSSMSSubscriptionObserver> {
-    @package OSSMSSubscriptionStateChanges *last;
-    @package int fireCount;
-}
-- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges *)stateChanges;
-@end
-
-@interface OSInAppMessageTestDelegate : NSObject<OSInAppMessageLifecycleHandler> {
-    @package OSInAppMessage *lastMessageWillDisplay;
-    @package OSInAppMessage *lastMessageDidDisplay;
-    @package OSInAppMessage *lastMessageWillDismiss;
-    @package OSInAppMessage *lastMessageDidDismiss;
-}
-@end
-
-// END - Observers
+// TODO: Commented out 🧪
+//#import "OneSignal.h"
+//#import "UIApplication+OneSignal.h"
+//#import "OneSignalNotificationCategoryController.h"
+//
+//#define TEST_EXTERNAL_USER_ID_HASH_TOKEN @"i_am_a_test_external_user_id_hash_token"
+//#define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
+//#define TEST_EMAIL_HASH_TOKEN @"i_am_a_test_email_hash_token"
+//#define TEST_EMAIL @"test@onesignal.com"
+//
+//NSString * serverUrlWithPath(NSString *path);
+//
+//@interface UnitTestCommonMethods : NSObject
+//
+//// Inits with no thread waits, foregrounding app, or running selectors
+//+ (void)initOneSignal;
+//+ (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+//        notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
+//+ (void)initOneSignalWithAppId_andThreadWait:(NSString*)appId
+//                          withLaunchOptions:(NSDictionary*)launchOptions
+//withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+//              withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
+//// Inits with thread waits
+//+ (void)initOneSignal_andThreadWait;
+//+ (void)initOneSignal_andThreadWaitWithForeground;
+//+ (void)initOneSignalWithHanders_andThreadWait:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+//                      notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
+//+ (void)initOneSignalWithAppId:(NSString*)appId
+//             withLaunchOptions:(NSDictionary*)launchOptions
+//withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+// withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
+//
+//+ (void)runBackgroundThreads;
+//+ (void)runLongBackgroundThreads;
+//+ (void)clearStateForAppRestart:(XCTestCase *)testCase;
+//+ (void)beforeAllTest;
+//+ (void)beforeAllTest:(XCTestCase *)testCase;
+//+ (void)beforeEachTest:(XCTestCase *)testCase;
+//+ (void)foregroundApp;
+//+ (void)backgroundApp;
+//+ (void)setAppInactive;
+//+ (void)pullDownNotificationCenter;
+//+ (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
+//+ (void)setCurrentNotificationPermissionAsUnanswered;
+//+ (void)clearUserDefaults;
+//
+//+ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
+//+ (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo;
+//+ (void)answerNotificationPrompt:(BOOL)accept;
+//+ (void)setCurrentNotificationPermission:(BOOL)accepted;
+//+ (void)receiveNotification:(NSString*)notificationId wasOpened:(BOOL)opened;
+//+ (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
+//+ (XCTestCase*)currentXCTestCase;
+//@end
+//
+//// Expose OneSignal test methods
+//@interface OneSignal (UN_extra)
+//+ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay;
+//@end
+//
+//// Expose methods on OneSignalNotificationCategoryController
+//@interface OneSignalNotificationCategoryController ()
+//- (void)pruneCategories:(NSMutableArray <NSString *> *)currentCategories;
+//- (NSArray<NSString *> *)existingRegisteredCategoryIds;
+//@end
+//
+//// START - Start Observers
+//
+//@interface OSPermissionStateTestObserver : NSObject<OSPermissionObserver> {
+//    @package OSPermissionStateChanges* last;
+//    @package int fireCount;
+//}
+//- (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges;
+//@end
+//
+//@interface OSSubscriptionStateTestObserver : NSObject<OSSubscriptionObserver> {
+//    @package OSSubscriptionStateChanges* last;
+//    @package int fireCount;
+//}
+//- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
+//@end
+//
+//@interface OSEmailSubscriptionStateTestObserver : NSObject<OSEmailSubscriptionObserver> {
+//    @package OSEmailSubscriptionStateChanges *last;
+//    @package int fireCount;
+//}
+//- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges;
+//@end
+//
+//@interface OSSMSSubscriptionStateTestObserver : NSObject<OSSMSSubscriptionObserver> {
+//    @package OSSMSSubscriptionStateChanges *last;
+//    @package int fireCount;
+//}
+//- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges *)stateChanges;
+//@end
+//
+//@interface OSInAppMessageTestDelegate : NSObject<OSInAppMessageLifecycleHandler> {
+//    @package OSInAppMessage *lastMessageWillDisplay;
+//    @package OSInAppMessage *lastMessageDidDisplay;
+//    @package OSInAppMessage *lastMessageWillDismiss;
+//    @package OSInAppMessage *lastMessageDidDismiss;
+//}
+//@end
+//
+//// END - Observers

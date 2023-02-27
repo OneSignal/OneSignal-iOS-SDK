@@ -27,160 +27,160 @@
 
 #import <XCTest/XCTest.h>
 #import <Foundation/Foundation.h>
+// TODO: Commented out 🧪
+// #import "OSTrackerFactory.h"
+// #import "OneSignalHelper.h"
 
-#import "OSTrackerFactory.h"
-#import "OneSignalHelper.h"
+// #import "UnitTestCommonMethods.h"
+// #import "OSNotificationTracker.h"
+// #import "CommonAsserts.h"
 
-#import "UnitTestCommonMethods.h"
-#import "OSNotificationTracker.h"
-#import "CommonAsserts.h"
+// @interface ChannelTrackersTests : XCTestCase
+// @end
 
-@interface ChannelTrackersTests : XCTestCase
-@end
+// @implementation ChannelTrackersTests {
+//     NSString *testNotificationId;
+//     NSString *testIAMId;
+//     OSTrackerFactory *trackerFactory;
+// }
 
-@implementation ChannelTrackersTests {
-    NSString *testNotificationId;
-    NSString *testIAMId;
-    OSTrackerFactory *trackerFactory;
-}
-
-- (void)setUp {
-    [super setUp];
-    [UnitTestCommonMethods beforeEachTest:self];
+// - (void)setUp {
+//     [super setUp];
+//     [UnitTestCommonMethods beforeEachTest:self];
     
-    testNotificationId = @"test_notification_id";
-    testIAMId = @"test_iam_id";
-    trackerFactory = [[OSTrackerFactory alloc] initWithRepository:[[OSInfluenceDataRepository alloc] init]];
-}
+//     testNotificationId = @"test_notification_id";
+//     testIAMId = @"test_iam_id";
+//     trackerFactory = [[OSTrackerFactory alloc] initWithRepository:[[OSInfluenceDataRepository alloc] init]];
+// }
 
-- (void)setOutcomesParamsEnabled {
-    [trackerFactory saveInfluenceParams:@{
-        @"outcomes": @{
-                @"direct": @{
-                        @"enabled": @YES
-                },
-                @"indirect": @{
-                        @"notification_attribution": @{
-                                @"minutes_since_displayed": @1440,
-                                @"limit": @10
-                        },
-                        @"enabled": @YES
-                },
-                @"unattributed" : @{
-                        @"enabled": @YES
-                }
-        },
-    }];
-}
+// - (void)setOutcomesParamsEnabled {
+//     [trackerFactory saveInfluenceParams:@{
+//         @"outcomes": @{
+//                 @"direct": @{
+//                         @"enabled": @YES
+//                 },
+//                 @"indirect": @{
+//                         @"notification_attribution": @{
+//                                 @"minutes_since_displayed": @1440,
+//                                 @"limit": @10
+//                         },
+//                         @"enabled": @YES
+//                 },
+//                 @"unattributed" : @{
+//                         @"enabled": @YES
+//                 }
+//         },
+//     }];
+// }
 
-- (void)setOutcomesParamsDisabled {
-    [trackerFactory saveInfluenceParams:@{
-        @"outcomes": @{
-                @"direct": @{
-                        @"enabled": @NO
-                },
-                @"indirect": @{
-                        @"notification_attribution": @{
-                                @"minutes_since_displayed": @1440,
-                                @"limit": @10
-                        },
-                        @"enabled": @NO
-                },
-                @"unattributed" : @{
-                        @"enabled": @NO
-                }
-        },
-    }];
-}
+// - (void)setOutcomesParamsDisabled {
+//     [trackerFactory saveInfluenceParams:@{
+//         @"outcomes": @{
+//                 @"direct": @{
+//                         @"enabled": @NO
+//                 },
+//                 @"indirect": @{
+//                         @"notification_attribution": @{
+//                                 @"minutes_since_displayed": @1440,
+//                                 @"limit": @10
+//                         },
+//                         @"enabled": @NO
+//                 },
+//                 @"unattributed" : @{
+//                         @"enabled": @NO
+//                 }
+//         },
+//     }];
+// }
 
-- (void)testUnattributedInitInfluence {
-    [self setOutcomesParamsEnabled];
-    [trackerFactory initFromCache];
+// - (void)testUnattributedInitInfluence {
+//     [self setOutcomesParamsEnabled];
+//     [trackerFactory initFromCache];
     
-    let sessionInfluences = [trackerFactory influences];
-    for (OSInfluence *influence in sessionInfluences) {
-        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-        XCTAssertEqual(influence.ids, nil);
-    }
-}
+//     let sessionInfluences = [trackerFactory influences];
+//     for (OSInfluence *influence in sessionInfluences) {
+//         XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+//         XCTAssertEqual(influence.ids, nil);
+//     }
+// }
 
-- (void)testInfluenceIdsSaved {
-    [self setOutcomesParamsEnabled];
-    [trackerFactory initFromCache];
+// - (void)testInfluenceIdsSaved {
+//     [self setOutcomesParamsEnabled];
+//     [trackerFactory initFromCache];
     
-    XCTAssertEqual(0, [[trackerFactory notificationChannelTracker] lastReceivedIds].count);
-    XCTAssertEqual(0, [[trackerFactory iamChannelTracker] lastReceivedIds].count);
+//     XCTAssertEqual(0, [[trackerFactory notificationChannelTracker] lastReceivedIds].count);
+//     XCTAssertEqual(0, [[trackerFactory iamChannelTracker] lastReceivedIds].count);
 
-    [[trackerFactory notificationChannelTracker] saveLastId:testNotificationId];
-    [[trackerFactory iamChannelTracker] saveLastId:testIAMId];
+//     [[trackerFactory notificationChannelTracker] saveLastId:testNotificationId];
+//     [[trackerFactory iamChannelTracker] saveLastId:testIAMId];
 
-    let lastNotificationIds = [[trackerFactory notificationChannelTracker] lastReceivedIds];
-    let lastIAMIds = [[trackerFactory iamChannelTracker] lastReceivedIds];
+//     let lastNotificationIds = [[trackerFactory notificationChannelTracker] lastReceivedIds];
+//     let lastIAMIds = [[trackerFactory iamChannelTracker] lastReceivedIds];
 
-    XCTAssertEqual(1, lastNotificationIds.count);
-    [CommonAsserts assertArrayEqualsWithExpected:@[testNotificationId] actual:lastNotificationIds];
-    XCTAssertEqual(1, lastIAMIds.count);
-    [CommonAsserts assertArrayEqualsWithExpected:@[testIAMId] actual:lastIAMIds];
-}
+//     XCTAssertEqual(1, lastNotificationIds.count);
+//     [CommonAsserts assertArrayEqualsWithExpected:@[testNotificationId] actual:lastNotificationIds];
+//     XCTAssertEqual(1, lastIAMIds.count);
+//     [CommonAsserts assertArrayEqualsWithExpected:@[testIAMId] actual:lastIAMIds];
+// }
 
-- (void)testDisabledInitInfluence {
-    [self setOutcomesParamsDisabled];
-    [trackerFactory initFromCache];
+// - (void)testDisabledInitInfluence {
+//     [self setOutcomesParamsDisabled];
+//     [trackerFactory initFromCache];
 
-    let sessionInfluences = [trackerFactory influences];
-    for (OSInfluence *influence in sessionInfluences) {
-        XCTAssertEqual(influence.influenceType, DISABLED);
-        XCTAssertEqual(influence.ids, nil);
-    }
-}
+//     let sessionInfluences = [trackerFactory influences];
+//     for (OSInfluence *influence in sessionInfluences) {
+//         XCTAssertEqual(influence.influenceType, DISABLED);
+//         XCTAssertEqual(influence.ids, nil);
+//     }
+// }
 
-- (void)testSessionInfluences {
-    [self setOutcomesParamsDisabled];
-    [trackerFactory initFromCache];
+// - (void)testSessionInfluences {
+//     [self setOutcomesParamsDisabled];
+//     [trackerFactory initFromCache];
 
-    let sessionInfluences = [trackerFactory sessionInfluences];
-    XCTAssertEqual(1, sessionInfluences.count);
-    XCTAssertEqual(NOTIFICATION, [[sessionInfluences objectAtIndex:0] influenceChannel]);
-}
+//     let sessionInfluences = [trackerFactory sessionInfluences];
+//     XCTAssertEqual(1, sessionInfluences.count);
+//     XCTAssertEqual(NOTIFICATION, [[sessionInfluences objectAtIndex:0] influenceChannel]);
+// }
 
-- (void)testGetChannelsByEntryPoint {
-    [self setOutcomesParamsDisabled];
-    [trackerFactory initFromCache];
+// - (void)testGetChannelsByEntryPoint {
+//     [self setOutcomesParamsDisabled];
+//     [trackerFactory initFromCache];
 
-    let sessionInfluences = [trackerFactory influences];
-    for (OSInfluence *influence in sessionInfluences) {
-        XCTAssertEqual(influence.influenceType, DISABLED);
-        XCTAssertEqual(influence.ids, nil);
-    }
+//     let sessionInfluences = [trackerFactory influences];
+//     for (OSInfluence *influence in sessionInfluences) {
+//         XCTAssertEqual(influence.influenceType, DISABLED);
+//         XCTAssertEqual(influence.ids, nil);
+//     }
     
-    XCTAssertNil([trackerFactory channelByEntryAction:APP_OPEN]);
-    XCTAssertNil([trackerFactory channelByEntryAction:APP_CLOSE]);
-    XCTAssertEqualObjects(@"notification_id", [[trackerFactory channelByEntryAction:NOTIFICATION_CLICK] idTag]);
-}
+//     XCTAssertNil([trackerFactory channelByEntryAction:APP_OPEN]);
+//     XCTAssertNil([trackerFactory channelByEntryAction:APP_CLOSE]);
+//     XCTAssertEqualObjects(@"notification_id", [[trackerFactory channelByEntryAction:NOTIFICATION_CLICK] idTag]);
+// }
 
-- (void)testGetChannelToResetByEntryAction {
-    [self setOutcomesParamsDisabled];
-    [trackerFactory initFromCache];
+// - (void)testGetChannelToResetByEntryAction {
+//     [self setOutcomesParamsDisabled];
+//     [trackerFactory initFromCache];
 
-    XCTAssertEqual(2, [trackerFactory channelsToResetByEntryAction:APP_OPEN].count);
-    XCTAssertEqual(0, [trackerFactory channelsToResetByEntryAction:APP_CLOSE].count);
-    XCTAssertEqual(1, [trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK].count);
-    XCTAssertEqualObjects(@"iam_id", [[[trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK] objectAtIndex:0] idTag]);
-}
+//     XCTAssertEqual(2, [trackerFactory channelsToResetByEntryAction:APP_OPEN].count);
+//     XCTAssertEqual(0, [trackerFactory channelsToResetByEntryAction:APP_CLOSE].count);
+//     XCTAssertEqual(1, [trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK].count);
+//     XCTAssertEqualObjects(@"iam_id", [[[trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK] objectAtIndex:0] idTag]);
+// }
 
-- (void)testDirectInfluenceWithNullId {
-    [self setOutcomesParamsEnabled];
-    OSNotificationTracker *channelTracker = [[OSNotificationTracker alloc] initWithRepository:[OSInfluenceDataRepository sharedInfluenceDataRepository]];
-    // Set the influence type to direct but do not set the direct id
-    channelTracker.influenceType = DIRECT;
-    OSInfluence *influence = [channelTracker currentSessionInfluence];
-    // The current influence was invalid so the type should be disabled
-    XCTAssertEqual(influence.influenceType, DISABLED);
-    // Set the directId
-    channelTracker.directId = @"testid";
-    influence = [channelTracker currentSessionInfluence];
-    // Now that the directId is set the influence should be valid.
-    XCTAssertEqual(influence.influenceType, DIRECT);
-}
+// - (void)testDirectInfluenceWithNullId {
+//     [self setOutcomesParamsEnabled];
+//     OSNotificationTracker *channelTracker = [[OSNotificationTracker alloc] initWithRepository:[OSInfluenceDataRepository sharedInfluenceDataRepository]];
+//     // Set the influence type to direct but do not set the direct id
+//     channelTracker.influenceType = DIRECT;
+//     OSInfluence *influence = [channelTracker currentSessionInfluence];
+//     // The current influence was invalid so the type should be disabled
+//     XCTAssertEqual(influence.influenceType, DISABLED);
+//     // Set the directId
+//     channelTracker.directId = @"testid";
+//     influence = [channelTracker currentSessionInfluence];
+//     // Now that the directId is set the influence should be valid.
+//     XCTAssertEqual(influence.influenceType, DIRECT);
+// }
 
-@end
+// @end

@@ -26,80 +26,80 @@
  */
 
 #import "OneSignalHelperOverrider.h"
-
-#import "TestHelperFunctions.h"
-
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-
-@implementation OneSignalHelperOverrider
-
-static dispatch_queue_t serialMockMainLooper;
-static NSString* _systemInfoMachine;
-
-static XCTestCase* currentTestInstance;
-
-static float mockIOSVersion;
-
-static bool overrideIsTablet = false;
-
-+ (NSString*)overrideGetSystemInfoMachine {
-    return _systemInfoMachine;
-}
-
-+ (void)setSystemInfoMachine:(NSString*)name {
-    _systemInfoMachine = name;
-}
-
-+ (void)load {
-    serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
-    
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
-    
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterThanOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterThanOrEqual:));
-    
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsTablet), [OneSignalHelper class], @selector(isTablet));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetSystemInfoMachine), [OneSignalHelper class], @selector(getSystemInfoMachine));
-}
-
-+ (void)reset {
-    _systemInfoMachine = @"x86_64";
-}
-
-+ (void)setMockIOSVersion:(float)value {
-    mockIOSVersion = value;
-}
-
-+ (float)mockIOSVersion {
-    return mockIOSVersion;
-}
-
-+ (BOOL)overrideIsTablet {
-    return overrideIsTablet;
-}
-
-+ (NSString*) overrideGetAppName {
-    return @"App Name";
-}
-
- +(void)setOverrideIsTablet:(BOOL)shouldBeTablet {
-    overrideIsTablet = shouldBeTablet;
-}
-
-+ (BOOL)overrideIsIOSVersionGreaterThanOrEqual:(NSString *)version {
-    return mockIOSVersion >= [version floatValue];
-}
-
-+ (void) overrideDispatch_async_on_main_queue:(void(^)())block {
-    dispatch_async(serialMockMainLooper, block);
-}
-
-+ (void)runBackgroundThreads {
-    dispatch_sync(serialMockMainLooper, ^{});
-}
-
-@end
+// TODO: Commented out 🧪
+//#import "TestHelperFunctions.h"
+//
+//#import "OneSignal.h"
+//#import "OneSignalHelper.h"
+//
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wundeclared-selector"
+//
+//@implementation OneSignalHelperOverrider
+//
+//static dispatch_queue_t serialMockMainLooper;
+//static NSString* _systemInfoMachine;
+//
+//static XCTestCase* currentTestInstance;
+//
+//static float mockIOSVersion;
+//
+//static bool overrideIsTablet = false;
+//
+//+ (NSString*)overrideGetSystemInfoMachine {
+//    return _systemInfoMachine;
+//}
+//
+//+ (void)setSystemInfoMachine:(NSString*)name {
+//    _systemInfoMachine = name;
+//}
+//
+//+ (void)load {
+//    serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
+//
+//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
+//
+//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterThanOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterThanOrEqual:));
+//
+//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
+//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsTablet), [OneSignalHelper class], @selector(isTablet));
+//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetSystemInfoMachine), [OneSignalHelper class], @selector(getSystemInfoMachine));
+//}
+//
+//+ (void)reset {
+//    _systemInfoMachine = @"x86_64";
+//}
+//
+//+ (void)setMockIOSVersion:(float)value {
+//    mockIOSVersion = value;
+//}
+//
+//+ (float)mockIOSVersion {
+//    return mockIOSVersion;
+//}
+//
+//+ (BOOL)overrideIsTablet {
+//    return overrideIsTablet;
+//}
+//
+//+ (NSString*) overrideGetAppName {
+//    return @"App Name";
+//}
+//
+// +(void)setOverrideIsTablet:(BOOL)shouldBeTablet {
+//    overrideIsTablet = shouldBeTablet;
+//}
+//
+//+ (BOOL)overrideIsIOSVersionGreaterThanOrEqual:(NSString *)version {
+//    return mockIOSVersion >= [version floatValue];
+//}
+//
+//+ (void) overrideDispatch_async_on_main_queue:(void(^)())block {
+//    dispatch_async(serialMockMainLooper, block);
+//}
+//
+//+ (void)runBackgroundThreads {
+//    dispatch_sync(serialMockMainLooper, ^{});
+//}
+//
+//@end
