@@ -85,8 +85,8 @@
     [OneSignal.User removeEmail:@"person@example.com"];
 
     // SMS
-    [OneSignal.User addSmsNumber:@"+15551231234"];
-    [OneSignal.User removeSmsNumber:@"+15551231234"];
+    [OneSignal.User addSms:@"+15551231234"];
+    [OneSignal.User removeSms:@"+15551231234"];
 
     // Triggers
     [OneSignal.InAppMessages addTrigger:@"foo" withValue:@"bar"];
@@ -168,7 +168,7 @@
  */
 - (void)testEmailAndSmsSubscriptions {
     [OneSignal.User addEmail:@"test@example.com"];
-    [OneSignal.User addSmsNumber:@"+15551231234"];
+    [OneSignal.User addSms:@"+15551231234"];
     
     // Sleep to allow the flush to be called 1 time.
     [NSThread sleepForTimeInterval:6.0f];
