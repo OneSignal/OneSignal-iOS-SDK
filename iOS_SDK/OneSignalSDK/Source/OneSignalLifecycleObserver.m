@@ -90,7 +90,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)willResignActive {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
-    
+    [OneSignalTracker willResignActiveTriggered];
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:YES];
         [OneSignal sendTagsOnBackground];
@@ -99,7 +99,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)didEnterBackground {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
-    
+    [OneSignalTracker didEnterBackgroundTriggered];
     if ([OneSignal appId])
         [OneSignalLocation onFocus:NO];
 }

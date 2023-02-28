@@ -58,16 +58,27 @@
 static UIBackgroundTaskIdentifier focusBackgroundTask;
 static NSTimeInterval lastOpenedTime;
 static BOOL lastOnFocusWasToBackground = YES;
+static BOOL willResignActiveTriggered = NO;
+static BOOL didEnterBackgroundTriggered = NO;
 
 + (void)resetLocals {
     [OSFocusTimeProcessorFactory resetUnsentActiveTime];
-     focusBackgroundTask = 0;
+    focusBackgroundTask = 0;
     lastOpenedTime = 0;
     lastOnFocusWasToBackground = YES;
+    [self resetBackgroundDetection];
 }
 
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
     lastOpenedTime = lastOpened;
+}
+
++ (void)willResignActiveTriggered {
+    willResignActiveTriggered = YES;
+}
+
++ (void)didEnterBackgroundTriggered {
+    didEnterBackgroundTriggered = YES;
 }
 
 + (void)beginBackgroundFocusTask {
@@ -81,10 +92,26 @@ static BOOL lastOnFocusWasToBackground = YES;
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
 
+/**
+ Returns true if application truly did come from a backgrounded state.
+ Returns false if the application bypassed `didEnterBackground` after entering `willResignActive`.
+ This can happen if the app resumes after a native dialog displays over the app or after the app is in a suspended state and not backgrounded.
+**/
++ (BOOL)applicationForegroundedFromBackgroundedState {
+    return !(willResignActiveTriggered && !didEnterBackgroundTriggered);
+}
+
++ (void)resetBackgroundDetection {
+    willResignActiveTriggered = NO;
+    didEnterBackgroundTriggered = NO;
+}
+
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent])
+    if ([OneSignal requiresUserPrivacyConsent]) {
+        [self resetBackgroundDetection];
         return;
+    }
     
     // Prevent the onFocus to be called twice when app being terminated
     //    - Both WillResignActive and willTerminate
@@ -101,6 +128,10 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)applicationForegrounded {
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
+
+    BOOL fromBackgroundedState = [self applicationForegroundedFromBackgroundedState];
+    [self resetBackgroundDetection];
+    
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
@@ -115,7 +146,10 @@ static BOOL lastOnFocusWasToBackground = YES;
         // This checks if notification permissions changed when app was backgrounded
         [OneSignal sendNotificationTypesUpdate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
-        [OneSignal receivedInAppMessageJson:nil];
+        if (fromBackgroundedState) {
+            // Use cached IAMs if app truly went into the background
+            [OneSignal receivedInAppMessageJson:nil];
+        }
     }
     
     let wasBadgeSet = [OneSignal clearBadgeCount:false];
