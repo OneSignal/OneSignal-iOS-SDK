@@ -94,6 +94,7 @@
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
 		3CA6CE0A28E4F19B00CA0585 /* OSUserRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */; };
+		3CBF17B129B936AB005432EC /* OneSignalCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CBF17B029B936AB005432EC /* OneSignalCore.m */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CCF44BF299B17290021964D /* OneSignalWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CCF44BD299B17290021964D /* OneSignalWrapper.m */; };
 		3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */; };
@@ -698,6 +699,7 @@
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityOperationExecutor.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequests.swift; sourceTree = "<group>"; };
+		3CBF17B029B936AB005432EC /* OneSignalCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCore.m; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
 		3CCF44BD299B17290021964D /* OneSignalWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWrapper.m; sourceTree = "<group>"; };
 		3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStoreChangedHandler.swift; sourceTree = "<group>"; };
@@ -1614,6 +1616,7 @@
 			isa = PBXGroup;
 			children = (
 				DE7D17E827026B95002D3A5D /* OneSignalCore.h */,
+				3CBF17B029B936AB005432EC /* OneSignalCore.m */,
 				DEF7848E2914798400A1F3A5 /* Swizzling */,
 				DEF7845A2912E89200A1F3A5 /* OSObservable.h */,
 				DEF7845B2912E89200A1F3A5 /* OSObservable.m */,
@@ -2812,6 +2815,7 @@
 				DEF78497291479C100A1F3A5 /* SwizzlingForwarder.m in Sources */,
 				3CE8CC542911B037000DB0D3 /* OneSignalReachability.m in Sources */,
 				DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */,
+				3CBF17B129B936AB005432EC /* OneSignalCore.m in Sources */,
 				DE7D18702703751B002D3A5D /* OSRequests.m in Sources */,
 				DEF7845D2912E89200A1F3A5 /* OSObservable.m in Sources */,
 				DE971752274C48B700FC409E /* OSPrivacyConsentController.m in Sources */,

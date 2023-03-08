@@ -54,3 +54,11 @@
 #import <OneSignalCore/OSRemoteParamController.h>
 #import <OneSignalCore/OneSignalMobileProvision.h>
 #import <OneSignalCore/OneSignalWrapper.h>
+
+// TODO: Should this class be defined in this file?
+@interface OneSignalCore : NSObject
+
++ (void)setSharedClient:(id<IOneSignalClient> _Nonnull)client;
++ (id<IOneSignalClient> _Nullable)sharedClient;
+
+@end

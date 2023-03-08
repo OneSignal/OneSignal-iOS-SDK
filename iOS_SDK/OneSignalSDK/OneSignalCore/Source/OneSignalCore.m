@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OneSignalCore/OneSignalRequest.h>
+#import "OneSignalCore.h"
 
-#ifndef OneSignalClient_h
-#define OneSignalClient_h
+@implementation OneSignalCore
 
-@protocol IOneSignalClient <NSObject>
+static id<IOneSignalClient> _sharedClient;
++ (id<IOneSignalClient>)sharedClient {
+    if (!_sharedClient) {
+        // TODO: Log error, must set up the Client first before calling
+        // Or do a different way than this
+        // not good, makes the return type nullable
+        return nil;
+    }
+    return _sharedClient;
+}
 
-- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
++ (void)setSharedClient:(id<IOneSignalClient>)client {
+    _sharedClient = client;
+}
 
 @end
-
-@interface OneSignalClient : NSObject <IOneSignalClient>
-@end
-
-#endif

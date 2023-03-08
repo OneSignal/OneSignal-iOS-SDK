@@ -790,6 +790,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
+    // Set up services, TODO: Maybe not in load
+    [self bootstrapServices];
+    
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views or from hostless unit tests or share-extension.
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/935
@@ -819,6 +822,14 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     sessionLaunchTime = [NSDate date];
     
     [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
+}
+
+/**
+ Set up the services of each module one by one.
+ */
++ (void)bootstrapServices {
+    // Alternative: something like [OneSignalCore bootstrap]
+    [OneSignalCore setSharedClient:[OneSignalClient new]];
 }
 
 /*
