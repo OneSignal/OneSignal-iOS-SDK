@@ -217,7 +217,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+    [OneSignalCore.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
             if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
@@ -477,7 +477,7 @@ static BOOL _isInAppMessagingPaused = false;
                                                          withPageId:pageId
                                                        forVariantId:message.variantId];
 
-    [OneSignalClient.sharedClient executeRequest:metricsRequest
+    [OneSignalCore.sharedClient executeRequest:metricsRequest
                                        onSuccess:^(NSDictionary *result) {
         NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, pageId, result];
                                            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
@@ -516,7 +516,7 @@ static BOOL _isInAppMessagingPaused = false;
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
     
-    [OneSignalClient.sharedClient executeRequest:metricsRequest
+    [OneSignalCore.sharedClient executeRequest:metricsRequest
                                        onSuccess:^(NSDictionary *result) {
                                            NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST impression update with result: %@", message.messageId, result];
                                            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
@@ -910,7 +910,7 @@ static BOOL _isInAppMessagingPaused = false;
                                                     forVariantId:message.variantId
                                                       withAction:action];
 
-   [OneSignalClient.sharedClient executeRequest:metricsRequest
+   [OneSignalCore.sharedClient executeRequest:metricsRequest
                                       onSuccess:^(NSDictionary *result) {
                                           NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST click update for click id: %@, with result: %@", message.messageId, action.clickId,  result];
                                           [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];

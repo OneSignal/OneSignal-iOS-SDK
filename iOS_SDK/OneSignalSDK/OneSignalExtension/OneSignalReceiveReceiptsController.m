@@ -97,7 +97,7 @@
     dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
     dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId now sending confirmed delievery after: %i second delay", delay]];
-        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+        [OneSignalCore.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
             if (success) {
                 success(result);
             }

@@ -308,7 +308,7 @@ class OSUserExecutor {
             request.updatePushSubscriptionModel(pushSubscriptionModel)
         }
 
-        OneSignalClient.shared().execute(request) { response in
+        OneSignalCore.sharedClient()?.execute(request) { response in
             removeFromQueue(request)
 
             // TODO: Differentiate if we need to fetch the user based on response code of 200, 201, 202
@@ -359,7 +359,7 @@ class OSUserExecutor {
         }
         request.sentToClient = true
 
-        OneSignalClient.shared().execute(request) { response in
+        OneSignalCore.sharedClient()?.execute(request) { response in
             removeFromQueue(request)
             
             if let identityObject = parseIdentityObjectResponse(response),
@@ -416,7 +416,7 @@ class OSUserExecutor {
         }
         request.sentToClient = true
 
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient()?.execute(request) { _ in
             removeFromQueue(request)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
@@ -473,7 +473,7 @@ class OSUserExecutor {
             return
         }
         request.sentToClient = true
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient()?.execute(request) { _ in
             removeFromQueue(request)
 
             // TODO: ... hydrate with returned identity object?
@@ -509,7 +509,7 @@ class OSUserExecutor {
             return
         }
         request.sentToClient = true
-        OneSignalClient.shared().execute(request) { response in
+        OneSignalCore.sharedClient()?.execute(request) { response in
             removeFromQueue(request)
 
             if let response = response {

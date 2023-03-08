@@ -628,7 +628,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     NSString *userId = nil;
 
-    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
+    [OneSignalCore.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
             OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];

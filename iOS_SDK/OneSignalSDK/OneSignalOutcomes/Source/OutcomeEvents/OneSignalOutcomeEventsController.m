@@ -110,7 +110,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
                    onesignalId:(NSString * _Nonnull)onesignalId
                influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams {
     // TODO: What to do onSuccess and onFailure
-    [OneSignalClient.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
+    [OneSignalCore.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
                                                   withActiveTime:timeElapsed
                                                   appId:appId
                                                   pushSubscriptionId:pushSubscriptionId

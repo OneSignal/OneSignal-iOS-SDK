@@ -46,13 +46,13 @@
     
     let request = [OSRequestLoadInAppMessageContent withAppId:[OneSignalConfigManager getAppId] withMessageId:self.messageId withVariantId:variantId];
     
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalCore.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)loadPreviewMessageHTMLContentWithUUID:(NSString * _Nonnull)previewUUID success:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock {
     let request = [OSRequestLoadInAppMessagePreviewContent withAppId:[OneSignalConfigManager getAppId] previewUUID:previewUUID];
     
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalCore.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 /**

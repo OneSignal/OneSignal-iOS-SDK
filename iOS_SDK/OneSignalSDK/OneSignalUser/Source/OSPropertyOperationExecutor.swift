@@ -133,7 +133,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
         request.sentToClient = true
 
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient()?.execute(request) { _ in
             // On success, remove request from cache, and we do need to hydrate
             // TODO: We need to hydrate after all
             self.updateRequestQueue.removeAll(where: { $0 == request})
