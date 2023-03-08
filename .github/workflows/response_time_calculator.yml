@@ -1,0 +1,34 @@
+name: Calculate Response Time
+on: 
+  workflow_dispatch:
+    inputs:
+      start_of_range:
+        type: string
+        description: 'Number of days back to start the query. Uses issue creation date.'
+        required: true
+      end_of_range:
+        type: string
+        description: 'Number of days back to end the query. Uses issue creation date.'
+        required: false
+        default: "0"
+jobs:
+  calculate:
+    name: calculate reponse time for the repository
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACTIONSTESTTOKEN }}
+      - uses: actions/github-script@v6
+        id: calculate-time 
+        with:
+          result-encoding: string
+          script: |
+            const script = require('./.github/response_time.js')
+            const start_of_range = ${{ github.event.inputs.start_of_range }}
+            const end_of_range = ${{ github.event.inputs.end_of_range }}
+            return await script({github, context}, start_of_range, end_of_range)
+      - name: Get result
+        run: echo "${{steps.calculate-time.outputs.result}}" >> $GITHUB_STEP_SUMMARY
