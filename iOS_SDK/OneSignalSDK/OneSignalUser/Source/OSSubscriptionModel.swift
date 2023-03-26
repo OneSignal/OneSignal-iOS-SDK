@@ -189,8 +189,8 @@ class OSSubscriptionModel: OSModel {
             guard self.type == .push && _isDisabled != oldValue else {
                 return
             }
-            notificationTypes = -2
             firePushSubscriptionChanged(.isDisabled(oldValue))
+            notificationTypes = -2
         }
     }
 
