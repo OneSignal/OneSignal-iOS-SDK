@@ -72,6 +72,16 @@ static OSSessionManager *_sessionManager;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"SessionManager restored from cache with influences: %@", [self getInfluences].description]];
 }
 
+- (void)resetSessionIfDirect {
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignal SessionManager resetSessionIfDirect"];
+    NSArray<OSChannelTracker *> *channels = [_trackerFactory channels];
+    for (OSChannelTracker *tracker in channels) {
+        if (tracker.influenceType == DIRECT) {
+            [tracker resetAndInitInfluence];
+        }
+    }
+}
+
 - (void)restartSessionIfNeeded:(AppEntryAction)entryAction {
     NSArray<OSChannelTracker *> *channelTrackers = [_trackerFactory channelsToResetByEntryAction:entryAction];
     NSMutableArray<OSInfluence *> *updatedInfluences = [NSMutableArray new];
