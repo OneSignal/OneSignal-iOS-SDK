@@ -248,32 +248,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     private func createUserFromLegacyPlayer(_ playerId: String) {
         // 1. Create the Push Subscription Model
-        let sharedUserDefaults = OneSignalUserDefaults.initShared()
-        let reachable = OSNotificationsManager.currentPermissionState.reachable
-        let pushToken = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
-        let pushSubscriptionModel = OSSubscriptionModel(
-            type: .push,
-            address: pushToken,
-            subscriptionId: playerId,
-            reachable: reachable,
-            isDisabled: false, // TODO: Get from cache or something if there?
-            changeNotifier: OSEventProducer())
+        let pushSubscriptionModel = createDefaultPushSubscription(subscriptionId: playerId)
         
-        // 2. Add pushSubscription to store
-        pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscriptionModel, hydrating: false)
-        
-        // 3. Set the internal user
+        // 2. Set the internal user
+        let newUser = setNewInternalUser(externalId: nil, pushSubscriptionModel: pushSubscriptionModel)
 
-        let identityModel = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
-        
-        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel, hydrating: false)
-
-        let newUser = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscriptionModel)
-        _user = newUser
-
-        // 4. Do the request
+        // 3. Make the request
         OSUserExecutor.fetchIdentityBySubscription(newUser)
     }
     
@@ -331,6 +311,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         )
     }
 
+    /**
+     Returns if the OSIdentityModel passed in belongs to the current user. This method is used in deciding whether or not to hydrate via a server response, for example.
+     */
+    func isCurrentUser(_ identityModel: OSIdentityModel) -> Bool {
+        return self.identityModelStore.getModel(modelId: identityModel.modelId) != nil
+    }
+    
     /**
      Clears the existing user's data in preparation for hydration via a fetch user call.
      */
@@ -420,7 +407,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
-        let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
+        let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription(subscriptionId: nil)
 
         // Add pushSubscription to store if not present
         if !pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY) {
@@ -431,11 +418,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return self.user
     }
 
-    func createDefaultPushSubscription() -> OSSubscriptionModel {
+    /**
+     Creates a default Push Subscription Model using the optionally passed in subscriptionId. An scenario where the subscriptionId will be passed in is when we are converting a legacy player's information from 3.x  into a Push Subscription Model.
+     */
+    func createDefaultPushSubscription(subscriptionId: String?) -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
         let reachable = OSNotificationsManager.currentPermissionState.reachable
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
-        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
+        let subscriptionId = subscriptionId ?? sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,

@@ -320,7 +320,7 @@ class OSUserExecutor {
                 // If this user already exists and we logged into an external_id, fetch the user data
                 // TODO: Only do this if response code is 200 or 202
                 // Fetch the user only if its the current user
-                if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId),
+                if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
                    let identity = request.parameters?["identity"] as? [String: String],
                    let externalId = identity[OS_EXTERNAL_ID] {
                     fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
@@ -368,7 +368,7 @@ class OSUserExecutor {
                 request.identityModel.hydrate(identityObject)
                 
                 // Fetch this user's data if it is the current user
-                guard OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) != nil
+                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                 else {
                     executePendingRequests()
                     return
@@ -421,7 +421,7 @@ class OSUserExecutor {
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             // Fetch the user only if its the current user
-            if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModelToUpdate.modelId) {
+            if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
                 fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
             } else {
                 executePendingRequests()
@@ -435,7 +435,7 @@ class OSUserExecutor {
 
                     removeFromQueue(request)
                     // Fetch the user only if its the current user
-                    if let _ = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModelToUpdate.modelId) {
+                    if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
                         fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                         // TODO: Link ^ to the new user... what was this todo for?
                     }
