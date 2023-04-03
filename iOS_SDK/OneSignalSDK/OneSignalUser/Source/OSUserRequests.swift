@@ -31,7 +31,7 @@ import OneSignalOSCore
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
- Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestTransferSubscription`, `OSRequestFetchUser`.
+ Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestTransferSubscription`, `OSRequestFetchUser`, `OSRequestFetchIdentityBySubscription`.
  */
 class OSUserExecutor {
     static var userRequestQueue: [OSUserRequest] = []
@@ -42,11 +42,24 @@ class OSUserExecutor {
     static func start() {
         var userRequestQueue: [OSUserRequest] = []
 
-        // Read unfinished Create User + Identify User requests from cache, if any...
+        // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
         if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
             // Hook each uncached Request to the right model reference
             for request in cachedRequestQueue {
-                if request.isKind(of: OSRequestCreateUser.self), let req = request as? OSRequestCreateUser {
+                if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let req = request as? OSRequestFetchIdentityBySubscription {
+                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModel.modelId) {
+                        // 1. The model exist in the store, set it to be the Request's model
+                        req.identityModel = identityModel
+                    } else if let identityModel = identityModels[req.identityModel.modelId] {
+                        // 2. The model exists in the dict of identityModels already processed to use
+                        req.identityModel = identityModel
+                    } else {
+                        // 3. The models do not exist, use the model on the request, and add to dict.
+                        identityModels[req.identityModel.modelId] = req.identityModel
+                    }
+                    userRequestQueue.append(req)
+                    
+                } else if request.isKind(of: OSRequestCreateUser.self), let req = request as? OSRequestCreateUser {
                     if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModel.modelId) {
                         // 1. The model exist in the store, set it to be the Request's model
                         req.identityModel = identityModel
@@ -144,8 +157,11 @@ class OSUserExecutor {
             if !request.prepareForExecution() {
                 return
             }
-
-            if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
+            
+            if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let fetchIdentityRequest = request as? OSRequestFetchIdentityBySubscription {
+                executeFetchIdentityBySubscriptionRequest(fetchIdentityRequest)
+                return
+            } else if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
                 executeCreateUserRequest(createUserRequest)
                 return
             } else if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
@@ -262,8 +278,8 @@ class OSUserExecutor {
         return response?["properties"] as? [String: Any]
     }
 
-    static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: Any]? {
-        return response?["identity"] as? [String: Any]
+    static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: String]? {
+        return response?["identity"] as? [String: String]
     }
 
     // We will pass minimal properties to this request
@@ -323,7 +339,60 @@ class OSUserExecutor {
             executePendingRequests()
         }
     }
+    
+    static func fetchIdentityBySubscription(_ user: OSUserInternal) {
+        let request = OSRequestFetchIdentityBySubscription(identityModel: user.identityModel, pushSubscriptionModel: user.pushSubscriptionModel)
+        
+        appendToQueue(request)
+        executePendingRequests()
+    }
+    
+    /**
+     For migrating legacy players from 3.x to 5.x. This request will fetch the identity object for a subscription ID, and we will use the returned onesignalId to fetch and hydrate the local user.
+     */
+    static func executeFetchIdentityBySubscriptionRequest(_ request: OSRequestFetchIdentityBySubscription) {
+        guard !request.sentToClient else {
+            return
+        }
+        guard request.prepareForExecution() else {
+            return
+        }
+        request.sentToClient = true
 
+        OneSignalClient.shared().execute(request) { response in
+            removeFromQueue(request)
+            
+            if let identityObject = parseIdentityObjectResponse(response),
+               let onesignalId = identityObject[OS_ONESIGNAL_ID]
+            {
+                request.identityModel.hydrate(identityObject)
+                
+                // Fetch this user's data if it is the current user
+                guard OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) != nil
+                else {
+                    executePendingRequests()
+                    return
+                }
+                
+                fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
+            }
+        } onFailure: { error in
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
+            
+            // TODO: Differentiate error cases
+            
+            // If the error is not retryable, remove from cache and queue
+            if let nsError = error as? NSError,
+               nsError.code < 500 && nsError.code != 0 {
+                // remove the subscription_id but keep the same push subscription model
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                removeFromQueue(request)
+            }
+            // Otherwise it is a retryable error
+            executePendingRequests()
+        }
+    }
+    
     static func identifyUser(externalId: String, identityModelToIdentify: OSIdentityModel, identityModelToUpdate: OSIdentityModel) {
         let request = OSRequestIdentifyUser(
             aliasLabel: OS_EXTERNAL_ID,
@@ -576,6 +645,69 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.path = path
+        self.timestamp = timestamp
+    }
+}
+
+class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
+    var sentToClient = false
+    let stringDescription: String
+    
+    override var description: String {
+        return stringDescription
+    }
+    
+    var identityModel: OSIdentityModel
+    var pushSubscriptionModel: OSSubscriptionModel
+    
+    func prepareForExecution() -> Bool {
+        guard let appId = OneSignalConfigManager.getAppId() else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the FetchIdentityBySubscription request due to null app ID.")
+            return false
+        }
+        
+        if let subscriptionId = pushSubscriptionModel.subscriptionId {
+            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/user/identity"
+            return true
+        } else {
+            // This is an error, and should never happen
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the FetchIdentityBySubscription request due to null subscriptionId.")
+            self.path = ""
+            return false
+        }
+    }
+    
+    init(identityModel: OSIdentityModel, pushSubscriptionModel: OSSubscriptionModel) {
+        self.identityModel = identityModel
+        self.pushSubscriptionModel = pushSubscriptionModel
+        self.stringDescription = "OSRequestFetchIdentityBySubscription with subscriptionId: \(pushSubscriptionModel.subscriptionId ?? "nil")"
+        super.init()
+        self.method = GET
+    }
+    
+    func encode(with coder: NSCoder) {
+        coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
+        coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
+    }
+    
+    required init?(coder: NSCoder) {
+        guard
+            let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
+            let pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel,
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
+        else {
+            // Log error
+            return nil
+        }
+        self.identityModel = identityModel
+        self.pushSubscriptionModel = pushSubscriptionModel
+        
+        self.stringDescription = "OSRequestFetchIdentityBySubscription with subscriptionId: \(pushSubscriptionModel.subscriptionId ?? "nil")"
+        super.init()
+        self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
     }
 }
