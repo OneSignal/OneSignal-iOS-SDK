@@ -359,7 +359,6 @@ class OSUserExecutor {
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed with error \(error.debugDescription)")
-            removeFromQueue(request)
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             if let nsError = error as? NSError {
                 if nsError.code == 409 {
