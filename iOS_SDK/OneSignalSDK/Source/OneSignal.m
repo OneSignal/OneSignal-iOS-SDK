@@ -1857,9 +1857,13 @@ static BOOL _trackedColdRestart = false;
             userState.carrier = carrierName;
     }
     
+    #if TARGET_OS_SIMULATOR
+    userState.testType = [NSNumber numberWithInt:(int)UIApplicationReleaseDev];
+    #else
     let releaseMode = [OneSignalMobileProvision releaseMode];
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         userState.testType = [NSNumber numberWithInt:(int)releaseMode];
+    #endif
     
     if (self.playerTags.tagsToSend)
         userState.tags = self.playerTags.tagsToSend;
