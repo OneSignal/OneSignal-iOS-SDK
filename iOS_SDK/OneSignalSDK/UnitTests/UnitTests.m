@@ -257,6 +257,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"test_type"], @1);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
