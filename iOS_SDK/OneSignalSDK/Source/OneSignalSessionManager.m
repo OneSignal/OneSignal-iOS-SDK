@@ -215,7 +215,7 @@
    
     for (OSIndirectNotification *notification in receivedNotifications) {
         long difference = currentTime - notification.timestamp;
-        if (difference <= attributionWindowInSeconds) {
+        if (difference <= attributionWindowInSeconds && notification.notificationId != nil) {
             [notificationsIds addObject:notification.notificationId];
         }
     }
