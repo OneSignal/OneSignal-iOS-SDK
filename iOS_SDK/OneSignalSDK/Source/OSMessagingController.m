@@ -159,6 +159,8 @@ static BOOL _isInAppMessagingPaused = false;
         self.isAppInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         _isInAppMessagingPaused = false;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleIAMPreview:) name:ONESIGNAL_POST_PREVIEW_IAM object:nil];
     }
     
     return self;
@@ -309,6 +311,12 @@ static BOOL _isInAppMessagingPaused = false;
         [self.inAppMessageDelegate respondsToSelector:@selector(onDidDismissInAppMessage:)]) {
         [self.inAppMessageDelegate onDidDismissInAppMessage:message];
     }
+}
+
+- (void)handleIAMPreview:(NSNotification *)nsNotification {
+    OSNotification *notification = [nsNotification.userInfo objectForKey:@"notification"];
+    OSInAppMessageInternal *message = [OSInAppMessageInternal instancePreviewFromNotification:notification];
+    [self presentInAppPreviewMessage:message];
 }
 
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {
@@ -988,6 +996,10 @@ static BOOL _isInAppMessagingPaused = false;
     // Pull new IAMs when the subscription id changes to a new valid subscription id
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
     [self getInAppMessagesFromServer:stateChanges.to.id];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
