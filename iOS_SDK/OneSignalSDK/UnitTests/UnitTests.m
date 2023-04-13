@@ -921,16 +921,7 @@ and the app was cold started from opening a notficiation open that the developer
                        withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
-    // Make sure we are tracking the notification received event to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
-    id received_event = @{
-         @"os_notification_received": @{
-              @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
-              @"medium": @"notification",
-              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-              @"source": @"OneSignal"}
-    };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
+    // Note: we are no longer logging the notification received event to Firebase for iOS.
     
     // Trigger a new app session
     [UnitTestCommonMethods backgroundApp];
@@ -942,7 +933,7 @@ and the app was cold started from opening a notficiation open that the developer
     // TODO: Test carry over causes this influence_open not to fire
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
     id influence_open_event = @{
         @"os_notification_influence_open": @{
                 @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
@@ -950,7 +941,7 @@ and the app was cold started from opening a notficiation open that the developer
                 @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                 @"source": @"OneSignal"}
     };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
 }
 
 - (void)testOSNotificationPayloadParsesTemplateFields {
