@@ -793,6 +793,11 @@ static BOOL _isInAppMessagingPaused = false;
     // Handles body, button, or image clicks
     if (![self isClickAvailable:message withClickId:clickId])
         return;
+    
+    if (!clickId) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendClickRESTCall:withAction: call could not be made because the click action does not have an id."];
+        return;
+    }
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:clickId];
     // Track clickId per IAM
