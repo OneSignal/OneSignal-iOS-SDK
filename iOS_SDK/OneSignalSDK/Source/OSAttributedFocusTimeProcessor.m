@@ -117,9 +117,6 @@ static let DELAY_TIME = 30;
 
         [OneSignal.stateSynchronizer sendOnFocusTime:totalTimeActive params:params withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
-            if (params != nil) {
-                [[OSSessionManager sharedSessionManager] resetSessionIfDirect];
-            }
             [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
             [self endDelayBackgroundTask];
         } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {

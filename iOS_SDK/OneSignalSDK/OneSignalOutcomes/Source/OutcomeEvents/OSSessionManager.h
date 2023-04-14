@@ -54,6 +54,5 @@
 - (void)onNotificationReceived:(NSString * _Nonnull)notificationId;
 - (void)onDirectInfluenceFromNotificationOpen:(AppEntryAction)entryAction withNotificationId:(NSString * _Nonnull)directNotificationId;
 - (void)attemptSessionUpgrade:(AppEntryAction)entryAction;
-- (void)resetSessionIfDirect;
 
 @end
