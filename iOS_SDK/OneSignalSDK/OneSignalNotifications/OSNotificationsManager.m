@@ -562,7 +562,7 @@ static NSString *_lastnonActiveMessageId;
         [self handleNotificationOpened:messageDict actionType:type];
     } else if (isPreview && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
         let notification = [OSNotification parseWithApns:messageDict];
-        //[OneSignalHelper handleIAMPreview:notification]; //TODO: setup a notification center notif for this
+        [self handleIAMPreview:notification];
     }
 }
 
@@ -738,10 +738,9 @@ static NSString *_lastnonActiveMessageId;
 + (BOOL)handleIAMPreview:(OSNotification *)notification {
     NSString *uuid = [notification additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
-
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
-//        OSInAppMessageInternal *message = [OSInAppMessageInternal instancePreviewFromNotification:notification];
-//        [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message]; //TODO: Post to notification center for IAM to handle
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:notification forKey:@"notification"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ONESIGNAL_POST_PREVIEW_IAM object:nil userInfo:userInfo];
         return YES;
     }
     return NO;
