@@ -185,7 +185,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         OSNotificationsManager.delegate = self
 
-        // Load user from cache, if any
+        // Path 1. Load user from cache, if any
         // Corrupted state if any of these models exist without the others
         if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
@@ -211,8 +211,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
 
-        // Creates an anonymous user if there isn't one in the cache
-        createUserIfNil()
+        // Path 2. There is a legacy player to migrate
+        if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
+            createUserFromLegacyPlayer(legacyPlayerId)
+            OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+            OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+        } else {
+            // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
+            createUserIfNil()
+        }
 
         // Model store listeners subscribe to their models
         identityModelStoreListener.start()
@@ -235,6 +243,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _ = _login(externalId: externalId, token: token)
     }
 
+    /**
+     Converting a 3.x player to a 5.x user. There is a cached legacy player, so we will create the user based on the legacy player ID.
+     */
+    private func createUserFromLegacyPlayer(_ playerId: String) {
+        // 1. Create the Push Subscription Model
+        let pushSubscriptionModel = createDefaultPushSubscription(subscriptionId: playerId)
+        
+        // 2. Set the internal user
+        let newUser = setNewInternalUser(externalId: nil, pushSubscriptionModel: pushSubscriptionModel)
+
+        // 3. Make the request
+        OSUserExecutor.fetchIdentityBySubscription(newUser)
+    }
+    
     private func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return _mockUser
@@ -289,6 +311,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         )
     }
 
+    /**
+     Returns if the OSIdentityModel passed in belongs to the current user. This method is used in deciding whether or not to hydrate via a server response, for example.
+     */
+    func isCurrentUser(_ identityModel: OSIdentityModel) -> Bool {
+        return self.identityModelStore.getModel(modelId: identityModel.modelId) != nil
+    }
+    
     /**
      Clears the existing user's data in preparation for hydration via a fetch user call.
      */
@@ -378,7 +407,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
-        let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
+        let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription(subscriptionId: nil)
 
         // Add pushSubscription to store if not present
         if !pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY) {
@@ -389,11 +418,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return self.user
     }
 
-    func createDefaultPushSubscription() -> OSSubscriptionModel {
+    /**
+     Creates a default Push Subscription Model using the optionally passed in subscriptionId. An scenario where the subscriptionId will be passed in is when we are converting a legacy player's information from 3.x  into a Push Subscription Model.
+     */
+    func createDefaultPushSubscription(subscriptionId: String?) -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
         let reachable = OSNotificationsManager.currentPermissionState.reachable
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
-        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
+        let subscriptionId = subscriptionId ?? sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,
