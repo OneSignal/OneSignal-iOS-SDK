@@ -613,6 +613,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
+        [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
+        [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         
         // Clear all cached data, does not start User Module nor call logout.
         [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
