@@ -51,7 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)start;
 + (void)removeInstance;
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message;
-- (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message;
 - (void)updateInAppMessagesFromCache;
 - (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
 - (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
