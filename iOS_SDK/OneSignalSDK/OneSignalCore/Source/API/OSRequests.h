@@ -53,14 +53,14 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestLiveActivityEnter: OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId
                               appId:(NSString * _Nonnull)appId
                          activityId:(NSString * _Nonnull)activityId
                               token:(NSString * _Nonnull)token;
 @end
 
 @interface OSRequestLiveActivityExit: OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId
                               appId:(NSString * _Nonnull)appId
                          activityId:(NSString * _Nonnull)activityId;
 @end

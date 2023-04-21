@@ -205,7 +205,7 @@
 		918CB0301E73388E0067130F /* OneSignalFramework.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignalFramework.h */; };
 		91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */; };
 		91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */; };
-		944F7ED1296F9F0700AEBA54 /* OneSignalLiveActivityController.h in Headers */ = {isa = PBXBuildFile; fileRef = 944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */; };
+		944F7ED1296F9F0700AEBA54 /* OneSignalLiveActivityController.h in Headers */ = {isa = PBXBuildFile; fileRef = 944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		944F7ED2296F9F1200AEBA54 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
 		9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9D3300F623145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };

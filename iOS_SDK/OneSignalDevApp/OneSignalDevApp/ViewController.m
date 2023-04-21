@@ -241,7 +241,7 @@
         if (activityId && activityId.length) {
             [LiveActivityController createActivityWithCompletionHandler:^(NSString * token) {
                 if(token){
-                    [OneSignal enterLiveActivity:activityId withToken:token];
+                    [OneSignal.LiveActivities enter:activityId withToken:token];
                 }
             }];
         }
@@ -251,7 +251,7 @@
 }
 - (IBAction)exitLiveActivity:(id)sender {
     if (self.activityId.text && self.activityId.text.length) {
-        [OneSignal exitLiveActivity:self.activityId.text];
+        [OneSignal.LiveActivities exit:self.activityId.text];
     }
 }
 
