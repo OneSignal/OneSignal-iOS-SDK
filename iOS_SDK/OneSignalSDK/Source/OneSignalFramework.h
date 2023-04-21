@@ -49,6 +49,7 @@
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 #import "OneSignalInAppMessaging.h"
+#import "OneSignalLiveActivityController.h"
 #import "OneSignalLocation.h"
 
 #pragma clang diagnostic push
@@ -85,11 +86,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Live Activity
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId;
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
++ (Class<OSLiveActivities>)LiveActivities NS_REFINED_FOR_SWIFT;
 
 #pragma mark Logging
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;

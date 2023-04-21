@@ -55,6 +55,10 @@ public extension OneSignal {
     static var Location: OSLocation.Type {
         return __location()
     }
+    
+    static var LiveActivities: OSLiveActivities.Type {
+        return __liveActivities()
+    }
 
     static var requiresPrivacyConsent: Bool {
         get {

@@ -30,12 +30,18 @@
 
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
-@interface OneSignalLiveActivityController: NSObject<OSPushSubscriptionObserver>
+/**
+ Public API for the LiveActivities namespace.
+ */
+@protocol OSLiveActivities <NSObject>
++ (void)enter:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
++ (void)enter:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)exit:(NSString * _Nonnull)activityId;
++ (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
+@end
 
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId appId:(NSString *)appId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
-
-
+@interface OneSignalLiveActivityController: NSObject <OSLiveActivities, OSPushSubscriptionObserver>
++ (Class<OSLiveActivities>_Nonnull)LiveActivities;
 @end
 
 #endif /* OneSignalLiveActivityController_h */
