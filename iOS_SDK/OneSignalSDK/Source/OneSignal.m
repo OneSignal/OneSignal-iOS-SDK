@@ -33,7 +33,6 @@
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
 #import "OneSignalHelper.h"
-#import "OneSignalLiveActivityController.h"
 
 // #import "UNUserNotificationCenter+OneSignal.h" // TODO: This is in Notifications
 #import "OneSignalSelectorHelpers.h"
@@ -223,6 +222,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
+#pragma mark: Namespaces
+
 + (Class<OSNotifications>)Notifications {
     return [OSNotificationsManager Notifications];
 }
@@ -235,8 +236,16 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     return [OneSignalInAppMessaging InAppMessages];
 }
 
++ (Class<OSLiveActivities>)LiveActivities {
+    return [OneSignalLiveActivityController LiveActivities];
+}
+
 + (Class<OSLocation>)Location {
     return [OneSignalLocation Location];
+}
+
++ (Class<OSDebug>)Debug {
+    return [OneSignalLog Debug];
 }
 
 #pragma mark Initialization
@@ -333,51 +342,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
 }
-
-#pragma mark: LIVE ACTIVITIES
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
-}
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called enterLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-    
-    [OneSignalLiveActivityController enterLiveActivity:activityId appId:appId withToken:token withSuccess: successBlock withFailure: failureBlock];
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self exitLiveActivity:activityId withSuccess:nil withFailure:nil];
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"exitLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called exitLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-    
-    [OneSignalLiveActivityController exitLiveActivity:activityId appId:appId withSuccess: successBlock withFailure: failureBlock];
-}
-
 
 #pragma mark Initialization
 
@@ -788,11 +752,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
                                                    onesignalId:onesignalId
                                                influenceParams:params.influenceParams];
     return true;
-}
-
-#pragma mark Logging
-+ (Class<OSDebug>)Debug {
-    return [OneSignalLog Debug];
 }
 
 @end
