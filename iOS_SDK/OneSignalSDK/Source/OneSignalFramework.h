@@ -92,14 +92,12 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
 
 #pragma mark Privacy Consent
-+ (void)setPrivacyConsent:(BOOL)granted NS_REFINED_FOR_SWIFT;
-+ (BOOL)getPrivacyConsent NS_REFINED_FOR_SWIFT;
 /**
- * Tells your application if privacy consent is still needed from the current device.
+ * Set to `true` if your application requires privacy consent.
  * Consent should be provided prior to the invocation of `initialize` to ensure compliance.
  */
-+ (BOOL)requiresPrivacyConsent NS_REFINED_FOR_SWIFT;
-+ (void)setRequiresPrivacyConsent:(BOOL)required NS_REFINED_FOR_SWIFT;
++ (void)setConsentRequired:(BOOL)required;
++ (void)setConsentGiven:(BOOL)granted;
 
 #pragma mark In-App Messaging
 + (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;

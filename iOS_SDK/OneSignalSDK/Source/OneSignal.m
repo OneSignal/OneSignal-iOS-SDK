@@ -511,7 +511,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
         
-    if ([self requiresPrivacyConsent]) {
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent]) {
         [self delayInitializationForPrivacyConsent];
         return;
     }
@@ -602,15 +602,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
 }
 
-+ (void)setRequiresPrivacyConsent:(BOOL)required {
++ (void)setConsentRequired:(BOOL)required {
     [OSPrivacyConsentController setRequiresPrivacyConsent:required];
 }
 
-+ (BOOL)requiresPrivacyConsent {
-    return [OSPrivacyConsentController requiresUserPrivacyConsent];
-}
-
-+ (void)setPrivacyConsent:(BOOL)granted {
++ (void)setConsentGiven:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
     
     if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
