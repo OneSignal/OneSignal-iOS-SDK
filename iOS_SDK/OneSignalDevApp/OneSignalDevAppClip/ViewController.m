@@ -39,8 +39,6 @@
     
     self.activityIndicatorView.hidden = true;
     
-    self.consentSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal requiresPrivacyConsent];
-
     // self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getDeviceState.isSubscribed;
     
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) [OneSignal.Location isShared];
@@ -128,7 +126,7 @@
 
 - (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller consent granted: %i", (int) sender.selectedSegmentIndex);
-    [OneSignal setPrivacyConsent:(bool) sender.selectedSegmentIndex];
+    [OneSignal setConsentGiven:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
