@@ -58,25 +58,7 @@ public extension OneSignal {
     
     static var LiveActivities: OSLiveActivities.Type {
         return __liveActivities()
-    }
-
-    static var requiresPrivacyConsent: Bool {
-        get {
-            return __requiresPrivacyConsent()
-        }
-        set {
-            __setRequiresPrivacyConsent(newValue)
-        }
-    }
-
-    static var privacyConsent: Bool {
-        get {
-            return __getPrivacyConsent()
-        }
-        set {
-            __setPrivacyConsent(newValue)
-        }
-    }
+    }  
 }
 
 public extension OSDebug {
