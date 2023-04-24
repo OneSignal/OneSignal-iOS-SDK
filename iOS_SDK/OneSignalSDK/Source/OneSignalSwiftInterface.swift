@@ -68,7 +68,7 @@ public extension OSDebug {
 }
 
 public extension OSInAppMessages {
-    static var Paused: Bool {
+    static var paused: Bool {
         get {
             return __paused()
         }

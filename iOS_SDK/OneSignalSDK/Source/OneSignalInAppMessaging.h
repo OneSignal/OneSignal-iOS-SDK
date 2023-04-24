@@ -100,7 +100,7 @@
 + (void)removeTrigger:(NSString * _Nonnull)key;
 + (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys;
 + (void)clearTriggers;
-// Allows Swift users to: OneSignal.InAppMessages.Paused = true
+// Allows Swift users to: OneSignal.InAppMessages.paused = true
 + (BOOL)paused NS_REFINED_FOR_SWIFT;
 + (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
 
