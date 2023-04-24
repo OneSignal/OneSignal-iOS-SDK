@@ -90,10 +90,13 @@
 - (void)onDidDismissInAppMessage:(OSInAppMessage *_Nonnull)message;
 @end
 
+/**
+ Public API for the InAppMessages namespace.
+ */
 @protocol OSInAppMessages <NSObject>
 
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
-+ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value;
++ (void)addTriggers:(NSDictionary<NSString *, NSString *> * _Nonnull)triggers;
 + (void)removeTrigger:(NSString * _Nonnull)key;
 + (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys;
 + (void)clearTriggers;
