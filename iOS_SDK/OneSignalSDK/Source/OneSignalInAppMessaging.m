@@ -49,7 +49,7 @@
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value {
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
         return;
@@ -62,7 +62,7 @@
     [OSMessagingController.sharedInstance addTriggers:@{key : value}];
 }
 
-+ (void)addTriggers:(NSDictionary<NSString *,id> * _Nonnull)triggers {
++ (void)addTriggers:(NSDictionary<NSString *, NSString *> * _Nonnull)triggers {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
         return;
