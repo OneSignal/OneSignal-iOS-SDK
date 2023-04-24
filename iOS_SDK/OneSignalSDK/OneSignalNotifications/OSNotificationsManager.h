@@ -36,11 +36,12 @@ typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnul
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
 
 /**
- Public API.
+ Public API for the Notifications namespace.
  */
 @protocol OSNotifications <NSObject>
 + (BOOL)permission NS_REFINED_FOR_SWIFT;
 + (BOOL)canRequestPermission NS_REFINED_FOR_SWIFT;
++ (OSNotificationPermission)permissionNative NS_REFINED_FOR_SWIFT;
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
