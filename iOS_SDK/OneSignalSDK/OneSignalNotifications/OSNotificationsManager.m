@@ -232,6 +232,10 @@ static NSString *_pushSubscriptionId;
     return !self.currentPermissionState.answeredPrompt;
 }
 
++ (OSNotificationPermission)permissionNative {
+    return self.currentPermissionState.status;
+}
+
 + (void)requestPermission:(OSUserResponseBlock)block {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"requestPermission:"])

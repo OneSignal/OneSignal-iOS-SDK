@@ -93,6 +93,10 @@ public extension OSNotifications {
         return __canRequestPermission()
     }
 
+    static var permissionNative: OSNotificationPermission {
+        return __permissionNative()
+    }
+    
     static func registerForProvisionalAuthorization(_ block: OSUserResponseBlock?) {
         return __register(forProvisionalAuthorization: block)
     }
