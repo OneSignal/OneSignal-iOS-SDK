@@ -27,8 +27,11 @@
 
 
 #import <Foundation/Foundation.h>
-#import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSNotification.h>
 
-@interface OSNotification (OneSignal)
-- (OSNotificationDisplayResponse _Nullable)getCompletionBlock;
+/**
+ Public interface used in the OSNotificationLifecycleListener's onWillDisplay event.
+ */
+@interface OSDisplayableNotification : OSNotification
+- (void)display;
 @end

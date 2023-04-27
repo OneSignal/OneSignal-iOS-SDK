@@ -66,10 +66,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         [alert show];
         #pragma clang diagnostic pop
     };
-    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
-        NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
-    };
     
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
@@ -87,7 +83,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages addLifecycleListener:self];
     [OneSignal.InAppMessages paused:true];
 
-    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
+    [OneSignal.Notifications addForegroundLifecycleListener:self];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
     [OneSignal.User.pushSubscription addObserver:self];
@@ -132,6 +128,14 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 - (void)handleMessageAction:(OSInAppMessageAction *)action {
     NSLog(@"OSInAppMessageDelegate: handling message action: %@",action);
     return;
+}
+
+- (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *)event {
+    NSLog(@"Dev App OSNotificationWillDisplayEvent with event: %@",event);
+    [event preventDefault];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [event.notification display];
+    });
 }
 
 - (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *)event {

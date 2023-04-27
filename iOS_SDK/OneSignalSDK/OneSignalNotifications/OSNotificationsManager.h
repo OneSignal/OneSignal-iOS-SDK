@@ -30,10 +30,20 @@
 #import <OneSignalNotifications/OSPermission.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <UIKit/UIKit.h>
+#import <OneSignalNotifications/OSNotification+OneSignal.h>
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+
+@interface OSNotificationWillDisplayEvent : NSObject
+
+@property (readonly, strong, nonatomic, nonnull) OSDisplayableNotification *notification; // TODO: strong? nonatomic? nullable?
+- (void)preventDefault;
+
+@end
+
+@protocol OSNotificationLifecycleListener <NSObject>
+- (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *_Nonnull)event NS_SWIFT_NAME(onWillDisplay(event:));
+@end
 
 /**
  Public API for the Notifications namespace.
@@ -42,7 +52,9 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (BOOL)permission NS_REFINED_FOR_SWIFT;
 + (BOOL)canRequestPermission NS_REFINED_FOR_SWIFT;
 + (OSNotificationPermission)permissionNative NS_REFINED_FOR_SWIFT;
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
++ (void)addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
++ (void)removeForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
+
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
@@ -65,6 +77,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 @interface OSNotificationsManager : NSObject <OSNotifications>
 
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
+@property (class, weak, nonatomic, nullable) NSObject<OSNotificationLifecycleListener> *lifecycleListener;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
 + (void)start;
@@ -97,7 +110,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 // This is set by the user module
 + (void)setPushSubscriptionId:(NSString *_Nullable)pushSubscriptionId;
 
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)handleWillShowInForegroundForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString* _Nonnull)actionID;
 
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;

@@ -466,7 +466,7 @@
 		DEF784642912FA5100A1F3A5 /* OSDialogInstanceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF784632912FA5100A1F3A5 /* OSDialogInstanceManager.m */; };
 		DEF784652912FB2200A1F3A5 /* OSDialogInstanceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF784622912F79700A1F3A5 /* OSDialogInstanceManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEF7846B2913176800A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
-		DEF7847229132AA700A1F3A5 /* OSNotification+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF7847029132AA700A1F3A5 /* OSNotification+OneSignal.h */; };
+		DEF7847229132AA700A1F3A5 /* OSNotification+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF7847029132AA700A1F3A5 /* OSNotification+OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEF7847329132AA700A1F3A5 /* OSNotification+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF7847129132AA700A1F3A5 /* OSNotification+OneSignal.m */; };
 		DEF784792914667A00A1F3A5 /* NSDateFormatter+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEF7847D29146B2700A1F3A5 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF7847B29146B2700A1F3A5 /* OneSignalWebView.m */; };
