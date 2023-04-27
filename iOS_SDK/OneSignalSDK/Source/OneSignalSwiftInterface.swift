@@ -76,6 +76,14 @@ public extension OSInAppMessages {
             __paused(newValue)
         }
     }
+    
+    static func addLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
+        __add(listener)
+    }
+    
+    static func removeLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
+        __remove(listener)
+    }
 }
 
 public extension OSSession {
