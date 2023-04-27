@@ -58,10 +58,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
         NSLog(@"OSNotificationOpenedResult: %@", result.action);
     };
-    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
-        NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
-    };
     
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
@@ -87,7 +83,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     [OneSignal.InAppMessages paused:false];
     
-    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);

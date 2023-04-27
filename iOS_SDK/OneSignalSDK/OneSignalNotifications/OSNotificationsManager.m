@@ -89,6 +89,37 @@
 
 @end
 
+@interface OSDisplayableNotification ()
+- (void)startTimeoutTimer;
+- (void)setCompletionBlock:(OSNotificationDisplayResponse)completion;
+- (void)complete:(OSDisplayableNotification *)notification;
+- (void)setWantsToDisplay:(BOOL)display;
+@end
+
+@implementation OSNotificationWillDisplayEvent
+
+BOOL _isPreventDefault = false;
+
+- (id)initWithDisplayableNotification:(OSDisplayableNotification*)notification {
+    self = [super init];
+    if(self) {
+        _notification = notification;
+    }
+    return self;
+}
+
+- (BOOL)isPreventDefault {
+    return _isPreventDefault;
+}
+
+- (void)preventDefault {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSNotificationWillDisplayEvent.preventDefault called."]];
+    _isPreventDefault = true;
+    _notification.wantsToDisplay = false;
+}
+
+@end
+
 @implementation OSNotificationsManager
 
 + (Class<OSNotifications>)Notifications {
@@ -103,6 +134,14 @@ static id<OneSignalNotificationsDelegate> _delegate;
     _delegate = delegate;
 }
 
+static id<OSNotificationLifecycleListener> _lifecycleListener;
++ (id<OSNotificationLifecycleListener>)lifecycleListener {
+    return _lifecycleListener;
+}
++ (void)setLifecycleListener:(id<OSNotificationLifecycleListener>)lifecycleListener {
+    _lifecycleListener = lifecycleListener;
+}
+
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
 static BOOL _waitingForApnsResponse = false;
 static BOOL _providesAppNotificationSettings = false;
@@ -112,7 +151,6 @@ static int mSubscriptionStatus = -1;
 
 static NSMutableArray<OSNotificationOpenedResult*> *_unprocessedOpenedNotifis;
 static OSNotificationOpenedBlock _notificationOpenedHandler;
-static OSNotificationWillShowInForegroundBlock _notificationWillShowInForegroundHandler;
 static NSDictionary* _lastMessageReceived;
 static NSString *_lastMessageID = @"";
 static NSString *_lastMessageIdFromAction;
@@ -587,22 +625,27 @@ static NSString *_lastnonActiveMessageId;
         completion([OSNotification new]);
         return;
     }
-    //Only call the willShowInForegroundHandler for notifications not preview IAMs
+    //Only call the OSNotificationLifecycleListener for notifications not preview IAMs
 
-    OSNotification *osNotification = [OSNotification parseWithApns:payload];
+    OSDisplayableNotification *osNotification = [OSDisplayableNotification parseWithApns:payload];
     if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
         completion(nil);
         return;
     }
-    [self handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
+    [self handleWillShowInForegroundForNotification:osNotification completion:completion];
 }
 
-
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion {
++ (void)handleWillShowInForegroundForNotification:(OSDisplayableNotification *)notification completion:(OSNotificationDisplayResponse)completion {
     [notification setCompletionBlock:completion];
-    if (_notificationWillShowInForegroundHandler) {
+    if (self.lifecycleListener && [self.lifecycleListener respondsToSelector:@selector(onWillDisplayNotification:)]) {
         [notification startTimeoutTimer];
-        _notificationWillShowInForegroundHandler(notification, [notification getCompletionBlock]);
+        OSNotificationWillDisplayEvent *event = [[OSNotificationWillDisplayEvent alloc] initWithDisplayableNotification:notification];
+
+        [self.lifecycleListener onWillDisplayNotification:event];
+        if (![event isPreventDefault]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSNotificationWillDisplayEvent's preventDefault not called, now display notification with notificationId %@.", notification.notificationId]];
+            [notification complete:notification];
+        }
     } else {
         completion(notification);
     }
@@ -792,9 +835,14 @@ static NSString *_lastnonActiveMessageId;
     
 }
 
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block {
-    _notificationWillShowInForegroundHandler = block;
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
++ (void)addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener {
+    _lifecycleListener = listener;
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"ForegroundLifecycleListener added successfully"];
+}
+
++ (void)removeForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> * _Nullable)listener {
+    _lifecycleListener = nil;
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"ForegroundLifecycleListener removed successfully"];
 }
 
 + (NSMutableArray<OSNotificationOpenedResult*>*)getUnprocessedOpenedNotifis {
