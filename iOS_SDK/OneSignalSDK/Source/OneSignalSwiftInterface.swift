@@ -101,11 +101,11 @@ public extension OSNotifications {
         return __register(forProvisionalAuthorization: block)
     }
 
-    static func addPermissionObserver(_ observer: OSPermissionObserver) {
+    static func addPermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __add(observer)
     }
 
-    static func removePermissionObserver(_ observer: OSPermissionObserver) {
+    static func removePermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __remove(observer)
     }
 }
