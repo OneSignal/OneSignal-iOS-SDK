@@ -84,7 +84,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     
-    [OneSignal.InAppMessages setLifecycleHandler:self];
+    [OneSignal.InAppMessages addLifecycleListener:self];
     [OneSignal.InAppMessages paused:true];
 
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
@@ -134,23 +134,23 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return;
 }
 
-- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onWillDisplay Message: %@",message);
+- (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *)event {
+    NSLog(@"OSInAppMessageDelegate: onWillDisplay Message: %@",event.message);
     return;
 }
 
-- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onDidDisplay Message: %@",message);
+- (void)onDidDisplayInAppMessage:(OSInAppMessageDidDisplayEvent *)event {
+    NSLog(@"OSInAppMessageDelegate: onDidDisplay Message: %@",event.message);
     return;
 }
 
-- (void)onWillDismissInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onWillDismiss Message: %@",message);
+- (void)onWillDismissInAppMessage:(OSInAppMessageWillDismissEvent *)event {
+    NSLog(@"OSInAppMessageDelegate: onWillDismiss Message: %@",event.message);
     return;
 }
 
-- (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onDidDismiss Message: %@",message);
+- (void)onDidDismissInAppMessage:(OSInAppMessageDidDismissEvent *)event {
+    NSLog(@"OSInAppMessageDelegate: onDidDismiss Message: %@",event.message);
     return;
 }
 

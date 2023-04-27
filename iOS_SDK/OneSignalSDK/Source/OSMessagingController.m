@@ -42,6 +42,34 @@
 
 @end
 
+@implementation OSInAppMessageWillDisplayEvent
+- (OSInAppMessageWillDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
+    _message = message;
+    return self;
+}
+@end
+
+@implementation OSInAppMessageDidDisplayEvent
+- (OSInAppMessageDidDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
+    _message = message;
+    return self;
+}
+@end
+
+@implementation OSInAppMessageWillDismissEvent
+- (OSInAppMessageWillDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
+    _message = message;
+    return self;
+}
+@end
+
+@implementation OSInAppMessageDidDismissEvent
+- (OSInAppMessageDidDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
+    _message = message;
+    return self;
+}
+@end
+
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
@@ -68,7 +96,7 @@
 // Click action block to allow overridden behavior when clicking an IAM
 @property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
 
-@property (weak, nonatomic, nullable) NSObject<OSInAppMessageLifecycleHandler> *inAppMessageDelegate;
+@property (weak, nonatomic, nullable) NSObject<OSInAppMessageLifecycleListener> *inAppMessageDelegate;
 
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
@@ -281,35 +309,43 @@ static BOOL _isInAppMessagingPaused = false;
     self.actionClickBlock = actionClickBlock;
 }
 
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate {
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate {
     _inAppMessageDelegate = delegate;
+}
+
+- (void)removeInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate {
+    _inAppMessageDelegate = nil;
 }
 
 - (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message {
     if (self.inAppMessageDelegate &&
         [self.inAppMessageDelegate respondsToSelector:@selector(onWillDisplayInAppMessage:)]) {
-        [self.inAppMessageDelegate onWillDisplayInAppMessage:message];
+        OSInAppMessageWillDisplayEvent *event = [[OSInAppMessageWillDisplayEvent alloc] initWithInAppMessage:message];
+        [self.inAppMessageDelegate onWillDisplayInAppMessage:event];
     }
 }
 
 - (void)onDidDisplayInAppMessage:(OSInAppMessageInternal *)message {
     if (self.inAppMessageDelegate &&
         [self.inAppMessageDelegate respondsToSelector:@selector(onDidDisplayInAppMessage:)]) {
-        [self.inAppMessageDelegate onDidDisplayInAppMessage:message];
+        OSInAppMessageDidDisplayEvent *event = [[OSInAppMessageDidDisplayEvent alloc] initWithInAppMessage:message];
+        [self.inAppMessageDelegate onDidDisplayInAppMessage:event];
     }
 }
 
 - (void)onWillDismissInAppMessage:(OSInAppMessageInternal *)message {
     if (self.inAppMessageDelegate &&
         [self.inAppMessageDelegate respondsToSelector:@selector(onWillDismissInAppMessage:)]) {
-        [self.inAppMessageDelegate onWillDismissInAppMessage:message];
+        OSInAppMessageWillDismissEvent *event = [[OSInAppMessageWillDismissEvent alloc] initWithInAppMessage:message];
+        [self.inAppMessageDelegate onWillDismissInAppMessage:event];
     }
 }
 
 - (void)onDidDismissInAppMessage:(OSInAppMessageInternal *)message {
     if (self.inAppMessageDelegate &&
         [self.inAppMessageDelegate respondsToSelector:@selector(onDidDismissInAppMessage:)]) {
-        [self.inAppMessageDelegate onDidDismissInAppMessage:message];
+        OSInAppMessageDidDismissEvent *event = [[OSInAppMessageDidDismissEvent alloc] initWithInAppMessage:message];
+        [self.inAppMessageDelegate onDidDismissInAppMessage:event];
     }
 }
 

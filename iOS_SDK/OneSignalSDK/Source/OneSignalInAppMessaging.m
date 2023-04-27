@@ -44,9 +44,14 @@
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
 }
 
-+ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
++ (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener added successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageDelegate:listener];
+}
+
++ (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageDelegate:listener];
 }
 
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value {
