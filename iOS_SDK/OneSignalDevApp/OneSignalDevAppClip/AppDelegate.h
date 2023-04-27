@@ -10,7 +10,7 @@
 #import <OneSignalFramework/OneSignalFramework.h>
 
 // TODO: Add subscription observer
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, OSNotificationPermissionObserver>
 
 @property (strong, nonatomic) UIWindow *window;
 

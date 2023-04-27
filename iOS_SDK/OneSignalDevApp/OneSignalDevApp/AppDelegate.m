@@ -117,8 +117,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // [OneSignal setAppId:onesignalAppId];
 }
 
-- (void)onOSPermissionChanged:(OSPermissionState*)state {
-    NSLog(@"Dev App onOSPermissionChanged: %@", state);
+- (void)onNotificationPermissionDidChange:(BOOL)permission {
+    NSLog(@"Dev App onNotificationPermissionDidChange: %d", permission);
 }
 
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {

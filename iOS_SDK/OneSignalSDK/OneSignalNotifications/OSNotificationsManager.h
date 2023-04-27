@@ -47,8 +47,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block NS_REFINED_FOR_SWIFT;
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
++ (void)addPermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
++ (void)removePermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
 + (void)clearAll;
 @end
 
