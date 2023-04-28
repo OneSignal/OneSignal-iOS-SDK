@@ -86,8 +86,8 @@ static dispatch_once_t once;
     [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
-- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
-    if(stateChanges.to.id){
+- (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state {
+    if(state.current.id){
         subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
         [OneSignalLiveActivityController executePendingLiveActivityUpdates];
     }

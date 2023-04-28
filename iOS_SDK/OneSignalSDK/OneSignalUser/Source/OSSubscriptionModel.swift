@@ -33,7 +33,7 @@ import OneSignalNotifications
 // MARK: - Push Subscription Specific
 
 @objc public protocol OSPushSubscriptionObserver { // TODO: weak reference?
-    @objc func onOSPushSubscriptionChanged(stateChanges: OSPushSubscriptionStateChanges)
+    @objc func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState)
 }
 
 @objc
@@ -68,21 +68,21 @@ public class OSPushSubscriptionState: NSObject {
 }
 
 @objc
-public class OSPushSubscriptionStateChanges: NSObject {
-    @objc public let to: OSPushSubscriptionState
-    @objc public let from: OSPushSubscriptionState
+public class OSPushSubscriptionChangedState: NSObject {
+    @objc public let current: OSPushSubscriptionState
+    @objc public let previous: OSPushSubscriptionState
 
     @objc public override var description: String {
-        return "<OSPushSubscriptionStateChanges:\nfrom: \(self.from),\nto:   \(self.to)\n>"
+        return "<OSPushSubscriptionChangedState:\nprevious: \(self.previous),\ncurrent:   \(self.current)\n>"
     }
 
-    init(to: OSPushSubscriptionState, from: OSPushSubscriptionState) {
-        self.to = to
-        self.from = from
+    init(current: OSPushSubscriptionState, previous: OSPushSubscriptionState) {
+        self.current = current
+        self.previous = previous
     }
 
     @objc public func jsonRepresentation() -> NSDictionary {
-        return ["from": from.jsonRepresentation(), "to": to.jsonRepresentation()]
+        return ["from": previous.jsonRepresentation(), "to": current.jsonRepresentation()]
     }
 }
 
@@ -368,7 +368,7 @@ extension OSSubscriptionModel {
             return
         }
 
-        let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
+        let stateChanges = OSPushSubscriptionChangedState(current: newSubscriptionState, previous: prevSubscriptionState)
 
         // TODO: Don't fire observer until server is udated
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "firePushSubscriptionChanged from \(prevSubscriptionState.jsonRepresentation()) to \(newSubscriptionState.jsonRepresentation())")
