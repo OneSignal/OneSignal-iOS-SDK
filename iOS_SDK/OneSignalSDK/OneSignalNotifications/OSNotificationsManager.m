@@ -93,12 +93,11 @@
 - (void)startTimeoutTimer;
 - (void)setCompletionBlock:(OSNotificationDisplayResponse)completion;
 - (void)complete:(OSDisplayableNotification *)notification;
+- (BOOL)wantsToDisplay;
 - (void)setWantsToDisplay:(BOOL)display;
 @end
 
 @implementation OSNotificationWillDisplayEvent
-
-BOOL _isPreventDefault = false;
 
 - (id)initWithDisplayableNotification:(OSDisplayableNotification*)notification {
     self = [super init];
@@ -109,12 +108,11 @@ BOOL _isPreventDefault = false;
 }
 
 - (BOOL)isPreventDefault {
-    return _isPreventDefault;
+    return !_notification.wantsToDisplay;
 }
 
 - (void)preventDefault {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSNotificationWillDisplayEvent.preventDefault called."]];
-    _isPreventDefault = true;
     _notification.wantsToDisplay = false;
 }
 
