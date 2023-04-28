@@ -85,6 +85,10 @@ BOOL _wantsToDisplay = true;
     }
 }
 
+- (BOOL)wantsToDisplay {
+    return _wantsToDisplay;
+}
+
 - (void)setWantsToDisplay:(BOOL)display {
     _wantsToDisplay = display;
 }
