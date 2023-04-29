@@ -124,6 +124,14 @@ public extension OSNotifications {
     static func removePermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __remove(observer)
     }
+    
+    static func addClickListener(_ listener: OSNotificationClickListener) {
+        return __add(listener)
+    }
+    
+    static func removeClickListener(_ listener: OSNotificationClickListener) {
+        return __remove(listener)
+    }
 }
 
 public extension OSLocation {

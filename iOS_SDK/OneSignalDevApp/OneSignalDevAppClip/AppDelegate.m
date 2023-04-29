@@ -54,10 +54,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
-    
-    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        NSLog(@"OSNotificationOpenedResult: %@", result.action);
-    };
 
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
@@ -74,8 +70,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     [OneSignal.InAppMessages paused:false];
     
-    [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
-
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;

@@ -32,7 +32,10 @@
 #import <UIKit/UIKit.h>
 #import <OneSignalNotifications/OSNotification+OneSignal.h>
 
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+@protocol OSNotificationClickListener <NSObject>
+- (void)onClickNotification:(OSNotificationClickEvent *_Nonnull)event
+NS_SWIFT_NAME(onClick(event:));
+@end
 
 @interface OSNotificationWillDisplayEvent : NSObject
 
@@ -54,8 +57,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (OSNotificationPermission)permissionNative NS_REFINED_FOR_SWIFT;
 + (void)addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
 + (void)removeForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
-
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
++ (void)addClickListener:(NSObject<OSNotificationClickListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
++ (void)removeClickListener:(NSObject<OSNotificationClickListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block NS_REFINED_FOR_SWIFT;
@@ -111,8 +114,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setPushSubscriptionId:(NSString *_Nullable)pushSubscriptionId;
 
 + (void)handleWillShowInForegroundForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString* _Nonnull)actionID;
-
++ (void)handleNotificationActionWithUrl:(NSString* _Nullable)url actionID:(NSString* _Nonnull)actionID;
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 
 + (BOOL)receiveRemoteNotification:(UIApplication* _Nonnull)application UserInfo:(NSDictionary* _Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
