@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,14 @@
  * THE SOFTWARE.
  */
 
-// Please see the root Example folder of this repo for an Example project.
-// This project exisits to make testing OneSignal SDK changes.
+#import <Foundation/Foundation.h>
+#import "OneSignalInAppMessaging.h"
+#import "OSInAppMessageInternal.h"
 
-#import <UIKit/UIKit.h>
-#import <OneSignalFramework/OneSignalFramework.h>
+NS_ASSUME_NONNULL_BEGIN
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSNotificationPermissionObserver, OSInAppMessageLifecycleListener, OSPushSubscriptionObserver, OSNotificationLifecycleListener, OSInAppMessageClickListener>
-
-@property (strong, nonatomic) UIWindow *window;
-
-+ (NSString*)getOneSignalAppId;
-+ (void) setOneSignalAppId:(NSString*)onesignalAppId;
-
+@interface OSInAppMessageClickEvent ()
+- (instancetype _Nonnull)initWithInAppMessage:(OSInAppMessageInternal *)message clickResult:(OSInAppMessageClickResult *)result;
 @end
 
+NS_ASSUME_NONNULL_END

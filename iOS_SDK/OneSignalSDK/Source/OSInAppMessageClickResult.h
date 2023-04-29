@@ -34,15 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
-    OSInAppMessageActionUrlTypeSafari,
-    
-    OSInAppMessageActionUrlTypeWebview,
-    
-    OSInAppMessageActionUrlTypeReplaceContent
-};
-
-@interface OSInAppMessageAction () <OSJSONDecodable>
+@interface OSInAppMessageClickResult () <OSJSONDecodable>
 
 // The type of element that was clicked, button or image
 @property (strong, nonatomic, nonnull) NSString *clickType;
@@ -50,11 +42,21 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 // The unique identifier for this click
 @property (strong, nonatomic, nonnull) NSString *clickId;
 
+//UUID for the page in an IAM Carousel
+@property (strong, nonatomic, nullable) NSString *pageId;
+
+
+// Whether or not the click action is first click on the IAM
+@property (nonatomic) BOOL firstClick;
+
 // The prompt action available
 @property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt>*> *promptActions;
 
-// Determines where the URL is loaded, ie. app opens a webview
-@property (nonatomic) OSInAppMessageActionUrlType urlActionType;
+// The outcome to send for this action
+@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
+
+// The tags to send for this action
+@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
 
 @end
 
