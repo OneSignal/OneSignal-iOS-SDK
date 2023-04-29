@@ -117,11 +117,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 #pragma mark OSInAppMessageDelegate
 
-- (void)handleMessageAction:(OSInAppMessageAction *)action {
-    NSLog(@"OSInAppMessageDelegate: handling message action: %@",action);
-    return;
-}
-
 - (void)onClickInAppMessage:(OSInAppMessageClickEvent * _Nonnull)event {
     NSLog(@"Dev App onClickInAppMessage event: %@", [event jsonRepresentation]);
 }
@@ -135,22 +130,22 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 }
 
 - (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *)event {
-    NSLog(@"OSInAppMessageDelegate: onWillDisplay Message: %@",event.message);
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onWillDisplay Message: %@",event.message);
     return;
 }
 
 - (void)onDidDisplayInAppMessage:(OSInAppMessageDidDisplayEvent *)event {
-    NSLog(@"OSInAppMessageDelegate: onDidDisplay Message: %@",event.message);
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onDidDisplay Message: %@",event.message);
     return;
 }
 
 - (void)onWillDismissInAppMessage:(OSInAppMessageWillDismissEvent *)event {
-    NSLog(@"OSInAppMessageDelegate: onWillDismiss Message: %@",event.message);
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onWillDismiss Message: %@",event.message);
     return;
 }
 
 - (void)onDidDismissInAppMessage:(OSInAppMessageDidDismissEvent *)event {
-    NSLog(@"OSInAppMessageDelegate: onDidDismiss Message: %@",event.message);
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onDidDismiss Message: %@",event.message);
     return;
 }
 
