@@ -68,7 +68,7 @@
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageAction * _Nonnull)action {
+                     withAction:(OSInAppMessageClickResult * _Nonnull)action {
     let request = [OSRequestInAppMessageClicked new];
 
     request.parameters = @{
