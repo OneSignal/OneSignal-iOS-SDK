@@ -67,15 +67,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         #pragma clang diagnostic pop
     };
     
-    // Example block for IAM action click handler
-    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
-    };
-
-    // Example setter for IAM action click handler using OneSignal public method
-    [OneSignal.InAppMessages setClickHandler:inAppMessagingActionClickBlock];
-    
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
@@ -90,7 +81,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"OneSignal Demo App push subscription observer added");
     
     [OneSignal.Notifications addPermissionObserver:self];
-    
+    [OneSignal.InAppMessages addClickListener:self];
+
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
@@ -128,6 +120,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 - (void)handleMessageAction:(OSInAppMessageAction *)action {
     NSLog(@"OSInAppMessageDelegate: handling message action: %@",action);
     return;
+}
+
+- (void)onClickInAppMessage:(OSInAppMessageClickEvent * _Nonnull)event {
+    NSLog(@"Dev App onClickInAppMessage event: %@", [event jsonRepresentation]);
 }
 
 - (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *)event {
