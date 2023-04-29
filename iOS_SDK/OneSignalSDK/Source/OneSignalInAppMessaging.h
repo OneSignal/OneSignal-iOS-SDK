@@ -76,11 +76,6 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 @end
 
-@protocol OSInAppMessageDelegate <NSObject>
-@optional
-- (void)handleMessageAction:(OSInAppMessageClickResult * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
-@end
-
 @interface OSInAppMessageWillDisplayEvent : NSObject
 @property (nonatomic, readonly, nonnull) OSInAppMessage *message;
 @end
