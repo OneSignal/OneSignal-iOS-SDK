@@ -190,10 +190,6 @@
     [OneSignal.InAppMessages paused:(bool) !sender.selectedSegmentIndex];
 }
 
-- (void)handleMessageAction:(NSString *)actionId {
-    NSLog(@"View controller did get action: %@", actionId);
-}
-
 - (IBAction)loginExternalUserId:(UIButton *)sender {
     NSString* externalUserId = self.externalUserIdTextField.text;
     NSLog(@"Dev App: Logging in to external user ID %@", externalUserId);
