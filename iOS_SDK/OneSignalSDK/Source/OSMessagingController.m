@@ -836,10 +836,13 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.promptActions && action.promptActions.count > 0)
         [self handlePromptActions:action.promptActions withMessage:message];
     
+    if (_clickListeners.count > 0) {
+        // Any outcome sent on the listener's callback should count as DIRECT from this IAM
+        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:message.messageId];
+    }
+    
     for (NSObject<OSInAppMessageClickListener> *listener in _clickListeners) {
-        if (listener && [listener respondsToSelector:@selector(onClickInAppMessage:)]) {
-            // Any outcome sent on this callback should count as DIRECT from this IAM
-            [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:message.messageId];
+        if ([listener respondsToSelector:@selector(onClickInAppMessage:)]) {
             OSInAppMessageClickEvent *event = [[OSInAppMessageClickEvent alloc] initWithInAppMessage:message clickResult:action];
             [listener onClickInAppMessage:event];
         }
