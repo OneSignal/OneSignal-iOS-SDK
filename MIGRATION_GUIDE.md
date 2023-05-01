@@ -1,4 +1,4 @@
-<h1 align="center">OneSignal iOS SDK v5.0.0-beta-02 Migration Guide</h1>
+<h1 align="center">OneSignal iOS SDK v5.0.0-beta-03 Migration Guide</h1>
 
 ![OneSignal Omni Channel Banner](https://user-images.githubusercontent.com/11739227/208625336-d28c8d01-a7cf-4f8e-9643-ac8d1948e9ae.png)
 
@@ -8,7 +8,7 @@ In this release, we are making a significant shift from a device-centered model 
 
 To facilitate this change, the `externalId` approach for identifying users is being replaced by the `login` and `logout` methods. In addition, the SDK now makes use of namespaces such as `User`, `Notifications`, and `InAppMessages` to better separate code.
 
-The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-beta-02` changes as a result of this shift.
+The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-beta-03` changes as a result of this shift.
 
 # Overview
 
@@ -24,7 +24,7 @@ A subscription refers to the method in which an end-user can receive various com
 
 ## Aliases
 
-Aliases are a concept evolved from [external user ids](https://documentation.onesignal.com/docs/external-user-ids) which allows the unique identification of a user within a OneSignal application.  Aliases are a key-value pair made up of an **alias label** (the key) and an **alias id** (the value). The **alias label** can be thought of as a consistent keyword across all users, while the **alias id** is a value specific to each user for that particular label. The combined **alias label** and **alias id** provide uniqueness to successfully identify a user. 
+Aliases are a concept evolved from [external user ids](https://documentation.onesignal.com/docs/external-user-ids) which allows the unique identification of a user within a OneSignal application.  Aliases are a key-value pair made up of an **alias label** (the key) and an **alias id** (the value). The **alias label** can be thought of as a consistent keyword across all users, while the **alias id** is a value specific to each user for that particular label. The combined **alias label** and **alias id** provide uniqueness to successfully identify a user.
 
 OneSignal uses a built-in **alias label** called `external_id` which supports existing use of [external user ids](https://documentation.onesignal.com/docs/external-user-ids). `external_id` is also used as the identification method when a user identifies themselves to the OneSignal SDK via `OneSignal.login`.  Multiple aliases can be created for each user to allow for your own application's unique identifier as well as identifiers from other integrated applications.
 
@@ -46,7 +46,7 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```objc
     // Replace the old import statement
     #import <OneSignal/OneSignal.h>
-    
+
     // With the new import statement
     #import <OneSignalFramework/OneSignalFramework.h>
 ```
@@ -54,16 +54,16 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```swift
     // Replace the old import statement
     import OneSignal
-    
+
     // With the new import statement
     import OneSignalFramework
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0-beta-02`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+Update the version of the OneSignal-XCFramework your application uses to `5.0.0-beta-03`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0-beta-02`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+Update the version of the OneSignalXCFramework your application uses to `5.0.0-beta-03`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
@@ -71,13 +71,14 @@ Update the version of the OneSignalXCFramework your application uses to `5.0.0-b
 The SDK has been split into namespaces, and functionality previously in the static `OneSignal` class has been moved to the appropriate namespace. The namespaces and how to access them in code are as follows:
 
 | **Namespace** | **Access Pattern**            |
-| ------------- | ----------------------------- |
-| Debug         | `OneSignal.Debug`         |
-| InAppMessages | `OneSignal.InAppMessages` |
-| Location      | `OneSignal.Location`      |
-| Notifications | `OneSignal.Notifications` |
-| Session       | `OneSignal.Session`       |
-| User          | `OneSignal.User`          |
+| ----------------- | ----------------------------- |
+| Debug             | `OneSignal.Debug`             |
+| InAppMessages     | `OneSignal.InAppMessages`     |
+| Location          | `OneSignal.Location`          |
+| LiveActivities    | `OneSignal.LiveActivities`    |
+| Notifications     | `OneSignal.Notifications`     |
+| Session           | `OneSignal.Session`           |
+| User              | `OneSignal.User`              |
 
 ## Initialization
 
@@ -156,7 +157,7 @@ The current device’s push subscription can be retrieved via:
 
 ### **Opting In and Out of Push Notifications**
 
-To receive push notifications on the device, call the push subscription’s `optIn` method. If needed, this method will prompt the user for push notifications permission. 
+To receive push notifications on the device, call the push subscription’s `optIn` method. If needed, this method will prompt the user for push notifications permission.
 
 Note: For greater control over prompting for push notification permission, you may use the `OneSignal.Notifications.requestPermission` method detailed below in the API Reference.
 
@@ -191,7 +192,7 @@ Email and/or SMS subscriptions can be added or removed via the following methods
     [OneSignal.User addEmail:@"customer@company.com"];
     // Remove previously added email subscription
     [OneSignal.User removeEmail:@"customer@company.com"];
-    
+
     // Add SMS subscription
     [OneSignal.User addSms:@"+15558675309"];
     // Remove previously added SMS subscription
@@ -204,16 +205,16 @@ Email and/or SMS subscriptions can be added or removed via the following methods
     OneSignal.User.addEmail("customer@company.com")
     // Remove previously added email subscription
     OneSignal.User.removeEmail("customer@company.com")
-    
+
     // Add SMS subscription
     OneSignal.User.addSms("+15558675309")
     // Remove previously added SMS subscription
-    OneSignal.User.removeSms("+15558675309")     
+    OneSignal.User.removeSms("+15558675309")
 ```
 
 # API Reference
 
-Below is a comprehensive reference to the `5.0.0-beta-02` OneSignal SDK.
+Below is a comprehensive reference to the `5.0.0-beta-03` OneSignal SDK.
 
 ## OneSignal
 
@@ -224,12 +225,9 @@ The SDK is still accessible via a `OneSignal` static class. It provides access t
 | `OneSignal.initialize("YOUR_ONESIGNAL_APP_ID", withLaunchOptions: launchOptions)`                    | `[OneSignal initialize:@"YOUR_ONESIGNAL_APP_ID" withLaunchOptions:launchOptions]`                    | *Initializes the OneSignal SDK. This should be called during startup of the application.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `OneSignal.login("USER_EXTERNAL_ID")`                                                                | `[OneSignal login:@"USER_EXTERNAL_ID"]`                                                              | *Login to OneSignal under the user identified by the [externalId] provided. The act of logging a user into the OneSignal SDK will switch the [user] context to that specific user.<br><br> - If the [externalId] exists, the user will be retrieved and the context will be set from that user information. If operations have already been performed under a device-scoped user, they ***will not*** be applied to the now logged in user (they will be lost).<br> - If the [externalId] does not yet exist, the user will be created and the context set from the current local state. If operations have already been performed under a device-scoped user, those operations ***will*** be applied to the newly created user.<br><br>***Push Notifications and In App Messaging***<br>Logging in a new user will automatically transfer the push notification and in app messaging subscription from the current user (if there is one) to the newly logged in user. This is because both push notifications and in- app messages are owned by the device.* |
 | `OneSignal.logout()`                                                                                     | `[OneSignal logout]`                                                                                     | *Logout the user previously logged in via [login]. The [user] property now references a new device-scoped user. A device-scoped user has no user identity that can later be retrieved, except through this device as long as the app remains installed and the app data is not cleared. Note that if the current user is already a device-scoped user at the time `logout` is called, this will result in a no-op and the SDK will continue using the same device-scoped user. Any state that exists on this device-scoped user will be kept. This also means that calling `logout` multiple times will have no effect.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `let granted: Bool = OneSignal.privacyConsent`<br><br>`OneSignal.privacyConsent = true`                  | `BOOL granted = OneSignal.getPrivacyConsent`<br><br>`[OneSignal setPrivacyConsent:true]`                 | *Indicates whether privacy consent has been granted. This field is only relevant when the application has opted into data privacy protections. See [requiresPrivacyConsent].*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `let required: Bool = OneSignal.requiresPrivacyConsent`<br><br>`OneSignal.requiresPrivacyConsent = true` | `BOOL required = [OneSignal requiresPrivacyConsent]`<br><br>`[OneSignal setRequiresPrivacyConsent:true]` | *Determines whether a user must consent to privacy prior to their user data being sent up to OneSignal.  This should be set to `true` prior to the invocation of `initialize` to ensure compliance.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to `true` to launch all notifications with a URL in the app instead of the default web browser. Make sure to call `setLaunchURLsInApp` before the `initialize` call.*                                                                                                                                                                                                                                                                   |                                                      
-| `OneSignal.enterLiveActivity("ACTIVITY_ID", withToken: "TOKEN")`<br><br>***See below for usage of callbacks***<br><br>`enterLiveActivity(activityId: String, withToken token: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)` | `[OneSignal enterLiveActivity:@"ACTIVITY_ID" withToken:@"TOKEN"]`<br><br>***See below for usage of callbacks***<br><br>`(void)enterLiveActivity:(NSString *)activityId withToken:(NSString *)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>|*Entering a Live Activity associates an `activityId` with a live activity temporary push `token` on OneSignal's server. The activityId is then used with the OneSignal REST API to update one or multiple Live Activities at one time.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `OneSignal.exitLiveActivity("ACTIVITY_ID")`<br><br>***See below for usage of callbacks***<br><br>`exitLiveActivity(activityId: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)`                                                | `[OneSignal exitLiveActivity:@"ACTIVITY_ID"]`<br><br>***See below for usage of callbacks***<br><br>`(void)exitLiveActivity:(NSString *)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>                                                  |*Exiting a Live activity deletes the association between a customer defined `activityId` with a Live Activity temporary push `token` on OneSignal's server.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-
+| `OneSignal.setConsentGiven(true)`                  | `[OneSignal setConsentGiven:true]`                 | *Indicates whether privacy consent has been granted. This field is only relevant when the application has opted into data privacy protections. See [setConsentRequired].*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `OneSignal.setConsentRequired(true)` | `[OneSignal setConsentRequired:true]` | *Determines whether a user must consent to privacy prior to their user data being sent up to OneSignal.  This should be set to `true` prior to the invocation of `initialize` to ensure compliance.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to `true` to launch all notifications with a URL in the app instead of the default web browser. Make sure to call `setLaunchURLsInApp` before the `initialize` call.*                                                                                                                                                                                                                                                                   |
 
 
 ## Live Activities
@@ -238,23 +236,29 @@ Live Activities are a type of interactive push notification. Apple introduced th
 
 Please refer to OneSignal’s guide on [Live Activities](https://documentation.onesignal.com/docs/live-activities), the [Live Activities Quickstart](https://documentation.onesignal.com/docs/live-activities-quickstart) tutorial, and the [existing SDK reference](https://documentation.onesignal.com/docs/sdk-reference#live-activities) on Live Activities. 
 
+
+| **Swift**                                                                                                | **Objective-C**                                                                                          | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OneSignal.LiveActivities.enter("ACTIVITY_ID", withToken: "TOKEN")`<br><br>***See below for usage of callbacks***<br><br>`enter(activityId: String, withToken token: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)` | `[OneSignal.LiveActivities enter:@"ACTIVITY_ID" withToken:@"TOKEN"]`<br><br>***See below for usage of callbacks***<br><br>`(void)enter:(NSString *)activityId withToken:(NSString *)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>|*Entering a Live Activity associates an `activityId` with a live activity temporary push `token` on OneSignal's server. The activityId is then used with the OneSignal REST API to update one or multiple Live Activities at one time.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `OneSignal.LiveActivities.exit("ACTIVITY_ID")`<br><br>***See below for usage of callbacks***<br><br>`exit(activityId: String, withSuccess successBlock: OSResultSuccessBlock?, withFailure failureBlock: OSFailureBlock? = nil)`                                                | `[OneSignal.LiveActivities exit:@"ACTIVITY_ID"]`<br><br>***See below for usage of callbacks***<br><br>`(void)exit:(NSString *)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock`<br><br>                                                  |*Exiting a Live activity deletes the association between a customer defined `activityId` with a Live Activity temporary push `token` on OneSignal's server.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+
 **Objective-C**
 ```objc
     // Enter a Live Activity
-    [OneSignal enterLiveActivity:@"ACTIVITY_ID" withToken:@"TOKEN" withSuccess:^(NSDictionary *result) {
-        NSLog(@"enterLiveActivity success with result: %@", result);
+    [OneSignal.LiveActivities enter:@"ACTIVITY_ID" withToken:@"TOKEN" withSuccess:^(NSDictionary *result) {
+        NSLog(@"enter success with result: %@", result);
     } withFailure:^(NSError *error) {
-        NSLog(@"enterLiveActivity error: %@", error);
+        NSLog(@"enter error: %@", error);
     }];
-    
+
     // Exit a Live Activity
-    [OneSignal exitLiveActivity:@"ACTIVITY_ID" withSuccess:^(NSDictionary *result) {
-        NSLog(@"exitLiveActivity success with result: %@", result);
+    [OneSignal.LiveActivities exit:@"ACTIVITY_ID" withSuccess:^(NSDictionary *result) {
+        NSLog(@"exit success with result: %@", result);
     } withFailure:^(NSError *error) {
-        NSLog(@"exitLiveActivity error: %@", error);
+        NSLog(@"exit error: %@", error);
         // handle failure case
     }];
-    
+
     // Success Output Example:
     /*
       {
@@ -265,20 +269,20 @@ Please refer to OneSignal’s guide on [Live Activities](https://documentation.o
 **Swift**
 ```swift
     // Enter a Live Activity
-    OneSignal.enterLiveActivity("ACTIVITY_ID", withToken: "TOKEN") { result in
-        print("enterLiveActivity success with result: \(result ?? [:])")
+    OneSignal.LiveActivities.enter("ACTIVITY_ID", withToken: "TOKEN") { result in
+        print("enter success with result: \(result ?? [:])")
     } withFailure: { error in
-        print("enterLiveActivity error: \(String(describing: error))")
+        print("enter error: \(String(describing: error))")
     }
-    
+
     // Exit a Live Activity
-    OneSignal.exitLiveActivity("ACTIVITY_ID") { result in
-        print("exitLiveActivity success with result: \(result ?? [:])")
+    OneSignal.LiveActivities.exit("ACTIVITY_ID") { result in
+        print("exit success with result: \(result ?? [:])")
     } withFailure: { error in
-        print("exitLiveActivity error: \(String(describing: error))")
+        print("exit error: \(String(describing: error))")
         // handle failure case
     }
-    
+
     // Success Output Example:
     /*
       {
@@ -323,7 +327,7 @@ The Push Subscription name space is accessible via `OneSignal.User.pushSubscript
 | `let optedIn: Bool = OneSignal.User.pushSubscription.optedIn`                                                     | `BOOL optedIn = OneSignal.User.pushSubscription.optedIn`                                                                               | *Gets a boolean value indicating whether the current user is opted in to push notifications. This returns `true` when the app has notifications permission and `optOut` is ***not*** called. ***Note:*** Does not take into account the existence of the subscription ID and push token. This boolean may return `true` but push notifications may still not be received by the user.* |
 | `OneSignal.User.pushSubscription.optIn()`                                                                         | `[OneSignal.User.pushSubscription optIn]`                                                                                              | *Call this method to receive push notifications on the device or to resume receiving of push notifications after calling `optOut`. If needed, this method will prompt the user for push notifications permission.*                                                                                                                                                                     |
 | `OneSignal.User.pushSubscription.optOut()`                                                                        | `[OneSignal.User.pushSubscription optOut]`                                                                                             | *If at any point you want the user to stop receiving push notifications on the current device (regardless of system-level permission status), you can call this method to opt out.*                                                                                                                                                                                                              |
-| `addObserver(_ observer: OSPushSubscriptionObserver)`<br><br>***See below for usage*** | `(void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage*** | *The `OSPushSubscriptionObserver.onOSPushSubscriptionChanged` method will be fired on the passed-in object when the push subscription changes.*                                                                                                                                 |
+| `addObserver(_ observer: OSPushSubscriptionObserver)`<br><br>***See below for usage*** | `(void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage*** | *The `OSPushSubscriptionObserver.onPushSubscriptionDidChange` method will be fired on the passed-in object when the push subscription changes.*                                                                                                                                 |
 | `removeObserver(_ observer: OSPushSubscriptionObserver)`<br><br>***See below for usage***                         | `(void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer`<br><br>***See below for usage***                             | *Remove a push subscription observer that has been previously added.*                                                                                                                                                                                                                                                                                                                      |
 
 ### Push Subscription Observer
@@ -336,22 +340,22 @@ Any object implementing the `OSPushSubscriptionObserver` protocol can be added a
     // Add OSPushSubscriptionObserver after UIApplicationDelegate
     @interface AppDelegate : UIResponder <UIApplicationDelegate, OSPushSubscriptionObserver>
     @end
-    
+
     // AppDelegate.m
     @implementation AppDelegate
-      
+
     - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
       // Add your AppDelegate as an observer
       [OneSignal.User.pushSubscription addObserver:self];
     }
-    
+
     // Add this new method
-    - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges*)stateChanges {
+    - (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState*)state {
        // prints out all properties
-       NSLog(@"PushSubscriptionStateChanges:\n%@", stateChanges);
+       NSLog(@"OSPushSubscriptionChangedState:\n%@", state);
     }
     @end
-    
+
     // Remove the observer
     [OneSignal.User.pushSubscription removeObserver:self];
 ```
@@ -360,20 +364,19 @@ Any object implementing the `OSPushSubscriptionObserver` protocol can be added a
     // AppDelegate.swift
     // Add OSPushSubscriptionObserver after UIApplicationDelegate
     class AppDelegate: UIResponder, UIApplicationDelegate, OSPushSubscriptionObserver {
-    
+
        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Add your AppDelegate as an observer, and the current OSPushSubscriptionState will be returned
+        // Add your AppDelegate as an observer
         OneSignal.User.pushSubscription.addObserver(self as OSPushSubscriptionObserver)
-        print("Current pushSubscriptionState: \n\(state)")
        }
-    
+
       // Add this new method
-      func onOSPushSubscriptionChanged(stateChanges: OSPushSubscriptionStateChanges) {
+      func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
         // prints out all properties
-        print("PushSubscriptionStateChanges: \n\(stateChanges)")
+        print("OSPushSubscriptionStateChanges: \n\(state)")
       }
     }
-    
+
     // Remove the observer
     OneSignal.User.pushSubscription.removeObserver(self as OSPushSubscriptionObserver)
 ```
@@ -398,15 +401,16 @@ The Notifications namespace is accessible via `OneSignal.Notifications` and prov
 
 | **Swift**                                                                                                                                     | **Objective-C**                                                                                                                    | **Description**                                                                                                                                                                                                                                                                                                                                                                                                             |
 | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `let permission: Bool = OneSignal.Notifications.permission`                                                                                   | `BOOL` `permission` `= [OneSignal.Notifications permission]`                                                                       | *Whether this app has push notification permission. Returns `true` if the user has accepted permissions, or if the app has `ephemeral` or `provisional` permission.*                                                                                                                                                                                                                                                                                                                                                                        |
+| `let permission: Bool = OneSignal.Notifications.permission`                                                                                   | `BOOL permission = [OneSignal.Notifications permission]`                                                                       | *Whether this app has push notification permission. Returns `true` if the user has accepted permissions, or if the app has `ephemeral` or `provisional` permission.*                                                                                                                                                                                                                                                                                                                                                                        |
+| `let permissionNative: OSNotificationPermission = OneSignal.Notifications.permissionNative`                                                                                   | `OSNotificationPermission permissionNative = [OneSignal.Notifications permissionNative]`                                                                       | *Returns the enum for the native permission of the device. It will be one of OSNotificationPermissionNotDetermined, OSNotificationPermissionDenied, OSNotificationPermissionAuthorized, OSNotificationPermissionProvisional, OSNotificationPermissionEphemeral.*                                                                                                                                                                                                                                                                                                                                                                        |
 | `let canRequest: Bool = OneSignal.Notifications.canRequestPermission`                                                                     | `BOOL canRequest = [OneSignal.Notifications canRequestPermission]`                                                             | *Whether attempting to request notification permission will show a prompt. Returns `true` if the device has not been prompted for push notification permission already.*                                                                                                                                                                                                                                                |
 | `OneSignal.Notifications.clearAll()`                                                                                                          | `[OneSignal.Notifications clearAll]`                                                                                               | *Removes all OneSignal notifications.*                                                                                                                                                                                                                                                                                                                                                                                      |
 | `func requestPermission(block: OSUserResponseBlock?, fallbackToSettings: Bool)`<br><br>***See below for usage***                              | `(void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback`<br><br>***See below for usage*** | *Prompt the user for permission to receive push notifications. This will display the native system prompt to request push notification permission.*                                                                                                                                                                                                                                                                 |
 | `func registerForProvisionalAuthorization(block: OSUserResponseBlock?)`<br><br>***See below for usage***                                      | `(void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable)block`<br><br>***See below for usage***                  | *Instead of having to prompt the user for permission to send them push notifications, your app can request provisional authorization.*                                                                                                                                                                                                                                                                                      |
-| `func addPermissionObserver(observer: OSPermissionObserver)`<br><br>***See below for usage***                                                 | `(void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer`<br><br>***See below for usage***                   | *The `OSPermissionObserver.onOSPermissionChanged` method will be fired on the passed-in object when a notification permission setting changes. This happens when the user enables or disables notifications for your app from the system settings outside of your app.*                                                                                                                                           |
-| `func removePermissionObserver(observer: OSPermissionObserver)`<br><br>***See below for usage***                                              | `(void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer`<br><br>***See below for usage***        | *Remove a push permission observer that has been previously added.*                                                                                                                                                                                                                                                                                                                                                     |
-| `func setNotificationWillShowInForegroundHandler(block: OSNotificationWillShowInForegroundBlock?)`<br><br>***See below for usage*** | `setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block`<br><br>***See below for usage***       | *Sets the handler to run before displaying a notification while the app is in focus. Use this handler to read notification data and change it or decide if the notification ***should*** show or not.<br><br>***Note:*** this runs ***after*** the [Notification Service Extension](https://documentation.onesignal.com/docs/service-extensions) which can be used to modify the notification before showing it.* |
-| `func setNotificationOpenedHandler(block: OSNotificationOpenedBlock?)`<br><br>***See below for usage***                             | `(void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block`<br><br>***See below for usage***                   | *Sets a handler that will run whenever a notification is opened by the user.*                                                                                                                                                                                                                                                                                                                                           |
+| `func addPermissionObserver(observer: OSNotificationPermissionObserver)`<br><br>***See below for usage***                                                 | `(void)addPermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer`<br><br>***See below for usage***                   | *The `OSNotificationPermissionObserver.onNotificationPermissionDidChange` method will be fired on the passed-in object when a notification permission setting changes. This happens when the user enables or disables notifications for your app from the system settings outside of your app.*                                                                                                                                           |
+| `func removePermissionObserver(observer: OSNotificationPermissionObserver)`<br><br>***See below for usage***                                              | `(void)removePermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer`<br><br>***See below for usage***        | *Remove a push permission observer that has been previously added.*                                                                                                                                                                                                                                                                                                                                                     |
+| `func addForegroundLifecycleListener(listener: OSNotificationLifecycleListener?)`<br><br>***See below for usage*** | `addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *)listener`<br><br>***See below for usage***       | *The `OSNotificationLifecycleListener.onWillDisplayNotification` method will be fired on the passed-in object before displaying a notification while the app is in focus. Use this listener to read notification data and decide if the notification ***should*** show or not. Call `event.preventDefault()` to prevent the notification from displaying and call `event.notification.display()` within 25 seconds to display the notification. <br><br>***Note:*** this runs ***after*** the [Notification Service Extension](https://documentation.onesignal.com/docs/service-extensions) which can be used to modify the notification before showing it. Remove any added listeners with `removeForegroundLifecycleListener(listener)`* |
+| `func addClickListener(listener: OSNotificationClickListener)`<br><br>***See below for usage***                             | `(void)addClickListener:(NSObject<OSNotificationClickListener>*)listener`<br><br>***See below for usage***                   | *The `OSNotificationClickListener.onClickNotification` method will be fired on the passed-in object whenever a notification is clicked on by the user. Call `removeClickListener(listener)` to remove.*                                                                                                                                                                                                                                                                                                                                           |
 
 ### Prompt for Push Notification Permission with `requestPermission`
 
@@ -415,7 +419,7 @@ The Notifications namespace is accessible via `OneSignal.Notifications` and prov
     [OneSignal.Notifications requestPermission:^(BOOL accepted) {
         NSLog(@"User accepted notifications: %d", accepted);
     }];
-    
+
     // If using the fallbackToSettings flag
     [OneSignal.Notifications requestPermission:^(BOOL accepted) {
         NSLog(@"User accepted notifications: %d", accepted);
@@ -426,7 +430,7 @@ The Notifications namespace is accessible via `OneSignal.Notifications` and prov
     OneSignal.Notifications.requestPermission { accepted in
         print("User accepted notifications: \(accepted)")
     }
-    
+
     // If using the fallbackToSettings flag
     OneSignal.Notifications.requestPermission({ accepted in
         print("User accepted notifications: \(accepted)")
@@ -450,150 +454,162 @@ The Notifications namespace is accessible via `OneSignal.Notifications` and prov
 
 ### Permission Observer
 
-Any object implementing the `OSPermissionObserver` protocol can be added as an observer. You can call `removePermissionObserver` to remove any existing listeners.
+Any object implementing the `OSNotificationPermissionObserver` protocol can be added as an observer. You can call `removePermissionObserver` to remove any existing listeners.
 
 **Objective-C**
 ```objc
     // AppDelegate.h
-    // Add OSPermissionObserver after UIApplicationDelegate
-    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver>
+    // Add OSNotificationPermissionObserver after UIApplicationDelegate
+    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSNotificationPermissionObserver>
     @end
-    
+
     // AppDelegate.m
     @implementation AppDelegate
-      
+
     - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
       // Add your AppDelegate as an observer
       [OneSignal.Notifications addPermissionObserver:self];
     }
-    
+
     // Add this new method
-    - (void)onOSPermissionChanged:(OSPermissionState*)state {
+    - (void)onNotificationPermissionDidChange:(BOOL)permission {
         // Example of detecting the curret permission
-        if (state.permission == true) {
+        if (permission) {
             NSLog(@"Device has permission to display notifications");
         } else {
              NSLog(@"Device does not have permission to display notifications");
         }
-        // prints out all properties
-        NSLog(@"PermissionState:\n%@", state);
     }
-    
+
     // Output:
     /*
      Device has permission to display notifications
-     PermissionState:
-     <OSPermissionState: permission: 1>
      */
-    
+
     @end
-    
+
     // Remove the observer
     [OneSignal.Notifications removePermissionObserver:self];
 ```
 **Swift**
 ```swift
     // AppDelegate.swift
-    // Add OSPermissionObserver after UIApplicationDelegate
-    class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver {
-    
+    // Add OSNotificationPermissionObserver after UIApplicationDelegate
+    class AppDelegate: UIResponder, UIApplicationDelegate, OSNotificationPermissionObserver {
+
        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
             // Add your AppDelegate as an observer
-            OneSignal.Notifications.addPermissionObserver(self as OSPermissionObserver)
+            OneSignal.Notifications.addPermissionObserver(self as OSNotificationPermissionObserver)
         }
 
         // Add this new method
-        func onOSPermissionChanged(_ state: OSPermissionState) {
+        func onNotificationPermissionDidChange(_ permission: Bool) {
             // Example of detecting the curret permission
-            if state.permission == true {
+            if permission {
                 print("Device has permission to display notifications")
             } else {
                 print("Device does not have permission to display notifications")
             }
-            // prints out all properties
-            print("PermissionState: \n\(state)")
         }
     }
-    
+
     // Output:
     /*
      Device has permission to display notifications
      PermissionState:
      <OSPermissionState: permission: 1>
      */
-    
+
     // Remove the observer
-    OneSignal.Notifications.removePermissionObserver(self as OSPermissionObserver)
+    OneSignal.Notifications.removePermissionObserver(self as OSNotificationPermissionObserver)
 ```
 
-### Notification Will Show in Foreground Handler
+### Notification Foreground Lifecycle Listener
+Any object implementing the `OSNotificationLifecycleListener` protocol can be added as a listener. You can call `removeForegroundLifecycleListener` to remove any existing listeners.
 
 **Objective-C**
 ```objc
-    id notificationWillShowInForegroundBlock = ^(OSNotification *notification, OSNotificationDisplayResponse completion) {
-        NSLog(@"Received Notification - %@", notification.notificationId);
-        if ([notification.notificationId isEqualToString:@"silent_notif"]) {
-            completion(nil);
-        } else {
-            completion(notification);
+    // AppDelegate.h
+    // Add OSNotificationLifecycleListener after UIApplicationDelegate
+    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSNotificationLifecycleListener>
+    @end
+
+    // AppDelegate.m
+    @implementation AppDelegate
+
+    - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+      // Add your AppDelegate as an observer
+      [OneSignal.Notifications addForegroundLifecycleListener:self];
+    }
+
+    // Add this new method
+
+    - (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *)event {
+        NSLog(@"Received Notification - %@", event.notification.notificationId);
+        if ([event.notification.notificationId isEqualToString:@"silent_notif"]) {
+            [event preventDefault];
         }
-    };
-    
-    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundBlock];
+
+        // If you called preventDefault, you can call display within 25 seconds
+        [event.notification display];
+    }
+
+    @end
+
+    // Remove the observer
+    [OneSignal.Notifications removeForegroundLifecycleListener:self];
 ```
 **Swift**
 ```swift
-    let notificationWillShowInForegroundBlock: OSNotificationWillShowInForegroundBlock = { notification, completion in
-        print("Received Notification: ", notification.notificationId ?? "no id")
-        print("launchURL: ", notification.launchURL ?? "no launch url")
-        print("content_available = \(notification.contentAvailable)")
-    
-        if notification.notificationId == "example_silent_notif" {
-            // Complete with null means don't show a notification
-            completion(nil)
-        } else {
-            // Complete with a notification means it will show
-            completion(notification)
-        } 
+class MyNotificationLifecycleListener : NSObject, OSNotificationLifecycleListener {
+    func onWillDisplay(event: OSNotificationWillDisplayEvent) {
+        // Example of conditionally displaying a notification
+        if event.notification.notificationId == "example_silent_notif" {
+            event.preventDefault()
+        }
+
+        // If you called preventDefault, you can call display within 25 seconds to display the notification
+        event.notification.display()
     }
-    OneSignal.Notifications.setNotificationWillShowInForegroundHandler(notificationWillShowInForegroundBlock)
+}
+
+// Add your object as a listener
+let myListener = MyNotificationLifecycleListener()
+OneSignal.Notifications.addForegroundLifecycleListener(myListener)
 ```
 
-### Notification Opened Handler
+### Notification Click Listener
+Any object implementing the `OSNotificationClickListener` protocol can be added as a listener. You can call `removeClickListener` to remove any existing listeners.
+
 **Objective-C**
 ```objc
-    id notificationOpenedBlock = ^(OSNotificationOpenedResult *result) {
-        OSNotification* notification = result.notification;
-        if (notification.additionalData) {
-            if (result.action.actionId) {
-                NSLog(@"\nPressed ButtonId:%@", result.action.actionId);
-            }
-        }
-    };
-    
-    [OneSignal.Notifications setNotificationOpenedHandler:notificationOpenedBlock];
+// Add this method to object implementing the OSNotificationClickListener protocol
+- (void)onClickNotification:(OSNotificationClickEvent * _Nonnull)event {
+    OSNotification *notification = event.notification;
+    OSNotificationClickResult *result = event.result;
+    NSString *actionId = result.actionId;
+    NSString *url = result.url;
+    NSLog(@"onClickNotification with event %@", [event jsonRepresentation]);
+}
+
+// Add your object as a listener
+[OneSignal.Notifications addClickListener:myListener];
 ```
+
 **Swift**
 ```swift
-    let notificationOpenedBlock: OSNotificationOpenedBlock = { result in
-        // This block gets called when the user reacts to a notification received
-        let notification: OSNotification = result.notification
-        print("Message: ", notification.body ?? "empty body")
-        print("badge number: ", notification.badge)
-        print("notification sound: ", notification.sound ?? "No sound")
-                
-        if let additionalData = notification.additionalData {
-            print("additionalData: ", additionalData)
-            if let actionSelected = notification.actionButtons {
-                print("actionSelected: ", actionSelected)
-            }
-            if let actionID = result.action.actionId {
-                //handle the action
-            }
-        }
+class MyNotificationClickListener : NSObject, OSNotificationClickListener {
+    func onClick(event: OSNotificationClickEvent) {
+        let notification: OSNotification = event.notification
+        let result: OSNotificationClickResult = event.result
+        let actionId = result.actionId
+        let url = result.url
     }
-    
-    OneSignal.Notifications.setNotificationOpenedHandler(notificationOpenedBlock)
+}
+
+// Add your object as a listener
+let myListener = MyNotificationClickListener()
+OneSignal.Notifications.addClickListener(myListener)
 ```
 
 ## Location Namespace
@@ -613,101 +629,114 @@ The In App Messages namespace is accessible via `OneSignal.InAppMessages` and pr
 
 | **Swift**                                                                                              | **Objective-C**                                                                                                                | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `let paused = OneSignal.InAppMessages.Paused`<br><br>`OneSignal.InAppMessages.Paused = true`           | `BOOL paused = [OneSignal.InAppMessages paused]`<br><br>`[OneSignal.InAppMessages paused:true]`                            | *Whether in-app messaging is currently paused.  When set to `true`, no IAM will be presented to the user regardless of whether they qualify for them. When set to `false`, any IAMs the user qualifies for will be presented to the user at the appropriate time.*                                                                                                                                                                                                  |
-| `OneSignal.InAppMessages.addTrigger("KEY", withValue: "VALUE")`                                        | `[OneSignal.InAppMessages addTrigger:@"KEY" withValue:@"VALUE"]`                                                           | *Add a trigger for the current user.  Triggers are currently explicitly used to determine whether a specific IAM should be displayed to the user. See [Triggers](https://documentation.onesignal.com/docs/iam-triggers).<br><br>If the trigger key already exists, it will be replaced with the value provided here. Note that triggers are not persisted to the backend. They only exist on the local device and are applicable to the current user.*                    |
-| `OneSignal.InAppMessages.addTriggers(["KEY_01": "VALUE_01", "KEY_02": "VALUE_02"])`                    | `[OneSignal.InAppMessages addTriggers:@{@"KEY_01": @"VALUE_01", @"KEY_02": @"VALUE_02"}]`                          | *Add multiple triggers for the current user. Triggers are currently explicitly used to determine whether a specific IAM should be displayed to the user. See [Triggers](https://documentation.onesignal.com/docs/iam-triggers).<br><br>If any trigger key already exists, it will be replaced with the value provided here. Note that triggers are not persisted to the backend. They only exist on the local device and are applicable to the current user.* |
+| `let paused = OneSignal.InAppMessages.paused`<br><br>`OneSignal.InAppMessages.paused = true`           | `BOOL paused = [OneSignal.InAppMessages paused]`<br><br>`[OneSignal.InAppMessages paused:true]`                            | *Whether in-app messaging is currently paused.  When set to `true`, no IAM will be presented to the user regardless of whether they qualify for them. When set to `false`, any IAMs the user qualifies for will be presented to the user at the appropriate time.*                                                                                                                                                                                                  |
+| `OneSignal.InAppMessages.addTrigger("KEY", withValue: "VALUE")`                                        | `[OneSignal.InAppMessages addTrigger:@"KEY" withValue:@"VALUE"]`                                                           | *Add a string-value trigger for the current user.  Triggers are currently explicitly used to determine whether a specific IAM should be displayed to the user. See [Triggers](https://documentation.onesignal.com/docs/iam-triggers).<br><br>If the trigger key already exists, it will be replaced with the value provided here. Note that triggers are not persisted to the backend. They only exist on the local device and are applicable to the current user.*                    |
+| `OneSignal.InAppMessages.addTriggers(["KEY_01": "VALUE_01", "KEY_02": "VALUE_02"])`                    | `[OneSignal.InAppMessages addTriggers:@{@"KEY_01": @"VALUE_01", @"KEY_02": @"VALUE_02"}]`                          | *Add multiple string-value triggers for the current user. Triggers are currently explicitly used to determine whether a specific IAM should be displayed to the user. See [Triggers](https://documentation.onesignal.com/docs/iam-triggers).<br><br>If any trigger key already exists, it will be replaced with the value provided here. Note that triggers are not persisted to the backend. They only exist on the local device and are applicable to the current user.* |
 | `OneSignal.InAppMessages.removeTrigger("KEY")`                                                         | `[OneSignal.InAppMessages removeTrigger:@"KEY"]`                                                                           | *Remove the trigger with the provided key from the current user.*                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `OneSignal.InAppMessages.removeTriggers(["KEY_01", "KEY_02"])`                                         | `[OneSignal.InAppMessages removeTriggers:@[@"KEY_01", @"KEY_02"]]`                                                         | *Remove multiple triggers from the current user.*                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `OneSignal.InAppMessages.clearTriggers()`                                                              | `[OneSignal.InAppMessages clearTriggers]`                                                                                  | *Clear all triggers from the current user.*                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `func setLifecycleHandler(delegate: OSInAppMessageLifecycleHandler?)`<br><br>***See below for usage*** | `(void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate`<br><br>***See below for usage*** | *Set the in-app message lifecycle handler.*                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `func setClickHandler(block: OSInAppMessageClickBlock?)`<br><br>***See below for usage***              | `(void)setClickHandler:(OSInAppMessageClickBlock _Nullable)block`<br><br>***See below for usage***                         | *Set the in-app message click handler.*                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `func addLifecycleListener(listener: OSInAppMessageLifecycleListener?)`<br><br>***See below for usage*** | `(void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener`<br><br>***See below for usage*** | *Add an in-app message lifecycle listener. Remove with `removeLifecycleListener`.*                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `func addClickListener(listener: OSInAppMessageClickListener)`<br><br>***See below for usage***              | `(void)addClickListener:(NSObject<OSNotificationClickListener>*_Nonnull)listener`<br><br>***See below for usage***                         | *The `OSInAppMessageClickListener.onClickInAppMessage` method will be fired on the passed-in object whenever an in-app message is clicked on by the user. Call `removeClickListener(listener)` to remove*                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 
 
-### In-App Message Lifecycle Handler
+### In-App Message Lifecycle Listener
 
-The `OSInAppMessageLifecycleHandler` protocol includes 4 optional methods.
+The `OSInAppMessageLifecycleListener` protocol includes 4 optional methods.
 
 **Objective-C**
 ```objc
     // AppDelegate.h
-    // Add OSInAppMessageLifecycleHandler as an implemented protocol of the class that will handle the In-App Message lifecycle events.
-    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSInAppMessageLifecycleHandler>
+    // Add OSInAppMessageLifecycleListener as an implemented protocol of the class that will handle the In-App Message lifecycle events.
+    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSInAppMessageLifecycleListener>
     @end
-    
+
     // AppDelegate.m
     @implementation AppDelegate
-      
+
     - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-        // Add your implementing class as the handler.  
-        [OneSignal.InAppMessages setLifecycleHandler:self];
+        // Add your implementing class as the listener.
+        [OneSignal.InAppMessages addLifecycleListener:self];
     }
-    
+
     // Add one or more of the following optional lifecycle methods
-    
-    - (void)onWillDisplayInAppMessage:(OSInAppMessage *)message {
-        NSLog(@"OSInAppMessageLifecycleHandler: onWillDisplay Message: %@", message.messageId);
+
+    - (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *)event {
+        NSLog(@"OSInAppMessageLifecycleListener: onWillDisplay Message: %@", event.message.messageId);
     }
-    - (void)onDidDisplayInAppMessage:(OSInAppMessage *)message {
-        NSLog(@"OSInAppMessageLifecycleHandler: onDidDisplay Message: %@", message.messageId);
+    - (void)onDidDisplayInAppMessage:(OSInAppMessageDidDisplayEvent *)event {
+        NSLog(@"OSInAppMessageLifecycleListener: onDidDisplay Message: %@", event.message.messageId);
     }
-    - (void)onWillDismissInAppMessage:(OSInAppMessage *)message {
-        NSLog(@"OSInAppMessageLifecycleHandler: onWillDismiss Message: %@", message.messageId);
+    - (void)onWillDismissInAppMessage:(OSInAppMessageWillDismissEvent *)event {
+        NSLog(@"OSInAppMessageLifecycleListener: onWillDismiss Message: %@", event.message.messageId);
     }
-    - (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
-        NSLog(@"OSInAppMessageLifecycleHandler: onDidDismiss Message: %@", message.messageId);
+    - (void)onDidDismissInAppMessage:(OSInAppMessageDidDismissEvent *)event {
+        NSLog(@"OSInAppMessageLifecycleListener: onDidDismiss Message: %@", event.message.messageId);
     }
 ```
 **Swift**
 ```swift
     // AppDelegate.swift
-    // Add OSInAppMessageLifecycleHandler as an implemented protocol of the class that will handle the In-App Message lifecycle events.
-    class AppDelegate: UIResponder, UIApplicationDelegate, OSInAppMessageLifecycleHandler {
-    
+    // Add OSInAppMessageLifecycleListener as an implemented protocol of the class that will handle the In-App Message lifecycle events.
+    class AppDelegate: UIResponder, UIApplicationDelegate, OSInAppMessageLifecycleListener {
+
         func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-            // Add your implementing class as the handler  
-            OneSignal.InAppMessages.setLifecycleHandler(self)
+            // Add your implementing class as the listener
+            OneSignal.InAppMessages.addLifecycleListener(self)
         }
-    
+
         // Add one or more of the following optional lifecycle methods
-    
-        func onWillDisplay(_ message: OSInAppMessage) {
-            print("OSInAppMessageLifecycleHandler: onWillDisplay Message: \(message.messageId)")
+
+        func onWillDisplay(event: OSInAppMessageWillDisplayEvent) {
+            print("OSInAppMessageLifecycleListener: onWillDisplay Message: \(event.message.messageId)")
         }
-        func onDidDisplay(_ message: OSInAppMessage) {
-            print("OSInAppMessageLifecycleHandler: onDidDisplay Message: \(message.messageId)")
+        func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
+            print("OSInAppMessageLifecycleListener: onDidDisplay Message: \(event.message.messageId)")
         }
-        func onWillDismiss(_ message: OSInAppMessage) {
-            print("OSInAppMessageLifecycleHandler: onWillDismiss Message: \(message.messageId)")
+        func onWillDismiss(event: OSInAppMessageWillDismissEvent) {
+            print("OSInAppMessageLifecycleListener: onWillDismiss Message: \(event.message.messageId)")
         }
-        func onDidDismiss(_ message: OSInAppMessage) {
-            print("OSInAppMessageLifecycleHandler: onDidDismiss Message: \(message.messageId)")
+        func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
+            print("OSInAppMessageLifecycleListener: onDidDismiss Message: \(event.message.messageId)")
         }
     }
 ```
 
-### In-App Message Click Handler
+### In-App Message Click Listener
+Any object implementing the `OSInAppMessageClickListener` protocol can be added as a listener. You can call `removeClickListener` to remove any existing listeners.
 
 **Objective-C**
 ```objc
-    id inAppMessageClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: clickName:%@ clickUrl:%@ firstClick:%i closesMessage:%i",
-                             action.clickName,
-                             action.clickUrl,
-                             action.firstClick,
-                             action.closesMessage];
-        NSLog(@"%@", message);
-    };
-    
-    [OneSignal.InAppMessages setClickHandler:inAppMessageClickBlock];
+// Add this method to object implementing the OSInAppMessageClickListener protocol
+- (void)onClickInAppMessage:(OSInAppMessageClickEvent * _Nonnull)event {
+    NSLog(@"onClickInAppMessage event: %@", [event jsonRepresentation]);
+    NSString *message = [NSString stringWithFormat:@"In App Message Click Occurred: messageId: %@ actionId: %@ url: %@ urlTarget: %@ closingMessage: %i",
+                        event.message.messageId,
+                        event.result.actionId,
+                        event.result.url,
+                        @(event.result.urlTarget),
+                        event.result.closingMessage];
+}
+
+// Add your object as a listener
+[OneSignal.InAppMessages addClickListener:self];
 ```
 **Swift**
 ```swift
-    let inAppMessageClickBlock: OSInAppMessageClickBlock = { action in
-        print("Click Action Occurred: ", action.jsonRepresentation)
+class MyInAppMessageClickListener : NSObject, OSInAppMessageClickListener {
+    func onClick(event: OSInAppMessageClickEvent) {
+        let messageId = event.message.messageId
+        let result: OSInAppMessageClickResult = event.result
+        let actionId = result.actionId
+        let url = result.url
+        let urlTarget: OSInAppMessageActionUrlType = result.urlTarget
+        let closingMessage = result.closingMessage
     }
-    
-    OneSignal.InAppMessages.setClickHandler(inAppMessageClickBlock)
+}
+
+// Add your object as a listener
+let myListener = MyInAppMessageClickListener()
+OneSignal.InAppMessages.addClickListener(myListener)
 ```
 
 ## Debug Namespace
@@ -723,17 +752,15 @@ The Debug namespace is accessible via `OneSignal.Debug` and provide access to de
 # Glossary
 
 **device-scoped user**
-> An anonymous user with no aliases that cannot be retrieved except through the current device or OneSignal dashboard. On app install, the OneSignal SDK is initialized with a *device-scoped user*. A *device-scoped user* can be upgraded to an identified user by calling `OneSignal.login("USER_EXTERNAL_ID")`  to identify the user by the specified external user ID. 
+> An anonymous user with no aliases that cannot be retrieved except through the current device or OneSignal dashboard. On app install, the OneSignal SDK is initialized with a *device-scoped user*. A *device-scoped user* can be upgraded to an identified user by calling `OneSignal.login("USER_EXTERNAL_ID")`  to identify the user by the specified external user ID.
 
 # Limitations
 
 - This is a Beta release so please test thorougly prior to production use.
-- Outcomes, badges, and preview in-app messages will be available in a future release.
 - Changing app IDs is not supported.
 - Any `User` namespace calls must be invoked **after** initialization. Example: `OneSignal.User.addTag("tag", "2")`
 - In the SDK, the user state is only refreshed from the server when a new session is started (cold start or backgrounded for over 30 seconds) or when the user is logged in. This is by design.
-- Limited support for migrating cached data in an existing app installation from `3.x.x` of the SDK to `5.x.x`. Currently, we recommend using this release in **fresh app installations** only.
 
 # Known issues
-- Identity Verification 
+- Identity Verification
     - We will be introducing JWT in a follow up Beta release
