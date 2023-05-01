@@ -7,7 +7,7 @@
 //
 
 #import <OneSignalCore/OneSignalCore.h>
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
 
 @interface OSRequestGetInAppMessages : OneSignalRequest
 + (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId;
@@ -34,5 +34,5 @@
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageAction * _Nonnull)action;
+                     withAction:(OSInAppMessageClickResult * _Nonnull)action;
 @end
