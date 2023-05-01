@@ -38,7 +38,7 @@
 		</data>
 		<key>Headers/OSNotification+Internal.h</key>
 		<data>
-		4e+6YBjSX6NRA8rNizQp2+aBQ30=
+		86k7Huy5kc2mfWTUAhc90rEQjs4=
 		</data>
 		<key>Headers/OSNotification.h</key>
 		<data>
@@ -46,11 +46,11 @@
 		</data>
 		<key>Headers/OSNotificationClasses.h</key>
 		<data>
-		ffIK3c1zT2cADgVHard2wYmgrvQ=
+		L6If5GOxRJg1EgpvI3912AAVD1M=
 		</data>
 		<key>Headers/OSObservable.h</key>
 		<data>
-		EKZEgY7y78TFR02v2BdqFWq6wVc=
+		uxk6nXuqHiQSVAOp/BQL4OAArxA=
 		</data>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<data>
@@ -62,7 +62,7 @@
 		</data>
 		<key>Headers/OSRequests.h</key>
 		<data>
-		FGzDF2gDetAspvDzd46wxlhvsjY=
+		J1Kk5zLcCjEXVkzVwqgbEN27Myk=
 		</data>
 		<key>Headers/OneSignalClient.h</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		rowzqIS23ogqFbQhuPvfZxfzJc0=
+		gU7MjU/oqYpGg9IO/Il6UAsOTx4=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -86,7 +86,7 @@
 		</data>
 		<key>Headers/OneSignalLog.h</key>
 		<data>
-		wk8I7qEKwJNPyhXpP6jLzTrV4sI=
+		gXplqf6zxHM/zL2vtQV21n+X+Dc=
 		</data>
 		<key>Headers/OneSignalMobileProvision.h</key>
 		<data>
@@ -102,7 +102,7 @@
 		</data>
 		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
 		<data>
-		3x6uorCcPwt7XTytGlVwmVv3NXE=
+		4YsXpAcxdhsGDmyQVKWbUwj1Ifw=
 		</data>
 		<key>Headers/OneSignalUserDefaults.h</key>
 		<data>
@@ -118,7 +118,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		H/9ip+xGAwiuKpx0BQ7CucyVpdM=
+		L6p44oaeRTfpPlKUSAeu5FAg51s=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -187,7 +187,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			HTm2j1hepBvpJTVpL9yoinrtVoXPyBqD6UVOtRJcoGY=
+			Tc1KYQDY1EeOl2QeL9dKZQU7KTeDLFWV8v+EOhkiw9Q=
 			</data>
 		</dict>
 		<key>Headers/OSNotification.h</key>
@@ -201,14 +201,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			egqNeJ1zJAyIjXAvTNBFqVuEQFl67+LbQ/B7V0jK2Rk=
+			FLr4F43qLlZCYpjFXeqgpCiheBKvOyBSrnUxl+64Sys=
 			</data>
 		</dict>
 		<key>Headers/OSObservable.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			R123THdisLYR5MKy2Wn8W5io6MEKh/bDRfZmFNF0YLQ=
+			YSHpULg8LgM3KqieFsTXQ3IusHjt3KxhMuJm/nBEy4c=
 			</data>
 		</dict>
 		<key>Headers/OSPrivacyConsentController.h</key>
@@ -229,7 +229,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Y4ZQYMQH2HpXg5WSaVo8t8R+mBUfaaeWI/aftgTQjjw=
+			IgxmAHnDmkedMwrgA9QzZfoahOsSjNJjysKwkzKpq00=
 			</data>
 		</dict>
 		<key>Headers/OneSignalClient.h</key>
@@ -243,7 +243,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			KPryvk78pq8IvU1KQvIFknis9B2nltKpAZa+5o34jh4=
+			P178HQW81DAMI7jvfpPh350psc/0CWXWWOu7PPPzhvM=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -271,7 +271,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			TTh02f8eEgWpT90lK8GWCEw6O4YEAUrYwK/k+J5iZ7I=
+			UvCikpTfTv6mlFdTHq0QCVttUYTRzE/tlMf89cGRNcw=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>
@@ -299,7 +299,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			QQQ+yTOmYNCSKMYVwsP/jh0kJrt6EWJcaywB7947kO0=
+			f8S2EXmRtv0a2KL8RoiLzMsuhMYEHNSZoywQelMGAYs=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUserDefaults.h</key>
