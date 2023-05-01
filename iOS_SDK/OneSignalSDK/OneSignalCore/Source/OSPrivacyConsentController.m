@@ -43,7 +43,7 @@ THE SOFTWARE.
         return;
 
     if ([self requiresUserPrivacyConsent] && !required) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change setConsentRequired() from TRUE to FALSE"];
         return;
     }
     [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT withValue:required];

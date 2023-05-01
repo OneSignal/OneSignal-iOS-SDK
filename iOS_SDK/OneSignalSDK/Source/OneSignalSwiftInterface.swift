@@ -55,24 +55,10 @@ public extension OneSignal {
     static var Location: OSLocation.Type {
         return __location()
     }
-
-    static var requiresPrivacyConsent: Bool {
-        get {
-            return __requiresPrivacyConsent()
-        }
-        set {
-            __setRequiresPrivacyConsent(newValue)
-        }
-    }
-
-    static var privacyConsent: Bool {
-        get {
-            return __getPrivacyConsent()
-        }
-        set {
-            __setPrivacyConsent(newValue)
-        }
-    }
+    
+    static var LiveActivities: OSLiveActivities.Type {
+        return __liveActivities()
+    }  
 }
 
 public extension OSDebug {
@@ -82,13 +68,29 @@ public extension OSDebug {
 }
 
 public extension OSInAppMessages {
-    static var Paused: Bool {
+    static var paused: Bool {
         get {
             return __paused()
         }
         set {
             __paused(newValue)
         }
+    }
+    
+    static func addLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
+        __add(listener)
+    }
+    
+    static func removeLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
+        __remove(listener)
+    }
+    
+    static func addClickListener(_ listener: OSInAppMessageClickListener) {
+        __add(listener)
+    }
+    
+    static func removeClickListener(_ listener: OSInAppMessageClickListener) {
+        __remove(listener)
     }
 }
 
@@ -107,16 +109,28 @@ public extension OSNotifications {
         return __canRequestPermission()
     }
 
+    static var permissionNative: OSNotificationPermission {
+        return __permissionNative()
+    }
+    
     static func registerForProvisionalAuthorization(_ block: OSUserResponseBlock?) {
         return __register(forProvisionalAuthorization: block)
     }
 
-    static func addPermissionObserver(_ observer: OSPermissionObserver) {
+    static func addPermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __add(observer)
     }
 
-    static func removePermissionObserver(_ observer: OSPermissionObserver) {
+    static func removePermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __remove(observer)
+    }
+    
+    static func addClickListener(_ listener: OSNotificationClickListener) {
+        return __add(listener)
+    }
+    
+    static func removeClickListener(_ listener: OSNotificationClickListener) {
+        return __remove(listener)
     }
 }
 

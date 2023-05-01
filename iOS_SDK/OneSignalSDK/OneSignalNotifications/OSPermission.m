@@ -196,14 +196,11 @@
 }
 
 + (void)fireChangesObserver:(OSPermissionStateInternal*)state  {
-    OSPermissionState *externalToState = [state getExternalState];
-    OSPermissionState *externalFromState = [OSNotificationsManager.lastPermissionState getExternalState];
-    
-    if (externalToState.permission == externalFromState.permission) {
+    if (state.reachable == OSNotificationsManager.lastPermissionState.reachable) {
         return;
     }
     
-    BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:externalToState];
+    BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:state.reachable];
     if (hasReceiver) {
         OSNotificationsManager.lastPermissionState = [state copy];
         [OSNotificationsManager.lastPermissionState persistAsFrom];

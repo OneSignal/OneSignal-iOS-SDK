@@ -40,8 +40,6 @@
     
     self.activityIndicatorView.hidden = true;
     
-    self.consentSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal requiresPrivacyConsent];
-
     self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.User.pushSubscription.optedIn;
     
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) [OneSignal.Location isShared];
@@ -168,7 +166,7 @@
 
 - (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller consent granted: %i", (int) sender.selectedSegmentIndex);
-    [OneSignal setPrivacyConsent:(bool) sender.selectedSegmentIndex];
+    [OneSignal setConsentGiven:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
@@ -190,10 +188,6 @@
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller in app messaging paused: %i", (int) !sender.selectedSegmentIndex);
     [OneSignal.InAppMessages paused:(bool) !sender.selectedSegmentIndex];
-}
-
-- (void)handleMessageAction:(NSString *)actionId {
-    NSLog(@"View controller did get action: %@", actionId);
 }
 
 - (IBAction)loginExternalUserId:(UIButton *)sender {
@@ -241,7 +235,7 @@
         if (activityId && activityId.length) {
             [LiveActivityController createActivityWithCompletionHandler:^(NSString * token) {
                 if(token){
-                    [OneSignal enterLiveActivity:activityId withToken:token];
+                    [OneSignal.LiveActivities enter:activityId withToken:token];
                 }
             }];
         }
@@ -251,7 +245,7 @@
 }
 - (IBAction)exitLiveActivity:(id)sender {
     if (self.activityId.text && self.activityId.text.length) {
-        [OneSignal exitLiveActivity:self.activityId.text];
+        [OneSignal.LiveActivities exit:self.activityId.text];
     }
 }
 
@@ -267,13 +261,13 @@
 }
 
 - (IBAction)requireConsent:(id)sender {
-    NSLog(@"Dev App: setting setRequiresPrivacyConsent to true.");
-    [OneSignal setRequiresPrivacyConsent:true];
+    NSLog(@"Dev App: setting setConsentRequired to true.");
+    [OneSignal setConsentRequired:true];
 }
 
 - (IBAction)dontRequireConsent:(id)sender {
-    NSLog(@"Dev App: setting setRequiresPrivacyConsent to false.");
-    [OneSignal setRequiresPrivacyConsent:false];
+    NSLog(@"Dev App: setting setConsentRequired to false.");
+    [OneSignal setConsentRequired:false];
 }
 
 @end
