@@ -54,24 +54,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
-    
-    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        NSLog(@"OSNotificationOpenedResult: %@", result.action);
-    };
-    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
-        NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
-    };
-    
-    // Example block for IAM action click handler
-    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
-    };
 
-    // Example setter for IAM action click handler using OneSignal public method
-    [OneSignal.InAppMessages setClickHandler:inAppMessagingActionClickBlock];
-    
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
@@ -87,9 +70,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     [OneSignal.InAppMessages paused:false];
     
-    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
-    [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
-
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
@@ -112,8 +92,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal initialize:onesignalAppId withLaunchOptions:nil];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionState*)state {
-    NSLog(@"onOSPermissionChanged: %@", state);
+- (void)onNotificationPermissionDidChange:(BOOL)permission {
+    NSLog(@"onNotificationPermissionDidChange: %d", permission);
 }
 
 // TODO: Add push sub observer

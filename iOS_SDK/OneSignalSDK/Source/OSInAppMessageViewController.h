@@ -29,14 +29,14 @@
 #import <UIKit/UIKit.h>
 #import "OSInAppMessageInternal.h"
 #import "OSInAppMessageView.h"
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessageViewControllerDelegate <NSObject>
 
-- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action;
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action;
 - (void)messageViewDidDisplayPage:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 - (void)messageViewControllerDidDisplay:(OSInAppMessageInternal *)message;
 - (void)messageViewControllerWillDismiss:(OSInAppMessageInternal *)message;
