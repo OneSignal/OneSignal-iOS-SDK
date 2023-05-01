@@ -39,14 +39,24 @@
     [OSMessagingController start];
 }
 
-+ (void)setClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
++ (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener added successfully"];
+    [OSMessagingController.sharedInstance addInAppMessageClickListener:listener];
 }
 
-+ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
++ (void)removeClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageClickListener:listener];
+}
+
++ (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener added successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageDelegate:listener];
+}
+
++ (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageDelegate:listener];
 }
 
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value {

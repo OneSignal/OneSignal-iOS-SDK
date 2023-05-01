@@ -35,14 +35,14 @@
 #import "UNUserNotificationCenter+OneSignalNotifications.h"
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 
-@implementation OSNotificationOpenedResult
-@synthesize notification = _notification, action = _action;
+@implementation OSNotificationClickEvent
+@synthesize notification = _notification, result = _result;
 
-- (id)initWithNotification:(OSNotification*)notification action:(OSNotificationAction*)action {
+- (id)initWithNotification:(OSNotification*)notification result:(OSNotificationClickResult*)result {
     self = [super init];
     if(self) {
         _notification = notification;
-        _action = action;
+        _result = result;
     }
     return self;
 }
@@ -63,28 +63,56 @@
                                                                 error:&jsonError];
     
     NSMutableDictionary* obj = [NSMutableDictionary new];
-    NSMutableDictionary* action = [NSMutableDictionary new];
-    [action setObject:self.action.actionId forKeyedSubscript:@"actionID"];
-    [obj setObject:action forKeyedSubscript:@"action"];
+    NSMutableDictionary* result = [NSMutableDictionary new];
+    [result setObject:self.result.actionId forKeyedSubscript:@"actionID"];
+    [result setObject:self.result.url forKeyedSubscript:@"url"];
+    [obj setObject:result forKeyedSubscript:@"result"];
     [obj setObject:notifDict forKeyedSubscript:@"notification"];
-    if(self.action.type)
-        [obj[@"action"] setObject:@(self.action.type) forKeyedSubscript: @"type"];
-    
+
     return obj;
 }
 
 @end
 
-@implementation OSNotificationAction
-@synthesize type = _type, actionId = _actionId;
+@implementation OSNotificationClickResult
+@synthesize url = _url, actionId = _actionId;
 
--(id)initWithActionType:(OSNotificationActionType)type :(NSString*)actionID {
+-(id)initWithUrl:(NSString*)url :(NSString*)actionID {
     self = [super init];
     if(self) {
-        _type = type;
+        _url = url;
         _actionId = actionID;
     }
     return self;
+}
+
+@end
+
+@interface OSDisplayableNotification ()
+- (void)startTimeoutTimer;
+- (void)setCompletionBlock:(OSNotificationDisplayResponse)completion;
+- (void)complete:(OSDisplayableNotification *)notification;
+- (BOOL)wantsToDisplay;
+- (void)setWantsToDisplay:(BOOL)display;
+@end
+
+@implementation OSNotificationWillDisplayEvent
+
+- (id)initWithDisplayableNotification:(OSDisplayableNotification*)notification {
+    self = [super init];
+    if(self) {
+        _notification = notification;
+    }
+    return self;
+}
+
+- (BOOL)isPreventDefault {
+    return !_notification.wantsToDisplay;
+}
+
+- (void)preventDefault {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSNotificationWillDisplayEvent.preventDefault called."]];
+    _notification.wantsToDisplay = false;
 }
 
 @end
@@ -103,6 +131,14 @@ static id<OneSignalNotificationsDelegate> _delegate;
     _delegate = delegate;
 }
 
+static id<OSNotificationLifecycleListener> _lifecycleListener;
++ (id<OSNotificationLifecycleListener>)lifecycleListener {
+    return _lifecycleListener;
+}
++ (void)setLifecycleListener:(id<OSNotificationLifecycleListener>)lifecycleListener {
+    _lifecycleListener = lifecycleListener;
+}
+
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
 static BOOL _waitingForApnsResponse = false;
 static BOOL _providesAppNotificationSettings = false;
@@ -110,9 +146,14 @@ BOOL requestedProvisionalAuthorization = false;
 
 static int mSubscriptionStatus = -1;
 
-static NSMutableArray<OSNotificationOpenedResult*> *_unprocessedOpenedNotifis;
-static OSNotificationOpenedBlock _notificationOpenedHandler;
-static OSNotificationWillShowInForegroundBlock _notificationWillShowInForegroundHandler;
+static NSMutableArray<OSNotificationClickEvent*> *_unprocessedClickEvents;
+static NSMutableArray<NSObject<OSNotificationClickListener> *> *_clickListeners;
++ (NSMutableArray<NSObject<OSNotificationClickListener> *>*)clickListeners {
+    if (!_clickListeners)
+        _clickListeners = [NSMutableArray new];
+    return _clickListeners;
+}
+
 static NSDictionary* _lastMessageReceived;
 static NSString *_lastMessageID = @"";
 static NSString *_lastMessageIdFromAction;
@@ -217,7 +258,7 @@ static NSString *_pushSubscriptionId;
     _lastMessageReceived = nil;
     _lastMessageIdFromAction = nil;
     _lastMessageID = @"";
-    _unprocessedOpenedNotifis = nil;
+    _unprocessedClickEvents = nil;
 }
 
 + (void)setLastPermissionState:(OSPermissionStateInternal *)lastPermissionState {
@@ -587,22 +628,27 @@ static NSString *_lastnonActiveMessageId;
         completion([OSNotification new]);
         return;
     }
-    //Only call the willShowInForegroundHandler for notifications not preview IAMs
+    //Only call the OSNotificationLifecycleListener for notifications not preview IAMs
 
-    OSNotification *osNotification = [OSNotification parseWithApns:payload];
+    OSDisplayableNotification *osNotification = [OSDisplayableNotification parseWithApns:payload];
     if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
         completion(nil);
         return;
     }
-    [self handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
+    [self handleWillShowInForegroundForNotification:osNotification completion:completion];
 }
 
-
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion {
++ (void)handleWillShowInForegroundForNotification:(OSDisplayableNotification *)notification completion:(OSNotificationDisplayResponse)completion {
     [notification setCompletionBlock:completion];
-    if (_notificationWillShowInForegroundHandler) {
+    if (self.lifecycleListener && [self.lifecycleListener respondsToSelector:@selector(onWillDisplayNotification:)]) {
         [notification startTimeoutTimer];
-        _notificationWillShowInForegroundHandler(notification, [notification getCompletionBlock]);
+        OSNotificationWillDisplayEvent *event = [[OSNotificationWillDisplayEvent alloc] initWithDisplayableNotification:notification];
+
+        [self.lifecycleListener onWillDisplayNotification:event];
+        if (![event isPreventDefault]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSNotificationWillDisplayEvent's preventDefault not called, now display notification with notificationId %@.", notification.notificationId]];
+            [notification complete:notification];
+        }
     } else {
         completion(notification);
     }
@@ -650,7 +696,7 @@ static NSString *_lastnonActiveMessageId;
 //        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
 //    }
 
-    [self handleNotificationAction:actionType actionID:actionID];
+    [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];
 }
 
 + (void)submitNotificationOpened:(NSString*)messageId {
@@ -750,28 +796,35 @@ static NSString *_lastnonActiveMessageId;
     return NO;
 }
 
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID {
++ (void)handleNotificationActionWithUrl:(NSString*)url actionID:(NSString*)actionID {
     if (![OneSignalCoreHelper isOneSignalPayload:_lastMessageReceived])
         return;
     
-    OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
+    OSNotificationClickResult *result = [[OSNotificationClickResult alloc] initWithUrl:url :actionID];
     OSNotification *notification = [OSNotification parseWithApns:_lastMessageReceived];
-    OSNotificationOpenedResult *result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
+    OSNotificationClickEvent *event = [[OSNotificationClickEvent alloc] initWithNotification:notification result:result];
     
     // Prevent duplicate calls to same action
     if ([notification.notificationId isEqualToString:_lastMessageIdFromAction])
         return;
     _lastMessageIdFromAction = notification.notificationId;
     
-    [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
-    
-    if (!_notificationOpenedHandler) {
-        [self addUnprocessedOpenedNotifi:result];
+    [OneSignalTrackFirebaseAnalytics trackOpenEvent:event];
+  
+    if (self.clickListeners.count == 0) {
+        [self addUnprocessedClickEvent:event];
         return;
     }
-    _notificationOpenedHandler(result);
+    [self fireClickListenersForEvent:event];
 }
 
++ (void)fireClickListenersForEvent:(OSNotificationClickEvent*)event {
+    for (NSObject<OSNotificationClickListener> *listener in self.clickListeners) {
+        if ([listener respondsToSelector:@selector(onClickNotification:)]) {
+            [listener onClickNotification:event];
+        }
+    }
+}
 
 + (void)lastMessageReceived:(NSDictionary*)message {
     _lastMessageReceived = message;
@@ -785,36 +838,45 @@ static NSString *_lastnonActiveMessageId;
     return shouldSuppress ?: false;
 }
 
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block {
-    _notificationOpenedHandler = block;
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Notification opened handler set successfully"];
-    [self fireNotificationOpenedHandlerForUnprocessedEvents];
-    
++ (void)addClickListener:(NSObject<OSNotificationClickListener>*)listener {
+    [self.clickListeners addObject:listener];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Notification click listener added successfully"];
+    [self fireClickListenersForUnprocessedEvents];
 }
 
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block {
-    _notificationWillShowInForegroundHandler = block;
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
++ (void)removeClickListener:(NSObject<OSNotificationClickListener>*)listener {
+    [self.clickListeners removeObject:listener];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Notification click listener removed successfully"];
 }
 
-+ (NSMutableArray<OSNotificationOpenedResult*>*)getUnprocessedOpenedNotifis {
-    if (!_unprocessedOpenedNotifis)
-        _unprocessedOpenedNotifis = [NSMutableArray new];
-    return _unprocessedOpenedNotifis;
++ (void)addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener {
+    _lifecycleListener = listener;
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"ForegroundLifecycleListener added successfully"];
 }
 
-+ (void)addUnprocessedOpenedNotifi:(OSNotificationOpenedResult*)result {
-    [[self getUnprocessedOpenedNotifis] addObject:result];
++ (void)removeForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> * _Nullable)listener {
+    _lifecycleListener = nil;
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"ForegroundLifecycleListener removed successfully"];
 }
 
-+ (void)fireNotificationOpenedHandlerForUnprocessedEvents {
-    if (!_notificationOpenedHandler)
++ (NSMutableArray<OSNotificationClickEvent*>*)getUnprocessedClickEvents {
+    if (!_unprocessedClickEvents)
+        _unprocessedClickEvents = [NSMutableArray new];
+    return _unprocessedClickEvents;
+}
+
++ (void)addUnprocessedClickEvent:(OSNotificationClickEvent*)event {
+    [[self getUnprocessedClickEvents] addObject:event];
+}
+
++ (void)fireClickListenersForUnprocessedEvents {
+    if (self.clickListeners.count == 0) {
         return;
-    
-    for (OSNotificationOpenedResult* notification in [self getUnprocessedOpenedNotifis]) {
-        _notificationOpenedHandler(notification);
     }
-    _unprocessedOpenedNotifis = [NSMutableArray new];
+    for (OSNotificationClickEvent* event in [self getUnprocessedClickEvents]) {
+        [self fireClickListenersForEvent:event];
+    }
+    _unprocessedClickEvents = [NSMutableArray new];
 }
 
 + (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
