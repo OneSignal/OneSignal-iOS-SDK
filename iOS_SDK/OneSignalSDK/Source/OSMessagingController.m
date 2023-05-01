@@ -30,7 +30,8 @@
 #import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
+#import "OSInAppMessageClickEvent.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
 #import "OneSignalDialogController.h"
@@ -93,8 +94,7 @@
 // Tracking for impessions so that an IAM is only tracked once and not several times if it is reshown
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *viewedPageIDs;
 
-// Click action block to allow overridden behavior when clicking an IAM
-@property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
+@property (nonatomic) NSMutableArray<NSObject<OSInAppMessageClickListener> *> *clickListeners;
 
 @property (weak, nonatomic, nullable) NSObject<OSInAppMessageLifecycleListener> *inAppMessageDelegate;
 
@@ -173,6 +173,7 @@ static BOOL _isInAppMessagingPaused = false;
                                                                                           defaultValue:[NSArray<OSInAppMessageInternal *> new]];
         [self initializeTriggerController];
         self.messageDisplayQueue = [NSMutableArray new];
+        self.clickListeners = [NSMutableArray new];
         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
         
@@ -305,8 +306,12 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {
-    self.actionClickBlock = actionClickBlock;
+- (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [_clickListeners addObject:listener];
+}
+
+- (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [_clickListeners removeObject:listener];
 }
 
 - (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate {
@@ -617,13 +622,13 @@ static BOOL _isInAppMessagingPaused = false;
     return true;
 }
 
-- (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
-    switch (action.urlActionType) {
+- (void)handleMessageActionWithURL:(OSInAppMessageClickResult *)action {
+    switch (action.urlTarget) {
         case OSInAppMessageActionUrlTypeSafari:
-            [[UIApplication sharedApplication] openURL:action.clickUrl options:@{} completionHandler:^(BOOL success) {}];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:action.url] options:@{} completionHandler:^(BOOL success) {}];
             break;
         case OSInAppMessageActionUrlTypeWebview:
-            [OneSignalHelper displayWebView:action.clickUrl];
+            [OneSignalHelper displayWebView:[NSURL URLWithString:action.url]];
             break;
         case OSInAppMessageActionUrlTypeReplaceContent:
             // This case is handled by the in-app message view controller.
@@ -821,20 +826,26 @@ static BOOL _isInAppMessagingPaused = false;
     }];
 }
 
-- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {
     // Assign firstClick BOOL based on message being clicked previously or not
     action.firstClick = [message takeActionAsUnique];
     
-    if (action.clickUrl)
+    if (action.url)
         [self handleMessageActionWithURL:action];
     
     if (action.promptActions && action.promptActions.count > 0)
         [self handlePromptActions:action.promptActions withMessage:message];
-
-    if (self.actionClickBlock) {
-        // Any outcome sent on this callback should count as DIRECT from this IAM
+    
+    if (_clickListeners.count > 0) {
+        // Any outcome sent on the listener's callback should count as DIRECT from this IAM
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:message.messageId];
-        self.actionClickBlock(action);
+    }
+    
+    for (NSObject<OSInAppMessageClickListener> *listener in _clickListeners) {
+        if ([listener respondsToSelector:@selector(onClickInAppMessage:)]) {
+            OSInAppMessageClickEvent *event = [[OSInAppMessageClickEvent alloc] initWithInAppMessage:message clickResult:action];
+            [listener onClickInAppMessage:event];
+        }
     }
 
     if (message.isPreview) {
@@ -866,7 +877,7 @@ static BOOL _isInAppMessagingPaused = false;
 /*
 * Show the developer what will happen with a non IAM preview
  */
-- (void)processPreviewInAppMessage:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
+- (void)processPreviewInAppMessage:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {
      if (action.tags)
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tags detected inside of the action click payload, ignoring because action came from IAM preview\nTags: %@", action.tags.jsonRepresentation]];
 
@@ -885,7 +896,7 @@ static BOOL _isInAppMessagingPaused = false;
     return ([message.displayStats isRedisplayEnabled] && [message isClickAvailable:clickId]) || ![_clickedClickIds containsObject:clickId];
 }
 
-- (void)sendClickRESTCall:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
+- (void)sendClickRESTCall:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {
     let clickId = action.clickId;
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
@@ -925,7 +936,7 @@ static BOOL _isInAppMessagingPaused = false;
                                       }];
 }
 
-- (void)sendTagCallWithAction:(OSInAppMessageAction *)action {
+- (void)sendTagCallWithAction:(OSInAppMessageClickResult *)action {
     if (action.tags) {
         OSInAppMessageTag *tag = action.tags;
         if (tag.tagsToAdd)
@@ -1016,22 +1027,22 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 #pragma mark OSPushSubscriptionObserver Methods
-- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
+- (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state {
     // Don't pull IAMs if the new subscription ID is nil
-    if (stateChanges.to.id == nil) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
+    if (state.current.id == nil) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to nil subscription id"];
         return;
     }
     // Don't pull IAMs if the subscription ID has not changed
-    if (stateChanges.from.id != nil &&
-        [stateChanges.to.id isEqualToString:stateChanges.from.id]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to the same subscription id"];
+    if (state.previous.id != nil &&
+        [state.current.id isEqualToString:state.previous.id]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to the same subscription id"];
         return;
     }
 
     // Pull new IAMs when the subscription id changes to a new valid subscription id
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
-    [self getInAppMessagesFromServer:stateChanges.to.id];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to new valid subscription id"];
+    [self getInAppMessagesFromServer:state.current.id];
 }
 
 - (void)dealloc {
@@ -1047,14 +1058,15 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
 - (void)getInAppMessagesFromServer {}
-- (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {}
+- (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *)listener {}
+- (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *)listener {}
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {}
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message {}
 - (void)displayMessage:(OSInAppMessageInternal *)message {}
 - (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message {}
 - (void)evaluateMessages {}
 - (BOOL)shouldShowInAppMessage:(OSInAppMessageInternal *)message { return false; }
-- (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {}
+- (void)handleMessageActionWithURL:(OSInAppMessageClickResult *)action {}
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {}
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
@@ -1063,7 +1075,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
-- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {}
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {}
 - (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message {}
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged {}
