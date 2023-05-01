@@ -39,17 +39,27 @@
     [OSMessagingController start];
 }
 
-+ (void)setClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
++ (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener added successfully"];
+    [OSMessagingController.sharedInstance addInAppMessageClickListener:listener];
 }
 
-+ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
++ (void)removeClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageClickListener:listener];
 }
 
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value {
++ (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener added successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageDelegate:listener];
+}
+
++ (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageDelegate:listener];
+}
+
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
         return;
@@ -62,7 +72,7 @@
     [OSMessagingController.sharedInstance addTriggers:@{key : value}];
 }
 
-+ (void)addTriggers:(NSDictionary<NSString *,id> * _Nonnull)triggers {
++ (void)addTriggers:(NSDictionary<NSString *, NSString *> * _Nonnull)triggers {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
         return;
