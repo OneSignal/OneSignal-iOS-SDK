@@ -49,62 +49,91 @@
 
 @end
 
-@interface OSInAppMessageAction : NSObject
+typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
+    OSInAppMessageActionUrlTypeSafari,
+    
+    OSInAppMessageActionUrlTypeWebview,
+    
+    OSInAppMessageActionUrlTypeReplaceContent
+};
+
+@interface OSInAppMessageClickResult : NSObject
 
 // The action name attached to the IAM action
-@property (strong, nonatomic, nullable) NSString *clickName;
+@property (strong, nonatomic, nullable) NSString *actionId;
 
 // The URL (if any) that should be opened when the action occurs
-@property (strong, nonatomic, nullable) NSURL *clickUrl;
-
-//UUID for the page in an IAM Carousel
-@property (strong, nonatomic, nullable) NSString *pageId;
-
-// Whether or not the click action is first click on the IAM
-@property (nonatomic) BOOL firstClick;
+@property (strong, nonatomic, nullable) NSString *url;
 
 // Whether or not the click action dismisses the message
-@property (nonatomic) BOOL closesMessage;
+@property (nonatomic) BOOL closingMessage;
 
-// The outcome to send for this action
-@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
-
-// The tags to send for this action
-@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
+// Determines where the URL is loaded, ie. app opens a webview
+@property (nonatomic) OSInAppMessageActionUrlType urlTarget;
 
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
 @end
 
-@protocol OSInAppMessageDelegate <NSObject>
-@optional
-- (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
+@interface OSInAppMessageWillDisplayEvent : NSObject
+@property (nonatomic, readonly, nonnull) OSInAppMessage *message;
 @end
 
-@protocol OSInAppMessageLifecycleHandler <NSObject>
-@optional
-- (void)onWillDisplayInAppMessage:(OSInAppMessage *_Nonnull)message;
-- (void)onDidDisplayInAppMessage:(OSInAppMessage *_Nonnull)message;
-- (void)onWillDismissInAppMessage:(OSInAppMessage *_Nonnull)message;
-- (void)onDidDismissInAppMessage:(OSInAppMessage *_Nonnull)message;
+@interface OSInAppMessageDidDisplayEvent : NSObject
+@property (nonatomic, readonly, nonnull) OSInAppMessage *message;
 @end
 
+@interface OSInAppMessageWillDismissEvent : NSObject
+@property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+@end
+
+@interface OSInAppMessageDidDismissEvent : NSObject
+@property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+@end
+
+@protocol OSInAppMessageLifecycleListener <NSObject>
+@optional
+- (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *_Nonnull)event
+NS_SWIFT_NAME(onWillDisplay(event:));
+- (void)onDidDisplayInAppMessage:(OSInAppMessageDidDisplayEvent *_Nonnull)event
+NS_SWIFT_NAME(onDidDisplay(event:));
+- (void)onWillDismissInAppMessage:(OSInAppMessageWillDismissEvent *_Nonnull)event
+NS_SWIFT_NAME(onWillDismiss(event:));
+- (void)onDidDismissInAppMessage:(OSInAppMessageDidDismissEvent *_Nonnull)event
+NS_SWIFT_NAME(onDidDismiss(event:));
+@end
+
+@interface OSInAppMessageClickEvent : NSObject
+@property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+@property (nonatomic, readonly, nonnull) OSInAppMessageClickResult *result;
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+@end
+
+@protocol OSInAppMessageClickListener <NSObject>
+- (void)onClickInAppMessage:(OSInAppMessageClickEvent *_Nonnull)event
+NS_SWIFT_NAME(onClick(event:));
+@end
+
+/**
+ Public API for the InAppMessages namespace.
+ */
 @protocol OSInAppMessages <NSObject>
 
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
-+ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value;
++ (void)addTriggers:(NSDictionary<NSString *, NSString *> * _Nonnull)triggers;
 + (void)removeTrigger:(NSString * _Nonnull)key;
 + (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys;
 + (void)clearTriggers;
-// Allows Swift users to: OneSignal.InAppMessages.Paused = true
+// Allows Swift users to: OneSignal.InAppMessages.paused = true
 + (BOOL)paused NS_REFINED_FOR_SWIFT;
 + (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
 
-typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-+ (void)setClickHandler:(OSInAppMessageClickBlock _Nullable)block;
-+ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
-
++ (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener NS_REFINED_FOR_SWIFT;
++ (void)removeClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener NS_REFINED_FOR_SWIFT;
++ (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener NS_REFINED_FOR_SWIFT;
++ (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener NS_REFINED_FOR_SWIFT;
 @end
 
 @interface OneSignalInAppMessaging : NSObject <OSInAppMessages>
