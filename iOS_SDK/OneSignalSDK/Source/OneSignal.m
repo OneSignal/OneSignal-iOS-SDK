@@ -69,7 +69,6 @@
 #import "OneSignalDialogController.h"
 
 #import "OSMessagingController.h"
-#import "OSInAppMessageAction.h"
 #import "OSInAppMessageInternal.h"
 #import "OneSignalInAppMessaging.h"
 
