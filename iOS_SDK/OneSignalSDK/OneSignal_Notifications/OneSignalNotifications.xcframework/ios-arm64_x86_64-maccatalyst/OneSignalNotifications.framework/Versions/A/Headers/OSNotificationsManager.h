@@ -30,24 +30,40 @@
 #import <OneSignalNotifications/OSPermission.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <UIKit/UIKit.h>
+#import <OneSignalNotifications/OSNotification+OneSignal.h>
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+@protocol OSNotificationClickListener <NSObject>
+- (void)onClickNotification:(OSNotificationClickEvent *_Nonnull)event
+NS_SWIFT_NAME(onClick(event:));
+@end
+
+@interface OSNotificationWillDisplayEvent : NSObject
+
+@property (readonly, strong, nonatomic, nonnull) OSDisplayableNotification *notification; // TODO: strong? nonatomic? nullable?
+- (void)preventDefault;
+
+@end
+
+@protocol OSNotificationLifecycleListener <NSObject>
+- (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *_Nonnull)event NS_SWIFT_NAME(onWillDisplay(event:));
+@end
 
 /**
- Public API.
+ Public API for the Notifications namespace.
  */
 @protocol OSNotifications <NSObject>
 + (BOOL)permission NS_REFINED_FOR_SWIFT;
 + (BOOL)canRequestPermission NS_REFINED_FOR_SWIFT;
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
++ (OSNotificationPermission)permissionNative NS_REFINED_FOR_SWIFT;
++ (void)addForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
++ (void)removeForegroundLifecycleListener:(NSObject<OSNotificationLifecycleListener> *_Nullable)listener;
++ (void)addClickListener:(NSObject<OSNotificationClickListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
++ (void)removeClickListener:(NSObject<OSNotificationClickListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block NS_REFINED_FOR_SWIFT;
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
++ (void)addPermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
++ (void)removePermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
 + (void)clearAll;
 @end
 
@@ -64,6 +80,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 @interface OSNotificationsManager : NSObject <OSNotifications>
 
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
+@property (class, weak, nonatomic, nullable) NSObject<OSNotificationLifecycleListener> *lifecycleListener;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
 + (void)start;
@@ -96,9 +113,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 // This is set by the user module
 + (void)setPushSubscriptionId:(NSString *_Nullable)pushSubscriptionId;
 
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString* _Nonnull)actionID;
-
++ (void)handleWillShowInForegroundForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)handleNotificationActionWithUrl:(NSString* _Nullable)url actionID:(NSString* _Nonnull)actionID;
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 
 + (BOOL)receiveRemoteNotification:(UIApplication* _Nonnull)application UserInfo:(NSDictionary* _Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;

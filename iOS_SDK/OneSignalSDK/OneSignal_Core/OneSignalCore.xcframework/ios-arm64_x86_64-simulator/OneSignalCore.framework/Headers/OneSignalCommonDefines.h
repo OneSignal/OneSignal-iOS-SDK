@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050000-beta-02"
+#define ONESIGNAL_VERSION                                                   @"050000-beta-03"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -65,9 +65,12 @@
 #define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 #define OSUD_LANGUAGE                                                       @"OSUD_LANGUAGE"                                                    // * OSUD_LANGUAGE
 #define DEFAULT_LANGUAGE                                                    @"en"                                                               // * OSUD_LANGUAGE
-// Push Subscription
-#define OSUD_PUSH_SUBSCRIPTION_ID                                           @"GT_PLAYER_ID"                                                     // * OSUD_PUSH_SUBSCRIPTION_ID
-#define OSUD_PUSH_TOKEN                                                     @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN
+
+/* Push Subscription */
+#define OSUD_LEGACY_PLAYER_ID                                               @"GT_PLAYER_ID" // The legacy player ID from SDKs prior to 5.x.x
+#define OSUD_PUSH_SUBSCRIPTION_ID                                           @"OSUD_PUSH_SUBSCRIPTION_ID"
+#define OSUD_PUSH_TOKEN                                                     @"GT_DEVICE_TOKEN"
+
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
@@ -152,6 +155,7 @@
 
 // APNS params
 #define ONESIGNAL_IAM_PREVIEW @"os_in_app_message_preview_id"
+#define ONESIGNAL_POST_PREVIEW_IAM @"ONESIGNAL_POST_PREVIEW_IAM"
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 

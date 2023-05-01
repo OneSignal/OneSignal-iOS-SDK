@@ -36,20 +36,17 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
     OSNotificationActionTypeActionTaken
 };
 
-@interface OSNotificationAction : NSObject
-
-/* The type of the notification action */
-@property(readonly)OSNotificationActionType type;
-
+@interface OSNotificationClickResult : NSObject
 /* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
 @property(readonly, nullable)NSString* actionId;
+@property(readonly, nullable)NSString* url;
 
 @end
 
-@interface OSNotificationOpenedResult : NSObject
+@interface OSNotificationClickEvent : NSObject
 
 @property(readonly, nonnull)OSNotification* notification;
-@property(readonly, nonnull)OSNotificationAction *action;
+@property(readonly, nonnull)OSNotificationClickResult *result;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
