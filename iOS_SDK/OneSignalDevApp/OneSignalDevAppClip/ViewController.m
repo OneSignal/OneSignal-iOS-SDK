@@ -144,10 +144,6 @@
     [OneSignal.InAppMessages paused:(bool) !sender.selectedSegmentIndex];
 }
 
-- (void)handleMessageAction:(NSString *)actionId {
-    NSLog(@"View controller did get action: %@", actionId);
-}
-
 - (IBAction)loginExternalUserId:(UIButton *)sender {
     NSLog(@"setExternalUserId is no longer supported. Please use login or addAlias.");
     // TODO: Update

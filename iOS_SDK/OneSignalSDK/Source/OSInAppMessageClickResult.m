@@ -26,11 +26,11 @@
  */
 
 #import "OneSignalHelper.h"
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
 #import "OSInAppMessagePushPrompt.h"
 #import "OSInAppMessageLocationPrompt.h"
 
-@implementation OSInAppMessageAction
+@implementation OSInAppMessageClickResult
 
 #define OS_URL_ACTION_TYPES @[@"browser", @"webview", @"replacement"]
 #define OS_IS_VALID_URL_ACTION(string) [OS_URL_ACTION_TYPES containsObject:string]
@@ -49,7 +49,7 @@
 }
 
 + (instancetype _Nullable)instanceWithJson:(NSDictionary *)json {
-    OSInAppMessageAction *action = [OSInAppMessageAction new];
+    OSInAppMessageClickResult *action = [OSInAppMessageClickResult new]; // on click goes here
     
     if ([json[@"click_type"] isKindOfClass:[NSString class]])
         action.clickType = json[@"click_type"];
@@ -58,25 +58,25 @@
         action.clickId = json[@"id"];
     
     if ([json[@"url"] isKindOfClass:[NSString class]])
-        action.clickUrl = [NSURL URLWithString:json[@"url"]];
+        action.url = json[@"url"];
     
     if ([json[@"name"] isKindOfClass:[NSString class]])
-        action.clickName = json[@"name"];
+        action.actionId = json[@"name"];
     
     if ([json[@"pageId"] isKindOfClass:[NSString class]])
         action.pageId = json[@"pageId"];
     
     if ([json[@"url_target"] isKindOfClass:[NSString class]] && OS_IS_VALID_URL_ACTION(json[@"url_target"]))
-        action.urlActionType = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);
+        action.urlTarget = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);
     else
-        action.urlActionType = OSInAppMessageActionUrlTypeWebview;
+        action.urlTarget = OSInAppMessageActionUrlTypeWebview;
     
     if ([json[@"close"] isKindOfClass:[NSNumber class]])
-        action.closesMessage = [json[@"close"] boolValue];
+        action.closingMessage = [json[@"close"] boolValue];
     else
-        action.closesMessage = true; // Default behavior
+        action.closingMessage = true; // Default behavior
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSInAppMessageAction %@", json]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSInAppMessageClickResult %@", json]];
 
     NSMutableArray *outcomes = [NSMutableArray new];
     //TODO: when backend is ready check that key matches
@@ -122,30 +122,18 @@
 - (NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"click_name"] = self.clickName;
-    json[@"first_click"] = @(self.firstClick);
-    json[@"closes_message"] = @(self.closesMessage);
+    json[@"actionId"] = self.actionId;
+    json[@"urlTarget"] = @(self.urlTarget);
+    json[@"closingMessage"] = @(self.closingMessage);
     
-    if (self.clickUrl)
-        json[@"click_url"] = self.clickUrl.absoluteString;
-        
-    if (self.outcomes && self.outcomes.count > 0) {
-        let *jsonOutcomes = [NSMutableArray new];
-        for (OSInAppMessageOutcome *outcome in self.outcomes) {
-            [jsonOutcomes addObject:[outcome jsonRepresentation]];
-        }
-        
-        json[@"outcomes"] = jsonOutcomes;
-    }
-    
-    if (self.tags)
-        json[@"tags"] = [self.tags jsonRepresentation];
+    if (self.url)
+        json[@"url"] = self.url;
     
     return json;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessageAction outcome: %@ \ntag: %@ promptAction: %@", _outcomes, _tags, [_promptActions description]];
+    return [NSString stringWithFormat:@"OSInAppMessageClickResult actionId: %@ \nurl: %@ urlTarget: %@ closingMessage: %@", _actionId, _url, @(_urlTarget), @(_closingMessage)];
 }
 
 @end
