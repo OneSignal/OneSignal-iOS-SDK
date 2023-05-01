@@ -26,7 +26,7 @@
  */
 
 #import "OSInAppMessageBridgeEvent.h"
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
 #import "OneSignalHelper.h"
 
 @implementation OSInAppMessageBridgeEvent
@@ -55,7 +55,7 @@
             // deserialize the action JSON
             if ([json[@"body"] isKindOfClass:[NSDictionary class]]) {
                 
-                let action = [OSInAppMessageAction instanceWithJson:json[@"body"]];
+                let action = [OSInAppMessageClickResult instanceWithJson:json[@"body"]];
                 
                 if (!action)
                     return nil;

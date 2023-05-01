@@ -39,9 +39,14 @@
     [OSMessagingController start];
 }
 
-+ (void)setClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
++ (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener added successfully"];
+    [OSMessagingController.sharedInstance addInAppMessageClickListener:listener];
+}
+
++ (void)removeClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click listener removed successfully"];
+    [OSMessagingController.sharedInstance removeInAppMessageClickListener:listener];
 }
 
 + (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {

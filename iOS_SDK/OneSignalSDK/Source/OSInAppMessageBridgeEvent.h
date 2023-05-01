@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessageAction.h"
+#import "OSInAppMessageClickResult.h"
 #import "OSInAppMessagePage.h"
 #import "OSInAppMessagingDefines.h"
 #import <OneSignalCore/OneSignalCore.h>
@@ -59,7 +59,7 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
 @property (nonatomic) OSInAppMessageBridgeEventRenderingComplete *renderingComplete;
 @property (nonatomic) OSInAppMessageBridgeEventResize *resize;
 @property (nonatomic, nullable) OSInAppMessageBridgeEventPageChange *pageChange;
-@property (strong, nonatomic, nullable) OSInAppMessageAction *userAction;
+@property (strong, nonatomic, nullable) OSInAppMessageClickResult *userAction;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -84,6 +84,14 @@ public extension OSInAppMessages {
     static func removeLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
         __remove(listener)
     }
+    
+    static func addClickListener(_ listener: OSInAppMessageClickListener) {
+        __add(listener)
+    }
+    
+    static func removeClickListener(_ listener: OSInAppMessageClickListener) {
+        __remove(listener)
+    }
 }
 
 public extension OSSession {
@@ -115,6 +123,14 @@ public extension OSNotifications {
 
     static func removePermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __remove(observer)
+    }
+    
+    static func addClickListener(_ listener: OSNotificationClickListener) {
+        return __add(listener)
+    }
+    
+    static func removeClickListener(_ listener: OSNotificationClickListener) {
+        return __remove(listener)
     }
 }
 
