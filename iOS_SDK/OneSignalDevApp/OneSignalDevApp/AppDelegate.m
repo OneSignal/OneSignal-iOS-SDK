@@ -57,16 +57,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
-    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        // TODO: opened handler Not triggered
-        NSLog(@"OSNotificationOpenedResult: %@", result.action);
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated"
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
-        [alert show];
-        #pragma clang diagnostic pop
-    };
-    
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
@@ -75,8 +65,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages paused:true];
 
     [OneSignal.Notifications addForegroundLifecycleListener:self];
-    [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
-
+    [OneSignal.Notifications addClickListener:self];
     [OneSignal.User.pushSubscription addObserver:self];
     NSLog(@"OneSignal Demo App push subscription observer added");
     
@@ -113,6 +102,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"Dev App onPushSubscriptionDidChange: %@", state);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
     mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) state.current.optedIn;
+}
+
+- (void)onClickNotification:(OSNotificationClickEvent * _Nonnull)event {
+    NSLog(@"Dev App onClickNotification with event %@", [event jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate
