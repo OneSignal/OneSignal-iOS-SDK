@@ -6,23 +6,30 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		oEl/zIaUqtROxoIoRGFRNMWAkoA=
+		wZF8pr1eVx+bG5d7Xeubz9+KWsY=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/OSNotification+OneSignal.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			TjmMlUT2NwavUY9vmI1J/jKWNitH3BmnRhTFbxi/hFI=
+			</data>
+		</dict>
 		<key>Headers/OSNotificationsManager.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			nKf7swIdE7nNaMQSUb4zVai9kc5GQ6q688e70+/DI+0=
+			2DVrPag7fbzb4a37OKkXWgqFNLmmIgQtca5KoRvHRf4=
 			</data>
 		</dict>
 		<key>Headers/OSPermission.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			JxV18zHBcSfBdSE4SthTcFM8lh1Skeovfq8dLvqbZQ4=
+			bVVspWwiLLui0t7V8zeUrgo3z76K4Tf39OMg1AyU8MY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalNotificationSettings.h</key>
@@ -36,7 +43,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			i5bdYE2EfQMqDvjFUyJn6nn0Q4hxTCxA67oiaIghyk8=
+			SRf5hX7AJJVgd8lijJKyIF6h3QV+r5nhEhKAAN8Q10w=
 			</data>
 		</dict>
 		<key>Headers/OneSignalWebView.h</key>
@@ -64,7 +71,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			BS54kHIT9QhOusj476t7fLDEUXpisZWGSYWMgLFwoag=
+			IXrPsdNJT9u4GQpeskKPwQMuysjt8t1Hq9fzsWuO/jk=
 			</data>
 		</dict>
 	</dict>

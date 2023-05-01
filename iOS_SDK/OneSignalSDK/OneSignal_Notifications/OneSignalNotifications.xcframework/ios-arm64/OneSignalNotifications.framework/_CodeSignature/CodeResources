@@ -4,13 +4,17 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Headers/OSNotification+OneSignal.h</key>
+		<data>
+		Fbx0XEyM2xRwNCuzNnuMnHzMEQs=
+		</data>
 		<key>Headers/OSNotificationsManager.h</key>
 		<data>
-		MYtJjw3n2bJyqHtieyHKLQEzbW4=
+		PbViCtgqasWbh8KTMbNIXdM5uRo=
 		</data>
 		<key>Headers/OSPermission.h</key>
 		<data>
-		OoBkZvJeBgL9HEIzTJEf6U1TnoM=
+		ER0tEZTvaPjBUG+nK+Z32RA06vI=
 		</data>
 		<key>Headers/OneSignalNotificationSettings.h</key>
 		<data>
@@ -18,7 +22,7 @@
 		</data>
 		<key>Headers/OneSignalNotifications.h</key>
 		<data>
-		3tgLo9RWNkQ6hW5wgJwVt+ruCug=
+		nCGohPBn+Ufq6Q3K1p707iBRzEI=
 		</data>
 		<key>Headers/OneSignalWebView.h</key>
 		<data>
@@ -30,7 +34,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		yVPBnsiWTLA3FnSd6qSC3J+dPLU=
+		vdXPIWpVcPL6DHJgCfrS1yid4y0=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -39,18 +43,25 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/OSNotification+OneSignal.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			TjmMlUT2NwavUY9vmI1J/jKWNitH3BmnRhTFbxi/hFI=
+			</data>
+		</dict>
 		<key>Headers/OSNotificationsManager.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			nKf7swIdE7nNaMQSUb4zVai9kc5GQ6q688e70+/DI+0=
+			2DVrPag7fbzb4a37OKkXWgqFNLmmIgQtca5KoRvHRf4=
 			</data>
 		</dict>
 		<key>Headers/OSPermission.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			JxV18zHBcSfBdSE4SthTcFM8lh1Skeovfq8dLvqbZQ4=
+			bVVspWwiLLui0t7V8zeUrgo3z76K4Tf39OMg1AyU8MY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalNotificationSettings.h</key>
@@ -64,7 +75,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			i5bdYE2EfQMqDvjFUyJn6nn0Q4hxTCxA67oiaIghyk8=
+			SRf5hX7AJJVgd8lijJKyIF6h3QV+r5nhEhKAAN8Q10w=
 			</data>
 		</dict>
 		<key>Headers/OneSignalWebView.h</key>

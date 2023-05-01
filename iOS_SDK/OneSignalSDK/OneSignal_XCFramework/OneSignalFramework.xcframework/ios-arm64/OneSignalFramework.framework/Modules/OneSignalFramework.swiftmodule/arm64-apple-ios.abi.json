@@ -394,19 +394,26 @@
           },
           {
             "kind": "Var",
-            "name": "requiresPrivacyConsent",
-            "printedName": "requiresPrivacyConsent",
+            "name": "LiveActivities",
+            "printedName": "LiveActivities",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
+                "name": "ExistentialMetatype",
+                "printedName": "OneSignalFramework.OSLiveActivities.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSLiveActivities",
+                    "printedName": "OneSignalFramework.OSLiveActivities",
+                    "usr": "c:objc(pl)OSLiveActivities"
+                  }
+                ]
               }
             ],
             "declKind": "Var",
-            "usr": "s:So9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvpZ",
-            "mangledName": "$sSo9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvpZ",
+            "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvpZ",
+            "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvpZ",
             "moduleName": "OneSignalFramework",
             "static": true,
             "declAttributes": [
@@ -421,14 +428,21 @@
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
+                    "name": "ExistentialMetatype",
+                    "printedName": "OneSignalFramework.OSLiveActivities.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSLiveActivities",
+                        "printedName": "OneSignalFramework.OSLiveActivities",
+                        "usr": "c:objc(pl)OSLiveActivities"
+                      }
+                    ]
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvgZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvgZ",
+                "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvgZ",
+                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvgZ",
                 "moduleName": "OneSignalFramework",
                 "static": true,
                 "declAttributes": [
@@ -436,155 +450,6 @@
                 ],
                 "isFromExtension": true,
                 "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvsZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvsZ",
-                "moduleName": "OneSignalFramework",
-                "static": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "isFromExtension": true,
-                "accessorKind": "set"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Modify",
-                "printedName": "Modify()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvMZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE22requiresPrivacyConsentSbvMZ",
-                "moduleName": "OneSignalFramework",
-                "static": true,
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "isFromExtension": true,
-                "accessorKind": "_modify"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "privacyConsent",
-            "printedName": "privacyConsent",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:So9OneSignalC0aB9FrameworkE14privacyConsentSbvpZ",
-            "mangledName": "$sSo9OneSignalC0aB9FrameworkE14privacyConsentSbvpZ",
-            "moduleName": "OneSignalFramework",
-            "static": true,
-            "declAttributes": [
-              "Final"
-            ],
-            "isFromExtension": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE14privacyConsentSbvgZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14privacyConsentSbvgZ",
-                "moduleName": "OneSignalFramework",
-                "static": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "isFromExtension": true,
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE14privacyConsentSbvsZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14privacyConsentSbvsZ",
-                "moduleName": "OneSignalFramework",
-                "static": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "isFromExtension": true,
-                "accessorKind": "set"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Modify",
-                "printedName": "Modify()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE14privacyConsentSbvMZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14privacyConsentSbvMZ",
-                "moduleName": "OneSignalFramework",
-                "static": true,
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "isFromExtension": true,
-                "accessorKind": "_modify"
               }
             ]
           }
@@ -708,8 +573,8 @@
         "children": [
           {
             "kind": "Var",
-            "name": "Paused",
-            "printedName": "Paused",
+            "name": "paused",
+            "printedName": "paused",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -719,8 +584,8 @@
               }
             ],
             "declKind": "Var",
-            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvpZ",
-            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvpZ",
+            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvpZ",
+            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvpZ",
             "moduleName": "OneSignalFramework",
             "static": true,
             "isFromExtension": true,
@@ -738,8 +603,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvgZ",
-                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvgZ",
+                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvgZ",
+                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvgZ",
                 "moduleName": "OneSignalFramework",
                 "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
                 "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
@@ -765,8 +630,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvsZ",
-                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvsZ",
+                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvsZ",
+                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvsZ",
                 "moduleName": "OneSignalFramework",
                 "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
                 "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
@@ -786,8 +651,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvMZ",
-                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6PausedSbvMZ",
+                "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ",
+                "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ",
                 "moduleName": "OneSignalFramework",
                 "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
                 "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
@@ -797,6 +662,114 @@
                 "accessorKind": "_modify"
               }
             ]
+          },
+          {
+            "kind": "Function",
+            "name": "addLifecycleListener",
+            "printedName": "addLifecycleListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSInAppMessageLifecycleListener",
+                "printedName": "OneSignalFramework.OSInAppMessageLifecycleListener",
+                "usr": "c:objc(pl)OSInAppMessageLifecycleListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE20addLifecycleListeneryySo0ab7MessagehI0_pFZ",
+            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE20addLifecycleListeneryySo0ab7MessagehI0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeLifecycleListener",
+            "printedName": "removeLifecycleListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSInAppMessageLifecycleListener",
+                "printedName": "OneSignalFramework.OSInAppMessageLifecycleListener",
+                "usr": "c:objc(pl)OSInAppMessageLifecycleListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE23removeLifecycleListeneryySo0ab7MessagehI0_pFZ",
+            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE23removeLifecycleListeneryySo0ab7MessagehI0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addClickListener",
+            "printedName": "addClickListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSInAppMessageClickListener",
+                "printedName": "OneSignalFramework.OSInAppMessageClickListener",
+                "usr": "c:objc(pl)OSInAppMessageClickListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE16addClickListeneryySo0ab7MessagehI0_pFZ",
+            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE16addClickListeneryySo0ab7MessagehI0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeClickListener",
+            "printedName": "removeClickListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSInAppMessageClickListener",
+                "printedName": "OneSignalFramework.OSInAppMessageClickListener",
+                "usr": "c:objc(pl)OSInAppMessageClickListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE19removeClickListeneryySo0ab7MessagehI0_pFZ",
+            "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE19removeClickListeneryySo0ab7MessagehI0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Protocol",
@@ -954,6 +927,49 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "permissionNative",
+            "printedName": "permissionNative",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSNotificationPermission",
+                "printedName": "OneSignalNotifications.OSNotificationPermission",
+                "usr": "c:@E@OSNotificationPermission"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvpZ",
+            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvpZ",
+            "moduleName": "OneSignalFramework",
+            "static": true,
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSNotificationPermission",
+                    "printedName": "OneSignalNotifications.OSNotificationPermission",
+                    "usr": "c:@E@OSNotificationPermission"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:So15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvgZ",
+                "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvgZ",
+                "moduleName": "OneSignalFramework",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalNotifications.OSNotifications>",
+                "sugared_genericSig": "<Self where Self : OneSignalNotifications.OSNotifications>",
+                "static": true,
+                "isFromExtension": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "registerForProvisionalAuthorization",
             "printedName": "registerForProvisionalAuthorization(_:)",
@@ -1012,14 +1028,14 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "OSPermissionObserver",
-                "printedName": "OneSignalNotifications.OSPermissionObserver",
-                "usr": "c:objc(pl)OSPermissionObserver"
+                "name": "OSNotificationPermissionObserver",
+                "printedName": "OneSignalNotifications.OSNotificationPermissionObserver",
+                "usr": "c:objc(pl)OSNotificationPermissionObserver"
               }
             ],
             "declKind": "Func",
-            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE21addPermissionObserveryySo012OSPermissionG0_pFZ",
-            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE21addPermissionObserveryySo012OSPermissionG0_pFZ",
+            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE21addPermissionObserveryySo014OSNotificationfG0_pFZ",
+            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE21addPermissionObserveryySo014OSNotificationfG0_pFZ",
             "moduleName": "OneSignalFramework",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalNotifications.OSNotifications>",
             "sugared_genericSig": "<Self where Self : OneSignalNotifications.OSNotifications>",
@@ -1039,14 +1055,68 @@
               },
               {
                 "kind": "TypeNominal",
-                "name": "OSPermissionObserver",
-                "printedName": "OneSignalNotifications.OSPermissionObserver",
-                "usr": "c:objc(pl)OSPermissionObserver"
+                "name": "OSNotificationPermissionObserver",
+                "printedName": "OneSignalNotifications.OSNotificationPermissionObserver",
+                "usr": "c:objc(pl)OSNotificationPermissionObserver"
               }
             ],
             "declKind": "Func",
-            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE24removePermissionObserveryySo012OSPermissionG0_pFZ",
-            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE24removePermissionObserveryySo012OSPermissionG0_pFZ",
+            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE24removePermissionObserveryySo014OSNotificationfG0_pFZ",
+            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE24removePermissionObserveryySo014OSNotificationfG0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalNotifications.OSNotifications>",
+            "sugared_genericSig": "<Self where Self : OneSignalNotifications.OSNotifications>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addClickListener",
+            "printedName": "addClickListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSNotificationClickListener",
+                "printedName": "OneSignalNotifications.OSNotificationClickListener",
+                "usr": "c:objc(pl)OSNotificationClickListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE16addClickListeneryySo014OSNotificationfG0_pFZ",
+            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE16addClickListeneryySo014OSNotificationfG0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalNotifications.OSNotifications>",
+            "sugared_genericSig": "<Self where Self : OneSignalNotifications.OSNotifications>",
+            "static": true,
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeClickListener",
+            "printedName": "removeClickListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSNotificationClickListener",
+                "printedName": "OneSignalNotifications.OSNotificationClickListener",
+                "usr": "c:objc(pl)OSNotificationClickListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So15OSNotificationsP18OneSignalFrameworkE19removeClickListeneryySo014OSNotificationfG0_pFZ",
+            "mangledName": "$sSo15OSNotificationsP18OneSignalFrameworkE19removeClickListeneryySo014OSNotificationfG0_pFZ",
             "moduleName": "OneSignalFramework",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalNotifications.OSNotifications>",
             "sugared_genericSig": "<Self where Self : OneSignalNotifications.OSNotifications>",

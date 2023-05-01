@@ -49,6 +49,7 @@
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 #import "OneSignalInAppMessaging.h"
+#import "OneSignalLiveActivityController.h"
 #import "OneSignalLocation.h"
 
 #pragma clang diagnostic push
@@ -85,24 +86,18 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Live Activity
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId;
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
++ (Class<OSLiveActivities>)LiveActivities NS_REFINED_FOR_SWIFT;
 
 #pragma mark Logging
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
 
 #pragma mark Privacy Consent
-+ (void)setPrivacyConsent:(BOOL)granted NS_REFINED_FOR_SWIFT;
-+ (BOOL)getPrivacyConsent NS_REFINED_FOR_SWIFT;
 /**
- * Tells your application if privacy consent is still needed from the current device.
+ * Set to `true` if your application requires privacy consent.
  * Consent should be provided prior to the invocation of `initialize` to ensure compliance.
  */
-+ (BOOL)requiresPrivacyConsent NS_REFINED_FOR_SWIFT;
-+ (void)setRequiresPrivacyConsent:(BOOL)required NS_REFINED_FOR_SWIFT;
++ (void)setConsentRequired:(BOOL)required;
++ (void)setConsentGiven:(BOOL)granted;
 
 #pragma mark In-App Messaging
 + (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
