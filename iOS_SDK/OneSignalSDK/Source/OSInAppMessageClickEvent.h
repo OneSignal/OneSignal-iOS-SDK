@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021OneSignal
+ * Copyright 2023 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,14 @@
  * THE SOFTWARE.
  */
 
-
 #import <Foundation/Foundation.h>
-#import <OneSignalCore/OSNotification.h>
+#import "OneSignalInAppMessaging.h"
+#import "OSInAppMessageInternal.h"
 
-/**
- Public interface used in the OSNotificationLifecycleListener's onWillDisplay event.
- */
-@interface OSDisplayableNotification : OSNotification
-- (void)display;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface OSInAppMessageClickEvent ()
+- (instancetype _Nonnull)initWithInAppMessage:(OSInAppMessageInternal *)message clickResult:(OSInAppMessageClickResult *)result;
 @end
+
+NS_ASSUME_NONNULL_END

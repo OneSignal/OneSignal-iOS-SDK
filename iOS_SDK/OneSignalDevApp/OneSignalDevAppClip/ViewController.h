@@ -31,7 +31,7 @@
 #import <UIKit/UIKit.h>
 #import <OneSignalFramework/OneSignalFramework.h>
 
-@interface ViewController : UIViewController <OSInAppMessageDelegate>
+@interface ViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
