@@ -47,8 +47,9 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 };
 
 // Permission Classes
+
+// TODO: this object can be REMOVED now that permission is a boolean
 @interface OSPermissionState : NSObject
-// TODO: Decide: remove/change properties after addition of canRequestPermission and permission boolean
 @property (readonly, nonatomic) BOOL permission;
 - (NSDictionary * _Nonnull)jsonRepresentation;
 - (instancetype _Nonnull )initWithPermission:(BOOL)permission;
@@ -87,11 +88,11 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 - (NSDictionary * _Nonnull)jsonRepresentation;
 @end
 
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionState * _Nonnull)state;
+@protocol OSNotificationPermissionObserver <NSObject>
+- (void)onNotificationPermissionDidChange:(BOOL)permission;
 @end
 
-typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionState*> ObservablePermissionStateChangesType;
+typedef OSBoolObservable<NSObject<OSNotificationPermissionObserver>*> ObservablePermissionStateChangesType;
 
 
 @interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>

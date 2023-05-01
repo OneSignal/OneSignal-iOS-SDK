@@ -738,9 +738,9 @@
             case OSInAppMessageBridgeEventTypeActionTaken: {
                 if (event.userAction.clickType)
                    [self.delegate messageViewDidSelectAction:self.message withAction:event.userAction];
-                if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
-                   [self.messageView loadReplacementURL:event.userAction.clickUrl];
-                if (event.userAction.closesMessage)
+                if (event.userAction.urlTarget == OSInAppMessageActionUrlTypeReplaceContent)
+                    [self.messageView loadReplacementURL:[NSURL URLWithString:event.userAction.url]];
+                if (event.userAction.closingMessage)
                    [self dismissCurrentInAppMessage];
                 break;
             }

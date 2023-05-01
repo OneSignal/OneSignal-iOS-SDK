@@ -107,14 +107,14 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
 @end
 
 @implementation OSRequestLiveActivityEnter
-+ (instancetype)withUserId:(NSString * _Nonnull)userId
++ (instancetype)withSubscriptionId:(NSString * _Nonnull)subscriptionId
                      appId:(NSString * _Nonnull)appId
                 activityId:(NSString * _Nonnull)activityId
                      token:(NSString * _Nonnull)token {
     let request = [OSRequestLiveActivityEnter new];
     let params = [NSMutableDictionary new];
     params[@"push_token"] = token;
-    params[@"subscription_id"] = userId; // pre-5.X.X subscription_id = player_id = userId
+    params[@"subscription_id"] = subscriptionId; // pre-5.X.X subscription_id = player_id = userId
     params[@"device_type"] = @0;
     request.parameters = params;
     request.method = POST;
@@ -127,7 +127,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
 @end
 
 @implementation OSRequestLiveActivityExit
-+ (instancetype)withUserId:(NSString * _Nonnull)userId
++ (instancetype)withSubscriptionId:(NSString * _Nonnull)subscriptionId
                      appId:(NSString * _Nonnull)appId
                 activityId:(NSString * _Nonnull)activityId {
     let request = [OSRequestLiveActivityExit new];
@@ -135,7 +135,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     
     NSString *urlSafeActivityId = [activityId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLUserAllowedCharacterSet]];
     
-    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, urlSafeActivityId, userId];
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, urlSafeActivityId, subscriptionId];
     
     return request;
 }
