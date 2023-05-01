@@ -40,4 +40,13 @@
 - (BOOL)notifyChange:(ObjectType)state;
 @end
 
+// OSBoolObservable is for BOOL states which OSObservable above does not work with
+
+@interface OSBoolObservable<__covariant ObserverType> : NSObject
+- (instancetype _Nonnull)initWithChangeSelector:(SEL)selector;
+- (void)addObserver:(ObserverType)observer;
+- (void)removeObserver:(ObserverType)observer;
+- (BOOL)notifyChange:(BOOL)state;
+@end
+
 #endif /* OSObservable_h */
