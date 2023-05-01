@@ -95,3 +95,76 @@ SEL changeSelector;
 #pragma clang diagnostic pop
 
 @end
+
+
+@implementation OSBoolObservable {
+NSHashTable* observers;
+SEL changeSelector;
+}
+
+- (instancetype _Nonnull)initWithChangeSelector:(SEL)selector {
+    if (self = [super init]) {
+        observers = [NSHashTable weakObjectsHashTable];
+        changeSelector = selector;
+    }
+    return self;
+}
+
+- (instancetype)init {
+    if (self = [super init])
+        observers = [NSHashTable new];
+    return self;
+}
+
+- (void)addObserver:(id)observer {
+    @synchronized(observers) {
+        [observers addObject:observer];
+    }
+}
+
+- (void)removeObserver:(id)observer {
+    @synchronized(observers) {
+        [observers removeObject:observer];
+    }
+}
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
+- (BOOL)notifyChange:(BOOL)state {
+    BOOL fired = false;
+    
+    @synchronized(observers) {
+        NSArray *obs = [observers copy];
+        for (id observer in obs) {
+            fired = true;
+            if (changeSelector) {
+                // Any Observable setup to fire a custom selector with changeSelector
+                //  is external to our SDK. Run on the main thread in case the
+                //  app developer needs to update UI elements.
+                
+                [self callObserver:observer withSelector:changeSelector withState:state];
+            }
+        }
+    }
+    
+    return fired;
+}
+
+- (void)callObserver:(id)observer withSelector:(SEL)selector withState:(BOOL)state {
+    [OneSignalCoreHelper dispatch_async_on_main_queue:^{
+        // The following declaration is to resolve: Sending 'const BOOL *' (aka 'const bool *') to parameter of type 'void * _Nonnull' discards qualifiers
+        BOOL boolValue = state;
+
+        NSMethodSignature* signature = [[observer class] instanceMethodSignatureForSelector:self->changeSelector];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget: observer];
+        [invocation setSelector:self->changeSelector];
+        [invocation setArgument: &boolValue atIndex: 2];
+        [invocation invoke];
+    }];
+}
+
+#pragma clang diagnostic pop
+
+@end
