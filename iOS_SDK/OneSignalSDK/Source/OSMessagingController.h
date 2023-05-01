@@ -64,8 +64,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)getTriggers;
 - (id)getTriggerValueForKey:(NSString *)key;
 
-- (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock;
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
+- (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
+- (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate;
+- (void)removeInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate;
 
 @end
 
