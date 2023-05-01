@@ -57,44 +57,21 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
-    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        // TODO: opened handler Not triggered
-        NSLog(@"OSNotificationOpenedResult: %@", result.action);
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated"
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
-        [alert show];
-        #pragma clang diagnostic pop
-    };
-    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
-        NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
-    };
-    
-    // Example block for IAM action click handler
-    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
-    };
-
-    // Example setter for IAM action click handler using OneSignal public method
-    [OneSignal.InAppMessages setClickHandler:inAppMessagingActionClickBlock];
-    
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     
-    [OneSignal.InAppMessages setLifecycleHandler:self];
+    [OneSignal.InAppMessages addLifecycleListener:self];
     [OneSignal.InAppMessages paused:true];
 
-    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
-    [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
-
+    [OneSignal.Notifications addForegroundLifecycleListener:self];
+    [OneSignal.Notifications addClickListener:self];
     [OneSignal.User.pushSubscription addObserver:self];
     NSLog(@"OneSignal Demo App push subscription observer added");
     
     [OneSignal.Notifications addPermissionObserver:self];
-    
+    [OneSignal.InAppMessages addClickListener:self];
+
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
@@ -121,36 +98,47 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"Dev App onNotificationPermissionDidChange: %d", permission);
 }
 
-- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {
-    NSLog(@"Dev App onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
+- (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState *)state {
+    NSLog(@"Dev App onPushSubscriptionDidChange: %@", state);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.optedIn;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) state.current.optedIn;
+}
+
+- (void)onClickNotification:(OSNotificationClickEvent * _Nonnull)event {
+    NSLog(@"Dev App onClickNotification with event %@", [event jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate
 
-- (void)handleMessageAction:(OSInAppMessageAction *)action {
-    NSLog(@"OSInAppMessageDelegate: handling message action: %@",action);
+- (void)onClickInAppMessage:(OSInAppMessageClickEvent * _Nonnull)event {
+    NSLog(@"Dev App onClickInAppMessage event: %@", [event jsonRepresentation]);
+}
+
+- (void)onWillDisplayNotification:(OSNotificationWillDisplayEvent *)event {
+    NSLog(@"Dev App OSNotificationWillDisplayEvent with event: %@",event);
+    [event preventDefault];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [event.notification display];
+    });
+}
+
+- (void)onWillDisplayInAppMessage:(OSInAppMessageWillDisplayEvent *)event {
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onWillDisplay Message: %@",event.message);
     return;
 }
 
-- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onWillDisplay Message: %@",message);
+- (void)onDidDisplayInAppMessage:(OSInAppMessageDidDisplayEvent *)event {
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onDidDisplay Message: %@",event.message);
     return;
 }
 
-- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onDidDisplay Message: %@",message);
+- (void)onWillDismissInAppMessage:(OSInAppMessageWillDismissEvent *)event {
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onWillDismiss Message: %@",event.message);
     return;
 }
 
-- (void)onWillDismissInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onWillDismiss Message: %@",message);
-    return;
-}
-
-- (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
-    NSLog(@"OSInAppMessageDelegate: onDidDismiss Message: %@",message);
+- (void)onDidDismissInAppMessage:(OSInAppMessageDidDismissEvent *)event {
+    NSLog(@"Dev App OSInAppMessageLifecycleListener: onDidDismiss Message: %@",event.message);
     return;
 }
 
