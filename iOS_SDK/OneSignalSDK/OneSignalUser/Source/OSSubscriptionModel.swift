@@ -82,7 +82,7 @@ public class OSPushSubscriptionChangedState: NSObject {
     }
 
     @objc public func jsonRepresentation() -> NSDictionary {
-        return ["from": previous.jsonRepresentation(), "to": current.jsonRepresentation()]
+        return ["previous": previous.jsonRepresentation(), "current": current.jsonRepresentation()]
     }
 }
 
