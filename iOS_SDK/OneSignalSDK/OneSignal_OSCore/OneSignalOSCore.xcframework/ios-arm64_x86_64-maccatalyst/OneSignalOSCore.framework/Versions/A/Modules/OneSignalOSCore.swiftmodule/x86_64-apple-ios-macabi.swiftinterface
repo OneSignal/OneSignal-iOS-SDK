@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.8 (swiftlang-5.8.0.124.1 clang-1403.0.22.11.100)
+// swift-compiler-version: Apple Swift version 5.7.1 (swiftlang-5.7.1.135.3 clang-1400.0.29.51)
 // swift-module-flags: -target x86_64-apple-ios13.1-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
 // swift-module-flags-ignorable: -enable-bare-slash-regex
 import Foundation
@@ -11,7 +11,7 @@ import _StringProcessing
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
   public static let sharedInstance: OneSignalOSCore.OSOperationRepo
   public func start()
-  public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
+  public func addExecutor(_ executor: OneSignalOSCore.OSOperationExecutor)
   @objc public func flushDeltaQueue()
   @objc override dynamic public init()
   @objc deinit
@@ -24,7 +24,7 @@ import _StringProcessing
   @objc deinit
 }
 open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
-  public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
+  public init(changeSubscription: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
   public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
   @objc deinit
   public func getModel(key: Swift.String) -> TModel?
@@ -39,8 +39,8 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
 }
 @objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
   final public let modelId: Swift.String
-  public var changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>
-  public init(changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>)
+  public var changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>
+  public init(changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>)
   @objc open func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
   public func set<T>(property: Swift.String, newValue: T)
@@ -54,7 +54,7 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   @objc func setTaskInvalid(_ taskIdentifier: Swift.String)
 }
 @_inheritsConvenienceInitializers @objc public class OSBackgroundTaskManager : ObjectiveC.NSObject {
-  @objc weak public static var delegate: (any OneSignalOSCore.OSBackgroundTaskManagerDelegate)?
+  @objc weak public static var delegate: OneSignalOSCore.OSBackgroundTaskManagerDelegate?
   @objc public static func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func endBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func setTaskInvalid(_ taskIdentifier: Swift.String)
