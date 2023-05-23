@@ -26,7 +26,6 @@
  */
 
 import XCTest
-import OneSignalFramework
 
 // Non-class type 'OSPushSubscriptionTestObserver' cannot conform to class protocol 'OSPushSubscriptionObserver'
 // ^ Cannot use a struct for an OSPushSubscriptionObserver
