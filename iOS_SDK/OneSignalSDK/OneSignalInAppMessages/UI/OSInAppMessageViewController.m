@@ -29,6 +29,8 @@
 #import "OSInAppMessageView.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import "OSSessionManager.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f

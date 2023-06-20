@@ -27,8 +27,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <OneSignalOutcomes/OneSignalOutcomes.h>
-
 @interface OSInAppMessage : NSObject
 
 @property (strong, nonatomic, nonnull) NSString *messageId;
@@ -136,9 +134,10 @@ NS_SWIFT_NAME(onClick(event:));
 + (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener NS_REFINED_FOR_SWIFT;
 @end
 
-@interface OneSignalInAppMessaging : NSObject <OSInAppMessages>
+@interface OneSignalInAppMessages : NSObject <OSInAppMessages>
 
 + (Class<OSInAppMessages>_Nonnull)InAppMessages;
 + (void)start;
++ (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
 
 @end

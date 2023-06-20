@@ -28,7 +28,7 @@
 #import "OneSignalInAppMessages.h"
 #import "OSMessagingController.h"
 
-@implementation OneSignalInAppMessaging
+@implementation OneSignalInAppMessages
 
 + (Class<OSInAppMessages>)InAppMessages {
     return self;
@@ -37,6 +37,10 @@
 + (void)start {
     // Initialize the shared instance and start observing the push subscription
     [OSMessagingController start];
+}
+
++ (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId {
+    [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
 }
 
 + (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
