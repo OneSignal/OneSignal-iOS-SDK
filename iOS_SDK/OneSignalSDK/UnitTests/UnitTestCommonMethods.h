@@ -28,29 +28,27 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 // TODO: Commented out 🧪
-//#import "OneSignal.h"
+#import "OneSignalFramework.h"
 //#import "UIApplication+OneSignal.h"
-//#import "OneSignalNotificationCategoryController.h"
-//
-//#define TEST_EXTERNAL_USER_ID_HASH_TOKEN @"i_am_a_test_external_user_id_hash_token"
-//#define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
-//#define TEST_EMAIL_HASH_TOKEN @"i_am_a_test_email_hash_token"
-//#define TEST_EMAIL @"test@onesignal.com"
-//
-//NSString * serverUrlWithPath(NSString *path);
-//
-//@interface UnitTestCommonMethods : NSObject
-//
-//// Inits with no thread waits, foregrounding app, or running selectors
-//+ (void)initOneSignal;
+#import "OneSignalNotificationCategoryController.h"
+
+#define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
+#define TEST_EMAIL @"test@onesignal.com"
+
+NSString * serverUrlWithPath(NSString *path);
+
+@interface UnitTestCommonMethods : NSObject
+
+// Inits with no thread waits, foregrounding app, or running selectors
++ (void)initOneSignal;
 //+ (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
 //        notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
 //+ (void)initOneSignalWithAppId_andThreadWait:(NSString*)appId
 //                          withLaunchOptions:(NSDictionary*)launchOptions
 //withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
 //              withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-//// Inits with thread waits
-//+ (void)initOneSignal_andThreadWait;
+// Inits with thread waits
++ (void)initOneSignal_andThreadWait;
 //+ (void)initOneSignal_andThreadWaitWithForeground;
 //+ (void)initOneSignalWithHanders_andThreadWait:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
 //                      notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
@@ -59,12 +57,12 @@
 //withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
 // withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
 //
-//+ (void)runBackgroundThreads;
++ (void)runBackgroundThreads;
 //+ (void)runLongBackgroundThreads;
 //+ (void)clearStateForAppRestart:(XCTestCase *)testCase;
 //+ (void)beforeAllTest;
 //+ (void)beforeAllTest:(XCTestCase *)testCase;
-//+ (void)beforeEachTest:(XCTestCase *)testCase;
++ (void)beforeEachTest:(XCTestCase *)testCase;
 //+ (void)foregroundApp;
 //+ (void)backgroundApp;
 //+ (void)setAppInactive;
@@ -80,20 +78,20 @@
 //+ (void)receiveNotification:(NSString*)notificationId wasOpened:(BOOL)opened;
 //+ (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 //+ (XCTestCase*)currentXCTestCase;
-//@end
-//
-//// Expose OneSignal test methods
-//@interface OneSignal (UN_extra)
-//+ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay;
-//@end
-//
-//// Expose methods on OneSignalNotificationCategoryController
-//@interface OneSignalNotificationCategoryController ()
-//- (void)pruneCategories:(NSMutableArray <NSString *> *)currentCategories;
-//- (NSArray<NSString *> *)existingRegisteredCategoryIds;
-//@end
-//
-//// START - Start Observers
+@end
+
+// Expose OneSignal test methods
+@interface OneSignal (UN_extra)
++ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay;
+@end
+
+// Expose methods on OneSignalNotificationCategoryController
+@interface OneSignalNotificationCategoryController ()
+- (void)pruneCategories:(NSMutableArray <NSString *> *)currentCategories;
+- (NSArray<NSString *> *)existingRegisteredCategoryIds;
+@end
+
+// START - Start Observers
 //
 //@interface OSPermissionStateTestObserver : NSObject<OSPermissionObserver> {
 //    @package OSPermissionStateChanges* last;
@@ -130,5 +128,5 @@
 //    @package OSInAppMessage *lastMessageDidDismiss;
 //}
 //@end
-//
-//// END - Observers
+
+// END - Observers

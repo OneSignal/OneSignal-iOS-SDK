@@ -25,12 +25,13 @@
  * THE SOFTWARE.
  */
 // TODO: Commented out 🧪
-//#import "UnitTestCommonMethods.h"
-//#import "OneSignalClientOverrider.h"
-//#import "UIApplicationOverrider.h"
-//#import "UNUserNotificationCenterOverrider.h"
-//#import "OneSignalHelperOverrider.h"
-//#import "OneSignal.h"
+#import "UnitTestCommonMethods.h"
+#import "OneSignalClientOverrider.h"
+#import "UIApplicationOverrider.h"
+#import "UNUserNotificationCenterOverrider.h"
+#import "OneSignalHelperOverrider.h"
+#import "OneSignalFramework.h"
+#import "OneSignalCoreMocks.h"
 //#import "OneSignalNotificationSettingsIOS10.h"
 //#import "UnitTestAppDelegate.h"
 //#import "OneSignalHelper.h"
@@ -62,7 +63,7 @@
 //#import "OneSignalLog.h"
 //#import "OneSignalAppDelegateOverrider.h"
 //#import "OneSignalUNUserNotificationCenterOverrider.h"
-//
+
 //NSString * serverUrlWithPath(NSString *path) {
 //    return [OS_API_SERVER_URL stringByAppendingString:path];
 //}
@@ -73,21 +74,21 @@
 //
 //@end
 //
-//@implementation UnitTestCommonMethods
-//
-//static XCTestCase* _currentXCTestCase;
-//+ (XCTestCase*)currentXCTestCase {
-//    return _currentXCTestCase;
-//}
-//
-///*
-// Init OneSignal with default appId (@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba") and launchOptions (nil)
-// */
-//+ (void)initOneSignal_andThreadWait {
-//    [self initOneSignal];
-//    [self runBackgroundThreads];
-//}
-//
+@implementation UnitTestCommonMethods
+
+static XCTestCase* _currentXCTestCase;
++ (XCTestCase*)currentXCTestCase {
+    return _currentXCTestCase;
+}
+
+/*
+ Init OneSignal with default appId (@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba") and launchOptions (nil)
+ */
++ (void)initOneSignal_andThreadWait {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+}
+
 ///*
 // Init OneSignal and foreground the app and then run background threads
 // */
@@ -118,15 +119,14 @@
 //    [self initOneSignalWithAppId:appId withLaunchOptions:launchOptions withNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate withNotificationOpenedHandler:notificationOpenedDelegate];
 //    [self runBackgroundThreads];
 //}
-//
-///*
-// Universal init helper that sets appId & launchOptions to default values
-// */
-//+ (void)initOneSignal {
-//    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-//    [OneSignal initWithLaunchOptions:nil];
-//}
-//
+
+/*
+ Universal init helper that sets appId & launchOptions to default values
+ */
++ (void)initOneSignal {
+    [OneSignal initialize:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" withLaunchOptions:nil];
+}
+
 ///*
 // Universal init helper that sets appId & launchOptions to default values and
 //    accepts params to set notificationWillShowInForegroundHandler & notificationOpenedHandler
@@ -167,41 +167,42 @@
 //
 //    NSLog(@"END runLongBackgroundThreads");
 //}
-//
-///*
-// Runs any blocks passed to dispatch_async()
-// */
-//+ (void)runBackgroundThreads {
-//    NSLog(@"START runBackgroundThreads");
-//
-//    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
-//
-//    for(int i = 0; i < 10; i++) {
-//        [UnitTestCommonMethods runThreadsOnEachQueue];
-//    }
-//
-//    NSLog(@"END runBackgroundThreads");
-//}
-//
-//+ (void)runThreadsOnEachQueue {
-//    // the httpQueue makes sure all HTTP request mocks are sync'ed
-//    dispatch_queue_t notifSettingsQueue;
-//
-//    [OneSignalHelperOverrider runBackgroundThreads];
-//
-//    notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
-//    if (notifSettingsQueue)
-//        dispatch_sync(notifSettingsQueue, ^{});
-//
-//    [OneSignalClientOverrider runBackgroundThreads];
-//
-//    [UNUserNotificationCenterOverrider runBackgroundThreads];
-//
-//    dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
-//
-//    [UIApplicationOverrider runBackgroundThreads];
-//}
-//
+
+/*
+ Runs any blocks passed to dispatch_async()
+ */
++ (void)runBackgroundThreads {
+    NSLog(@"START runBackgroundThreads");
+
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+    [[OneSignalCoreMocks getClient] logSelfInfo];
+
+    for(int i = 0; i < 10; i++) {
+        [UnitTestCommonMethods runThreadsOnEachQueue];
+    }
+
+    NSLog(@"END runBackgroundThreads");
+}
+
++ (void)runThreadsOnEachQueue {
+    // the httpQueue makes sure all HTTP request mocks are sync'ed
+    dispatch_queue_t notifSettingsQueue;
+
+    [OneSignalHelperOverrider runBackgroundThreads]; // main queue
+
+    notifSettingsQueue = [OneSignalNotificationSettings getQueue];
+    if (notifSettingsQueue)
+        dispatch_sync(notifSettingsQueue, ^{});
+
+    [[OneSignalCoreMocks getClient] runBackgroundThreads];
+
+    [UNUserNotificationCenterOverrider runBackgroundThreads];
+
+    dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
+
+    [UIApplicationOverrider runBackgroundThreads];
+}
+
 //+ (void)clearStateForAppRestart:(XCTestCase *)testCase {
 //    NSLog(@"=======  APP RESTART ======\n\n");
 //
@@ -262,9 +263,9 @@
 //
 //    [OneSignal pauseInAppMessages:true];
 //}
-//
-//+ (void) beforeEachTest:(XCTestCase *)testCase {
-//    _currentXCTestCase = testCase;
+
++ (void) beforeEachTest:(XCTestCase *)testCase {
+    _currentXCTestCase = testCase;
 //    [self beforeAllTest];
 //    [self clearStateForAppRestart:testCase];
 //    [self clearUserDefaults];
@@ -273,8 +274,8 @@
 //    [OneSignalClientOverrider reset:testCase];
 //    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
 //    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-//}
-//
+}
+
 //+ (void)clearUserDefaults {
 //    let userDefaults = OneSignalUserDefaults.initStandard.userDefaults;
 //    let dictionary = [userDefaults dictionaryRepresentation];
@@ -499,4 +500,4 @@
 //- (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
 //    lastMessageDidDismiss = message;
 //}
-//@end
+@end

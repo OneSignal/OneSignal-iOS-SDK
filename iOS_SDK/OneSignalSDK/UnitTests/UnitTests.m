@@ -25,10 +25,10 @@
  * THE SOFTWARE.
  */
 // TODO: Commented out 🧪
-//#import <pthread.h>
-//#import <mach/mach.h>
-//#import <objc/runtime.h>
-//#import <XCTest/XCTest.h>
+#import <pthread.h>
+#import <mach/mach.h>
+#import <objc/runtime.h>
+#import <XCTest/XCTest.h>
 //#import <CoreLocation/CoreLocation.h>
 //#import <UIKit/UIKit.h>
 //#import <CoreData/CoreData.h>
@@ -38,7 +38,7 @@
 //#import "OneSignalTracker.h"
 //#import "OneSignalInternal.h"
 //#import "NSString+OneSignal.h"
-//#import "UnitTestCommonMethods.h"
+#import "UnitTestCommonMethods.h"
 //#import "OneSignalSelectorHelpers.h"
 //#import "UIApplicationDelegate+OneSignal.h"
 //#import "UNUserNotificationCenter+OneSignal.h"
@@ -89,23 +89,23 @@
 //+ (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 //@end
 //
-//@interface UnitTests : XCTestCase
-//
-//@property NSError* CALLBACK_EXTERNAL_USER_ID_FAIL_RESPONSE;
-//@property NSString* CALLBACK_EXTERNAL_USER_ID;
-//@property NSString* CALLBACK_EMAIL_EXTERNAL_USER_ID;
-//
-//@end
-//
-//@implementation UnitTests
-//
-///*
-// Put setup code here
-// This method is called before the invocation of each test method in the class
-// */
-//- (void)setUp {
-//    [super setUp];
-//    [UnitTestCommonMethods beforeEachTest:self];
+@interface UnitTests : XCTestCase
+
+@property NSError* CALLBACK_EXTERNAL_USER_ID_FAIL_RESPONSE;
+@property NSString* CALLBACK_EXTERNAL_USER_ID;
+@property NSString* CALLBACK_EMAIL_EXTERNAL_USER_ID;
+
+@end
+
+@implementation UnitTests
+
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
+- (void)setUp {
+    [super setUp];
+    [UnitTestCommonMethods beforeEachTest:self];
 //    OneSignalOverrider.shouldOverrideLaunchURL = false;
 //
 //    // Only enable remote-notifications in UIBackgroundModes
@@ -132,16 +132,16 @@
 //    float random = ((float)arc4random() / 0x100000000 * (maxRange - minRange)) + minRange;
 //    NSLog(@"Sleeping for debugging: %f", random);
 //    [NSThread sleepForTimeInterval:random];*/
-//}
-//
-///*
-// Put teardown code here
-// This method is called after the invocation of each test method in the class
-// */
-//- (void)tearDown {
-//    [super tearDown];
-//}
-//
+}
+
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
+- (void)tearDown {
+    [super tearDown];
+}
+
 //- (void)backgroundModesDisabledInXcode {
 //    NSBundleOverrider.nsbundleDictionary = @{};
 //}
@@ -158,17 +158,17 @@
 //  
 //  return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 //}
-//
-//- (void)testBasicInitTest {
-//    // Simulator iPhone
-//    NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
-//    
-//    [UnitTestCommonMethods initOneSignal_andThreadWait];
-//    
-//    NSLog(@"CHECKING LAST HTTP REQUEST");
-//    
-//    // final value should be "Simulator iPhone" or "Simulator iPad"
-//    let deviceModel = [OSDeviceUtils getDeviceVariant];
+
+- (void)testBasicInitTest {
+    // Simulator iPhone
+    NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    NSLog(@"CHECKING LAST HTTP REQUEST");
+    
+    // final value should be "Simulator iPhone" or "Simulator iPad"
+    let deviceModel = [OSDeviceUtils getDeviceVariant];
 //    
 //    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
 //    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
@@ -201,8 +201,8 @@
 //    [UnitTestCommonMethods initOneSignal];
 //    
 //    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
-//}
-//
+}
+
 //- (void)testVersionStringLength {
 //	XCTAssertEqual(ONESIGNAL_VERSION.length, 6, @"ONESIGNAL_VERSION length is not 6: length is %lu", (unsigned long)ONESIGNAL_VERSION.length);
 //	XCTAssertEqual([OneSignal sdkVersionRaw].length, 6, @"OneSignal sdk_version_raw length is not 6: length is %lu", (unsigned long)[OneSignal sdkVersionRaw].length);
@@ -3611,6 +3611,6 @@
 //    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, testExitLiveActivityCorrectURL);
 //
 //}
-//
-//
-//@end
+
+
+@end

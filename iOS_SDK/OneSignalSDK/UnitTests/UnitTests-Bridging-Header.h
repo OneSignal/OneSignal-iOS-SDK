@@ -3,3 +3,4 @@
 //
 
 #import "OneSignalFramework.h"
+#import "UnitTestCommonMethods.h"
