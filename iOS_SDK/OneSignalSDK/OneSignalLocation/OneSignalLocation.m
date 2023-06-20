@@ -30,9 +30,6 @@
 
 #import "OneSignalLocation.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import "OneSignalDialogController.h"
-#import "OSRemoteParamController.h"
-#import "OSLocationRequests.h"
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
 @implementation OneSignalLocation
