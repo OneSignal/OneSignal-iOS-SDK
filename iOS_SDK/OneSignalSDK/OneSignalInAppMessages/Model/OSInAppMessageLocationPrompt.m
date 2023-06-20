@@ -56,7 +56,6 @@
     [invocation setArgument: &fallback atIndex: 2];
     [invocation setArgument: &completionHandler atIndex: 3];
     [invocation invoke];
-//    [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
 //    [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
 }
 

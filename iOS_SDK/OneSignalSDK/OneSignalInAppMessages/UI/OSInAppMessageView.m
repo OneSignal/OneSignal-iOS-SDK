@@ -26,10 +26,9 @@
  */
 
 #import "OSInAppMessageView.h"
-#import "OneSignalHelper.h"
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageClickResult.h"
-#import "OneSignalViewHelper.h"
+#import <OneSignalUser/OneSignalUser.h>
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
@@ -97,7 +96,7 @@
     let configuration = [WKWebViewConfiguration new];
     [configuration.userContentController addScriptMessageHandler:handler name:@"iosListener"];
     
-    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+    CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
     
     // WebView should use mainBounds as frame since we need to make sure it spans full possible screen size
     // to prevent text wrapping while obtaining true height of message from JS
@@ -121,7 +120,7 @@
 - (void)setWebviewFrame {
     CGRect mainBounds = UIScreen.mainScreen.bounds;
     if (!self.isFullscreen) {
-        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
         mainBounds.size.width -= (2.0 * marginSpacing);
     }
     [self.webView setFrame:mainBounds];
