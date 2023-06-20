@@ -27,8 +27,6 @@
 
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
-#import "OneSignalHelper.h"
-#import "OneSignalViewHelper.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 
@@ -36,12 +34,6 @@
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
 #define MEDIUM_CONSTRAINT_PRIORITY 950.0f
 #define LOW_CONSTRAINT_PRIORITY 900.0f
-
-@interface OneSignal ()
-
-+ (OSSessionManager*)sessionManager;
-
-@end
 
 @interface OSInAppMessageViewController ()
 
@@ -152,7 +144,7 @@
     
     // Get current orientation of the device
     UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
-    self.orientationOnBackground = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
+    self.orientationOnBackground = [OneSignalCoreHelper validateOrientation:currentDeviceOrientation];
     
     // Make sure pan constraint is no longer active so IAM does not stay in panned location
     self.panVerticalConstraint.active = false;
@@ -219,7 +211,7 @@
 
 - (OSResultSuccessBlock)messageContentOnSuccess {
     return ^(NSDictionary *data) {
-        [OneSignalHelper dispatch_async_on_main_queue:^{
+        [OneSignalCoreHelper dispatch_async_on_main_queue:^{
             if (!data) {
                 [self encounteredErrorLoadingMessageContent:nil];
                 return;
@@ -353,8 +345,8 @@
         }
     }
     
-    CGRect mainBounds = [OneSignalViewHelper getScreenBounds];
-    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+    CGRect mainBounds = [OneSignalCoreHelper getScreenBounds];
+    CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
     
     let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenHeight];
@@ -722,7 +714,7 @@
                 // This is only fired once the javascript on the page sends the "rendering_complete" type event
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self.delegate webViewContentFinishedLoading:self.message];
-                    [OneSignalHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
+                    [OneSignalCoreHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
                 });
                 break;
             }
@@ -804,7 +796,7 @@
 
     // Get current orientation of the device
     UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
-    ViewOrientation currentOrientation = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
+    ViewOrientation currentOrientation = [OneSignalCoreHelper validateOrientation:currentDeviceOrientation];
     // Ignore changes in device orientation if or coming from same orientation or orientation is invalid
     if (currentOrientation == OrientationInvalid &&
         (appState == UIApplicationStateInactive || appState == UIApplicationStateBackground)) {

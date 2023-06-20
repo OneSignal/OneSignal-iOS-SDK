@@ -26,7 +26,6 @@
  */
 
 #import "OSMessagingController.h"
-#import "OneSignalHelper.h" // need for displayWebView, which can be moved out in the future
 #import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
@@ -34,14 +33,8 @@
 #import "OSInAppMessageClickEvent.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
-#import "OneSignalDialogController.h"
 #import "OSInAppMessagingRequests.h"
-
-@interface OneSignal ()
-
-+ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes;
-
-@end
+#import "OneSignalWebViewManager.h"
 
 @implementation OSInAppMessageWillDisplayEvent
 - (OSInAppMessageWillDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
@@ -471,7 +464,7 @@ static BOOL _isInAppMessagingPaused = false;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
-    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
+    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignalConfigManager.getAppId
                                                        withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                       withMessageId:message.messageId
                                                          withPageId:pageId
@@ -511,7 +504,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self.impressionedInAppMessages addObject:message.messageId];
     
     // Create the request and attach a payload to it
-    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
+    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignalConfigManager.getAppId
                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
@@ -628,7 +621,7 @@ static BOOL _isInAppMessagingPaused = false;
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:action.url] options:@{} completionHandler:^(BOOL success) {}];
             break;
         case OSInAppMessageActionUrlTypeWebview:
-            [OneSignalHelper displayWebView:[NSURL URLWithString:action.url]];
+            [OneSignalWebViewManager displayWebView:[NSURL URLWithString:action.url]];
             break;
         case OSInAppMessageActionUrlTypeReplaceContent:
             // This case is handled by the in-app message view controller.
@@ -913,7 +906,7 @@ static BOOL _isInAppMessagingPaused = false;
     // Track clickId per IAM
     [message addClickId:clickId];
     
-    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
+    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignalConfigManager.getAppId
                                                     withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
@@ -940,9 +933,9 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.tags) {
         OSInAppMessageTag *tag = action.tags;
         if (tag.tagsToAdd)
-            [OneSignal.User addTags:tag.tagsToAdd];
+            [OneSignalUserManagerImpl.sharedInstance addTags:tag.tagsToAdd];
         if (tag.tagsToRemove)
-            [OneSignal.User removeTags:tag.tagsToRemove];
+            [OneSignalUserManagerImpl.sharedInstance removeTags:tag.tagsToRemove];
     }
 }
 
@@ -950,7 +943,16 @@ static BOOL _isInAppMessagingPaused = false;
     if (outcomes.count == 0)
         return;
     [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:messageId];
-    [OneSignal sendClickActionOutcomes:outcomes];
+    [self sendClickActionOutcomes:outcomes];
+}
+
+- (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
+    if (![OSOutcomes sharedController]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        return;
+    }
+
+    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:OneSignalConfigManager.getAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 /*

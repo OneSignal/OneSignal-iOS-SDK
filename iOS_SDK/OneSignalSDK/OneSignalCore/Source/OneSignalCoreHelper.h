@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import <UIKit/UIKit.h>
 @interface OneSignalCoreHelper : NSObject
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -45,4 +46,21 @@
 + (NSString*)randomStringWithLength:(int)length;
 + (BOOL)verifyURL:(NSString *)urlString;
 + (BOOL)isWWWScheme:(NSURL*)url;
+
+/*
+ A simplified enum for UIDeviceOrientation with just invalid, portrait, and landscape
+ */
+typedef NS_ENUM(NSInteger, ViewOrientation) {
+    OrientationInvalid,
+    OrientationPortrait,
+    OrientationLandscape,
+};
+
++ (ViewOrientation)validateOrientation:(UIDeviceOrientation)orientation;
+
++ (CGFloat)sizeToScale:(float)size;
+
++ (CGRect)getScreenBounds;
+
++ (float)getScreenScale;
 @end

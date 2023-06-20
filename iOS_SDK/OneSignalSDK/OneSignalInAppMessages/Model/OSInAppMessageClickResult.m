@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalHelper.h"
 #import "OSInAppMessageClickResult.h"
 #import "OSInAppMessagePushPrompt.h"
 #import "OSInAppMessageLocationPrompt.h"
