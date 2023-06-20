@@ -67,10 +67,6 @@
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
-#import "OSMessagingController.h"
-#import "OSInAppMessageInternal.h"
-#import "OneSignalInAppMessaging.h"
-
 #import "OneSignalLifecycleObserver.h"
 
 #pragma clang diagnostic push

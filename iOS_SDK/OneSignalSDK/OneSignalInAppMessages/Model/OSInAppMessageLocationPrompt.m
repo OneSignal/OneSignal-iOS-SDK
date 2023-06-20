@@ -27,13 +27,13 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
-#import <OneSignalLocation/OneSignalLocation.h>
+//#import <OneSignalLocation/OneSignalLocation.h>
 
-@interface OneSignalLocation ()
-
-+ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler;
-
-@end
+//@interface OneSignalLocation ()
+//
+//+ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler;
+//
+//@end
 
 @implementation OSInAppMessageLocationPrompt
 
@@ -47,7 +47,17 @@
 }
 
 - (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
-    [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
+    id OneSignalLocationClass = NSClassFromString(@"OneSignalLocation");
+    BOOL fallback = YES;
+    NSMethodSignature* signature = [OneSignalLocationClass instanceMethodSignatureForSelector:@selector(promptLocationFallbackToSettings:completionHandler:)];
+    NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: signature];
+    [invocation setTarget: OneSignalLocationClass];
+    [invocation setSelector: @selector(promptLocationFallbackToSettings:completionHandler:)];
+    [invocation setArgument: &fallback atIndex: 2];
+    [invocation setArgument: &completionHandler atIndex: 3];
+    [invocation invoke];
+//    [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
+//    [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
 }
 
 - (NSString *)description {

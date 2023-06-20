@@ -48,7 +48,7 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
-#import "OneSignalInAppMessaging.h"
+#import <OneSignalInAppMessages/OneSignalInAppMessages.h>
 #import "OneSignalLiveActivityController.h"
 #import <OneSignalLocation/OneSignalLocation.h>
 
