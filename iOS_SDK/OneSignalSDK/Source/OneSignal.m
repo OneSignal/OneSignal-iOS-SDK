@@ -69,6 +69,8 @@
 
 #import "OneSignalLifecycleObserver.h"
 
+#import "OSMessagingController.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -227,7 +229,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSInAppMessages>)InAppMessages {
-    return [OneSignalInAppMessaging InAppMessages];
+    return [OneSignalInAppMessages InAppMessages];
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
@@ -405,7 +407,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
     NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (subscriptionId) {
-        [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
+        [OneSignalInAppMessages getInAppMessagesFromServer:subscriptionId];
     }
     
     // The below means there are NO IAMs until on_session returns
@@ -437,7 +439,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startInAppMessages {
-    [OneSignalInAppMessaging start];
+    [OneSignalInAppMessages start];
 }
 
 + (void)startOutcomes {

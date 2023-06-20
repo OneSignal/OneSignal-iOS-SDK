@@ -35,6 +35,8 @@
 #import "OSInAppMessagePrompt.h"
 #import "OSInAppMessagingRequests.h"
 #import "OneSignalWebViewManager.h"
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import "OSSessionManager.h"
 
 @implementation OSInAppMessageWillDisplayEvent
 - (OSInAppMessageWillDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
