@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
-#import "OneSignalLocation.h"
+#import <OneSignalLocation/OneSignalLocation.h>
 
 @interface OneSignalLocation ()
 

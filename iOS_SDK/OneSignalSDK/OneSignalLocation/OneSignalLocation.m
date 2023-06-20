@@ -27,7 +27,6 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-
 #import "OneSignalLocation.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalUser/OneSignalUser-Swift.h>

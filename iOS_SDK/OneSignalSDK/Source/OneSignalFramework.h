@@ -50,7 +50,7 @@
 #import <OneSignalNotifications/OneSignalNotifications.h>
 #import "OneSignalInAppMessaging.h"
 #import "OneSignalLiveActivityController.h"
-#import "OneSignalLocation.h"
+#import <OneSignalLocation/OneSignalLocation.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
