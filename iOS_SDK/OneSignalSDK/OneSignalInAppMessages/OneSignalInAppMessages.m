@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-#import "OneSignalInAppMessaging.h"
+#import "OneSignalInAppMessages.h"
 #import "OSMessagingController.h"
 
 @implementation OneSignalInAppMessaging

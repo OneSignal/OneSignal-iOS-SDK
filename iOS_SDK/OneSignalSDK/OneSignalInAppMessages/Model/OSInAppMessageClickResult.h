@@ -30,7 +30,7 @@
 #import "OSInAppMessageTag.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSInAppMessagePrompt.h"
-#import "OneSignalInAppMessaging.h"
+#import "OneSignalInAppMessages.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
