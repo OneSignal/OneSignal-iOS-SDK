@@ -27,7 +27,6 @@
 
 #import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessageClickResult.h"
-#import "OneSignalHelper.h"
 
 @implementation OSInAppMessageBridgeEvent
 

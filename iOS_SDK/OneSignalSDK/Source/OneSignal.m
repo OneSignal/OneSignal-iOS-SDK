@@ -109,8 +109,8 @@ static BOOL initDone = false;
 // Used to track last time SDK was initialized, for whether or not to start a new session
 static NSTimeInterval initializationTime;
 
-// Set when the app is launched
-static NSDate *sessionLaunchTime;
+//// Set when the app is launched
+//static NSDate *sessionLaunchTime;
 
 /*
  Indicates if the iOS params request has started
@@ -181,7 +181,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
     
-    sessionLaunchTime = [NSDate date];
+//    sessionLaunchTime = [NSDate date];
 
     [OSOutcomes clearStatics];
     
@@ -397,8 +397,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // Clear last location after attaching data to user state or not
     [OneSignalLocation clearLastLocation];
     [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
-
-    sessionLaunchTime = [NSDate date];
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance startNewSession];
@@ -703,24 +701,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
             serviceExtensionTimeWillExpireRequest:request
             withMutableNotificationContent:replacementContent];
 }
-
-//TODO: move to sessions/onfocus
-+ (NSDate *)sessionLaunchTime {
-    return sessionLaunchTime;
-}
+//
+////TODO: move to sessions/onfocus
+//+ (NSDate *)sessionLaunchTime {
+//    return sessionLaunchTime;
+//}
 
 /*
  Start of outcome module
  */
-
-+ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
-    if (![OSOutcomes sharedController]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
-        return;
-    }
-
-    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
-}
 
 // Returns if we can send this, meaning we have a subscription_id and onesignal_id
 + (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params {
@@ -811,7 +800,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OSNotificationsManager start];
 
     [[OSMigrationController new] migrate];
-    sessionLaunchTime = [NSDate date];
+//    sessionLaunchTime = [NSDate date];
     
     [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
 }

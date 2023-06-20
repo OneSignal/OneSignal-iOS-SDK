@@ -39,6 +39,9 @@
 @implementation OSSessionManager
 
 static OSSessionManager *_sessionManager;
+
+NSDate *_sessionLaunchTime;
+
 + (OSSessionManager*)sharedSessionManager {
     if (!_sessionManager)
         _sessionManager = [[OSSessionManager alloc] init:nil withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
@@ -94,6 +97,8 @@ static OSSessionManager *_sessionManager;
     }
     
     [self sendSessionEndingWithInfluences:updatedInfluences];
+    
+    _sessionLaunchTime = [NSDate date];
 }
 
 - (void)onInAppMessageReceived:(NSString *)messageId {
@@ -261,6 +266,10 @@ static OSSessionManager *_sessionManager;
     // Only end session if there are influences available to end
     if (endingInfluences.count > 0 && _delegate && [_delegate respondsToSelector:@selector(onSessionEnding:)])
         [_delegate onSessionEnding:endingInfluences];
+}
+
+- (NSDate *)sessionLaunchTime {
+    return _sessionLaunchTime;
 }
 
 @end

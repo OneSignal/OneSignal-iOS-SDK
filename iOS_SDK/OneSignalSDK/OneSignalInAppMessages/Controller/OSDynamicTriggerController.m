@@ -27,8 +27,6 @@
 
 #import "OSDynamicTriggerController.h"
 #import "OSInAppMessagingDefines.h"
-#import "OneSignalHelper.h"
-#import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
 #import "OSMessagingController.h"
 
@@ -77,7 +75,7 @@
 
         // Check what type of trigger it is
         if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
-            let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
+            let currentDuration = fabs([[OSSessionManager.sharedSessionManager sessionLaunchTime] timeIntervalSinceNow]);
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType]) {
                 [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"session time trigger completed: %@", trigger.triggerId]];
                 [self.delegate dynamicTriggerCompleted:trigger.triggerId];
