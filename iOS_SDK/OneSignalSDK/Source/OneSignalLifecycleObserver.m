@@ -85,8 +85,10 @@ static OneSignalLifecycleObserver* _instance = nil;
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:YES];
         }
-        // TODO: EM add onApplicationDidBecomeActive to OneSignalInAppMessages
-        //[[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
+        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(onApplicationDidBecomeActive)]) {
+            [oneSignalInAppMessages performSelector:@selector(onApplicationDidBecomeActive)];
+        }
     }
 }
 
