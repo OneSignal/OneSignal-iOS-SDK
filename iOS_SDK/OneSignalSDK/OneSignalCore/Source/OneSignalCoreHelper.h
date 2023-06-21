@@ -47,6 +47,10 @@
 + (BOOL)verifyURL:(NSString *)urlString;
 + (BOOL)isWWWScheme:(NSURL*)url;
 
+// For NSInvocations. Use this when wanting to performSelector with more than 2 arguments
++(void)callSelector:(SEL)selector onObject:(id)object withArgs:(NSArray*)args;
+// For NSInvocations. Use this when wanting to performSelector with a boolean argument
++(void)callSelector:(SEL)selector onObject:(id)object withArg:(BOOL)arg;
 /*
  A simplified enum for UIDeviceOrientation with just invalid, portrait, and landscape
  */
