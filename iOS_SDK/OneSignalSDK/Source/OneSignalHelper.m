@@ -35,7 +35,6 @@
 #import <objc/runtime.h>
 #import "OneSignalInternal.h"
 #import "OneSignalDialogController.h"
-#import "OSMessagingController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
