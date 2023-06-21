@@ -48,9 +48,7 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
-#import <OneSignalInAppMessages/OneSignalInAppMessages.h>
 #import "OneSignalLiveActivityController.h"
-#import <OneSignalLocation/OneSignalLocation.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"

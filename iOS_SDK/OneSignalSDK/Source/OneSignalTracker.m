@@ -35,7 +35,6 @@
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
-#import "OSMessagingController.h"
 
 @interface OneSignal ()
 

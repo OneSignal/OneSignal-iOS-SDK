@@ -42,6 +42,8 @@
 #import "OSFocusCallParams.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
+#import <OneSignalLocation/OneSignalLocation.h>
+#import <OneSignalInAppMessages/OneSignalInAppMessages.h>
 
 // TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
 
@@ -68,8 +70,6 @@
 #import "OneSignalDialogController.h"
 
 #import "OneSignalLifecycleObserver.h"
-
-#import "OSMessagingController.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -229,7 +229,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSInAppMessages>)InAppMessages {
-    return [OneSignalInAppMessages InAppMessages];
+    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(InAppMessages)]) {
+        return [oneSignalInAppMessages performSelector:@selector(InAppMessages)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalInAppMessages not found. In order to use OneSignal's In App Messaging features the OneSignalInAppMessages module must be added."];
+        return [OSStubInAppMessages InAppMessages];
+    }
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
@@ -237,7 +243,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSLocation>)Location {
-    return [OneSignalLocation Location];
+    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(Location)]) {
+        return [oneSignalLocation performSelector:@selector(Location)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
+        return [OSStubLocation Location];
+    }
 }
 
 + (Class<OSDebug>)Debug {
@@ -397,7 +409,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     // Clear last location after attaching data to user state or not
-    [OneSignalLocation clearLastLocation];
+    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(clearLastLocation)]) {
+        [oneSignalLocation performSelector:@selector(clearLastLocation)];
+    }
+    
     [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
@@ -407,7 +423,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
     NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (subscriptionId) {
-        [OneSignalInAppMessages getInAppMessagesFromServer:subscriptionId];
+        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer:)]) {
+            [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer:) withObject:subscriptionId];
+        }
     }
     
     // The below means there are NO IAMs until on_session returns
@@ -439,7 +458,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startInAppMessages {
-    [OneSignalInAppMessages start];
+    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(start)]) {
+        [oneSignalInAppMessages performSelector:@selector(start)];
+    }
 }
 
 + (void)startOutcomes {
@@ -448,7 +470,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startLocation {
-    [OneSignalLocation start];
+    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(start)]) {
+        [oneSignalLocation performSelector:@selector(start)];
+    }
 }
 
 + (void)startTrackFirebaseAnalytics {
@@ -641,7 +666,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
-            [OneSignalLocation startLocationSharedWithFlag:shared];
+            // TODO: EM use nsinvocation
+            //[OneSignalLocation startLocationSharedWithFlag:shared];
         }
         
         if ([[OSRemoteParamController sharedController] hasPrivacyConsentKey]) {

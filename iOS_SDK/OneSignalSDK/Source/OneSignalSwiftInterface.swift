@@ -30,6 +30,7 @@ import Foundation
 import OneSignalUser
 import OneSignalOutcomes
 import OneSignalNotifications
+import OneSignalCore
 
 public extension OneSignal {
     static var User: OSUser {
