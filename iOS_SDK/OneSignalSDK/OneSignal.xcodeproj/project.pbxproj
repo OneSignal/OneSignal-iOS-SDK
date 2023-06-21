@@ -417,6 +417,8 @@
 		DEBAAEB12A435B5100BF2C1C /* OSInAppMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAEAF2A435AE900BF2C1C /* OSInAppMessages.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEBAAEB32A436CE800BF2C1C /* OSStubInAppMessages.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAEB22A436CE800BF2C1C /* OSStubInAppMessages.m */; };
 		DEBAAEB52A436D5D00BF2C1C /* OSStubLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAEB42A436D5D00BF2C1C /* OSStubLocation.m */; };
+		DEBAAEB82A4381AE00BF2C1C /* OSInAppMessageMigrationController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAEB62A4381AE00BF2C1C /* OSInAppMessageMigrationController.h */; };
+		DEBAAEB92A4381AE00BF2C1C /* OSInAppMessageMigrationController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAEB72A4381AE00BF2C1C /* OSInAppMessageMigrationController.m */; };
 		DEC08B002947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
 		DEC08B012947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
 		DEC08B022947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
@@ -1043,6 +1045,8 @@
 		DEBAAEAF2A435AE900BF2C1C /* OSInAppMessages.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessages.h; sourceTree = "<group>"; };
 		DEBAAEB22A436CE800BF2C1C /* OSStubInAppMessages.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSStubInAppMessages.m; sourceTree = "<group>"; };
 		DEBAAEB42A436D5D00BF2C1C /* OSStubLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSStubLocation.m; sourceTree = "<group>"; };
+		DEBAAEB62A4381AE00BF2C1C /* OSInAppMessageMigrationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageMigrationController.h; sourceTree = "<group>"; };
+		DEBAAEB72A4381AE00BF2C1C /* OSInAppMessageMigrationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageMigrationController.m; sourceTree = "<group>"; };
 		DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftInterface.swift; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1951,6 +1955,8 @@
 				DEBAAE5D2A42175900BF2C1C /* OSMessagingController.m */,
 				DEBAAE5C2A42175900BF2C1C /* OSTriggerController.h */,
 				DEBAAE5F2A42175900BF2C1C /* OSTriggerController.m */,
+				DEBAAEB62A4381AE00BF2C1C /* OSInAppMessageMigrationController.h */,
+				DEBAAEB72A4381AE00BF2C1C /* OSInAppMessageMigrationController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -2231,6 +2237,7 @@
 				DEBAAE662A42175A00BF2C1C /* OSDynamicTriggerController.h in Headers */,
 				DEBAAE642A42175A00BF2C1C /* OSTriggerController.h in Headers */,
 				DEBAAE562A42174A00BF2C1C /* OSInAppMessageViewController.h in Headers */,
+				DEBAAEB82A4381AE00BF2C1C /* OSInAppMessageMigrationController.h in Headers */,
 				DEBAAE7E2A42176800BF2C1C /* OSInAppMessageDisplayStats.h in Headers */,
 				DEBAAE882A42176800BF2C1C /* OSInAppMessageClickEvent.h in Headers */,
 				DEBAAE7D2A42176800BF2C1C /* OSInAppMessagePage.h in Headers */,
@@ -3022,6 +3029,7 @@
 			files = (
 				DEBAAE672A42175A00BF2C1C /* OSTriggerController.m in Sources */,
 				DEBAAE7F2A42176800BF2C1C /* OSInAppMessageTag.m in Sources */,
+				DEBAAEB92A4381AE00BF2C1C /* OSInAppMessageMigrationController.m in Sources */,
 				DEBAAE632A42175A00BF2C1C /* OSInAppMessageController.m in Sources */,
 				DEBAAE652A42175A00BF2C1C /* OSMessagingController.m in Sources */,
 				DEBAAE812A42176800BF2C1C /* OSTrigger.m in Sources */,
