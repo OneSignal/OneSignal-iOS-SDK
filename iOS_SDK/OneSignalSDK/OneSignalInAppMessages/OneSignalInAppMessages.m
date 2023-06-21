@@ -27,6 +27,7 @@
 
 #import "OneSignalInAppMessages.h"
 #import "OSMessagingController.h"
+#import "OSInAppMessageMigrationController.h"
 
 @implementation OneSignalInAppMessages
 
@@ -41,6 +42,14 @@
 
 + (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId {
     [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
+}
+
++ (void)onApplicationDidBecomeActive {
+    [OSMessagingController.sharedInstance onApplicationDidBecomeActive];
+}
+
++ (void)migrate {
+    [OSInAppMessageMigrationController migrate];
 }
 
 + (void)addClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener {
