@@ -411,6 +411,30 @@ API_AVAILABLE(macos(10.4), ios(2.0));
     return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
 }
 
++(void)callSelector:(SEL)selector onObject:(id)object withArg:(BOOL)arg {
+    NSMethodSignature *methodSignature = [object methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+    [invocation setSelector:selector];
+    [invocation setTarget:object];
+    [invocation setArgument:&arg atIndex:2];
+    [invocation invoke];
+}
+
++(void)callSelector:(SEL)selector
+           onObject:(id)object
+           withArgs:(NSArray*)args {
+    NSMethodSignature *methodSignature = [object methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+    [invocation setSelector:selector];
+    [invocation setTarget:object];
+    for(int i = 0; i < methodSignature.numberOfArguments - 2; i++) {
+        id argv = [args objectAtIndex:i];
+        [invocation setArgument:&argv atIndex:i + 2];
+    }
+
+    [invocation invoke];
+}
+
 /*
  Given a UIDeviceOrientation return the custom enum ViewOrientation
  */

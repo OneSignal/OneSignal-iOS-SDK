@@ -666,8 +666,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
-            // TODO: EM use nsinvocation
-            //[OneSignalLocation startLocationSharedWithFlag:shared];
+            let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+            if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(startLocationSharedWithFlag:)]) {
+                [OneSignalCoreHelper callSelector:@selector(startLocationSharedWithFlag:) onObject:oneSignalLocation withArg:shared];
+            }
         }
         
         if ([[OSRemoteParamController sharedController] hasPrivacyConsentKey]) {
