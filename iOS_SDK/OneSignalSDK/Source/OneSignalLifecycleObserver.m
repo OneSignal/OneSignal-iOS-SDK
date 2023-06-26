@@ -30,7 +30,7 @@ THE SOFTWARE.
 #import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
-#import <OneSignalLocation/OneSignalLocation.h>
+#import <OneSignalLocation/OneSignalLocationManager.h>
 #import "UIApplication+OneSignal.h"
 
 @implementation OneSignalLifecycleObserver

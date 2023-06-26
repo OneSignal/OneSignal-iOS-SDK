@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
-//#import <OneSignalLocation/OneSignalLocation.h>
+#import <OneSignalLocation/OneSignalLocationManager.h>
 
 //@interface OneSignalLocation ()
 //
@@ -47,7 +47,10 @@
 }
 
 - (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
-    id OneSignalLocationClass = NSClassFromString(@"OneSignalLocation");
+    /*
+     This code calls [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
+     */
+    id OneSignalLocationClass = NSClassFromString(@"OneSignalLocationManager");
     BOOL fallback = YES;
     NSMethodSignature* signature = [OneSignalLocationClass instanceMethodSignatureForSelector:@selector(promptLocationFallbackToSettings:completionHandler:)];
     NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: signature];
@@ -56,7 +59,7 @@
     [invocation setArgument: &fallback atIndex: 2];
     [invocation setArgument: &completionHandler atIndex: 3];
     [invocation invoke];
-//    [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
+
 }
 
 - (NSString *)description {
