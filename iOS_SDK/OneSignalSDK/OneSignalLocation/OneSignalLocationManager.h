@@ -43,10 +43,10 @@ typedef struct os_last_location {
     double verticalAccuracy;
     double horizontalAccuracy;
 } os_last_location;
-
-@interface OneSignalLocation : NSObject<OSLocation>
+//rename to OneSignalLocationManager
+@interface OneSignalLocationManager : NSObject<OSLocation>
 + (Class<OSLocation>)Location;
-+ (OneSignalLocation*) sharedInstance;
++ (OneSignalLocationManager*) sharedInstance;
 + (void)start;
 + (void)clearLastLocation;
 + (void)onFocus:(BOOL)isActive;

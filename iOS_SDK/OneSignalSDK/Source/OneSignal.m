@@ -42,7 +42,7 @@
 #import "OSFocusCallParams.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
-#import <OneSignalLocation/OneSignalLocation.h>
+#import <OneSignalLocation/OneSignalLocationManager.h>
 #import <OneSignalInAppMessages/OneSignalInAppMessages.h>
 
 // TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
@@ -243,11 +243,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSLocation>)Location {
-    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
-    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(Location)]) {
-        return [oneSignalLocation performSelector:@selector(Location)];
+    let oneSignalLocationManager = NSClassFromString(@"OneSignalLocationManager");
+    if (oneSignalLocationManager != nil && [oneSignalLocationManager respondsToSelector:@selector(Location)]) {
+        return [oneSignalLocationManager performSelector:@selector(Location)];
     } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
         return [OSStubLocation Location];
     }
 }

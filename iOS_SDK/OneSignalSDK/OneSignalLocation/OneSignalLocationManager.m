@@ -27,11 +27,11 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
-@implementation OneSignalLocation
+@implementation OneSignalLocationManager
 
 //Track time until next location fire event
 const NSTimeInterval foregroundSendLocationWaitTime = 5 * 60.0;
@@ -70,11 +70,11 @@ NSObject *_mutexObjectForLastLocation;
     return _mutexObjectForLastLocation;
 }
 
-static OneSignalLocation* singleInstance = nil;
-+(OneSignalLocation*) sharedInstance {
+static OneSignalLocationManager* singleInstance = nil;
++(OneSignalLocationManager*) sharedInstance {
     @synchronized( singleInstance ) {
         if( !singleInstance ) {
-            singleInstance = [[OneSignalLocation alloc] init];
+            singleInstance = [[OneSignalLocationManager alloc] init];
         }
     }
     
@@ -87,7 +87,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)start {
     if ([OneSignalConfigManager getAppId] != nil && [self isShared]) {
-        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
+        [OneSignalLocationManager getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     }
 }
 
@@ -106,7 +106,7 @@ static OneSignalLocation* singleInstance = nil;
 
     if (!enable) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
-        [OneSignalLocation clearLastLocation];
+        [OneSignalLocationManager clearLastLocation];
     }
 }
 
@@ -119,7 +119,7 @@ static OneSignalLocation* singleInstance = nil;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
         return;
     
-    [OneSignalLocation getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
+    [OneSignalLocationManager getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
 }
 
 + (BOOL)isShared {
@@ -136,23 +136,23 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)clearLastLocation {
-    @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
+    @synchronized(OneSignalLocationManager.mutexObjectForLastLocation) {
        lastLocation = nil;
     }
 }
 
 + (void)getLocation:(bool)prompt fallbackToSettings:(BOOL)fallback withCompletionHandler:(void (^)(PromptActionResult result))completionHandler {
     if (completionHandler)
-        [OneSignalLocation.locationListeners addObject:completionHandler];
+        [OneSignalLocationManager.locationListeners addObject:completionHandler];
 
     if (hasDelayed)
-        [OneSignalLocation internalGetLocation:prompt fallbackToSettings:fallback];
+        [OneSignalLocationManager internalGetLocation:prompt fallbackToSettings:fallback];
     else {
         // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not statically linked.
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2.0 * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
             hasDelayed = true;
-            [OneSignalLocation internalGetLocation:prompt fallbackToSettings:fallback];
+            [OneSignalLocationManager internalGetLocation:prompt fallbackToSettings:fallback];
         });
     }
     // Listen to app going to and from background
@@ -193,7 +193,7 @@ static OneSignalLocation* singleInstance = nil;
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wint-conversion"
         if ([NSClassFromString(@"CLLocationManager") performSelector:@selector(authorizationStatus)] == kCLAuthorizationStatusAuthorizedAlways) {
-            [OneSignalLocation beginTask];
+            [OneSignalLocationManager beginTask];
             [requestLocationTimer invalidate];
             [self requestLocation];
         } else {
@@ -204,7 +204,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)beginTask {
     fcTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [OneSignalLocation endTask];
+        [OneSignalLocationManager endTask];
     }];
 }
 
@@ -214,12 +214,12 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)sendAndClearLocationListener:(PromptActionResult)result {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]];
-    for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
-        ((void (^)(PromptActionResult result))[OneSignalLocation.locationListeners objectAtIndex:i])(result);
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocationManager.locationListeners]];
+    for (int i = 0; i < OneSignalLocationManager.locationListeners.count; i++) {
+        ((void (^)(PromptActionResult result))[OneSignalLocationManager.locationListeners objectAtIndex:i])(result);
     }
     // We only call the listeners once
-    [OneSignalLocation.locationListeners removeAllObjects];
+    [OneSignalLocationManager.locationListeners removeAllObjects];
 }
 
 + (void)sendCurrentAuthStatusToListeners {
@@ -332,7 +332,7 @@ static OneSignalLocation* singleInstance = nil;
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
             #pragma clang diagnostic pop
         }
-        [OneSignalLocation sendAndClearLocationListener:false];
+        [OneSignalLocationManager sendAndClearLocationListener:false];
         return;
     }];
 }
@@ -359,16 +359,16 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if (([OSPrivacyConsentController requiresUserPrivacyConsent] || ![OneSignalLocation isShared]) && !fallbackToSettings) {
+    if (([OSPrivacyConsentController requiresUserPrivacyConsent] || ![OneSignalLocationManager isShared]) && !fallbackToSettings) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManagerDelegate clear Location listener due to permissions denied or location shared not available"];
-        [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
+        [OneSignalLocationManager sendAndClearLocationListener:PERMISSION_DENIED];
         return;
     }
     [manager performSelector:@selector(stopUpdatingLocation)];
     if ([UIApplication sharedApplication].applicationState != UIApplicationStateBackground) {
         [manager performSelector:@selector(stopMonitoringSignificantLocationChanges)];
         if (!requestLocationTimer)
-            [OneSignalLocation resetSendTimer];
+            [OneSignalLocationManager resetSendTimer];
     }
     
     id location = locations.lastObject;
@@ -382,7 +382,7 @@ static OneSignalLocation* singleInstance = nil;
     [invocation invoke];
     [invocation getReturnValue:&cords];
     
-    @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
+    @synchronized(OneSignalLocationManager.mutexObjectForLastLocation) {
         if (!lastLocation)
             lastLocation = (os_last_location*)malloc(sizeof(os_last_location));
         if (lastLocation == NULL) {
@@ -396,19 +396,19 @@ static OneSignalLocation* singleInstance = nil;
     
     
     
-    [OneSignalLocation sendLocation];
+    [OneSignalLocationManager sendLocation];
     
-    [OneSignalLocation sendAndClearLocationListener:PERMISSION_GRANTED];
-    if ([OneSignalLocation backgroundTaskIsActive]) {
-        [OneSignalLocation endTask];
+    [OneSignalLocationManager sendAndClearLocationListener:PERMISSION_GRANTED];
+    if ([OneSignalLocationManager backgroundTaskIsActive]) {
+        [OneSignalLocationManager endTask];
     }
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
-    [OneSignalLocation sendAndClearLocationListener:ERROR];
-    if ([OneSignalLocation backgroundTaskIsActive]) {
-        [OneSignalLocation endTask];
+    [OneSignalLocationManager sendAndClearLocationListener:ERROR];
+    if ([OneSignalLocationManager backgroundTaskIsActive]) {
+        [OneSignalLocationManager endTask];
     }
 }
 
@@ -423,14 +423,14 @@ static OneSignalLocation* singleInstance = nil;
     if ([OSPrivacyConsentController requiresUserPrivacyConsent])
         return;
     
-    @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
+    @synchronized(OneSignalLocationManager.mutexObjectForLastLocation) {
         NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
         if (!lastLocation || !userId)
             return;
         
         //Fired from timer and not initial location fetched
         if (initialLocationSent && [UIApplication sharedApplication].applicationState != UIApplicationStateBackground)
-            [OneSignalLocation resetSendTimer];
+            [OneSignalLocationManager resetSendTimer];
         
         initialLocationSent = YES;
         
