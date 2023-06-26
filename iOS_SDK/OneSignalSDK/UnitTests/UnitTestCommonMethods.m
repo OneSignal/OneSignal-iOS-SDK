@@ -51,7 +51,7 @@
 #import "OSInAppMessagingHelpers.h"
 #import "OSOutcomeEventsCache.h"
 #import "OSInfluenceDataRepository.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSMessagingControllerOverrider.h"

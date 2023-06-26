@@ -69,7 +69,7 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalLocationOverrider.h"
 #import "UIDeviceOverrider.h"
 #import "OneSignalOverrider.h"
@@ -111,7 +111,7 @@
     // Only enable remote-notifications in UIBackgroundModes
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     // Clear last location stored
-    [OneSignalLocation clearLastLocation];
+    [OneSignalLocationManager clearLastLocation];
     
     // Clear callback external ids for push and email before each test
     self.CALLBACK_EXTERNAL_USER_ID = nil;
