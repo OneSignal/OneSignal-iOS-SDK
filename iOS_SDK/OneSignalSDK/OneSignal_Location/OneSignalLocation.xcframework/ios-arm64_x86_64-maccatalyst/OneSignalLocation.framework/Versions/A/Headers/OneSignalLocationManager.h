@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OSLocation.h>
-
+#import <OneSignalCore/OneSignalCommonDefines.h>
 
 #ifndef OneSignalLocation_h
 #define OneSignalLocation_h
@@ -51,6 +51,7 @@ typedef struct os_last_location {
 + (void)clearLastLocation;
 + (void)onFocus:(BOOL)isActive;
 + (void)startLocationSharedWithFlag:(BOOL)enable;
++ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler;
 @end
 
 #endif /* OneSignalLocation_h */
