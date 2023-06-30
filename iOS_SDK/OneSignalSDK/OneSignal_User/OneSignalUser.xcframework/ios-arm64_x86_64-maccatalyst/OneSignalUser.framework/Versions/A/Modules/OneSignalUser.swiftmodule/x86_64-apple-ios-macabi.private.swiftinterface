@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.7.1 (swiftlang-5.7.1.135.3 clang-1400.0.29.51)
+// swift-compiler-version: Apple Swift version 5.8 (swiftlang-5.8.0.124.1 clang-1403.0.22.11.100)
 // swift-module-flags: -target x86_64-apple-ios13.1-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalUser
 // swift-module-flags-ignorable: -enable-bare-slash-regex
 import Foundation
@@ -11,7 +11,7 @@ import Swift
 import _Concurrency
 import _StringProcessing
 @objc public protocol OSUser {
-  @objc var pushSubscription: OneSignalUser.OSPushSubscription { get }
+  @objc var pushSubscription: any OneSignalUser.OSPushSubscription { get }
   @objc func addAlias(label: Swift.String, id: Swift.String)
   @objc func addAliases(_ aliases: [Swift.String : Swift.String])
   @objc func removeAlias(_ label: Swift.String)
@@ -35,8 +35,8 @@ import _StringProcessing
   @objc var optedIn: Swift.Bool { get }
   @objc func optIn()
   @objc func optOut()
-  @objc func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
-  @objc func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
+  @objc func addObserver(_ observer: any OneSignalUser.OSPushSubscriptionObserver)
+  @objc func removeObserver(_ observer: any OneSignalUser.OSPushSubscriptionObserver)
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OneSignalUserManagerImpl : ObjectiveC.NSObject {
   @objc public static let sharedInstance: OneSignalUser.OneSignalUserManagerImpl
@@ -66,10 +66,10 @@ extension OneSignalUser.OneSignalUserManagerImpl {
 }
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public func onJwtExpired(expiredHandler: @escaping OneSignalUser.OneSignalUserManagerImpl.OSJwtExpiredHandler)
-  @objc dynamic public var User: OneSignalUser.OSUser {
+  @objc dynamic public var User: any OneSignalUser.OSUser {
     @objc get
   }
-  @objc dynamic public var pushSubscription: OneSignalUser.OSPushSubscription {
+  @objc dynamic public var pushSubscription: any OneSignalUser.OSPushSubscription {
     @objc get
   }
   @objc dynamic public func addAlias(label: Swift.String, id: Swift.String)
@@ -87,8 +87,8 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public func setLanguage(_ language: Swift.String)
 }
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSPushSubscription {
-  @objc dynamic public func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
-  @objc dynamic public func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
+  @objc dynamic public func addObserver(_ observer: any OneSignalUser.OSPushSubscriptionObserver)
+  @objc dynamic public func removeObserver(_ observer: any OneSignalUser.OSPushSubscriptionObserver)
   @objc dynamic public var id: Swift.String? {
     @objc get
   }
