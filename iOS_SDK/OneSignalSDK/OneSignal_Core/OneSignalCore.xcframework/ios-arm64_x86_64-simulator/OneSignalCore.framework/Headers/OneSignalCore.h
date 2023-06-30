@@ -54,3 +54,5 @@
 #import <OneSignalCore/OSRemoteParamController.h>
 #import <OneSignalCore/OneSignalMobileProvision.h>
 #import <OneSignalCore/OneSignalWrapper.h>
+#import <OneSignalCore/OSInAppMessages.h>
+#import <OneSignalCore/OSLocation.h>
