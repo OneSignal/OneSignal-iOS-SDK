@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
 #import <OneSignalLocation/OneSignalLocationManager.h>
+#import <OneSignalCore/OneSignalLog.h>
 
 //@interface OneSignalLocation ()
 //
@@ -50,16 +51,19 @@
     /*
      This code calls [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
      */
-    id OneSignalLocationClass = NSClassFromString(@"OneSignalLocationManager");
     BOOL fallback = YES;
-    NSMethodSignature* signature = [OneSignalLocationClass instanceMethodSignatureForSelector:@selector(promptLocationFallbackToSettings:completionHandler:)];
-    NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: signature];
-    [invocation setTarget: OneSignalLocationClass];
-    [invocation setSelector: @selector(promptLocationFallbackToSettings:completionHandler:)];
-    [invocation setArgument: &fallback atIndex: 2];
-    [invocation setArgument: &completionHandler atIndex: 3];
-    [invocation invoke];
-
+    let oneSignalLocationManager = NSClassFromString(@"OneSignalLocationManager");
+    if (oneSignalLocationManager != nil && [oneSignalLocationManager respondsToSelector:@selector(promptLocationFallbackToSettings:completionHandler:)]) {
+        NSMethodSignature* signature = [oneSignalLocationManager methodSignatureForSelector:@selector(promptLocationFallbackToSettings:completionHandler:)];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: signature];
+        [invocation setTarget: oneSignalLocationManager];
+        [invocation setSelector: @selector(promptLocationFallbackToSettings:completionHandler:)];
+        [invocation setArgument: &fallback atIndex: 2];
+        [invocation setArgument: &completionHandler atIndex: 3];
+        [invocation invoke];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
+    }
 }
 
 - (NSString *)description {
