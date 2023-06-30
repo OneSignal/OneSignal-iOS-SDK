@@ -55,6 +55,12 @@ create_xcframework "OneSignal_Notifications" "OneSignalNotifications" "OneSignal
 ## BUILD ONESIGNAL USER ##
 create_xcframework "OneSignal_User" "OneSignalUser" "OneSignalUser"
 
+## BUILD ONESIGNAL USER ##
+create_xcframework "OneSignal_Location" "OneSignalLocation" "OneSignalLocation"
+
+## BUILD ONESIGNAL USER ##
+create_xcframework "OneSignal_InAppMessages" "OneSignalInAppMessages" "OneSignalInAppMessages"
+
 ## BUILD ONESIGNAL ##
 create_xcframework "OneSignal_XCFramework" "OneSignalFramework" "OneSignalFramework"
 
