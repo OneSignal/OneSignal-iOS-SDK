@@ -47,22 +47,28 @@ update_framework() {
 }
 
 ## OneSignal Core ##
-update_framework "OneSignal_Core" "OneSignalCore" "110" "109"
+update_framework "OneSignal_Core" "OneSignalCore" "149" "148"
 
 ## OneSignal OSCore ##
-update_framework "OneSignal_OSCore" "OneSignalOSCore" "105" "104"
+update_framework "OneSignal_OSCore" "OneSignalOSCore" "144" "143"
 
 ## OneSignal Outcomes ##
-update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "100" "99"
+update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "139" "138"
 
 ## OneSignal Extension ##
-update_framework "OneSignal_Extension" "OneSignalExtension" "95" "94"
+update_framework "OneSignal_Extension" "OneSignalExtension" "134" "133"
 
 ## OneSignal Notifications ##
-update_framework "OneSignal_Notifications" "OneSignalNotifications" "90" "89"
+update_framework "OneSignal_Notifications" "OneSignalNotifications" "129" "128"
 
 ## OneSignal User ##
-update_framework "OneSignal_User" "OneSignalUser" "85" "84"
+update_framework "OneSignal_User" "OneSignalUser" "124" "123"
+
+## OneSignal Location ##
+update_framework "OneSignal_Location" "OneSignalLocation" "119" "118"
+
+## OneSignal Location ##
+update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages" "114" "113"
 
 ## OneSignal ##
-update_framework "OneSignal_XCFramework" "OneSignalFramework" "80" "79"
+update_framework "OneSignal_XCFramework" "OneSignalFramework" "109" "108"
