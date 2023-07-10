@@ -3349,22 +3349,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertFalse(OneSignalOverrider.launchWebURLWasCalled);
 }
 
-- (void)testsetLaunchURLInAppAfterInit {
-    // 1. setLaunchURLsInApp to false
-    [OneSignal setLaunchURLsInApp:false];
-    
-    // 2. Init OneSignal with app start
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertFalse([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
-    
-    // 3. Change setLaunchURLsInApp to true
-    [OneSignal setLaunchURLsInApp:true];
-    
-    XCTAssertTrue([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
-}
-
 - (void)testTimezoneId {
        
     let mockTimezone = [NSTimeZone timeZoneWithName:@"Europe/London"];

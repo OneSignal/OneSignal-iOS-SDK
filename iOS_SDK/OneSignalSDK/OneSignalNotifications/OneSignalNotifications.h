@@ -29,6 +29,4 @@
 
 #import <OneSignalNotifications/OSNotificationsManager.h>
 #import <OneSignalNotifications/OSPermission.h>
-#import <OneSignalNotifications/OneSignalWebView.h>
-#import <OneSignalNotifications/OneSignalWebViewManager.h>
 #import <OneSignalNotifications/OSNotification+OneSignal.h>
