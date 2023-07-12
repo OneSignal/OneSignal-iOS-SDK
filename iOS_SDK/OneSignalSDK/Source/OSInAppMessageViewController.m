@@ -486,6 +486,7 @@
  */
 - (void)dismissCurrentInAppMessage:(BOOL)up withVelocity:(double)velocity {
     // Since the user dimsissed the IAM, cancel the dismissal timer
+    NSLog(@"ECM dismissing");
     if (self.dismissalTimer)
         [self.dismissalTimer invalidate];
     
@@ -535,8 +536,9 @@
     } completion:^(BOOL finished) {
         if (!finished)
             return;
-
+        NSLog(@"ECM dismissing finished");
         self.didPageRenderingComplete = false;
+        [self dismissViewControllerAnimated:false completion:nil];
         [self.delegate messageViewControllerWasDismissed:self.message displayed:YES];
     }];
 }

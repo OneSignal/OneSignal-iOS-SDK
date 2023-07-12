@@ -530,6 +530,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
     switch (action.urlActionType) {
         case OSInAppMessageActionUrlTypeSafari:
+            NSLog(@"ECM Loading URL in safari");
             [[UIApplication sharedApplication] openURL:action.clickUrl options:@{} completionHandler:^(BOOL success) {}];
             break;
         case OSInAppMessageActionUrlTypeWebview:
@@ -604,6 +605,7 @@ static BOOL _isInAppMessagingPaused = false;
             [self.messageDisplayQueue removeObjectAtIndex:0];
             [self persistInAppMessageForRedisplay:showingIAM];
         }
+        NSLog(@"ECM setting view controller to nil");
         // Reset the IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
         // Reset time since last IAM

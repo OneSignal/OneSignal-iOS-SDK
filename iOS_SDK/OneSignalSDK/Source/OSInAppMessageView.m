@@ -219,6 +219,7 @@
 }
 
 - (void)loadReplacementURL:(NSURL *)url {
+    NSLog(@"ECM Loading Replacement URL");
     [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
