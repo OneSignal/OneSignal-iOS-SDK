@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-#import <OneSignalNotifications/OneSignalWebView.h>
+#import "OneSignalWebView.h"
 
 @interface OneSignalWebViewManager : NSObject
 + (OneSignalWebView *_Nonnull)webVC;

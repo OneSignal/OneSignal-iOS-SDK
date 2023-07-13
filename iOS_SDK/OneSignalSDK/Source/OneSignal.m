@@ -77,9 +77,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-/* Enable the default in-app launch urls*/
-NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
-
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
@@ -335,15 +332,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 }
 
-// TODO: Should this be in the InAppMessages namespace?
-+ (void)setLaunchURLsInApp:(BOOL)launchInApp {
-    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
-    newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
-    appSettings = newSettings;
-    // This allows this method to have an effect after init is called
-    [self enableInAppLaunchURL:launchInApp];
-}
-
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
     if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
@@ -441,21 +429,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
 }
 
-+ (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
-    // TODO: Make booleans on the class instead of as keys in a dictionary
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    // Check if disabled in-app launch url if passed a NO
-    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
-        
-        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-    
-    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
-        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
-        
-        [self enableInAppLaunchURL:true];
-    }
-}
-
 + (void)startInAppMessages {
     let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(start)]) {
@@ -535,8 +508,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     
     // Now really initializing the SDK!
-    
-    [self initInAppLaunchURLSettings:appSettings];
     
     // Invalid app ids reaching here will cause failure
     if (![self isValidAppId:appId])
@@ -688,10 +659,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
-}
-
-+ (void)enableInAppLaunchURL:(BOOL)enable {
-    [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
 
 //TODO: consolidate in one place. Where???
