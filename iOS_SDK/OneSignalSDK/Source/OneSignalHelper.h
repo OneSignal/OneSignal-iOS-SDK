@@ -34,7 +34,6 @@
 @interface OneSignalHelper : NSObject
 
 // - Web
-+ (OneSignalWebView*)webVC;
 + (void) displayWebView:(NSURL*)url;
 
 // Threading

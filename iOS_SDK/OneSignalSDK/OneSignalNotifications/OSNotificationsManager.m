@@ -735,27 +735,14 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)displayWebView:(NSURL*)url {
-    // Check if in-app or safari
-    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false];
-    
-    // If the URL contains itunes.apple.com, it's an app store link
-    // that should be opened using sharedApplication openURL
-    if ([[url absoluteString] rangeOfString:@"itunes.apple.com"].location != NSNotFound) {
-        inAppLaunch = NO;
-    }
-    
     __block let openUrlBlock = ^void(BOOL shouldOpen) {
         if (!shouldOpen)
             return;
         
         [OneSignalCoreHelper dispatch_async_on_main_queue: ^{
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if (inAppLaunch && [OneSignalCoreHelper isWWWScheme:url]) {
-                    [OneSignalWebViewManager displayWebView: url];
-                } else {
-                    // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
-                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-                }
+                // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
+                [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
             });
         }];
     };
