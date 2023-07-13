@@ -58,7 +58,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     // OneSignal Init with app id and lauch options
-    [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     
     [OneSignal.InAppMessages addLifecycleListener:self];

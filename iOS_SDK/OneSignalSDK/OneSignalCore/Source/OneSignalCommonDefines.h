@@ -73,7 +73,6 @@
 
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
-#define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
 #define OSUD_TEMP_CACHED_NOTIFICATION_MEDIA                                 @"OSUD_TEMP_CACHED_NOTIFICATION_MEDIA"                              // OSUD_TEMP_CACHED_NOTIFICATION_MEDIA
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
