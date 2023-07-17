@@ -1,0 +1,6 @@
+framework module OneSignalInAppMessages {
+  umbrella header "OneSignalInAppMessages.h"
+
+  export *
+  module * { export * }
+}

@@ -30,8 +30,7 @@ THE SOFTWARE.
 #import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
-#import "OneSignalLocation.h"
-#import "OSMessagingController.h"
+#import <OneSignalLocation/OneSignalLocationManager.h>
 #import "UIApplication+OneSignal.h"
 
 @implementation OneSignalLifecycleObserver
@@ -82,8 +81,14 @@ static OneSignalLifecycleObserver* _instance = nil;
     
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:NO];
-        [OneSignalLocation onFocus:YES];
-        [[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
+        let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+        if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
+            [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:YES];
+        }
+        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(onApplicationDidBecomeActive)]) {
+            [oneSignalInAppMessages performSelector:@selector(onApplicationDidBecomeActive)];
+        }
     }
 }
 
@@ -99,9 +104,12 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)didEnterBackground {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
-    
-    if ([OneSignal appId])
-        [OneSignalLocation onFocus:NO];
+    if ([OneSignalConfigManager getAppId]) {
+        let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+        if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
+            [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:NO];
+        }
+    }
 }
 
 - (void)dealloc {

@@ -10,6 +10,12 @@ let package = Package(
             name: "OneSignalFramework",
             targets: ["OneSignalFrameworkWrapper"]),
         .library(
+            name: "OneSignalInAppMessages",
+            targets: ["OneSignalInAppMessagesWrapper"]),,
+        .library(
+            name: "OneSignalLocation",
+            targets: ["OneSignalLocationWrapper"]),
+        .library(
             name: "OneSignalExtension",
             targets: ["OneSignalExtensionWrapper"])
     ],
@@ -26,6 +32,29 @@ let package = Package(
                 "OneSignalCore"
             ],
             path: "OneSignalFrameworkWrapper"
+        ),
+        .target(
+            name: "OneSignalInAppMessagesWrapper",
+            dependencies: [
+                "OneSignalInAppMessages",
+                "OneSignalUser",
+                "OneSignalNotifications",
+                "OneSignalOutcomes",
+                "OneSignalOSCore",
+                "OneSignalCore"
+            ],
+            path: "OneSignalInAppMessagesWrapper"
+        ),
+        .target(
+            name: "OneSignalLocationWrapper",
+            dependencies: [
+                "OneSignalLocation",
+                "OneSignalUser",
+                "OneSignalNotifications",
+                "OneSignalOSCore",
+                "OneSignalCore"
+            ],
+            path: "OneSignalLocationWrapper"
         ),
         .target(
             name: "OneSignalUserWrapper",
@@ -78,6 +107,16 @@ let package = Package(
           name: "OneSignalFramework",
           url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.0.0-beta-04/OneSignalFramework.xcframework.zip",
           checksum: "c1a9a6d372fa8a2e4dfa077e74c6a5cdc523ce1005e58a05d888aec742f80d52"
+        ),
+        .binaryTarget(
+          name: "OneSignalInAppMessages",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.0.0-beta-04/OneSignalInAppMessages.xcframework.zip",
+          checksum: "needschecksum"
+        ),
+        .binaryTarget(
+          name: "OneSignalLocation",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.0.0-beta-04/OneSignalLocation.xcframework.zip",
+          checksum: "needschecksum"
         ),
         .binaryTarget(
           name: "OneSignalUser",

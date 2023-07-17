@@ -36,6 +36,13 @@
         "moduleName": "OneSignalFramework"
       },
       {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework"
+      },
+      {
         "kind": "TypeDecl",
         "name": "OneSignal",
         "printedName": "OneSignal",
@@ -217,12 +224,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "ExistentialMetatype",
-                "printedName": "OneSignalFramework.OSInAppMessages.Type",
+                "printedName": "OneSignalCore.OSInAppMessages.Type",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSInAppMessages",
-                    "printedName": "OneSignalFramework.OSInAppMessages",
+                    "printedName": "OneSignalCore.OSInAppMessages",
                     "usr": "c:objc(pl)OSInAppMessages"
                   }
                 ]
@@ -246,12 +253,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "ExistentialMetatype",
-                    "printedName": "OneSignalFramework.OSInAppMessages.Type",
+                    "printedName": "OneSignalCore.OSInAppMessages.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSInAppMessages",
-                        "printedName": "OneSignalFramework.OSInAppMessages",
+                        "printedName": "OneSignalCore.OSInAppMessages",
                         "usr": "c:objc(pl)OSInAppMessages"
                       }
                     ]
@@ -339,12 +346,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "ExistentialMetatype",
-                "printedName": "OneSignalFramework.OSLocation.Type",
+                "printedName": "OneSignalCore.OSLocation.Type",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSLocation",
-                    "printedName": "OneSignalFramework.OSLocation",
+                    "printedName": "OneSignalCore.OSLocation",
                     "usr": "c:objc(pl)OSLocation"
                   }
                 ]
@@ -368,12 +375,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "ExistentialMetatype",
-                    "printedName": "OneSignalFramework.OSLocation.Type",
+                    "printedName": "OneSignalCore.OSLocation.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSLocation",
-                        "printedName": "OneSignalFramework.OSLocation",
+                        "printedName": "OneSignalCore.OSLocation",
                         "usr": "c:objc(pl)OSLocation"
                       }
                     ]
@@ -606,8 +613,8 @@
                 "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvgZ",
                 "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvgZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
                 "static": true,
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -633,8 +640,8 @@
                 "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvsZ",
                 "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvsZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
                 "static": true,
                 "isFromExtension": true,
                 "accessorKind": "set"
@@ -654,8 +661,8 @@
                 "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ",
                 "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
                 "static": true,
                 "implicit": true,
                 "isFromExtension": true,
@@ -676,7 +683,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSInAppMessageLifecycleListener",
-                "printedName": "OneSignalFramework.OSInAppMessageLifecycleListener",
+                "printedName": "OneSignalCore.OSInAppMessageLifecycleListener",
                 "usr": "c:objc(pl)OSInAppMessageLifecycleListener"
               }
             ],
@@ -684,8 +691,8 @@
             "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE20addLifecycleListeneryySo0ab7MessagehI0_pFZ",
             "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE20addLifecycleListeneryySo0ab7MessagehI0_pFZ",
             "moduleName": "OneSignalFramework",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
             "static": true,
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -703,7 +710,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSInAppMessageLifecycleListener",
-                "printedName": "OneSignalFramework.OSInAppMessageLifecycleListener",
+                "printedName": "OneSignalCore.OSInAppMessageLifecycleListener",
                 "usr": "c:objc(pl)OSInAppMessageLifecycleListener"
               }
             ],
@@ -711,8 +718,8 @@
             "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE23removeLifecycleListeneryySo0ab7MessagehI0_pFZ",
             "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE23removeLifecycleListeneryySo0ab7MessagehI0_pFZ",
             "moduleName": "OneSignalFramework",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
             "static": true,
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -730,7 +737,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSInAppMessageClickListener",
-                "printedName": "OneSignalFramework.OSInAppMessageClickListener",
+                "printedName": "OneSignalCore.OSInAppMessageClickListener",
                 "usr": "c:objc(pl)OSInAppMessageClickListener"
               }
             ],
@@ -738,8 +745,8 @@
             "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE16addClickListeneryySo0ab7MessagehI0_pFZ",
             "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE16addClickListeneryySo0ab7MessagehI0_pFZ",
             "moduleName": "OneSignalFramework",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
             "static": true,
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -757,7 +764,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSInAppMessageClickListener",
-                "printedName": "OneSignalFramework.OSInAppMessageClickListener",
+                "printedName": "OneSignalCore.OSInAppMessageClickListener",
                 "usr": "c:objc(pl)OSInAppMessageClickListener"
               }
             ],
@@ -765,8 +772,8 @@
             "usr": "s:So15OSInAppMessagesP18OneSignalFrameworkE19removeClickListeneryySo0ab7MessagehI0_pFZ",
             "mangledName": "$sSo15OSInAppMessagesP18OneSignalFrameworkE19removeClickListeneryySo0ab7MessagehI0_pFZ",
             "moduleName": "OneSignalFramework",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSInAppMessages>",
-            "sugared_genericSig": "<Self where Self : OneSignalFramework.OSInAppMessages>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSInAppMessages>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSInAppMessages>",
             "static": true,
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -774,7 +781,7 @@
         ],
         "declKind": "Protocol",
         "usr": "c:objc(pl)OSInAppMessages",
-        "moduleName": "OneSignalFramework",
+        "moduleName": "OneSignalCore",
         "genericSig": "<τ_0_0 : ObjectiveC.NSObjectProtocol>",
         "sugared_genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
         "objc_name": "OSInAppMessages",
@@ -1177,8 +1184,8 @@
                 "usr": "s:So10OSLocationP18OneSignalFrameworkE8isSharedSbvgZ",
                 "mangledName": "$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvgZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSLocation>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSLocation>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSLocation>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSLocation>",
                 "static": true,
                 "isFromExtension": true,
                 "accessorKind": "get"
@@ -1204,8 +1211,8 @@
                 "usr": "s:So10OSLocationP18OneSignalFrameworkE8isSharedSbvsZ",
                 "mangledName": "$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvsZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSLocation>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSLocation>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSLocation>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSLocation>",
                 "static": true,
                 "isFromExtension": true,
                 "accessorKind": "set"
@@ -1225,8 +1232,8 @@
                 "usr": "s:So10OSLocationP18OneSignalFrameworkE8isSharedSbvMZ",
                 "mangledName": "$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvMZ",
                 "moduleName": "OneSignalFramework",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalFramework.OSLocation>",
-                "sugared_genericSig": "<Self where Self : OneSignalFramework.OSLocation>",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSLocation>",
+                "sugared_genericSig": "<Self where Self : OneSignalCore.OSLocation>",
                 "static": true,
                 "implicit": true,
                 "isFromExtension": true,
@@ -1237,7 +1244,7 @@
         ],
         "declKind": "Protocol",
         "usr": "c:objc(pl)OSLocation",
-        "moduleName": "OneSignalFramework",
+        "moduleName": "OneSignalCore",
         "genericSig": "<τ_0_0 : ObjectiveC.NSObjectProtocol>",
         "sugared_genericSig": "<Self : ObjectiveC.NSObjectProtocol>",
         "objc_name": "OSLocation",

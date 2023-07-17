@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		RrJplGRYKEP/WRZgiaubv0gdZD0=
+		eXXafLbBNKrRWPZheIKoe8YbZho=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -46,11 +46,25 @@
 			VHQRipAjzHtXPkUXXH4YvMFBZS9BgNyDe0llpuFstT8=
 			</data>
 		</dict>
+		<key>Headers/OSInAppMessages.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			VVEqvqs8Gzc3GkvFEX3QgAqaIgKK/CuLd3DzILUGY10=
+			</data>
+		</dict>
 		<key>Headers/OSJSONHandling.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
 			s3NgkOLqd6fRlHYOq0qucoCdi9UhfSqxLGpl26BnNck=
+			</data>
+		</dict>
+		<key>Headers/OSLocation.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Ci2MC5dabTrUMJjPeBp9MLhuPzvSeMfGFLHdooZzTbc=
 			</data>
 		</dict>
 		<key>Headers/OSMacros.h</key>
@@ -141,14 +155,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			L/9ryhNcAUeUcmGAiQTxvnvLv28WcSUGLAoyu381nmI=
+			CZNtCCWsZDtT4qPjBwdved+ePMTZHxOiPePJe2wbheY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			UGIkfh6atqLP1mZmCLrT4t6Sw99OCMnd/8aGq8vaUYU=
+			OMNqcRy39+beti7vT2rQki8JFnft65SbakA3QVQxHQQ=
 			</data>
 		</dict>
 		<key>Headers/OneSignalLog.h</key>
@@ -218,7 +232,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			5kDZvqMywr3IJcAE3eSYETW5SZ1eRriO9ZK0u0pfoIk=
+			481U1Tsu4yJi40sAVR4+Cniu4ZvRd7Jf2/9xec77e84=
 			</data>
 		</dict>
 	</dict>

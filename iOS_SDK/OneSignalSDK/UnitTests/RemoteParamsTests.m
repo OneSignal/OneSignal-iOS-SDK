@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "UnitTestCommonMethods.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalLocationOverrider.h"
 #import "OneSignalHelper.h"
 #import "OneSignalHelperOverrider.h"
@@ -50,7 +50,7 @@
     [UnitTestCommonMethods beforeEachTest:self];
     
     // Clear last location stored
-    [OneSignalLocation clearLastLocation];
+    [OneSignalLocationManager clearLastLocation];
 
     OneSignalHelperOverrider.mockIOSVersion = 10;
     
@@ -84,7 +84,7 @@
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
        
     // Set location shared true
     [OneSignal setLocationShared:true];
@@ -92,7 +92,7 @@
     [OneSignalLocationOverrider grantLocationServices];
     [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
-    XCTAssertTrue([OneSignalLocation lastLocation]);
+    XCTAssertTrue([OneSignalLocationManager lastLocation]);
 }
 
 - (void)testLocationPromptAcceptedWithSetLocationSharedTrueFromRemoteParams_iOS9_WhenInUseUsage {
@@ -106,12 +106,12 @@
     // location_shared set as true on remote params
     XCTAssertTrue([OneSignal isLocationShared]);
     // Last location should not exist since we didn't grant permission
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
-    XCTAssertTrue([OneSignalLocation lastLocation]);
+    XCTAssertTrue([OneSignalLocationManager lastLocation]);
 }
 
 - (void)testLocationPromptAcceptedWithSetLocationSharedFalseFromRemoteParams_iOS9_WhenInUseUsage {
@@ -128,11 +128,11 @@
     // location_shared set as false on remote params
     XCTAssertFalse([OneSignal isLocationShared]);
     // Last location should not exist since we didn't grant permission
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
 }
 
 - (void)testLocationSharedTrueFromRemoteParams {
@@ -143,12 +143,12 @@
     // location_shared set as true on remote params
     XCTAssertTrue([OneSignal isLocationShared]);
     // Last location should not exist since we didn't grant permission
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
-    XCTAssertTrue([OneSignalLocation lastLocation]);
+    XCTAssertTrue([OneSignalLocationManager lastLocation]);
 }
 
 - (void)testLocationSharedFalseFromRemoteParams {
@@ -162,11 +162,11 @@
     // location_shared set as false on remote params
     XCTAssertFalse([OneSignal isLocationShared]);
     // Last location should not exist since we didn't grant permission
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
-    XCTAssertFalse([OneSignalLocation lastLocation]);
+    XCTAssertFalse([OneSignalLocationManager lastLocation]);
 }
 
 - (void)testLocationSharedEnable_UserConfigurationOverrideByRemoteParams {
