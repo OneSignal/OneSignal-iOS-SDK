@@ -29,7 +29,6 @@
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
-#import "OneSignalLocation.h"
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
 #import "OneSignalHelper.h"
@@ -43,6 +42,8 @@
 #import "OSFocusCallParams.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
+#import <OneSignalLocation/OneSignalLocationManager.h>
+#import <OneSignalInAppMessages/OneSignalInAppMessages.h>
 
 // TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
 
@@ -68,10 +69,6 @@
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
-#import "OSMessagingController.h"
-#import "OSInAppMessageInternal.h"
-#import "OneSignalInAppMessaging.h"
-
 #import "OneSignalLifecycleObserver.h"
 
 #pragma clang diagnostic push
@@ -79,9 +76,6 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-/* Enable the default in-app launch urls*/
-NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
@@ -114,8 +108,8 @@ static BOOL initDone = false;
 // Used to track last time SDK was initialized, for whether or not to start a new session
 static NSTimeInterval initializationTime;
 
-// Set when the app is launched
-static NSDate *sessionLaunchTime;
+//// Set when the app is launched
+//static NSDate *sessionLaunchTime;
 
 /*
  Indicates if the iOS params request has started
@@ -186,7 +180,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
     
-    sessionLaunchTime = [NSDate date];
+//    sessionLaunchTime = [NSDate date];
 
     [OSOutcomes clearStatics];
     
@@ -232,7 +226,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSInAppMessages>)InAppMessages {
-    return [OneSignalInAppMessaging InAppMessages];
+    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(InAppMessages)]) {
+        return [oneSignalInAppMessages performSelector:@selector(InAppMessages)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalInAppMessages not found. In order to use OneSignal's In App Messaging features the OneSignalInAppMessages module must be added."];
+        return [OSStubInAppMessages InAppMessages];
+    }
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
@@ -240,7 +240,12 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSLocation>)Location {
-    return [OneSignalLocation Location];
+    let oneSignalLocationManager = NSClassFromString(@"OneSignalLocationManager");
+    if (oneSignalLocationManager != nil && [oneSignalLocationManager respondsToSelector:@selector(Location)]) {
+        return [oneSignalLocationManager performSelector:@selector(Location)];
+    } else {
+        return [OSStubLocation Location];
+    }
 }
 
 + (Class<OSDebug>)Debug {
@@ -327,15 +332,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 }
 
-// TODO: Should this be in the InAppMessages namespace?
-+ (void)setLaunchURLsInApp:(BOOL)launchInApp {
-    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
-    newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
-    appSettings = newSettings;
-    // This allows this method to have an effect after init is called
-    [self enableInAppLaunchURL:launchInApp];
-}
-
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
     if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
@@ -400,10 +396,12 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     // Clear last location after attaching data to user state or not
-    [OneSignalLocation clearLastLocation];
+    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(clearLastLocation)]) {
+        [oneSignalLocation performSelector:@selector(clearLastLocation)];
+    }
+    
     [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
-
-    sessionLaunchTime = [NSDate date];
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance startNewSession];
@@ -412,7 +410,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
     NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (subscriptionId) {
-        [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
+        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer:)]) {
+            [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer:) withObject:subscriptionId];
+        }
     }
     
     // The below means there are NO IAMs until on_session returns
@@ -428,23 +429,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
 }
 
-+ (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
-    // TODO: Make booleans on the class instead of as keys in a dictionary
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    // Check if disabled in-app launch url if passed a NO
-    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
-        
-        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-    
-    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
-        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
-        
-        [self enableInAppLaunchURL:true];
-    }
-}
-
 + (void)startInAppMessages {
-    [OneSignalInAppMessaging start];
+    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(start)]) {
+        [oneSignalInAppMessages performSelector:@selector(start)];
+    }
 }
 
 + (void)startOutcomes {
@@ -453,7 +442,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startLocation {
-    [OneSignalLocation start];
+    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(start)]) {
+        [oneSignalLocation performSelector:@selector(start)];
+    }
 }
 
 + (void)startTrackFirebaseAnalytics {
@@ -516,8 +508,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
     
     // Now really initializing the SDK!
-    
-    [self initInAppLaunchURLSettings:appSettings];
     
     // Invalid app ids reaching here will cause failure
     if (![self isValidAppId:appId])
@@ -646,7 +636,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
-            [OneSignalLocation startLocationSharedWithFlag:shared];
+            let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+            if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(startLocationSharedWithFlag:)]) {
+                [OneSignalCoreHelper callSelector:@selector(startLocationSharedWithFlag:) onObject:oneSignalLocation withArg:shared];
+            }
         }
         
         if ([[OSRemoteParamController sharedController] hasPrivacyConsentKey]) {
@@ -666,10 +659,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
-}
-
-+ (void)enableInAppLaunchURL:(BOOL)enable {
-    [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
 
 //TODO: consolidate in one place. Where???
@@ -708,24 +697,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
             serviceExtensionTimeWillExpireRequest:request
             withMutableNotificationContent:replacementContent];
 }
-
-//TODO: move to sessions/onfocus
-+ (NSDate *)sessionLaunchTime {
-    return sessionLaunchTime;
-}
+//
+////TODO: move to sessions/onfocus
+//+ (NSDate *)sessionLaunchTime {
+//    return sessionLaunchTime;
+//}
 
 /*
  Start of outcome module
  */
-
-+ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
-    if (![OSOutcomes sharedController]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
-        return;
-    }
-
-    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
-}
 
 // Returns if we can send this, meaning we have a subscription_id and onesignal_id
 + (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params {
@@ -816,7 +796,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OSNotificationsManager start];
 
     [[OSMigrationController new] migrate];
-    sessionLaunchTime = [NSDate date];
+//    sessionLaunchTime = [NSDate date];
     
     [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
 }
