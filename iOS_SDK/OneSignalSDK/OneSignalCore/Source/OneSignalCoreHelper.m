@@ -411,5 +411,66 @@ API_AVAILABLE(macos(10.4), ios(2.0));
     return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
 }
 
++(void)callSelector:(SEL)selector onObject:(id)object withArg:(BOOL)arg {
+    NSMethodSignature *methodSignature = [object methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+    [invocation setSelector:selector];
+    [invocation setTarget:object];
+    [invocation setArgument:&arg atIndex:2];
+    [invocation invoke];
+}
+
++(void)callSelector:(SEL)selector
+           onObject:(id)object
+           withArgs:(NSArray*)args {
+    NSMethodSignature *methodSignature = [object methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+    [invocation setSelector:selector];
+    [invocation setTarget:object];
+    for(int i = 0; i < methodSignature.numberOfArguments - 2; i++) {
+        id argv = [args objectAtIndex:i];
+        [invocation setArgument:&argv atIndex:i + 2];
+    }
+
+    [invocation invoke];
+}
+
+/*
+ Given a UIDeviceOrientation return the custom enum ViewOrientation
+ */
++ (ViewOrientation)validateOrientation:(UIDeviceOrientation)orientation {
+    if (UIDeviceOrientationIsPortrait(orientation))
+        return OrientationPortrait;
+    else if (UIDeviceOrientationIsLandscape(orientation))
+        return OrientationLandscape;
+    
+    return OrientationInvalid;
+}
+
+/*
+ Given a float convert it to the phone scaled CGFloat
+ Multiplies float by iPhones scale value
+ */
++ (CGFloat)sizeToScale:(float)size {
+    float scale = [self getScreenScale];
+    return (CGFloat) (size * scale);
+}
+
+/*
+ Get currentDevice screen bounds
+ Contains point of origin (x, y) and the size (height, width) of the screen
+ Changes in regards to the phones current orientation
+ */
++ (CGRect)getScreenBounds {
+    return UIScreen.mainScreen.bounds;
+}
+
+/*
+ Get currentDevice screen scale
+ Important for specific constraints so that phones of different resolution scale properly
+ */
++ (float)getScreenScale {
+    return UIScreen.mainScreen.scale;
+}
 
 @end

@@ -48,9 +48,7 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
-#import "OneSignalInAppMessaging.h"
 #import "OneSignalLiveActivityController.h"
-#import "OneSignalLocation.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -82,7 +80,6 @@ NS_SWIFT_NAME(login(externalId:token:));
 #pragma mark Initialization
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions; // meant for use by wrappers
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
-+ (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Live Activity

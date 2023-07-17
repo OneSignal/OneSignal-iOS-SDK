@@ -31,7 +31,7 @@
 #import "TestHelperFunctions.h"
 #import "OneSignalSelectorHelpers.h"
 #import "OneSignalHelperOverrider.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalLocationOverrider.h"
 
 @implementation OneSignalLocationOverrider
@@ -51,7 +51,7 @@ NSArray *locations;
 
 + (void)load {
     
-    injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideStarted), [OneSignalLocation class], @selector(started));
+    injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideStarted), [OneSignalLocationManager class], @selector(started));
     injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideAuthorizationStatus), [CLLocationManager class], @selector(authorizationStatus));
     
     injectSelector(
@@ -120,7 +120,7 @@ NSArray *locations;
     calledRequestAlwaysAuthorization = false;
     calledRequestWhenInUseAuthorization = false;
     
-    [OneSignalLocation internalGetLocation:true fallbackToSettings:false];
+    [OneSignalLocationManager internalGetLocation:true fallbackToSettings:false];
 }
 
 + (int)overrideAuthorizationStatus {

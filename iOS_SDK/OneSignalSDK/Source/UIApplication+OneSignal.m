@@ -26,7 +26,7 @@
  */
 
 #import "UIApplication+OneSignal.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCommonDefines.h>
 
 @implementation UIApplication (OneSignal)
 

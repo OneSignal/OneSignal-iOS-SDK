@@ -69,7 +69,7 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalLocationOverrider.h"
 #import "UIDeviceOverrider.h"
 #import "OneSignalOverrider.h"
@@ -111,7 +111,7 @@
     // Only enable remote-notifications in UIBackgroundModes
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     // Clear last location stored
-    [OneSignalLocation clearLastLocation];
+    [OneSignalLocationManager clearLastLocation];
     
     // Clear callback external ids for push and email before each test
     self.CALLBACK_EXTERNAL_USER_ID = nil;
@@ -3316,22 +3316,6 @@ didReceiveRemoteNotification:userInfo
     
     // 6. Ensure the launch URL was not opened
     XCTAssertFalse(OneSignalOverrider.launchWebURLWasCalled);
-}
-
-- (void)testsetLaunchURLInAppAfterInit {
-    // 1. setLaunchURLsInApp to false
-    [OneSignal setLaunchURLsInApp:false];
-    
-    // 2. Init OneSignal with app start
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertFalse([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
-    
-    // 3. Change setLaunchURLsInApp to true
-    [OneSignal setLaunchURLsInApp:true];
-    
-    XCTAssertTrue([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
 }
 
 - (void)testTimezoneId {
