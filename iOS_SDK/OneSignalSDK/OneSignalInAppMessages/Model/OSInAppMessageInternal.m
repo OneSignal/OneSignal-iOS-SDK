@@ -165,7 +165,7 @@
     return message;
 }
 
--(NSDictionary *)jsonRepresentation {
+- (NSDictionary *)jsonRepresentationInternal {
     let json = [NSMutableDictionary new];
     
     json[@"messageId"] = self.messageId;

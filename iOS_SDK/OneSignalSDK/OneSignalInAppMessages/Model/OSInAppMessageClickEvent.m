@@ -38,7 +38,7 @@
 
 - (NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
-    json[@"message"] = self.message;
+    json[@"message"] = [self.message jsonRepresentation];
     json[@"result"] = [self.result jsonRepresentation];
     return json;
 }
