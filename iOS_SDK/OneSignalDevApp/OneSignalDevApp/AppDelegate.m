@@ -30,6 +30,10 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+@import Instabug;
+@import FirebaseCore;
+@import FirebaseRemoteConfig;
+@import FirebaseAnalytics;
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -50,6 +54,11 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
+    [Instabug startWithToken:@"c14f39f91acb9f6ee3d712faf1655f54" invocationEvents: IBGInvocationEventShake | IBGInvocationEventScreenshot];
+    [FIRApp configure];
+//    CrashReporting.enabled = true
+//    CrashReporting.oomEnabled = true
+//    NetworkLogger.enabled = true
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
@@ -95,8 +104,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
+#define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
