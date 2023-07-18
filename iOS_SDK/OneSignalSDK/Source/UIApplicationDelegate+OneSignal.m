@@ -66,6 +66,9 @@
 // another SDK that swizzles.
 static NSMutableSet<Class>* swizzledClasses;
 
+IMP __originalAppWillTerminate;
+int loopCount = 0;
+
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
     [OneSignalAppDelegate traceCall:@"setOneSignalDelegate:"];
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
@@ -107,12 +110,13 @@ static NSMutableSet<Class>* swizzledClasses;
         @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)
     );
     
+    NSLog(@"ECM class name: %@", NSStringFromClass(delegateClass));
     // Used to track how long the app has been closed
-    injectSelector(
+    __originalAppWillTerminate = injectSelectorSetImp(
         delegateClass,
         @selector(applicationWillTerminate:),
         newClass,
-        @selector(oneSignalApplicationWillTerminate:)
+        (IMP)__Swizzle_AppWillTerminate
     );
     
     [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
@@ -294,23 +298,55 @@ static NSMutableSet<Class>* swizzledClasses;
         [self oneSignalLocalNotificationOpened:application notification:notification];
 }
 
--(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+//-(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+//    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
+//
+//    if ([OneSignal appId])
+//        [OneSignalTracker onFocus:YES];
+//
+//    NSLog(@"ECM calling original");
+//
+//
+//
+////    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+////        initWithTarget:self
+////        withYourSelector:@selector(
+////            oneSignalApplicationWillTerminate:
+////        )
+////        withOriginalSelector:@selector(
+////            applicationWillTerminate:
+////        )
+////    ];
+////    [forwarder invokeWithArgs:@[application]];
+//}
+
+void __Swizzle_AppWillTerminate(id self, SEL _cmd, UIApplication *application) {
     [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
-    
     if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];
     
-    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-        initWithTarget:self
-        withYourSelector:@selector(
-            oneSignalApplicationWillTerminate:
-        )
-        withOriginalSelector:@selector(
-            applicationWillTerminate:
-        )
-    ];
-    [forwarder invokeWithArgs:@[application]];
+    NSLog(@"ECM calling original two");
+    
+    if (__originalAppWillTerminate == (IMP)__Swizzle_AppWillTerminate) {
+        NSLog(@"ECM calling myself");
+    }
+    
+    if (loopCount > 5) {
+        NSException* myException = [NSException
+                exceptionWithName:@"testing"
+                reason:@"infinite loop"
+                userInfo:nil];
+        
+        @throw myException;
+    }
+    
+
+    loopCount += 1;
+    
+    //_originalAppWillTerminate();
+    ((void(*)(id,SEL, UIApplication *))__originalAppWillTerminate)(self, _cmd, application);
 }
+
 
 // Used to log all calls, also used in unit tests to observer
 // the OneSignalAppDelegate selectors get called.

@@ -30,5 +30,6 @@
 
 // Functions to help sizzle methods.
 BOOL injectSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector);
+IMP injectSelectorSetImp(Class targetClass, SEL targetSelector, Class myClass, IMP newImp);
 
 #endif /* OneSignalSelectorHelpers_h */

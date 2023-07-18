@@ -61,3 +61,34 @@ BOOL injectSelector(Class targetClass, SEL targetSelector, Class myClass, SEL my
     
     return existing;
 }
+
+IMP injectSelectorSetImp(Class targetClass, SEL targetSelector, Class myClass, IMP newImp) {
+    
+    //const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
+    // Keep - class_getInstanceMethod for existing detection.
+    //    class_addMethod will successfuly add if the targetClass was loaded twice into the runtime.
+    Method orgMeth = class_getInstanceMethod(targetClass, targetSelector);
+    
+    if (orgMeth) {
+        
+        IMP orgImp = method_getImplementation(orgMeth);
+        
+        // If implementations are the same then the target selector
+        // (AKA makeLikeSel) already has the implemenation we want. Without
+        // this check we would add the implemenation again as newSel. This will
+        // cause the fowarding logic in our code to think there is an orignal
+        // implemenation to call, causing an infinite loop.
+        if (newImp == orgImp) {
+            NSLog(@"ECM imps are the same");
+            return orgImp;
+        }
+        
+        //class_addMethod(targetClass, mySelector, newImp, methodTypeEncoding);
+        //newMeth = class_getInstanceMethod(targetClass, mySelector);
+        return method_setImplementation(orgMeth, newImp);
+    }
+//    else
+//        class_addMethod(targetClass, targetSelector, newImp, methodTypeEncoding);
+    
+    return nil;
+}

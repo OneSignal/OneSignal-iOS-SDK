@@ -190,6 +190,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    NSLog(@"ECM The apps method was called!!");
 }
 
 // Remote
