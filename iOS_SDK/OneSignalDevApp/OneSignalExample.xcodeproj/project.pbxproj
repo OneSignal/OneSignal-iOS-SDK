@@ -60,7 +60,6 @@
 		DE9717772756E6EF00FC409E /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DE9717782756E6EF00FC409E /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE97177A2756E6FF00FC409E /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D18C327038240002D3A5D /* OneSignalOutcomes.framework */; };
-		DE9DDA622A67230B0095FDA1 /* Instabug in Frameworks */ = {isa = PBXBuildFile; productRef = DE9DDA612A67230B0095FDA1 /* Instabug */; };
 		DE9DDA652A6725C10095FDA1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DE9DDA642A6725C10095FDA1 /* FirebaseAnalytics */; };
 		DE9DDA672A6725C10095FDA1 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = DE9DDA662A6725C10095FDA1 /* FirebaseCrashlytics */; };
 		DE9DDA692A6725C10095FDA1 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = DE9DDA682A6725C10095FDA1 /* FirebaseRemoteConfig */; };
@@ -219,7 +218,6 @@
 				DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */,
 				DE9DDA672A6725C10095FDA1 /* FirebaseCrashlytics in Frameworks */,
 				DE9717752756E6E000FC409E /* OneSignalExtension.framework in Frameworks */,
-				DE9DDA622A67230B0095FDA1 /* Instabug in Frameworks */,
 				DE7D180727026BB5002D3A5D /* OneSignalCore.framework in Frameworks */,
 				DE9DDA652A6725C10095FDA1 /* FirebaseAnalytics in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
@@ -409,7 +407,6 @@
 			);
 			name = OneSignalExample;
 			packageProductDependencies = (
-				DE9DDA612A67230B0095FDA1 /* Instabug */,
 				DE9DDA642A6725C10095FDA1 /* FirebaseAnalytics */,
 				DE9DDA662A6725C10095FDA1 /* FirebaseCrashlytics */,
 				DE9DDA682A6725C10095FDA1 /* FirebaseRemoteConfig */,
@@ -530,7 +527,6 @@
 			);
 			mainGroup = 9112E8791E724C320022A1CB;
 			packageReferences = (
-				DE9DDA602A67230A0095FDA1 /* XCRemoteSwiftPackageReference "Instabug-SP" */,
 				DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 9112E8831E724C320022A1CB /* Products */;
@@ -1521,14 +1517,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		DE9DDA602A67230A0095FDA1 /* XCRemoteSwiftPackageReference "Instabug-SP" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Instabug/Instabug-SP";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.0.0;
-			};
-		};
 		DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1540,11 +1528,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DE9DDA612A67230B0095FDA1 /* Instabug */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DE9DDA602A67230A0095FDA1 /* XCRemoteSwiftPackageReference "Instabug-SP" */;
-			productName = Instabug;
-		};
 		DE9DDA642A6725C10095FDA1 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
