@@ -59,6 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addClickId:(NSString *)clickId;
 
 - (BOOL)isFinished;
+// Dictionary of properties available on OSInAppMessageInternal
+- (NSDictionary *_Nonnull)jsonRepresentationInternal;
 
 @end
 

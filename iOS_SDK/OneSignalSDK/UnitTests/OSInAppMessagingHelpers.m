@@ -273,7 +273,7 @@ int messageIdIncrementer = 0;
 
 // jsonRepresentation uses key of "messageId" but we need to use key of "id" for creating IAM, etc.
 + (NSDictionary *)convertIAMtoJson:(OSInAppMessageInternal *)message {
-    NSMutableDictionary *json = [message.jsonRepresentation mutableCopy];
+    NSMutableDictionary *json = [message.jsonRepresentationInternal mutableCopy];
     json[@"id"] = message.messageId;
     [json removeObjectForKey:@"messageId"];
     return json;

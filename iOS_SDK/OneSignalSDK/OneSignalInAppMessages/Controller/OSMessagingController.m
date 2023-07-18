@@ -39,31 +39,63 @@
 #import "OSSessionManager.h"
 
 @implementation OSInAppMessageWillDisplayEvent
+
 - (OSInAppMessageWillDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageDidDisplayEvent
+
 - (OSInAppMessageDidDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageWillDismissEvent
+
 - (OSInAppMessageWillDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageDidDismissEvent
+
 - (OSInAppMessageDidDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @interface OSMessagingController ()
@@ -565,10 +597,10 @@ static BOOL _isInAppMessagingPaused = false;
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
     let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
 
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentationInternal.description]];
 
     if (messageDismissed && redisplayMessageSavedData) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentation.description]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentationInternal.description]];
         
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
