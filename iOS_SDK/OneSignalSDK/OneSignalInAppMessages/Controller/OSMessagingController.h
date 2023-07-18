@@ -66,8 +66,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
 - (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate;
-- (void)removeInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate;
+- (void)addInAppMessageLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener;
+- (void)removeInAppMessageLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener;
 
 @end
 

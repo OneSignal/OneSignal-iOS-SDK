@@ -64,12 +64,12 @@
 
 + (void)addLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener added successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:listener];
+    [OSMessagingController.sharedInstance addInAppMessageLifecycleListener:listener];
 }
 
 + (void)removeLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message lifecycle listener removed successfully"];
-    [OSMessagingController.sharedInstance removeInAppMessageDelegate:listener];
+    [OSMessagingController.sharedInstance removeInAppMessageLifecycleListener:listener];
 }
 
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(NSString * _Nonnull)value {
