@@ -112,13 +112,13 @@ int loopCount = 0;
     
     NSLog(@"ECM class name: %@", NSStringFromClass(delegateClass));
     // Used to track how long the app has been closed
-    __originalAppWillTerminate = injectSelectorSetImp(
-        delegateClass,
-        @selector(applicationWillTerminate:),
-        newClass,
-        (IMP)__Swizzle_AppWillTerminate
-    );
-    
+//    __originalAppWillTerminate = injectSelectorSetImp(
+//        delegateClass,
+//        @selector(applicationWillTerminate:),
+//        newClass,
+//        (IMP)__Swizzle_AppWillTerminate
+//    );
+    injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
     [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
 
     [self setOneSignalDelegate:delegate];
@@ -298,27 +298,27 @@ int loopCount = 0;
         [self oneSignalLocalNotificationOpened:application notification:notification];
 }
 
-//-(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
-//    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
-//
-//    if ([OneSignal appId])
-//        [OneSignalTracker onFocus:YES];
-//
-//    NSLog(@"ECM calling original");
-//
-//
-//
-////    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-////        initWithTarget:self
-////        withYourSelector:@selector(
-////            oneSignalApplicationWillTerminate:
-////        )
-////        withOriginalSelector:@selector(
-////            applicationWillTerminate:
-////        )
-////    ];
-////    [forwarder invokeWithArgs:@[application]];
-//}
+-(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
+
+    if ([OneSignal appId])
+        [OneSignalTracker onFocus:YES];
+
+    NSLog(@"ECM calling original");
+
+
+
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            oneSignalApplicationWillTerminate:
+        )
+        withOriginalSelector:@selector(
+            applicationWillTerminate:
+        )
+    ];
+    [forwarder invokeWithArgs:@[application]];
+}
 
 void __Swizzle_AppWillTerminate(id self, SEL _cmd, UIApplication *application) {
     [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];

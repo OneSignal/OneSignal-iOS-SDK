@@ -85,7 +85,8 @@ IMP injectSelectorSetImp(Class targetClass, SEL targetSelector, Class myClass, I
         
         //class_addMethod(targetClass, mySelector, newImp, methodTypeEncoding);
         //newMeth = class_getInstanceMethod(targetClass, mySelector);
-        return method_setImplementation(orgMeth, newImp);
+        method_setImplementation(orgMeth, newImp);
+        return orgImp;
     }
 //    else
 //        class_addMethod(targetClass, targetSelector, newImp, methodTypeEncoding);
