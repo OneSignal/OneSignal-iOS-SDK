@@ -359,6 +359,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.User logout called, but the user is currently anonymous, so not logging out.")
             return
         }
+        _logout()
+    }
+
+    public func _logout() {
         prepareForNewUser()
         _user = nil
         createUserIfNil()
