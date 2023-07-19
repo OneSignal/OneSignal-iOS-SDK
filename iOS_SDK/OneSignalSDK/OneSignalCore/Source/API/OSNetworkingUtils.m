@@ -38,4 +38,18 @@
     return @1;
 }
 
++ (OSResponseStatusType)getResponseStatusType:(NSInteger)statusCode {
+    if (statusCode == 400 || statusCode == 402) {
+        return OSResponseStatusInvalid;
+    } else if (statusCode == 401 || statusCode == 403) {
+        return OSResponseStatusUnauthorized;
+    } else if (statusCode == 404 || statusCode == 410) {
+        return OSResponseStatusMissing;
+    } else if (statusCode == 409) {
+        return OSResponseStatusConflict;
+    } else {
+        return OSResponseStatusRetryable;
+    }
+}
+
 @end
