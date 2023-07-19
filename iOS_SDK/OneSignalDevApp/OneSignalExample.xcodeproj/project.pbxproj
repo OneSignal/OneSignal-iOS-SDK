@@ -65,6 +65,7 @@
 		DE9DDA692A6725C10095FDA1 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = DE9DDA682A6725C10095FDA1 /* FirebaseRemoteConfig */; };
 		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEA86D662A68907800531EA4 /* Instabug in Frameworks */ = {isa = PBXBuildFile; productRef = DEA86D652A68907800531EA4 /* Instabug */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -219,6 +220,7 @@
 				DE9DDA672A6725C10095FDA1 /* FirebaseCrashlytics in Frameworks */,
 				DE9717752756E6E000FC409E /* OneSignalExtension.framework in Frameworks */,
 				DE7D180727026BB5002D3A5D /* OneSignalCore.framework in Frameworks */,
+				DEA86D662A68907800531EA4 /* Instabug in Frameworks */,
 				DE9DDA652A6725C10095FDA1 /* FirebaseAnalytics in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
 			);
@@ -410,6 +412,7 @@
 				DE9DDA642A6725C10095FDA1 /* FirebaseAnalytics */,
 				DE9DDA662A6725C10095FDA1 /* FirebaseCrashlytics */,
 				DE9DDA682A6725C10095FDA1 /* FirebaseRemoteConfig */,
+				DEA86D652A68907800531EA4 /* Instabug */,
 			);
 			productName = OneSignalDevApp;
 			productReference = 9112E8821E724C320022A1CB /* OneSignalExample.app */;
@@ -528,6 +531,7 @@
 			mainGroup = 9112E8791E724C320022A1CB;
 			packageReferences = (
 				DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				DEA86D642A68907800531EA4 /* XCRemoteSwiftPackageReference "Instabug-SP" */,
 			);
 			productRefGroup = 9112E8831E724C320022A1CB /* Products */;
 			projectDirPath = "";
@@ -1525,6 +1529,14 @@
 				minimumVersion = 10.0.0;
 			};
 		};
+		DEA86D642A68907800531EA4 /* XCRemoteSwiftPackageReference "Instabug-SP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Instabug/Instabug-SP";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1542,6 +1554,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseRemoteConfig;
+		};
+		DEA86D652A68907800531EA4 /* Instabug */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEA86D642A68907800531EA4 /* XCRemoteSwiftPackageReference "Instabug-SP" */;
+			productName = Instabug;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

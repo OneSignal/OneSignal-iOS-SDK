@@ -34,6 +34,7 @@
 @import FirebaseCore;
 @import FirebaseRemoteConfig;
 @import FirebaseAnalytics;
+@import Instabug;
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -54,7 +55,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
-    
+    [Instabug startWithToken:@"c14f39f91acb9f6ee3d712faf1655f54" invocationEvents: IBGInvocationEventShake | IBGInvocationEventScreenshot];
     [FIRApp configure];
 //    CrashReporting.enabled = true
 //    CrashReporting.oomEnabled = true

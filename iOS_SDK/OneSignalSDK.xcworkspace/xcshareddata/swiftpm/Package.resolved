@@ -64,6 +64,15 @@
       }
     },
     {
+      "identity" : "instabug-sp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Instabug/Instabug-SP",
+      "state" : {
+        "revision" : "2c155e88fdcdaf86aa5507f2bccc161220634414",
+        "version" : "11.13.3"
+      }
+    },
+    {
       "identity" : "leveldb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/leveldb.git",

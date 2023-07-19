@@ -112,13 +112,15 @@ int loopCount = 0;
     
     NSLog(@"ECM class name: %@", NSStringFromClass(delegateClass));
     // Used to track how long the app has been closed
-//    __originalAppWillTerminate = injectSelectorSetImp(
-//        delegateClass,
-//        @selector(applicationWillTerminate:),
-//        newClass,
-//        (IMP)__Swizzle_AppWillTerminate
-//    );
-    injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
+    if (!__originalAppWillTerminate) {
+        __originalAppWillTerminate = injectSelectorSetImp(
+            delegateClass,
+            @selector(applicationWillTerminate:),
+            newClass,
+            (IMP)__Swizzle_AppWillTerminate
+        );
+    }
+    //injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
     [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
 
     [self setOneSignalDelegate:delegate];
