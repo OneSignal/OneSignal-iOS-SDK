@@ -330,11 +330,13 @@ class OSUserExecutor {
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                removeFromQueue(request)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    // TODO: This leaves the SDK in a bad state, revisit why this can happen
+                    removeFromQueue(request)
+                }
             }
             executePendingRequests()
         }
@@ -378,17 +380,14 @@ class OSUserExecutor {
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
-            
-            // TODO: Differentiate error cases
-            
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                // remove the subscription_id but keep the same push subscription model
-                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
-                removeFromQueue(request)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    removeFromQueue(request)
+                }
             }
-            // Otherwise it is a retryable error
             executePendingRequests()
         }
     }
@@ -428,10 +427,11 @@ class OSUserExecutor {
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed with error \(error.debugDescription)")
-            // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             if let nsError = error as? NSError {
-                if nsError.code == 409 {
-                    OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest returned 409, failed due to alias already assigned to a different user. Now switch to this user.")
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType == .conflict {
+                    // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
 
                     removeFromQueue(request)
                     // Fetch the user only if its the current user
@@ -440,9 +440,21 @@ class OSUserExecutor {
                         // TODO: Link ^ to the new user... what was this todo for?
                     }
                     transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
-                } else if nsError.code < 500 && nsError.code != 0 {
+                } else if responseType == .invalid || responseType == .unauthorized {
+                    // Failed, no retry
                     removeFromQueue(request)
                     executePendingRequests()
+                } else if responseType == .missing {
+                    removeFromQueue(request)
+                    executePendingRequests()
+                    // Logout if the user in the SDK is the same
+                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate)
+                    else {
+                        return
+                    }
+                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance._logout()
                 }
             } else {
                 executePendingRequests()
@@ -481,12 +493,12 @@ class OSUserExecutor {
 
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
-
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                removeFromQueue(request)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    removeFromQueue(request)
+                }
             }
             executePendingRequests()
         }
@@ -520,11 +532,22 @@ class OSUserExecutor {
             executePendingRequests()
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                removeFromQueue(request)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType == .missing {
+                    removeFromQueue(request)
+                    // Logout if the user in the SDK is the same
+                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    else {
+                        return
+                    }
+                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType != .retryable {
+                    // If the error is not retryable, remove from cache and queue
+                    removeFromQueue(request)
+                }
             }
             executePendingRequests()
         }
@@ -872,7 +895,8 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     }
 
     var identityModel: OSIdentityModel
-
+    let aliases: [String: String]
+    
     // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
@@ -888,6 +912,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     init(aliases: [String: String], identityModel: OSIdentityModel) {
         self.identityModel = identityModel
+        self.aliases = aliases
         self.stringDescription = "OSRequestAddAliases with aliases: \(aliases)"
         super.init()
         self.parameters = ["identity": aliases]
@@ -897,6 +922,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(aliases, forKey: "aliases")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -905,6 +931,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
+            let aliases = coder.decodeObject(forKey: "aliases") as? [String: String],
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: [String: String]],
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
@@ -913,6 +940,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
+        self.aliases = aliases
         self.stringDescription = "OSRequestAddAliases with parameters: \(parameters)"
         super.init()
         self.parameters = parameters

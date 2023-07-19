@@ -246,12 +246,24 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             request.subscriptionModel.hydrate(response)
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)")
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                self.addRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType == .missing {
+                    self.addRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                    // Logout if the user in the SDK is the same
+                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    else {
+                        return
+                    }
+                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    self.addRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                }
             }
         }
     }
@@ -276,12 +288,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                self.removeRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    // If this request returns a missing status, that is ok as this is a delete request
+                    self.removeRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                }
             }
         }
     }
@@ -306,12 +320,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
-            // TODO: Differentiate error cases
-            // If the error is not retryable, remove from cache and queue
-            if let nsError = error as? NSError,
-               nsError.code < 500 && nsError.code != 0 {
-                self.updateRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            if let nsError = error as? NSError {
+                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    self.updateRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                }
             }
         }
     }
