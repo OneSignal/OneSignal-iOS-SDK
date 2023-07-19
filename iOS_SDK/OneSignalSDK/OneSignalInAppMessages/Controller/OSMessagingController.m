@@ -39,31 +39,63 @@
 #import "OSSessionManager.h"
 
 @implementation OSInAppMessageWillDisplayEvent
+
 - (OSInAppMessageWillDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageDidDisplayEvent
+
 - (OSInAppMessageDidDisplayEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageWillDismissEvent
+
 - (OSInAppMessageWillDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @implementation OSInAppMessageDidDismissEvent
+
 - (OSInAppMessageDidDismissEvent*)initWithInAppMessage:(OSInAppMessage *)message {
     _message = message;
     return self;
 }
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"message"] = [self.message jsonRepresentation];
+    return json;
+}
+
 @end
 
 @interface OSMessagingController ()
@@ -91,7 +123,7 @@
 
 @property (nonatomic) NSMutableArray<NSObject<OSInAppMessageClickListener> *> *clickListeners;
 
-@property (weak, nonatomic, nullable) NSObject<OSInAppMessageLifecycleListener> *inAppMessageDelegate;
+@property (nonatomic) NSMutableArray<NSObject<OSInAppMessageLifecycleListener> *> *lifecycleListeners;
 
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
@@ -169,6 +201,7 @@ static BOOL _isInAppMessagingPaused = false;
         [self initializeTriggerController];
         self.messageDisplayQueue = [NSMutableArray new];
         self.clickListeners = [NSMutableArray new];
+        self.lifecycleListeners = [NSMutableArray new];
         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
         
@@ -309,43 +342,47 @@ static BOOL _isInAppMessagingPaused = false;
     [_clickListeners removeObject:listener];
 }
 
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate {
-    _inAppMessageDelegate = delegate;
+- (void)addInAppMessageLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [_lifecycleListeners addObject:listener];
 }
 
-- (void)removeInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)delegate {
-    _inAppMessageDelegate = nil;
+- (void)removeInAppMessageLifecycleListener:(NSObject<OSInAppMessageLifecycleListener> *_Nullable)listener {
+    [_lifecycleListeners removeObject:listener];
 }
 
 - (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message {
-    if (self.inAppMessageDelegate &&
-        [self.inAppMessageDelegate respondsToSelector:@selector(onWillDisplayInAppMessage:)]) {
-        OSInAppMessageWillDisplayEvent *event = [[OSInAppMessageWillDisplayEvent alloc] initWithInAppMessage:message];
-        [self.inAppMessageDelegate onWillDisplayInAppMessage:event];
+    for (NSObject<OSInAppMessageLifecycleListener> *listener in _lifecycleListeners) {
+        if ([listener respondsToSelector:@selector(onWillDisplayInAppMessage:)]) {
+            OSInAppMessageWillDisplayEvent *event = [[OSInAppMessageWillDisplayEvent alloc] initWithInAppMessage:message];
+            [listener onWillDisplayInAppMessage:event];
+        }
     }
 }
 
 - (void)onDidDisplayInAppMessage:(OSInAppMessageInternal *)message {
-    if (self.inAppMessageDelegate &&
-        [self.inAppMessageDelegate respondsToSelector:@selector(onDidDisplayInAppMessage:)]) {
-        OSInAppMessageDidDisplayEvent *event = [[OSInAppMessageDidDisplayEvent alloc] initWithInAppMessage:message];
-        [self.inAppMessageDelegate onDidDisplayInAppMessage:event];
+    for (NSObject<OSInAppMessageLifecycleListener> *listener in _lifecycleListeners) {
+        if ([listener respondsToSelector:@selector(onDidDisplayInAppMessage:)]) {
+            OSInAppMessageDidDisplayEvent *event = [[OSInAppMessageDidDisplayEvent alloc] initWithInAppMessage:message];
+            [listener onDidDisplayInAppMessage:event];
+        }
     }
 }
 
 - (void)onWillDismissInAppMessage:(OSInAppMessageInternal *)message {
-    if (self.inAppMessageDelegate &&
-        [self.inAppMessageDelegate respondsToSelector:@selector(onWillDismissInAppMessage:)]) {
-        OSInAppMessageWillDismissEvent *event = [[OSInAppMessageWillDismissEvent alloc] initWithInAppMessage:message];
-        [self.inAppMessageDelegate onWillDismissInAppMessage:event];
+    for (NSObject<OSInAppMessageLifecycleListener> *listener in _lifecycleListeners) {
+        if ([listener respondsToSelector:@selector(onWillDismissInAppMessage:)]) {
+            OSInAppMessageWillDismissEvent *event = [[OSInAppMessageWillDismissEvent alloc] initWithInAppMessage:message];
+            [listener onWillDismissInAppMessage:event];
+        }
     }
 }
 
 - (void)onDidDismissInAppMessage:(OSInAppMessageInternal *)message {
-    if (self.inAppMessageDelegate &&
-        [self.inAppMessageDelegate respondsToSelector:@selector(onDidDismissInAppMessage:)]) {
-        OSInAppMessageDidDismissEvent *event = [[OSInAppMessageDidDismissEvent alloc] initWithInAppMessage:message];
-        [self.inAppMessageDelegate onDidDismissInAppMessage:event];
+    for (NSObject<OSInAppMessageLifecycleListener> *listener in _lifecycleListeners) {
+        if ([listener respondsToSelector:@selector(onDidDismissInAppMessage:)]) {
+            OSInAppMessageDidDismissEvent *event = [[OSInAppMessageDidDismissEvent alloc] initWithInAppMessage:message];
+            [listener onDidDismissInAppMessage:event];
+        }
     }
 }
 
@@ -565,10 +602,10 @@ static BOOL _isInAppMessagingPaused = false;
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
     let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
 
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentationInternal.description]];
 
     if (messageDismissed && redisplayMessageSavedData) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentation.description]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentationInternal.description]];
         
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
