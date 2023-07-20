@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050000-beta-04"
+#define ONESIGNAL_VERSION                                                   @"050000-beta-05"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -73,7 +73,6 @@
 
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
-#define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
 #define OSUD_TEMP_CACHED_NOTIFICATION_MEDIA                                 @"OSUD_TEMP_CACHED_NOTIFICATION_MEDIA"                              // OSUD_TEMP_CACHED_NOTIFICATION_MEDIA
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"

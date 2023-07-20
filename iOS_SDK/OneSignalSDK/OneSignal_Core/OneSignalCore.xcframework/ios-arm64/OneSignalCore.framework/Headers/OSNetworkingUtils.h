@@ -29,9 +29,18 @@
 
 // NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, OSResponseStatusType) {
+    OSResponseStatusInvalid = 0,
+    OSResponseStatusRetryable,
+    OSResponseStatusUnauthorized,
+    OSResponseStatusMissing,
+    OSResponseStatusConflict
+};
+
 @interface OSNetworkingUtils : NSObject
 
 + (NSNumber*)getNetType;
++ (OSResponseStatusType)getResponseStatusType:(NSInteger)statusCode;
 
 @end
 

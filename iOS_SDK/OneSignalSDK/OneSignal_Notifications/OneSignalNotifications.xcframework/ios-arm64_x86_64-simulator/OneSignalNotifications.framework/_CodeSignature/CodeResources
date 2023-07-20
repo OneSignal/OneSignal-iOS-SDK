@@ -10,7 +10,7 @@
 		</data>
 		<key>Headers/OSNotificationsManager.h</key>
 		<data>
-		PbViCtgqasWbh8KTMbNIXdM5uRo=
+		gSmkZqdxvS9+JXOnoXKSt+4Jl1U=
 		</data>
 		<key>Headers/OSPermission.h</key>
 		<data>
@@ -22,19 +22,11 @@
 		</data>
 		<key>Headers/OneSignalNotifications.h</key>
 		<data>
-		nCGohPBn+Ufq6Q3K1p707iBRzEI=
-		</data>
-		<key>Headers/OneSignalWebView.h</key>
-		<data>
-		JALJsv6oFrdNQR3GjCNLG/8CHM4=
-		</data>
-		<key>Headers/OneSignalWebViewManager.h</key>
-		<data>
-		tFG7qHre3ZQ6fYfRELA+WbfHwHU=
+		jnNq248j4u8dwv+wvoMVf33zRUE=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		rd+XJqNGV11tpBldp+mqgJY0a78=
+		2lMoID2SlU1xMTnskI/pCp5ZQ3M=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -54,7 +46,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2DVrPag7fbzb4a37OKkXWgqFNLmmIgQtca5KoRvHRf4=
+			CHxsWa2GDl8vSRZDosajd+vfiMz4gLPCWFEnE+V3hh4=
 			</data>
 		</dict>
 		<key>Headers/OSPermission.h</key>
@@ -75,21 +67,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			SRf5hX7AJJVgd8lijJKyIF6h3QV+r5nhEhKAAN8Q10w=
-			</data>
-		</dict>
-		<key>Headers/OneSignalWebView.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			pYKG6fEvBCr4CxwtkOao+SM6ZtwfD2bqfH8rWxbQrl8=
-			</data>
-		</dict>
-		<key>Headers/OneSignalWebViewManager.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			zokKYOmqkwjw0LGBpNfHiM3wjvhaHyq7Pjz8jAo1vkw=
+			F6ZjobsvISP/IwebMBdCy85sa8aUy9k8KerAPzHCnpk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
