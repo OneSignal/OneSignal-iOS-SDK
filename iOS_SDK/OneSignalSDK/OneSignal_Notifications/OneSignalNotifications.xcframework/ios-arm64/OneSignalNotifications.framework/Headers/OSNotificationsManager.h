@@ -80,7 +80,6 @@ NS_SWIFT_NAME(onClick(event:));
 @interface OSNotificationsManager : NSObject <OSNotifications>
 
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
-@property (class, weak, nonatomic, nullable) NSObject<OSNotificationLifecycleListener> *lifecycleListener;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
 + (void)start;

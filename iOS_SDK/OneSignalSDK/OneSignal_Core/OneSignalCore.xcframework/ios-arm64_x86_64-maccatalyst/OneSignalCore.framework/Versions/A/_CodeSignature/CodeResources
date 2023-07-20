@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		eXXafLbBNKrRWPZheIKoe8YbZho=
+		RrJplGRYKEP/WRZgiaubv0gdZD0=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -43,14 +43,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			VHQRipAjzHtXPkUXXH4YvMFBZS9BgNyDe0llpuFstT8=
+			TZyL4I0k2RDNt3IPxABcOPcjrjywMJ0x1SZXMXeiqxA=
 			</data>
 		</dict>
 		<key>Headers/OSInAppMessages.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			VVEqvqs8Gzc3GkvFEX3QgAqaIgKK/CuLd3DzILUGY10=
+			bqHvuK40s5I7ykwwB/ucIDu8LyZcKLMOGagHfuOpUKY=
 			</data>
 		</dict>
 		<key>Headers/OSJSONHandling.h</key>
@@ -78,7 +78,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ItFeaL2odYTkJOQJKL87zSdrc69fJx36bv6/fi0gBDQ=
+			ZGA1WvJrfJUvBvSHYQC2gW9v2qpNNy33Dm9rbTNxWPM=
 			</data>
 		</dict>
 		<key>Headers/OSNotification+Internal.h</key>
@@ -141,7 +141,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ENsLsP7gO776lLDSfWvmQHzU0aItDxEwA1eqaGh2aXM=
+			dmtJ19jPyMhNxQvmD+4cxNgXxOVOEX8vJm2u/G1oF30=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -232,7 +232,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			481U1Tsu4yJi40sAVR4+Cniu4ZvRd7Jf2/9xec77e84=
+			5kDZvqMywr3IJcAE3eSYETW5SZ1eRriO9ZK0u0pfoIk=
 			</data>
 		</dict>
 	</dict>
