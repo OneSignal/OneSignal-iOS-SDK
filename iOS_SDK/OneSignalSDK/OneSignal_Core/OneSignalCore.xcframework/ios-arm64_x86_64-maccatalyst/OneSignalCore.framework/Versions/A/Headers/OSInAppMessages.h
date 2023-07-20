@@ -33,7 +33,7 @@
 
 @property (strong, nonatomic, nonnull) NSString *messageId;
 
-// Convert the object into a NSDictionary
+// Dictionary of properties available on OSInAppMessage only
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
 @end
@@ -78,18 +78,22 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 @interface OSInAppMessageWillDisplayEvent : NSObject
 @property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+- (NSDictionary *_Nonnull)jsonRepresentation;
 @end
 
 @interface OSInAppMessageDidDisplayEvent : NSObject
 @property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+- (NSDictionary *_Nonnull)jsonRepresentation;
 @end
 
 @interface OSInAppMessageWillDismissEvent : NSObject
 @property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+- (NSDictionary *_Nonnull)jsonRepresentation;
 @end
 
 @interface OSInAppMessageDidDismissEvent : NSObject
 @property (nonatomic, readonly, nonnull) OSInAppMessage *message;
+- (NSDictionary *_Nonnull)jsonRepresentation;
 @end
 
 @interface OSInAppMessageClickEvent : NSObject
