@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		wZF8pr1eVx+bG5d7Xeubz9+KWsY=
+		01AxuWMyixs3bpMmWFumHhF/2To=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -22,7 +22,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2DVrPag7fbzb4a37OKkXWgqFNLmmIgQtca5KoRvHRf4=
+			CHxsWa2GDl8vSRZDosajd+vfiMz4gLPCWFEnE+V3hh4=
 			</data>
 		</dict>
 		<key>Headers/OSPermission.h</key>
@@ -43,21 +43,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			SRf5hX7AJJVgd8lijJKyIF6h3QV+r5nhEhKAAN8Q10w=
-			</data>
-		</dict>
-		<key>Headers/OneSignalWebView.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			pYKG6fEvBCr4CxwtkOao+SM6ZtwfD2bqfH8rWxbQrl8=
-			</data>
-		</dict>
-		<key>Headers/OneSignalWebViewManager.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			zokKYOmqkwjw0LGBpNfHiM3wjvhaHyq7Pjz8jAo1vkw=
+			F6ZjobsvISP/IwebMBdCy85sa8aUy9k8KerAPzHCnpk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -71,7 +57,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			IXrPsdNJT9u4GQpeskKPwQMuysjt8t1Hq9fzsWuO/jk=
+			osITxSmNy+vLKmW0xCjDf3XyM32l3DLvclRPlwEhsG0=
 			</data>
 		</dict>
 	</dict>

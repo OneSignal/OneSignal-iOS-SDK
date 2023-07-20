@@ -80,7 +80,6 @@ NS_SWIFT_NAME(login(externalId:token:));
 #pragma mark Initialization
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions; // meant for use by wrappers
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
-+ (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Live Activity
