@@ -9,8 +9,8 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/OneSignal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
   s.platform         = :ios, "11.0"
   s.requires_arc     = true
-
-  s.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignalFramework.xcframework'
+  s.default_subspec = "OneSignalComplete"
+    
     s.subspec 'OneSignalCore' do |ss|
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Core/OneSignalCore.xcframework'
     end
@@ -71,5 +71,11 @@ Pod::Spec.new do |s|
       ss.dependency 'OneSignal/OneSignalNotifications'
       ss.dependency 'OneSignal/OneSignalUser'
       ss.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignalFramework.xcframework'
+    end
+
+    s.subspec 'OneSignalComplete' do |ss|
+      ss.dependency 'OneSignal/OneSignal'
+      ss.dependency 'OneSignal/OneSignalLocation'
+      ss.dependency 'OneSignal/OneSignalInAppMessages'
     end
 end
