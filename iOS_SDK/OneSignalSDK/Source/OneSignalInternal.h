@@ -39,14 +39,8 @@
 
 @interface OneSignal (OneSignalInternal)
 
-+ (NSDate *_Nonnull)sessionLaunchTime;
-
-
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
-
-@property (class) AppEntryAction appEntryState;
-@property (class) OSSessionManager* _Nonnull sessionManager;
 
 @end
 
