@@ -98,8 +98,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
-    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
-        OneSignal.appEntryState = APP_OPEN;
+    if (OSSessionManager.sharedSessionManager.appEntryState != NOTIFICATION_CLICK)
+        OSSessionManager.sharedSessionManager.appEntryState = APP_OPEN;
    
     lastOpenedTime = [NSDate date].timeIntervalSince1970;
     
@@ -109,7 +109,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
-        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
+        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade];
         // TODO: Here it used to call receivedInAppMessageJson with nil, this method no longer exists
         // [OneSignal receivedInAppMessageJson:nil];
     }
@@ -125,7 +125,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (timeElapsed < -1)
         return;
     
-    OneSignal.appEntryState = APP_CLOSE;
+    OSSessionManager.sharedSessionManager.appEntryState = APP_CLOSE;
 
     let influences = [[OSSessionManager sharedSessionManager] getSessionInfluences];
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
