@@ -79,7 +79,7 @@ int loopCount = 0;
     
     Class delegateClass = [delegate class];
     
-    if (delegate == nil || [swizzledClasses containsObject:delegateClass] || [OneSignalAppDelegate swizzledClassInHeirarchy:delegateClass]) {
+    if (delegate == nil || [OneSignalAppDelegate swizzledClassInHeirarchy:delegateClass]) {
         [self setOneSignalDelegate:delegate];
         return;
     }
@@ -118,6 +118,10 @@ int loopCount = 0;
 }
 
 + (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
+    if ([swizzledClasses containsObject:delegateClass]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@", NSStringFromClass(delegateClass)]];
+        return true;
+    }
     Class superClass = class_getSuperclass(delegateClass);
     while(superClass) {
         if ([swizzledClasses containsObject:superClass]) {
@@ -128,92 +132,6 @@ int loopCount = 0;
     }
     return false;
 }
-
-//BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector) {
-//    Class instSuperClass = [instance superclass];
-//    return [instance instanceMethodForSelector: selector] != [instSuperClass instanceMethodForSelector: selector];
-//}
-//
-//
-//Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
-//    if (!class_conformsToProtocol(searchClass, protocolToFind)) {
-//        if ([searchClass superclass] == nil)
-//            return nil;
-//        Class foundClass = getClassWithProtocolInHierarchy([searchClass superclass], protocolToFind);
-//        if (foundClass)
-//            return foundClass;
-//        return searchClass;
-//    }
-//    return searchClass;
-//}
-//// Try to find out which class to inject to
-//void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass) {
-//
-//    // Find out if we should inject in delegateClass or one of its subclasses.
-//    // CANNOT use the respondsToSelector method as it returns TRUE to both implementing and inheriting a method
-//    // We need to make sure the class actually implements the method (overrides) and not inherits it to properly perform the call
-//    // Start with subclasses then the delegateClass
-//
-//    for(Class subclass in delegateSubclasses) {
-//        if (checkIfInstanceOverridesSelector(subclass, makeLikeSel)) {
-//            injectSelector(myClass, newSel, subclass, makeLikeSel);
-//            return;
-//        }
-//    }
-//
-//    // No subclass overrides the method, try to inject in delegate class
-//    injectSelector(myClass, newSel, delegateClass, makeLikeSel);
-//
-//}
-//
-//NSArray* ClassGetSubclasses(Class parentClass) {
-//    int numClasses = objc_getClassList(NULL, 0);
-//    int memSize = sizeof(Class) * numClasses;
-//    Class *classes = (Class*)malloc(memSize);
-//    if (classes == NULL && memSize) {
-//        return [NSMutableArray array];
-//    }
-//
-//    objc_getClassList(classes, numClasses);
-//
-//    NSMutableArray *result = [NSMutableArray array];
-//    NSMutableArray *resultNames = [NSMutableArray array];
-//
-//    for (NSInteger i = 0; i < numClasses; i++) {
-//        Class superClass = classes[i];
-//        NSString *className = NSStringFromClass(superClass);
-//
-//        while(superClass && superClass != parentClass) {
-//            superClass = class_getSuperclass(superClass);
-//        }
-//
-//        if (superClass) {
-//            [result addObject:classes[i]];
-//            [resultNames addObject:NSStringFromClass(classes[i])];
-//            if ([className containsString:@"OneSignalAppDelegate"]) {
-//                NSLog(@"ECM class name: %@, parentName: %@", className, NSStringFromClass(parentClass));
-//            }
-//        }
-//
-//    }
-//    NSLog(@"ECM parentclassname: %@", NSStringFromClass(parentClass));
-//    Class superClass = class_getSuperclass(parentClass);
-//    while(superClass) {
-//
-//        NSString *className = NSStringFromClass(superClass);
-//        NSLog(@"ECM superclassname: %@", className);
-//        if ([swizzledClasses containsObject:superClass]) {
-//            NSLog(@"ECM class name: %@, parentName: %@", className, NSStringFromClass(parentClass));
-//        }
-//        superClass = class_getSuperclass(superClass);
-//    }
-//
-//    free(classes);
-////    NSLog(@"ECM parentname: %@", NSStringFromClass(parentClass));
-////    NSLog(@"ECM results: %@", resultNames);
-//
-//    return result;
-//}
 
 + (void)swizzlePreiOS10Methods:(Class)delegateClass {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
