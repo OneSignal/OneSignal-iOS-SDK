@@ -130,7 +130,7 @@
 @end
 @implementation UNUserNotificationCenterDelegateForInfiniteLoopWithAnotherSwizzlerTest
 @end
-@interface OtherUNNotificationLibraryASwizzler : NSObject
+@interface OtherUNNotificationLibraryASwizzler : UIResponder<UNUserNotificationCenterDelegate>
 +(void)swizzleUNUserNotificationCenterDelegate;
 +(BOOL)selectorCalled;
 @end
@@ -157,7 +157,33 @@ static BOOL selectorCalled = false;
         [self userNotificationCenterLibraryA:center willPresentNotification:notification withCompletionHandler:completionHandler];
 }
 @end
+@interface OtherUNNotificationLibraryBSubClassSwizzler : OtherUNNotificationLibraryASwizzler
++(void)swizzleUNUserNotificationCenterDelegate;
++(BOOL)selectorCalled;
+@end
+@implementation OtherUNNotificationLibraryBSubClassSwizzler
 
++(BOOL)selectorCalled {
+    return selectorCalled;
+}
+
++(void)swizzleUNUserNotificationCenterDelegate
+{
+    swizzleExistingSelector(
+        [UNUserNotificationCenter.currentNotificationCenter.delegate class],
+        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:),
+        [self class],
+        @selector(userNotificationCenterLibraryB:willPresentNotification:withCompletionHandler:)
+    );
+}
+-(void)userNotificationCenterLibraryB:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+{
+    selectorCalled = true;
+    // Standard basic swizzling forwarder another library may have.
+    if ([self respondsToSelector:@selector(userNotificationCenterLibraryA:willPresentNotification:withCompletionHandler:)])
+        [self userNotificationCenterLibraryB:center willPresentNotification:notification withCompletionHandler:completionHandler];
+}
+@end
 
 
 @interface OneSignalUNUserNotificationCenterSwizzlingTest : XCTestCase
@@ -317,6 +343,41 @@ static BOOL selectorCalled = false;
 
     // 4. Call something to confirm we don't get stuck in an infinite call loop
     [localOrignalDelegate userNotificationCenter:UNUserNotificationCenter.currentNotificationCenter willPresentNotification:[self createBasiciOSNotification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+}
+
+- (void)testNotificationCenterSubClassIsNotSwizzledTwice {
+    // 1. Create a new delegate and assign it
+    id myDelegate = [UNUserNotificationCenterDelegateForInfiniteLoopTest new];
+    UNUserNotificationCenter.currentNotificationCenter.delegate = myDelegate;
+    
+    // 2. Create another Library's app delegate and assign it then swizzle
+    id thierDelegate = [OtherUNNotificationLibraryASwizzler new];
+    UNUserNotificationCenter.currentNotificationCenter.delegate = thierDelegate;
+    [OtherUNNotificationLibraryASwizzler swizzleUNUserNotificationCenterDelegate];
+    
+    // 3. Create another Library's app delegate subclass and assign it then swizzle
+    id thierDelegateSubClass = [OtherUNNotificationLibraryBSubClassSwizzler new];
+    UNUserNotificationCenter.currentNotificationCenter.delegate = thierDelegateSubClass;
+    [OtherUNNotificationLibraryBSubClassSwizzler swizzleUNUserNotificationCenterDelegate];
+    
+    // 4. Call something to confirm we don't get stuck in an infinite call loop
+    id<UNUserNotificationCenterDelegate> delegate =
+        UNUserNotificationCenter.currentNotificationCenter.delegate;
+    [delegate
+        userNotificationCenter:UNUserNotificationCenter.currentNotificationCenter
+        willPresentNotification:[self createBasiciOSNotification]
+        withCompletionHandler:^(UNNotificationPresentationOptions options) {}
+    ];
+    
+    // 5. Ensure OneSignal's selector is called.
+    XCTAssertEqual([OneSignalUNUserNotificationCenterOverrider
+        callCountForSelector:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:"], 1);
+    
+    // 6. Ensure other library selector is still called too.
+    XCTAssertTrue([OtherUNNotificationLibraryASwizzler selectorCalled]);
+    
+    // 7. Ensure other library subclass selector is still called too.
+    XCTAssertTrue([OtherUNNotificationLibraryBSubClassSwizzler selectorCalled]);
 }
 
 - (void)testCompatibleWithOtherSwizzlerWhenSwapingBetweenNil {
