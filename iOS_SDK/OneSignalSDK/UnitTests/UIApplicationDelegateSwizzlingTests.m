@@ -7,6 +7,8 @@
 #import "TestHelperFunctions.h"
 #import "OneSignalAppDelegateOverrider.h"
 
+#define ONESIGNALApplicationDelegate UIApplicationDelegate
+
 @interface AppDelegateForAddsMissingSelectorsTest : UIResponder<UIApplicationDelegate>
 @end
 @implementation AppDelegateForAddsMissingSelectorsTest
@@ -90,7 +92,8 @@
 @end
 @implementation AppDelegateForInfiniteLoopWithAnotherSwizzlerTest
 @end
-@interface OtherLibraryASwizzler : NSObject
+
+@interface OtherLibraryASwizzler : UIResponder<ONESIGNALApplicationDelegate>
 +(void)swizzleAppDelegate;
 +(BOOL)selectorCalled;
 @end
@@ -109,12 +112,40 @@ static BOOL selectorCalled = false;
         @selector(applicationWillTerminateLibraryA:)
     );
 }
+
 - (void)applicationWillTerminateLibraryA:(UIApplication *)application
 {
     selectorCalled = true;
     // Standard basic swizzling forwarder another library may have.
     if ([self respondsToSelector:@selector(applicationWillTerminateLibraryA:)])
         [self applicationWillTerminateLibraryA:application];
+}
+@end
+
+
+@interface OtherLibraryBSwizzlerSubClass : OtherLibraryASwizzler
+@end
+@implementation OtherLibraryBSwizzlerSubClass
++(BOOL)selectorCalled {
+    return selectorCalled;
+}
+
++(void)swizzleAppDelegate
+{
+    swizzleExistingSelector(
+        [UIApplication.sharedApplication.delegate class],
+        @selector(applicationWillTerminate:),
+        [self class],
+        @selector(applicationWillTerminateLibraryB:)
+    );
+}
+
+- (void)applicationWillTerminateLibraryB:(UIApplication *)application
+{
+    selectorCalled = true;
+    // Standard basic swizzling forwarder another library may have.
+    if ([self respondsToSelector:@selector(applicationWillTerminateLibraryB:)])
+        [self applicationWillTerminateLibraryB:application];
 }
 @end
 
@@ -408,6 +439,36 @@ static id<UIApplicationDelegate> orignalDelegate;
     [localOrignalDelegate applicationWillTerminate:UIApplication.sharedApplication];
 }
 
+- (void)testAppDelegateSubClassIsNotSwizzledTwice {
+    // 1. Create a new delegate and assign it
+    id myAppDelegate = [AppDelegateForInfiniteLoopWithAnotherSwizzlerTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    
+    // 2. Create another Library's app delegate and assign it then swizzle
+    id thierAppDelegate = [OtherLibraryASwizzler new];
+    UIApplication.sharedApplication.delegate = thierAppDelegate;
+    [OtherLibraryASwizzler swizzleAppDelegate];
+    
+    // 3. Create another Library's app delegate subclass and assign it then swizzle
+    id thierAppDelegateSubClass = [OtherLibraryBSwizzlerSubClass new];
+    UIApplication.sharedApplication.delegate = thierAppDelegateSubClass;
+    [OtherLibraryBSwizzlerSubClass swizzleAppDelegate];
+    
+    // 4. Call something to confirm we don't get stuck in an infinite call loop
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    [delegate applicationWillTerminate:UIApplication.sharedApplication];
+    
+    // 5. Ensure OneSignal's selector is called.
+    XCTAssertEqual([OneSignalAppDelegateOverrider
+        callCountForSelector:@"oneSignalApplicationWillTerminate:"], 1);
+    
+    // 6. Ensure other library selector is still called too.
+    XCTAssertTrue([OtherLibraryASwizzler selectorCalled]);
+    
+    // 7. Ensure other library subclass selector is still called too.
+    XCTAssertTrue([OtherLibraryASwizzler selectorCalled]);
+}
+
 - (void)testCompatibleWithOtherSwizzlerWhenSwapingBetweenNil {
     // 1. Create a new delegate and assign it
     id myAppDelegate = [AppDelegateForInfiniteLoopWithAnotherSwizzlerTest new];
@@ -624,4 +685,5 @@ static id<UIApplicationDelegate> orignalDelegate;
     XCTAssertFalse(myAppDelegate.selectorCalledOnParent);
     XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
 }
+
 @end

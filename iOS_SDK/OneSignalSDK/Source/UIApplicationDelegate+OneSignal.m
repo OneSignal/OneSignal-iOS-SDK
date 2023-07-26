@@ -124,8 +124,9 @@ int loopCount = 0;
     }
     Class superClass = class_getSuperclass(delegateClass);
     while(superClass) {
+        NSLog(@"ECM superclass: %@", NSStringFromClass(superClass));
         if ([swizzledClasses containsObject:superClass]) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in parent class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in super class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
             return true;
         }
         superClass = class_getSuperclass(superClass);
