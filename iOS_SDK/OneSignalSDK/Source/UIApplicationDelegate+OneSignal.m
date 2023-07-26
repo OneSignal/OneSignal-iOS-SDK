@@ -78,7 +78,7 @@ int loopCount = 0;
     
     Class delegateClass = [delegate class];
     
-    if (delegate == nil || [swizzledClasses containsObject:delegateClass]) {
+    if (delegate == nil || [swizzledClasses containsObject:delegateClass] || [OneSignalAppDelegate isOneSignalInHeirarchy:delegateClass]) {
         [self setOneSignalDelegate:delegate];
         return;
     }
@@ -113,17 +113,26 @@ int loopCount = 0;
     NSLog(@"ECM class name: %@", NSStringFromClass(delegateClass));
     // Used to track how long the app has been closed
     //if (!__originalAppWillTerminate) {
-        __originalAppWillTerminate = injectSelectorSetImp(
-            delegateClass,
-            @selector(applicationWillTerminate:),
-            newClass,
-            (IMP)__Swizzle_AppWillTerminate
-        );
+//        __originalAppWillTerminate = injectSelectorSetImp(
+//            delegateClass,
+//            @selector(applicationWillTerminate:),
+//            newClass,
+//            (IMP)__Swizzle_AppWillTerminate
+//        );
     //}
-    //injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
+    injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
     [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
 
     [self setOneSignalDelegate:delegate];
+}
+
++ (BOOL)isOneSignalInHeirarchy:(Class)delegateClass {
+    NSString *className = NSStringFromClass(delegateClass);
+    if ([className containsString:@"GUL_AppDelegate"]) {
+        NSLog(@"ECM OneSignal already in heirarchy");
+        return true;
+    }
+    return false;
 }
 
 + (void)swizzlePreiOS10Methods:(Class)delegateClass {
@@ -258,6 +267,7 @@ int loopCount = 0;
 // application:didReceiveRemoteNotification:fetchCompletionHandler:
 // https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623117-application?language=objc
 +(void)forwardToDepercatedApplication:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo {
+    NSLog(@"ECM received");
     id<UIApplicationDelegate> originalDelegate = UIApplication.sharedApplication.delegate;
     if (![originalDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
         return;

@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
-		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
-		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		9112E8871E724C320022A1CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8861E724C320022A1CB /* main.m */; };
 		9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8891E724C320022A1CB /* AppDelegate.m */; };
 		9112E88D1E724C320022A1CB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E88C1E724C320022A1CB /* ViewController.m */; };
@@ -66,6 +64,11 @@
 		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEA86D662A68907800531EA4 /* Instabug in Frameworks */ = {isa = PBXBuildFile; productRef = DEA86D652A68907800531EA4 /* Instabug */; };
+		DEA86D702A71AC9400531EA4 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DEA86D6F2A71AC9400531EA4 /* FirebaseMessaging */; };
+		DEA86D752A71B19000531EA4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DEA86D742A71B19000531EA4 /* FirebaseFirestore */; };
+		DEA86D772A71B19500531EA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DEA86D762A71B19500531EA4 /* FirebaseAuth */; };
+		DEA86D792A71B7B300531EA4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEA86D782A71B7B200531EA4 /* GoogleService-Info.plist */; };
+		DEA86D7A2A71B7B300531EA4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEA86D782A71B7B200531EA4 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -145,7 +148,6 @@
 
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9112E8861E724C320022A1CB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 		DEA22668261E62690092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266A261E62780092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266C261E627D0092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEA86D782A71B7B200531EA4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
+				DEA86D772A71B19500531EA4 /* FirebaseAuth in Frameworks */,
 				DE7D18C427038240002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
 				DE9DDA692A6725C10095FDA1 /* FirebaseRemoteConfig in Frameworks */,
@@ -219,10 +223,12 @@
 				DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */,
 				DE9DDA672A6725C10095FDA1 /* FirebaseCrashlytics in Frameworks */,
 				DE9717752756E6E000FC409E /* OneSignalExtension.framework in Frameworks */,
+				DEA86D702A71AC9400531EA4 /* FirebaseMessaging in Frameworks */,
 				DE7D180727026BB5002D3A5D /* OneSignalCore.framework in Frameworks */,
 				DEA86D662A68907800531EA4 /* Instabug in Frameworks */,
 				DE9DDA652A6725C10095FDA1 /* FirebaseAnalytics in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
+				DEA86D752A71B19000531EA4 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +273,7 @@
 		9112E8791E724C320022A1CB = {
 			isa = PBXGroup;
 			children = (
+				DEA86D782A71B7B200531EA4 /* GoogleService-Info.plist */,
 				94735162291C4EE3000D91D3 /* OneSignalWidgetExtensionExtension.entitlements */,
 				91B6EA091E834B1700B5CF01 /* sentImage.jpg */,
 				9112E8841E724C320022A1CB /* OneSignalDevApp */,
@@ -292,7 +299,6 @@
 		9112E8841E724C320022A1CB /* OneSignalDevApp */ = {
 			isa = PBXGroup;
 			children = (
-				4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */,
 				9112E8A81E72506C0022A1CB /* OneSignalDevApp.entitlements */,
 				9112E8881E724C320022A1CB /* AppDelegate.h */,
 				9112E8891E724C320022A1CB /* AppDelegate.m */,
@@ -413,6 +419,9 @@
 				DE9DDA662A6725C10095FDA1 /* FirebaseCrashlytics */,
 				DE9DDA682A6725C10095FDA1 /* FirebaseRemoteConfig */,
 				DEA86D652A68907800531EA4 /* Instabug */,
+				DEA86D6F2A71AC9400531EA4 /* FirebaseMessaging */,
+				DEA86D742A71B19000531EA4 /* FirebaseFirestore */,
+				DEA86D762A71B19500531EA4 /* FirebaseAuth */,
 			);
 			productName = OneSignalDevApp;
 			productReference = 9112E8821E724C320022A1CB /* OneSignalExample.app */;
@@ -552,9 +561,9 @@
 			files = (
 				9112E8951E724C320022A1CB /* LaunchScreen.storyboard in Resources */,
 				91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */,
-				4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */,
 				9112E8921E724C320022A1CB /* Assets.xcassets in Resources */,
 				9112E8901E724C320022A1CB /* Main.storyboard in Resources */,
+				DEA86D792A71B7B300531EA4 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,7 +572,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */,
-				458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,6 +588,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE68DA6924C7695A00FC95A8 /* LaunchScreen.storyboard in Resources */,
+				DEA86D7A2A71B7B300531EA4 /* GoogleService-Info.plist in Resources */,
 				DE68DA6624C7695A00FC95A8 /* Assets.xcassets in Resources */,
 				DE68DA6424C7695900FC95A8 /* Main.storyboard in Resources */,
 			);
@@ -1559,6 +1568,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DEA86D642A68907800531EA4 /* XCRemoteSwiftPackageReference "Instabug-SP" */;
 			productName = Instabug;
+		};
+		DEA86D6F2A71AC9400531EA4 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		DEA86D742A71B19000531EA4 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		DEA86D762A71B19500531EA4 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE9DDA632A6725C10095FDA1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

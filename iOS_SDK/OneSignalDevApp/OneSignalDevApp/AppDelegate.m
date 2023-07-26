@@ -33,8 +33,11 @@
 
 @import FirebaseCore;
 @import FirebaseRemoteConfig;
+@import FirebaseFirestore;
+@import FirebaseAuth;
 @import FirebaseAnalytics;
 @import Instabug;
+@import FirebaseMessaging;
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -57,6 +60,17 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     [Instabug startWithToken:@"c14f39f91acb9f6ee3d712faf1655f54" invocationEvents: IBGInvocationEventShake | IBGInvocationEventScreenshot];
     [FIRApp configure];
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
+    [FIRMessaging messaging].delegate = self;
+    UNAuthorizationOptions authOptions = UNAuthorizationOptionAlert |
+        UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
+    [[UNUserNotificationCenter currentNotificationCenter]
+        requestAuthorizationWithOptions:authOptions
+        completionHandler:^(BOOL granted, NSError * _Nullable error) {
+          // ...
+        }];
+
+    [application registerForRemoteNotifications];
 //    CrashReporting.enabled = true
 //    CrashReporting.oomEnabled = true
 //    NetworkLogger.enabled = true
@@ -163,6 +177,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return;
 }
 
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"ECM regsitered with APNs");
+}
+
 #pragma mark UIApplicationDelegate methods
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -192,6 +210,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     NSLog(@"ECM The apps method was called!!");
+    //[NSException raise:@"ECM is isntabug in stacktrace?" format:@"raising exception of %@", @"ECM exception"];
 }
 
 // Remote
@@ -201,6 +220,16 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandl
     
     NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
     completionHandler(UIBackgroundFetchResultNoData);
+}
+
+- (void)messaging:(FIRMessaging *)messaging didReceiveRegistrationToken:(NSString *)fcmToken {
+    NSLog(@"ECM FCM registration token: %@", fcmToken);
+    // Notify about received token.
+    NSDictionary *dataDict = [NSDictionary dictionaryWithObject:fcmToken forKey:@"token"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:
+     @"FCMToken" object:nil userInfo:dataDict];
+    // TODO: If necessary send token to application server.
+    // Note: This callback is fired at each app startup and whenever a new token is generated.
 }
 
 @end

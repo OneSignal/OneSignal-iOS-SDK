@@ -339,6 +339,7 @@ void finishProcessingNotification(UNNotification *notification,
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
+    NSLog(@"ECM received UNUser");
     [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     
     if (![OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] && [OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
