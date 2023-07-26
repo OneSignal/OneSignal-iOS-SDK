@@ -38,6 +38,7 @@
 #import "OneSignalHelper.h"
 #import "OSMessagingController.h"
 #import "SwizzlingForwarder.h"
+#import <objc/runtime.h>
 
 @interface OneSignal (UN_extra)
 + (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
@@ -78,10 +79,11 @@ int loopCount = 0;
     
     Class delegateClass = [delegate class];
     
-    if (delegate == nil || [swizzledClasses containsObject:delegateClass] || [OneSignalAppDelegate isOneSignalInHeirarchy:delegateClass]) {
+    if (delegate == nil || [swizzledClasses containsObject:delegateClass] || [OneSignalAppDelegate swizzledClassInHeirarchy:delegateClass]) {
         [self setOneSignalDelegate:delegate];
         return;
     }
+    
     [swizzledClasses addObject:delegateClass];
     
     Class newClass = [OneSignalAppDelegate class];
@@ -109,31 +111,109 @@ int loopCount = 0;
         newClass,
         @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)
     );
-    
-    NSLog(@"ECM class name: %@", NSStringFromClass(delegateClass));
-    // Used to track how long the app has been closed
-    //if (!__originalAppWillTerminate) {
-//        __originalAppWillTerminate = injectSelectorSetImp(
-//            delegateClass,
-//            @selector(applicationWillTerminate:),
-//            newClass,
-//            (IMP)__Swizzle_AppWillTerminate
-//        );
-    //}
     injectSelector(delegateClass, @selector(applicationWillTerminate:), newClass, @selector(oneSignalApplicationWillTerminate:));
     [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
 
     [self setOneSignalDelegate:delegate];
 }
 
-+ (BOOL)isOneSignalInHeirarchy:(Class)delegateClass {
-    NSString *className = NSStringFromClass(delegateClass);
-    if ([className containsString:@"GUL_AppDelegate"]) {
-        NSLog(@"ECM OneSignal already in heirarchy");
-        return true;
++ (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
+    Class superClass = class_getSuperclass(delegateClass);
+    while(superClass) {
+        if ([swizzledClasses containsObject:superClass]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in parent class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
+            return true;
+        }
+        superClass = class_getSuperclass(superClass);
     }
     return false;
 }
+
+//BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector) {
+//    Class instSuperClass = [instance superclass];
+//    return [instance instanceMethodForSelector: selector] != [instSuperClass instanceMethodForSelector: selector];
+//}
+//
+//
+//Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
+//    if (!class_conformsToProtocol(searchClass, protocolToFind)) {
+//        if ([searchClass superclass] == nil)
+//            return nil;
+//        Class foundClass = getClassWithProtocolInHierarchy([searchClass superclass], protocolToFind);
+//        if (foundClass)
+//            return foundClass;
+//        return searchClass;
+//    }
+//    return searchClass;
+//}
+//// Try to find out which class to inject to
+//void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass) {
+//
+//    // Find out if we should inject in delegateClass or one of its subclasses.
+//    // CANNOT use the respondsToSelector method as it returns TRUE to both implementing and inheriting a method
+//    // We need to make sure the class actually implements the method (overrides) and not inherits it to properly perform the call
+//    // Start with subclasses then the delegateClass
+//
+//    for(Class subclass in delegateSubclasses) {
+//        if (checkIfInstanceOverridesSelector(subclass, makeLikeSel)) {
+//            injectSelector(myClass, newSel, subclass, makeLikeSel);
+//            return;
+//        }
+//    }
+//
+//    // No subclass overrides the method, try to inject in delegate class
+//    injectSelector(myClass, newSel, delegateClass, makeLikeSel);
+//
+//}
+//
+//NSArray* ClassGetSubclasses(Class parentClass) {
+//    int numClasses = objc_getClassList(NULL, 0);
+//    int memSize = sizeof(Class) * numClasses;
+//    Class *classes = (Class*)malloc(memSize);
+//    if (classes == NULL && memSize) {
+//        return [NSMutableArray array];
+//    }
+//
+//    objc_getClassList(classes, numClasses);
+//
+//    NSMutableArray *result = [NSMutableArray array];
+//    NSMutableArray *resultNames = [NSMutableArray array];
+//
+//    for (NSInteger i = 0; i < numClasses; i++) {
+//        Class superClass = classes[i];
+//        NSString *className = NSStringFromClass(superClass);
+//
+//        while(superClass && superClass != parentClass) {
+//            superClass = class_getSuperclass(superClass);
+//        }
+//
+//        if (superClass) {
+//            [result addObject:classes[i]];
+//            [resultNames addObject:NSStringFromClass(classes[i])];
+//            if ([className containsString:@"OneSignalAppDelegate"]) {
+//                NSLog(@"ECM class name: %@, parentName: %@", className, NSStringFromClass(parentClass));
+//            }
+//        }
+//
+//    }
+//    NSLog(@"ECM parentclassname: %@", NSStringFromClass(parentClass));
+//    Class superClass = class_getSuperclass(parentClass);
+//    while(superClass) {
+//
+//        NSString *className = NSStringFromClass(superClass);
+//        NSLog(@"ECM superclassname: %@", className);
+//        if ([swizzledClasses containsObject:superClass]) {
+//            NSLog(@"ECM class name: %@, parentName: %@", className, NSStringFromClass(parentClass));
+//        }
+//        superClass = class_getSuperclass(superClass);
+//    }
+//
+//    free(classes);
+////    NSLog(@"ECM parentname: %@", NSStringFromClass(parentClass));
+////    NSLog(@"ECM results: %@", resultNames);
+//
+//    return result;
+//}
 
 + (void)swizzlePreiOS10Methods:(Class)delegateClass {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
@@ -267,7 +347,6 @@ int loopCount = 0;
 // application:didReceiveRemoteNotification:fetchCompletionHandler:
 // https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623117-application?language=objc
 +(void)forwardToDepercatedApplication:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo {
-    NSLog(@"ECM received");
     id<UIApplicationDelegate> originalDelegate = UIApplication.sharedApplication.delegate;
     if (![originalDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
         return;
@@ -316,8 +395,6 @@ int loopCount = 0;
     if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];
 
-    NSLog(@"ECM calling original");
-
 
 
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
@@ -331,34 +408,6 @@ int loopCount = 0;
     ];
     [forwarder invokeWithArgs:@[application]];
 }
-
-void __Swizzle_AppWillTerminate(id self, SEL _cmd, UIApplication *application) {
-    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
-    if ([OneSignal appId])
-        [OneSignalTracker onFocus:YES];
-    
-    NSLog(@"ECM calling original two");
-    
-    if ((void(*)(id,SEL, UIApplication *))__originalAppWillTerminate == (void(*)(id,SEL, UIApplication *))__Swizzle_AppWillTerminate) {
-        NSLog(@"ECM calling myself");
-    }
-    
-    if (loopCount > 5) {
-        NSException* myException = [NSException
-                exceptionWithName:@"testing"
-                reason:@"infinite loop"
-                userInfo:nil];
-        
-        @throw myException;
-    }
-    
-
-    loopCount += 1;
-    
-    //_originalAppWillTerminate();
-    ((void(*)(id,SEL, UIApplication *))__originalAppWillTerminate)(self, _cmd, application);
-}
-
 
 // Used to log all calls, also used in unit tests to observer
 // the OneSignalAppDelegate selectors get called.
