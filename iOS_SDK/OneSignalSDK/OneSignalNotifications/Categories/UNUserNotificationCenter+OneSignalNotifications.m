@@ -33,6 +33,7 @@
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <objc/runtime.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -182,7 +183,7 @@ static NSMutableSet<Class>* swizzledClasses;
     
     Class delegateClass = [delegate class];
     
-    if (delegate == nil || [OneSignalUNUserNotificationCenter swizzledClassInHeirarchy:delegateClass]) {
+    if (delegate == nil || [OneSignalNotificationsUNUserNotificationCenter swizzledClassInHeirarchy:delegateClass]) {
         [self setOneSignalUNDelegate:delegate];
         return;
     }

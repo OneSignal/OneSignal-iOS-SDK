@@ -26,7 +26,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 #import "OSInAppMessageInternal.h"
