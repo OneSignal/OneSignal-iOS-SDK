@@ -466,7 +466,7 @@ static id<UIApplicationDelegate> orignalDelegate;
     XCTAssertTrue([OtherLibraryASwizzler selectorCalled]);
     
     // 7. Ensure other library subclass selector is still called too.
-    XCTAssertTrue([OtherLibraryASwizzler selectorCalled]);
+    XCTAssertTrue([OtherLibraryBSwizzlerSubClass selectorCalled]);
 }
 
 - (void)testCompatibleWithOtherSwizzlerWhenSwapingBetweenNil {
