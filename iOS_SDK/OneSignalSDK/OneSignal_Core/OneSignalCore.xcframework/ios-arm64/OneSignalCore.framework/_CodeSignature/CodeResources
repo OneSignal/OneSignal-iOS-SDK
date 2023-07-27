@@ -4,9 +4,81 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/Info.plist</key>
+		<key>Headers/NSString+OneSignal.h</key>
 		<data>
-		iUHt2NI/a/P5gzashoY+dhQEhXU=
+		/HTg8wbY+rfIy9/kCShHF2Oev6Y=
+		</data>
+		<key>Headers/NSURL+OneSignal.h</key>
+		<data>
+		RUcvMsE7Pj+BUpa1H4SgBH/O/EQ=
+		</data>
+		<key>Headers/OSJSONHandling.h</key>
+		<data>
+		91d8OZhU9KOTu2qY+EdAF+M47+E=
+		</data>
+		<key>Headers/OSMacros.h</key>
+		<data>
+		7HmaM9ljZnw77iovX0v/wnb3bX0=
+		</data>
+		<key>Headers/OSNotification+Internal.h</key>
+		<data>
+		hwttm7oX6fN2cgP1Z4laQAKP49Q=
+		</data>
+		<key>Headers/OSNotification.h</key>
+		<data>
+		O/8gkRAMw3nV6j7znZxoXDKCi3o=
+		</data>
+		<key>Headers/OSNotificationClasses.h</key>
+		<data>
+		iNvshoGLl4IEMy2K1Lq2stVxdB4=
+		</data>
+		<key>Headers/OSPrivacyConsentController.h</key>
+		<data>
+		//dQV0JwOyLrzhcfN4IkI2abbFM=
+		</data>
+		<key>Headers/OSRequests.h</key>
+		<data>
+		MqtDyOupA+cu7c+vEvwpMBVA1b4=
+		</data>
+		<key>Headers/OneSignalClient.h</key>
+		<data>
+		TAYBk2YV4sw9wzS85jL0QtcAen0=
+		</data>
+		<key>Headers/OneSignalCommonDefines.h</key>
+		<data>
+		ZcWSm8ZoK5f/qjz/hgEqb+TEqVI=
+		</data>
+		<key>Headers/OneSignalCore.h</key>
+		<data>
+		T109aNL3gpg8ZtBUTteB6+7IuQ8=
+		</data>
+		<key>Headers/OneSignalCoreHelper.h</key>
+		<data>
+		xQeNeuYQWybV7qex/9h0H2mvUqI=
+		</data>
+		<key>Headers/OneSignalLog.h</key>
+		<data>
+		oEEDkA6eBW5XOmDs86IVGRpm28k=
+		</data>
+		<key>Headers/OneSignalRequest.h</key>
+		<data>
+		/uBkuxddG/dPmbTbANavHELydCw=
+		</data>
+		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
+		<data>
+		oUxC/1Bnj1fAEZ+hPm30tS5H+f0=
+		</data>
+		<key>Headers/OneSignalUserDefaults.h</key>
+		<data>
+		ZvwZZD2HkwwG1wOkh8jGhnl2lTY=
+		</data>
+		<key>Info.plist</key>
+		<data>
+		E7zc2TxrwT3Mswl/IWQXq6vCqsM=
+		</data>
+		<key>Modules/module.modulemap</key>
+		<data>
+		UwBMj9m72xH28UG69kKWlAJjycc=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -137,33 +209,26 @@
 			K44cM22FGB3rV1SaGqR0xQQBO01/YgeIVYiCCcvFnOU=
 			</data>
 		</dict>
-		<key>Resources/Info.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			xq2RZ19AzBwL+DlPOjIWahTJ515XcOrF3HjfparIAdc=
-			</data>
-		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>
-		<key>^Resources/</key>
+		<key>^.*</key>
 		<true/>
-		<key>^Resources/.*\.lproj/</key>
+		<key>^.*\.lproj/</key>
 		<dict>
 			<key>optional</key>
 			<true/>
 			<key>weight</key>
 			<real>1000</real>
 		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
+		<key>^.*\.lproj/locversion.plist$</key>
 		<dict>
 			<key>omit</key>
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
 		</dict>
-		<key>^Resources/Base\.lproj/</key>
+		<key>^Base\.lproj/</key>
 		<dict>
 			<key>weight</key>
 			<real>1010</real>
@@ -185,15 +250,27 @@
 			<key>weight</key>
 			<real>2000</real>
 		</dict>
-		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
-		</dict>
 		<key>^.*</key>
 		<true/>
+		<key>^.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
+		</dict>
 		<key>^Info\.plist$</key>
 		<dict>
 			<key>omit</key>
@@ -207,37 +284,6 @@
 			<true/>
 			<key>weight</key>
 			<real>20</real>
-		</dict>
-		<key>^Resources/</key>
-		<dict>
-			<key>weight</key>
-			<real>20</real>
-		</dict>
-		<key>^Resources/.*\.lproj/</key>
-		<dict>
-			<key>optional</key>
-			<true/>
-			<key>weight</key>
-			<real>1000</real>
-		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
-		<dict>
-			<key>omit</key>
-			<true/>
-			<key>weight</key>
-			<real>1100</real>
-		</dict>
-		<key>^Resources/Base\.lproj/</key>
-		<dict>
-			<key>weight</key>
-			<real>1010</real>
-		</dict>
-		<key>^[^/]+$</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^embedded\.provisionprofile$</key>
 		<dict>
