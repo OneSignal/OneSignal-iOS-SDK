@@ -43,7 +43,7 @@ UIViewController *viewControllerForPresentation;
     _webView.navigationDelegate = self;
     // https://webkit.org/blog/13936/enabling-the-inspection-of-web-content-in-apps/
     if (@available(macOS 13.3, iOS 16.4, *)) {
-        _webView.isInspectable = YES;
+        _webView.inspectable = YES;
     }
     [self.view addSubview:_webView];
     

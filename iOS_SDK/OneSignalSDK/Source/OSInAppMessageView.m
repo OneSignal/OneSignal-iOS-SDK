@@ -112,7 +112,7 @@
     self.webView.opaque = NO;
     // https://webkit.org/blog/13936/enabling-the-inspection-of-web-content-in-apps/
     if (@available(macOS 13.3, iOS 16.4, *)) {
-        self.webView.isInspectable = YES;
+        self.webView.inspectable = YES;
     }
     [self addSubview:self.webView];
     
