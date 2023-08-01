@@ -33,7 +33,6 @@ public class OSEventProducer<THandler>: NSObject {
     var subscriber: THandler?
 
     public func subscribe(_ handler: THandler) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.subscribe() called with handler: \(handler)")
         // TODO: UM do we want to synchronize on subscribers
         subscriber = handler // TODO: UM style, implicit or explicit self?
     }

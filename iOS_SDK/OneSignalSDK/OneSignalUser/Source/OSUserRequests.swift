@@ -191,10 +191,6 @@ class OSUserExecutor {
             identityModel.hydrate(identityObject)
         }
 
-        // On success, check if the current user is the same as the one in the request
-        // If user has changed, don't hydrate, except for push subscription
-        let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-
         // TODO: Determine how to hydrate the push subscription, which is still faulty.
         // Hydrate by token if sub_id exists?
         // Problem: a user can have multiple iOS push subscription, and perhaps missing token
@@ -214,8 +210,10 @@ class OSUserExecutor {
                 }
             }
         }
-
-        guard modelInStore?.modelId == identityModel.modelId else {
+        
+        // Check if the current user is the same as the one in the request
+        // If user has changed, don't hydrate, except for push subscription above
+        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
             return
         }
 
