@@ -185,11 +185,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         OSNotificationsManager.delegate = self
 
+        var hasCachedUser = false
+        
         // Path 1. Load user from cache, if any
         // Corrupted state if any of these models exist without the others
         if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
            let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+            hasCachedUser = true
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
         }
@@ -227,6 +230,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         propertiesModelStoreListener.start()
         subscriptionModelStoreListener.start()
         pushSubscriptionModelStoreListener.start()
+        if hasCachedUser {
+            _user?.pushSubscriptionModel.update()
+        }
     }
 
     @objc
