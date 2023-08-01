@@ -195,12 +195,59 @@ class OSSubscriptionModel: OSModel {
     }
 
     // Properties for push subscription
-    var testType: Int?
-    let deviceOs = UIDevice.current.systemVersion
-    let sdk = ONESIGNAL_VERSION
-    let deviceModel: String? = OSDeviceUtils.getDeviceVariant()
-    let appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-    let netType: Int? = OSNetworkingUtils.getNetType() as? Int
+    var testType: Int? {
+        didSet {
+            guard testType != oldValue else {
+                return
+            }
+            self.set(property: "testType", newValue: testType)
+        }
+    }
+    
+    var deviceOs = UIDevice.current.systemVersion {
+        didSet {
+            guard deviceOs != oldValue else {
+                return
+            }
+            self.set(property: "deviceOs", newValue: deviceOs)
+        }
+    }
+    
+    var sdk = ONESIGNAL_VERSION {
+        didSet {
+            guard sdk != oldValue else {
+                return
+            }
+            self.set(property: "sdk", newValue: sdk)
+        }
+    }
+    
+    var deviceModel: String? = OSDeviceUtils.getDeviceVariant() {
+        didSet {
+            guard deviceModel != oldValue else {
+                return
+            }
+            self.set(property: "deviceModel", newValue: deviceModel)
+        }
+    }
+    
+    var appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+        didSet {
+            guard appVersion != oldValue else {
+                return
+            }
+            self.set(property: "appVersion", newValue: appVersion)
+        }
+    }
+    
+    var netType: Int? = OSNetworkingUtils.getNetType() as? Int {
+        didSet {
+            guard netType != oldValue else {
+                return
+            }
+            self.set(property: "netType", newValue: netType)
+        }
+    }
 
     // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
     init(type: OSSubscriptionType,
@@ -242,6 +289,11 @@ class OSSubscriptionModel: OSModel {
         coder.encode(_isDisabled, forKey: "_isDisabled")
         coder.encode(notificationTypes, forKey: "notificationTypes")
         coder.encode(testType, forKey: "testType")
+        coder.encode(deviceOs, forKey: "deviceOs")
+        coder.encode(sdk, forKey: "sdk")
+        coder.encode(deviceModel, forKey: "deviceModel")
+        coder.encode(appVersion, forKey: "appVersion")
+        coder.encode(netType, forKey: "netType")
     }
 
     required init?(coder: NSCoder) {
@@ -259,6 +311,12 @@ class OSSubscriptionModel: OSModel {
         self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
         self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
         self.testType = coder.decodeObject(forKey: "testType") as? Int
+        self.deviceOs = coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion
+        self.sdk = coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION
+        self.deviceModel = coder.decodeObject(forKey: "deviceModel") as? String
+        self.appVersion = coder.decodeObject(forKey: "appVersion") as? String
+        self.netType = coder.decodeObject(forKey: "netType") as? Int
+        
         super.init(coder: coder)
     }
 
@@ -317,7 +375,32 @@ extension OSSubscriptionModel {
     func updateNotificationTypes() {
         notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
     }
-
+    
+    func updateTestType() {
+        let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
+        // Workaround to unsure how to extract the Int value in 1 step...
+        if releaseMode == .UIApplicationReleaseDev {
+            self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+        }
+        if releaseMode == .UIApplicationReleaseAdHoc {
+            self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
+        }
+        if releaseMode == .UIApplicationReleaseWildcard {
+            self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
+        }
+    }
+    
+    func update() {
+        updateTestType()
+        deviceOs = UIDevice.current.systemVersion
+        sdk = ONESIGNAL_VERSION
+        deviceModel = OSDeviceUtils.getDeviceVariant()
+        appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        netType = OSNetworkingUtils.getNetType() as? Int
+        // sdkType ??
+        // isRooted ??
+    }
+    
     enum OSPushPropertyChanged {
         case subscriptionId(String?)
         case reachable(Bool)
@@ -325,7 +408,6 @@ extension OSSubscriptionModel {
         case address(String?)
     }
 
-    // TODO: Fix when isDisabled is set to true, the push subscription observer is not fired due to known bug.
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
         var prevIsOptedIn = true
         var prevIsEnabled = true
