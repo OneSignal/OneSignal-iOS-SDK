@@ -33,6 +33,7 @@
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <objc/runtime.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -182,7 +183,7 @@ static NSMutableSet<Class>* swizzledClasses;
     
     Class delegateClass = [delegate class];
     
-    if (delegate == nil || [swizzledClasses containsObject:delegateClass]) {
+    if (delegate == nil || [OneSignalNotificationsUNUserNotificationCenter swizzledClassInHeirarchy:delegateClass]) {
         [self setOneSignalUNDelegate:delegate];
         return;
     }
@@ -194,6 +195,22 @@ static NSMutableSet<Class>* swizzledClasses;
 
     // Call orignal iOS implemenation
     [self setOneSignalUNDelegate:delegate];
+}
+
++ (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
+    if ([swizzledClasses containsObject:delegateClass]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@", NSStringFromClass(delegateClass)]];
+        return true;
+    }
+    Class superClass = class_getSuperclass(delegateClass);
+    while(superClass) {
+        if ([swizzledClasses containsObject:superClass]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in super class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
+            return true;
+        }
+        superClass = class_getSuperclass(superClass);
+    }
+    return false;
 }
 
 + (void)swizzleSelectorsOnDelegate:(id)delegate {
