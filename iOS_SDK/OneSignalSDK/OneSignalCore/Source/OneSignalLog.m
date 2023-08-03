@@ -36,6 +36,10 @@ static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
     _nsLogLevel = nsLogLevel;
 }
 
++ (ONE_S_LOG_LEVEL)getLogLevel {
+    return _nsLogLevel;
+}
+
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
     onesignal_Log(logLevel, message);
 }
