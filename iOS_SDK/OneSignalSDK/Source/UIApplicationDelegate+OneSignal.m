@@ -80,6 +80,22 @@ static NSMutableSet<Class>* swizzledClasses;
     [self setOneSignalDelegate:delegate];
 }
 
++ (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
+    if ([swizzledClasses containsObject:delegateClass]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@", NSStringFromClass(delegateClass)]];
+        return true;
+    }
+    Class superClass = class_getSuperclass(delegateClass);
+    while(superClass) {
+        if ([swizzledClasses containsObject:superClass]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in super class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
+            return true;
+        }
+        superClass = class_getSuperclass(superClass);
+    }
+    return false;
+}
+
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
     [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
     
