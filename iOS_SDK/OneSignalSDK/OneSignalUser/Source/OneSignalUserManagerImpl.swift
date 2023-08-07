@@ -445,6 +445,17 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                                    changeNotifier: OSEventProducer())
     }
 
+    func createPushSubscriptionRequest() {
+        // subscriptionExecutor should exist as this should be called after `start()` has been called
+        if let subscriptionExecutor = self.subscriptionExecutor,
+        let subscriptionModel = pushSubscriptionModel
+        {
+            subscriptionExecutor.createPushSubscription(subscriptionModel: subscriptionModel, identityModel: user.identityModel)
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.createPushSubscriptionRequest cannot be executed due to missing subscriptionExecutor.")
+        }
+    }
+    
     @objc
     public func getTags() -> [String: String]? {
         guard let user = _user else {
@@ -521,7 +532,7 @@ extension OneSignalUserManagerImpl {
         // Fetch the user's data if there is a onesignal_id
         // TODO: What if onesignal_id is missing, because we may init a user from cache but it may be missing onesignal_id. Is this ok.
         if let onesignalId = onesignalId {
-            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel)
+            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
         }
     }
 

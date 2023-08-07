@@ -504,8 +504,8 @@ class OSUserExecutor {
         }
     }
 
-    static func fetchUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
-        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: aliasLabel, aliasId: aliasId)
+    static func fetchUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel, onNewSession: Bool = false) {
+        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: aliasLabel, aliasId: aliasId, onNewSession: onNewSession)
 
         appendToQueue(request)
 
@@ -528,6 +528,28 @@ class OSUserExecutor {
                 // Clear local data in preparation for hydration
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
+                
+                // If this is a on-new-session's fetch user call, check that the subscription still exists
+                if request.onNewSession,
+                   OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
+                   let subId = OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId,
+                   let subscriptionObjects = parseSubscriptionObjectResponse(response)
+                {
+                    var subscriptionExists = false
+                    for subModel in subscriptionObjects {
+                        if subModel["id"] as? String == subId {
+                            subscriptionExists = true
+                            break
+                        }
+                    }
+                    
+                    if !subscriptionExists {
+                        // This subscription probably has been deleted
+                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.executeFetchUserRequest found this device's push subscription gone, now send the push subscription to server.")
+                        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                        OneSignalUserManagerImpl.sharedInstance.createPushSubscriptionRequest()
+                    }
+                }
             }
             executePendingRequests()
         } onFailure: { error in
@@ -594,23 +616,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     // When reading from the cache, update the push subscription model
     func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
         self.pushSubscriptionModel = pushSubscriptionModel
-        // Push Subscription Object
-        var pushSubscriptionObject: [String: Any] = [:]
-        pushSubscriptionObject["id"] = pushSubscriptionModel.subscriptionId
-        pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
-        pushSubscriptionObject["token"] = pushSubscriptionModel.address
-        pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
-        pushSubscriptionObject["test_type"] = pushSubscriptionModel.testType
-        pushSubscriptionObject["device_os"] = pushSubscriptionModel.deviceOs
-        pushSubscriptionObject["sdk"] = pushSubscriptionModel.sdk
-        pushSubscriptionObject["device_model"] = pushSubscriptionModel.deviceModel
-        pushSubscriptionObject["app_version"] = pushSubscriptionModel.appVersion
-        pushSubscriptionObject["net_type"] = pushSubscriptionModel.netType
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if pushSubscriptionModel.notificationTypes != -1 {
-            pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
-        }
-        self.parameters?["subscriptions"] = [pushSubscriptionObject]
+        self.parameters?["subscriptions"] = [pushSubscriptionModel.jsonRepresentation()]
     }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
@@ -836,7 +842,8 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let identityModel: OSIdentityModel
     let aliasLabel: String
     let aliasId: String
-
+    let onNewSession: Bool
+    
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request due to null app ID.")
@@ -847,10 +854,11 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         return true
     }
 
-    init(identityModel: OSIdentityModel, aliasLabel: String, aliasId: String) {
+    init(identityModel: OSIdentityModel, aliasLabel: String, aliasId: String, onNewSession: Bool) {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.onNewSession = onNewSession
         self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = GET
@@ -861,6 +869,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         coder.encode(aliasLabel, forKey: "aliasLabel")
         coder.encode(aliasId, forKey: "aliasId")
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(onNewSession, forKey: "onNewSession")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -879,6 +888,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.onNewSession = coder.decodeBool(forKey: "onNewSession")
         self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -1107,8 +1117,9 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 }
 
 /**
- Current uses of this request are for adding Email and SMS subscriptions. Push subscriptions won't be created using
- this request because they will be created with ``OSRequestCreateUser``.
+ Primary uses of this request are for adding Email and SMS subscriptions. Push subscriptions typically won't be created using
+ this request because they will be created with ``OSRequestCreateUser``. However, if we detect that this device's
+ push subscription is ever deleted, we will make a request to create it again.
  */
 class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var sentToClient = false
@@ -1137,15 +1148,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
-
-        var subscriptionParams: [String: Any] = [:]
-        subscriptionParams["type"] = subscriptionModel.type.rawValue
-        subscriptionParams["token"] = subscriptionModel.address
-        // 1/5/2023: For email and SMS, either send `enabled` AND `notification_types` or don't send either
-        // TODO: ^ Backend changes may require us to come back and change this request's payload.
-        // TODO: Since this is not used for push, don't send either of those. Revisit if we ever create push subscriptions with this request.
-
-        self.parameters = ["subscription": subscriptionParams]
+        self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
         self.method = POST
         _ = prepareForExecution() // sets the path property
     }

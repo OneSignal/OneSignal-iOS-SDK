@@ -349,6 +349,26 @@ class OSSubscriptionModel: OSModel {
             }
         }
     }
+    
+    // Using snake_case so we can use this in request bodies
+    public func jsonRepresentation() -> [String: Any] {
+        var json: [String: Any] = [:]
+        json["id"] = self.subscriptionId
+        json["type"] = self.type.rawValue
+        json["token"] = self.address
+        json["enabled"] = self.enabled
+        json["test_type"] = self.testType
+        json["device_os"] = self.deviceOs
+        json["sdk"] = self.sdk
+        json["device_model"] = self.deviceModel
+        json["app_version"] = self.appVersion
+        json["net_type"] = self.netType
+        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
+        if self.notificationTypes != -1 {
+            json["notification_types"] = self.notificationTypes
+        }
+        return json
+    }
 }
 
 // Push Subscription related
