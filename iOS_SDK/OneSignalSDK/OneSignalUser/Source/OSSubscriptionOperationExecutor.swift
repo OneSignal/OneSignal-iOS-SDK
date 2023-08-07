@@ -201,6 +201,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         processRequestQueue()
     }
 
+    // Bypasses the operation repo to create a push subscription request
+    func createPushSubscription(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
+        let request = OSRequestCreateSubscription(subscriptionModel: subscriptionModel, identityModel: identityModel)
+        addRequestQueue.append(request)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+    }
+
     func processRequestQueue() {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue + updateRequestQueue
 
