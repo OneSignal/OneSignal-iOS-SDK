@@ -78,7 +78,9 @@ class OSPropertiesModel: OSModel {
             self.set(property: "location", newValue: location)
         }
     }
-
+    
+    var timezoneId = TimeZone.current.identifier
+    
     var tags: [String: String] = [:]
 
     // MARK: - Initialization
