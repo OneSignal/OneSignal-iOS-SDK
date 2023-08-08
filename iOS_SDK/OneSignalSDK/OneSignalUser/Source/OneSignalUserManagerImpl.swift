@@ -94,6 +94,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return _user?.identityModel.onesignalId
     }
 
+    /**
+     Convenience accessor. We access the push subscription model via the model store instead of via`user.pushSubscriptionModel`.
+     If privacy consent is set in a wrong order, we may have sent requests, but hydrate on a mock user.
+     However, we want to set tokens and subscription ID on the actual push subscription model.
+     */
+    var pushSubscriptionModel: OSSubscriptionModel? {
+        return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+    }
+    
     @objc public var pushSubscriptionId: String? {
         return _user?.pushSubscriptionModel.subscriptionId
     }
