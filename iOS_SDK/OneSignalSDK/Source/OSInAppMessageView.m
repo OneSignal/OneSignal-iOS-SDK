@@ -110,6 +110,10 @@
     self.webView = [[WKWebView alloc] initWithFrame:mainBounds configuration:configuration];
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
+    // https://webkit.org/blog/13936/enabling-the-inspection-of-web-content-in-apps/
+    if (@available(macOS 13.3, iOS 16.4, *) && [OneSignalLog getLogLevel] >= ONE_S_LL_DEBUG) {
+        self.webView.inspectable = YES;
+    }
     [self addSubview:self.webView];
     
     [self layoutIfNeeded];
