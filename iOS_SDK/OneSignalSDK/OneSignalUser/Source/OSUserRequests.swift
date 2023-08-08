@@ -642,6 +642,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         // Properties Object
         var propertiesObject: [String: Any] = [:]
         propertiesObject["language"] = propertiesModel.language
+        propertiesObject["timezone_id"] = propertiesModel.timezoneId
         params["properties"] = propertiesObject
 
         self.parameters = params
