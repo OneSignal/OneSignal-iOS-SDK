@@ -535,7 +535,9 @@ extension OneSignalUserManagerImpl {
             return
         }
         start()
-
+        
+        OSUserExecutor.executePendingRequests()
+        OSOperationRepo.sharedInstance.paused = false
         updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
 
         // Fetch the user's data if there is a onesignal_id
