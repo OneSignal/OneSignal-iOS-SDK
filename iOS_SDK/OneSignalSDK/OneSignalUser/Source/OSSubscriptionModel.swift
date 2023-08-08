@@ -262,7 +262,7 @@ class OSSubscriptionModel: OSModel {
         _reachable = reachable
         _isDisabled = isDisabled
 
-        // Set test_type if subscription model is PUSH
+        // Set test_type if subscription model is PUSH, and update notificationTypes
         if type == .push {
             let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
             // Workaround to unsure how to extract the Int value in 1 step...
@@ -275,6 +275,7 @@ class OSSubscriptionModel: OSModel {
             if releaseMode == .UIApplicationReleaseWildcard {
                 self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
             }
+            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
         }
 
         super.init(changeNotifier: changeNotifier)
