@@ -328,17 +328,21 @@ class OSUserExecutor {
                     executePendingRequests()
                 }
             }
+            OSOperationRepo.sharedInstance.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    // TODO: This leaves the SDK in a bad state, revisit why this can happen
-                    removeFromQueue(request)
+                    // A failed create user request would leave the SDK in a bad state
+                    // Don't remove the request from cache and pause the operation repo
+                    // We will retry this request on a new session
+                    OSOperationRepo.sharedInstance.paused = true
+                    request.sentToClient = false
                 }
+            } else {
+                executePendingRequests()
             }
-            executePendingRequests()
         }
     }
     
@@ -600,7 +604,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel
-    let originalPushToken: String?
+    var originalPushToken: String?
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -617,6 +621,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
         self.pushSubscriptionModel = pushSubscriptionModel
         self.parameters?["subscriptions"] = [pushSubscriptionModel.jsonRepresentation()]
+        self.originalPushToken = pushSubscriptionModel.address
     }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
