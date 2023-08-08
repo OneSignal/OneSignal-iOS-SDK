@@ -201,12 +201,12 @@ class OSUserExecutor {
         // Ideally we only get push subscription for this device in the response, not others
 
         // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
-        if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil),
+        if (OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil),
            let subscriptionObject = parseSubscriptionObjectResponse(response) {
             for subModel in subscriptionObject {
                 if subModel["type"] as? String == "iOSPush",
                    areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String) { // response may have "" token or no token
-                    OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
                     if let subId = subModel["id"] as? String {
                         OSNotificationsManager.setPushSubscriptionId(subId)
                     }
@@ -384,7 +384,7 @@ class OSUserExecutor {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
                     // Fail, no retry, remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     removeFromQueue(request)
                 }
             }
@@ -453,7 +453,7 @@ class OSUserExecutor {
                         return
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 }
             } else {
@@ -532,7 +532,7 @@ class OSUserExecutor {
                 // If this is a on-new-session's fetch user call, check that the subscription still exists
                 if request.onNewSession,
                    OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
-                   let subId = OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId,
+                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
                    let subscriptionObjects = parseSubscriptionObjectResponse(response)
                 {
                     var subscriptionExists = false
@@ -564,7 +564,7 @@ class OSUserExecutor {
                         return
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType != .retryable {
                     // If the error is not retryable, remove from cache and queue
