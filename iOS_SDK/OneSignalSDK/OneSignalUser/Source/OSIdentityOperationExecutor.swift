@@ -193,7 +193,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                         return
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .conflict {
                     self.addRequestQueue.removeAll(where: { $0 == request})
