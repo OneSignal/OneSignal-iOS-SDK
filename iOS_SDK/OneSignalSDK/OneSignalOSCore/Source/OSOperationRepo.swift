@@ -43,6 +43,7 @@ public class OSOperationRepo: NSObject {
 
     // TODO: This should come from a config, plist, method, remote params
     var pollIntervalSeconds = 5
+    public var paused = false
 
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
@@ -108,6 +109,11 @@ public class OSOperationRepo: NSObject {
     }
 
     @objc public func flushDeltaQueue() {
+        guard !paused else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo not flushing queue due to being paused")
+            return
+        }
+        
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
