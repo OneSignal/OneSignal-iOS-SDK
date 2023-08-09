@@ -111,8 +111,17 @@
     self.webView.backgroundColor = [UIColor clearColor];
     self.webView.opaque = NO;
     // https://webkit.org/blog/13936/enabling-the-inspection-of-web-content-in-apps/
-    if (@available(macOS 13.3, iOS 16.4, *) && [OneSignalLog getLogLevel] >= ONE_S_LL_DEBUG) {
-        self.webView.inspectable = YES;
+    if (@available(macOS 13.3, iOS 16.4, *)) {
+        if ([OneSignalLog getLogLevel] >= ONE_S_LL_DEBUG) {
+            if ([self.webView respondsToSelector:@selector(setInspectable:)]) {
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self.webView methodSignatureForSelector:@selector(setInspectable:)]];
+                BOOL value = YES; // Boolean parameters must be captured as a variable before being set as an argument
+                [invocation setTarget:self.webView];
+                [invocation setSelector:@selector(setInspectable:)];
+                [invocation setArgument:&value atIndex:2];
+                [invocation invoke];
+            }
+        }
     }
     [self addSubview:self.webView];
     
