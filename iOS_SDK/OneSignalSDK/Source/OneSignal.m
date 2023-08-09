@@ -38,7 +38,7 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OSNotification+Internal.h"
 #import "OSMigrationController.h"
-#import "OSBackgroundTaskManagerImpl.h"
+#import "OSBackgroundTaskHandlerImpl.h"
 #import "OSFocusCallParams.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
@@ -481,7 +481,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     
     [[OSMigrationController new] migrate];
     
-    OSBackgroundTaskManager.delegate = [OSBackgroundTaskManagerImpl new];
+    OSBackgroundTaskManager.taskHandler = [OSBackgroundTaskHandlerImpl new];
 
     [self registerForAPNsToken];
     
