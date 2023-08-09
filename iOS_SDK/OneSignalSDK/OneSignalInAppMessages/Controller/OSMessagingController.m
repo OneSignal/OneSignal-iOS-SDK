@@ -448,6 +448,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)displayMessage:(OSInAppMessageInternal *)message {
     // Check if the app disabled IAMs for this device before showing an IAM
     if (_isInAppMessagingPaused && !message.isPreview) {
+        [self cleanUpInAppWindow];
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
         return;
     }
@@ -737,7 +738,7 @@ static BOOL _isInAppMessagingPaused = false;
             [self persistInAppMessageForRedisplay:showingIAM];
         }
         // Reset the IAM viewController to prepare for next IAM if one exists
-        self.viewController = nil;
+        [self cleanUpInAppWindow];
         // Reset time since last IAM
         [self setAndPersistTimeSinceLastMessage];
 
@@ -746,6 +747,19 @@ static BOOL _isInAppMessagingPaused = false;
         } else { //do nothing prompt is handling the re-showing
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
         }
+    }
+}
+
+- (void)cleanUpInAppWindow {
+    self.viewController = nil;
+    if (self.window) {
+        /*
+         Hide the top level IAM window
+         After the IAM window is hidden, iOS will automatically promote the main window
+         This also re-shows the keyboard automatically if it had focus in a text input
+        */
+        self.window.hidden = true;
+        self.window = nil;
     }
 }
 
@@ -768,19 +782,10 @@ static BOOL _isInAppMessagingPaused = false;
         [self displayMessage:self.messageDisplayQueue.firstObject];
         return;
     } else {
-        [self hideWindow];
+        [self cleanUpInAppWindow];
         // Evaulate any IAMs (could be new IAM or added trigger conditions)
         [self evaluateMessages];
     }
-}
-
-/*
- Hide the top level IAM window
- After the IAM window is hidden, iOS will automatically promote the main window
- This also re-shows the keyboard automatically if it had focus in a text input
-*/
-- (void)hideWindow {
-    self.window.hidden = true;
 }
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessageInternal *)message {
