@@ -206,15 +206,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
-                } else if responseType == .conflict {
-                    self.addRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                    else {
-                        return
-                    }
-                    // Alias(es) already exists on another user, remove from identity model
-                    OneSignalUserManagerImpl.sharedInstance.user.identityModel.removeAliases(Array(request.aliases.keys))
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
