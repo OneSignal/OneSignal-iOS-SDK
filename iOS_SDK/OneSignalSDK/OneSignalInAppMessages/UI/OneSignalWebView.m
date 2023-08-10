@@ -40,6 +40,19 @@ UIViewController *viewControllerForPresentation;
     
     _webView = [WKWebView new];
     _webView.navigationDelegate = self;
+    // https://webkit.org/blog/13936/enabling-the-inspection-of-web-content-in-apps/
+    if (@available(macOS 13.3, iOS 16.4, *)) {
+        if ([OneSignalLog getLogLevel] >= ONE_S_LL_DEBUG) {
+            if ([_webView respondsToSelector:@selector(setInspectable:)]) {
+                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[_webView methodSignatureForSelector:@selector(setInspectable:)]];
+                BOOL value = YES; // Boolean parameters must be captured as a variable before being set as an argument
+                [invocation setTarget:_webView];
+                [invocation setSelector:@selector(setInspectable:)];
+                [invocation setArgument:&value atIndex:2];
+                [invocation invoke];
+            }
+        }
+    }
     [self.view addSubview:_webView];
     
     [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
