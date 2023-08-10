@@ -78,6 +78,92 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "paused",
+            "printedName": "paused",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore15OSOperationRepoC6pausedSbvp",
+            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC6pausedSbvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore15OSOperationRepoC6pausedSbvg",
+                "mangledName": "$s15OneSignalOSCore15OSOperationRepoC6pausedSbvg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore15OSOperationRepoC6pausedSbvs",
+                "mangledName": "$s15OneSignalOSCore15OSOperationRepoC6pausedSbvs",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore15OSOperationRepoC6pausedSbvM",
+                "mangledName": "$s15OneSignalOSCore15OSOperationRepoC6pausedSbvM",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "start",
             "printedName": "start()",
@@ -128,18 +214,26 @@
           {
             "kind": "Function",
             "name": "flushDeltaQueue",
-            "printedName": "flushDeltaQueue()",
+            "printedName": "flushDeltaQueue(inBackground:)",
             "children": [
               {
                 "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo(im)flushDeltaQueue",
-            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC15flushDeltaQueueyyF",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo(im)flushDeltaQueueInBackground:",
+            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC15flushDeltaQueue12inBackgroundySb_tF",
             "moduleName": "OneSignalOSCore",
+            "objc_name": "flushDeltaQueueInBackground:",
             "declAttributes": [
               "AccessControl",
               "ObjC"
@@ -1391,9 +1485,16 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
         "kind": "TypeDecl",
-        "name": "OSBackgroundTaskManagerDelegate",
-        "printedName": "OSBackgroundTaskManagerDelegate",
+        "name": "OSBackgroundTaskHandler",
+        "printedName": "OSBackgroundTaskHandler",
         "children": [
           {
             "kind": "Function",
@@ -1413,11 +1514,11 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate(im)beginBackgroundTask:",
-            "mangledName": "$s15OneSignalOSCore31OSBackgroundTaskManagerDelegateP015beginBackgroundE0yySSF",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler(im)beginBackgroundTask:",
+            "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskHandlerP015beginBackgroundE0yySSF",
             "moduleName": "OneSignalOSCore",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
-            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskHandler>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskHandler>",
             "protocolReq": true,
             "declAttributes": [
               "ObjC"
@@ -1443,11 +1544,11 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate(im)endBackgroundTask:",
-            "mangledName": "$s15OneSignalOSCore31OSBackgroundTaskManagerDelegateP013endBackgroundE0yySSF",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler(im)endBackgroundTask:",
+            "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskHandlerP013endBackgroundE0yySSF",
             "moduleName": "OneSignalOSCore",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
-            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskHandler>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskHandler>",
             "protocolReq": true,
             "declAttributes": [
               "ObjC"
@@ -1473,11 +1574,11 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate(im)setTaskInvalid:",
-            "mangledName": "$s15OneSignalOSCore31OSBackgroundTaskManagerDelegateP03setE7InvalidyySSF",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler(im)setTaskInvalid:",
+            "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskHandlerP03setE7InvalidyySSF",
             "moduleName": "OneSignalOSCore",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
-            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskManagerDelegate>",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSBackgroundTaskHandler>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSBackgroundTaskHandler>",
             "protocolReq": true,
             "declAttributes": [
               "ObjC"
@@ -1487,8 +1588,8 @@
           }
         ],
         "declKind": "Protocol",
-        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate",
-        "mangledName": "$s15OneSignalOSCore31OSBackgroundTaskManagerDelegateP",
+        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler",
+        "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskHandlerP",
         "moduleName": "OneSignalOSCore",
         "genericSig": "<τ_0_0 : AnyObject>",
         "sugared_genericSig": "<Self : AnyObject>",
@@ -1504,29 +1605,36 @@
         "children": [
           {
             "kind": "Var",
-            "name": "delegate",
-            "printedName": "delegate",
+            "name": "taskHandler",
+            "printedName": "taskHandler",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "WeakStorage",
-                "printedName": "OneSignalOSCore.OSBackgroundTaskManagerDelegate?"
+                "name": "Optional",
+                "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSBackgroundTaskHandler",
+                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                    "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
+                  }
+                ],
+                "usr": "s:Sq"
               }
             ],
             "declKind": "Var",
-            "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cpy)delegate",
-            "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC8delegateAA0deF8Delegate_pSgvpZ",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cpy)taskHandler",
+            "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC11taskHandlerAA0deH0_pSgvpZ",
             "moduleName": "OneSignalOSCore",
             "static": true,
             "declAttributes": [
               "HasInitialValue",
               "Final",
               "HasStorage",
-              "ReferenceOwnership",
               "AccessControl",
               "ObjC"
             ],
-            "ownership": 1,
             "hasStorage": true,
             "accessors": [
               {
@@ -1537,21 +1645,21 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "OneSignalOSCore.OSBackgroundTaskManagerDelegate?",
+                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "OSBackgroundTaskManagerDelegate",
-                        "printedName": "OneSignalOSCore.OSBackgroundTaskManagerDelegate",
-                        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate"
+                        "name": "OSBackgroundTaskHandler",
+                        "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
                       }
                     ],
                     "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cm)delegate",
-                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC8delegateAA0deF8Delegate_pSgvgZ",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cm)taskHandler",
+                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC11taskHandlerAA0deH0_pSgvgZ",
                 "moduleName": "OneSignalOSCore",
                 "static": true,
                 "implicit": true,
@@ -1574,21 +1682,21 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "OneSignalOSCore.OSBackgroundTaskManagerDelegate?",
+                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
                     "children": [
                       {
                         "kind": "TypeNominal",
-                        "name": "OSBackgroundTaskManagerDelegate",
-                        "printedName": "OneSignalOSCore.OSBackgroundTaskManagerDelegate",
-                        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskManagerDelegate"
+                        "name": "OSBackgroundTaskHandler",
+                        "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                        "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
                       }
                     ],
                     "usr": "s:Sq"
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cm)setDelegate:",
-                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC8delegateAA0deF8Delegate_pSgvsZ",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSBackgroundTaskManager(cm)setTaskHandler:",
+                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC11taskHandlerAA0deH0_pSgvsZ",
                 "moduleName": "OneSignalOSCore",
                 "static": true,
                 "implicit": true,
@@ -1610,8 +1718,8 @@
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:15OneSignalOSCore23OSBackgroundTaskManagerC8delegateAA0deF8Delegate_pSgvMZ",
-                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC8delegateAA0deF8Delegate_pSgvMZ",
+                "usr": "s:15OneSignalOSCore23OSBackgroundTaskManagerC11taskHandlerAA0deH0_pSgvMZ",
+                "mangledName": "$s15OneSignalOSCore23OSBackgroundTaskManagerC11taskHandlerAA0deH0_pSgvMZ",
                 "moduleName": "OneSignalOSCore",
                 "static": true,
                 "implicit": true,
@@ -3401,17 +3509,23 @@
           {
             "kind": "Function",
             "name": "processDeltaQueue",
-            "printedName": "processDeltaQueue()",
+            "printedName": "processDeltaQueue(inBackground:)",
             "children": [
               {
                 "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Func",
-            "usr": "s:15OneSignalOSCore19OSOperationExecutorP17processDeltaQueueyyF",
-            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP17processDeltaQueueyyF",
+            "usr": "s:15OneSignalOSCore19OSOperationExecutorP17processDeltaQueue12inBackgroundySb_tF",
+            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP17processDeltaQueue12inBackgroundySb_tF",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
             "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
@@ -3422,17 +3536,23 @@
           {
             "kind": "Function",
             "name": "processRequestQueue",
-            "printedName": "processRequestQueue()",
+            "printedName": "processRequestQueue(inBackground:)",
             "children": [
               {
                 "kind": "TypeNominal",
                 "name": "Void",
                 "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Func",
-            "usr": "s:15OneSignalOSCore19OSOperationExecutorP19processRequestQueueyyF",
-            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP19processRequestQueueyyF",
+            "usr": "s:15OneSignalOSCore19OSOperationExecutorP19processRequestQueue12inBackgroundySb_tF",
+            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP19processRequestQueue12inBackgroundySb_tF",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
             "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
@@ -3455,70 +3575,84 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
       "offset": 1573,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Dictionary",
       "offset": 1711,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
       "offset": 1758,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
       "offset": 1793,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "IntegerLiteral",
       "offset": 1901,
       "length": 1,
       "value": "5"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1927,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "BooleanLiteral",
+      "offset": 4475,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
       "kind": "StringLiteral",
       "offset": 1257,
       "length": 12,
       "value": "\"OneSignalOSCore.OSModelStore\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "BooleanLiteral",
       "offset": 1419,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "StringLiteral",
       "offset": 1260,
       "length": 7,
       "value": "\"OneSignalOSCore.OSModel\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
       "offset": 1455,
       "length": 7,
       "value": "\"OneSignalOSCore.OSDelta\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
       "kind": "StringLiteral",
       "offset": 1256,
       "length": 18,
