@@ -94,6 +94,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return _user?.identityModel.onesignalId
     }
 
+    /**
+     Convenience accessor. We access the push subscription model via the model store instead of via`user.pushSubscriptionModel`.
+     If privacy consent is set in a wrong order, we may have sent requests, but hydrate on a mock user.
+     However, we want to set tokens and subscription ID on the actual push subscription model.
+     */
+    var pushSubscriptionModel: OSSubscriptionModel? {
+        return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+    }
+    
     @objc public var pushSubscriptionId: String? {
         return _user?.pushSubscriptionModel.subscriptionId
     }
@@ -185,11 +194,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         OSNotificationsManager.delegate = self
 
+        var hasCachedUser = false
+        
         // Path 1. Load user from cache, if any
         // Corrupted state if any of these models exist without the others
         if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
            let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+            hasCachedUser = true
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
         }
@@ -227,6 +239,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         propertiesModelStoreListener.start()
         subscriptionModelStoreListener.start()
         pushSubscriptionModelStoreListener.start()
+        if hasCachedUser {
+            _user?.pushSubscriptionModel.update()
+        }
     }
 
     @objc
@@ -439,6 +454,17 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                                    changeNotifier: OSEventProducer())
     }
 
+    func createPushSubscriptionRequest() {
+        // subscriptionExecutor should exist as this should be called after `start()` has been called
+        if let subscriptionExecutor = self.subscriptionExecutor,
+        let subscriptionModel = pushSubscriptionModel
+        {
+            subscriptionExecutor.createPushSubscription(subscriptionModel: subscriptionModel, identityModel: user.identityModel)
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.createPushSubscriptionRequest cannot be executed due to missing subscriptionExecutor.")
+        }
+    }
+    
     @objc
     public func getTags() -> [String: String]? {
         guard let user = _user else {
@@ -509,19 +535,24 @@ extension OneSignalUserManagerImpl {
             return
         }
         start()
-
+        
+        OSUserExecutor.executePendingRequests()
+        OSOperationRepo.sharedInstance.paused = false
         updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
 
         // Fetch the user's data if there is a onesignal_id
         // TODO: What if onesignal_id is missing, because we may init a user from cache but it may be missing onesignal_id. Is this ok.
         if let onesignalId = onesignalId {
-            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel)
+            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
         }
     }
 
     @objc
-    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
+    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            if let onFailure = onFailure {
+                onFailure()
+            }
             return
         }
 
@@ -536,10 +567,16 @@ extension OneSignalUserManagerImpl {
                 propertiesDeltas: propertiesDeltas,
                 refreshDeviceMetadata: refreshDeviceMetadata,
                 propertiesModel: propertiesModel,
-                identityModel: identityModel
+                identityModel: identityModel,
+                sendImmediately: sendImmediately,
+                onSuccess: onSuccess,
+                onFailure: onFailure
             )
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.updateSession with sessionCount: \(String(describing: sessionCount)) sessionTime: \(String(describing: sessionTime)) cannot be executed due to missing property executor.")
+            if let onFailure = onFailure {
+                onFailure()
+            }
         }
     }
 
@@ -549,12 +586,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        // TODO: Test background behavior
-        // Can't end background task until the server calls return
-        OSBackgroundTaskManager.beginBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
-        // dispatch_async ?
-        OSOperationRepo.sharedInstance.flushDeltaQueue()
-        OSBackgroundTaskManager.endBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+        OSOperationRepo.sharedInstance.flushDeltaQueue(inBackground: true)
     }
 }
 

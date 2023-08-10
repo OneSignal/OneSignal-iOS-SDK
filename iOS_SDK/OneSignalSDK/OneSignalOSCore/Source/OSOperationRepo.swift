@@ -43,6 +43,7 @@ public class OSOperationRepo: NSObject {
 
     // TODO: This should come from a config, plist, method, remote params
     var pollIntervalSeconds = 5
+    public var paused = false
 
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
@@ -107,13 +108,23 @@ public class OSOperationRepo: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    @objc public func flushDeltaQueue() {
+    @objc public func flushDeltaQueue(inBackground: Bool = false) {
+        guard !paused else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo not flushing queue due to being paused")
+            return
+        }
+        
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
+    
+        if (inBackground) {
+            OSBackgroundTaskManager.beginBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
+        }
+
         start()
         if !deltaQueue.isEmpty {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(deltaQueue)")
         }
 
         var index = 0
@@ -135,7 +146,12 @@ public class OSOperationRepo: NSObject {
         }
 
         for executor in executors {
-            executor.processDeltaQueue()
+            executor.processDeltaQueue(inBackground: inBackground)
         }
+        
+        if (inBackground) {
+            OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
+        }
+
     }
 }

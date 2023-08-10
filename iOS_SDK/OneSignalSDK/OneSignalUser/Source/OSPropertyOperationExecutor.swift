@@ -86,7 +86,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    func processDeltaQueue() {
+    func processDeltaQueue(inBackground: Bool) {
         if !deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
@@ -111,20 +111,20 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
-        processRequestQueue()
+        processRequestQueue(inBackground: inBackground)
     }
 
-    func processRequestQueue() {
+    func processRequestQueue(inBackground: Bool) {
         if updateRequestQueue.isEmpty {
             return
         }
 
         for request in updateRequestQueue {
-            executeUpdatePropertiesRequest(request)
+            executeUpdatePropertiesRequest(request, inBackground: inBackground)
         }
     }
 
-    func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties) {
+    func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties, inBackground: Bool) {
         guard !request.sentToClient else {
             return
         }
@@ -132,12 +132,20 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             return
         }
         request.sentToClient = true
-
+        
+        let backgroundTaskIdentifier = PROPERTIES_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
+        if (inBackground) {
+            OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
+        }
+        
         OneSignalClient.shared().execute(request) { _ in
             // On success, remove request from cache, and we do need to hydrate
             // TODO: We need to hydrate after all ? What why ?
             self.updateRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            if (inBackground) {
+                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
@@ -149,10 +157,13 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // Logout if the user in the SDK is the same
                     guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                     else {
+                        if (inBackground) {
+                            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                        }
                         return
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
@@ -160,13 +171,16 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                 }
             }
+            if (inBackground) {
+                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            }
         }
     }
 }
 
 extension OSPropertyOperationExecutor {
     // TODO: We can make this go through the operation repo
-    func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
+    func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
 
         let request = OSRequestUpdateProperties(
             properties: [:],
@@ -175,7 +189,20 @@ extension OSPropertyOperationExecutor {
             modelToUpdate: propertiesModel,
             identityModel: identityModel)
 
-        updateRequestQueue.append(request)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+        if (sendImmediately) {
+            // Bypass the request queues
+            OneSignalClient.shared().execute(request) { _ in
+                if let onSuccess = onSuccess {
+                    onSuccess()
+                }
+            } onFailure: { _ in
+                if let onFailure = onFailure {
+                    onFailure()
+                }
+            }
+        } else {
+            updateRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+        }
     }
 }
