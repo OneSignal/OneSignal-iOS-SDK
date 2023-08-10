@@ -191,10 +191,6 @@ class OSUserExecutor {
             identityModel.hydrate(identityObject)
         }
 
-        // On success, check if the current user is the same as the one in the request
-        // If user has changed, don't hydrate, except for push subscription
-        let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-
         // TODO: Determine how to hydrate the push subscription, which is still faulty.
         // Hydrate by token if sub_id exists?
         // Problem: a user can have multiple iOS push subscription, and perhaps missing token
@@ -214,8 +210,10 @@ class OSUserExecutor {
                 }
             }
         }
-
-        guard modelInStore?.modelId == identityModel.modelId else {
+        
+        // Check if the current user is the same as the one in the request
+        // If user has changed, don't hydrate, except for push subscription above
+        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
             return
         }
 
@@ -328,17 +326,21 @@ class OSUserExecutor {
                     executePendingRequests()
                 }
             }
+            OSOperationRepo.sharedInstance.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    // TODO: This leaves the SDK in a bad state, revisit why this can happen
-                    removeFromQueue(request)
+                    // A failed create user request would leave the SDK in a bad state
+                    // Don't remove the request from cache and pause the operation repo
+                    // We will retry this request on a new session
+                    OSOperationRepo.sharedInstance.paused = true
+                    request.sentToClient = false
                 }
+            } else {
+                executePendingRequests()
             }
-            executePendingRequests()
         }
     }
     
@@ -600,7 +602,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel
-    let originalPushToken: String?
+    var originalPushToken: String?
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -617,6 +619,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
         self.pushSubscriptionModel = pushSubscriptionModel
         self.parameters?["subscriptions"] = [pushSubscriptionModel.jsonRepresentation()]
+        self.originalPushToken = pushSubscriptionModel.address
     }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
@@ -637,6 +640,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         // Properties Object
         var propertiesObject: [String: Any] = [:]
         propertiesObject["language"] = propertiesModel.language
+        propertiesObject["timezone_id"] = propertiesModel.timezoneId
         params["properties"] = propertiesObject
 
         self.parameters = params
