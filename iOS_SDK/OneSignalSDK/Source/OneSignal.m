@@ -698,26 +698,33 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  Start of outcome module
  */
 
-// Returns if we can send this, meaning we have a subscription_id and onesignal_id
-+ (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params {
++ (void)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params onSuccess:(OSResultSuccessBlock _Nonnull)successBlock onFailure:(OSFailureBlock _Nonnull)failureBlock {
     if (![OSOutcomes sharedController]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
-        return false;
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : @"Missing outcomes controller."}]);
+        }
+        return;
     }
     
     NSString* onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
     NSString* pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     
     if (!onesignalId || !pushSubscriptionId) {
-        return false;
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : @"Missing onesignalId or pushSubscriptionId."}]);
+        }
+        return;
+        
     }
     
     [OSOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
-                                                         appId:appId
-                                            pushSubscriptionId:pushSubscriptionId
-                                                   onesignalId:onesignalId
-                                               influenceParams:params.influenceParams];
-    return true;
+                                                  appId:appId
+                                     pushSubscriptionId:pushSubscriptionId
+                                            onesignalId:onesignalId
+                                        influenceParams:params.influenceParams
+                                              onSuccess:successBlock
+                                              onFailure:failureBlock];
 }
 
 @end
