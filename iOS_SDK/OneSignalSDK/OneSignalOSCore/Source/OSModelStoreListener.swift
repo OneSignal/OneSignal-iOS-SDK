@@ -52,7 +52,6 @@ extension OSModelStoreListener {
     }
 
     public func onAdded(_ model: OSModel) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStoreListener.onAdded() with model \(model)")
         guard let addedModel = model as? Self.TModel else {
             // log error
             return
@@ -63,7 +62,6 @@ extension OSModelStoreListener {
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStoreListener.onUpdated() with args \(args)")
         if let delta = getUpdateModelDelta(args) {
             OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
