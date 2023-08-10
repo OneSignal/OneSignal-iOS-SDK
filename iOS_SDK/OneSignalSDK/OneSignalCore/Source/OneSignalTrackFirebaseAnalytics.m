@@ -103,22 +103,11 @@ static BOOL trackingEnabled = false;
 }
 
 + (void)trackReceivedEvent:(OSNotification*)notification {
-    if (!trackingEnabled)
-        return;
-    
     NSString *campaign = [self getCampaignNameFromNotification:notification];
     OneSignalUserDefaults *sharedUserDefaults = OneSignalUserDefaults.initShared;
     [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED withValue:notification.notificationId];
     [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED withValue:campaign];
     [sharedUserDefaults saveDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED withValue:[[NSDate date] timeIntervalSince1970]];
-    
-    [self logEventWithName:@"os_notification_received"
-                parameters:@{
-                    @"source": @"OneSignal",
-                    @"medium": @"notification",
-                    @"notification_id": notification.notificationId,
-                    @"campaign": campaign
-                }];
 }
 
 + (void)trackInfluenceOpenEvent {
@@ -144,6 +133,10 @@ static BOOL trackingEnabled = false;
     
     NSString *notificationId = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED defaultValue:nil];
     NSString *campaign = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED defaultValue:nil];
+    
+    if (!notificationId || !campaign) {
+        return;
+    }
     
     [self logEventWithName:@"os_notification_influence_open"
                 parameters:@{
