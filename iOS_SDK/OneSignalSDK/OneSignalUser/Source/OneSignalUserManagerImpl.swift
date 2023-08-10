@@ -548,8 +548,11 @@ extension OneSignalUserManagerImpl {
     }
 
     @objc
-    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
+    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            if let onFailure = onFailure {
+                onFailure()
+            }
             return
         }
 
@@ -564,10 +567,16 @@ extension OneSignalUserManagerImpl {
                 propertiesDeltas: propertiesDeltas,
                 refreshDeviceMetadata: refreshDeviceMetadata,
                 propertiesModel: propertiesModel,
-                identityModel: identityModel
+                identityModel: identityModel,
+                sendImmediately: sendImmediately,
+                onSuccess: onSuccess,
+                onFailure: onFailure
             )
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.updateSession with sessionCount: \(String(describing: sessionCount)) sessionTime: \(String(describing: sessionTime)) cannot be executed due to missing property executor.")
+            if let onFailure = onFailure {
+                onFailure()
+            }
         }
     }
 
