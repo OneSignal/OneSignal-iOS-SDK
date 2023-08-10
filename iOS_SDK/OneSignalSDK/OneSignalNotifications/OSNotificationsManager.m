@@ -34,6 +34,7 @@
 #import "OneSignalWebViewManager.h"
 #import "UNUserNotificationCenter+OneSignalNotifications.h"
 #import "UIApplicationDelegate+OneSignalNotifications.h"
+#import <OneSignalOutcomes/OSSessionManager.h>
 
 @implementation OSNotificationClickEvent
 @synthesize notification = _notification, result = _result;
@@ -696,10 +697,10 @@ static NSString *_lastnonActiveMessageId;
     
     // Call Action Block
     [self lastMessageReceived:messageDict];
-//    if (!isActive) { TODO: Figure out session stuff from notif opened
-//        OneSignal.appEntryState = NOTIFICATION_CLICK;
-//        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
-//    }
+    if (!isActive) {
+        OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
+        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
+    }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];
 }

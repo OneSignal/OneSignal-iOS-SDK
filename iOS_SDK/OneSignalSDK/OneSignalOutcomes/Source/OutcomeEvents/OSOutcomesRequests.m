@@ -138,7 +138,7 @@ NSString * const OUTCOME_SOURCE = @"source";
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
     params[@"id"] = @"os__session_duration";
-    params[@"session_time"] = activeTime;
+    params[@"session_time"] = @([activeTime intValue]);
     params[@"subscription"] = @{@"id": pushSubscriptionId, @"type": @"iOSPush"};
     params[@"onesignal_id"] = onesignalId;
     
