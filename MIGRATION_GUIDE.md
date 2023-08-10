@@ -35,7 +35,7 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ## Requirements
 - Minimum deployment target of iOS 11
 - Requires Xcode 14
-- If you are using CocoaPods, please use version `1.11.3+` and Ruby version `2.7.5+`.
+- If you are using CocoaPods, please use version `1.12.1+` and Ruby version `2.7.5+`.
 
 
 ## SDK Installation
@@ -60,10 +60,12 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0-beta-04`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+Update the version of the OneSignal-XCFramework your application uses to `5.0.0-beta-06`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+
+Note that the Location and InAppMessage functionality have moved into their own Swift Package Manager products. If would like to use InAppMessages and Location features ensure that those products are included as dependencys for your app.
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0-beta-04`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+Update the version of the OneSignalXCFramework your application uses to `5.0.0-beta-06`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
