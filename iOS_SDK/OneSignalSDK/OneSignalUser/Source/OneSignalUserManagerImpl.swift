@@ -577,12 +577,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        // TODO: Test background behavior
-        // Can't end background task until the server calls return
-        OSBackgroundTaskManager.beginBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
-        // dispatch_async ?
-        OSOperationRepo.sharedInstance.flushDeltaQueue()
-        OSBackgroundTaskManager.endBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+        OSOperationRepo.sharedInstance.flushDeltaQueue(inBackground: true)
     }
 }
 
