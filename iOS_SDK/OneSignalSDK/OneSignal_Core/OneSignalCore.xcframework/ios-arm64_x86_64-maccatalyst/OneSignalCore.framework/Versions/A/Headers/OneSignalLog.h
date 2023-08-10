@@ -44,4 +44,5 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 @interface OneSignalLog : NSObject<OSDebug>
 + (Class<OSDebug>)Debug;
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
++ (ONE_S_LOG_LEVEL)getLogLevel;
 @end
