@@ -218,6 +218,11 @@ class OSSubscriptionModel: OSModel {
         // Set test_type if subscription model is PUSH
         if type == .push {
             let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
+            #if targetEnvironment(simulator)
+            if (releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown) {
+                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+            }
+            #endif
             // Workaround to unsure how to extract the Int value in 1 step...
             if releaseMode == .UIApplicationReleaseDev {
                 self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
