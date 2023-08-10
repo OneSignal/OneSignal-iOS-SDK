@@ -252,26 +252,25 @@ using UInt = size_t;
 #endif
 
 #if defined(__OBJC__)
-@protocol OSBackgroundTaskManagerDelegate;
 @class NSString;
+
+SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSBackgroundTaskHandler_")
+@protocol OSBackgroundTaskHandler
+- (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
+- (void)endBackgroundTask:(NSString * _Nonnull)taskIdentifier;
+- (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier;
+@end
+
 
 SWIFT_CLASS("_TtC15OneSignalOSCore23OSBackgroundTaskManager")
 @interface OSBackgroundTaskManager : NSObject
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, weak) id <OSBackgroundTaskManagerDelegate> _Nullable delegate;)
-+ (id <OSBackgroundTaskManagerDelegate> _Nullable)delegate SWIFT_WARN_UNUSED_RESULT;
-+ (void)setDelegate:(id <OSBackgroundTaskManagerDelegate> _Nullable)value;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, strong) id <OSBackgroundTaskHandler> _Nullable taskHandler;)
++ (id <OSBackgroundTaskHandler> _Nullable)taskHandler SWIFT_WARN_UNUSED_RESULT;
++ (void)setTaskHandler:(id <OSBackgroundTaskHandler> _Nullable)value;
 + (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
 + (void)endBackgroundTask:(NSString * _Nonnull)taskIdentifier;
 + (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
-@end
-
-
-SWIFT_PROTOCOL("_TtP15OneSignalOSCore31OSBackgroundTaskManagerDelegate_")
-@protocol OSBackgroundTaskManagerDelegate
-- (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
-- (void)endBackgroundTask:(NSString * _Nonnull)taskIdentifier;
-- (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier;
 @end
 
 @class NSCoder;
@@ -307,7 +306,7 @@ SWIFT_CLASS("_TtC15OneSignalOSCore18OSModelChangedArgs")
 /// OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
 SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
-- (void)flushDeltaQueue;
+- (void)flushDeltaQueueInBackground:(BOOL)inBackground;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
