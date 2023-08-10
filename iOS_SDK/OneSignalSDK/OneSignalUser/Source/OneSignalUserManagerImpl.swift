@@ -535,7 +535,9 @@ extension OneSignalUserManagerImpl {
             return
         }
         start()
-
+        
+        OSUserExecutor.executePendingRequests()
+        OSOperationRepo.sharedInstance.paused = false
         updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
 
         // Fetch the user's data if there is a onesignal_id
@@ -546,8 +548,11 @@ extension OneSignalUserManagerImpl {
     }
 
     @objc
-    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
+    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            if let onFailure = onFailure {
+                onFailure()
+            }
             return
         }
 
@@ -562,10 +567,16 @@ extension OneSignalUserManagerImpl {
                 propertiesDeltas: propertiesDeltas,
                 refreshDeviceMetadata: refreshDeviceMetadata,
                 propertiesModel: propertiesModel,
-                identityModel: identityModel
+                identityModel: identityModel,
+                sendImmediately: sendImmediately,
+                onSuccess: onSuccess,
+                onFailure: onFailure
             )
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.updateSession with sessionCount: \(String(describing: sessionCount)) sessionTime: \(String(describing: sessionTime)) cannot be executed due to missing property executor.")
+            if let onFailure = onFailure {
+                onFailure()
+            }
         }
     }
 
@@ -575,12 +586,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        // TODO: Test background behavior
-        // Can't end background task until the server calls return
-        OSBackgroundTaskManager.beginBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
-        // dispatch_async ?
-        OSOperationRepo.sharedInstance.flushDeltaQueue()
-        OSBackgroundTaskManager.endBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+        OSOperationRepo.sharedInstance.flushDeltaQueue(inBackground: true)
     }
 }
 
