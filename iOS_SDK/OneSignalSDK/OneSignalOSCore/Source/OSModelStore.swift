@@ -87,7 +87,6 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     }
 
     public func add(id: String, model: TModel, hydrating: Bool) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore add() called with model \(model)")
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
             // Check API endpoint for behavior
@@ -127,6 +126,8 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
         }
     }
 
@@ -151,8 +152,6 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
 extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore.onChanged() called with OSModelChangedArgs: \(args)")
-
         // persist the changed models to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
