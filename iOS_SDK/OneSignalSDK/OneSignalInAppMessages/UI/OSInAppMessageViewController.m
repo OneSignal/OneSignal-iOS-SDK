@@ -95,12 +95,15 @@
 
 @implementation OSInAppMessageViewController
 
+OSInAppMessageInternal *_dismissingMessage = nil;
+
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate {
     if (self = [super init]) {
         self.message = inAppMessage;
         self.delegate = delegate;
         self.useHeightMargin = YES;
         self.useWidthMargin = YES;
+        _dismissingMessage = nil;
     }
     
     return self;
@@ -490,6 +493,10 @@
         [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
         return;
     }
+    
+    if (_dismissingMessage == self.message) {
+        return;
+    }
         
     [self.delegate messageViewControllerWillDismiss:self.message];
     
@@ -521,7 +528,7 @@
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
     }
-
+    _dismissingMessage = self.message;
     [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
         self.view.backgroundColor = [UIColor clearColor];
         self.view.alpha = 0.0f;
