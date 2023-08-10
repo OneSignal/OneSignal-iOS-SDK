@@ -10,9 +10,10 @@ import _Concurrency
 import _StringProcessing
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
   public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+  public var paused: Swift.Bool
   public func start()
   public func addExecutor(_ executor: OneSignalOSCore.OSOperationExecutor)
-  @objc public func flushDeltaQueue()
+  @objc public func flushDeltaQueue(inBackground: Swift.Bool = false)
   @objc override dynamic public init()
   @objc deinit
 }
@@ -48,13 +49,13 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   open func hydrateModel(_ response: [Swift.String : Any])
   @objc deinit
 }
-@objc public protocol OSBackgroundTaskManagerDelegate {
+@objc public protocol OSBackgroundTaskHandler {
   @objc func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc func endBackgroundTask(_ taskIdentifier: Swift.String)
   @objc func setTaskInvalid(_ taskIdentifier: Swift.String)
 }
 @_inheritsConvenienceInitializers @objc public class OSBackgroundTaskManager : ObjectiveC.NSObject {
-  @objc weak public static var delegate: OneSignalOSCore.OSBackgroundTaskManagerDelegate?
+  @objc public static var taskHandler: OneSignalOSCore.OSBackgroundTaskHandler?
   @objc public static func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func endBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func setTaskInvalid(_ taskIdentifier: Swift.String)
@@ -112,6 +113,6 @@ public protocol OSOperationExecutor {
   var deltaQueue: [OneSignalOSCore.OSDelta] { get }
   func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   func cacheDeltaQueue()
-  func processDeltaQueue()
-  func processRequestQueue()
+  func processDeltaQueue(inBackground: Swift.Bool)
+  func processRequestQueue(inBackground: Swift.Bool)
 }
