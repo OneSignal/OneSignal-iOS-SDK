@@ -21,6 +21,9 @@ jobs:
           default="UnitTestApp"
           echo $default | cat >default
           echo Using default scheme: $default
+      - name: Run Swift Lint
+        run: |
+          swiftlint
       - name: Build
         env:
           scheme: ${{ 'UnitTestApp' }}
@@ -40,13 +43,4 @@ jobs:
         run: |
           # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
           device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device" -resultBundlePath TestResults
-      - name: Analyze Tests
-        uses: kishikawakatsumi/xcresulttool@v1
-        with:
-          path: TestResults.xcresult
-          show-passed-tests: false
-        if: success() || failure()
-      - name: Run Swift Lint
-        run: |
-          swiftlint
+          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
