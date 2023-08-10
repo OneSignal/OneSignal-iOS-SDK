@@ -38,7 +38,7 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OSNotification+Internal.h"
 #import "OSMigrationController.h"
-#import "OSBackgroundTaskManagerImpl.h"
+#import "OSBackgroundTaskHandlerImpl.h"
 #import "OSFocusCallParams.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
@@ -135,15 +135,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         _receiveReceiptsController = [OneSignalReceiveReceiptsController new];
     
     return _receiveReceiptsController;
-}
-
-static AppEntryAction _appEntryState = APP_CLOSE;
-+ (AppEntryAction)appEntryState {
-    return _appEntryState;
-}
-
-+ (void)setAppEntryState:(AppEntryAction)appEntryState {
-    _appEntryState = appEntryState;
 }
 
 + (NSString*)appId {
@@ -391,7 +382,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
     [OSOutcomes.sharedController clearOutcomes];
 
-    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
+    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded];
     
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
@@ -490,7 +481,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     
     [[OSMigrationController new] migrate];
     
-    OSBackgroundTaskManager.delegate = [OSBackgroundTaskManagerImpl new];
+    OSBackgroundTaskManager.taskHandler = [OSBackgroundTaskHandlerImpl new];
 
     [self registerForAPNsToken];
     
@@ -797,6 +788,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
     [[OSMigrationController new] migrate];
 //    sessionLaunchTime = [NSDate date];
+    // TODO: sessionLaunchTime used to always be set in load
     
     [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
 }

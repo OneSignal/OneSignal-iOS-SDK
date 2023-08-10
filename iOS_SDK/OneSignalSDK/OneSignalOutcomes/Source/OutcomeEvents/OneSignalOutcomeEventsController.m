@@ -109,6 +109,11 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
             pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
                    onesignalId:(NSString * _Nonnull)onesignalId
                influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams {
+    // Don't send influenced session with time < 1 seconds
+    if ([timeElapsed intValue] < 1) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %@", timeElapsed]];
+        return;
+    }
     // TODO: What to do onSuccess and onFailure
     [OneSignalClient.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
                                                   withActiveTime:timeElapsed

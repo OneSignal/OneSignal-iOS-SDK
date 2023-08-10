@@ -26,9 +26,10 @@
  */
 
 import Foundation
+import OneSignalCore
 
 @objc
-public protocol OSBackgroundTaskManagerDelegate {
+public protocol OSBackgroundTaskHandler {
     func beginBackgroundTask(_ taskIdentifier: String)
     func endBackgroundTask(_ taskIdentifier: String)
     func setTaskInvalid(_ taskIdentifier: String)
@@ -39,12 +40,12 @@ public protocol OSBackgroundTaskManagerDelegate {
 // check if Core needs to use this, then ok to live here
 @objc
 public class OSBackgroundTaskManager: NSObject {
-    @objc public static weak var delegate: OSBackgroundTaskManagerDelegate?
+    @objc public static var taskHandler: OSBackgroundTaskHandler?
 
     @objc
     public static func beginBackgroundTask(_ taskIdentifier: String) {
-        guard let delegate = delegate else {
-            // Log error, no delegate
+        guard let delegate = taskHandler else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSBackgroundTaskManager:beginBackgroundTask \(taskIdentifier) cannot be executed due to no task handler.")
             return
         }
         delegate.beginBackgroundTask(taskIdentifier)
@@ -52,8 +53,8 @@ public class OSBackgroundTaskManager: NSObject {
 
     @objc
     public static func endBackgroundTask(_ taskIdentifier: String) {
-        guard let delegate = delegate else {
-            // Log error, no delegate
+        guard let delegate = taskHandler else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSBackgroundTaskManager:endBackgroundTask \(taskIdentifier) cannot be executed due to no task handler.")
             return
         }
         delegate.endBackgroundTask(taskIdentifier)
@@ -61,8 +62,8 @@ public class OSBackgroundTaskManager: NSObject {
 
     @objc
     public static func setTaskInvalid(_ taskIdentifier: String) {
-        guard let delegate = delegate else {
-            // Log error, no delegate
+        guard let delegate = taskHandler else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSBackgroundTaskManager:setTaskInvalid \(taskIdentifier) cannot be executed due to no task handler.")
             // But not necessarily an error because this task won't exist
             // Can be called in initialization of services before delegate is set
             return
