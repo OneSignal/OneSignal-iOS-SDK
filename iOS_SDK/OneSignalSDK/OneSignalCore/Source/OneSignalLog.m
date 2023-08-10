@@ -50,6 +50,10 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
     onesignal_Log(logLevel, message);
 }
 
++ (ONE_S_LOG_LEVEL)getLogLevel {
+    return _nsLogLevel;
+}
+
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSString* levelString;
     switch (logLevel) {
