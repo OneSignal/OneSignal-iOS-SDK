@@ -28,6 +28,6 @@
 #import <Foundation/Foundation.h>
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 
-@interface OSBackgroundTaskManagerImpl : NSObject <OSBackgroundTaskManagerDelegate>
+@interface OSBackgroundTaskHandlerImpl : NSObject <OSBackgroundTaskHandler>
 
 @end
