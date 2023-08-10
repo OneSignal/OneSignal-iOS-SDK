@@ -77,15 +77,14 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
         
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSUnattributedFocusTimeProcessor:sendOnFocusCallWithParams start"];
         
-        // updateSession can have a success fail block
-        [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:nil sessionTime:@(totalTimeActive) refreshDeviceMetadata:false];
-        
-        // TODO: Can we get wait for onSuccess to call [super saveUnsentActiveTime:0]
-        // TODO: Revisit when we also test op repo flushing on backgrounding
-        // We could have callbacks from user module updateSessionTime and set to 0 when we get that callback
-        [super saveUnsentActiveTime:0];
-
-        [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
+        [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:nil sessionTime:@(totalTimeActive) refreshDeviceMetadata:false sendImmediately:true onSuccess:^{
+            [super saveUnsentActiveTime:0];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
+            [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
+        } onFailure:^{
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
+            [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
+        }];
     });
 }
 

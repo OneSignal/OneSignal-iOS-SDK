@@ -45,6 +45,9 @@ NSMutableDictionary<NSString*, NSNumber*> *tasks;
                      message:[NSString stringWithFormat:
                               @"OSBackgroundTaskManagerImpl:beginBackgroundTask: %@", taskIdentifier]];
     UIBackgroundTaskIdentifier uiIdentifier = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
+                         message:[NSString stringWithFormat:
+                                  @"OSBackgroundTaskManagerImpl: expirationHandler called for %@", taskIdentifier]];
         [self endBackgroundTask:taskIdentifier];
     }];
     tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:uiIdentifier];
