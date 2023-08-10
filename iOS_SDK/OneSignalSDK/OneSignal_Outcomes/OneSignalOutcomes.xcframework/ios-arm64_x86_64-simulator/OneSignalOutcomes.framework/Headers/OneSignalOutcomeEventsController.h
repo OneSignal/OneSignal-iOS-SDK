@@ -52,6 +52,8 @@
                          appId:(NSString * _Nonnull)appId
             pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
                    onesignalId:(NSString * _Nonnull)onesignalId
-               influenceParams:(NSArray<OSFocusInfluenceParam *> *_Nonnull)influenceParams;
+               influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams
+                     onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
+                     onFailure:(OSFailureBlock _Nonnull)failureBlock;
 
 @end

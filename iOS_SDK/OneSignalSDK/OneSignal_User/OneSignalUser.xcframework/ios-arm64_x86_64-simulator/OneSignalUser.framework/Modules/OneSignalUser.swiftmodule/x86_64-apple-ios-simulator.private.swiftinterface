@@ -62,7 +62,7 @@ import _StringProcessing
 }
 extension OneSignalUser.OneSignalUserManagerImpl {
   @objc dynamic public func startNewSession()
-  @objc dynamic public func updateSession(sessionCount: Foundation.NSNumber?, sessionTime: Foundation.NSNumber?, refreshDeviceMetadata: Swift.Bool)
+  @objc dynamic public func updateSession(sessionCount: Foundation.NSNumber?, sessionTime: Foundation.NSNumber?, refreshDeviceMetadata: Swift.Bool, sendImmediately: Swift.Bool = false, onSuccess: (() -> Swift.Void)? = nil, onFailure: (() -> Swift.Void)? = nil)
   @objc dynamic public func runBackgroundTasks()
 }
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
