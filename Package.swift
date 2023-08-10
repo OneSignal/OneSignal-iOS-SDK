@@ -11,7 +11,7 @@ let package = Package(
             targets: ["OneSignalFrameworkWrapper"]),
         .library(
             name: "OneSignalInAppMessages",
-            targets: ["OneSignalInAppMessagesWrapper"]),,
+            targets: ["OneSignalInAppMessagesWrapper"]),
         .library(
             name: "OneSignalLocation",
             targets: ["OneSignalLocationWrapper"]),
