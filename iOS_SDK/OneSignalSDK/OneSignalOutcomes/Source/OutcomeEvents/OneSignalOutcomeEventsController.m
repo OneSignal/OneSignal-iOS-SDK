@@ -108,22 +108,24 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
                          appId:(NSString * _Nonnull)appId
             pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
                    onesignalId:(NSString * _Nonnull)onesignalId
-               influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams {
-    // Don't send influenced session with time < 1 seconds
-    if ([timeElapsed intValue] < 1) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %@", timeElapsed]];
-        return;
-    }
-    // TODO: What to do onSuccess and onFailure
+               influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams
+                     onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
+                     onFailure:(OSFailureBlock _Nonnull)failureBlock {
     [OneSignalClient.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
                                                   withActiveTime:timeElapsed
                                                   appId:appId
                                                   pushSubscriptionId:pushSubscriptionId
                                                   onesignalId:onesignalId
                                                   influenceParams:influenceParams] onSuccess:^(NSDictionary *result) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendSessionEndOutcomes attributed succeed"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed succeed"];
+        if (successBlock) {
+            successBlock(result);
+        }
     } onFailure:^(NSError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendSessionEndOutcomes attributed failed"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed failed"];
+        if (failureBlock) {
+            failureBlock(error);
+        }
     }];
 }
 
