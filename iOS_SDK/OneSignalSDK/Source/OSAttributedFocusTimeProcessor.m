@@ -30,7 +30,7 @@
 #import "OSAttributedFocusTimeProcessor.h"
 
 @interface OneSignal ()
-+ (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params;
++ (void)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params onSuccess:(OSResultSuccessBlock _Nonnull)successBlock onFailure:(OSFailureBlock _Nonnull)failureBlock;
 @end
 
 @implementation OSAttributedFocusTimeProcessor {
@@ -73,6 +73,12 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
+    // Don't send influenced session with time < 1 seconds
+    if (totalTimeActive < 1) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %f", totalTimeActive]];
+        return;
+    }
+    
     [OSBackgroundTaskManager beginBackgroundTask:ATTRIBUTED_FOCUS_TASK];
 
     if (params.onSessionEnded) {
