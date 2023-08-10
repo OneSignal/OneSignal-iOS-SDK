@@ -835,15 +835,15 @@
 
 - (void)testIAMClickWithNoIDLogsError {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-    
+
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
-    
+
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
-    
+
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
+
     // the message should now be displayed
     // simulate a button press (action) on the inapp message with a nil id
     let action = [OSInAppMessageAction new];
@@ -853,7 +853,7 @@
     action.clickId = nil;
 #pragma GCC diagnostic pop
     let testMessage = [OSInAppMessageInternal instanceWithJson:message];
-    
+
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should not send a request due to the nil id but it should not crash
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
