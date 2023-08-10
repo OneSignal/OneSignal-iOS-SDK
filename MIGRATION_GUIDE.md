@@ -1,4 +1,4 @@
-<h1 align="center">OneSignal iOS SDK v5.0.0-beta-04 Migration Guide</h1>
+<h1 align="center">OneSignal iOS SDK v5.0.0 Migration Guide</h1>
 
 ![OneSignal Omni Channel Banner](https://user-images.githubusercontent.com/11739227/208625336-d28c8d01-a7cf-4f8e-9643-ac8d1948e9ae.png)
 
@@ -8,7 +8,7 @@ In this release, we are making a significant shift from a device-centered model 
 
 To facilitate this change, the `externalId` approach for identifying users is being replaced by the `login` and `logout` methods. In addition, the SDK now makes use of namespaces such as `User`, `Notifications`, and `InAppMessages` to better separate code.
 
-The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0-beta-04` changes as a result of this shift.
+The iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs. This guide will walk you through the iOS SDK `5.0.0` changes as a result of this shift.
 
 # Overview
 
@@ -60,10 +60,10 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0-beta-04`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+Update the version of the OneSignal-XCFramework your application uses to `5.0.0`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0-beta-04`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+Update the version of the OneSignalXCFramework your application uses to `5.0.0`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
@@ -214,7 +214,7 @@ Email and/or SMS subscriptions can be added or removed via the following methods
 
 # API Reference
 
-Below is a comprehensive reference to the `5.0.0-beta-04` OneSignal SDK.
+Below is a comprehensive reference to the `5.0.0` OneSignal SDK.
 
 ## OneSignal
 
@@ -756,11 +756,10 @@ The Debug namespace is accessible via `OneSignal.Debug` and provide access to de
 
 # Limitations
 
-- This is a Beta release so please test thorougly prior to production use.
 - Changing app IDs is not supported.
 - Any `User` namespace calls must be invoked **after** initialization. Example: `OneSignal.User.addTag("tag", "2")`
 - In the SDK, the user state is only refreshed from the server when a new session is started (cold start or backgrounded for over 30 seconds) or when the user is logged in. This is by design.
 
 # Known issues
 - Identity Verification
-    - We will be introducing JWT in a follow up Beta release
+    - We will be introducing Identity Verification using JWT in a follow up release
