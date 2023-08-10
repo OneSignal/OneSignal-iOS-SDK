@@ -738,7 +738,7 @@ static BOOL _isInAppMessagingPaused = false;
             [self persistInAppMessageForRedisplay:showingIAM];
         }
         // Reset the IAM viewController to prepare for next IAM if one exists
-        [self cleanUpInAppWindow];
+        self.viewController = nil;
         // Reset time since last IAM
         [self setAndPersistTimeSinceLastMessage];
 
