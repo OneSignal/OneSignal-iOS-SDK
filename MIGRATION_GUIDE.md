@@ -60,10 +60,28 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+- Update the version of the OneSignal-XCFramework your application uses to `5.0.0`. 
+- The Package Product `OneSignal` has been renamed to `OneSignalFramework`. 
+- Location functionality has moved to its own Package Product `OneSignalLocation`. If you do not explicitly add this product your app you will not have location functionality. If you include location functionality ensure that your app also depends on the `CoreLocation` framework.
+- In App Messaging functionality has moved to its own Package Product `OneSignalInAppMessages`. If you do not explicitly add this product your app you will not have in app messaging functionality. If you include In App Messaging functionality ensure that your app also depends on the `WebKit` framework.
+- See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+The OneSignal pod has added additional subspecs for improved modularity. If you would like to exclude Location or In App Messaging functionality from your app you can do so by using subspecs:
+```
+  pod 'OneSignal/OneSignal', '>= 5.0.0', '< 6.0'
+  # Remove either of the following if the functionality is unwanted
+  pod 'OneSignal/OneSignalLocation', '>= 5.0.0', '< 6.0'
+  pod 'OneSignal/OneSignalInAppMessages', '>= 5.0.0', '< 6.0'
+```
+If you would like to include all of OneSignal's functionality you are still able to use the default pod
+```
+pod 'OneSignal', '>= 5.0.0', '< 6.0'
+```
+- Update the version of the OneSignalXCFramework your application uses to `5.0.0`. 
+- Location functionality has moved to its own subspec `OneSignalLocation`. If you include location functionality ensure that your app also depends on the `CoreLocation` framework.
+- In App Messaging functionality has moved to its own subspec `OneSignalInAppMessages`. If you include In App Messaging functionality ensure that your app also depends on the `WebKit` framework.
+- See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
@@ -99,7 +117,7 @@ Replace the following:
     OneSignal.initWithLaunchOptions(launchOptions)
     OneSignal.setAppId("YOUR_ONESIGNAL_APP_ID")
 ```
-To the match the new initialization:
+To match the new initialization:
 
 **Objective-C**
 ```objc
@@ -109,6 +127,8 @@ To the match the new initialization:
 ```swift
     OneSignal.initialize("YOUR_ONESIGNAL_APP_ID", withLaunchOptions: launchOptions)
 ```
+Remove any usages of `setLaunchURLsInApp` as the method and functionality has been removed.
+
 If your integration is **not** user-centric, there is no additional startup code required. A device-scoped user *(please see definition of “**device-scoped user**” below in Glossary)* is automatically created as part of the push subscription creation, both of which are only accessible from the current device or through the OneSignal dashboard.
 
 If your integration is user-centric, or you want the ability to identify the user beyond the current device, the `login` method should be called to identify the user:
@@ -227,7 +247,7 @@ The SDK is still accessible via a `OneSignal` static class. It provides access t
 | `OneSignal.logout()`                                                                                     | `[OneSignal logout]`                                                                                     | *Logout the user previously logged in via [login]. The [user] property now references a new device-scoped user. A device-scoped user has no user identity that can later be retrieved, except through this device as long as the app remains installed and the app data is not cleared. Note that if the current user is already a device-scoped user at the time `logout` is called, this will result in a no-op and the SDK will continue using the same device-scoped user. Any state that exists on this device-scoped user will be kept. This also means that calling `logout` multiple times will have no effect.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `OneSignal.setConsentGiven(true)`                  | `[OneSignal setConsentGiven:true]`                 | *Indicates whether privacy consent has been granted. This field is only relevant when the application has opted into data privacy protections. See [setConsentRequired].*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `OneSignal.setConsentRequired(true)` | `[OneSignal setConsentRequired:true]` | *Determines whether a user must consent to privacy prior to their user data being sent up to OneSignal.  This should be set to `true` prior to the invocation of `initialize` to ensure compliance.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to `true` to launch all notifications with a URL in the app instead of the default web browser. Make sure to call `setLaunchURLsInApp` before the `initialize` call.*                                                                                                                                                                                                                                                                   |
+
 
 
 ## Live Activities
