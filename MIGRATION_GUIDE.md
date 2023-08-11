@@ -60,10 +60,28 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 ```
 
 ### Option 1. Swift Package Manager
-Update the version of the OneSignal-XCFramework your application uses to `5.0.0`. In addition, the Package Product name has been changed from `OneSignal` to `OneSignalFramework`. See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
+- Update the version of the OneSignal-XCFramework your application uses to `5.0.0`. 
+- The Package Product `OneSignal` has been renamed to `OneSignalFramework`. 
+- Location functionality has moved to its own Package Product `OneSignalLocation`. If you do not explicitly add this product your app you will not have location functionality. If you include location functionality ensure that your app also depends on the `CoreLocation` framework.
+- In App Messaging functionality has moved to its own Package Product `OneSignalInAppMessages`. If you do not explicitly add this product your app you will not have in app messaging functionality. If you include In App Messaging functionality ensure that your app also depends on the `WebKit` framework.
+- See [the existing installation instructions](https://documentation.onesignal.com/docs/swift-package-manager-setup).
 
 ### Option 2. CocoaPods
-Update the version of the OneSignalXCFramework your application uses to `5.0.0`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
+The OneSignal pod has added additional subspecs for improved modularity. If you would like to exclude Location or In App Messaging functionality from your app you can do so by using subspecs:
+```
+  pod 'OneSignal/OneSignal', '>= 5.0.0', '< 6.0'
+  # Remove either of the following if the functionality is unwanted
+  pod 'OneSignal/OneSignalLocation', '>= 5.0.0', '< 6.0'
+  pod 'OneSignal/OneSignalInAppMessages', '>= 5.0.0', '< 6.0'
+```
+If you would like to include all of OneSignal's functionality you are still able to use the default pod
+```
+pod 'OneSignal', '>= 5.0.0', '< 6.0'
+```
+- Update the version of the OneSignalXCFramework your application uses to `5.0.0`. 
+- Location functionality has moved to its own subspec `OneSignalLocation`. If you include location functionality ensure that your app also depends on the `CoreLocation` framework.
+- In App Messaging functionality has moved to its own subspec `OneSignalInAppMessages`. If you include In App Messaging functionality ensure that your app also depends on the `WebKit` framework.
+- See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
