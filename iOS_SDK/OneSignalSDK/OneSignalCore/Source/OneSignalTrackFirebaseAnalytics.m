@@ -134,13 +134,18 @@ static BOOL trackingEnabled = false;
     NSString *notificationId = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED defaultValue:nil];
     NSString *campaign = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED defaultValue:nil];
     
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{
+           @"source": @"OneSignal",
+           @"medium": @"notification"
+    }];
+    if (notificationId) {
+        params[@"notification_id"] = notificationId;
+    }
+    if (campaign) {
+        params[@"campaign"] = campaign;
+    }
     [self logEventWithName:@"os_notification_influence_open"
-                parameters:@{
-                    @"source": @"OneSignal",
-                    @"medium": @"notification",
-                    @"notification_id": notificationId,
-                    @"campaign": campaign
-                }];
+               parameters:params];
 }
 
 @end
