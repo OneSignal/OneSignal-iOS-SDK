@@ -944,6 +944,45 @@ and the app was cold started from opening a notficiation open that the developer
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
 }
 
+- (void)testFirebaseAnalyticsInfluenceNotificationOpenWitNilProperties {
+    // Start App once to download params
+    OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Notification is received.
+    // The Notification Service Extension runs where the notification received id tracked.
+    //   Note: This is normally a separate process but can't emulate that here.
+    let response = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:@{}];
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
+                       withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
+    
+    // Note: we are no longer logging the notification received event to Firebase for iOS.
+    
+    // Trigger a new app session
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSDateOverrider advanceSystemTimeBy:41];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // TODO: Test carry over causes this influence_open not to fire
+    // Since we opened the app under 2 mintues after receiving a notification
+    //   an influence_open should be sent to firebase.
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    id influence_open_event = @{
+        @"os_notification_influence_open": @{
+                @"campaign": @"",
+                @"medium": @"notification",
+                @"source": @"OneSignal"}
+    };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
+}
+
 - (void)testOSNotificationPayloadParsesTemplateFields {
     NSDictionary *aps = @{@"custom": @{@"ti": @"templateId", @"tn": @"Template name"}};
     OSNotification *notification = [OSNotification parseWithApns:aps];
