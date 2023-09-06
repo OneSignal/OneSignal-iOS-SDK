@@ -32,6 +32,7 @@
 #import "OneSignalHelper.h"
 
 #import "UnitTestCommonMethods.h"
+#import "OSNotificationTracker.h"
 #import "CommonAsserts.h"
 
 @interface ChannelTrackersTests : XCTestCase
@@ -165,6 +166,21 @@
     XCTAssertEqual(0, [trackerFactory channelsToResetByEntryAction:APP_CLOSE].count);
     XCTAssertEqual(1, [trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK].count);
     XCTAssertEqualObjects(@"iam_id", [[[trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK] objectAtIndex:0] idTag]);
+}
+
+- (void)testDirectInfluenceWithNullId {
+    [self setOutcomesParamsEnabled];
+    OSNotificationTracker *channelTracker = [[OSNotificationTracker alloc] initWithRepository:[OSInfluenceDataRepository sharedInfluenceDataRepository]];
+    // Set the influence type to direct but do not set the direct id
+    channelTracker.influenceType = DIRECT;
+    OSInfluence *influence = [channelTracker currentSessionInfluence];
+    // The current influence was invalid so the type should be disabled
+    XCTAssertEqual(influence.influenceType, DISABLED);
+    // Set the directId
+    channelTracker.directId = @"testid";
+    influence = [channelTracker currentSessionInfluence];
+    // Now that the directId is set the influence should be valid.
+    XCTAssertEqual(influence.influenceType, DIRECT);
 }
 
 @end
