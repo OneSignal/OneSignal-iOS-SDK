@@ -170,7 +170,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         [focusInfluenceParams addObject:focusInfluenceParam];
     }
 
-    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal appId]
+    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignalConfigManager getAppId]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
