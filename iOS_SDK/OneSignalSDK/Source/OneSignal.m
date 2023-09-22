@@ -77,9 +77,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-/* Omit no appId error logging, for use with wrapper SDKs. */
-NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
-
 @interface OneSignal (SessionStatusDelegate)
 @end
 
@@ -98,7 +95,6 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
     return _delayedInitParameters;
 }
 
-static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
 // Ensure we only initlize the SDK once even if the public method is called more
@@ -137,10 +133,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     return _receiveReceiptsController;
 }
 
-+ (NSString*)appId {
-    return appId;
-}
-
 + (NSString*)sdkVersionRaw {
 	return ONESIGNAL_VERSION;
 }
@@ -159,7 +151,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
-    appId = nil;
     [OneSignalConfigManager setAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -246,7 +237,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 #pragma mark Initialization
 
 /*
- This is should be set from all OneSignal entry points.
+ This should be set from all OneSignal entry points.
+ Note: wrappers may call this method with a null appId.
  */
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions {
     [self setAppId:newAppId];
@@ -271,30 +263,31 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  */
 // TODO: For release, note this change in migration guide:
 // No longer reading appID from plist @"OneSignal_APPID" and @"GameThrive_APPID"
-+ (void)setAppId:(nonnull NSString*)newAppId {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
++ (void)setAppId:(nullable NSString*)newAppId {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
         NSString* cachedAppId = [self getCachedAppId];
         if (cachedAppId) {
-            appId = cachedAppId;
             [OneSignalConfigManager setAppId:cachedAppId];
         } else {
             return;
         }
-    } else if (appId && ![newAppId isEqualToString:appId])  {
+    } else if ([OneSignalConfigManager getAppId] && ![newAppId isEqualToString:[OneSignalConfigManager getAppId]])  {
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
+        [OneSignalConfigManager setAppId:newAppId];
+    } else {
+        [OneSignalConfigManager setAppId:newAppId];
     }
-    appId = newAppId;
-    [OneSignalConfigManager setAppId:newAppId];
-    [self handleAppIdChange:appId];
+
+    [self handleAppIdChange:[OneSignalConfigManager getAppId]];
 }
 
 + (BOOL)isValidAppId:(NSString*)appId {
     if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
+        [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:[NSString stringWithFormat:@"OneSignal AppId: %@ - AppId is null or format is invalid, stopping initialization.\nExample usage: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n", appId]];
         return false;
     }
     return true;
@@ -462,9 +455,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)delayInitializationForPrivacyConsent {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
-    _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
+    _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:[OneSignalConfigManager getAppId]];
     // Init was not successful, set appId back to nil
-    appId = nil;
     [OneSignalConfigManager setAppId:nil];
 }
 
@@ -472,7 +464,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", [OneSignalConfigManager getAppId]]];
     
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
@@ -487,8 +479,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
+    if (!_didCallDownloadParameters && [OneSignalConfigManager getAppId] && [OneSignalConfigManager getAppId] != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:[OneSignalConfigManager getAppId]];
     
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
@@ -501,7 +493,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // Now really initializing the SDK!
     
     // Invalid app ids reaching here will cause failure
-    if (![self isValidAppId:appId])
+    if (![self isValidAppId:[OneSignalConfigManager getAppId]])
         return;
 
     // TODO: Consider the implications of `registerUserInternal` previously running on the main_queue
@@ -719,7 +711,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     }
     
     [OSOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
-                                                  appId:appId
+                                                  appId:[OneSignalConfigManager getAppId]
                                      pushSubscriptionId:pushSubscriptionId
                                             onesignalId:onesignalId
                                         influenceParams:params.influenceParams
