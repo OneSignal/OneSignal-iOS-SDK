@@ -79,7 +79,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)didBecomeActive {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
     
-    if ([OneSignal appId]) {
+    if ([OneSignalConfigManager getAppId]) {
         [OneSignalTracker onFocus:NO];
         let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
@@ -95,7 +95,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)willResignActive {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
     
-    if ([OneSignal appId]) {
+    if ([OneSignalConfigManager getAppId]) {
         [OneSignalTracker onFocus:YES];
         // TODO: Method no longer exists, transitions into flushing operation repo on backgrounding.
         // [OneSignal sendTagsOnBackground];
