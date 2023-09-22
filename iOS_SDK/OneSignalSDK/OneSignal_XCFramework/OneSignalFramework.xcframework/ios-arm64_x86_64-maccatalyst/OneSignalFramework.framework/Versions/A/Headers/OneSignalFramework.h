@@ -63,7 +63,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
-+ (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
 
