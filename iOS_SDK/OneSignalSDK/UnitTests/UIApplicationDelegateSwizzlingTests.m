@@ -562,6 +562,47 @@ static id<UIApplicationDelegate> orignalDelegate;
     XCTAssertTrue(myAppDelegate->selectorCalled);
 }
 
+- (UNNotificationResponse*)createOneSignalNotificationResponse {
+  id userInfo = @{@"custom":
+                       @{ @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" }
+                };
+
+  return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+}
+
+- (UNNotificationResponse*)createNonOneSignalNotificationResponse {
+    return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:@{}];
+}
+
+- (void)testNotificationOpenForwardsToLegacySelector {
+    AppDelegateForExistingSelectorsTest* myAppDelegate = [AppDelegateForExistingSelectorsTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+
+    id notifResponse = [self createOneSignalNotificationResponse];
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
+        )
+    ]);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
+
+    notifResponse = [self createNonOneSignalNotificationResponse];
+    notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    notifCenterDelegate = notifCenter.delegate;
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
+        )
+    ]);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 2);
+}
+
 - (void)testAppDelegateInheritsFromBaseMissingSelectors {
     id myAppDelegate = [AppDelegateInheritsFromBaseMissingSelectorsTest new];
     UIApplication.sharedApplication.delegate = myAppDelegate;
