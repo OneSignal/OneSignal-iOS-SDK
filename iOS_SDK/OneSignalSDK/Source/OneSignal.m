@@ -506,7 +506,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
      }];
      */
     
-    [OSNotificationsManager clearBadgeCount:false];
+    [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
     [self startOutcomes];
     [self startLocation];
     [self startTrackIAP];
@@ -798,7 +798,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 */
 - (void)onesignalSetApplicationIconBadgeNumber:(NSInteger)badge {
     [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
-    
     [self onesignalSetApplicationIconBadgeNumber:badge];
 }
 
