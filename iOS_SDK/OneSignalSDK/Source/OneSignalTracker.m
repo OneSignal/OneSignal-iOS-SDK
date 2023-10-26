@@ -114,7 +114,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         // [OneSignal receivedInAppMessageJson:nil];
     }
     
-    [OSNotificationsManager clearBadgeCount:false];
+    [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
 }
 
 + (void)applicationBackgrounded {

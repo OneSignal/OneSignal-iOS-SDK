@@ -114,7 +114,7 @@ NS_SWIFT_NAME(onClick(event:));
 
 + (void)handleWillShowInForegroundForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
 + (void)handleNotificationActionWithUrl:(NSString* _Nullable)url actionID:(NSString* _Nonnull)actionID;
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
++ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll;
 
 + (BOOL)receiveRemoteNotification:(UIApplication* _Nonnull)application UserInfo:(NSDictionary* _Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
 + (void)notificationReceived:(NSDictionary* _Nonnull)messageDict wasOpened:(BOOL)opened;
