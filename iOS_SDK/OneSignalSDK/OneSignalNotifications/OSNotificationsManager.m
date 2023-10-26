@@ -764,8 +764,11 @@ static NSString *_lastnonActiveMessageId;
     else
         _disableBadgeClearing = NO;
     
-    if (_disableBadgeClearing)
+    if (_disableBadgeClearing) {
+        // The customer could have manually changed the badge value. We must ensure our cached value will match the current state.
+        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:[UIApplication sharedApplication].applicationIconBadgeNumber];
         return false;
+    }
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
