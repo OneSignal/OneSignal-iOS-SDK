@@ -566,7 +566,7 @@ static id<UIApplicationDelegate> orignalDelegate;
   id userInfo = @{@"custom":
                        @{ @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" }
                 };
-  
+
   return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
@@ -575,7 +575,6 @@ static id<UIApplicationDelegate> orignalDelegate;
 }
 
 - (void)testNotificationOpenForwardsToLegacySelector {
-    
     AppDelegateForExistingSelectorsTest* myAppDelegate = [AppDelegateForExistingSelectorsTest new];
     UIApplication.sharedApplication.delegate = myAppDelegate;
 
@@ -590,9 +589,7 @@ static id<UIApplicationDelegate> orignalDelegate;
         )
     ]);
     XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
-    
-    
-    
+
     notifResponse = [self createNonOneSignalNotificationResponse];
     notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     notifCenterDelegate = notifCenter.delegate;
@@ -604,7 +601,6 @@ static id<UIApplicationDelegate> orignalDelegate;
         )
     ]);
     XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 2);
-    
 }
 
 - (void)testAppDelegateInheritsFromBaseMissingSelectors {
