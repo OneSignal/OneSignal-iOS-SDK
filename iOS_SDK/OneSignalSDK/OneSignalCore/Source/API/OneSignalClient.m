@@ -293,7 +293,7 @@
 }
 
 - (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
-    NSString *errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must include an app_id", NSStringFromClass([request class])];
+    NSString *errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must contain app_id parameter", NSStringFromClass([request class])];
     
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorDescription];
     

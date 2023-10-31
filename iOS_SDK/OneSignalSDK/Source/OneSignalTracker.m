@@ -53,27 +53,16 @@
 static UIBackgroundTaskIdentifier focusBackgroundTask;
 static NSTimeInterval lastOpenedTime;
 static BOOL lastOnFocusWasToBackground = YES;
-static BOOL willResignActiveTriggered = NO;
-static BOOL didEnterBackgroundTriggered = NO;
 
 + (void)resetLocals {
     [OSFocusTimeProcessorFactory resetUnsentActiveTime];
     focusBackgroundTask = 0;
     lastOpenedTime = 0;
     lastOnFocusWasToBackground = YES;
-    [self resetBackgroundDetection];
 }
 
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
     lastOpenedTime = lastOpened;
-}
-
-+ (void)willResignActiveTriggered {
-    willResignActiveTriggered = YES;
-}
-
-+ (void)didEnterBackgroundTriggered {
-    didEnterBackgroundTriggered = YES;
 }
 
 + (void)beginBackgroundFocusTask {
@@ -87,25 +76,10 @@ static BOOL didEnterBackgroundTriggered = NO;
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
 
-/**
- Returns true if application truly did come from a backgrounded state.
- Returns false if the application bypassed `didEnterBackground` after entering `willResignActive`.
- This can happen if the app resumes after a native dialog displays over the app or after the app is in a suspended state and not backgrounded.
-**/
-+ (BOOL)applicationForegroundedFromBackgroundedState {
-    return !(willResignActiveTriggered && !didEnterBackgroundTriggered);
-}
-
-+ (void)resetBackgroundDetection {
-    willResignActiveTriggered = NO;
-    didEnterBackgroundTriggered = NO;
-}
-
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController requiresUserPrivacyConsent])
         return;
-    }
     
     // Prevent the onFocus to be called twice when app being terminated
     //    - Both WillResignActive and willTerminate

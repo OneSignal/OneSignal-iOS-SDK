@@ -31,7 +31,5 @@
 
 + (void)onFocus:(BOOL)toBackground;
 + (void)onSessionEnded:(NSArray<OSInfluence *> *) lastInfluences;
-+ (void)willResignActiveTriggered;
-+ (void)didEnterBackgroundTriggered;
 
 @end

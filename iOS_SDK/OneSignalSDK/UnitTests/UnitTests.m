@@ -256,7 +256,6 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"test_type"], @1);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
@@ -917,10 +916,19 @@ and the app was cold started from opening a notficiation open that the developer
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
-                       withMutableNotificationContent:nil];
+                                withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
-    // Note: we are no longer logging the notification received event to Firebase for iOS.
+    // Make sure we are tracking the notification received event to firebase.
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    id received_event = @{
+         @"os_notification_received": @{
+              @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"medium": @"notification",
+              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+              @"source": @"OneSignal"}
+    };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
     
     // Trigger a new app session
     [UnitTestCommonMethods backgroundApp];
@@ -932,54 +940,15 @@ and the app was cold started from opening a notficiation open that the developer
     // TODO: Test carry over causes this influence_open not to fire
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
     id influence_open_event = @{
         @"os_notification_influence_open": @{
-                @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
-                @"medium": @"notification",
-                @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-                @"source": @"OneSignal"}
+            @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+            @"medium": @"notification",
+            @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+            @"source": @"OneSignal"}
     };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
-}
-
-- (void)testFirebaseAnalyticsInfluenceNotificationOpenWitNilProperties {
-    // Start App once to download params
-    OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    // Notification is received.
-    // The Notification Service Extension runs where the notification received id tracked.
-    //   Note: This is normally a separate process but can't emulate that here.
-    let response = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:@{}];
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
-                       withMutableNotificationContent:nil];
-    #pragma clang diagnostic pop
-    
-    // Note: we are no longer logging the notification received event to Firebase for iOS.
-    
-    // Trigger a new app session
-    [UnitTestCommonMethods backgroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    [NSDateOverrider advanceSystemTimeBy:41];
-    [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    // TODO: Test carry over causes this influence_open not to fire
-    // Since we opened the app under 2 mintues after receiving a notification
-    //   an influence_open should be sent to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
-    id influence_open_event = @{
-        @"os_notification_influence_open": @{
-                @"campaign": @"",
-                @"medium": @"notification",
-                @"source": @"OneSignal"}
-    };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
 }
 
 - (void)testOSNotificationPayloadParsesTemplateFields {

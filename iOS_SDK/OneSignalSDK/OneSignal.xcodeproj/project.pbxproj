@@ -1372,8 +1372,6 @@
 		4529DECD1FA81DE000CEAB1D /* Shadows */ = {
 			isa = PBXGroup;
 			children = (
-				DE75B3DF28BD432800162A95 /* OneSignalUNUserNotificationCenterOverrider.h */,
-				DE75B3DE28BD432700162A95 /* OneSignalUNUserNotificationCenterOverrider.m */,
 				7A65D628246627AD007FF196 /* OSInAppMessageViewOverrider.h */,
 				7A65D629246627AD007FF196 /* OSInAppMessageViewOverrider.m */,
 				5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */,
@@ -5304,7 +5302,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951B62167F4120064227A /* Release */,
-				DEDFF3302901E47400D4E275 /* Release 64 bit */,
 				CA2951C22167FB950064227A /* Debug */,
 				DE3D8F3828C15839008C2BBF /* Test */,
 			);
@@ -5315,7 +5312,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951B72167F4120064227A /* Release */,
-				DEDFF3312901E47400D4E275 /* Release 64 bit */,
 				CA2951C32167FB950064227A /* Debug */,
 				DE3D8F3928C15839008C2BBF /* Test */,
 			);
@@ -5336,7 +5332,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951B82167F4120064227A /* Release */,
-				DEDFF3322901E47400D4E275 /* Release 64 bit */,
 				CA2951C42167FB950064227A /* Debug */,
 				DE3D8F3A28C15839008C2BBF /* Test */,
 			);
@@ -5347,7 +5342,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951B92167F4120064227A /* Release */,
-				DEDFF3332901E47400D4E275 /* Release 64 bit */,
 				CA2951C52167FB950064227A /* Debug */,
 				DE3D8F3B28C15839008C2BBF /* Test */,
 			);
@@ -5358,7 +5352,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951C12167F9860064227A /* Release */,
-				DEDFF3352901E47400D4E275 /* Release 64 bit */,
 				CA2951C72167FB950064227A /* Debug */,
 				DE3D8F3D28C15839008C2BBF /* Test */,
 			);
@@ -5369,7 +5362,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CA2951BA2167F4120064227A /* Release */,
-				DEDFF3342901E47400D4E275 /* Release 64 bit */,
 				CA2951C62167FB950064227A /* Debug */,
 				DE3D8F3C28C15839008C2BBF /* Test */,
 			);
@@ -5390,7 +5382,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE7D17F127026B95002D3A5D /* Release */,
-				DEDFF3382901E47400D4E275 /* Release 64 bit */,
 				DE7D17F227026B95002D3A5D /* Debug */,
 				DE3D8F4028C15839008C2BBF /* Test */,
 			);
@@ -5401,7 +5392,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE7D180427026BA3002D3A5D /* Release */,
-				DEDFF3392901E47400D4E275 /* Release 64 bit */,
 				DE7D180527026BA3002D3A5D /* Debug */,
 				DE3D8F4128C15839008C2BBF /* Test */,
 			);
@@ -5412,7 +5402,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE7D188B27037F43002D3A5D /* Release */,
-				DEDFF33A2901E47400D4E275 /* Release 64 bit */,
 				DE7D188C27037F43002D3A5D /* Debug */,
 				DE3D8F4228C15839008C2BBF /* Test */,
 			);
@@ -5443,7 +5432,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DEC2EA9124B7B63800C1FD34 /* Release */,
-				DEDFF3362901E47400D4E275 /* Release 64 bit */,
 				DEC2EA9224B7B63800C1FD34 /* Debug */,
 				DE3D8F3E28C15839008C2BBF /* Test */,
 			);
@@ -5454,7 +5442,6 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DEF5CD082539321D0003E9CC /* Release */,
-				DEDFF3372901E47400D4E275 /* Release 64 bit */,
 				DEF5CD092539321D0003E9CC /* Debug */,
 				DE3D8F3F28C15839008C2BBF /* Test */,
 			);

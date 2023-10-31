@@ -689,21 +689,12 @@
                                             </mask>
                                         </variation>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live Activity:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dwb-ii-4SV">
-                                        <rect key="frame" x="135" y="1225" width="105" height="21"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="centerX" secondItem="Dse-f7-S3F" secondAttribute="centerX" id="9wu-y5-PaY"/>
                                     <constraint firstAttribute="bottom" secondItem="6dV-2z-2jJ" secondAttribute="bottom" id="CCV-6M-FwM"/>
-                                    <constraint firstItem="GsB-Fb-v9k" firstAttribute="firstBaseline" secondItem="dwb-ii-4SV" secondAttribute="baseline" constant="30" id="Cen-pK-vO6"/>
-                                    <constraint firstItem="dwb-ii-4SV" firstAttribute="top" secondItem="XKn-G6-r2q" secondAttribute="bottom" constant="10" id="D1g-J7-gjE"/>
                                     <constraint firstAttribute="trailing" secondItem="6dV-2z-2jJ" secondAttribute="trailing" id="P78-nE-6MM"/>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="leading" secondItem="Dse-f7-S3F" secondAttribute="leading" id="UTY-Ga-d6Q"/>
-                                    <constraint firstItem="dwb-ii-4SV" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="fi3-yq-hTu"/>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="top" secondItem="Dse-f7-S3F" secondAttribute="top" id="gvS-j5-Zt5"/>
                                 </constraints>
                             </scrollView>
@@ -761,7 +752,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="207.97101449275365" y="478.12500000000006"/>
+            <point key="canvasLocation" x="207.97101449275365" y="120.65217391304348"/>
         </scene>
     </scenes>
     <resources>

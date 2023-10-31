@@ -1012,6 +1012,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.window.windowLevel = UIWindowLevelAlert;
         self.window.frame = [[UIScreen mainScreen] bounds];
     }
+    
     self.window.rootViewController = _viewController;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.opaque = true;
