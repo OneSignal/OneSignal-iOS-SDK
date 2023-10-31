@@ -59,8 +59,8 @@
 
 - (NSURLSessionConfiguration *)configurationWithCachingPolicy:(NSURLRequestCachePolicy)policy {
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST;
-    configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE;
+    configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST; // TODO: Are these anything?
+    configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE; // TODO: Are these anything?
     
     //prevent caching of requests, this mainly impacts OSRequestGetIosParams,
     //since the OSRequestGetTags endpoint has a caching header policy
@@ -101,13 +101,14 @@
                 results[identifier] = result;
                 // Add a success as 1 (success) to the response
                 response[identifier] = @{ @"success" : @(true) };
-                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
                 // Add a success as 0 (failed) to the response
                 response[identifier] = @{ @"success" : @(false) };
                 [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Request %@ fail result error %@", request, error]];
+
                 dispatch_group_leave(group);
             }];
         }
@@ -153,7 +154,7 @@
             dispatch_group_enter(group);
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
-                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
@@ -184,7 +185,9 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    // If privacy consent is required but not yet given, any non-GET request should be blocked.
     if (request.method != GET && [OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent."];
         if (failureBlock) {
             failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);
         }
@@ -290,7 +293,7 @@
 }
 
 - (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
-    NSString *errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must include an app_id", NSStringFromClass([request class])];
+    NSString *errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must contain app_id parameter", NSStringFromClass([request class])];
     
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorDescription];
     
@@ -330,10 +333,11 @@
         OSReattemptRequest *reattempt = [OSReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
         
         if (async) {
-            //retry again in 15 seconds
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), REATTEMPT_DELAY, (int)statusCode]];
+            //retry again in an increasing interval calculated with reattemptDelay
+            double reattemptDelay = [self calculateReattemptDelay:request.reattemptCount];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), reattemptDelay, (int)statusCode]];
             [OneSignalCoreHelper dispatch_async_on_main_queue:^{
-                [self performSelector:@selector(reattemptRequest:) withObject:reattempt afterDelay:REATTEMPT_DELAY];
+                [self performSelector:@selector(reattemptRequest:) withObject:reattempt afterDelay:reattemptDelay];
             }];
         } else {
             //retry again immediately
@@ -344,6 +348,11 @@
     }
     
     return false;
+}
+
+// A request will retry with intervals of 5, 15 , 45, 135 seconds...
+- (double)calculateReattemptDelay:(int)reattemptCount {
+    return REATTEMPT_DELAY * pow(3, reattemptCount);
 }
 
 - (void)prettyPrintDebugStatementWithRequest:(OneSignalRequest *)request {
@@ -372,7 +381,8 @@
     NSMutableDictionary* innerJson;
     
     if (data != nil && [data length] > 0) {
-        innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+        innerJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
+        innerJson[@"httpStatusCode"] = [NSNumber numberWithLong:statusCode];
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@): %@", NSStringFromClass([request class]), innerJson]];
         if (jsonError) {
             if (failureBlock != nil)
@@ -384,7 +394,7 @@
     if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
         return;
     
-    if (error == nil && (statusCode == 200 || statusCode == 202)) {
+    if (error == nil && (statusCode == 200 || statusCode == 201 || statusCode == 202)) {
         if (successBlock != nil) {
             if (innerJson != nil)
                 successBlock(innerJson);

@@ -12,6 +12,10 @@
 		<data>
 		ArLQCzgIq/OhHDNMS3QUpcgiIqU=
 		</data>
+		<key>Headers/OSFocusInfluenceParam.h</key>
+		<data>
+		cJUcXRoWNHjFA632fJMpiiizvEo=
+		</data>
 		<key>Headers/OSInAppMessageOutcome.h</key>
 		<data>
 		3xT4e/4T3OhG7IenJ42EGs9MroU=
@@ -62,7 +66,7 @@
 		</data>
 		<key>Headers/OSSessionManager.h</key>
 		<data>
-		b2/LI60ct+svisyN/9N4P5hk3zc=
+		oprLROXR0QDxaDlh1VBluw+IqkQ=
 		</data>
 		<key>Headers/OSTrackerFactory.h</key>
 		<data>
@@ -70,15 +74,15 @@
 		</data>
 		<key>Headers/OneSignalOutcomeEventsController.h</key>
 		<data>
-		sD4f/g7VkNo0X2aZKE5/DVsacj4=
+		uvzESbMuMX+Z8Ltd6SUDpc2lok8=
 		</data>
 		<key>Headers/OneSignalOutcomes.h</key>
 		<data>
-		sW/MH6o2HgmQVEWrbtmDRuL4+dA=
+		O9RtHadI4RnS4d89Kx/gX/aMte8=
 		</data>
 		<key>Info.plist</key>
 		<data>
-		+egKWU/8myR1N+mdJM+FqQ4imOs=
+		p6Cjg1/eUJFwFMEWV7raU0O3uE8=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -99,6 +103,13 @@
 			<key>hash2</key>
 			<data>
 			y+P1oKzfvURE+SVKSVr4j6/jH8DgujNwXv1hKuO1EAE=
+			</data>
+		</dict>
+		<key>Headers/OSFocusInfluenceParam.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LK98c5Q6F9eZECXWbCKYpRbvZXcUU9mG5JgOHg8a7Wc=
 			</data>
 		</dict>
 		<key>Headers/OSInAppMessageOutcome.h</key>
@@ -189,7 +200,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PqGFeWJieWBjFVlo9hW6K3zw3EROosJ9GekCpVrw87U=
+			WQQTU9R1M6iqBgWQ3v7vT+/cxilFPIGeZK1210ohKAw=
 			</data>
 		</dict>
 		<key>Headers/OSTrackerFactory.h</key>
@@ -203,14 +214,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2LLCLqre2Yz61h0Ir/t5whNSGEa/8+9QKJx8WZ/15CQ=
+			DjLNqS/abTkl0tzFV/k1BghIgON/EpArDOtO9OSysBA=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOutcomes.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GFLvc7yAjjvzpcTn4DOvrAd+0+BacOygATaFNR719s0=
+			Xe5MettPyNsqe7aLCyG62Z+7Sl4suKI+KlxtY47v0Rk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

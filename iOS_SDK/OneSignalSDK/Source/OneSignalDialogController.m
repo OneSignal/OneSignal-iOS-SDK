@@ -41,13 +41,6 @@
 
 @end
 
-@interface OneSignal ()
-
-+ (void)handleNotificationOpened:(NSDictionary*)messageDict
-                      actionType:(OSNotificationActionType)actionType;
-
-@end
-
 @implementation OneSignalDialogController
 
 + (instancetype _Nonnull)sharedInstance {
@@ -60,16 +53,6 @@
         sharedInstance.queue = [NSMutableArray new];
     });
     return sharedInstance;
-}
-
-- (NSArray<NSString *> *)getActionTitlesFromNotification:(OSNotification *)notification {
-    NSMutableArray<NSString *> *actionTitles = [NSMutableArray<NSString *> new];
-    if (notification.actionButtons) {
-        for (id button in notification.actionButtons) {
-            [actionTitles addObject:button[@"text"]];
-        }
-    }
-    return actionTitles;
 }
 
 - (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActions:(NSArray<NSString *> * _Nullable)actionTitles cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion {

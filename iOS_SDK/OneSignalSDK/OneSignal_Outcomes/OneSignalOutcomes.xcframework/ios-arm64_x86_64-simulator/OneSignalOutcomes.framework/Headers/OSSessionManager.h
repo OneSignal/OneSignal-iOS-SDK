@@ -41,18 +41,20 @@
 + (void)resetSharedSessionManager;
 
 @property (nonatomic) id<SessionStatusDelegate> _Nullable delegate;
+@property AppEntryAction appEntryState;
 
 - (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nullable)delegate withTrackerFactory:(OSTrackerFactory *_Nonnull)trackerFactory;
 
 - (NSArray<OSInfluence *> *_Nonnull)getInfluences;
 - (NSArray<OSInfluence *> *_Nonnull)getSessionInfluences;
 - (void)initSessionFromCache;
-- (void)restartSessionIfNeeded:(AppEntryAction)entryAction;
+- (void)restartSessionIfNeeded;
 - (void)onInAppMessageReceived:(NSString * _Nonnull)messageId;
 - (void)onDirectInfluenceFromIAMClick:(NSString * _Nonnull)directIAMId;
 - (void)onDirectInfluenceFromIAMClickFinished;
 - (void)onNotificationReceived:(NSString * _Nonnull)notificationId;
 - (void)onDirectInfluenceFromNotificationOpen:(AppEntryAction)entryAction withNotificationId:(NSString * _Nonnull)directNotificationId;
-- (void)attemptSessionUpgrade:(AppEntryAction)entryAction;
+- (void)attemptSessionUpgrade;
+- (NSDate *_Nullable)sessionLaunchTime;
 
 @end

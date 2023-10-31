@@ -28,8 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import "OneSignalTrackIAP.h"
-#import "OneSignal.h"
-
+#import <OneSignalUser/OneSignalUser-Swift.h>
 @implementation OneSignalTrackIAP
 
 static Class skPaymentQueue;
@@ -48,6 +47,17 @@ NSMutableDictionary* skusToTrack;
 + (BOOL)canTrack {
     skPaymentQueue = NSClassFromString(@"SKPaymentQueue");
     return (skPaymentQueue != nil && [skPaymentQueue respondsToSelector:@selector(canMakePayments)] && [skPaymentQueue performSelector:@selector(canMakePayments)]);
+}
+
+static OneSignalTrackIAP* singleInstance = nil;
++( OneSignalTrackIAP *)sharedInstance {
+    @synchronized( singleInstance ) {
+        if( !singleInstance ) {
+            singleInstance = [OneSignalTrackIAP new];
+        }
+    }
+    
+    return singleInstance;
 }
 
 - (id)init {
@@ -123,8 +133,9 @@ NSMutableDictionary* skusToTrack;
         }
     }
     
-    if ([arrayOfPruchases count] > 0)
-        [[OneSignal class] performSelector:@selector(sendPurchases:) withObject:arrayOfPruchases];
+    if ([arrayOfPruchases count] > 0) {
+        [OneSignalUserManagerImpl.sharedInstance sendPurchases:arrayOfPruchases];
+    }
 }
 
 #pragma clang diagnostic pop

@@ -34,6 +34,7 @@
 #import "OSOutcomeEventsRepository.h"
 #import "OSInfluenceDataDefines.h"
 #import "OSInAppMessageOutcome.h"
+#import "OSOutcomesRequests.h"
 
 @interface OneSignalOutcomeEventsController ()
 
@@ -69,6 +70,25 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
     [self saveUnattributedUniqueOutcomeEvents];
 }
 
+/*
+ Iterate through all stored cached OSUniqueOutcomeNotification and clean any items over 7 days old
+ */
+- (void)cleanUniqueOutcomeNotifications {
+    NSArray *uniqueOutcomeNotifications = [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
+    
+    NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
+    NSMutableArray *finalNotifications = [NSMutableArray new];
+    for (OSCachedUniqueOutcome *notif in uniqueOutcomeNotifications) {
+        
+        // Save notif if it has been stored for less than or equal to a week
+        NSTimeInterval diff = timeInSeconds - [notif.timestamp doubleValue];
+        if (diff <= WEEK_IN_SECONDS)
+            [finalNotifications addObject:notif];
+    }
+
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:finalNotifications];
+}
+
 - (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes
                    appId:(NSString * _Nonnull)appId
               deviceType:(NSNumber * _Nonnull)deviceType {
@@ -82,6 +102,31 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
         else
             [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
     }
+}
+
+- (void)sendSessionEndOutcomes:(NSNumber * _Nonnull)timeElapsed
+                         appId:(NSString * _Nonnull)appId
+            pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                   onesignalId:(NSString * _Nonnull)onesignalId
+               influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams
+                     onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
+                     onFailure:(OSFailureBlock _Nonnull)failureBlock {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
+                                                  withActiveTime:timeElapsed
+                                                  appId:appId
+                                                  pushSubscriptionId:pushSubscriptionId
+                                                  onesignalId:onesignalId
+                                                  influenceParams:influenceParams] onSuccess:^(NSDictionary *result) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed succeed"];
+        if (successBlock) {
+            successBlock(result);
+        }
+    } onFailure:^(NSError *error) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed failed"];
+        if (failureBlock) {
+            failureBlock(error);
+        }
+    }];
 }
 
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
@@ -283,6 +328,52 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
  */
 - (void)saveUnattributedUniqueOutcomeEvents {
     [_outcomeEventsFactory.repository saveUnattributedUniqueOutcomeEventsSent:unattributedUniqueOutcomeEventsSentSet];
+}
+
+#pragma mark Session namespace methods forwarded here
+
+// TODO: Clean up successBlocks b/c no longer provided to end users
+
+- (void)addOutcome:(NSString * _Nonnull)name {
+    if (![self isValidOutcomeEntry:name]) {
+        return;
+    }
+    
+    [self sendOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    if (![self isValidOutcomeEntry:name] || ![self isValidOutcomeValue:value]) {
+        return;
+    }
+
+    [self sendOutcomeEventWithValue:name value:value appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (void)addUniqueOutcome:(NSString * _Nonnull)name {
+    if (![self isValidOutcomeEntry:name]) {
+        return;
+    }
+    
+    [self sendUniqueOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
+    if (!name || [name length] == 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        return false;
+    }
+
+    return true;
+}
+
+- (BOOL)isValidOutcomeValue:(NSNumber *)value {
+    if (!value || value.intValue <= 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        return false;
+    }
+
+    return true;
 }
 
 @end

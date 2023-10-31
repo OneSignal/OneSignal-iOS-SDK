@@ -35,7 +35,6 @@
 #import <UserNotifications/UserNotifications.h>
 #import "UncaughtExceptionHandler.h"
 #import "OneSignal.h"
-#import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalInternal.h"
 #import "NSString+OneSignal.h"
@@ -70,7 +69,7 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalLocationOverrider.h"
 #import "UIDeviceOverrider.h"
 #import "OneSignalOverrider.h"
@@ -112,7 +111,7 @@
     // Only enable remote-notifications in UIBackgroundModes
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     // Clear last location stored
-    [OneSignalLocation clearLastLocation];
+    [OneSignalLocationManager clearLastLocation];
     
     // Clear callback external ids for push and email before each test
     self.CALLBACK_EXTERNAL_USER_ID = nil;
@@ -169,7 +168,7 @@
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [OneSignalHelper getDeviceVariant];
+    let deviceModel = [OSDeviceUtils getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
@@ -250,14 +249,13 @@
     [UnitTestCommonMethods runBackgroundThreads];
         
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [OneSignalHelper getDeviceVariant];
+    let deviceModel = [OSDeviceUtils getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"test_type"], @1);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
@@ -918,10 +916,19 @@ and the app was cold started from opening a notficiation open that the developer
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
-                       withMutableNotificationContent:nil];
+                                withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
-    // Note: we are no longer logging the notification received event to Firebase for iOS.
+    // Make sure we are tracking the notification received event to firebase.
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    id received_event = @{
+         @"os_notification_received": @{
+              @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"medium": @"notification",
+              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+              @"source": @"OneSignal"}
+    };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
     
     // Trigger a new app session
     [UnitTestCommonMethods backgroundApp];
@@ -933,54 +940,15 @@ and the app was cold started from opening a notficiation open that the developer
     // TODO: Test carry over causes this influence_open not to fire
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
     id influence_open_event = @{
         @"os_notification_influence_open": @{
-                @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
-                @"medium": @"notification",
-                @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-                @"source": @"OneSignal"}
+            @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+            @"medium": @"notification",
+            @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+            @"source": @"OneSignal"}
     };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
-}
-
-- (void)testFirebaseAnalyticsInfluenceNotificationOpenWitNilProperties {
-    // Start App once to download params
-    OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    // Notification is received.
-    // The Notification Service Extension runs where the notification received id tracked.
-    //   Note: This is normally a separate process but can't emulate that here.
-    let response = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:@{}];
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
-                       withMutableNotificationContent:nil];
-    #pragma clang diagnostic pop
-    
-    // Note: we are no longer logging the notification received event to Firebase for iOS.
-    
-    // Trigger a new app session
-    [UnitTestCommonMethods backgroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    [NSDateOverrider advanceSystemTimeBy:41];
-    [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    // TODO: Test carry over causes this influence_open not to fire
-    // Since we opened the app under 2 mintues after receiving a notification
-    //   an influence_open should be sent to firebase.
-    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
-    id influence_open_event = @{
-        @"os_notification_influence_open": @{
-                @"campaign": @"",
-                @"medium": @"notification",
-                @"source": @"OneSignal"}
-    };
-    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], influence_open_event);
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
 }
 
 - (void)testOSNotificationPayloadParsesTemplateFields {
@@ -1772,7 +1740,7 @@ didReceiveRemoteNotification:userInfo
 
 // iOS 10 - Notification Service Extension test
 - (void) didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:(NSDictionary *)userInfo {
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -1832,7 +1800,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
                             }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse * notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -1884,7 +1852,7 @@ didReceiveRemoteNotification:userInfo
     
     // 2. Remove shared keys to simulate the state of coming from a pre-2.12.1 version
     [OneSignalUserDefaults.initShared removeValueForKey:OSUD_APP_ID];
-    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_PLAYER_ID_TO];
+    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
 
     // 3. Restart app
     [UnitTestCommonMethods backgroundApp];
@@ -1893,7 +1861,7 @@ didReceiveRemoteNotification:userInfo
     
     // 4. Ensure values are present again
     XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_APP_ID defaultValue:nil]);
-    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_PLAYER_ID_TO defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil]);
 }
 
 // iOS 10 - Notification Service Extension test - local file
@@ -1907,7 +1875,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"file.jpg" }
                             }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -1931,7 +1899,7 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent* content = [OneSignalExtension serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
@@ -1954,7 +1922,7 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     // create an expectation that is fulfilled when the contentHandler is fired and when didReceiveNotificationExtensionRequest
     // returns. This indicates that the semaphore waiting on the confirmed delivery has been signaled.
@@ -1978,7 +1946,7 @@ didReceiveRemoteNotification:userInfo
  (void (^)(UNNotificationContent * _Nonnull))contentHandler
  */
 -(void)testBuildOSRequest {
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OSNetworkingUtils getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
     
     XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"]);
     XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
@@ -1998,7 +1966,7 @@ didReceiveRemoteNotification:userInfo
     
     let invalidJson = @{@{@"invalid1" : @"invalid2"} : @"test"}; //Keys are required to be strings, this would crash the app if not handled appropriately
     
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OSNetworkingUtils getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
     
     let urlRequest = request.urlRequest;
     
@@ -2224,7 +2192,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (UNNotificationAttachment *)deliverNotificationWithJSON:(id)json {
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:json];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:json];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -2294,7 +2262,7 @@ didReceiveRemoteNotification:userInfo
  */
 - (void)testOpenNotificationSettings {
     OneSignalHelperOverrider.mockIOSVersion = 10;
-    [[OneSignalDialogController sharedInstance] clearQueue];
+    [[OSDialogInstanceManager sharedInstance] clearQueue];
 
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
@@ -3127,13 +3095,13 @@ didReceiveRemoteNotification:userInfo
 
 
 - (void)testGetDeviceVariant {
-    var deviceModel = [OneSignalHelper getDeviceVariant];
+    var deviceModel = [OSDeviceUtils getDeviceVariant];
     // Catalyst ("Mac")
     #if TARGET_OS_MACCATALYST
         XCTAssertEqualObjects(@"Mac", deviceModel);
     #elif TARGET_OS_SIMULATOR
         // Simulator iPhone
-        deviceModel = [OneSignalHelper getDeviceVariant];
+        deviceModel = [OSDeviceUtils getDeviceVariant];
         XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
     #else
         // Real iPhone
@@ -3350,22 +3318,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertFalse(OneSignalOverrider.launchWebURLWasCalled);
 }
 
-- (void)testsetLaunchURLInAppAfterInit {
-    // 1. setLaunchURLsInApp to false
-    [OneSignal setLaunchURLsInApp:false];
-    
-    // 2. Init OneSignal with app start
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertFalse([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
-    
-    // 3. Change setLaunchURLsInApp to true
-    [OneSignal setLaunchURLsInApp:true];
-    
-    XCTAssertTrue([OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false]);
-}
-
 - (void)testTimezoneId {
        
     let mockTimezone = [NSTimeZone timeZoneWithName:@"Europe/London"];
@@ -3435,7 +3387,7 @@ didReceiveRemoteNotification:userInfo
                             @"ti": @"templateId123",
                             @"tn": @"Template name"
                         }};
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsCustom];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsCustom];
     
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
                                                                            withContentHandler:nil];
@@ -3457,7 +3409,7 @@ didReceiveRemoteNotification:userInfo
                             @"ti": @"templateId123",
                             @"tn": @"Template name"
                         }};
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsOSData];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsOSData];
 
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
                                                                            withContentHandler:nil];
@@ -3643,5 +3595,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, testExitLiveActivityCorrectURL);
 
 }
+
 
 @end

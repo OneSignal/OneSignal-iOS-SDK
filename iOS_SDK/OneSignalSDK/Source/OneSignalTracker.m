@@ -29,27 +29,22 @@
 
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
-#import "OneSignalHelper.h"
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSFocusTimeProcessorFactory.h"
-#import "OSBaseFocusTimeProcessor.h"
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
-#import "OSMessagingController.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 
-+ (void)registerUser;
++ (BOOL)shouldStartNewSession;
++ (void)startNewSession:(BOOL)fromInit;
 + (BOOL)sendNotificationTypesUpdate;
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
-+ (OSStateSynchronizer *)stateSynchronizer;
 
 @end
 
@@ -58,27 +53,16 @@
 static UIBackgroundTaskIdentifier focusBackgroundTask;
 static NSTimeInterval lastOpenedTime;
 static BOOL lastOnFocusWasToBackground = YES;
-static BOOL willResignActiveTriggered = NO;
-static BOOL didEnterBackgroundTriggered = NO;
 
 + (void)resetLocals {
     [OSFocusTimeProcessorFactory resetUnsentActiveTime];
     focusBackgroundTask = 0;
     lastOpenedTime = 0;
     lastOnFocusWasToBackground = YES;
-    [self resetBackgroundDetection];
 }
 
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
     lastOpenedTime = lastOpened;
-}
-
-+ (void)willResignActiveTriggered {
-    willResignActiveTriggered = YES;
-}
-
-+ (void)didEnterBackgroundTriggered {
-    didEnterBackgroundTriggered = YES;
 }
 
 + (void)beginBackgroundFocusTask {
@@ -92,26 +76,10 @@ static BOOL didEnterBackgroundTriggered = NO;
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
 
-/**
- Returns true if application truly did come from a backgrounded state.
- Returns false if the application bypassed `didEnterBackground` after entering `willResignActive`.
- This can happen if the app resumes after a native dialog displays over the app or after the app is in a suspended state and not backgrounded.
-**/
-+ (BOOL)applicationForegroundedFromBackgroundedState {
-    return !(willResignActiveTriggered && !didEnterBackgroundTriggered);
-}
-
-+ (void)resetBackgroundDetection {
-    willResignActiveTriggered = NO;
-    didEnterBackgroundTriggered = NO;
-}
-
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent]) {
-        [self resetBackgroundDetection];
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent])
         return;
-    }
     
     // Prevent the onFocus to be called twice when app being terminated
     //    - Both WillResignActive and willTerminate
@@ -127,51 +95,37 @@ static BOOL didEnterBackgroundTriggered = NO;
 }
 
 + (void)applicationForegrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
-
-    BOOL fromBackgroundedState = [self applicationForegroundedFromBackgroundedState];
-    [self resetBackgroundDetection];
-    
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
-    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
-        OneSignal.appEntryState = APP_OPEN;
+    if (OSSessionManager.sharedSessionManager.appEntryState != NOTIFICATION_CLICK)
+        OSSessionManager.sharedSessionManager.appEntryState = APP_OPEN;
    
     lastOpenedTime = [NSDate date].timeIntervalSince1970;
     
     // on_session tracking when resumming app.
-    if ([OneSignal shouldRegisterNow])
-        [OneSignal registerUser];
+    if ([OneSignal shouldStartNewSession])
+        [OneSignal startNewSession:NO];
     else {
         // This checks if notification permissions changed when app was backgrounded
-        [OneSignal sendNotificationTypesUpdate];
-        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
-        if (fromBackgroundedState) {
-            // Use cached IAMs if app truly went into the background
-            [OneSignal receivedInAppMessageJson:nil];
-        }
+        [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
+        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade];
+        // TODO: Here it used to call receivedInAppMessageJson with nil, this method no longer exists
+        // [OneSignal receivedInAppMessageJson:nil];
     }
     
-    let wasBadgeSet = [OneSignal clearBadgeCount:false];
-    
-    if (![OneSignal mUserId])
-        return;
-    
-    // If badge was set, clear it on the server as well.
-    if (wasBadgeSet)
-        [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
+    [OSNotificationsManager clearBadgeCount:false];
 }
 
 + (void)applicationBackgrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
-    [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [self updateLastClosedTime];
     
     let timeElapsed = [self getTimeFocusedElapsed];
     if (timeElapsed < -1)
         return;
     
-    OneSignal.appEntryState = APP_CLOSE;
+    OSSessionManager.sharedSessionManager.appEntryState = APP_CLOSE;
 
     let influences = [[OSSessionManager sharedSessionManager] getSessionInfluences];
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
@@ -179,16 +133,20 @@ static BOOL didEnterBackgroundTriggered = NO;
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
+    // user module let them know app is backgrounded
+    [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
 
+// Note: This is not from app backgrounding
+// The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
     
@@ -212,12 +170,7 @@ static BOOL didEnterBackgroundTriggered = NO;
         [focusInfluenceParams addObject:focusInfluenceParam];
     }
 
-    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal appId]
-                                                   userId:[OneSignal mUserId]
-                                              emailUserId:[OneSignal mEmailUserId]
-                                           emailAuthToken:[OneSignal mEmailAuthToken]
-                                      externalIdAuthToken:[OneSignal mExternalIdAuthToken]
-                                                  netType:[OneSignalHelper getNetType]
+    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignalConfigManager getAppId]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];

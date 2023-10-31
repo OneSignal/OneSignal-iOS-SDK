@@ -51,7 +51,7 @@
 #import "OSInAppMessagingHelpers.h"
 #import "OSOutcomeEventsCache.h"
 #import "OSInfluenceDataRepository.h"
-#import "OneSignalLocation.h"
+#import "OneSignalLocationManager.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSMessagingControllerOverrider.h"
@@ -227,7 +227,8 @@ static XCTestCase* _currentXCTestCase;
     
     [UIAlertViewOverrider reset];
 
-    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setLogLevel:ONE_S_LL_INFO];
+    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
 
     [NSTimerOverrider reset];
     [OneSignalLocationOverrider reset];

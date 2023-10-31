@@ -27,6 +27,7 @@
 #import <Foundation/Foundation.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSOutcomeEvent.h"
+#import "OSFocusInfluenceParam.h"
 
 
 @interface OSRequestSendOutcomesV1ToServer : OneSignalRequest
@@ -48,4 +49,12 @@
                                      appId:(NSString * _Nonnull)appId
                                 deviceType:(NSNumber * _Nonnull)deviceType;
 
+@end
+
+@interface OSRequestSendSessionEndOutcomes : OneSignalRequest
++ (instancetype _Nonnull)withActiveTime:(NSNumber * _Nonnull)activeTime
+                                  appId:(NSString * _Nonnull)appId
+                     pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                            onesignalId:(NSString * _Nonnull)onesignalId
+                        influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
 @end

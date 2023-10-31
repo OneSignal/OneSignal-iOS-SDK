@@ -51,41 +51,24 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
+    [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
-    
-    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        NSLog(@"OSNotificationOpenedResult: %@", result.action);
-    };
-    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
-        NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
-    };
-    
-    // Example block for IAM action click handler
-    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:message];
-    };
 
-    // Example setter for IAM action click handler using OneSignal public method
-    [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
-    
     // OneSignal Init with app id and lauch options
-    [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
-    [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
-    [OneSignal initWithLaunchOptions:launchOptions];
+    [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
 
-    [OneSignal addPermissionObserver:self];
-    [OneSignal addSubscriptionObserver:self];
-    [OneSignal addEmailSubscriptionObserver:self];
+//    [OneSignal addPermissionObserver:self];
+//    [OneSignal addSubscriptionObserver:self];
+//    [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
+        NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
+    }];
     
-    [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
-    [OneSignal setNotificationOpenedHandler:openNotificationHandler];
-
+    [OneSignal.InAppMessages paused:false];
+    
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
@@ -105,22 +88,19 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
     [[NSUserDefaults standardUserDefaults] setObject:onesignalAppId forKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    [OneSignal setAppId:onesignalAppId];
+    [OneSignal initialize:onesignalAppId withLaunchOptions:nil];
 }
 
-- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+- (void)onNotificationPermissionDidChange:(BOOL)permission {
+    NSLog(@"onNotificationPermissionDidChange: %d", permission);
 }
 
-- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
-    ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
-}
-
-- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
-    NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
-}
+// TODO: Add push sub observer
+//- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+//    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+//    ViewController* mainController = (ViewController*) self.window.rootViewController;
+//    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
+//}
 
 - (void)applicationWillResignActive:(UIApplication *)application {
 }

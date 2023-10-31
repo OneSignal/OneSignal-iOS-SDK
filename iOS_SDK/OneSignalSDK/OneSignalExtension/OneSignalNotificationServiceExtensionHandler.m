@@ -132,14 +132,14 @@
 + (void)onNotificationReceived:(NSString *)receivedNotificationId withBlockingTask:(dispatch_semaphore_t)semaphore {
     if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
         // If update was made without app being initialized/launched before -> migrate
-        [OneSignalOutcomes migrate];
+        [OSOutcomes migrate];
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OSSessionManager sharedSessionManager]]];
         // Save received notification id
         [[OSSessionManager sharedSessionManager] onNotificationReceived:receivedNotificationId];
         
         // Track confirmed delivery
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
         let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
         int randomDelay = semaphore != nil ? arc4random_uniform(MAX_CONF_DELIVERY_DELAY) : 0;

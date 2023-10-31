@@ -87,7 +87,7 @@ static BOOL trackingEnabled = false;
     return [notification.title substringToIndex:titleLength];
 }
 
-+ (void)trackOpenEvent:(OSNotificationOpenedResult*)results {
++ (void)trackOpenEvent:(OSNotificationClickEvent*)event {
     if (!trackingEnabled)
         return;
     
@@ -97,8 +97,8 @@ static BOOL trackingEnabled = false;
                 parameters:@{
                     @"source": @"OneSignal",
                     @"medium": @"notification",
-                    @"notification_id": results.notification.notificationId,
-                    @"campaign": [self getCampaignNameFromNotification:results.notification]
+                    @"notification_id": event.notification.notificationId,
+                    @"campaign": [self getCampaignNameFromNotification:event.notification]
                 }];
 }
 
@@ -135,9 +135,10 @@ static BOOL trackingEnabled = false;
     NSString *campaign = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED defaultValue:nil];
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{
-           @"source": @"OneSignal",
-           @"medium": @"notification"
+        @"source": @"OneSignal",
+        @"medium": @"notification"
     }];
+    
     if (notificationId) {
         params[@"notification_id"] = notificationId;
     }
@@ -145,7 +146,7 @@ static BOOL trackingEnabled = false;
         params[@"campaign"] = campaign;
     }
     [self logEventWithName:@"os_notification_influence_open"
-               parameters:params];
+                parameters:params];
 }
 
 @end

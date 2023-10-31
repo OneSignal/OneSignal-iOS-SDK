@@ -27,25 +27,31 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalLog.h"
+#import "OSDialogInstanceManager.h"
 
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
+static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
+
++ (Class<OSDebug>)Debug {
+    return self;
+}
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel {
     _nsLogLevel = nsLogLevel;
 }
 
-+ (ONE_S_LOG_LEVEL)getLogLevel {
-    return _nsLogLevel;
-}
-
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
-    onesignal_Log(logLevel, message);
++ (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel {
+    _alertLogLevel = logLevel;
 }
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
     onesignal_Log(logLevel, message);
+}
+
++ (ONE_S_LOG_LEVEL)getLogLevel {
+    return _nsLogLevel;
 }
 
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
@@ -76,6 +82,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     if (logLevel <= _nsLogLevel)
         NSLog(@"%@", [levelString stringByAppendingString:message]);
+    
+    if (logLevel <= _alertLogLevel) {
+        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+    }
 }
 
 @end

@@ -146,7 +146,6 @@ THE SOFTWARE.
             } else {
                 [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OSChannelTracker:currentSessionInfluence found a direct influence without a direct id."];
             }
-            
         }
     } else if (_influenceType == INDIRECT) {
         if ([self isIndirectSessionEnabled]) {

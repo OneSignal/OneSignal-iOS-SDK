@@ -26,8 +26,6 @@
  */
 #import <Foundation/Foundation.h>
 
-@interface OneSignalLog : NSObject
-#pragma mark Logging
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
     ONE_S_LL_NONE,
     ONE_S_LL_FATAL,
@@ -38,8 +36,13 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
     ONE_S_LL_VERBOSE
 };
 
+@protocol OSDebug <NSObject>
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel;
-+ (ONE_S_LOG_LEVEL)getLogLevel;
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
++ (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel NS_REFINED_FOR_SWIFT;
+@end
 
+@interface OneSignalLog : NSObject<OSDebug>
++ (Class<OSDebug>)Debug;
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
++ (ONE_S_LOG_LEVEL)getLogLevel;
 @end

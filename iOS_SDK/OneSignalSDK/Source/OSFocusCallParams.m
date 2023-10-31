@@ -31,20 +31,10 @@
 @implementation OSFocusCallParams
 
 - (id)initWithParamsAppId:(NSString *)appId
-                   userId:(NSString *)userId
-              emailUserId:(NSString *)emailUserId
-           emailAuthToken:(NSString *)emailAuthToken
-      externalIdAuthToken:(NSString *)externalIdAuthToken
-                  netType:(NSNumber *)netType
               timeElapsed:(NSTimeInterval)timeElapsed
           influenceParams:(NSArray *)influenceParams
            onSessionEnded:(BOOL)onSessionEnded {
     _appId = appId;
-    _userId = userId;
-    _emailUserId = emailUserId;
-    _emailAuthToken = emailAuthToken;
-    _externalIdAuthToken = externalIdAuthToken;
-    _netType = netType;
     _timeElapsed = timeElapsed;
     _influenceParams = influenceParams;
     _onSessionEnded = onSessionEnded;
@@ -53,6 +43,6 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"OSFocusCallParams appId: %@ userId: %@ emailUserId: %@ emailAuthToken: %@ externalIdAuthToken: %@ netType: %@ timeElapsed: %f influenceParams: %@ onSessionEnded: %@", _appId, _userId, _emailUserId, _emailAuthToken, _externalIdAuthToken, _netType, _timeElapsed, _influenceParams.description, _onSessionEnded ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"OSFocusCallParams appId: %@ timeElapsed: %f influenceParams: %@ onSessionEnded: %@", _appId, _timeElapsed, _influenceParams.description, _onSessionEnded ? @"YES" : @"NO"];
 }
 @end

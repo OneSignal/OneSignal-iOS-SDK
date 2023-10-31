@@ -3,162 +3,72 @@ set -e
 
 WORKING_DIR=$(pwd)
 
-## OneSignal Core ##
-FRAMEWORK_FOLDER_NAME="OneSignal_Core"
-
-FRAMEWORK_NAME="OneSignalCore"
-
-FRAMEWORK_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework"
-
-FRAMEWORK_ZIP_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework.zip"
-
-SIMULATOR_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/simulator.xcarchive"
-
-IOS_DEVICE_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/iOS.xcarchive"
-
-CATALYST_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/catalyst.xcarchive"
-
-SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
-
-SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
-
 #Ask for the new release version number to be placed in the package URL
 echo -e "\033[1mEnter the new SDK release version number\033[0m"
 read VERSION_NUMBER
 
-# Remove the old Zipped XCFramework and create a new Zip
-echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-rm -rf "${FRAMEWORK_ZIP_PATH}"
-echo "Creating new Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-ditto -c -k --sequesterRsrc --keepParent "${FRAMEWORK_PATH}" "${FRAMEWORK_ZIP_PATH}" 
+update_framework() {
+    FRAMEWORK_FOLDER_NAME=$1
 
-# Compute the checksum for the Zipped framework
-echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
-CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
-SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
+    FRAMEWORK_NAME=$2
 
-# Use sed to remove line 62 from the Swift.package and replace it with the new checksum
-sed -i '' "62s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
-SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/OneSignalCore.xcframework.zip\","
-#Use sed to remove line 61 from the Swift.package and replace it with the new URL for the new release
-sed -i '' "61s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
-#Open XCFramework folder to drag zip into new release
-open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
+    FRAMEWORK_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework"
+
+    FRAMEWORK_ZIP_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework.zip"
+
+    SIMULATOR_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/simulator.xcarchive"
+
+    IOS_DEVICE_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/iOS.xcarchive"
+
+    CATALYST_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/catalyst.xcarchive"
+
+    SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
+
+    SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
+
+    # Remove the old Zipped XCFramework and create a new Zip
+    echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
+    rm -rf "${FRAMEWORK_ZIP_PATH}"
+    echo "Creating new Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
+    ditto -c -k --sequesterRsrc --keepParent "${FRAMEWORK_PATH}" "${FRAMEWORK_ZIP_PATH}" 
+
+    # Compute the checksum for the Zipped framework
+    echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
+    CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
+    SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
+
+    # Use sed to remove line from the Swift.package and replace it with the new checksum
+    sed -i '' "$3s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
+    SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/${FRAMEWORK_NAME}.xcframework.zip\","
+    #Use sed to remove line from the Swift.package and replace it with the new URL for the new release
+    sed -i '' "$4s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
+    #Open XCFramework folder to drag zip into new release
+    open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
+}
+
+## OneSignal Core ##
+update_framework "OneSignal_Core" "OneSignalCore" "149" "148"
+
+## OneSignal OSCore ##
+update_framework "OneSignal_OSCore" "OneSignalOSCore" "144" "143"
 
 ## OneSignal Outcomes ##
-FRAMEWORK_FOLDER_NAME="OneSignal_Outcomes"
-
-FRAMEWORK_NAME="OneSignalOutcomes"
-
-FRAMEWORK_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework"
-
-FRAMEWORK_ZIP_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework.zip"
-
-SIMULATOR_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/simulator.xcarchive"
-
-IOS_DEVICE_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/iOS.xcarchive"
-
-CATALYST_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/catalyst.xcarchive"
-
-SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
-
-SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
-
-# Remove the old Zipped XCFramework and create a new Zip
-echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-rm -rf "${FRAMEWORK_ZIP_PATH}"
-echo "Creating new Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-ditto -c -k --sequesterRsrc --keepParent "${FRAMEWORK_PATH}" "${FRAMEWORK_ZIP_PATH}" 
-
-# Compute the checksum for the Zipped framework
-echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
-CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
-SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
-
-echo ${CHECKSUM}
-# Use sed to remove line 57 from the Swift.package and replace it with the new checksum
-sed -i '' "57s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
-SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/OneSignalOutcomes.xcframework.zip\","
-#Use sed to remove line 56 from the Swift.package and replace it with the new URL for the new release
-sed -i '' "56s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
-#Open XCFramework folder to drag zip into new release
-open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
+update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "139" "138"
 
 ## OneSignal Extension ##
-FRAMEWORK_FOLDER_NAME="OneSignal_Extension"
+update_framework "OneSignal_Extension" "OneSignalExtension" "134" "133"
 
-FRAMEWORK_NAME="OneSignalExtension"
+## OneSignal Notifications ##
+update_framework "OneSignal_Notifications" "OneSignalNotifications" "129" "128"
 
-FRAMEWORK_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework"
+## OneSignal User ##
+update_framework "OneSignal_User" "OneSignalUser" "124" "123"
 
-FRAMEWORK_ZIP_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework.zip"
+## OneSignal Location ##
+update_framework "OneSignal_Location" "OneSignalLocation" "119" "118"
 
-SIMULATOR_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/simulator.xcarchive"
-
-IOS_DEVICE_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/iOS.xcarchive"
-
-CATALYST_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/catalyst.xcarchive"
-
-SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
-
-SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
-
-# Remove the old Zipped XCFramework and create a new Zip
-echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-rm -rf "${FRAMEWORK_ZIP_PATH}"
-echo "Creating new Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-ditto -c -k --sequesterRsrc --keepParent "${FRAMEWORK_PATH}" "${FRAMEWORK_ZIP_PATH}" 
-
-# Compute the checksum for the Zipped framework
-echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
-CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
-SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
-
-echo ${CHECKSUM}
-# Use sed to remove line 52 from the Swift.package and replace it with the new checksum
-sed -i '' "52s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
-SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/OneSignalExtension.xcframework.zip\","
-#Use sed to remove line 51 from the Swift.package and replace it with the new URL for the new release
-sed -i '' "51s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
-#Open XCFramework folder to drag zip into new release
-open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
+## OneSignal Location ##
+update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages" "114" "113"
 
 ## OneSignal ##
-FRAMEWORK_FOLDER_NAME="OneSignal_XCFramework"
-
-FRAMEWORK_NAME="OneSignal"
-
-FRAMEWORK_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework"
-
-FRAMEWORK_ZIP_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/${FRAMEWORK_NAME}.xcframework.zip"
-
-SIMULATOR_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/simulator.xcarchive"
-
-IOS_DEVICE_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/iOS.xcarchive"
-
-CATALYST_ARCHIVE_PATH="${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}/catalyst.xcarchive"
-
-SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
-
-SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
-
-# Remove the old Zipped XCFramework and create a new Zip
-echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-rm -rf "${FRAMEWORK_ZIP_PATH}"
-echo "Creating new Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
-ditto -c -k --sequesterRsrc --keepParent "${FRAMEWORK_PATH}" "${FRAMEWORK_ZIP_PATH}" 
-
-# Compute the checksum for the Zipped framework
-echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
-CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
-SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
-
-echo ${CHECKSUM}
-# Use sed to remove line 47 from the Swift.package and replace it with the new checksum
-sed -i '' "47s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
-SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/OneSignal.xcframework.zip\","
-#Use sed to remove line 46 from the Swift.package and replace it with the new URL for the new release
-sed -i '' "46s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
-#Open XCFramework folder to drag zip into new release
-open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
-
+update_framework "OneSignal_XCFramework" "OneSignalFramework" "109" "108"

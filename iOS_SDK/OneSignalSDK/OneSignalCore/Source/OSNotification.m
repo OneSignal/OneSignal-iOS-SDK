@@ -26,23 +26,12 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import <UIKit/UIKit.h>
-
 #import "OSNotification+Internal.h"
-
 #import "OSNotification.h"
-
-#import "OneSignalCommonDefines.h"
-
-#import "OneSignalUserDefaults.h"
-
 #import "OneSignalLog.h"
 
 @implementation OSNotification
-
- OSNotificationDisplayResponse _completion;
- NSTimer *_timeoutTimer;
  
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message {
     if (!message)
@@ -63,8 +52,6 @@
         [self parseOriginalPayload];
     
     [self parseOtherApnsFields];
-    
-    _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
 }
 
 // Original OneSignal payload format.
@@ -299,35 +286,5 @@
     NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
-
-#pragma mark willShowInForegroundHandler Methods
-
-- (void)setCompletionBlock:(OSNotificationDisplayResponse)completion {
-    _completion = completion;
-}
-
- - (void)complete:(OSNotification *)notification {
-     [_timeoutTimer invalidate];
-     if (_completion) {
-         _completion(notification);
-         _completion = nil;
-     }
- }
-
- - (void)startTimeoutTimer {
-     [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
- }
-
- - (void)timeoutTimerFired:(NSTimer *)timer {
-     [OneSignalLog onesignalLog:ONE_S_LL_ERROR
-     message:[NSString stringWithFormat:@"Notification willShowInForeground completion timed out. Completion was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-     [self complete:self];
- }
-
- - (void)dealloc {
-     if (_timeoutTimer && _completion) {
-         [_timeoutTimer invalidate];
-     }
- }
 
 @end

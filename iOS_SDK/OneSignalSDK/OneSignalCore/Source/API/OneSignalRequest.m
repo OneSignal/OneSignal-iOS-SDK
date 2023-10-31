@@ -28,8 +28,10 @@
 #import "OneSignalRequest.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalLog.h"
+#import "OneSignalWrapper.h"
 
 #define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
+#define HTTP_HEADER_KEY_OS_WRAPPER @"SDK-Wrapper"
 #define HTTP_HEADER_PREFIX_OS_VERSION @"onesignal/ios/"
 
 @implementation OneSignalRequest
@@ -47,6 +49,8 @@
         // However some requests want to load non-JSON data like HTML
         // In those cases, `dataRequest` should be true
         self.dataRequest = false;
+        
+        self.timestamp = [NSDate date];
     }
     
     return self;
@@ -70,6 +74,12 @@
     NSString *versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
     [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
     
+    // Set header field if this is used in a wrapper SDK
+    if (OneSignalWrapper.sdkType && OneSignalWrapper.sdkVersion) {
+        NSString *wrapperString = [NSString stringWithFormat:@"onesignal/%@/%@", OneSignalWrapper.sdkType, OneSignalWrapper.sdkVersion];
+        [request setValue:wrapperString forHTTPHeaderField:HTTP_HEADER_KEY_OS_WRAPPER];
+    }
+    
     [request setHTTPMethod:httpMethodString(self.method)];
     
     switch (self.method) {
@@ -78,6 +88,7 @@
             [self attachQueryParametersToRequest:request withParameters:self.parameters];
             break;
         case POST:
+        case PATCH:
         case PUT:
             [self attachBodyToRequest:request withParameters:self.parameters];
             break;
@@ -89,13 +100,13 @@
 }
 
 -(BOOL)missingAppId {
-  if ([self.path containsString:@"apps/"]) {
-    NSArray *pathComponents = [self.path componentsSeparatedByString:@"/"];
-    NSUInteger x = [pathComponents indexOfObject:@"apps"] + 1; // Find the index that follows "apps" in the path
-    return ([pathComponents count] <= x || [[pathComponents objectAtIndex:x] length] == 0 || [[pathComponents objectAtIndex:x] isEqual: @"(null)"]);
-  }
-   
-  return (self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0);
+    if ([self.path containsString:@"apps/"]) {
+      NSArray *pathComponents = [self.path componentsSeparatedByString:@"/"];
+      NSUInteger x = [pathComponents indexOfObject:@"apps"] + 1; // Find the index that follows "apps" in the path
+      return ([pathComponents count] <= x || [[pathComponents objectAtIndex:x] length] == 0 || [[pathComponents objectAtIndex:x] isEqual: @"(null)"]);
+    }
+     
+    return (self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0);
 }
 
 -(void)attachBodyToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {

@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		GJgKJi7mhZ3QpDXbSRXXmYed2zo=
+		nlBePHj8w7/gD5EM0QulDMN+vIU=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -23,6 +23,13 @@
 			<key>hash2</key>
 			<data>
 			y+P1oKzfvURE+SVKSVr4j6/jH8DgujNwXv1hKuO1EAE=
+			</data>
+		</dict>
+		<key>Headers/OSFocusInfluenceParam.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LK98c5Q6F9eZECXWbCKYpRbvZXcUU9mG5JgOHg8a7Wc=
 			</data>
 		</dict>
 		<key>Headers/OSInAppMessageOutcome.h</key>
@@ -113,7 +120,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PqGFeWJieWBjFVlo9hW6K3zw3EROosJ9GekCpVrw87U=
+			WQQTU9R1M6iqBgWQ3v7vT+/cxilFPIGeZK1210ohKAw=
 			</data>
 		</dict>
 		<key>Headers/OSTrackerFactory.h</key>
@@ -127,14 +134,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2LLCLqre2Yz61h0Ir/t5whNSGEa/8+9QKJx8WZ/15CQ=
+			DjLNqS/abTkl0tzFV/k1BghIgON/EpArDOtO9OSysBA=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOutcomes.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GFLvc7yAjjvzpcTn4DOvrAd+0+BacOygATaFNR719s0=
+			Xe5MettPyNsqe7aLCyG62Z+7Sl4suKI+KlxtY47v0Rk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -148,7 +155,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jgJUSWvqcv1XxRBUWCYSIuITYMUtF4ygdTiYiJywa54=
+			cncAxBg9T2K2N4OOe9iM+L3E0JXg0ugtTnS05IK5h4w=
 			</data>
 		</dict>
 	</dict>

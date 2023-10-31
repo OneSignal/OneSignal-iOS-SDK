@@ -39,6 +39,10 @@
 @implementation OSSessionManager
 
 static OSSessionManager *_sessionManager;
+
+NSDate *_sessionLaunchTime;
+AppEntryAction _appEntryState = APP_CLOSE;
+
 + (OSSessionManager*)sharedSessionManager {
     if (!_sessionManager)
         _sessionManager = [[OSSessionManager alloc] init:nil withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
@@ -47,6 +51,14 @@ static OSSessionManager *_sessionManager;
 
 + (void)resetSharedSessionManager {
     _sessionManager = nil;
+}
+
+- (AppEntryAction)appEntryState {
+    return _appEntryState;
+}
+
+- (void)setAppEntryState:(AppEntryAction)appEntryState {
+    _appEntryState = appEntryState;
 }
 
 - (instancetype _Nonnull)init:(id<SessionStatusDelegate>)delegate withTrackerFactory:(OSTrackerFactory *)trackerFactory {
@@ -72,11 +84,11 @@ static OSSessionManager *_sessionManager;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"SessionManager restored from cache with influences: %@", [self getInfluences].description]];
 }
 
-- (void)restartSessionIfNeeded:(AppEntryAction)entryAction {
-    NSArray<OSChannelTracker *> *channelTrackers = [_trackerFactory channelsToResetByEntryAction:entryAction];
+- (void)restartSessionIfNeeded {
+    NSArray<OSChannelTracker *> *channelTrackers = [_trackerFactory channelsToResetByEntryAction:_appEntryState];
     NSMutableArray<OSInfluence *> *updatedInfluences = [NSMutableArray new];
     
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded with entryAction:: %u channelTrackers: %@", entryAction, channelTrackers.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded with entryAction:: %u channelTrackers: %@", _appEntryState, channelTrackers.description]];
 
     for (OSChannelTracker *channelTracker in channelTrackers) {
         NSArray *lastIds = [channelTracker lastReceivedIds];
@@ -94,6 +106,8 @@ static OSSessionManager *_sessionManager;
     }
     
     [self sendSessionEndingWithInfluences:updatedInfluences];
+    
+    _sessionLaunchTime = [NSDate date];
 }
 
 - (void)onInAppMessageReceived:(NSString *)messageId {
@@ -129,12 +143,13 @@ static OSSessionManager *_sessionManager;
 }
 
 - (void)onDirectInfluenceFromNotificationOpen:(AppEntryAction)entryAction withNotificationId:(NSString *)directNotificationId {
+    _appEntryState = entryAction;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onDirectInfluenceFromNotificationOpen notificationId: %@", directNotificationId]];
 
     if (!directNotificationId || directNotificationId.length == 0)
         return;
     
-    [self attemptSessionUpgrade:entryAction withDirectId:directNotificationId];
+    [self attemptSessionUpgradeWithDirectId:directNotificationId];
 }
 
 /*
@@ -145,15 +160,15 @@ static OSSessionManager *_sessionManager;
     * INDIRECT     -> DIRECT
     * DIRECT       -> DIRECT
  */
-- (void)attemptSessionUpgrade:(AppEntryAction)entryAction {
-    [self attemptSessionUpgrade:entryAction withDirectId:nil];
+- (void)attemptSessionUpgrade {
+    [self attemptSessionUpgradeWithDirectId:nil];
 }
 
-- (void)attemptSessionUpgrade:(AppEntryAction)entryAction withDirectId:(NSString *)directId {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade with entryAction: %u", entryAction]];
+- (void)attemptSessionUpgradeWithDirectId:(NSString *)directId {
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade with entryAction: %u", _appEntryState]];
     
-    OSChannelTracker *channelTrackerByAction = [_trackerFactory channelByEntryAction:entryAction];
-    NSArray<OSChannelTracker *> *channelTrackersToReset = [_trackerFactory channelsToResetByEntryAction:entryAction];
+    OSChannelTracker *channelTrackerByAction = [_trackerFactory channelByEntryAction:_appEntryState];
+    NSArray<OSChannelTracker *> *channelTrackersToReset = [_trackerFactory channelsToResetByEntryAction:_appEntryState];
     NSMutableArray<OSInfluence *> *influencesToEnd = [NSMutableArray new];
     OSInfluence *lastInfluence = nil;
     
@@ -185,7 +200,7 @@ static OSSessionManager *_sessionManager;
         if (channelTracker.influenceType == UNATTRIBUTED) {
             NSArray *lastIds = [channelTracker lastReceivedIds];
             // There are new ids for attribution and the application was open again without resetting session
-            if (lastIds.count > 0 && entryAction != APP_CLOSE) {
+            if (lastIds.count > 0 && _appEntryState != APP_CLOSE) {
                 // Save influence to ended it later if needed
                 // This influence will be unattributed
                 OSInfluence *influence = [channelTracker currentSessionInfluence];
@@ -261,6 +276,10 @@ static OSSessionManager *_sessionManager;
     // Only end session if there are influences available to end
     if (endingInfluences.count > 0 && _delegate && [_delegate respondsToSelector:@selector(onSessionEnding:)])
         [_delegate onSessionEnding:endingInfluences];
+}
+
+- (NSDate *)sessionLaunchTime {
+    return _sessionLaunchTime;
 }
 
 @end

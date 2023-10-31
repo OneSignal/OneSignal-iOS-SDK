@@ -25,11 +25,8 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
 #import "OneSignalInternal.h"
-#import "OneSignalWebView.h"
-#import "UIApplication+OneSignal.h"
-#import "NSDateFormatter+OneSignal.h"
+#import <OneSignalNotifications/OneSignalNotifications.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -37,39 +34,7 @@
 @interface OneSignalHelper : NSObject
 
 // - Web
-+ (OneSignalWebView*)webVC;
 + (void) displayWebView:(NSURL*)url;
-
-// - Notification Opened
-+ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
-+ (void)lastMessageReceived:(NSDictionary*)message;
-
-+ (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block;
-+ (void)setNotificationWillShowInForegroundBlock:(OSNotificationWillShowInForegroundBlock)block;
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID;
-+ (BOOL)handleIAMPreview:(OSNotification *)notification;
-
-// - iOS 10
-+ (void)clearCachedMedia;
-+ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotification*)notification;
-+ (void)addNotificationRequest:(OSNotification*)notification completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
-
-// - Notifications
-+ (UILocalNotification*)prepareUILocalNotification:(OSNotification*)notification;
-+ (BOOL)verifyURL:(NSString*)urlString;
-+ (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
-+ (BOOL)isDisplayableNotification:(NSDictionary*)msg;
-+ (BOOL)isOneSignalPayload:(NSDictionary *)payload;
-
-// - Networking
-+ (NSNumber*)getNetType;
-
-// Util
-+ (NSString *)getCurrentDeviceVersion;
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version;
-+ (BOOL)isIOSVersionLessThan:(NSString *)version;
-+ (NSString*)getDeviceVariant;
 
 // Threading
 + (void)runOnMainThread:(void(^)())block;
@@ -80,7 +45,6 @@
 + (BOOL) isValidEmail:(NSString*)email;
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
-+ (NSString*)trimURLSpacing:(NSString*)url;
 + (BOOL)isTablet;
 
 #pragma clang diagnostic pop
