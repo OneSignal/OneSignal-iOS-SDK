@@ -383,8 +383,8 @@ static NSString *_pushSubscriptionId;
 
 + (void)clearAll {
     [[UNUserNotificationCenter currentNotificationCenter] removeAllDeliveredNotifications];
-    // TODO: Determine if we also need to call clearBadgeCount
-    [self clearBadgeCount:false];
+    // removing delivered notifications doesn't update the badge count
+    [self clearBadgeCount:false fromClearAll:true];
 }
 
 + (BOOL)registerForAPNsToken {
@@ -686,7 +686,7 @@ static NSString *_lastnonActiveMessageId;
         [self launchWebURL:notification.launchURL]; //TODO: where should this live?
     }
         
-    [self clearBadgeCount:true];
+    [self clearBadgeCount:true fromClearAll:false];
     
     NSString* actionID = NULL;
     if (actionType == OSNotificationActionTypeActionTaken) {
@@ -755,7 +755,7 @@ static NSString *_lastnonActiveMessageId;
     openUrlBlock(true);
 }
 
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
++ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll {
     
     NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
     
@@ -764,8 +764,11 @@ static NSString *_lastnonActiveMessageId;
     else
         _disableBadgeClearing = NO;
     
-    if (_disableBadgeClearing)
+    if (_disableBadgeClearing && !fromClearAll) {
+        // The customer could have manually changed the badge value. We must ensure our cached value will match the current state.
+        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:[UIApplication sharedApplication].applicationIconBadgeNumber];
         return false;
+    }
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
