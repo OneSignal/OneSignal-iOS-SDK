@@ -128,8 +128,9 @@
     }
 }
 
-- (IBAction)getInfoButton:(id)sender {
-    NSLog(@"Dev App: get User and Device information, you need to fill in");
+- (IBAction)getTagsButton:(id)sender {
+    NSDictionary<NSString *, NSString*> *tags = [OneSignal.User getTags];
+    NSLog(@"Tags: %@", tags);
 }
 
 - (IBAction)sendTagsButton:(id)sender {
