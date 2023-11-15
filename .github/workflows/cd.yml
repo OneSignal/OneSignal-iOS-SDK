@@ -1,6 +1,10 @@
 name: iOS CD
 
 on:
+  push:
+    branches:
+      - 'add_cd'
+
   workflow_dispatch:
     inputs:
       version:
@@ -9,6 +13,8 @@ on:
         required: true
 permissions:
   contents: write
+env:
+  version: '5.0.6'
 
 jobs:
   build:
@@ -27,14 +33,15 @@ jobs:
 
       - name: Build Binaries
         run: |
-          chmod +x ./../../iOS_SDK/OneSignalSDK/build_all_frameworks.sh
-          ./../../iOS_SDK/OneSignalSDK/build_all_frameworks.sh
-          # chmod +x ./../../iOS_SDK/OneSignalSDK/update_swift_package.sh
-          # ./../../iOS_SDK/OneSignalSDK/update_swift_package.sh
+          chmod +x ./iOS_SDK/OneSignalSDK/build_all_frameworks.sh
+          cd iOS_SDK/OneSignalSDK
+          ./build_all_frameworks.sh
+          # chmod +x ./iOS_SDK/OneSignalSDK/update_swift_package.sh
+          # ./iOS_SDK/OneSignalSDK/update_swift_package.sh
         shell: bash
       - name: Commit Changes
         env:
-          version: ${{ inputs.version }}
+          version: $version
         run: |
           git config --local user.email "noreply@onesingal.com"
           git config --local user.name "SyncR 🤖"
@@ -47,7 +54,7 @@ jobs:
           # github_token: ${{ secrets.ACTION_TOKEN_PAT }}
           repository: 'OneSignal/OneSignal-iOS-SDK'
           force: true
-          branch: ${{ inputs.version }}
+          branch: $version
 
       - name: "Submitting PR"
         uses: octokit/request-action@v2.x
@@ -55,10 +62,10 @@ jobs:
           route: POST /repos/{owner}/{repo}/pulls
           owner: OneSignal
           repo: OneSignal-iOS-SDK
-          head: ${{ inputs.version }}
+          head: $version
           base: main
           title: |
-            "Release ${{ inputs.version }}"
+            "Release $version"
           body: |
             "Add Release Notes For Review Here"
         # env:
