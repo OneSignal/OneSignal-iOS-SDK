@@ -111,6 +111,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public var language: String? {
         return _user?.propertiesModel.language
     }
+    
+    @objc public let pushSubscriptionImpl: OSPushSubscriptionImpl
 
     private var hasCalledStart = false
 
@@ -142,18 +144,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     @objc public var requiresUserAuth = false
 
-    // Push Subscription
-    private var _pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>?
-    var pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState> {
-        if let observer = _pushSubscriptionStateChangesObserver {
-            return observer
-        }
-        let pushSubscriptionStateChangesObserver = OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>(change: #selector(OSPushSubscriptionObserver.onPushSubscriptionDidChange(state:)))
-        _pushSubscriptionStateChangesObserver = pushSubscriptionStateChangesObserver
-
-        return pushSubscriptionStateChangesObserver
-    }
-
     // Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY).registerAsUserObserver()
     let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY).registerAsUserObserver()
@@ -178,6 +168,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
         self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore)
+        self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
     }
 
     // TODO: This method is called A LOT, check if all calls are needed.
@@ -604,7 +595,7 @@ extension OneSignalUserManagerImpl: OSUser {
 
     public var pushSubscription: OSPushSubscription {
         start()
-        return self
+        return pushSubscriptionImpl
     }
 
     public func addAlias(label: String, id: String) {
@@ -748,54 +739,74 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 }
 
-extension OneSignalUserManagerImpl: OSPushSubscription {
+extension OneSignalUserManagerImpl {
+    @objc
+    public class OSPushSubscriptionImpl: NSObject, OSPushSubscription {
 
-    public func addObserver(_ observer: OSPushSubscriptionObserver) {
-        // This is a method in the User namespace that doesn't require privacy consent first
-        self.pushSubscriptionStateChangesObserver.addObserver(observer)
-    }
+        let pushSubscriptionModelStore: OSModelStore<OSSubscriptionModel>
+        
+        private var _pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>?
+        var pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState> {
+            if let observer = _pushSubscriptionStateChangesObserver {
+                return observer
+            }
+            let pushSubscriptionStateChangesObserver = OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>(change: #selector(OSPushSubscriptionObserver.onPushSubscriptionDidChange(state:)))
+            _pushSubscriptionStateChangesObserver = pushSubscriptionStateChangesObserver
 
-    public func removeObserver(_ observer: OSPushSubscriptionObserver) {
-        self.pushSubscriptionStateChangesObserver.removeObserver(observer)
-    }
-
-    public var id: String? {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.id") else {
-            return nil
+            return pushSubscriptionStateChangesObserver
         }
-        return user.pushSubscriptionModel.subscriptionId
-    }
-
-    public var token: String? {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.token") else {
-            return nil
+        
+        init(pushSubscriptionModelStore: OSModelStore<OSSubscriptionModel>) {
+            self.pushSubscriptionModelStore = pushSubscriptionModelStore
         }
-        return user.pushSubscriptionModel.address
-    }
-
-    public var optedIn: Bool {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
-            return false
+        
+        public func addObserver(_ observer: OSPushSubscriptionObserver) {
+            // This is a method in the User namespace that doesn't require privacy consent first
+            self.pushSubscriptionStateChangesObserver.addObserver(observer)
         }
-        return user.pushSubscriptionModel.optedIn
-    }
-
-    /**
-     Enable the push subscription, and prompts if needed. `optedIn` can still be `false` after `optIn()` is called if permission is not granted.
-     */
-    public func optIn() {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optIn") else {
-            return
+        
+        public func removeObserver(_ observer: OSPushSubscriptionObserver) {
+            self.pushSubscriptionStateChangesObserver.removeObserver(observer)
         }
-        user.pushSubscriptionModel._isDisabled = false
-        OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
-    }
 
-    public func optOut() {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optOut") else {
-            return
+        public var id: String? {
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.id") else {
+                return nil
+            }
+            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.subscriptionId
         }
-        user.pushSubscriptionModel._isDisabled = true
+
+        public var token: String? {
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.token") else {
+                return nil
+            }
+            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.address
+        }
+
+        public var optedIn: Bool {
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
+                return false
+            }
+            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.optedIn ?? false
+        }
+        
+        /**
+         Enable the push subscription, and prompts if needed. `optedIn` can still be `false` after `optIn()` is called if permission is not granted.
+         */
+        public func optIn() {
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optIn") else {
+                return
+            }
+            pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabled = false
+            OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
+        }
+
+        public func optOut() {
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optOut") else {
+                return
+            }
+            pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabled = true
+        }
     }
 }
 

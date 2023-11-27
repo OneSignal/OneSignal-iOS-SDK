@@ -166,7 +166,7 @@ static dispatch_once_t once;
 
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
-    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;

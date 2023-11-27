@@ -529,7 +529,7 @@ class OSUserExecutor {
             if let response = response {
                 // Clear local data in preparation for hydration
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
-                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
+                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
                 
                 // If this is a on-new-session's fetch user call, check that the subscription still exists
                 if request.onNewSession,
