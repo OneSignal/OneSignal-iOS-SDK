@@ -68,6 +68,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.User.pushSubscription addObserver:self];
     NSLog(@"OneSignal Demo App push subscription observer added");
     
+    [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
 
@@ -105,6 +106,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (void)onClickNotification:(OSNotificationClickEvent * _Nonnull)event {
     NSLog(@"Dev App onClickNotification with event %@", [event jsonRepresentation]);
+}
+
+- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
+    NSLog(@"Dev App onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate
