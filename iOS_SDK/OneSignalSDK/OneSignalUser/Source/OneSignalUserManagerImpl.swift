@@ -48,6 +48,8 @@ import OneSignalNotifications
  */
 @objc public protocol OSUser {
     var pushSubscription: OSPushSubscription { get }
+    var onesignalId: String? { get }
+    var externalId: String? { get }
     // Aliases
     func addAlias(label: String, id: String)
     func addAliases(_ aliases: [String: String])
@@ -90,10 +92,6 @@ import OneSignalNotifications
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public static let sharedInstance = OneSignalUserManagerImpl()
-
-    @objc public var onesignalId: String? {
-        return _user?.identityModel.onesignalId
-    }
 
     /**
      Convenience accessor. We access the push subscription model via the model store instead of via`user.pushSubscriptionModel`.
@@ -596,6 +594,20 @@ extension OneSignalUserManagerImpl: OSUser {
     public var pushSubscription: OSPushSubscription {
         start()
         return pushSubscriptionImpl
+    }
+    
+    public var externalId: String? {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "externalId") else {
+            return nil
+        }
+        return _user?.identityModel.externalId
+    }
+    
+    public var onesignalId: String? {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "onesignalId") else {
+            return nil
+        }
+        return _user?.identityModel.onesignalId
     }
 
     public func addAlias(label: String, id: String) {
