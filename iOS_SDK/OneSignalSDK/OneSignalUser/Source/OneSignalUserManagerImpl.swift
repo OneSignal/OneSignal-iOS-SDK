@@ -50,6 +50,9 @@ import OneSignalNotifications
     var pushSubscription: OSPushSubscription { get }
     var onesignalId: String? { get }
     var externalId: String? { get }
+    // User State Observer
+    func addObserver(_ observer: OSUserStateObserver)
+    func removeObserver(_ observer: OSUserStateObserver)
     // Aliases
     func addAlias(label: String, id: String)
     func addAliases(_ aliases: [String: String])
@@ -141,6 +144,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: true, changeNotifier: OSEventProducer()))
 
     @objc public var requiresUserAuth = false
+
+    // User State Observer
+    private var _userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState>?
+    var userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState> {
+        if let observer = _userStateChangesObserver {
+            return observer
+        }
+        let userStateChangesObserver = OSObservable<OSUserStateObserver, OSUserChangedState>(change: #selector(OSUserStateObserver.onUserStateDidChange(state:)))
+        _userStateChangesObserver = userStateChangesObserver
+
+        return userStateChangesObserver
+    }
 
     // Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY).registerAsUserObserver()
@@ -608,6 +623,15 @@ extension OneSignalUserManagerImpl: OSUser {
             return nil
         }
         return _user?.identityModel.onesignalId
+    }
+    
+    public func addObserver(_ observer: OSUserStateObserver) {
+        // This is a method in the User namespace that doesn't require privacy consent first
+        self.userStateChangesObserver.addObserver(observer)
+    }
+    
+    public func removeObserver(_ observer: OSUserStateObserver) {
+        self.userStateChangesObserver.removeObserver(observer)
     }
 
     public func addAlias(label: String, id: String) {
