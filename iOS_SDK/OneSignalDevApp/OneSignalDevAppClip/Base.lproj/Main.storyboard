@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -20,7 +20,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="820"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="Dse-f7-S3F">
-                                <rect key="frame" x="0.0" y="59" width="375" height="759"/>
+                                <rect key="frame" x="0.0" y="59" width="375" height="727"/>
                                 <subviews>
                                     <view contentMode="scaleAspectFit" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" translatesAutoresizingMaskIntoConstraints="NO" id="6dV-2z-2jJ">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="1174"/>
@@ -40,9 +40,9 @@
                                                     <constraint firstAttribute="width" constant="68" id="com-ja-CVD"/>
                                                 </constraints>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Get Info"/>
+                                                <state key="normal" title="Get Tags"/>
                                                 <connections>
-                                                    <action selector="getInfoButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Pp8-oA-Zrh"/>
+                                                    <action selector="getTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Pp8-oA-Zrh"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UPh-ZU-o2e">
@@ -282,7 +282,7 @@
                                                 </connections>
                                             </segmentedControl>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="srQ-s9-3O9" userLabel="Update App Id">
-                                                <rect key="frame" x="120.66666666666669" y="519" width="136" height="30"/>
+                                                <rect key="frame" x="104.66666666666669" y="519" width="168" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Login to External User Id"/>
@@ -305,7 +305,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fmV-3f-ILa" userLabel="Update App Id">
-                                                <rect key="frame" x="157.66666666666666" y="394" width="64" height="30"/>
+                                                <rect key="frame" x="155.66666666666666" y="394" width="68" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Add Email"/>
@@ -327,7 +327,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7ll-OX-6Qj" userLabel="Update App Id">
-                                                <rect key="frame" x="143" y="432" width="89" height="30"/>
+                                                <rect key="frame" x="139.66666666666666" y="432" width="96" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Remove Email"/>
@@ -470,6 +470,7 @@
                     <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <size key="freeformSize" width="375" height="820"/>
                     <connections>
+                        <outlet property="addEmailButton" destination="fmV-3f-ILa" id="7BW-qA-1Zl"/>
                         <outlet property="addTriggerButton" destination="79P-xw-1Q5" id="eNO-ar-yk2"/>
                         <outlet property="addTriggerKey" destination="Ykz-Wq-cb5" id="JiT-E7-Dof"/>
                         <outlet property="addTriggerValue" destination="G56-cW-rWo" id="sVO-uj-cMD"/>
@@ -478,24 +479,23 @@
                         <outlet property="consentSegmentedControl" destination="05S-ud-V2e" id="9HS-Rj-OmM"/>
                         <outlet property="emailTextField" destination="9me-S6-lrh" id="uDb-iR-fog"/>
                         <outlet property="externalUserIdTextField" destination="H7c-2l-Pkl" id="t1X-F3-GWv"/>
-                        <outlet property="getInfoButton" destination="Htv-x2-aPb" id="EK5-1t-g6g"/>
+                        <outlet property="getTagsButton" destination="Htv-x2-aPb" id="EK5-1t-g6g"/>
                         <outlet property="getTriggerKey" destination="bmb-ib-r40" id="Sge-3X-okn"/>
                         <outlet property="inAppMessagingSegmentedControl" destination="saG-x9-o6U" id="gox-lD-D3j"/>
                         <outlet property="infoLabel" destination="7au-a5-gty" id="CMF-lK-qHp"/>
                         <outlet property="locationSharedSegementedControl" destination="udx-VH-OPB" id="ByV-wf-96W"/>
-                        <outlet property="removeEmailButton" destination="7ll-OX-6Qj" id="cTQ-3S-iCj"/>
+                        <outlet property="loginExternalUserIdButton" destination="srQ-s9-3O9" id="yVV-xK-CdB"/>
+                        <outlet property="logoutButton" destination="OiG-L7-Ot2" id="60f-Lo-ePF"/>
                         <outlet property="outcomeName" destination="Whw-1A-6W0" id="19x-BU-e6z"/>
                         <outlet property="outcomeUniqueName" destination="9Tw-qJ-FVq" id="f2a-wB-awc"/>
                         <outlet property="outcomeValue" destination="knZ-rP-bRU" id="EnV-7t-ETR"/>
                         <outlet property="outcomeValueName" destination="Xj9-lX-hR2" id="Dhu-Pd-sBU"/>
                         <outlet property="promptLocationButton" destination="UPh-ZU-o2e" id="pAW-KU-PZX"/>
                         <outlet property="promptPushButton" destination="YNF-Jm-wDq" id="J0U-WU-1w0"/>
-                        <outlet property="logoutButton" destination="OiG-L7-Ot2" id="60f-Lo-ePF"/>
+                        <outlet property="removeEmailButton" destination="7ll-OX-6Qj" id="cTQ-3S-iCj"/>
                         <outlet property="removeTriggerKey" destination="cWh-Hu-7CP" id="j0S-4T-AXs"/>
                         <outlet property="result" destination="XKn-G6-r2q" id="bPC-p9-k4N"/>
                         <outlet property="sendTagsButton" destination="H3K-GA-smE" id="rCS-pd-avT"/>
-                        <outlet property="addEmailButton" destination="fmV-3f-ILa" id="7BW-qA-1Zl"/>
-                        <outlet property="loginExternalUserIdButton" destination="srQ-s9-3O9" id="yVV-xK-CdB"/>
                         <outlet property="subscriptionSegmentedControl" destination="gZI-5K-94s" id="CCF-Qh-9Xg"/>
                         <outlet property="updateAppIdButton" destination="Kp7-Oh-BQ1" id="jFd-CJ-ExJ"/>
                     </connections>

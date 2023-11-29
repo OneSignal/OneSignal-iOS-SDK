@@ -38,7 +38,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIButton *updateAppIdButton;
 @property (weak, nonatomic) IBOutlet UIButton *sendTagButton;
-@property (weak, nonatomic) IBOutlet UIButton *getInfoButton;
+@property (weak, nonatomic) IBOutlet UIButton *getTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *sendTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptLocationButton;

@@ -58,6 +58,7 @@ import OneSignalNotifications
     func addTags(_ tags: [String: String])
     func removeTag(_ tag: String)
     func removeTags(_ tags: [String])
+    func getTags() -> [String: String]
     // Email
     func addEmail(_ email: String)
     func removeEmail(_ email: String)
@@ -466,7 +467,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
     
     @objc
-    public func getTags() -> [String: String]? {
+    public func getTagsInternal() -> [String: String]? {
         guard let user = _user else {
             return nil
         }
@@ -659,6 +660,13 @@ extension OneSignalUserManagerImpl: OSUser {
             return
         }
         user.removeTags(tags)
+    }
+
+    public func getTags() -> [String: String] {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "getTags") else {
+            return [:]
+        }
+        return user.propertiesModel.tags
     }
 
     public func addEmail(_ email: String) {

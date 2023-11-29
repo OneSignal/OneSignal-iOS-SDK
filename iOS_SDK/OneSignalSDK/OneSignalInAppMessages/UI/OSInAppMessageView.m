@@ -53,7 +53,7 @@
 
 - (NSString *)getTagsString {
     NSError *error;
-    NSDictionary<NSString *, NSString*> *tags = [OneSignalUserManagerImpl.sharedInstance getTags];
+    NSDictionary<NSString *, NSString*> *tags = [OneSignalUserManagerImpl.sharedInstance getTagsInternal];
     if (tags == nil || tags.count <= 0 ) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
         return nil;
