@@ -41,8 +41,8 @@ public class OSUserState: NSObject {
 
     @objc public func jsonRepresentation() -> NSDictionary {
         return [
-            "onesignalId": onesignalId ?? "nil",
-            "externalId": externalId ?? "nil"
+            "onesignalId": onesignalId ?? "",
+            "externalId": externalId ?? ""
         ]
     }
 }
