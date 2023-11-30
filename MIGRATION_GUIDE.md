@@ -320,6 +320,10 @@ The User name space is accessible via `OneSignal.User` and provides access to us
 | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `OneSignal.User.setLanguage("en")`                                                                              | `[OneSignal.User setLanguage:@"en"]`                                                                  | *Set the 2-character language  for this user.*                                                                                                                                                                                         |
 | `let pushSubscriptionProperty = OneSignal.User.pushSubscription.<PROPERTY>`                                    | `id pushSubscriptionProperty = OneSignal.User.pushSubscription.<PROPERTY>`                           | *The push subscription associated to the current user. Please refer to the Push Subscription Namespace API below for additional details.*                                                                                                                                                                                  |
+| `let id: String? = OneSignal.User.onesignalId`                                                  | `NSString* id = OneSignal.User.onesignalId`                           | *Returns the nullable OneSignal ID for the current user.*      |
+| `let id: String? = OneSignal.User.externalId`                                                   | `NSString* id = OneSignal.User.externalId`                            | *Returns the nullable external ID for the current user.*       |
+| `OneSignal.User.addObserver(_ observer: OSUserStateObserver)`<br><br>***See below for usage***  | `[OneSignal.User addObserver:self]`<br><br>***See below for usage***  | *The `OSUserStateObserver.onUserStateDidChange` method will be fired on the passed-in object when the user state changes. The User State contains the nullable onesignalId and externalId, and the observer will be fired when these values change.*  |
+| `OneSignal.User.removeObserver(_ observer: OSUserStateObserver)`                                | `[OneSignal.User removeObserver:self]`                                | *Remove a user state observer that has been previously added.* |
 | `OneSignal.User.addAlias(label: "ALIAS_LABEL", id: "ALIAS_ID")`                                         | `[OneSignal.User addAliasWithLabel:@"ALIAS_LABEL" id:@"ALIAS_ID"]`                                    | *Set an alias for the current user.  If this alias label already exists on this user, it will be overwritten with the new alias id.*                                                                                         |
 | `OneSignal.User.addAliases(["ALIAS_LABEL_01": "ALIAS_ID_01", "ALIAS_LABEL_02": "ALIAS_ID_02"])` | `[OneSignal.User addAliases:@{@"ALIAS_LABEL_01": @"ALIAS_ID_01", @"ALIAS_LABEL_02": @"ALIAS_ID_02"}]` | *Set aliases for the current user. If any alias already exists, it will be overwritten to the new values.*                                                                                                                       |
 | `OneSignal.User.removeAlias("ALIAS_LABEL")`                                                                 | `[OneSignal.User removeAlias:@"ALIAS_LABEL"]`                                                         | *Remove an alias from the current user.*                                                                                                                                                                                                 |
@@ -334,6 +338,61 @@ The User name space is accessible via `OneSignal.User` and provides access to us
 | `let tags = OneSignal.User.getTags()`                                                                           | `NSDictionary<NSString *, NSString*> *tags = [OneSignal.User getTags]`                                                                   | *Returns the local tags for the current user.*                                                                                                                                                                       |
 | `OneSignal.User.removeTags(["KEY_01", "KEY_02"])`                                                       | `[OneSignal.User removeTags:@[@"KEY_01", @"KEY_02"]]`                                                 | *Remove multiple tags with the provided keys from the current user.*                                                                                                                                                             |
 
+
+### User State Observer
+
+Any object implementing the `OSUserStateObserver` protocol can be added as an observer. You can call `removeObserver` to remove any existing listeners.
+
+**Objective-C**
+```objc
+    // AppDelegate.h
+    // Add OSUserStateObserver after UIApplicationDelegate
+    @interface AppDelegate : UIResponder <UIApplicationDelegate, OSUserStateObserver>
+    @end
+
+    // AppDelegate.m
+    @implementation AppDelegate
+
+    - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+        // Add your AppDelegate as an observer
+        [OneSignal.User addObserver:self];
+    }
+
+    // Add this new method
+    - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
+        // prints out all properties
+        NSLog(@"OSUserChangedState:\n%@", [state jsonRepresentation]);
+        NSLog(@"current externalId: %@", state.current.externalId);
+        NSLog(@"current onesignalId: %@", state.current.onesignalId);
+    }
+    @end
+
+    // Remove the observer
+    [OneSignal.User removeObserver:self];
+```
+**Swift**
+```swift
+    // AppDelegate.swift
+    // Add OSUserStateObserver after UIApplicationDelegate
+    class AppDelegate: UIResponder, UIApplicationDelegate, OSUserStateObserver {
+
+        func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+            // Add your AppDelegate as an observer
+            OneSignal.User.addObserver(self)
+        }
+
+        // Add this new method
+        func onUserStateDidChange(state: OSUserChangedState) {
+            // prints out all properties
+            print("OSUserChangedState: \n\(state.jsonRepresentation())")
+            print(state.current.externalId)
+            print(state.current.onesignalId)
+        }
+    }
+
+    // Remove the observer
+    OneSignal.User.removeObserver(self)
+```
 
 
 ## Push Subscription Namespace
