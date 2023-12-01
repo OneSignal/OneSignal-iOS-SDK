@@ -425,6 +425,9 @@ extension OSSubscriptionModel {
         netType = OSNetworkingUtils.getNetType() as? Int
         // sdkType ??
         // isRooted ??
+        if type == .push && !(subscriptionId ?? "").isEmpty {
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
+        }
     }
     
     enum OSPushPropertyChanged {
