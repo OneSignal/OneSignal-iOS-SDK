@@ -312,6 +312,7 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 - (void)addTags:(NSDictionary<NSString *, NSString *> * _Nonnull)tags;
 - (void)removeTag:(NSString * _Nonnull)tag;
 - (void)removeTags:(NSArray<NSString *> * _Nonnull)tags;
+- (NSDictionary<NSString *, NSString *> * _Nonnull)getTags SWIFT_WARN_UNUSED_RESULT;
 - (void)addEmail:(NSString * _Nonnull)email;
 - (void)removeEmail:(NSString * _Nonnull)email;
 - (void)addSms:(NSString * _Nonnull)number;
@@ -337,7 +338,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 /// The SDK needs to have a user at all times, so this method will create a new anonymous user. If the current user is already anonymous, calling <code>logout</code> results in a no-op.
 - (void)logout;
 - (void)clearAllModelsFromStores;
-- (NSDictionary<NSString *, NSString *> * _Nullable)getTags SWIFT_WARN_UNUSED_RESULT;
+- (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
 - (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
 - (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
 @end
@@ -383,6 +384,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 - (void)addTags:(NSDictionary<NSString *, NSString *> * _Nonnull)tags;
 - (void)removeTag:(NSString * _Nonnull)tag;
 - (void)removeTags:(NSArray<NSString *> * _Nonnull)tags;
+- (NSDictionary<NSString *, NSString *> * _Nonnull)getTags SWIFT_WARN_UNUSED_RESULT;
 - (void)addEmail:(NSString * _Nonnull)email;
 /// If this email doesn’t already exist on the user, it cannot be removed.
 /// This will be a no-op and no request will be made.
