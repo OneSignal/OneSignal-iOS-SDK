@@ -405,6 +405,45 @@
           },
           {
             "kind": "Function",
+            "name": "getTags",
+            "printedName": "getTags()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)getTags",
+            "mangledName": "$s13OneSignalUser6OSUserP7getTagsSDyS2SGyF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "addEmail",
             "printedName": "addEmail(_:)",
             "children": [
@@ -1402,8 +1441,8 @@
           },
           {
             "kind": "Function",
-            "name": "getTags",
-            "printedName": "getTags()",
+            "name": "getTagsInternal",
+            "printedName": "getTagsInternal()",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -1435,8 +1474,8 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)getTags",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC7getTagsSDyS2SGSgyF",
+            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)getTagsInternal",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC15getTagsInternalSDyS2SGSgyF",
             "moduleName": "OneSignalUser",
             "declAttributes": [
               "AccessControl",
@@ -2149,6 +2188,45 @@
             "mangledName": "$s13OneSignalUser0abC11ManagerImplC10removeTagsyySaySSGF",
             "moduleName": "OneSignalUser",
             "objc_name": "removeTags:",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getTags",
+            "printedName": "getTags()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)getTags",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC7getTagsSDyS2SGyF",
+            "moduleName": "OneSignalUser",
+            "objc_name": "getTags",
             "declAttributes": [
               "Dynamic",
               "ObjC",
@@ -3640,35 +3718,35 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4048,
+      "offset": 4087,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5070,
+      "offset": 5109,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5089,
+      "offset": 5128,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5172,
+      "offset": 5211,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 24536,
+      "offset": 24703,
       "length": 5,
       "value": "false"
     },

@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		3VhqXi53CHkubEe+/zHHqUl3I80=
+		Ak4CYy8wDLEKIs138X0SOeovqVg=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -63,6 +63,10 @@
 		<key>Modules/module.modulemap</key>
 		<data>
 		1KqmkcIhSUBPW8iZkf/Z4P2a52Y=
+		</data>
+		<key>PrivacyInfo.xcprivacy</key>
+		<data>
+		S2OyeZlF8GNFt+uJqmjej0Clj5c=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -163,6 +167,13 @@
 			<key>hash2</key>
 			<data>
 			uYyaBTiMLs8etIRoMNFdTIeKglpV+7S9AKNWsoMjzZk=
+			</data>
+		</dict>
+		<key>PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			RfC0dfrAfV/A5kuoM95DQ5A8XTjwMh3zxajX6QCGdFk=
 			</data>
 		</dict>
 	</dict>

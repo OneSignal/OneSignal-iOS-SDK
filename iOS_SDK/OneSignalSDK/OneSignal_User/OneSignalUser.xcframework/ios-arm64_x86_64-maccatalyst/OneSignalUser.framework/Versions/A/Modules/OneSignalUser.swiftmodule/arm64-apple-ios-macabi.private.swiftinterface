@@ -20,6 +20,7 @@ import _StringProcessing
   @objc func addTags(_ tags: [Swift.String : Swift.String])
   @objc func removeTag(_ tag: Swift.String)
   @objc func removeTags(_ tags: [Swift.String])
+  @objc func getTags() -> [Swift.String : Swift.String]
   @objc func addEmail(_ email: Swift.String)
   @objc func removeEmail(_ email: Swift.String)
   @objc func addSms(_ number: Swift.String)
@@ -55,7 +56,7 @@ import _StringProcessing
   @objc public func logout()
   public func _logout()
   @objc public func clearAllModelsFromStores()
-  @objc public func getTags() -> [Swift.String : Swift.String]?
+  @objc public func getTagsInternal() -> [Swift.String : Swift.String]?
   @objc public func setLocation(latitude: Swift.Float, longitude: Swift.Float)
   @objc public func sendPurchases(_ purchases: [[Swift.String : Swift.AnyObject]])
   @objc deinit
@@ -81,6 +82,7 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public func addTags(_ tags: [Swift.String : Swift.String])
   @objc dynamic public func removeTag(_ tag: Swift.String)
   @objc dynamic public func removeTags(_ tags: [Swift.String])
+  @objc dynamic public func getTags() -> [Swift.String : Swift.String]
   @objc dynamic public func addEmail(_ email: Swift.String)
   @objc dynamic public func removeEmail(_ email: Swift.String)
   @objc dynamic public func addSms(_ number: Swift.String)
