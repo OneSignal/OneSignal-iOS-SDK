@@ -228,6 +228,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
             createUserFromLegacyPlayer(legacyPlayerId)
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
             OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
             OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
         } else {
