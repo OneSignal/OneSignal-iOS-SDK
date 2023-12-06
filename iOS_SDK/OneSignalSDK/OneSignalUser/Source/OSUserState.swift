@@ -49,20 +49,18 @@ public class OSUserState: NSObject {
 
 @objc
 public class OSUserChangedState: NSObject {
-    @objc public let previous: OSUserState
     @objc public let current: OSUserState
 
     @objc public override var description: String {
-        return "<OSUserState:\nprevious: \(self.previous),\ncurrent: \(self.current)\n>"
+        return "<OSUserState:\ncurrent: \(self.current)\n>"
     }
 
-    init(previous: OSUserState, current: OSUserState) {
-        self.previous = previous
+    init(current: OSUserState) {
         self.current = current
     }
 
     @objc public func jsonRepresentation() -> NSDictionary {
-        return ["previous": previous.jsonRepresentation(), "current": current.jsonRepresentation()]
+        return ["current": current.jsonRepresentation()]
     }
 }
 

@@ -123,9 +123,8 @@ class OSIdentityModel: OSModel {
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
 
-        let prevUserState = OSUserState(onesignalId: prevOnesignalId, externalId: prevExternalId)
         let curUserState = OSUserState(onesignalId: newOnesignalId, externalId: newExternalId)
-        let changedState = OSUserChangedState(previous: prevUserState, current: curUserState)
+        let changedState = OSUserChangedState(current: curUserState)
 
         OneSignalUserManagerImpl.sharedInstance.userStateChangesObserver.notifyChange(changedState)
     }
