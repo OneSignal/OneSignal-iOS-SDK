@@ -88,6 +88,14 @@
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
 		3C9AD6A22B226C4E00BC1540 /* OSUserExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9AD6A12B226C4E00BC1540 /* OSUserExecutor.swift */; };
+		3C9AD6AA2B22792D00BC1540 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
+		3C9AD6AB2B22792E00BC1540 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
+		3C9AD6AC2B22798400BC1540 /* OneSignalLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */; };
+		3C9AD6AD2B22798400BC1540 /* OneSignalLocation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C9AD6B12B2279AC00BC1540 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
+		3C9AD6B22B2279AC00BC1540 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C9AD6B52B227A5900BC1540 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
+		3C9AD6B62B227A5900BC1540 /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CA6CE0A28E4F19B00CA0585 /* OSUserRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
@@ -490,6 +498,27 @@
 			remoteGlobalIDString = 3C115160289A259500565C41;
 			remoteInfo = OneSignalOSCore;
 		};
+		3C9AD6AE2B22798400BC1540 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEBAADF82A420A3700BF2C1C;
+			remoteInfo = OneSignalLocation;
+		};
+		3C9AD6B32B2279AC00BC1540 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEBAAE272A4211D900BF2C1C;
+			remoteInfo = OneSignalInAppMessages;
+		};
+		3C9AD6B72B227A5900BC1540 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
+			remoteInfo = OneSignalNotifications;
+		};
 		DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -683,6 +712,19 @@
 			files = (
 				918CB0301E73388E0067130F /* OneSignalFramework.h in CopyFiles */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C9AD6B02B22798400BC1540 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3C9AD6B62B227A5900BC1540 /* OneSignalNotifications.framework in Embed Frameworks */,
+				3C9AD6B22B2279AC00BC1540 /* OneSignalInAppMessages.framework in Embed Frameworks */,
+				3C9AD6AD2B22798400BC1540 /* OneSignalLocation.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DEA4B45E2888C1D000E9FE12 /* Embed Frameworks */ = {
@@ -1150,9 +1192,12 @@
 				DEA4B4642888C4E200E9FE12 /* OneSignalOutcomes.framework in Frameworks */,
 				DEA4B45A2888BFAB00E9FE12 /* OneSignalCore.framework in Frameworks */,
 				9D348537233C669E00EB81C9 /* CoreLocation.framework in Frameworks */,
+				3C9AD6B52B227A5900BC1540 /* OneSignalNotifications.framework in Frameworks */,
 				9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */,
 				CACBAAAC218A662B000ACAA5 /* WebKit.framework in Frameworks */,
+				3C9AD6AC2B22798400BC1540 /* OneSignalLocation.framework in Frameworks */,
 				911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */,
+				3C9AD6B12B2279AC00BC1540 /* OneSignalInAppMessages.framework in Frameworks */,
 				911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */,
 				911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */,
 			);
@@ -2342,11 +2387,15 @@
 				911E2CB61E398AB3003112A4 /* Sources */,
 				911E2CB71E398AB3003112A4 /* Frameworks */,
 				911E2CB81E398AB3003112A4 /* Resources */,
+				3C9AD6B02B22798400BC1540 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DEF5CD12253932260003E9CC /* PBXTargetDependency */,
+				3C9AD6AF2B22798400BC1540 /* PBXTargetDependency */,
+				3C9AD6B42B2279AC00BC1540 /* PBXTargetDependency */,
+				3C9AD6B82B227A5900BC1540 /* PBXTargetDependency */,
 			);
 			name = UnitTests;
 			productName = UnitTests;
@@ -2783,6 +2832,7 @@
 				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CAB4112920852E48005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
+				3C9AD6AA2B22792D00BC1540 /* OneSignalLiveActivityController.m in Sources */,
 				CA1A6E7020DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				7AFE856B2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
@@ -2899,6 +2949,7 @@
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */,
 				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
+				3C9AD6AB2B22792E00BC1540 /* OneSignalLiveActivityController.m in Sources */,
 				3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
 				A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */,
@@ -3100,6 +3151,21 @@
 			isa = PBXTargetDependency;
 			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
 			targetProxy = 3C115199289AF86C00565C41 /* PBXContainerItemProxy */;
+		};
+		3C9AD6AF2B22798400BC1540 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEBAADF82A420A3700BF2C1C /* OneSignalLocation */;
+			targetProxy = 3C9AD6AE2B22798400BC1540 /* PBXContainerItemProxy */;
+		};
+		3C9AD6B42B2279AC00BC1540 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEBAAE272A4211D900BF2C1C /* OneSignalInAppMessages */;
+			targetProxy = 3C9AD6B32B2279AC00BC1540 /* PBXContainerItemProxy */;
+		};
+		3C9AD6B82B227A5900BC1540 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
+			targetProxy = 3C9AD6B72B227A5900BC1540 /* PBXContainerItemProxy */;
 		};
 		DE12F3F5289B28C4002F63AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
