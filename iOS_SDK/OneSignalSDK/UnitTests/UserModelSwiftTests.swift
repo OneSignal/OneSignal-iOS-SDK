@@ -31,8 +31,8 @@ import XCTest
 // ^ Cannot use a struct for an OSPushSubscriptionObserver
 
 class OSPushSubscriptionTestObserver: OSPushSubscriptionObserver {
-    func onOSPushSubscriptionChanged(stateChanges: OneSignalUser.OSPushSubscriptionStateChanges) {
-        print("🔥 onOSPushSubscriptionChanged \(stateChanges.from) -> \(stateChanges.to)")
+    func onPushSubscriptionDidChange(state: OneSignalUser.OSPushSubscriptionChangedState) {
+        print("🔥 onPushSubscriptionDidChange \(state.previous) -> \(state.current)")
         // dump(stateChanges.from) -> uncomment for more verbose log during testing
         // dump(stateChanges.to) -> uncomment for more verbose log during testing
     }
@@ -78,8 +78,8 @@ class UserModelSwiftTests: XCTestCase {
         _ = OneSignal.User.removeEmail("person@example.com")
 
         // SMS
-        OneSignal.User.addSmsNumber("+15551231234")
-        _ = OneSignal.User.removeSmsNumber("+15551231234")
+        OneSignal.User.addSms("+15551231234")
+        _ = OneSignal.User.removeSms("+15551231234")
 
         // Triggers
         OneSignal.InAppMessages.addTrigger("foo", withValue: "bar")
@@ -88,10 +88,8 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.InAppMessages.removeTriggers(["foo", "bar"])
         OneSignal.InAppMessages.clearTriggers()
 
-        OneSignal.InAppMessages.setClickHandler { action in
-            NSLog("action \(action.description)")
-        }
-        OneSignal.InAppMessages.setLifecycleHandler(nil)
+        // OneSignal.InAppMessages.addClickListener(listener)
+        // OneSignal.InAppMessages.addLifecycleListener(listener)
     }
 
     /**
@@ -167,7 +165,7 @@ class UserModelSwiftTests: XCTestCase {
      */
     func testEmailAndSmsSubscriptions() throws {
         OneSignal.User.addEmail("test@example.com")
-        OneSignal.User.addSmsNumber("+15551231234")
+        OneSignal.User.addSms("+15551231234")
 
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
@@ -185,8 +183,8 @@ class UserModelSwiftTests: XCTestCase {
         }, fallbackToSettings: true)
 
         // IAM pausing
-        OneSignal.InAppMessages.Paused = true
-        let paused = OneSignal.InAppMessages.Paused
+        OneSignal.InAppMessages.paused = true
+        let paused = OneSignal.InAppMessages.paused
     }
 
     func testJWTTokenExpired() {
