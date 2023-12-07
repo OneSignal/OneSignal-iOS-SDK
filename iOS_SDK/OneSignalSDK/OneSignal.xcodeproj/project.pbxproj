@@ -87,6 +87,7 @@
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
+		3C9AD6A22B226C4E00BC1540 /* OSUserExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9AD6A12B226C4E00BC1540 /* OSUserExecutor.swift */; };
 		3CA6CE0A28E4F19B00CA0585 /* OSUserRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
@@ -749,6 +750,7 @@
 		3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityOperationExecutor.swift; sourceTree = "<group>"; };
+		3C9AD6A12B226C4E00BC1540 /* OSUserExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserExecutor.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequests.swift; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -1607,6 +1609,7 @@
 				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
 				3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */,
 				3CA6CE0928E4F19B00CA0585 /* OSUserRequests.swift */,
+				3C9AD6A12B226C4E00BC1540 /* OSUserExecutor.swift */,
 				3C5117162B15C31E00563465 /* OSUserState.swift */,
 			);
 			path = Source;
@@ -2935,6 +2938,7 @@
 				3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
+				3C9AD6A22B226C4E00BC1540 /* OSUserExecutor.swift in Sources */,
 				3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */,
 				3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */,
 				3CE795FB28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift in Sources */,
