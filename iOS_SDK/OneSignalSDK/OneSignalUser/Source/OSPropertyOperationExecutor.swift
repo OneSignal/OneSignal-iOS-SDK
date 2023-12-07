@@ -132,18 +132,18 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             return
         }
         request.sentToClient = true
-        
+
         let backgroundTaskIdentifier = PROPERTIES_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         OneSignalClient.shared().execute(request) { _ in
             // On success, remove request from cache, and we do need to hydrate
             // TODO: We need to hydrate after all ? What why ?
             self.updateRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
@@ -157,7 +157,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // Logout if the user in the SDK is the same
                     guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                     else {
-                        if (inBackground) {
+                        if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
                         return
@@ -171,7 +171,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }
@@ -189,7 +189,7 @@ extension OSPropertyOperationExecutor {
             modelToUpdate: propertiesModel,
             identityModel: identityModel)
 
-        if (sendImmediately) {
+        if sendImmediately {
             // Bypass the request queues
             OneSignalClient.shared().execute(request) { _ in
                 if let onSuccess = onSuccess {
