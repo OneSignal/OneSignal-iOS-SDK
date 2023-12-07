@@ -72,7 +72,7 @@
 //#import "OneSignalLocation.h"
 //#import "OneSignalLocationOverrider.h"
 //#import "UIDeviceOverrider.h"
-//#import "OneSignalOverrider.h"
+#import "OneSignalOverrider.h"
 //#import "NSTimeZoneOverrider.h"
 //
 //// Networking
@@ -106,7 +106,7 @@
 - (void)setUp {
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
-//    OneSignalOverrider.shouldOverrideLaunchURL = false;
+    OneSignalOverrider.shouldOverrideLaunchURL = false;
 //
 //    // Only enable remote-notifications in UIBackgroundModes
 //    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
@@ -159,6 +159,7 @@
 //  return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 //}
 
+// ✅ Moved to NewUnitTests
 - (void)testBasicInitTest {
     // Simulator iPhone
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);

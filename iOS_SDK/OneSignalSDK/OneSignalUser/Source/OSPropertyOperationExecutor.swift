@@ -95,7 +95,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 // Log error
                 continue
             }
-
+            print("🔥 OSRequestUpdateProperties creating user.identityModel: \(OneSignalUserManagerImpl.sharedInstance.user.identityModel) \(OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId)")
             let request = OSRequestUpdateProperties(
                 properties: [delta.property: delta.value],
                 deltas: nil,
@@ -155,6 +155,7 @@ extension OSPropertyOperationExecutor {
     // TODO: We can make this go through the operation repo
     func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
 
+        print("🔥 OSRequestUpdateProperties creating identityModel: \(identityModel) \(identityModel.onesignalId)")
         let request = OSRequestUpdateProperties(
             properties: [:],
             deltas: propertiesDeltas.jsonRepresentation(),

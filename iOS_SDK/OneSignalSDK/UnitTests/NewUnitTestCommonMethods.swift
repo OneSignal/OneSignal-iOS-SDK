@@ -45,7 +45,7 @@ public class NewUnitTestCommonMethods: NSObject {
         currentXCTestCase = testCase
         self.beforeAllTest()
         self.clearStateForAppRestart(testCase)
-        self.clearUserDefaults()
+        OneSignalCoreMocks.clearUserDefaults()
 //        [NSDateOverrider reset];
 //        [OneSignalOverrider reset];
 //        [OneSignalClientOverrider reset:testCase];
@@ -56,10 +56,7 @@ public class NewUnitTestCommonMethods: NSObject {
     static func clearStateForAppRestart(_ testCase: XCTestCase) {
         
     }
-    
-    static func clearUserDefaults() {
-        
-    }
+
     
 }
 

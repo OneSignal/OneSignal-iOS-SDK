@@ -42,7 +42,7 @@ public class OSOperationRepo: NSObject {
     var deltaQueue: [OSDelta] = []
 
     // TODO: This should come from a config, plist, method, remote params
-    var pollIntervalSeconds = 5
+    var pollIntervalSeconds = Int(POLL_INTERVAL_MS)
 
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
@@ -75,7 +75,9 @@ public class OSOperationRepo: NSObject {
     }
 
     private func pollFlushQueue() {
-        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "🔥 OSOperationRepo pollFlushQueue")
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(pollIntervalSeconds)) { [weak self] in
             self?.flushDeltaQueue()
             self?.pollFlushQueue()
         }
@@ -108,7 +110,11 @@ public class OSOperationRepo: NSObject {
     }
 
     @objc public func flushDeltaQueue() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "🔥 OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
+
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "🔥 OSOperationRepo flushDeltaQueue RETURNS")
+
             return
         }
         start()

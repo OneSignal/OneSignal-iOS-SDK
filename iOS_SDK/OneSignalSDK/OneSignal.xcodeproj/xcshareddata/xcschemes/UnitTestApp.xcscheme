@@ -91,6 +91,47 @@
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3C3CCA822A27DD9000A4B0B8"
+               BuildableName = "OneSignalUserTests.xctest"
+               BlueprintName = "OneSignalUserTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3C3CCA672A27DAE100A4B0B8"
+               BuildableName = "OneSignalCoreTests.xctest"
+               BlueprintName = "OneSignalCoreTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CDA04EC2A37851700ECA9DF"
+               BuildableName = "OneSignalNotificationsTests.xctest"
+               BlueprintName = "OneSignalNotificationsTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CE7055F2A4EB88A00B68D6D"
+               BuildableName = "OneSignalOSCoreTests.xctest"
+               BlueprintName = "OneSignalOSCoreTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

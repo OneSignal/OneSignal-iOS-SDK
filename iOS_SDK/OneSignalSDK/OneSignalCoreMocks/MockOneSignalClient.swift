@@ -32,6 +32,9 @@ import OneSignalCore
 public class MockOneSignalClient: NSObject, IOneSignalClient {
     public let executionQueue: DispatchQueue = DispatchQueue(label: "com.onesignal.execution")
     
+    // OSRequestCreateUser
+    // OSRequestFetchUser
+    // OSRequestIdentifyUser - anon
     var mockResponses: [String: [String: Any]] = [:]
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
@@ -40,11 +43,11 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     
     // Temp method to log info while building unit tests
     @objc public func logSelfInfo() {
-        print("🔥 MockOneSignalClient with executionQueue \(executionQueue)")
+        print("🔥 MockOneSignalClient.logSelfInfo with executionQueue \(executionQueue)")
     }
     
-    public func reset() {
-        mockResponses = [:]
+    @objc public func reset() {
+        mockResponses.removeAll()
         lastHTTPRequest = nil
         networkRequestCount = 0
         executedRequests.removeAll()
@@ -52,7 +55,6 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     }
     
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
-        print("🔥 MockOneSignalClient execute called")
 
         executedRequests.append(request)
         
@@ -66,28 +68,23 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     }
     
     func finishExecutingRequest(_ request: OneSignalRequest, onSuccess successBlock: OSResultSuccessBlock, onFailure failureBlock: OSFailureBlock) {
-        
         // TODO: Needs to contained within the equivalent of @synchronized ❗️
-        print("🔥 completing HTTP request: \(request)")
-        
-        
         // TODO: Check for existence of app_id in the request
         
         self.didCompleteRequest(request)
         // Switch between types of requests with mock responses
         if (request.isKind(of: OSRequestGetIosParams.self)) {
-            // send a mock remote params response
-            // successBlock(["mock": "response"])
+            // TODO: send a mock remote params response
+            successBlock(["mock": "response"])
         }
-        if ((mockResponses[String(describing: request)]) != nil) {
-            successBlock(mockResponses[String(describing: request)])
+        else if ((mockResponses[String(describing: type(of: request))]) != nil) {
+            successBlock(mockResponses[String(describing: type(of: request))])
         }
-        successBlock(["mock": "response"])
     }
     
     func didCompleteRequest(_ request: OneSignalRequest) {
         networkRequestCount += 1
-        print("🔥 didCompleteRequest url(\(networkRequestCount)): \(String(describing: request.urlRequest().url)) params: \(String(describing: request.parameters))")
+        print("🔥 HTTP Request (\(networkRequestCount)):\(String(describing: type(of: request))) with URL: \(request.urlRequest().url)), with parameters: \(printAsJSON(request.parameters as? [String: Any] ?? [:]))")
         lastHTTPRequest = request
     }
     
@@ -98,8 +95,17 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         executionQueue.sync {}
     }
     
-    
+    @objc
     public func setMockResponseForRequest(request: String, response: [String: Any]) {
-        
+        mockResponses[request] = response
     }
+    
+    func printAsJSON(_ dict: [String: Any]) -> String {
+        if let theJSONData = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted),
+            let theJSONText = String(data: theJSONData, encoding: String.Encoding.ascii) {
+            return theJSONText
+        }
+        return "[Unable to pretty print]"
+    }
+    
 }

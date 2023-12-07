@@ -259,6 +259,9 @@ static NSString *_pushSubscriptionId;
     _lastMessageIdFromAction = nil;
     _lastMessageID = @"";
     _unprocessedClickEvents = nil;
+    _lifecycleListener = nil;
+    _permissionStateChangesObserver = nil;
+    [self.clickListeners removeAllObjects];
 }
 
 + (void)setLastPermissionState:(OSPermissionStateInternal *)lastPermissionState {

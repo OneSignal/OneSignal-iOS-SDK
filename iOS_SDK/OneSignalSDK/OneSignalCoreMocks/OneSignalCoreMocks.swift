@@ -31,8 +31,24 @@ import OneSignalCore
 @objc
 public class OneSignalCoreMocks : NSObject {
     
-    @objc
-    public static func getClient() -> MockOneSignalClient {
+    @objc public static func getClient() -> MockOneSignalClient {
         return OneSignalCore.sharedClient() as! MockOneSignalClient
+    }
+    
+    @objc public static func clearUserDefaults() {
+        if let userDefaults = OneSignalUserDefaults.initStandard().userDefaults {
+            let dictionary = userDefaults.dictionaryRepresentation()
+            for (key, _) in dictionary {
+                userDefaults.removeObject(forKey: key)
+            }
+        }
+        
+        if let sharedUserDefaults = OneSignalUserDefaults.initShared().userDefaults {
+            let sharedDictionary = sharedUserDefaults.dictionaryRepresentation()
+            for (key, _) in sharedDictionary {
+                sharedUserDefaults.removeObject(forKey: key)
+            }
+        }
+
     }
 }

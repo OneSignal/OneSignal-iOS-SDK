@@ -36,19 +36,19 @@
 //#import "UnitTestAppDelegate.h"
 //#import "OneSignalHelper.h"
 //#import "UIApplicationDelegate+OneSignal.h"
-//#import "NSLocaleOverrider.h"
-//#import "NSDateOverrider.h"
-//#import "OneSignalTracker.h"
-//#import "OneSignalTrackFirebaseAnalyticsOverrider.h"
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wdeprecated"
-//#import "UIAlertViewOverrider.h"
-//#pragma clang diagnostic pop
-//#import "NSObjectOverrider.h"
+#import "NSLocaleOverrider.h"
+#import "NSDateOverrider.h"
+#import "OneSignalTracker.h"
+#import "OneSignalTrackFirebaseAnalyticsOverrider.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+#import "UIAlertViewOverrider.h"
+#pragma clang diagnostic pop
+#import "NSObjectOverrider.h"
 //#import "OneSignalCommonDefines.h"
 //#import "NSBundleOverrider.h"
-//#import "NSTimerOverrider.h"
-//#import "OSMessagingControllerOverrider.h"
+#import "NSTimerOverrider.h"
+#import "OSMessagingControllerOverrider.h"
 //#import "OSInAppMessagingHelpers.h"
 //#import "OSOutcomeEventsCache.h"
 //#import "OSInfluenceDataRepository.h"
@@ -56,13 +56,13 @@
 //#import "OneSignalNotificationServiceExtensionHandler.h"
 //#import "OneSignalTrackFirebaseAnalytics.h"
 //#import "OSMessagingControllerOverrider.h"
-//#import "OneSignalLifecycleObserver.h"
-//#import "OneSignalLocationOverrider.h"
-//#import "OneSignalOverrider.h"
+#import "OneSignalLifecycleObserver.h"
+#import "OneSignalLocationOverrider.h"
+#import "OneSignalOverrider.h"
 //#import "OneSignalUserDefaults.h"
 //#import "OneSignalLog.h"
-//#import "OneSignalAppDelegateOverrider.h"
-//#import "OneSignalUNUserNotificationCenterOverrider.h"
+#import "OneSignalAppDelegateOverrider.h"
+#import "OneSignalUNUserNotificationCenterOverrider.h"
 
 //NSString * serverUrlWithPath(NSString *path) {
 //    return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -180,7 +180,10 @@ static XCTestCase* _currentXCTestCase;
     for(int i = 0; i < 10; i++) {
         [UnitTestCommonMethods runThreadsOnEachQueue];
     }
-
+    
+    // Allow the operation repo to flush
+    [NSThread sleepForTimeInterval:0.2f];
+    
     NSLog(@"END runBackgroundThreads");
 }
 
@@ -203,94 +206,82 @@ static XCTestCase* _currentXCTestCase;
     [UIApplicationOverrider runBackgroundThreads];
 }
 
-//+ (void)clearStateForAppRestart:(XCTestCase *)testCase {
-//    NSLog(@"=======  APP RESTART ======\n\n");
-//
-//    [UNUserNotificationCenterOverrider reset:testCase];
-//    [UIApplicationOverrider reset];
-//    [OneSignalTrackFirebaseAnalyticsOverrider reset];
-//
-//    NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
-//
-//    [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
-//
-//    [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
-//    [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
-//    [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
-//
-//    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
-//
-//    [OneSignalTrackFirebaseAnalytics performSelector:NSSelectorFromString(@"resetLocals")];
-//
-//    [NSObjectOverrider reset];
-//
-//    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
-//
-//    [UIAlertViewOverrider reset];
-//
-//    [OneSignal.Debug setLogLevel:ONE_S_LL_INFO];
-//    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
-//
-//    [NSTimerOverrider reset];
-//    [OneSignalLocationOverrider reset];
-//
-//    [OSMessagingController.sharedInstance resetState];
-//
-//    [OneSignalLifecycleObserver removeObserver];
-//    [OneSignalAppDelegateOverrider reset];
-//    [OneSignalUNUserNotificationCenterOverrider reset];
-//}
-//
++ (void)clearStateForAppRestart:(XCTestCase *)testCase {
+    NSLog(@"=======  APP RESTART ======\n\n");
+
+    [UNUserNotificationCenterOverrider reset:testCase];
+    [UIApplicationOverrider reset];
+    [OneSignalTrackFirebaseAnalyticsOverrider reset];
+
+    NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
+
+    [OSNotificationsManager performSelector:NSSelectorFromString(@"resetLocals")];
+
+    // TODO: What does setValue forKeyPath do, this used to be on OneSignal
+    [OSNotificationsManager setValue:nil forKeyPath:@"lastAppActiveMessageId"];
+    [OSNotificationsManager setValue:nil forKeyPath:@"lastnonActiveMessageId"];
+    [OSNotificationsManager setValue:@0 forKeyPath:@"mSubscriptionStatus"];
+
+    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
+
+    [OneSignalTrackFirebaseAnalytics performSelector:NSSelectorFromString(@"resetLocals")];
+
+    [NSObjectOverrider reset];
+
+    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
+
+    [UIAlertViewOverrider reset];
+
+    [OneSignal.Debug setLogLevel:ONE_S_LL_INFO];
+    [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
+
+    [NSTimerOverrider reset];
+    [OneSignalLocationOverrider reset];
+
+    [OSMessagingController.sharedInstance resetState];
+
+    [OneSignalLifecycleObserver removeObserver];
+    [OneSignalAppDelegateOverrider reset];
+    [OneSignalUNUserNotificationCenterOverrider reset];
+}
+
 //+ (void)beforeAllTest:(XCTestCase *)testCase {
 //    _currentXCTestCase = testCase;
 //    [self beforeAllTest];
 //}
-//
-//+ (void)beforeAllTest {
-//    // Esure we only run this once
-//    static var setupUIApplicationDelegate = false;
-//    if (setupUIApplicationDelegate)
-//        return;
-//
-//    // Force swizzle in all methods for tests.
-//    OneSignalHelperOverrider.mockIOSVersion = 9;
-//
-//    setupUIApplicationDelegate = true;
-//
-//    // InstallUncaughtExceptionHandler();
-//
-//    OneSignalHelperOverrider.mockIOSVersion = 10;
-//
-//    [OneSignal pauseInAppMessages:true];
-//}
 
-+ (void) beforeEachTest:(XCTestCase *)testCase {
-    _currentXCTestCase = testCase;
-//    [self beforeAllTest];
-//    [self clearStateForAppRestart:testCase];
-//    [self clearUserDefaults];
-//    [NSDateOverrider reset];
-//    [OneSignalOverrider reset];
-//    [OneSignalClientOverrider reset:testCase];
-//    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
-//    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+// TODO: Figure out the purpose of this method
++ (void)beforeAllTests {
+    // Esure we only run this once
+    static var setupUIApplicationDelegate = false;
+    if (setupUIApplicationDelegate)
+        return;
+
+    // Force swizzle in all methods for tests.
+    OneSignalHelperOverrider.mockIOSVersion = 9;
+
+    setupUIApplicationDelegate = true;
+
+    // InstallUncaughtExceptionHandler();
+
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+
+    [OneSignal.InAppMessages paused:true];
 }
 
-//+ (void)clearUserDefaults {
-//    let userDefaults = OneSignalUserDefaults.initStandard.userDefaults;
-//    let dictionary = [userDefaults dictionaryRepresentation];
-//    for (NSString *key in dictionary.allKeys) {
-//        [userDefaults removeObjectForKey:key];
-//    }
-//
-//    let sharedUserDefaults = OneSignalUserDefaults.initShared.userDefaults;
-//    let sharedDictionary = [sharedUserDefaults dictionaryRepresentation];
-//    for (NSString *key in sharedDictionary.allKeys) {
-//        [sharedUserDefaults removeObjectForKey:key];
-//    }
-//
-//}
-//
++ (void)beforeEachTest:(XCTestCase *)testCase {
+    _currentXCTestCase = testCase;
+    [self beforeAllTests];
+    [self clearStateForAppRestart:testCase];
+    [OneSignalCoreMocks clearUserDefaults];
+    [NSDateOverrider reset];
+    [OneSignalOverrider reset];
+    [[OneSignalCoreMocks getClient] reset];
+
+    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+}
+
 //+ (void)foregroundApp {
 //    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
 //

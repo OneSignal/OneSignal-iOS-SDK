@@ -32,19 +32,19 @@
 //#import "OneSignalSelectorHelpers.h"
 //#import "OneSignalHelperOverrider.h"
 //#import "OneSignalLocation.h"
-//#import "OneSignalLocationOverrider.h"
-//
-//@implementation OneSignalLocationOverrider
-//
+#import "OneSignalLocationOverrider.h"
+
+@implementation OneSignalLocationOverrider
+
 //// BOOL to track whetehr the LocationServices prompt has been seen
 //bool startedMock;
 //// int representing the current permission status for LocationServices
 //int permissionStatusMock;
-//// BOOL to track whether or not location request was made (NSLocationAlwaysUsageDescription, NSLocationAlwaysAndWhenInUseUsageDescription)
-//bool calledRequestAlwaysAuthorization;
-//// BOOL to track whether or not location request was made (NSLocationWhenInUseUsageDescription)
-//bool calledRequestWhenInUseAuthorization;
-//
+// BOOL to track whether or not location request was made (NSLocationAlwaysUsageDescription, NSLocationAlwaysAndWhenInUseUsageDescription)
+bool calledRequestAlwaysAuthorization;
+// BOOL to track whether or not location request was made (NSLocationWhenInUseUsageDescription)
+bool calledRequestWhenInUseAuthorization;
+
 //// Location updates require a mocked manager and set of locations to be passed in
 //CLLocationManager* locationManager;
 //NSArray *locations;
@@ -87,13 +87,13 @@
 //    id location = [self createLocation];
 //    locations = @[location];
 //}
-//
-//+ (void)reset {
-//    // Reset request flags
-//    calledRequestAlwaysAuthorization = false;
-//    calledRequestWhenInUseAuthorization = false;
-//}
-//
+
++ (void)reset {
+    // Reset request flags
+    calledRequestAlwaysAuthorization = false;
+    calledRequestWhenInUseAuthorization = false;
+}
+
 //+ (bool)overrideStarted {
 //    return startedMock;
 //}
@@ -142,5 +142,5 @@
 //    if (calledRequestAlwaysAuthorization || calledRequestWhenInUseAuthorization)
 //        [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
 //}
-//
-//@end
+
+@end

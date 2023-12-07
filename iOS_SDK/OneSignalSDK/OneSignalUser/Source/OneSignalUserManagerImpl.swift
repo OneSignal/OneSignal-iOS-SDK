@@ -173,6 +173,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     // TODO: This method is called A LOT, check if all calls are needed.
     @objc
     public func start() {
+        print("🔥 top of start() and has _user: \(_user) onesignalId \(onesignalId)")
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
@@ -180,6 +181,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
 
+        print("🔥 for real calling start()")
         hasCalledStart = true
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
 

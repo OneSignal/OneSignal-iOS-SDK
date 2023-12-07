@@ -146,8 +146,11 @@ class OSUserExecutor {
         let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
 
         if requestQueue.isEmpty {
+            print("🔥 executePendingRequests is EMPTY")
             return
         }
+        print("🔥 executePendingRequests is \(requestQueue)")
+
 
         // Sort the requestQueue by timestamp
         for request in requestQueue.sorted(by: { first, second in
@@ -203,6 +206,7 @@ class OSUserExecutor {
         // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
         if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil),
            let subscriptionObject = parseSubscriptionObjectResponse(response) {
+            print("🔥 subscriptionObject \(subscriptionObject)")
             for subModel in subscriptionObject {
                 if subModel["type"] as? String == "iOSPush",
                    areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String) { // response may have "" token or no token
@@ -284,6 +288,7 @@ class OSUserExecutor {
 
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
+        print("🔥 in OSUserExecutor's createUser with \(user)")
         let originalPushToken = user.pushSubscriptionModel.address
         let request = OSRequestCreateUser(identityModel: user.identityModel, propertiesModel: user.propertiesModel, pushSubscriptionModel: user.pushSubscriptionModel, originalPushToken: originalPushToken)
 
@@ -314,6 +319,7 @@ class OSUserExecutor {
             // TODO: Differentiate if we need to fetch the user based on response code of 200, 201, 202
             // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
+                print("🔥 createuserrequest response \(response)")
                 // Parse the response for any data we need to update
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: request.originalPushToken)
 
@@ -394,12 +400,14 @@ class OSUserExecutor {
     }
     
     static func identifyUser(externalId: String, identityModelToIdentify: OSIdentityModel, identityModelToUpdate: OSIdentityModel) {
+        print("🔥 user executor going to identify User")
         let request = OSRequestIdentifyUser(
             aliasLabel: OS_EXTERNAL_ID,
             aliasId: externalId,
             identityModelToIdentify: identityModelToIdentify,
             identityModelToUpdate: identityModelToUpdate
         )
+        print("🔥 user executor appending identify User")
 
         appendToQueue(request)
 
@@ -407,16 +415,25 @@ class OSUserExecutor {
     }
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
+        print("🔥 executeIdentifyUserRequest TOP")
+
         guard !request.sentToClient else {
+            print("🔥 executeIdentifyUserRequest request.sentToClient")
+
             return
         }
         guard request.prepareForExecution() else {
             // Missing onesignal_id
+            print("🔥 executeIdentifyUserRequest Missing onesignal_id")
+
             return
         }
         request.sentToClient = true
+        print("🔥 executeIdentifyUserRequest")
 
-        OneSignalCore.sharedClient()?.execute(request) { _ in
+        OneSignalCore.sharedClient()?.execute(request) { r in
+            print("🔥 executeIdentifyUserRequest response \(r)")
+
             removeFromQueue(request)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
@@ -501,17 +518,22 @@ class OSUserExecutor {
     }
 
     static func executeFetchUserRequest(_ request: OSRequestFetchUser) {
+
         guard !request.sentToClient else {
+            print("🔥 executeFetchUserRequest here 3")
+
             return
         }
         guard request.prepareForExecution() else {
+            print("🔥 executeFetchUserRequest here 2")
+
             // This should not happen as we set the alias to use for the request path
             return
         }
         request.sentToClient = true
         OneSignalCore.sharedClient()?.execute(request) { response in
+            print("🔥 executeFetchUserRequest response \(response)")
             removeFromQueue(request)
-
             if let response = response {
                 // Clear local data in preparation for hydration
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
@@ -519,6 +541,8 @@ class OSUserExecutor {
             }
             executePendingRequests()
         } onFailure: { error in
+            print("🔥 executeFetchUserRequest error \(error)")
+
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
             // TODO: Differentiate error cases
             // If the error is not retryable, remove from cache and queue

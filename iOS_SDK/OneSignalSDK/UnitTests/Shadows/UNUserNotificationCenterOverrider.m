@@ -64,61 +64,62 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
         @selector(overrideInitWithBundleProxy:)
     );
     #pragma clang diagnostic pop
-//    
-//    injectSelector(
-//        [UNUserNotificationCenter class],
-//        @selector(initWithBundleIdentifier:),
-//        [UNUserNotificationCenterOverrider class],
-//        @selector(overrideInitWithBundleIdentifier:)
-//    );
-//    injectSelector(
-//        [UNUserNotificationCenter class],
-//        @selector(getNotificationSettingsWithCompletionHandler:),
-//        [UNUserNotificationCenterOverrider class],
-//        @selector(overrideGetNotificationSettingsWithCompletionHandler:)
-//    );
-//    injectSelector(
-//        [UNUserNotificationCenter class],
-//        @selector(setNotificationCategories:),
-//        [UNUserNotificationCenterOverrider class],
-//        @selector(overrideSetNotificationCategories:)
-//    );
-//    injectSelector(
-//       [UNUserNotificationCenter class],
-//       @selector(getNotificationCategoriesWithCompletionHandler:),
-//       [UNUserNotificationCenterOverrider class],
-//       @selector(overrideGetNotificationCategoriesWithCompletionHandler:)
-//    );
-//    injectSelector(
-//       [UNUserNotificationCenter class],
-//       @selector(requestAuthorizationWithOptions:completionHandler:),
-//       [UNUserNotificationCenterOverrider class],
-//       @selector(overrideRequestAuthorizationWithOptions:completionHandler:)
-//   );
+    
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(initWithBundleIdentifier:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideInitWithBundleIdentifier:)
+    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(getNotificationSettingsWithCompletionHandler:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideGetNotificationSettingsWithCompletionHandler:)
+    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(setNotificationCategories:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideSetNotificationCategories:)
+    );
+    injectSelector(
+       [UNUserNotificationCenter class],
+       @selector(getNotificationCategoriesWithCompletionHandler:),
+       [UNUserNotificationCenterOverrider class],
+       @selector(overrideGetNotificationCategoriesWithCompletionHandler:)
+    );
+    injectSelector(
+       [UNUserNotificationCenter class],
+       @selector(requestAuthorizationWithOptions:completionHandler:),
+       [UNUserNotificationCenterOverrider class],
+       @selector(overrideRequestAuthorizationWithOptions:completionHandler:)
+   );
 }
 
 //+ (UNAuthorizationOptions)lastRequestedAuthorizationOptions {
 //    return previousRequestedAuthorizationOptions;
 //}
-//
-//+ (void)reset:(XCTestCase*)testInstance {
-//    currentTestInstance = testInstance;
-//    lastSetCategories = nil;
-//    shouldSetProvisionalAuthStatus = false;
-//    previousRequestedAuthorizationOptions = UNAuthorizationOptionNone;
-//}
-//
-//+ (void)setNotifTypesOverride:(int)value {
-//    notifTypesOverride = value;
-//}
-//
+
++ (void)reset:(XCTestCase*)testInstance {
+    currentTestInstance = testInstance;
+    lastSetCategories = nil;
+    shouldSetProvisionalAuthStatus = false;
+    previousRequestedAuthorizationOptions = UNAuthorizationOptionNone;
+}
+
++ (void)setNotifTypesOverride:(int)value {
+    notifTypesOverride = value;
+}
+
 //+ (int)notifTypesOverride {
 //    return notifTypesOverride;
 //}
-//
-//+ (void)setAuthorizationStatus:(NSNumber*)value {
-//    authorizationStatus = value;
-//}
+
++ (void)setAuthorizationStatus:(NSNumber*)value {
+    authorizationStatus = value;
+}
+
 //+ (NSNumber*)authorizationStatus {
 //    return authorizationStatus;
 //}
@@ -171,31 +172,31 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     });
 }
 
-//- (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
-//    [UNUserNotificationCenterOverrider mockInteralGetNotificationSettingsWithCompletionHandler:completionHandler];
-//}
-//
-//- (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
-//    lastSetCategories = categories;
-//}
-//
-//- (void)overrideGetNotificationCategoriesWithCompletionHandler:(void(^)(NSSet<id> *categories))completionHandler {
-//    completionHandler(lastSetCategories);
-//}
-//
-//- (void)overrideRequestAuthorizationWithOptions:(UNAuthorizationOptions)options
-//                              completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
-//    previousRequestedAuthorizationOptions = options;
-//    
-//    if (shouldSetProvisionalAuthStatus)
-//        authorizationStatus = @3;
-//    
-//    if (![authorizationStatus isEqualToNumber:[NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined]] && ![authorizationStatus isEqualToNumber:@3])
-//        completionHandler([authorizationStatus isEqual:[NSNumber numberWithInteger:UNAuthorizationStatusAuthorized]] || shouldSetProvisionalAuthStatus, nil);
-//    else
-//        lastRequestAuthorizationWithOptionsBlock = completionHandler;
-//}
-//
+- (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
+    [UNUserNotificationCenterOverrider mockInteralGetNotificationSettingsWithCompletionHandler:completionHandler];
+}
+
+- (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
+    lastSetCategories = categories;
+}
+
+- (void)overrideGetNotificationCategoriesWithCompletionHandler:(void(^)(NSSet<id> *categories))completionHandler {
+    completionHandler(lastSetCategories);
+}
+
+- (void)overrideRequestAuthorizationWithOptions:(UNAuthorizationOptions)options
+                              completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
+    previousRequestedAuthorizationOptions = options;
+    
+    if (shouldSetProvisionalAuthStatus)
+        authorizationStatus = @3;
+    
+    if (![authorizationStatus isEqualToNumber:[NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined]] && ![authorizationStatus isEqualToNumber:@3])
+        completionHandler([authorizationStatus isEqual:[NSNumber numberWithInteger:UNAuthorizationStatusAuthorized]] || shouldSetProvisionalAuthStatus, nil);
+    else
+        lastRequestAuthorizationWithOptionsBlock = completionHandler;
+}
+
 //+ (void)failIfInNotificationSettingsWithCompletionHandler {
 //    if (getNotificationSettingsWithCompletionHandlerStackCount > 0)
 //        _XCTPrimitiveFail(currentTestInstance);

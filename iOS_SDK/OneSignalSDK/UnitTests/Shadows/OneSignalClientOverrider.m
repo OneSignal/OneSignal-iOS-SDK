@@ -67,12 +67,12 @@ static NSDictionary* remoteParams;
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
 
     //with refactored networking code, need to replace the implementation of the execute request method so tests don't actually execite HTTP requests
-    injectSelector(
-        [OneSignalClient class],
-        @selector(executeRequest:onSuccess:onFailure:),
-        [OneSignalClientOverrider class],
-        @selector(overrideExecuteRequest:onSuccess:onFailure:)
-    );
+//    injectSelector(
+//        [OneSignalClient class],
+//        @selector(executeRequest:onSuccess:onFailure:),
+//        [OneSignalClientOverrider class],
+//        @selector(overrideExecuteRequest:onSuccess:onFailure:)
+//    );
 
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     executedRequests = [NSMutableArray new];
