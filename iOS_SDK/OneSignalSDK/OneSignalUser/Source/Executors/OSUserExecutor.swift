@@ -180,106 +180,6 @@ class OSUserExecutor {
         }
     }
 
-    /**
-     Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
-     */
-    static func parseFetchUserResponse(response: [AnyHashable: Any], identityModel: OSIdentityModel, originalPushToken: String?) {
-
-        // If this was a create user, it hydrates the onesignal_id of the request's identityModel
-        // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
-        if let identityObject = parseIdentityObjectResponse(response) {
-            identityModel.hydrate(identityObject)
-        }
-
-        // TODO: Determine how to hydrate the push subscription, which is still faulty.
-        // Hydrate by token if sub_id exists?
-        // Problem: a user can have multiple iOS push subscription, and perhaps missing token
-        // Ideally we only get push subscription for this device in the response, not others
-
-        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
-        if (OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil),
-           let subscriptionObject = parseSubscriptionObjectResponse(response) {
-            for subModel in subscriptionObject {
-                if subModel["type"] as? String == "iOSPush",
-                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String) { // response may have "" token or no token
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
-                    if let subId = subModel["id"] as? String {
-                        OSNotificationsManager.setPushSubscriptionId(subId)
-                    }
-                    break
-                }
-            }
-        }
-
-        // Check if the current user is the same as the one in the request
-        // If user has changed, don't hydrate, except for push subscription above
-        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
-            return
-        }
-
-        if let identityObject = parseIdentityObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
-        }
-
-        if let propertiesObject = parsePropertiesObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
-        }
-
-        // Now parse email and sms subscriptions
-        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
-            let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
-            for subModel in subscriptionObject {
-                if let address = subModel["token"] as? String,
-                   let rawType = subModel["type"] as? String,
-                   rawType != "iOSPush",
-                   let type = OSSubscriptionType(rawValue: rawType) {
-                    if let model = models[address] {
-                        // This subscription exists in the store, hydrate
-                        model.hydrate(subModel)
-
-                    } else {
-                        // This subscription does not exist in the store, add
-                        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
-                            type: type,
-                            address: address,
-                            subscriptionId: subModel["id"] as? String,
-                            reachable: true,
-                            isDisabled: false,
-                            changeNotifier: OSEventProducer()), hydrating: true
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     Returns if 2 tokens are equal. This is needed as a nil token is equal to the empty string "".
-     */
-    static func areTokensEqual(tokenA: String?, tokenB: String?) -> Bool {
-        // They are both strings or both nil
-        if tokenA == tokenB {
-            return true
-        }
-        // One is nil and the other is ""
-        if (tokenA == nil && tokenB == "") || (tokenA == "" && tokenB == nil) {
-            return true
-        }
-        return false
-    }
-
-    static func parseSubscriptionObjectResponse(_ response: [AnyHashable: Any]?) -> [[String: Any]]? {
-        return response?["subscriptions"] as? [[String: Any]]
-    }
-
-    static func parsePropertiesObjectResponse(_ response: [AnyHashable: Any]?) -> [String: Any]? {
-        return response?["properties"] as? [String: Any]
-    }
-
-    static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: String]? {
-        return response?["identity"] as? [String: String]
-    }
-
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
         let originalPushToken = user.pushSubscriptionModel.address
@@ -573,5 +473,108 @@ class OSUserExecutor {
             }
             executePendingRequests()
         }
+    }
+}
+
+// MARK: - Parsing
+extension OSUserExecutor {
+    /**
+     Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
+     */
+    static func parseFetchUserResponse(response: [AnyHashable: Any], identityModel: OSIdentityModel, originalPushToken: String?) {
+
+        // If this was a create user, it hydrates the onesignal_id of the request's identityModel
+        // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
+        if let identityObject = parseIdentityObjectResponse(response) {
+            identityModel.hydrate(identityObject)
+        }
+
+        // TODO: Determine how to hydrate the push subscription, which is still faulty.
+        // Hydrate by token if sub_id exists?
+        // Problem: a user can have multiple iOS push subscription, and perhaps missing token
+        // Ideally we only get push subscription for this device in the response, not others
+
+        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
+        if (OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil),
+           let subscriptionObject = parseSubscriptionObjectResponse(response) {
+            for subModel in subscriptionObject {
+                if subModel["type"] as? String == "iOSPush",
+                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String) { // response may have "" token or no token
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
+                    if let subId = subModel["id"] as? String {
+                        OSNotificationsManager.setPushSubscriptionId(subId)
+                    }
+                    break
+                }
+            }
+        }
+
+        // Check if the current user is the same as the one in the request
+        // If user has changed, don't hydrate, except for push subscription above
+        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
+            return
+        }
+
+        if let identityObject = parseIdentityObjectResponse(response) {
+            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
+        }
+
+        if let propertiesObject = parsePropertiesObjectResponse(response) {
+            OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
+        }
+
+        // Now parse email and sms subscriptions
+        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
+            let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
+            for subModel in subscriptionObject {
+                if let address = subModel["token"] as? String,
+                   let rawType = subModel["type"] as? String,
+                   rawType != "iOSPush",
+                   let type = OSSubscriptionType(rawValue: rawType) {
+                    if let model = models[address] {
+                        // This subscription exists in the store, hydrate
+                        model.hydrate(subModel)
+
+                    } else {
+                        // This subscription does not exist in the store, add
+                        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
+                            type: type,
+                            address: address,
+                            subscriptionId: subModel["id"] as? String,
+                            reachable: true,
+                            isDisabled: false,
+                            changeNotifier: OSEventProducer()), hydrating: true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     Returns if 2 tokens are equal. This is needed as a nil token is equal to the empty string "".
+     */
+    static func areTokensEqual(tokenA: String?, tokenB: String?) -> Bool {
+        // They are both strings or both nil
+        if tokenA == tokenB {
+            return true
+        }
+        // One is nil and the other is ""
+        if (tokenA == nil && tokenB == "") || (tokenA == "" && tokenB == nil) {
+            return true
+        }
+        return false
+    }
+
+    static func parseSubscriptionObjectResponse(_ response: [AnyHashable: Any]?) -> [[String: Any]]? {
+        return response?["subscriptions"] as? [[String: Any]]
+    }
+
+    static func parsePropertiesObjectResponse(_ response: [AnyHashable: Any]?) -> [String: Any]? {
+        return response?["properties"] as? [String: Any]
+    }
+
+    static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: String]? {
+        return response?["identity"] as? [String: String]
     }
 }
