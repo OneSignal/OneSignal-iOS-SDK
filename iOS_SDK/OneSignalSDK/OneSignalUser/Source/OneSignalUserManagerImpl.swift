@@ -50,7 +50,10 @@ import OneSignalNotifications
     var pushSubscription: OSPushSubscription { get }
     var onesignalId: String? { get }
     var externalId: String? { get }
-    // User State Observer
+    /**
+     Add an observer to the user state, allowing the provider to be notified when the user state has changed. 
+     Important: When using the observer to retrieve the `onesignalId`, check the `externalId` as well to confirm the values are associated with the expected user.
+     */
     func addObserver(_ observer: OSUserStateObserver)
     func removeObserver(_ observer: OSUserStateObserver)
     // Aliases
