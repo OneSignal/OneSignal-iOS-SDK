@@ -24,77 +24,77 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#import "OneSignalOverrider.h"
-#import "OSMessagingController.h"
-#import "OneSignalSelectorHelpers.h"
-#import "TestHelperFunctions.h"
-#import "NSTimerOverrider.h"
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-
-@interface OneSignal ()
-+ (NSDate *)sessionLaunchTime;
-@end
-
-@implementation OneSignal (Testing)
-
-+ (void)overrideLaunchWebURL:(NSString*)openUrl {
-    OneSignalOverrider.launchWebURLWasCalled = true;
-}
-
-+ (NSDate *)overrideSessionLaunchTime {
-    if (OneSignalOverrider.shouldOverrideSessionLaunchTime) {
-        return [NSDate date];
-    } else {
-        return self.overrideSessionLaunchTime;
-    }
-}
-
-@end
-
-@implementation OneSignalOverrider
-
-static BOOL _overrideLaunchTime = false;
-static BOOL _overrideLaunchURL = false;
-static BOOL _launchWebURLWasCalled = false;
-
-
-+ (void)load {
-    swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(sessionLaunchTime), @selector(overrideSessionLaunchTime));
-    swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(launchWebURL:), @selector(overrideLaunchWebURL:));
-    _overrideLaunchTime = false;
-}
-
-+ (void)reset {
-    _launchWebURLWasCalled = false;
-}
-
-+ (BOOL)shouldOverrideSessionLaunchTime {
-    return _overrideLaunchTime;
-}
-
-+ (void)setShouldOverrideSessionLaunchTime:(BOOL)shouldOverrideSessionLaunchTime {
-    _overrideLaunchTime = shouldOverrideSessionLaunchTime;
-}
-
-+ (BOOL)shouldOverrideLaunchURL {
-    return _overrideLaunchURL;
-}
-
-+ (void)setShouldOverrideLaunchURL:(BOOL)shouldOverrideLaunchURL {
-    _overrideLaunchURL = shouldOverrideLaunchURL;
-}
-
-+ (BOOL)launchWebURLWasCalled {
-    return _launchWebURLWasCalled;
-}
-
-+ (void)setLaunchWebURLWasCalled:(BOOL)launchWebURLWasCalled {
-    _launchWebURLWasCalled = launchWebURLWasCalled;
-}
-
-@end
-
-#pragma clang diagnostic pop
+// TODO: Commented out 🧪
+//#import "OneSignalOverrider.h"
+//#import "OSMessagingController.h"
+//#import "OneSignalSelectorHelpers.h"
+//#import "TestHelperFunctions.h"
+//#import "NSTimerOverrider.h"
+//
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wundeclared-selector"
+//
+//@interface OneSignal ()
+//+ (NSDate *)sessionLaunchTime;
+//@end
+//
+//@implementation OneSignal (Testing)
+//
+//+ (void)overrideLaunchWebURL:(NSString*)openUrl {
+//    OneSignalOverrider.launchWebURLWasCalled = true;
+//}
+//
+//+ (NSDate *)overrideSessionLaunchTime {
+//    if (OneSignalOverrider.shouldOverrideSessionLaunchTime) {
+//        return [NSDate date];
+//    } else {
+//        return self.overrideSessionLaunchTime;
+//    }
+//}
+//
+//@end
+//
+//@implementation OneSignalOverrider
+//
+//static BOOL _overrideLaunchTime = false;
+//static BOOL _overrideLaunchURL = false;
+//static BOOL _launchWebURLWasCalled = false;
+//
+//
+//+ (void)load {
+//    swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(sessionLaunchTime), @selector(overrideSessionLaunchTime));
+//    swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(launchWebURL:), @selector(overrideLaunchWebURL:));
+//    _overrideLaunchTime = false;
+//}
+//
+//+ (void)reset {
+//    _launchWebURLWasCalled = false;
+//}
+//
+//+ (BOOL)shouldOverrideSessionLaunchTime {
+//    return _overrideLaunchTime;
+//}
+//
+//+ (void)setShouldOverrideSessionLaunchTime:(BOOL)shouldOverrideSessionLaunchTime {
+//    _overrideLaunchTime = shouldOverrideSessionLaunchTime;
+//}
+//
+//+ (BOOL)shouldOverrideLaunchURL {
+//    return _overrideLaunchURL;
+//}
+//
+//+ (void)setShouldOverrideLaunchURL:(BOOL)shouldOverrideLaunchURL {
+//    _overrideLaunchURL = shouldOverrideLaunchURL;
+//}
+//
+//+ (BOOL)launchWebURLWasCalled {
+//    return _launchWebURLWasCalled;
+//}
+//
+//+ (void)setLaunchWebURLWasCalled:(BOOL)launchWebURLWasCalled {
+//    _launchWebURLWasCalled = launchWebURLWasCalled;
+//}
+//
+//@end
+//
+//#pragma clang diagnostic pop

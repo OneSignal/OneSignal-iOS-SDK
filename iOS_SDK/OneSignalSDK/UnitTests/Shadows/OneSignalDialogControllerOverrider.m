@@ -24,45 +24,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-#import "OneSignalDialogControllerOverrider.h"
-
-#import "OneSignalSelectorHelpers.h"
-
-#import "OneSignal.h"
-
-#import "OneSignalDialogController.h"
-
-@interface OneSignalDialogController ()
-- (void)displayDialog:(OSDialogRequest * _Nonnull)request;
-@end
-
-@implementation OneSignalDialogControllerOverrider
-
-static OSDialogRequest *currentDialog;
-
-+ (void)load {
-    injectSelector(
-        [OneSignalDialogController class],
-        @selector(displayDialog:),
-        [OneSignalDialogControllerOverrider class],
-        @selector(overrideDisplayDialog:)
-    );
-}
-
-- (void)overrideDisplayDialog:(OSDialogRequest * _Nonnull)request {
-    currentDialog = request;
-}
-
-+ (OSDialogRequest *)getCurrentDialog {
-    return currentDialog;
-}
-
-+ (void)completeDialog:(int)result {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (currentDialog.completion)
-            currentDialog.completion(result);
-    });
-}
-
-@end
+// TODO: Commented out 🧪
+//#import "OneSignalDialogControllerOverrider.h"
+//
+//#import "OneSignalSelectorHelpers.h"
+//
+//#import "OneSignal.h"
+//
+//#import "OneSignalDialogController.h"
+//
+//@interface OneSignalDialogController ()
+//- (void)displayDialog:(OSDialogRequest * _Nonnull)request;
+//@end
+//
+//@implementation OneSignalDialogControllerOverrider
+//
+//static OSDialogRequest *currentDialog;
+//
+//+ (void)load {
+//    injectSelector(
+//        [OneSignalDialogController class],
+//        @selector(displayDialog:),
+//        [OneSignalDialogControllerOverrider class],
+//        @selector(overrideDisplayDialog:)
+//    );
+//}
+//
+//- (void)overrideDisplayDialog:(OSDialogRequest * _Nonnull)request {
+//    currentDialog = request;
+//}
+//
+//+ (OSDialogRequest *)getCurrentDialog {
+//    return currentDialog;
+//}
+//
+//+ (void)completeDialog:(int)result {
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        if (currentDialog.completion)
+//            currentDialog.completion(result);
+//    });
+//}
+//
+//@end

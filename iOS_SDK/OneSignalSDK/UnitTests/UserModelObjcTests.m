@@ -34,12 +34,12 @@
 
 
 @interface OSPushSubscriptionTestObserver: NSObject<OSPushSubscriptionObserver>
-- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscriptionState * _Nonnull)previous current:(OSPushSubscriptionState * _Nonnull)current;
+- (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state;
 @end
 
 @implementation OSPushSubscriptionTestObserver
-- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscriptionState * _Nonnull)previous current:(OSPushSubscriptionState * _Nonnull)current {
-    NSLog(@"🔥 UnitTest:onOSPushSubscriptionChanged :%@ :%@", previous, current);
+- (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state { 
+    NSLog(@"🔥 UnitTest:onOSPushSubscriptionChanged :%@ :%@", state.previous, state.current);
     
 }
 @end
@@ -85,8 +85,8 @@
     [OneSignal.User removeEmail:@"person@example.com"];
 
     // SMS
-    [OneSignal.User addSmsNumber:@"+15551231234"];
-    [OneSignal.User removeSmsNumber:@"+15551231234"];
+    [OneSignal.User addSms:@"+15551231234"];
+    [OneSignal.User removeSms:@"+15551231234"];
 
     // Triggers
     [OneSignal.InAppMessages addTrigger:@"foo" withValue:@"bar"];
@@ -168,7 +168,7 @@
  */
 - (void)testEmailAndSmsSubscriptions {
     [OneSignal.User addEmail:@"test@example.com"];
-    [OneSignal.User addSmsNumber:@"+15551231234"];
+    [OneSignal.User addSms:@"+15551231234"];
     
     // Sleep to allow the flush to be called 1 time.
     [NSThread sleepForTimeInterval:6.0f];
