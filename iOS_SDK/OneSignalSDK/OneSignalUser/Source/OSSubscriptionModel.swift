@@ -203,7 +203,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "testType", newValue: testType)
         }
     }
-    
+
     var deviceOs = UIDevice.current.systemVersion {
         didSet {
             guard deviceOs != oldValue else {
@@ -212,7 +212,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "deviceOs", newValue: deviceOs)
         }
     }
-    
+
     var sdk = ONESIGNAL_VERSION {
         didSet {
             guard sdk != oldValue else {
@@ -221,7 +221,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "sdk", newValue: sdk)
         }
     }
-    
+
     var deviceModel: String? = OSDeviceUtils.getDeviceVariant() {
         didSet {
             guard deviceModel != oldValue else {
@@ -230,7 +230,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "deviceModel", newValue: deviceModel)
         }
     }
-    
+
     var appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
         didSet {
             guard appVersion != oldValue else {
@@ -239,7 +239,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "appVersion", newValue: appVersion)
         }
     }
-    
+
     var netType: Int? = OSNetworkingUtils.getNetType() as? Int {
         didSet {
             guard netType != oldValue else {
@@ -266,7 +266,7 @@ class OSSubscriptionModel: OSModel {
         if type == .push {
             let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
             #if targetEnvironment(simulator)
-            if (releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown) {
+            if releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown {
                 self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
             }
             #endif
@@ -322,7 +322,7 @@ class OSSubscriptionModel: OSModel {
         self.deviceModel = coder.decodeObject(forKey: "deviceModel") as? String
         self.appVersion = coder.decodeObject(forKey: "appVersion") as? String
         self.netType = coder.decodeObject(forKey: "netType") as? Int
-        
+
         super.init(coder: coder)
     }
 
@@ -354,7 +354,7 @@ class OSSubscriptionModel: OSModel {
             }
         }
     }
-    
+
     // Using snake_case so we can use this in request bodies
     public func jsonRepresentation() -> [String: Any] {
         var json: [String: Any] = [:]
@@ -401,7 +401,7 @@ extension OSSubscriptionModel {
     func updateNotificationTypes() {
         notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
     }
-    
+
     func updateTestType() {
         let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
         // Workaround to unsure how to extract the Int value in 1 step...
@@ -415,7 +415,7 @@ extension OSSubscriptionModel {
             self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
         }
     }
-    
+
     func update() {
         updateTestType()
         deviceOs = UIDevice.current.systemVersion
@@ -429,7 +429,7 @@ extension OSSubscriptionModel {
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
         }
     }
-    
+
     enum OSPushPropertyChanged {
         case subscriptionId(String?)
         case reachable(Bool)

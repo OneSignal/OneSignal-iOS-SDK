@@ -92,7 +92,7 @@ class OSIdentityModel: OSModel {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel()")
         var newOnesignalId: String?
         var newExternalId: String?
-        
+
         for property in response {
             switch property.key {
             case "external_id":
@@ -108,18 +108,18 @@ class OSIdentityModel: OSModel {
         }
         fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
-    
+
     /**
      Fires the user observer if `onesignal_id` OR `external_id` has changed from the previous snapshot (previous hydration).
      */
     private func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
         let prevOnesignalId  = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
         let prevExternalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_EXTERNAL_ID, defaultValue: nil)
-        
+
         guard prevOnesignalId != newOnesignalId || prevExternalId != newExternalId else {
             return
         }
-        
+
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
 

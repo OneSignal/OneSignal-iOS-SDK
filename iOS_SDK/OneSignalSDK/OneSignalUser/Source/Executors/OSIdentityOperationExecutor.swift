@@ -175,16 +175,16 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
 
         let backgroundTaskIdentifier = IDENTITY_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         OneSignalClient.shared().execute(request) { _ in
             // No hydration from response
             // On success, remove request from cache
             self.addRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
@@ -198,7 +198,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     // Logout if the user in the SDK is the same
                     guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                     else {
-                        if (inBackground) {
+                        if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
                         return
@@ -212,7 +212,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }
@@ -230,21 +230,21 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
 
         let backgroundTaskIdentifier = IDENTITY_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         OneSignalClient.shared().execute(request) { _ in
             // There is nothing to hydrate
             // On success, remove request from cache
             self.removeRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
-            
+
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
@@ -254,7 +254,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }

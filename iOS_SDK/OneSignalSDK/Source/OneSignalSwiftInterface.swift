@@ -56,10 +56,10 @@ public extension OneSignal {
     static var Location: OSLocation.Type {
         return __location()
     }
-    
+
     static var LiveActivities: OSLiveActivities.Type {
         return __liveActivities()
-    }  
+    }
 }
 
 public extension OSDebug {
@@ -77,19 +77,19 @@ public extension OSInAppMessages {
             __paused(newValue)
         }
     }
-    
+
     static func addLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
         __add(listener)
     }
-    
+
     static func removeLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
         __remove(listener)
     }
-    
+
     static func addClickListener(_ listener: OSInAppMessageClickListener) {
         __add(listener)
     }
-    
+
     static func removeClickListener(_ listener: OSInAppMessageClickListener) {
         __remove(listener)
     }
@@ -113,7 +113,7 @@ public extension OSNotifications {
     static var permissionNative: OSNotificationPermission {
         return __permissionNative()
     }
-    
+
     static func registerForProvisionalAuthorization(_ block: OSUserResponseBlock?) {
         return __register(forProvisionalAuthorization: block)
     }
@@ -125,11 +125,11 @@ public extension OSNotifications {
     static func removePermissionObserver(_ observer: OSNotificationPermissionObserver) {
         return __remove(observer)
     }
-    
+
     static func addClickListener(_ listener: OSNotificationClickListener) {
         return __add(listener)
     }
-    
+
     static func removeClickListener(_ listener: OSNotificationClickListener) {
         return __remove(listener)
     }

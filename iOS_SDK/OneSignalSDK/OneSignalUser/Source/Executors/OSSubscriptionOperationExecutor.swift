@@ -241,10 +241,10 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         request.sentToClient = true
 
         let backgroundTaskIdentifier = SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
@@ -253,13 +253,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
             guard let response = result?["subscription"] as? [String: Any] else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
-                if (inBackground) {
+                if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
                 return
             }
             request.subscriptionModel.hydrate(response)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
@@ -272,7 +272,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // Logout if the user in the SDK is the same
                     guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                     else {
-                        if (inBackground) {
+                        if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
                         return
@@ -286,7 +286,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }
@@ -300,12 +300,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             return
         }
         request.sentToClient = true
-        
+
         let backgroundTaskIdentifier = SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         // This request can be executed as-is.
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { _ in
@@ -313,7 +313,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.removeRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
@@ -327,7 +327,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }
@@ -343,16 +343,16 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         request.sentToClient = true
 
         let backgroundTaskIdentifier = SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
-        if (inBackground) {
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
-        
+
         OneSignalClient.shared().execute(request) { _ in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.updateRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
@@ -365,7 +365,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                 }
             }
-            if (inBackground) {
+            if inBackground {
                 OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         }

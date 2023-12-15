@@ -113,12 +113,12 @@ public class OSOperationRepo: NSObject {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo not flushing queue due to being paused")
             return
         }
-        
+
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-    
-        if (inBackground) {
+
+        if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
         }
 
@@ -148,8 +148,8 @@ public class OSOperationRepo: NSObject {
         for executor in executors {
             executor.processDeltaQueue(inBackground: inBackground)
         }
-        
-        if (inBackground) {
+
+        if inBackground {
             OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
         }
 
