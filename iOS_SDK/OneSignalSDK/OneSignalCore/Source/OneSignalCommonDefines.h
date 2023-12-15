@@ -287,6 +287,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 
+// OSID and EID snapshots during hydration
+#define OS_SNAPSHOT_ONESIGNAL_ID                                            @"OS_SNAPSHOT_ONESIGNAL_ID"
+#define OS_SNAPSHOT_EXTERNAL_ID                                             @"OS_SNAPSHOT_EXTERNAL_ID"
+
 // Models and Model Stores
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
