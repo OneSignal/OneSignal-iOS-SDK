@@ -82,6 +82,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         propertiesObject["timezone_id"] = propertiesModel.timezoneId
         params["properties"] = propertiesObject
 
+        params["refresh_device_metadata"] = true
         self.parameters = params
         self.updatePushSubscriptionModel(pushSubscriptionModel)
         self.method = POST
