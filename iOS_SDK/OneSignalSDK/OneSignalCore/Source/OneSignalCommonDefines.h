@@ -118,6 +118,10 @@
 // can use them directly.
 #define DEFAULT_UNAUTHORIZATIONOPTIONS (UNAuthorizationOptionSound + UNAuthorizationOptionBadge + UNAuthorizationOptionAlert)
 
+// Class Names used with NSClassFromString
+#define ONE_SIGNAL_LOCATION_CLASS_NAME @"OneSignalLocationManager"
+#define ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME @"OneSignalInAppMessages"
+
 // iOS Parameter Names
 #define IOS_FBA @"fba"
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
