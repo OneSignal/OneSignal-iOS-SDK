@@ -71,7 +71,7 @@ jobs:
           head: ${{env.version}}
           base: main
           title: |
-            "Release $version"
+            "Release ${{env.version}}"
           body: |
             "Add Release Notes For Review Here"
         env:
