@@ -57,7 +57,7 @@ jobs:
       - name: Pushing changes
         uses: ad-m/github-push-action@master
         with:
-          # github_token: ${{ secrets.ACTION_TOKEN_PAT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: 'OneSignal/OneSignal-iOS-SDK'
           force: true
           branch: $version
@@ -74,5 +74,5 @@ jobs:
             "Release $version"
           body: |
             "Add Release Notes For Review Here"
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN_PAT }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
