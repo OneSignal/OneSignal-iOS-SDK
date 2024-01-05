@@ -48,13 +48,11 @@ jobs:
           ./update_swift_package.sh $version
         shell: bash
       - name: Commit Changes
-        env:
-          version: $version
         run: |
-          git config --local user.email "noreply@onesingal.com"
+          git config --local user.email "noreply@onesignal.com"
           git config --local user.name "SyncR 🤖"
           git add .
-          git commit -m "Release $version"
+          git commit -m "Release ${{env.version}}"
 
       - name: Pushing changes
         uses: ad-m/github-push-action@master
@@ -62,7 +60,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: 'OneSignal/OneSignal-iOS-SDK'
           force: true
-          branch: $version
+          branch: ${{env.version}}
 
       - name: "Submitting PR"
         uses: octokit/request-action@v2.x
@@ -70,10 +68,10 @@ jobs:
           route: POST /repos/{owner}/{repo}/pulls
           owner: OneSignal
           repo: OneSignal-iOS-SDK
-          head: $version
+          head: ${{env.version}}
           base: main
           title: |
-            "Release $version"
+            "Release ${{env.version}}"
           body: |
             "Add Release Notes For Review Here"
         env:
