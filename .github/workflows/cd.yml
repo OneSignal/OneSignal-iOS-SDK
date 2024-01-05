@@ -39,11 +39,15 @@ jobs:
 
       - name: Build Binaries
         run: |
-          chmod +x ./iOS_SDK/OneSignalSDK/build_all_frameworks.sh
           cd iOS_SDK/OneSignalSDK
+          chmod +x ./build_all_frameworks.sh
           ./build_all_frameworks.sh
-          # chmod +x ./iOS_SDK/OneSignalSDK/update_swift_package.sh
-          # ./iOS_SDK/OneSignalSDK/update_swift_package.sh
+        shell: bash
+      - name: Update Swift Package
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          chmod +x ./update_swift_package.sh
+          ./update_swift_package.sh $version
         shell: bash
       - name: Commit Changes
         env:
