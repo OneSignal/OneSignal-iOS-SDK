@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050005"
+#define ONESIGNAL_VERSION                                                   @"050100"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -117,6 +117,10 @@
 // These options are defined in all versions of iOS that we support, so we
 // can use them directly.
 #define DEFAULT_UNAUTHORIZATIONOPTIONS (UNAuthorizationOptionSound + UNAuthorizationOptionBadge + UNAuthorizationOptionAlert)
+
+// Class Names used with NSClassFromString
+#define ONE_SIGNAL_LOCATION_CLASS_NAME @"OneSignalLocationManager"
+#define ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME @"OneSignalInAppMessages"
 
 // iOS Parameter Names
 #define IOS_FBA @"fba"
@@ -286,6 +290,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_EXTERNAL_ID                                                      @"external_id"
 
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
+
+// OSID and EID snapshots during hydration
+#define OS_SNAPSHOT_ONESIGNAL_ID                                            @"OS_SNAPSHOT_ONESIGNAL_ID"
+#define OS_SNAPSHOT_EXTERNAL_ID                                             @"OS_SNAPSHOT_EXTERNAL_ID"
 
 // Models and Model Stores
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
