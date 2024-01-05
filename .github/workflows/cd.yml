@@ -49,10 +49,10 @@ jobs:
         shell: bash
       - name: Commit Changes
         run: |
-          git config --local user.email "noreply@onesingal.com"
+          git config --local user.email "noreply@onesignal.com"
           git config --local user.name "SyncR 🤖"
           git add .
-          git commit -m "Release $version"
+          git commit -m "Release ${{env.version}}"
 
       - name: Pushing changes
         uses: ad-m/github-push-action@master
