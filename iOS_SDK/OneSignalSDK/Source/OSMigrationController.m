@@ -41,7 +41,7 @@ THE SOFTWARE.
 
 - (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
-    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(migrate)]) {
         [oneSignalInAppMessages performSelector:@selector(migrate)];
     }

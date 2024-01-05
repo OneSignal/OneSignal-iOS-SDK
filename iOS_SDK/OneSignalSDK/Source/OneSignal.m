@@ -208,7 +208,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSInAppMessages>)InAppMessages {
-    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(InAppMessages)]) {
         return [oneSignalInAppMessages performSelector:@selector(InAppMessages)];
     } else {
@@ -222,7 +222,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLocation>)Location {
-    let oneSignalLocationManager = NSClassFromString(@"OneSignalLocationManager");
+    let oneSignalLocationManager = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
     if (oneSignalLocationManager != nil && [oneSignalLocationManager respondsToSelector:@selector(Location)]) {
         return [oneSignalLocationManager performSelector:@selector(Location)];
     } else {
@@ -380,7 +380,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     // Clear last location after attaching data to user state or not
-    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
     if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(clearLastLocation)]) {
         [oneSignalLocation performSelector:@selector(clearLastLocation)];
     }
@@ -394,7 +394,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
     NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (subscriptionId) {
-        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
         if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer:)]) {
             [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer:) withObject:subscriptionId];
         }
@@ -414,7 +414,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)startInAppMessages {
-    let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+    let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(start)]) {
         [oneSignalInAppMessages performSelector:@selector(start)];
     }
@@ -426,7 +426,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)startLocation {
-    let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+    let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
     if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(start)]) {
         [oneSignalLocation performSelector:@selector(start)];
     }
@@ -619,7 +619,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
-            let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+            let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
             if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(startLocationSharedWithFlag:)]) {
                 [OneSignalCoreHelper callSelector:@selector(startLocationSharedWithFlag:) onObject:oneSignalLocation withArg:shared];
             }

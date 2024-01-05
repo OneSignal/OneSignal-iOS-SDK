@@ -53,7 +53,7 @@ static OSRemoteParamController *_sharedController;
 }
 
 - (BOOL)isLocationShared {
-    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_LOCATION_ENABLED defaultValue:YES];
+    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_LOCATION_ENABLED defaultValue:NO];
 }
 
 - (void)saveLocationShared:(BOOL)shared {

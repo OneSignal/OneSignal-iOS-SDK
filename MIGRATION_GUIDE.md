@@ -694,11 +694,11 @@ OneSignal.Notifications.addClickListener(myListener)
 
 ## Location Namespace
 
-The Location namespace is accessible via `OneSignal.Location` and provide access to location-scoped functionality.
+The Location namespace is accessible via `OneSignal.Location` and provide access to location-scoped functionality. As of `v5.1.0`, location sharing must be enabled by setting `isShared` to `true`.
 
 | **Swift**                                                                                      | **Objective-C**                                                                              | **Description**                                                                                                                                          |
 | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `let isShared: Bool = OneSignal.Location.isShared`<br><br>`OneSignal.Location.isShared = true` | `BOOL isShared = [OneSignal.Location isShared]`<br><br>`[OneSignal.Location setShared:true]` | *Whether location is currently shared with OneSignal.*                                                                                                   |
+| `let isShared: Bool = OneSignal.Location.isShared`<br><br>`OneSignal.Location.isShared = true` | `BOOL isShared = [OneSignal.Location isShared]`<br><br>`[OneSignal.Location setShared:true]` | *Whether location is currently shared with OneSignal. As of `v5.1.0`, this is false by default, and you must set to `true` to enable sharing.*                                                                                                   |
 | `OneSignal.Location.requestPermission()`                                                       | `[OneSignal.Location requestPermission]`                                                     | *Use this method to manually prompt the user for location permissions. This allows for geotagging so you send notifications to users based on location.* |
 
 

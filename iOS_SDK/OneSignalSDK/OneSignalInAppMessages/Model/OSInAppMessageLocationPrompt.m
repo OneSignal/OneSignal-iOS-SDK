@@ -52,7 +52,7 @@
      This code calls [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
      */
     BOOL fallback = YES;
-    let oneSignalLocationManager = NSClassFromString(@"OneSignalLocationManager");
+    let oneSignalLocationManager = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
     if (oneSignalLocationManager != nil && [oneSignalLocationManager respondsToSelector:@selector(promptLocationFallbackToSettings:completionHandler:)]) {
         NSMethodSignature* signature = [oneSignalLocationManager methodSignatureForSelector:@selector(promptLocationFallbackToSettings:completionHandler:)];
         NSInvocation* invocation = [NSInvocation invocationWithMethodSignature: signature];

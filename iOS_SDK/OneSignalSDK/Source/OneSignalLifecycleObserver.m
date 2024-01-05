@@ -81,11 +81,11 @@ static OneSignalLifecycleObserver* _instance = nil;
     
     if ([OneSignalConfigManager getAppId]) {
         [OneSignalTracker onFocus:NO];
-        let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+        let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:YES];
         }
-        let oneSignalInAppMessages = NSClassFromString(@"OneSignalInAppMessages");
+        let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
         if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(onApplicationDidBecomeActive)]) {
             [oneSignalInAppMessages performSelector:@selector(onApplicationDidBecomeActive)];
         }
@@ -105,7 +105,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)didEnterBackground {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
     if ([OneSignalConfigManager getAppId]) {
-        let oneSignalLocation = NSClassFromString(@"OneSignalLocation");
+        let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:NO];
         }
