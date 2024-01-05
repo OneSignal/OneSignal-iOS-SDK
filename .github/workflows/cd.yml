@@ -11,8 +11,6 @@ on:
         type: string
         description: "The version number of the release"
         required: true
-permissions:
-  contents: write
 env:
   version: '5.0.6'
 
