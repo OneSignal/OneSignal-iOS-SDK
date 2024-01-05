@@ -299,11 +299,18 @@ SWIFT_CLASS("_TtC13OneSignalUser23OSPushSubscriptionState")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@protocol OSUserStateObserver;
 
 /// This is the user interface exposed to the public.
 SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 @protocol OSUser
 @property (nonatomic, readonly, strong) id <OSPushSubscription> _Nonnull pushSubscription;
+@property (nonatomic, readonly, copy) NSString * _Nullable onesignalId;
+@property (nonatomic, readonly, copy) NSString * _Nullable externalId;
+/// Add an observer to the user state, allowing the provider to be notified when the user state has changed.
+/// Important: When using the observer to retrieve the <code>onesignalId</code>, check the <code>externalId</code> as well to confirm the values are associated with the expected user.
+- (void)addObserver:(id <OSUserStateObserver> _Nonnull)observer;
+- (void)removeObserver:(id <OSUserStateObserver> _Nonnull)observer;
 - (void)addAliasWithLabel:(NSString * _Nonnull)label id:(NSString * _Nonnull)id;
 - (void)addAliases:(NSDictionary<NSString *, NSString *> * _Nonnull)aliases;
 - (void)removeAlias:(NSString * _Nonnull)label;
@@ -321,15 +328,44 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 - (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @end
 
+@class OSUserState;
 
+SWIFT_CLASS("_TtC13OneSignalUser18OSUserChangedState")
+@interface OSUserChangedState : NSObject
+@property (nonatomic, readonly, strong) OSUserState * _Nonnull current;
+@property (nonatomic, readonly, copy) NSString * _Nonnull description;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC13OneSignalUser11OSUserState")
+@interface OSUserState : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nullable onesignalId;
+@property (nonatomic, readonly, copy) NSString * _Nullable externalId;
+@property (nonatomic, readonly, copy) NSString * _Nonnull description;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_PROTOCOL("_TtP13OneSignalUser19OSUserStateObserver_")
+@protocol OSUserStateObserver
+- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state;
+@end
+
+
+@class OSPushSubscriptionImpl;
 
 SWIFT_CLASS("_TtC13OneSignalUser24OneSignalUserManagerImpl")
 @interface OneSignalUserManagerImpl : NSObject
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUserManagerImpl * _Nonnull sharedInstance;)
 + (OneSignalUserManagerImpl * _Nonnull)sharedInstance SWIFT_WARN_UNUSED_RESULT;
-@property (nonatomic, readonly, copy) NSString * _Nullable onesignalId;
 @property (nonatomic, readonly, copy) NSString * _Nullable pushSubscriptionId;
 @property (nonatomic, readonly, copy) NSString * _Nullable language;
+@property (nonatomic, readonly, strong) OSPushSubscriptionImpl * _Nonnull pushSubscriptionImpl;
 @property (nonatomic) BOOL requiresUserAuth;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
@@ -341,6 +377,25 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 - (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
 - (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
 - (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
+@end
+
+
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
+@end
+
+
+SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionImpl")
+@interface OSPushSubscriptionImpl : NSObject <OSPushSubscription>
+- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+@property (nonatomic, readonly, copy) NSString * _Nullable id;
+@property (nonatomic, readonly, copy) NSString * _Nullable token;
+@property (nonatomic, readonly) BOOL optedIn;
+/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
+- (void)optIn;
+- (void)optOut;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -360,22 +415,14 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 @end
 
 
-@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OSPushSubscription>
-- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-@property (nonatomic, readonly, copy) NSString * _Nullable id;
-@property (nonatomic, readonly, copy) NSString * _Nullable token;
-@property (nonatomic, readonly) BOOL optedIn;
-/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
-- (void)optIn;
-- (void)optOut;
-@end
-
-
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OSUser>
 - (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @property (nonatomic, readonly, strong) id <OSUser> _Nonnull User;
 @property (nonatomic, readonly, strong) id <OSPushSubscription> _Nonnull pushSubscription;
+@property (nonatomic, readonly, copy) NSString * _Nullable externalId;
+@property (nonatomic, readonly, copy) NSString * _Nullable onesignalId;
+- (void)addObserver:(id <OSUserStateObserver> _Nonnull)observer;
+- (void)removeObserver:(id <OSUserStateObserver> _Nonnull)observer;
 - (void)addAliasWithLabel:(NSString * _Nonnull)label id:(NSString * _Nonnull)id;
 - (void)addAliases:(NSDictionary<NSString *, NSString *> * _Nonnull)aliases;
 - (void)removeAlias:(NSString * _Nonnull)label;
