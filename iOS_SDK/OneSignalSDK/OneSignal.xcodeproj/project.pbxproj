@@ -968,6 +968,7 @@
 		DEB843A327C0246A00D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEB843A527C0247700D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEDD0F572B570DA100E6D1D1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		DEDD0F582B570FEB00E6D1D1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1334,6 +1335,7 @@
 				912412051E73342200E41FD7 /* OneSignalTrackIAP.m */,
 				7A93269225AF4E6700BBEC27 /* OSPendingCallbacks.h */,
 				7A93269B25AF4F0200BBEC27 /* OSPendingCallbacks.m */,
+				DEDD0F582B570FEB00E6D1D1 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Source;
 			sourceTree = "<group>";
