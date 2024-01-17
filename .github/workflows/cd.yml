@@ -31,6 +31,8 @@ jobs:
           xcode-version: '14.1'
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v4
+        with:
+          ref: ${{env.release_branch}}
 
       - name: Install the Apple certificate and provisioning profile
         uses: apple-actions/import-codesign-certs@v2
@@ -39,11 +41,6 @@ jobs:
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       # - name: Bump Version Number
       #   run: |
-      - name: Checkout release branch
-        run: |
-          git config --local user.email "noreply@onesignal.com"
-          git config --local user.name "SyncR 🤖"
-          git checkout ${{env.release_branch}}
       - name: Build Binaries
         run: |
           cd iOS_SDK/OneSignalSDK
