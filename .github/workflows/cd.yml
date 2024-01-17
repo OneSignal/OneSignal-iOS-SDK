@@ -11,8 +11,13 @@ on:
         type: string
         description: "The version number of the release"
         required: true
+      release_branch:
+        type: string
+        description: "The release branch with bumped version numbers for the release"
+        required: true
 env:
   version: '5.0.6'
+  release_branch: 'elliot_test_release'
 
 jobs:
   build:
@@ -34,7 +39,11 @@ jobs:
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       # - name: Bump Version Number
       #   run: |
-
+      - name: Checkout release branch
+        run: |
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "SyncR 🤖"
+          git checkout ${{env.release_branch}}
       - name: Build Binaries
         run: |
           cd iOS_SDK/OneSignalSDK
@@ -60,7 +69,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: 'OneSignal/OneSignal-iOS-SDK'
           force: true
-          branch: ${{env.version}}
+          branch: ${{env.release_branch}}
 
       - name: "Submitting PR"
         uses: octokit/request-action@v2.x
@@ -68,7 +77,7 @@ jobs:
           route: POST /repos/{owner}/{repo}/pulls
           owner: OneSignal
           repo: OneSignal-iOS-SDK
-          head: ${{env.version}}
+          head: ${{env.release_branch}}
           base: main
           title: |
             "Release ${{env.version}}"
