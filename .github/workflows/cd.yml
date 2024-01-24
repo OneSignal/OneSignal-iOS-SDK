@@ -1,10 +1,6 @@
 name: iOS CD
 
 on:
-  push:
-    branches:
-      - 'add_cd'
-
   workflow_dispatch:
     inputs:
       version:
@@ -15,9 +11,6 @@ on:
         type: string
         description: "The release branch with bumped version numbers for the release"
         required: true
-env:
-  version: '5.0.6'
-  release_branch: 'test_release_branch'
 
 jobs:
   build:
