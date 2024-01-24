@@ -17,7 +17,7 @@ on:
         required: true
 env:
   version: '5.0.6'
-  release_branch: 'add_cd'
+  release_branch: 'elliot_test_release'
 
 jobs:
   build:
