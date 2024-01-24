@@ -72,6 +72,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages addClickListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
+    [LiveActivityController pushToStartWithCompletionHandler:^{}];
     
     return YES;
 }

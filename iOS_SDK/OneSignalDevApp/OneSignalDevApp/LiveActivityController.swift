@@ -40,6 +40,18 @@ struct OneSignalWidgetAttributes: ActivityAttributes {
 }
 @objc
 class LiveActivityController: NSObject {
+    
+    @available(iOS 17.2, *)
+    @objc
+    static func pushToStart() async {
+        Task {
+            for try await data in Activity<OneSignalWidgetAttributes>.pushToStartTokenUpdates {
+                let token = data.map {String(format: "%02x", $0)}.joined()
+                print("pushToStartToken: \(token)")
+            }
+        }
+    }
+    
     // To aid in testing
     static var counter = 0
     @available(iOS 13.0, *)
