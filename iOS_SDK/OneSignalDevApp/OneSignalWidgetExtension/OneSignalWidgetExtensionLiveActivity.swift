@@ -35,7 +35,6 @@ struct OneSignalWidgetExtensionLiveActivity: Widget {
             // Lock screen/banner UI goes here\VStack(alignment: .leading) {
             VStack {
                 Spacer()
-                Text(context.attributes.title).font(.headline)
                 Spacer()
                 HStack {
                     Spacer()

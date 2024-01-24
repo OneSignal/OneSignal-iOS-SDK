@@ -36,7 +36,7 @@ struct OneSignalWidgetAttributes: ActivityAttributes {
     }
 
     // Fixed non-changing properties about your activity go here!
-    var title: String
+//    var title: String
 }
 @objc
 class LiveActivityController: NSObject {
@@ -54,18 +54,31 @@ class LiveActivityController: NSObject {
     
     // To aid in testing
     static var counter = 0
+    
     @available(iOS 13.0, *)
     @objc
     static func createActivity() async -> String? {
-        if #available(iOS 16.1, *) {
+        if #available(iOS 16.2, *) {
             counter += 1
-            let attributes = OneSignalWidgetAttributes(title: "#" + String(counter) + " OneSignal Dev App Live Activity")
+            let attributes = OneSignalWidgetAttributes()
             let contentState = OneSignalWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
             do {
                 let activity = try Activity<OneSignalWidgetAttributes>.request(
                         attributes: attributes,
                         contentState: contentState,
                         pushType: .token)
+                Task {
+                    for await state in activity.activityStateUpdates {
+                        print("LA state update: \(state)")
+                    }
+                }
+                
+                Task {
+                    for await content in activity.contentUpdates {
+                        print("LA activity id: \(activity.id), content update: \(content.state)")
+                    }
+                }
+                
                 for await data in activity.pushTokenUpdates {
                     let myToken = data.map {String(format: "%02x", $0)}.joined()
                     return myToken
@@ -76,5 +89,22 @@ class LiveActivityController: NSObject {
             }
         }
         return nil
+    }
+    
+    @available(iOS 16.2, *)
+    @objc
+    static func endActivity() async {
+        for activity in Activity<OneSignalWidgetAttributes>.activities {
+            await activity.end(nil, dismissalPolicy: .immediate)
+            print("Ending the Live Activity: \(activity.id)")
+        }
+    }
+    
+    @available(iOS 16.1, *)
+    @objc
+    static func listenForActivityUpdates() async {
+//        for await activity in Activity<OneSignalWidgetAttributes>.activityUpdates {
+//            print("new activity added: \(activity.id)")
+//        }
     }
 }
