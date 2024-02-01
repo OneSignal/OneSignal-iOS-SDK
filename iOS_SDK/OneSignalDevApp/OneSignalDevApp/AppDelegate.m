@@ -31,6 +31,8 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
+#import "OneSignalExample-Swift.h"
+
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
 @implementation OneSignalNotificationCenterDelegate
