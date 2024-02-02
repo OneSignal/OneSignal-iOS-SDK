@@ -38,6 +38,7 @@
 @end
 
 @interface OneSignalClient : NSObject <IOneSignalClient>
++ (OneSignalClient *)sharedClient;
 @end
 
 #endif

@@ -197,6 +197,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (id<OSUser>)User {
     return [OneSignalUserManagerImpl.sharedInstance User];
+    // return userInstance.User;
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
@@ -829,7 +830,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
  */
 + (void)bootstrapServices {
     // Alternative: something like [OneSignalCore bootstrap]
-    [OneSignalCore setSharedClient:[OneSignalClient new]];
+//    [OneSignalCore setSharedClient:[OneSignalClient new]];
+//    // let coreInstance = OneSignalCore(OneSignalClient())
+//    // let notifInstance = OneSignalNotifications(coreInstance)
+//    // let userInstance = OneSignalUser(coreInstance)
+//    
+//    coreInstance.execute()
+//    OSRemoteParamController sha
 }
 
 /*

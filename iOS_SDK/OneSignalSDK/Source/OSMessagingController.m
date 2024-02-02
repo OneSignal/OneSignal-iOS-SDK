@@ -217,7 +217,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
-    [OneSignalCore.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
             if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?

@@ -36,9 +36,16 @@ static id<IOneSignalClient> _sharedClient;
         // TODO: Log error, must set up the Client first before calling
         // Or do a different way than this
         // not good, makes the return type nullable
-        return nil;
+        
+        
+        _sharedClient = OneSignalClient;
+        // stub
+        // default, don't 
     }
     return _sharedClient;
+    
+    
+  
 }
 
 + (void)setSharedClient:(id<IOneSignalClient>)client {

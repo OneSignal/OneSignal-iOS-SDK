@@ -82,6 +82,13 @@ public class OneSignalUserMocks : NSObject {
     
     public static func setMockCreateUserResponse() {
         OneSignalCoreMocks.getClient().setMockResponseForRequest(request: String(describing: OSRequestCreateUser.self), response: mockCreateUserResponse)
+        
+        let client = MockOneSignalClient()
+        client.setMockResponseForRequest(request: <#T##String#>, response: <#T##[String : Any]#>)
+        OneSignalCore.setSharedClient(client)
+        // new instance of Core
+        
+      
     }
     
     public static func setMockFetchUserResponse(externalId: String?) {
