@@ -36,8 +36,9 @@ struct OneSignalWidgetAttributes: ActivityAttributes {
     }
 
     // Fixed non-changing properties about your activity go here!
-//    var title: String
+    var onesignalActivityId: String
 }
+
 @objc
 class LiveActivityController: NSObject {
     
@@ -52,6 +53,22 @@ class LiveActivityController: NSObject {
         }
     }
     
+    @available(iOS 17.2, *)
+    @objc
+    static func observeActivityPushToken() {
+        Task {
+            for await activityData in Activity<OneSignalWidgetAttributes>.activityUpdates {
+                Task {
+                    for await tokenData in activityData.pushTokenUpdates {
+                        let token = tokenData.map {String(format: "%02x", $0)}.joined()
+                        print("observe Activity Push Token Push token: \(token)")
+                        print("observe Activity Push Token attributes: \(activityData.attributes.onesignalActivityId)")
+                    }
+                }
+            }
+        }
+    }
+
     // To aid in testing
     static var counter = 0
     
@@ -60,7 +77,7 @@ class LiveActivityController: NSObject {
     static func createActivity() async -> String? {
         if #available(iOS 16.2, *) {
             counter += 1
-            let attributes = OneSignalWidgetAttributes()
+            let attributes = OneSignalWidgetAttributes(onesignalActivityId: "bar")
             let contentState = OneSignalWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
             do {
                 let activity = try Activity<OneSignalWidgetAttributes>.request(
@@ -81,6 +98,8 @@ class LiveActivityController: NSObject {
                 
                 for await data in activity.pushTokenUpdates {
                     let myToken = data.map {String(format: "%02x", $0)}.joined()
+                    print("LA pushTokenUpdates: \(myToken)")
+                    print("LA pushTokenUpdates attributes: \(activity.attributes)")
                     return myToken
                 }
             } catch let error {
