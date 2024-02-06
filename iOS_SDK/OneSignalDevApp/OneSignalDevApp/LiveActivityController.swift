@@ -38,6 +38,16 @@ struct OneSignalWidgetAttributes: ActivityAttributes {
     // Fixed non-changing properties about your activity go here!
 //    var title: String
 }
+struct OnesignalLaWidget2Attributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        // Dynamic stateful properties about your activity go here!
+        var emoji: String
+    }
+
+    // Fixed non-changing properties about your activity go here!
+    var name: String
+}
+
 @objc
 class LiveActivityController: NSObject {
     
@@ -49,6 +59,27 @@ class LiveActivityController: NSObject {
                 let token = data.map {String(format: "%02x", $0)}.joined()
                 print("pushToStartToken: \(token)")
             }
+            
+            let token = Activity<OneSignalWidgetAttributes>.pushToStartToken
+            if let token = token {
+                print("push to start", token.map {String(format: "%02x", $0 as CVarArg)}.joined())
+            }
+        }
+    }
+    
+    @available(iOS 17.2, *)
+    @objc
+    static func pushToStart2() async {
+        Task {
+            for try await data in Activity<OnesignalLaWidget2Attributes>.pushToStartTokenUpdates {
+                let token = data.map {String(format: "%02x", $0)}.joined()
+                print("pushToStartToken 2: \(token)")
+            }
+            
+//            let token = Activity<OnesignalLaWidget2Attributes>.
+//            if let token = token {
+//                print("push to start 2", token.map {String(format: "%02x", $0 as CVarArg)}.joined())
+//            }
         }
     }
     

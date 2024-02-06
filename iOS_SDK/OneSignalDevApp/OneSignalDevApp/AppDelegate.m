@@ -30,6 +30,7 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "OneSignalExample-Swift.h"
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -72,7 +73,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages addClickListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
-    [LiveActivityController pushToStartWithCompletionHandler:^{}];
     
     return YES;
 }

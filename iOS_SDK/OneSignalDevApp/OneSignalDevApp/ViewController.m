@@ -66,8 +66,19 @@
     NSString *key = [self.addTriggerKey text];
     NSString *value = [self.addTriggerValue text];
 
-    if (key && value && [key length] && [value length]) {
-        [OneSignal.InAppMessages addTrigger:key withValue:value];
+//    if (key && value && [key length] && [value length]) {
+//        [OneSignal.InAppMessages addTrigger:key withValue:value];
+//    }
+    if (@available(iOS 17.2, *)) {
+        [LiveActivityController pushToStartWithCompletionHandler:^{}];
+    } else {
+        // Fallback on earlier versions
+    }
+    
+    if (@available(iOS 17.2, *)) {
+        [LiveActivityController pushToStart2WithCompletionHandler:^{}];
+    } else {
+        // Fallback on earlier versions
     }
 }
 
