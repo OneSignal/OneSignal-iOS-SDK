@@ -28,6 +28,7 @@
 import Foundation
 import ActivityKit
 import UserNotifications
+import OneSignalFramework
 
 struct OneSignalWidgetAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
@@ -63,6 +64,8 @@ class LiveActivityController: NSObject {
                         let token = tokenData.map {String(format: "%02x", $0)}.joined()
                         print("observe Activity Push Token Push token: \(token)")
                         print("observe Activity Push Token attributes: \(activityData.attributes.onesignalActivityId)")
+                        NSLog("observe Activity Push Token attributes (ns): \(activityData.attributes.onesignalActivityId)");
+                        OneSignal.User.addTag(key: "onesignalActivityId", value: activityData.attributes.onesignalActivityId)
                     }
                 }
             }
