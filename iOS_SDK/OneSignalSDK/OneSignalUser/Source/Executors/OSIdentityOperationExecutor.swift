@@ -179,7 +179,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient().execute(request) { _ in
             // No hydration from response
             // On success, remove request from cache
             self.addRequestQueue.removeAll(where: { $0 == request})
@@ -234,7 +234,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient().execute(request) { _ in
             // There is nothing to hydrate
             // On success, remove request from cache
             self.removeRequestQueue.removeAll(where: { $0 == request})

@@ -138,7 +138,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient().execute(request) { _ in
             // On success, remove request from cache, and we do need to hydrate
             // TODO: We need to hydrate after all ? What why ?
             self.updateRequestQueue.removeAll(where: { $0 == request})
@@ -191,7 +191,7 @@ extension OSPropertyOperationExecutor {
 
         if sendImmediately {
             // Bypass the request queues
-            OneSignalClient.shared().execute(request) { _ in
+            OneSignalCore.sharedClient().execute(request) { _ in
                 if let onSuccess = onSuccess {
                     onSuccess()
                 }
