@@ -56,3 +56,11 @@
 #import <OneSignalCore/OneSignalWrapper.h>
 #import <OneSignalCore/OSInAppMessages.h>
 #import <OneSignalCore/OSLocation.h>
+
+// TODO: Testing: Should this class be defined in this file?
+@interface OneSignalCore : NSObject
+
++ (void)setSharedClient:(nonnull id<IOneSignalClient>)client;
++ (nonnull id<IOneSignalClient>)sharedClient;
+
+@end

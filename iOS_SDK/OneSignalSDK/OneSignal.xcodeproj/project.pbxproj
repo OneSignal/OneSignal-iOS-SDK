@@ -108,6 +108,7 @@
 		3C9AD6DF2B22A8EC00BC1540 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 		3C9AD6E02B22A8EC00BC1540 /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CA6CE0A28E4F19B00CA0585 /* OSUserRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */; };
+		3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063932B6D6B6B002BB07F /* OneSignalCore.m */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -816,6 +817,7 @@
 		3C9AD6D02B228B9200BC1540 /* OSRequestRemoveAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRemoveAlias.swift; sourceTree = "<group>"; };
 		3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestUpdateProperties.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequest.swift; sourceTree = "<group>"; };
+		3CC063932B6D6B6B002BB07F /* OneSignalCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCore.m; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
@@ -1745,6 +1747,7 @@
 			isa = PBXGroup;
 			children = (
 				DE7D17E827026B95002D3A5D /* OneSignalCore.h */,
+				3CC063932B6D6B6B002BB07F /* OneSignalCore.m */,
 				DEF7848E2914798400A1F3A5 /* Swizzling */,
 				DEF7845A2912E89200A1F3A5 /* OSObservable.h */,
 				DEF7845B2912E89200A1F3A5 /* OSObservable.m */,
@@ -3091,6 +3094,7 @@
 				DE7D182E270275FA002D3A5D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				DE51DDE5294262AB0073D5C4 /* OSRemoteParamController.m in Sources */,
 				DE7D182827026F86002D3A5D /* OneSignalUserDefaults.m in Sources */,
+				3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
