@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -101,8 +101,6 @@
 		3C9AD6CF2B228B7800BC1540 /* OSRequestAddAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9AD6CE2B228B7800BC1540 /* OSRequestAddAliases.swift */; };
 		3C9AD6D12B228B9200BC1540 /* OSRequestRemoveAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9AD6D02B228B9200BC1540 /* OSRequestRemoveAlias.swift */; };
 		3C9AD6D32B228BB000BC1540 /* OSRequestUpdateProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */; };
-		3C9AD6D42B22A8C300BC1540 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
-		3C9AD6D52B22A8C400BC1540 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
 		3C9AD6D62B22A8DF00BC1540 /* OneSignalLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */; };
 		3C9AD6D72B22A8DF00BC1540 /* OneSignalLocation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C9AD6DB2B22A8E600BC1540 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
@@ -167,6 +165,26 @@
 		4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */; };
 		4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */; };
 		4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */; };
+		472620AE2B7D6E350014013A /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; };
+		472620AF2B7D6E350014013A /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		472620B32B7D6E3C0014013A /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; };
+		472620B42B7D6E3C0014013A /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		472620B82B7D6E6D0014013A /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 472620B72B7D6E6D0014013A /* ActivityKit.framework */; platformFilter = ios; };
+		472620B92B7D6EF90014013A /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
+		472620BA2B7D6EF90014013A /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		47AE653C2B7D39DF006EBAA9 /* OneSignalLiveActivities.h in Headers */ = {isa = PBXBuildFile; fileRef = 47AE653B2B7D39DF006EBAA9 /* OneSignalLiveActivities.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		47AE653F2B7D39DF006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; };
+		47AE65402B7D39DF006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		47AE65472B7D3A3C006EBAA9 /* OneSignalLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65462B7D3A3B006EBAA9 /* OneSignalLiveActivityAttributes.swift */; };
+		47AE655A2B7D6627006EBAA9 /* OneSignalLiveActivitiesFramework in Resources */ = {isa = PBXBuildFile; fileRef = 47AE65592B7D6627006EBAA9 /* OneSignalLiveActivitiesFramework */; };
+		47AE655D2B7D6748006EBAA9 /* OneSignalLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65482B7D3A90006EBAA9 /* OneSignalLiveActivity.swift */; };
+		47AE655E2B7D6767006EBAA9 /* OneSignalLiveActivitiesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65262B7D3908006EBAA9 /* OneSignalLiveActivitiesManager.swift */; };
+		47AE655F2B7D69EF006EBAA9 /* OSLiveActivitiesExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65282B7D3921006EBAA9 /* OSLiveActivitiesExecutor.swift */; };
+		47AE65602B7D69F4006EBAA9 /* OSRequestSetUpdateToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE652B2B7D3934006EBAA9 /* OSRequestSetUpdateToken.swift */; };
+		47AE65612B7D69F7006EBAA9 /* OSRequestSetStartToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE652D2B7D3934006EBAA9 /* OSRequestSetStartToken.swift */; };
+		47AE65622B7D69FA006EBAA9 /* OSRequestRemoveUpdateToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE652E2B7D3934006EBAA9 /* OSRequestRemoveUpdateToken.swift */; };
+		47AE65632B7D69FE006EBAA9 /* OSRequestRemoveStartToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE652C2B7D3934006EBAA9 /* OSRequestRemoveStartToken.swift */; };
+		47AE65642B7D6A01006EBAA9 /* OSLiveActivityRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE652A2B7D3934006EBAA9 /* OSLiveActivityRequest.swift */; };
 		5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */; };
 		7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A123294235DFE3B002B6CE3 /* OutcomeTests.m */; };
 		7A1232A2235E1743002B6CE3 /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411F11E73342200E41FD7 /* OneSignal.m */; };
@@ -240,8 +258,6 @@
 		918CB0301E73388E0067130F /* OneSignalFramework.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignalFramework.h */; };
 		91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */; };
 		91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */; };
-		944F7ED1296F9F0700AEBA54 /* OneSignalLiveActivityController.h in Headers */ = {isa = PBXBuildFile; fileRef = 944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		944F7ED2296F9F1200AEBA54 /* OneSignalLiveActivityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */; };
 		9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
 		9D348537233C669E00EB81C9 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D348536233C669E00EB81C9 /* CoreLocation.framework */; };
 		9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D348539233D2E3600EB81C9 /* OneSignalLocationOverrider.m */; };
@@ -864,6 +880,7 @@
 			files = (
 				3C9AD6E02B22A8EC00BC1540 /* OneSignalNotifications.framework in Embed Frameworks */,
 				3C9AD6DC2B22A8E600BC1540 /* OneSignalInAppMessages.framework in Embed Frameworks */,
+				472620B42B7D6E3C0014013A /* OneSignalLiveActivities.framework in Embed Frameworks */,
 				3C9AD6D72B22A8DF00BC1540 /* OneSignalLocation.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -1046,6 +1063,19 @@
 		454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalNotificationServiceExtensionHandler.m; sourceTree = "<group>"; };
 		454F94F41FAD2E5A00D74CCF /* OSNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSNotification.m; sourceTree = "<group>"; };
 		454F94F61FAD2EC300D74CCF /* OSNotification+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OSNotification+Internal.h"; sourceTree = "<group>"; };
+		472620B72B7D6E6D0014013A /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
+		47AE65262B7D3908006EBAA9 /* OneSignalLiveActivitiesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneSignalLiveActivitiesManager.swift; sourceTree = "<group>"; };
+		47AE65282B7D3921006EBAA9 /* OSLiveActivitiesExecutor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSLiveActivitiesExecutor.swift; sourceTree = "<group>"; };
+		47AE652A2B7D3934006EBAA9 /* OSLiveActivityRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSLiveActivityRequest.swift; sourceTree = "<group>"; };
+		47AE652B2B7D3934006EBAA9 /* OSRequestSetUpdateToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSRequestSetUpdateToken.swift; sourceTree = "<group>"; };
+		47AE652C2B7D3934006EBAA9 /* OSRequestRemoveStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSRequestRemoveStartToken.swift; sourceTree = "<group>"; };
+		47AE652D2B7D3934006EBAA9 /* OSRequestSetStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSRequestSetStartToken.swift; sourceTree = "<group>"; };
+		47AE652E2B7D3934006EBAA9 /* OSRequestRemoveUpdateToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSRequestRemoveUpdateToken.swift; sourceTree = "<group>"; };
+		47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalLiveActivities.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		47AE653B2B7D39DF006EBAA9 /* OneSignalLiveActivities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLiveActivities.h; sourceTree = "<group>"; };
+		47AE65462B7D3A3B006EBAA9 /* OneSignalLiveActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneSignalLiveActivityAttributes.swift; sourceTree = "<group>"; };
+		47AE65482B7D3A90006EBAA9 /* OneSignalLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalLiveActivity.swift; sourceTree = "<group>"; };
+		47AE65592B7D6627006EBAA9 /* OneSignalLiveActivitiesFramework */ = {isa = PBXFileReference; lastKnownFileType = folder; path = OneSignalLiveActivitiesFramework; sourceTree = "<group>"; };
 		5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceOverrider.h; sourceTree = "<group>"; };
 		5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceOverrider.m; sourceTree = "<group>"; };
 		7A123294235DFE3B002B6CE3 /* OutcomeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeTests.m; sourceTree = "<group>"; };
@@ -1144,8 +1174,6 @@
 		91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalInternal.h; sourceTree = "<group>"; };
 		91F60F7B1E80E49A00706E60 /* UncaughtExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UncaughtExceptionHandler.h; sourceTree = "<group>"; };
 		91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UncaughtExceptionHandler.m; sourceTree = "<group>"; };
-		944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLiveActivityController.m; sourceTree = "<group>"; };
-		944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLiveActivityController.h; sourceTree = "<group>"; };
 		9D1BD95D237663BF00A064F7 /* OSInfluenceDataDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInfluenceDataDefines.h; sourceTree = "<group>"; };
 		9D1BD95E2379E7A900A064F7 /* OSOutcomeEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSOutcomeEvent.h; sourceTree = "<group>"; };
 		9D1BD95F2379E7C300A064F7 /* OSOutcomeEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomeEvent.m; sourceTree = "<group>"; };
@@ -1408,6 +1436,7 @@
 			files = (
 				9D59C2F92321C7780008ECCF /* CoreGraphics.framework in Frameworks */,
 				DE69E1B2282ED9430090BB3D /* OneSignalUser.framework in Frameworks */,
+				472620AE2B7D6E350014013A /* OneSignalLiveActivities.framework in Frameworks */,
 				9D59C2F82321C7720008ECCF /* WebKit.framework in Frameworks */,
 				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
 				3C115197289AF86C00565C41 /* OneSignalOSCore.framework in Frameworks */,
@@ -1417,6 +1446,15 @@
 				DE7D18C627038249002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				DEF784382912E15000A1F3A5 /* OneSignalNotifications.framework in Frameworks */,
 				91719A9C1E80839500DBE43C /* UserNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47AE65362B7D39DF006EBAA9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				472620B92B7D6EF90014013A /* OneSignalUser.framework in Frameworks */,
+				472620B82B7D6E6D0014013A /* ActivityKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1438,6 +1476,7 @@
 				3C9AD6DB2B22A8E600BC1540 /* OneSignalInAppMessages.framework in Frameworks */,
 				911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */,
 				911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */,
+				472620B32B7D6E3C0014013A /* OneSignalLiveActivities.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1809,6 +1848,70 @@
 			name = Model;
 			sourceTree = "<group>";
 		};
+		47AE65232B7D38D5006EBAA9 /* LiveActivities */ = {
+			isa = PBXGroup;
+			children = (
+				47AE65242B7D38DC006EBAA9 /* Executors */,
+				47AE65252B7D38E1006EBAA9 /* Requests */,
+			);
+			name = LiveActivities;
+			sourceTree = "<group>";
+		};
+		47AE65242B7D38DC006EBAA9 /* Executors */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Executors;
+			sourceTree = "<group>";
+		};
+		47AE65252B7D38E1006EBAA9 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Requests;
+			sourceTree = "<group>";
+		};
+		47AE653A2B7D39DF006EBAA9 /* OneSignalLiveActivities */ = {
+			isa = PBXGroup;
+			children = (
+				47AE65452B7D3A02006EBAA9 /* Source */,
+				47AE653B2B7D39DF006EBAA9 /* OneSignalLiveActivities.h */,
+			);
+			path = OneSignalLiveActivities;
+			sourceTree = "<group>";
+		};
+		47AE65452B7D3A02006EBAA9 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				47AE655C2B7D66BD006EBAA9 /* Requests */,
+				47AE655B2B7D66B6006EBAA9 /* Executors */,
+				47AE65462B7D3A3B006EBAA9 /* OneSignalLiveActivityAttributes.swift */,
+				47AE65262B7D3908006EBAA9 /* OneSignalLiveActivitiesManager.swift */,
+				47AE65482B7D3A90006EBAA9 /* OneSignalLiveActivity.swift */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		47AE655B2B7D66B6006EBAA9 /* Executors */ = {
+			isa = PBXGroup;
+			children = (
+				47AE65282B7D3921006EBAA9 /* OSLiveActivitiesExecutor.swift */,
+			);
+			path = Executors;
+			sourceTree = "<group>";
+		};
+		47AE655C2B7D66BD006EBAA9 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				47AE652A2B7D3934006EBAA9 /* OSLiveActivityRequest.swift */,
+				47AE652C2B7D3934006EBAA9 /* OSRequestRemoveStartToken.swift */,
+				47AE652E2B7D3934006EBAA9 /* OSRequestRemoveUpdateToken.swift */,
+				47AE652D2B7D3934006EBAA9 /* OSRequestSetStartToken.swift */,
+				47AE652B2B7D3934006EBAA9 /* OSRequestSetUpdateToken.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
 		7A5A818324899050002E07C8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -1909,8 +2012,6 @@
 				912411F51E73342200E41FD7 /* OneSignalHelper.m */,
 				912411F81E73342200E41FD7 /* OneSignalJailbreakDetection.h */,
 				912411F91E73342200E41FD7 /* OneSignalJailbreakDetection.m */,
-				944F7ED0296F892400AEBA54 /* OneSignalLiveActivityController.h */,
-				944F7ECE296F890900AEBA54 /* OneSignalLiveActivityController.m */,
 				912412021E73342200E41FD7 /* OneSignalTracker.h */,
 				912412031E73342200E41FD7 /* OneSignalTracker.m */,
 				912412041E73342200E41FD7 /* OneSignalTrackIAP.h */,
@@ -1962,6 +2063,7 @@
 		DE69E1A8282ED8360090BB3D /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				47AE65232B7D38D5006EBAA9 /* LiveActivities */,
 				3C9AD6BA2B2284AB00BC1540 /* Executors */,
 				3C9AD6BD2B22877600BC1540 /* Requests */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
@@ -2488,7 +2590,6 @@
 				7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */,
 				A66239952686612F00D52FD8 /* OneSignalFramework.h in Headers */,
 				7A93269325AF4E6700BBEC27 /* OSPendingCallbacks.h in Headers */,
-				944F7ED1296F9F0700AEBA54 /* OneSignalLiveActivityController.h in Headers */,
 				DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */,
 				7A674F192360D813001F9ACD /* OSBaseFocusTimeProcessor.h in Headers */,
 				CA1A6E6F20DC2E73001C41B9 /* OneSignalDialogRequest.h in Headers */,
@@ -2506,6 +2607,14 @@
 				3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */,
 				912412151E73342200E41FD7 /* OneSignalHelper.h in Headers */,
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47AE65342B7D39DF006EBAA9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47AE653C2B7D39DF006EBAA9 /* OneSignalLiveActivities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2784,6 +2893,7 @@
 				3E2400341D4FFC31008BDE70 /* Frameworks */,
 				3E2400351D4FFC31008BDE70 /* Headers */,
 				3E2400361D4FFC31008BDE70 /* Resources */,
+				472620B22B7D6E350014013A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2794,10 +2904,31 @@
 				DE69E1B5282ED9430090BB3D /* PBXTargetDependency */,
 				3C11519A289AF86C00565C41 /* PBXTargetDependency */,
 				DEF7843B2912E15000A1F3A5 /* PBXTargetDependency */,
+				472620B12B7D6E350014013A /* PBXTargetDependency */,
 			);
 			name = OneSignalFramework;
 			productName = "OneSignal-Dynamic";
 			productReference = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		47AE65382B7D39DF006EBAA9 /* OneSignalLiveActivities */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 47AE65412B7D39E0006EBAA9 /* Build configuration list for PBXNativeTarget "OneSignalLiveActivities" */;
+			buildPhases = (
+				47AE65342B7D39DF006EBAA9 /* Headers */,
+				47AE65352B7D39DF006EBAA9 /* Sources */,
+				47AE65362B7D39DF006EBAA9 /* Frameworks */,
+				47AE65372B7D39DF006EBAA9 /* Resources */,
+				472620BD2B7D6EFA0014013A /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				472620BC2B7D6EFA0014013A /* PBXTargetDependency */,
+			);
+			name = OneSignalLiveActivities;
+			productName = OneSignalLiveActivities;
+			productReference = 47AE65392B7D39DF006EBAA9 /* OneSignalLiveActivities.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		911E2CB91E398AB3003112A4 /* UnitTests */ = {
@@ -2816,6 +2947,7 @@
 				3C9AD6D92B22A8DF00BC1540 /* PBXTargetDependency */,
 				3C9AD6DE2B22A8E600BC1540 /* PBXTargetDependency */,
 				3C9AD6E22B22A8ED00BC1540 /* PBXTargetDependency */,
+				472620B62B7D6E3C0014013A /* PBXTargetDependency */,
 			);
 			name = UnitTests;
 			productName = UnitTests;
@@ -3037,6 +3169,12 @@
 						LastSwiftMigration = 1410;
 						ProvisioningStyle = Automatic;
 					};
+					47AE65382B7D39DF006EBAA9 = {
+						CreatedOnToolsVersion = 15.2;
+						DevelopmentTeam = 99SW8E36CT;
+						LastSwiftMigration = 1520;
+						ProvisioningStyle = Automatic;
+					};
 					911E2CB91E398AB3003112A4 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = 99SW8E36CT;
@@ -3181,6 +3319,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		47AE65372B7D39DF006EBAA9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		911E2CB81E398AB3003112A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3192,6 +3337,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47AE655A2B7D6627006EBAA9 /* OneSignalLiveActivitiesFramework in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3310,7 +3456,6 @@
 				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CAB4112920852E48005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
-				3C9AD6D42B22A8C300BC1540 /* OneSignalLiveActivityController.m in Sources */,
 				CA1A6E7020DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				7AFE856B2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
@@ -3385,7 +3530,6 @@
 				9124121F1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				912412481E73369700E41FD7 /* OneSignalHelper.m in Sources */,
 				7AECE59723674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
-				944F7ED2296F9F1200AEBA54 /* OneSignalLiveActivityController.m in Sources */,
 				DE7D18E02703B49B002D3A5D /* OSFocusRequests.m in Sources */,
 				7AAA60692485D0420004FADE /* OSMigrationController.m in Sources */,
 				DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
@@ -3403,6 +3547,22 @@
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				7AECE59123674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
 				CA1A6E6B20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47AE65352B7D39DF006EBAA9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47AE65472B7D3A3C006EBAA9 /* OneSignalLiveActivityAttributes.swift in Sources */,
+				47AE65612B7D69F7006EBAA9 /* OSRequestSetStartToken.swift in Sources */,
+				47AE65632B7D69FE006EBAA9 /* OSRequestRemoveStartToken.swift in Sources */,
+				47AE655D2B7D6748006EBAA9 /* OneSignalLiveActivity.swift in Sources */,
+				47AE65642B7D6A01006EBAA9 /* OSLiveActivityRequest.swift in Sources */,
+				47AE65602B7D69F4006EBAA9 /* OSRequestSetUpdateToken.swift in Sources */,
+				47AE655E2B7D6767006EBAA9 /* OneSignalLiveActivitiesManager.swift in Sources */,
+				47AE65622B7D69FA006EBAA9 /* OSRequestRemoveUpdateToken.swift in Sources */,
+				47AE655F2B7D69EF006EBAA9 /* OSLiveActivitiesExecutor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3944,7 +4104,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3952,8 +4116,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -4005,7 +4170,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -4741,7 +4910,11 @@
 					"$(PROJECT_DIR)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
@@ -4773,7 +4946,11 @@
 				INFOPLIST_FILE = OneSignalFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "";
@@ -4909,7 +5086,11 @@
 					"$(PROJECT_DIR)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
@@ -4941,7 +5122,11 @@
 				INFOPLIST_FILE = OneSignalFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
@@ -5078,7 +5263,11 @@
 					"$(PROJECT_DIR)",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
@@ -5110,7 +5299,11 @@
 				INFOPLIST_FILE = OneSignalFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
@@ -5203,6 +5396,7 @@
 		DE3D8F3F28C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -5236,7 +5430,11 @@
 				INFOPLIST_FILE = UnitTestApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -5294,7 +5492,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5353,7 +5555,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5413,7 +5619,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5470,7 +5680,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5527,7 +5741,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -5535,8 +5753,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUser;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -5587,7 +5806,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5647,7 +5870,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -5711,7 +5938,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5767,7 +5998,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -5829,7 +6064,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -5885,7 +6124,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -5946,7 +6189,11 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -6001,7 +6248,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6063,7 +6314,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6122,7 +6377,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6178,7 +6437,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6240,7 +6503,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6299,7 +6566,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
@@ -6359,7 +6630,11 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OneSignalOSCoreFramework/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = OneSignalOSCore;
@@ -6373,6 +6648,7 @@
 		DEF5CD082539321D0003E9CC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -6404,7 +6680,11 @@
 				INFOPLIST_FILE = UnitTestApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CFLAGS = "-fembed-bitcode";
@@ -6420,6 +6700,7 @@
 		DEF5CD092539321D0003E9CC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -6453,7 +6734,11 @@
 				INFOPLIST_FILE = UnitTestApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]" = 13.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -6506,7 +6791,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -6567,7 +6856,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -6624,7 +6917,11 @@
 				INFOPLIST_KEY_NSPrincipalClass = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -6720,6 +7017,16 @@
 				CA2951B82167F4120064227A /* Release */,
 				CA2951C42167FB950064227A /* Debug */,
 				DE3D8F3A28C15839008C2BBF /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		47AE65412B7D39E0006EBAA9 /* Build configuration list for PBXNativeTarget "OneSignalLiveActivities" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47AE65422B7D39E0006EBAA9 /* Release */,
+				47AE65432B7D39E0006EBAA9 /* Debug */,
+				47AE65442B7D39E0006EBAA9 /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

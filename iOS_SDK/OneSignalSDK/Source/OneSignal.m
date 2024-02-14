@@ -218,7 +218,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
-    return [OneSignalLiveActivityController LiveActivities];
+    return [OneSignalLiveActivitiesManagerImpl LiveActivities];
 }
 
 + (Class<OSLocation>)Location {
@@ -452,6 +452,10 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSNotificationsManager sendPushTokenToDelegate];
 }
 
++ (void)startLiveActivitiesManager {
+    [OneSignalLiveActivitiesManagerImpl start];
+}
+
 + (void)delayInitializationForPrivacyConsent {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
@@ -514,6 +518,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self startLifecycleObserver];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
+    [self startLiveActivitiesManager];
     [self startInAppMessages];
     [self startNewSession:YES];
     
