@@ -67,8 +67,6 @@
 		3C14E39F2AFAE39B006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A12AFAE461006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
-		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
-		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
@@ -947,8 +945,6 @@
 		3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
-		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
@@ -1831,8 +1827,6 @@
 		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */,
-				3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */,
 				03CCCC802835D902004BF794 /* UNNotificationCenter */,
 				7A5A818324899050002E07C8 /* Models */,
 				03866CBE2378A5ED0009C1D8 /* Asserts */,
@@ -3397,7 +3391,6 @@
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */,
-				3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */,
 				7ABAF9D82457DD620074DFA0 /* SessionManagerTests.m in Sources */,
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */,
@@ -3444,7 +3437,6 @@
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */,
 				3C9AD6D52B22A8C400BC1540 /* OneSignalLiveActivityController.m in Sources */,
-				3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
 				A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */,
 				DEA4B44E2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */,
