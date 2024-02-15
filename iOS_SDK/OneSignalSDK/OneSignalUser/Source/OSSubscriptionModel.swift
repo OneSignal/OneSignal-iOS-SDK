@@ -53,8 +53,8 @@ public class OSPushSubscriptionState: NSObject {
     }
 
     @objc public func jsonRepresentation() -> NSDictionary {
-        let id = self.id ?? "nil"
-        let token = self.token ?? "nil"
+        let id = self.id ?? ""
+        let token = self.token ?? ""
         return [
             "id": id,
             "token": token,
