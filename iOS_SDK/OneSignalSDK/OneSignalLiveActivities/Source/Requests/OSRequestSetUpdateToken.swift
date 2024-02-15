@@ -34,10 +34,7 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
     var requestSuccessful: Bool
     var activityId: String
     var token: String
-    
-    var isRemoveRequest: Bool {
-        return false
-    }
+    var shouldForgetWhenSuccessful: Bool = false
     
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -60,10 +57,12 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
     
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
         if let existingSetRequest = existing as? OSRequestSetUpdateToken {
-            return self.token != existingSetRequest.token
+            if self.token == existingSetRequest.token {
+                return false
+            }
         }
-
-        return true
+        
+        return self.timestamp > existing.timestamp
     }
     
     init(activityId: String, token: String) {

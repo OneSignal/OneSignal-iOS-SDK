@@ -37,7 +37,7 @@ public class OneSignalLiveActivity<Attributes> where Attributes : OneSignalLiveA
     /**
      Enable the OneSignal SDK to manage
      */
-    public static func enableLiveActivities(activityType: String) async {
+    public static func enable(activityType: String) async {
         if #available(iOS 17.2, *) {
             Task {
                 let data = Activity<Attributes>.pushToStartToken
@@ -67,6 +67,11 @@ public class OneSignalLiveActivity<Attributes> where Attributes : OneSignalLiveA
                     }
                 }
                 Task {
+                    let data = activity.pushToken
+                    if data != nil {
+                        let token = data!.map {String(format: "%02x", $0)}.joined()
+                        OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
+                    }
                     for await pushToken in activity.pushTokenUpdates {
                         let token = pushToken.map {String(format: "%02x", $0)}.joined()
                         OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)

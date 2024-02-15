@@ -75,7 +75,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
-    [LiveActivityController pushToStartWithCompletionHandler:^{}];
+    [LiveActivityController enableOneSignalAwareActivitiesWithCompletionHandler:^{}];
     
     return YES;
 }

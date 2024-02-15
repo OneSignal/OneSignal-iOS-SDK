@@ -39,7 +39,6 @@ import OneSignalCore
 
 @objc
 public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
-    public static let sharedInstance: OSLiveActivities = OneSignalLiveActivitiesManagerImpl()
     private static let _executor: OSLiveActivitiesExecutor = OSLiveActivitiesExecutor()
     
     @objc

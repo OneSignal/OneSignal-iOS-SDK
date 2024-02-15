@@ -37,13 +37,9 @@ class LiveActivityController: NSObject {
     
     @available(iOS 17.2, *)
     @objc
-    static func pushToStart() async {
-        await OneSignalLiveActivity<ExampleAppFirstWidgetAttributes>.enableLiveActivities(activityType: "first-la-type")
-        
-        
-        
-        
-        await OneSignalLiveActivity<ExampleAppSecondWidgetAttributes>.enableLiveActivities(activityType: "second-la-type")
+    static func enableOneSignalAwareActivities() async {
+        await OneSignalLiveActivity<ExampleAppFirstWidgetAttributes>.enable(activityType: "first-la-type")
+        await OneSignalLiveActivity<ExampleAppSecondWidgetAttributes>.enable(activityType: "second-la-type")
     }
 
      /**

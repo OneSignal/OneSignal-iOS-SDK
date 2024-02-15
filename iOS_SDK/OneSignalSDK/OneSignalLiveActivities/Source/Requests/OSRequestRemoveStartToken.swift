@@ -33,10 +33,7 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
     
     var activityType: String
     var requestSuccessful: Bool
-    
-    var isRemoveRequest: Bool {
-        return true
-    }
+    var shouldForgetWhenSuccessful: Bool = true
     
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -58,7 +55,7 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
     }
     
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
-        true
+        return self.timestamp > existing.timestamp
     }
 
     init(activityType: String) {

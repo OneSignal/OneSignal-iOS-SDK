@@ -27,17 +27,45 @@
 
 import OneSignalCore
 
+/**
+ Represents any live activity request, expected to be extended by
+ `OSLiveActivityUpdateTokenRequest` (update token requests) and
+ `OSLiveActivityStartTokenRequest` (start token requests).
+ */
 protocol OSLiveActivityRequest: OneSignalRequest, NSCoding {
+    /**
+     Whether the request has been successfully executed.
+     */
     var requestSuccessful: Bool { get set }
-    var isRemoveRequest: Bool { get }
+    
+    /**
+     Whether this request should be forgotten about when successful.
+     */
+    var shouldForgetWhenSuccessful: Bool { get }
+    
+    /**
+     Call this prior to executing the request. In addition to preparing the request for execution, it also
+     returns whether the request *can* be executed.
+     */
     func prepareForExecution() -> Bool
+    
+    /**
+     Only one request "per action" (i.e. activityId or activityType) is outstanding. This method determines
+     whether  this request supersedes the provided (existing) request.
+     */
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool
 }
 
+/**
+ A live activity request that is related to the update token of a specific `activityId`.
+ */
 protocol OSLiveActivityUpdateTokenRequest: OSLiveActivityRequest {
     var activityId: String { get }
 }
 
+/**
+ A live activity request that is related to the start token of a specific `activityType`.
+ */
 protocol OSLiveActivityStartTokenRequest: OSLiveActivityRequest {
     var activityType: String { get }
 }

@@ -1883,8 +1883,8 @@
 		47AE65452B7D3A02006EBAA9 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				47AE655C2B7D66BD006EBAA9 /* Requests */,
 				47AE655B2B7D66B6006EBAA9 /* Executors */,
+				47AE655C2B7D66BD006EBAA9 /* Requests */,
 				47AE65462B7D3A3B006EBAA9 /* OneSignalLiveActivityAttributes.swift */,
 				47AE65262B7D3908006EBAA9 /* OneSignalLiveActivitiesManager.swift */,
 				47AE65482B7D3A90006EBAA9 /* OneSignalLiveActivity.swift */,
@@ -1904,10 +1904,10 @@
 			isa = PBXGroup;
 			children = (
 				47AE652A2B7D3934006EBAA9 /* OSLiveActivityRequest.swift */,
-				47AE652C2B7D3934006EBAA9 /* OSRequestRemoveStartToken.swift */,
-				47AE652E2B7D3934006EBAA9 /* OSRequestRemoveUpdateToken.swift */,
 				47AE652D2B7D3934006EBAA9 /* OSRequestSetStartToken.swift */,
+				47AE652C2B7D3934006EBAA9 /* OSRequestRemoveStartToken.swift */,
 				47AE652B2B7D3934006EBAA9 /* OSRequestSetUpdateToken.swift */,
+				47AE652E2B7D3934006EBAA9 /* OSRequestRemoveUpdateToken.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
