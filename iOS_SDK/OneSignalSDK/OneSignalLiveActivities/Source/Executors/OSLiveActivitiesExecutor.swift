@@ -61,9 +61,24 @@ private class TokenCache {
         return false
     }
     
+    func markSuccessfulAndSave(_ request: OSLiveActivityRequest) {
+        if self.cache.contains(where: { $0.1 == request}) {
+            // Save the appropriate cache with the updated request for this request key.
+            if request.shouldForgetWhenSuccessful {
+                self.cache.removeValue(forKey: getRequestKey(request))
+            }
+            else {
+                request.requestSuccessful = true
+            }
+            self.save()
+        }
+    }
+    
     func removeAndSave(_ request: OSLiveActivityRequest) {
-        self.cache.removeValue(forKey: getRequestKey(request))
-        self.save()
+        if self.cache.contains(where: { $0.1 == request}) {
+            self.cache.removeValue(forKey: getRequestKey(request))
+            self.save()
+        }
     }
     
     func getRequestKey(_ request: OSLiveActivityRequest) -> String {
@@ -132,7 +147,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
         self.requestDispatch.async {
             self.withCache(request) { cache in
                 if(cache.addAndSave(request)) {
-                    OSLiveActivitiesExecutor.executeRequest(cache, request: request) { isPollRequired in
+                    self.executeRequest(cache, request: request) { isPollRequired in
                         if(isPollRequired) {
                             // drive a poll when the request fails
                             self.pollPendingRequests()
@@ -157,7 +172,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
                     return
                 }
 
-                OSLiveActivitiesExecutor.executeRequest(cache, request: request) { isPollRequired in
+                self?.executeRequest(cache, request: request) { isPollRequired in
                     hasOutstandingRequests = hasOutstandingRequests || isPollRequired
                 }
             }
@@ -194,7 +209,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
     /**
      block is called with `true` when a poll is required (i.e. the request failed **and** should be retried). Static to show it is thread safe.
      */
-    private static func executeRequest(_ cache: TokenCache, request: OSLiveActivityRequest, block: @escaping (Bool) -> Void){
+    private func executeRequest(_ cache: TokenCache, request: OSLiveActivityRequest, block: @escaping (Bool) -> Void){
         if(OSPrivacyConsentController.requiresUserPrivacyConsent()) {
             OneSignalLog.onesignalLog(.LL_WARN, message: "Cannot send live activity request when the user has not granted privacy permission")
             block(true)
@@ -208,24 +223,21 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
         
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing request: \(request)")
         OneSignalClient.shared().execute(request) { _ in
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request succeeded")
-            // Save the appropriate cache with the updated request for this request key.
-            if request.shouldForgetWhenSuccessful {
-                cache.removeAndSave(request)
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request succeeded: \(request)")
+            self.requestDispatch.async {
+                cache.markSuccessfulAndSave(request)
+                block(false)
             }
-            else {
-                request.requestSuccessful = true
-                cache.save()
-            }
-            block(false)
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request failed with error \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
-                    // Failed, no retry. Remove the key from the cache entirely so we don't try again.
-                    cache.removeAndSave(request)
-                    block(false)
+                    self.requestDispatch.async {
+                        // Failed, no retry. Remove the key from the cache entirely so we don't try again.
+                        cache.removeAndSave(request)
+                        block(false)
+                    }
                     return
                 }
             }

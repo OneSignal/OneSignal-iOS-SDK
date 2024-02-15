@@ -32,7 +32,7 @@ import ActivityKit
  OneSignalActivityAttributes, and let the OneSignal SDK handle the synchronizing of pushToStart token
  updates, and push token upates, for that specific attribute type.
  */
-@available(iOS 16.1, *)
+@available(iOS 16.2, *)
 public class OneSignalLiveActivity<Attributes> where Attributes : OneSignalLiveActivityAttributes {
     /**
      Enable the OneSignal SDK to manage
@@ -54,6 +54,15 @@ public class OneSignalLiveActivity<Attributes> where Attributes : OneSignalLiveA
         
         Task {
             for await activity in Activity<Attributes>.activityUpdates {
+                // if there's already an activity with the same OneSignal activityId, dismiss it before
+                // listening for the new activity's events.
+                for otherActivity in Activity<Attributes>.activities {
+                    if activity.id != otherActivity.id && otherActivity.attributes.onesignal.activityId == activity.attributes.onesignal.activityId {
+                        await otherActivity.end(nil, dismissalPolicy: ActivityUIDismissalPolicy.immediate)
+                    }
+                }
+                
+                // listen for activity dismisses so we can forget about the token
                 Task {
                     for await activityState in activity.activityStateUpdates {
                         switch activityState {
@@ -66,6 +75,8 @@ public class OneSignalLiveActivity<Attributes> where Attributes : OneSignalLiveA
                         }
                     }
                 }
+                
+                // listen for activity update token updates so we can tell OneSignal how to update the activity
                 Task {
                     let data = activity.pushToken
                     if data != nil {
