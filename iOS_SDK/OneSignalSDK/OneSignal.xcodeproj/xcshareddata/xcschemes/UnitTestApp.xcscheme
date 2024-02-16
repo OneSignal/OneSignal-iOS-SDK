@@ -20,6 +20,34 @@
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CC063EA2B6D7FE8002BB07F"
+               BuildableName = "OneSignalUserTests.xctest"
+               BlueprintName = "OneSignalUserTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CC063A02B6D7A8D002BB07F"
+               BuildableName = "OneSignalCoreTests.xctest"
+               BlueprintName = "OneSignalCoreTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -79,6 +107,20 @@
             BlueprintName = "OneSignalUser"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3CC063EA2B6D7FE8002BB07F"
+            BuildableName = "OneSignalUserTests.xctest"
+            BlueprintName = "OneSignalUserTests"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3CC063A02B6D7A8D002BB07F"
+            BuildableName = "OneSignalCoreTests.xctest"
+            BlueprintName = "OneSignalCoreTests"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
       </CodeCoverageTargets>
       <Testables>
          <TestableReference
@@ -88,6 +130,26 @@
                BlueprintIdentifier = "911E2CB91E398AB3003112A4"
                BuildableName = "UnitTests.xctest"
                BlueprintName = "UnitTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CC063A02B6D7A8D002BB07F"
+               BuildableName = "OneSignalCoreTests.xctest"
+               BlueprintName = "OneSignalCoreTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3CC063EA2B6D7FE8002BB07F"
+               BuildableName = "OneSignalUserTests.xctest"
+               BlueprintName = "OneSignalUserTests"
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </TestableReference>
