@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		p8WxELt0apH3RLkqqQubcGl4HT0=
+		TdyGM/JSDYjZ+HJYeyNhGNtyAPI=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -15,7 +15,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OqiVJNxnXO4oHG4J4rGHsik/Rhs+4yprPu07GPOrhH8=
+			3IqJxwLD7qRVNVGcM6SSCXm6HqhATWVkqljlkYjN4r4=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOSCore.h</key>
@@ -29,84 +29,84 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			d0MU7egJtbg5SGxs89SF+IoAkZRr6TFINtvxvBvXBJc=
+			f8mQK4//ASVfjEbxdegANgM+f1g1iVV7Hy6G5uAfeAg=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			tvrU0xHHgVZt0cV8H8GjWBUJXjl1PoRzY81Cg0Op/xM=
+			W+OSqIbr/KGVYgcqk7yuXrUJhnIcd38od1rSQ6MxAKU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lss1qqM5lb1oyOcY0fbC6KS1ti6xMmhhYV40qf3+vOU=
+			zHNnbi/1KI7pzhGo3v7tADKSFKyrqCWdqj8x4QDVTXk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			tvrU0xHHgVZt0cV8H8GjWBUJXjl1PoRzY81Cg0Op/xM=
+			W+OSqIbr/KGVYgcqk7yuXrUJhnIcd38od1rSQ6MxAKU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			yzrvV5NJxc7y+t+Jnl2CwfiDsJPYHesCJlu5gw5Imnc=
+			znpGFnbxETHA+8KzZA/pXIePJ3muMv4Q94XKsLKb3HA=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			d0MU7egJtbg5SGxs89SF+IoAkZRr6TFINtvxvBvXBJc=
+			f8mQK4//ASVfjEbxdegANgM+f1g1iVV7Hy6G5uAfeAg=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3xX9632A7tSEGaEpw62zGoMhfnuraEyYg4lpETVgT34=
+			3x1WYnTJ7v9owyDgFnM5PGPL7TV5SFnJwbcfJgd+Gzo=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			yrJiejCpPpB2g/Mb9+RMMxY+ZC5ucLgS28YK9ARFm20=
+			SA7NugJU+kZadvTO+u1ncO31E5WwuNX7Xju2xg0B4eo=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3xX9632A7tSEGaEpw62zGoMhfnuraEyYg4lpETVgT34=
+			3x1WYnTJ7v9owyDgFnM5PGPL7TV5SFnJwbcfJgd+Gzo=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			aEKXxmw8gsUc+RTJ1dVI/ljupKOD9sn62uYYl/A9vWU=
+			laJGtWIru5uHAb4zIbZ9EXYE+cf+PiQTLQwDqtf1lsk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			x91khB5nqURf4ltg1dva7WEuxxdOwv8OyWtDKvlKnYg=
+			3/2KmkpexGLVI0wWPYU68SWE5ZY4Hw1wr9JH4zEbeRw=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			EkbywqkF9uNTt0Q+uMg65ZIeoNzQMcwkm+iw+142izs=
+			XGweUk27LG7nh5d14ygYa+byepAhTXaKZtgVxJ75P4o=
 			</data>
 		</dict>
 	</dict>
