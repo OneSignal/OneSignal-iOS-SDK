@@ -30,7 +30,7 @@
 @implementation OSDialogInstanceManager
 
 static NSObject<OSDialogPresenter> *_sharedInstance;
-+ (void)setSharedInstance:(NSObject<OSDialogPresenter> *_Nonnull)instance {
++ (void)setSharedOsDialogInstance:(NSObject<OSDialogPresenter> *_Nonnull)instance {
     _sharedInstance = instance;
 }
 

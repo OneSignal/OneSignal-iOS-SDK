@@ -789,7 +789,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 //    sessionLaunchTime = [NSDate date];
     // TODO: sessionLaunchTime used to always be set in load
     
-    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
+    [OSDialogInstanceManager setSharedOsDialogInstance:[OneSignalDialogController sharedInstance]];
 }
 
 /*
