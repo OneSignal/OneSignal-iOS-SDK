@@ -126,7 +126,7 @@ static dispatch_once_t once;
     }
 
     if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withSubscriptionId:subscriptionId appId:appId activityId:activityId token:token]
+        [OneSignalCore.sharedClient executeRequest:[OSRequestLiveActivityEnter withSubscriptionId:subscriptionId appId:appId activityId:activityId token:token]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock withResult:result];
         } onFailure:^(NSError *error) {
@@ -169,7 +169,7 @@ static dispatch_once_t once;
     }
     
     if(subscriptionId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withSubscriptionId:subscriptionId appId:appId activityId:activityId]
+        [OneSignalCore.sharedClient executeRequest:[OSRequestLiveActivityExit withSubscriptionId:subscriptionId appId:appId activityId:activityId]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock withResult:result];
         } onFailure:^(NSError *error) {
@@ -221,7 +221,7 @@ static dispatch_once_t once;
     OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
     [pendingLiveActivityUpdates removeObjectAtIndex: 0];
     if (updateToProcess.isEnter) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withSubscriptionId:subscriptionId appId:updateToProcess.appId activityId:updateToProcess.activityId token:updateToProcess.token]
+        [OneSignalCore.sharedClient executeRequest:[OSRequestLiveActivityEnter withSubscriptionId:subscriptionId appId:updateToProcess.appId activityId:updateToProcess.activityId token:updateToProcess.token]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
             [self executePendingLiveActivityUpdates];
@@ -230,7 +230,7 @@ static dispatch_once_t once;
             [self executePendingLiveActivityUpdates];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withSubscriptionId:subscriptionId appId:updateToProcess.appId activityId:updateToProcess.activityId]
+        [OneSignalCore.sharedClient executeRequest:[OSRequestLiveActivityExit withSubscriptionId:subscriptionId appId:updateToProcess.appId activityId:updateToProcess.activityId]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
             [self executePendingLiveActivityUpdates];

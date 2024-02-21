@@ -255,6 +255,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // Defines the maximum delay time for confirmed deliveries
     #define MAX_CONF_DELIVERY_DELAY 25.0
+
+    // Flush interval for operation repo in milliseconds
+    #define POLL_INTERVAL_MS 5000
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -271,6 +274,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // We don't want to delay confirmed deliveries in unit tests
     #define MAX_CONF_DELIVERY_DELAY 0
+
+    // Reduce flush interval for operation repo in tests
+    #define POLL_INTERVAL_MS 100
 
 #endif
 

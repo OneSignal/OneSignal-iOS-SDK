@@ -67,8 +67,6 @@
 		3C14E39F2AFAE39B006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A12AFAE461006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
-		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
-		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
@@ -84,6 +82,9 @@
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
+		3C7A39C22B7BED900082665E /* OneSignalCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C7A39DC2B7C1C580082665E /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
@@ -107,7 +108,21 @@
 		3C9AD6DC2B22A8E600BC1540 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C9AD6DF2B22A8EC00BC1540 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 		3C9AD6E02B22A8EC00BC1540 /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CA283A92B86A30400097465 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		3CA283AA2B86A30400097465 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CA6CE0A28E4F19B00CA0585 /* OSUserRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */; };
+		3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063932B6D6B6B002BB07F /* OneSignalCore.m */; };
+		3CC063A22B6D7A8E002BB07F /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
+		3CC063A72B6D7A8E002BB07F /* OneSignalCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063A62B6D7A8E002BB07F /* OneSignalCoreTests.swift */; };
+		3CC063A82B6D7A8E002BB07F /* OneSignalCoreMocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CC0639C2B6D7A8D002BB07F /* OneSignalCoreMocks.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3CC063B22B6D7AD8002BB07F /* MockOneSignalClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063B12B6D7AD8002BB07F /* MockOneSignalClient.swift */; };
+		3CC063B42B6D7BA2002BB07F /* OneSignalCoreMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063B32B6D7BA2002BB07F /* OneSignalCoreMocks.swift */; };
+		3CC063D32B6D7EA2002BB07F /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		3CC063D42B6D7EA2002BB07F /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CC063E02B6D7F2A002BB07F /* OneSignalUserMocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CC063DF2B6D7F2A002BB07F /* OneSignalUserMocks.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */; };
+		3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */; };
+		3CC063EF2B6D7FE8002BB07F /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -124,6 +139,18 @@
 		3CE8CC582911B2B2000DB0D3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CE8CC572911B2B2000DB0D3 /* SystemConfiguration.framework */; };
 		3CE8CC5B29143F4B000DB0D3 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */; };
+		3CEE93422B7C4174008440BD /* OneSignalUserMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; };
+		3CEE93432B7C4174008440BD /* OneSignalUserMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CEE93462B7C73AB008440BD /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
+		3CEE93472B7C73AB008440BD /* OneSignalCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CEE934A2B7C73B6008440BD /* OneSignalUserMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; };
+		3CEE934B2B7C73B6008440BD /* OneSignalUserMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CEE934E2B7C787B008440BD /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
+		3CEE934F2B7C787B008440BD /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CEE93532B7C78EC008440BD /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
+		3CEE93542B7C78EC008440BD /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CEE93572B7C78FD008440BD /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		3CEE93582B7C78FE008440BD /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -135,7 +162,6 @@
 		4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */; };
 		4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */; };
 		4529DEE41FA82C6200CEAB1D /* NSURLSessionOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE31FA82C6200CEAB1D /* NSURLSessionOverrider.m */; };
-		4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
 		4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */; };
 		4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */; };
 		4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */; };
@@ -509,6 +535,27 @@
 			remoteGlobalIDString = 3C115160289A259500565C41;
 			remoteInfo = OneSignalOSCore;
 		};
+		3C7A39C32B7BED900082665E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CC063992B6D7A8C002BB07F;
+			remoteInfo = OneSignalCoreMocks;
+		};
+		3C7A39DD2B7C1C860082665E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF5CCF02539321A0003E9CC;
+			remoteInfo = UnitTestApp;
+		};
+		3C7A39DF2B7C1C8B0082665E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF5CCF02539321A0003E9CC;
+			remoteInfo = UnitTestApp;
+		};
 		3C9AD6D82B22A8DF00BC1540 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -529,6 +576,76 @@
 			proxyType = 1;
 			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
 			remoteInfo = OneSignalNotifications;
+		};
+		3CA283AB2B86A30400097465 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D17E527026B95002D3A5D;
+			remoteInfo = OneSignalCore;
+		};
+		3CC063A32B6D7A8E002BB07F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CC063992B6D7A8C002BB07F;
+			remoteInfo = OneSignalCoreMocks;
+		};
+		3CC063D52B6D7EA3002BB07F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D17E527026B95002D3A5D;
+			remoteInfo = OneSignalCore;
+		};
+		3CC063F02B6D7FE8002BB07F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE69E19A282ED8060090BB3D;
+			remoteInfo = OneSignalUser;
+		};
+		3CEE93442B7C4174008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CC063DC2B6D7F2A002BB07F;
+			remoteInfo = OneSignalUserMocks;
+		};
+		3CEE93482B7C73AB008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CC063992B6D7A8C002BB07F;
+			remoteInfo = OneSignalCoreMocks;
+		};
+		3CEE934C2B7C73B6008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3CC063DC2B6D7F2A002BB07F;
+			remoteInfo = OneSignalUserMocks;
+		};
+		3CEE93502B7C787C008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C115160289A259500565C41;
+			remoteInfo = OneSignalOSCore;
+		};
+		3CEE93552B7C78EC008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE69E19A282ED8060090BB3D;
+			remoteInfo = OneSignalUser;
+		};
+		3CEE93592B7C78FE008440BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D17E527026B95002D3A5D;
+			remoteInfo = OneSignalCore;
 		};
 		DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -725,6 +842,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3C7A39C52B7BED910082665E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3CEE93432B7C4174008440BD /* OneSignalUserMocks.framework in Embed Frameworks */,
+				3CA283AA2B86A30400097465 /* OneSignalCore.framework in Embed Frameworks */,
+				3C7A39C22B7BED900082665E /* OneSignalCoreMocks.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C9AD6DA2B22A8DF00BC1540 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -734,6 +864,40 @@
 				3C9AD6E02B22A8EC00BC1540 /* OneSignalNotifications.framework in Embed Frameworks */,
 				3C9AD6DC2B22A8E600BC1540 /* OneSignalInAppMessages.framework in Embed Frameworks */,
 				3C9AD6D72B22A8DF00BC1540 /* OneSignalLocation.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063D72B6D7EA3002BB07F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3CC063D42B6D7EA2002BB07F /* OneSignalCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CEE93522B7C787C008440BD /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3CEE93542B7C78EC008440BD /* OneSignalUser.framework in Embed Frameworks */,
+				3CEE934F2B7C787B008440BD /* OneSignalOSCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CEE935B2B7C78FE008440BD /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3CEE93582B7C78FE008440BD /* OneSignalCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -749,7 +913,9 @@
 				DEA4B4662888C59E00E9FE12 /* OneSignalExtension.framework in Embed Frameworks */,
 				DEBAAE2F2A4211DA00BF2C1C /* OneSignalInAppMessages.framework in Embed Frameworks */,
 				DEA4B4632888C4DC00E9FE12 /* OneSignalOutcomes.framework in Embed Frameworks */,
+				3CEE934B2B7C73B6008440BD /* OneSignalUserMocks.framework in Embed Frameworks */,
 				DEA4B45D2888C1D000E9FE12 /* OneSignalCore.framework in Embed Frameworks */,
+				3CEE93472B7C73AB008440BD /* OneSignalCoreMocks.framework in Embed Frameworks */,
 				3C11518F289AF83600565C41 /* OneSignalOSCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -789,8 +955,6 @@
 		3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
-		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
-		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
@@ -800,6 +964,7 @@
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
+		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityOperationExecutor.swift; sourceTree = "<group>"; };
@@ -816,6 +981,18 @@
 		3C9AD6D02B228B9200BC1540 /* OSRequestRemoveAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRemoveAlias.swift; sourceTree = "<group>"; };
 		3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestUpdateProperties.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequest.swift; sourceTree = "<group>"; };
+		3CC063932B6D6B6B002BB07F /* OneSignalCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCore.m; sourceTree = "<group>"; };
+		3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalCoreMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CC0639C2B6D7A8D002BB07F /* OneSignalCoreMocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCoreMocks.h; sourceTree = "<group>"; };
+		3CC063A12B6D7A8D002BB07F /* OneSignalCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CC063A62B6D7A8E002BB07F /* OneSignalCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalCoreTests.swift; sourceTree = "<group>"; };
+		3CC063B12B6D7AD8002BB07F /* MockOneSignalClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockOneSignalClient.swift; sourceTree = "<group>"; };
+		3CC063B32B6D7BA2002BB07F /* OneSignalCoreMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalCoreMocks.swift; sourceTree = "<group>"; };
+		3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalUserMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CC063DF2B6D7F2A002BB07F /* OneSignalUserMocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalUserMocks.h; sourceTree = "<group>"; };
+		3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserMocks.swift; sourceTree = "<group>"; };
+		3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalUserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserTests.swift; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
@@ -1186,6 +1363,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3CC063972B6D7A8C002BB07F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CEE93572B7C78FD008440BD /* OneSignalCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC0639E2B6D7A8D002BB07F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063D32B6D7EA2002BB07F /* OneSignalCore.framework in Frameworks */,
+				3CC063A22B6D7A8E002BB07F /* OneSignalCoreMocks.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063DA2B6D7F2A002BB07F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CEE93532B7C78EC008440BD /* OneSignalUser.framework in Frameworks */,
+				3CEE934E2B7C787B008440BD /* OneSignalOSCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063E82B6D7FE8002BB07F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CA283A92B86A30400097465 /* OneSignalCore.framework in Frameworks */,
+				3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */,
+				3CC063EF2B6D7FE8002BB07F /* OneSignalUser.framework in Frameworks */,
+				3CEE93422B7C4174008440BD /* OneSignalUserMocks.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3E2400341D4FFC31008BDE70 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1298,8 +1512,10 @@
 				DEBAAE2E2A4211DA00BF2C1C /* OneSignalInAppMessages.framework in Frameworks */,
 				DEA4B4652888C59100E9FE12 /* OneSignalExtension.framework in Frameworks */,
 				DEF7842F2912DEBA00A1F3A5 /* OneSignalNotifications.framework in Frameworks */,
+				3CEE93462B7C73AB008440BD /* OneSignalCoreMocks.framework in Frameworks */,
 				DEA4B4622888C4D500E9FE12 /* OneSignalOutcomes.framework in Frameworks */,
 				DEA4B45C2888C1D000E9FE12 /* OneSignalCore.framework in Frameworks */,
+				3CEE934A2B7C73B6008440BD /* OneSignalUserMocks.framework in Frameworks */,
 				DEF5CD52253934410003E9CC /* CoreFoundation.framework in Frameworks */,
 				DEF5CD502539343C0003E9CC /* Foundation.framework in Frameworks */,
 				DEF5CD4F253934350003E9CC /* UIKit.framework in Frameworks */,
@@ -1345,6 +1561,8 @@
 		37747F8A19147D6400558FAD = {
 			isa = PBXGroup;
 			children = (
+				37747F9519147D6500558FAD /* Frameworks */,
+				3E2400391D4FFC31008BDE70 /* OneSignalFramework */,
 				DEBAAE212A42119100BF2C1C /* OneSignalInAppMessagesFramework */,
 				DEBAAE012A420B0500BF2C1C /* OneSignalLocationFramework */,
 				DEF784352912E00900A1F3A5 /* OneSignalNotificationsFramework */,
@@ -1364,8 +1582,10 @@
 				DEF7842A2912DEBA00A1F3A5 /* OneSignalNotifications */,
 				DEBAADFA2A420A3900BF2C1C /* OneSignalLocation */,
 				DEBAAE292A4211DA00BF2C1C /* OneSignalInAppMessages */,
-				37747F9519147D6500558FAD /* Frameworks */,
-				3E2400391D4FFC31008BDE70 /* OneSignalFramework */,
+				3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */,
+				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
+				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
+				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1385,6 +1605,10 @@
 				DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */,
 				DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */,
 				DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */,
+				3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */,
+				3CC063A12B6D7A8D002BB07F /* OneSignalCoreTests.xctest */,
+				3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */,
+				3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1392,6 +1616,7 @@
 		37747F9519147D6500558FAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3C7A39D42B7C18EE0082665E /* XCTest.framework */,
 				DEBAAE9A2A4222B000BF2C1C /* CoreGraphics.framework */,
 				DEBAAE4A2A42123400BF2C1C /* WebKit.framework */,
 				DEBAAE092A420CA500BF2C1C /* UIKit.framework */,
@@ -1470,6 +1695,41 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
+		3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */ = {
+			isa = PBXGroup;
+			children = (
+				3CC0639C2B6D7A8D002BB07F /* OneSignalCoreMocks.h */,
+				3CC063B32B6D7BA2002BB07F /* OneSignalCoreMocks.swift */,
+				3CC063B12B6D7AD8002BB07F /* MockOneSignalClient.swift */,
+			);
+			path = OneSignalCoreMocks;
+			sourceTree = "<group>";
+		};
+		3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				3CC063A62B6D7A8E002BB07F /* OneSignalCoreTests.swift */,
+			);
+			path = OneSignalCoreTests;
+			sourceTree = "<group>";
+		};
+		3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */ = {
+			isa = PBXGroup;
+			children = (
+				3CC063DF2B6D7F2A002BB07F /* OneSignalUserMocks.h */,
+				3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */,
+			);
+			path = OneSignalUserMocks;
+			sourceTree = "<group>";
+		};
+		3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */ = {
+			isa = PBXGroup;
+			children = (
+				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
+			);
+			path = OneSignalUserTests;
+			sourceTree = "<group>";
+		};
 		3E2400391D4FFC31008BDE70 /* OneSignalFramework */ = {
 			isa = PBXGroup;
 			children = (
@@ -1507,8 +1767,6 @@
 				4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */,
 				4529DEE81FA8360C00CEAB1D /* UIApplicationOverrider.h */,
 				4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */,
-				4529DEE51FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.h */,
-				4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */,
 				CA1A6E7320DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h */,
 				CA1A6E7420DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m */,
 				CA8E18FA2193A1A5009DA223 /* NSTimerOverrider.h */,
@@ -1525,6 +1783,8 @@
 				16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */,
 				03E56DD128405F4A006AA1DA /* OneSignalAppDelegateOverrider.h */,
 				03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */,
+				4529DEE51FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.h */,
+				4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */,
 				DEA4B44D2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.h */,
 				DEA4B44C2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m */,
 			);
@@ -1578,8 +1838,6 @@
 		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */,
-				3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */,
 				03CCCC802835D902004BF794 /* UNNotificationCenter */,
 				7A5A818324899050002E07C8 /* Models */,
 				03866CBE2378A5ED0009C1D8 /* Asserts */,
@@ -1745,6 +2003,7 @@
 			isa = PBXGroup;
 			children = (
 				DE7D17E827026B95002D3A5D /* OneSignalCore.h */,
+				3CC063932B6D6B6B002BB07F /* OneSignalCore.m */,
 				DEF7848E2914798400A1F3A5 /* Swizzling */,
 				DEF7845A2912E89200A1F3A5 /* OSObservable.h */,
 				DEF7845B2912E89200A1F3A5 /* OSObservable.m */,
@@ -2195,6 +2454,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3CC063952B6D7A8C002BB07F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063A82B6D7A8E002BB07F /* OneSignalCoreMocks.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063D82B6D7F2A002BB07F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063E02B6D7F2A002BB07F /* OneSignalUserMocks.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3E2400351D4FFC31008BDE70 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -2405,6 +2680,91 @@
 			productReference = 3C115161289A259500565C41 /* OneSignalOSCore.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CC063AF2B6D7A8E002BB07F /* Build configuration list for PBXNativeTarget "OneSignalCoreMocks" */;
+			buildPhases = (
+				3CC063952B6D7A8C002BB07F /* Headers */,
+				3CC063962B6D7A8C002BB07F /* Sources */,
+				3CC063972B6D7A8C002BB07F /* Frameworks */,
+				3CC063982B6D7A8C002BB07F /* Resources */,
+				3CEE935B2B7C78FE008440BD /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3CEE935A2B7C78FE008440BD /* PBXTargetDependency */,
+			);
+			name = OneSignalCoreMocks;
+			productName = OneSignalCoreMocks;
+			productReference = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		3CC063A02B6D7A8D002BB07F /* OneSignalCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CC063B02B6D7A8E002BB07F /* Build configuration list for PBXNativeTarget "OneSignalCoreTests" */;
+			buildPhases = (
+				3CC0639D2B6D7A8D002BB07F /* Sources */,
+				3CC0639E2B6D7A8D002BB07F /* Frameworks */,
+				3CC0639F2B6D7A8D002BB07F /* Resources */,
+				3CC063D72B6D7EA3002BB07F /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3CC063A42B6D7A8E002BB07F /* PBXTargetDependency */,
+				3CC063D62B6D7EA3002BB07F /* PBXTargetDependency */,
+				3C7A39DE2B7C1C860082665E /* PBXTargetDependency */,
+			);
+			name = OneSignalCoreTests;
+			productName = OneSignalCoreMocksTests;
+			productReference = 3CC063A12B6D7A8D002BB07F /* OneSignalCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		3CC063DC2B6D7F2A002BB07F /* OneSignalUserMocks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CC063E12B6D7F2A002BB07F /* Build configuration list for PBXNativeTarget "OneSignalUserMocks" */;
+			buildPhases = (
+				3CC063D82B6D7F2A002BB07F /* Headers */,
+				3CC063D92B6D7F2A002BB07F /* Sources */,
+				3CC063DA2B6D7F2A002BB07F /* Frameworks */,
+				3CC063DB2B6D7F2A002BB07F /* Resources */,
+				3CEE93522B7C787C008440BD /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3CEE93512B7C787C008440BD /* PBXTargetDependency */,
+				3CEE93562B7C78EC008440BD /* PBXTargetDependency */,
+			);
+			name = OneSignalUserMocks;
+			productName = OneSignalUserMocks;
+			productReference = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		3CC063EA2B6D7FE8002BB07F /* OneSignalUserTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CC063F22B6D7FE8002BB07F /* Build configuration list for PBXNativeTarget "OneSignalUserTests" */;
+			buildPhases = (
+				3CC063E72B6D7FE8002BB07F /* Sources */,
+				3CC063E82B6D7FE8002BB07F /* Frameworks */,
+				3CC063E92B6D7FE8002BB07F /* Resources */,
+				3C7A39C52B7BED910082665E /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3CC063F12B6D7FE8002BB07F /* PBXTargetDependency */,
+				3C7A39C42B7BED900082665E /* PBXTargetDependency */,
+				3C7A39E02B7C1C8B0082665E /* PBXTargetDependency */,
+				3CEE93452B7C4174008440BD /* PBXTargetDependency */,
+				3CA283AC2B86A30400097465 /* PBXTargetDependency */,
+			);
+			name = OneSignalUserTests;
+			productName = OneSignalUserTests;
+			productReference = 3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3E2400371D4FFC31008BDE70 /* OneSignalFramework */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3E24003F1D4FFC31008BDE70 /* Build configuration list for PBXNativeTarget "OneSignalFramework" */;
@@ -2588,6 +2948,8 @@
 			dependencies = (
 				DEF7842E2912DEBA00A1F3A5 /* PBXTargetDependency */,
 				DEBAAE2D2A4211DA00BF2C1C /* PBXTargetDependency */,
+				3CEE93492B7C73AB008440BD /* PBXTargetDependency */,
+				3CEE934D2B7C73B6008440BD /* PBXTargetDependency */,
 			);
 			name = UnitTestApp;
 			productName = UnitTestApp;
@@ -2621,7 +2983,7 @@
 		37747F8B19147D6400558FAD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1320;
+				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Hiptic;
 				TargetAttributes = {
@@ -2632,6 +2994,30 @@
 						CreatedOnToolsVersion = 13.2.1;
 						DevelopmentTeam = 99SW8E36CT;
 						ProvisioningStyle = Automatic;
+					};
+					3CC063992B6D7A8C002BB07F = {
+						CreatedOnToolsVersion = 15.2;
+						DevelopmentTeam = 99SW8E36CT;
+						LastSwiftMigration = 1520;
+						ProvisioningStyle = Automatic;
+					};
+					3CC063A02B6D7A8D002BB07F = {
+						CreatedOnToolsVersion = 15.2;
+						DevelopmentTeam = 99SW8E36CT;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DEF5CCF02539321A0003E9CC;
+					};
+					3CC063DC2B6D7F2A002BB07F = {
+						CreatedOnToolsVersion = 15.2;
+						DevelopmentTeam = 99SW8E36CT;
+						LastSwiftMigration = 1520;
+						ProvisioningStyle = Automatic;
+					};
+					3CC063EA2B6D7FE8002BB07F = {
+						CreatedOnToolsVersion = 15.2;
+						DevelopmentTeam = 99SW8E36CT;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					3E2400371D4FFC31008BDE70 = {
 						CreatedOnToolsVersion = 8.0;
@@ -2732,12 +3118,44 @@
 				DEF784282912DEB600A1F3A5 /* OneSignalNotifications */,
 				DEBAADF82A420A3700BF2C1C /* OneSignalLocation */,
 				DEBAAE272A4211D900BF2C1C /* OneSignalInAppMessages */,
+				3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */,
+				3CC063DC2B6D7F2A002BB07F /* OneSignalUserMocks */,
+				3CC063A02B6D7A8D002BB07F /* OneSignalCoreTests */,
+				3CC063EA2B6D7FE8002BB07F /* OneSignalUserTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3C11515F289A259500565C41 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063982B6D7A8C002BB07F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC0639F2B6D7A8D002BB07F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063DB2B6D7F2A002BB07F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063E92B6D7FE8002BB07F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2914,6 +3332,39 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3CC063962B6D7A8C002BB07F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063B22B6D7AD8002BB07F /* MockOneSignalClient.swift in Sources */,
+				3CC063B42B6D7BA2002BB07F /* OneSignalCoreMocks.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC0639D2B6D7A8D002BB07F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063A72B6D7A8E002BB07F /* OneSignalCoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063D92B6D7F2A002BB07F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CC063E72B6D7FE8002BB07F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3E2400331D4FFC31008BDE70 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2952,7 +3403,6 @@
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */,
-				3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */,
 				7ABAF9D82457DD620074DFA0 /* SessionManagerTests.m in Sources */,
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */,
@@ -2990,6 +3440,7 @@
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
 				CA63AF8420211F7400E340FB /* EmailTests.m in Sources */,
+				3C7A39DC2B7C1C580082665E /* UNUserNotificationCenterOverrider.m in Sources */,
 				7A674F1D2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
 				7A2E90622460DA1500B3428C /* OutcomeIntegrationV2Tests.m in Sources */,
 				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
@@ -2997,9 +3448,7 @@
 				7AF5174C24FE980400B076BC /* RemoteParamsTests.m in Sources */,
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */,
-				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
 				3C9AD6D52B22A8C400BC1540 /* OneSignalLiveActivityController.m in Sources */,
-				3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
 				A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */,
 				DEA4B44E2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */,
@@ -3091,6 +3540,7 @@
 				DE7D182E270275FA002D3A5D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				DE51DDE5294262AB0073D5C4 /* OSRemoteParamController.m in Sources */,
 				DE7D182827026F86002D3A5D /* OneSignalUserDefaults.m in Sources */,
+				3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3212,6 +3662,21 @@
 			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
 			targetProxy = 3C115199289AF86C00565C41 /* PBXContainerItemProxy */;
 		};
+		3C7A39C42B7BED900082665E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */;
+			targetProxy = 3C7A39C32B7BED900082665E /* PBXContainerItemProxy */;
+		};
+		3C7A39DE2B7C1C860082665E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF5CCF02539321A0003E9CC /* UnitTestApp */;
+			targetProxy = 3C7A39DD2B7C1C860082665E /* PBXContainerItemProxy */;
+		};
+		3C7A39E02B7C1C8B0082665E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF5CCF02539321A0003E9CC /* UnitTestApp */;
+			targetProxy = 3C7A39DF2B7C1C8B0082665E /* PBXContainerItemProxy */;
+		};
 		3C9AD6D92B22A8DF00BC1540 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DEBAADF82A420A3700BF2C1C /* OneSignalLocation */;
@@ -3226,6 +3691,56 @@
 			isa = PBXTargetDependency;
 			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
 			targetProxy = 3C9AD6E12B22A8ED00BC1540 /* PBXContainerItemProxy */;
+		};
+		3CA283AC2B86A30400097465 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
+			targetProxy = 3CA283AB2B86A30400097465 /* PBXContainerItemProxy */;
+		};
+		3CC063A42B6D7A8E002BB07F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */;
+			targetProxy = 3CC063A32B6D7A8E002BB07F /* PBXContainerItemProxy */;
+		};
+		3CC063D62B6D7EA3002BB07F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
+			targetProxy = 3CC063D52B6D7EA3002BB07F /* PBXContainerItemProxy */;
+		};
+		3CC063F12B6D7FE8002BB07F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE69E19A282ED8060090BB3D /* OneSignalUser */;
+			targetProxy = 3CC063F02B6D7FE8002BB07F /* PBXContainerItemProxy */;
+		};
+		3CEE93452B7C4174008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CC063DC2B6D7F2A002BB07F /* OneSignalUserMocks */;
+			targetProxy = 3CEE93442B7C4174008440BD /* PBXContainerItemProxy */;
+		};
+		3CEE93492B7C73AB008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */;
+			targetProxy = 3CEE93482B7C73AB008440BD /* PBXContainerItemProxy */;
+		};
+		3CEE934D2B7C73B6008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3CC063DC2B6D7F2A002BB07F /* OneSignalUserMocks */;
+			targetProxy = 3CEE934C2B7C73B6008440BD /* PBXContainerItemProxy */;
+		};
+		3CEE93512B7C787C008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
+			targetProxy = 3CEE93502B7C787C008440BD /* PBXContainerItemProxy */;
+		};
+		3CEE93562B7C78EC008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE69E19A282ED8060090BB3D /* OneSignalUser */;
+			targetProxy = 3CEE93552B7C78EC008440BD /* PBXContainerItemProxy */;
+		};
+		3CEE935A2B7C78FE008440BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
+			targetProxy = 3CEE93592B7C78FE008440BD /* PBXContainerItemProxy */;
 		};
 		DE12F3F5289B28C4002F63AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3497,6 +4012,663 @@
 			};
 			name = Debug;
 		};
+		3CC063A92B6D7A8E002BB07F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		3CC063AA2B6D7A8E002BB07F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3CC063AB2B6D7A8E002BB07F /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Test;
+		};
+		3CC063AC2B6D7A8E002BB07F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocksTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Release;
+		};
+		3CC063AD2B6D7A8E002BB07F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocksTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Debug;
+		};
+		3CC063AE2B6D7A8E002BB07F /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCoreMocksTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Test;
+		};
+		3CC063E22B6D7F2A002BB07F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		3CC063E32B6D7F2A002BB07F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3CC063E42B6D7F2A002BB07F /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Hiptic. All rights reserved.";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserMocks;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Test;
+		};
+		3CC063F32B6D7FE8002BB07F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Release;
+		};
+		3CC063F42B6D7FE8002BB07F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Debug;
+		};
+		3CC063F52B6D7FE8002BB07F /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUserTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Test;
+		};
 		CA2951B62167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3625,7 +4797,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = OS_TEST;
 				HEADER_SEARCH_PATHS = $CONFIGURATION_TEMP_DIR/UnitTests.build/DerivedSources;
 				INFOPLIST_FILE = UnitTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3794,7 +4966,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = OS_TEST;
 				HEADER_SEARCH_PATHS = $CONFIGURATION_TEMP_DIR/UnitTests.build/DerivedSources;
 				INFOPLIST_FILE = UnitTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3963,7 +5135,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = OS_TEST;
 				HEADER_SEARCH_PATHS = $CONFIGURATION_TEMP_DIR/UnitTests.build/DerivedSources;
 				INFOPLIST_FILE = UnitTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -5486,6 +6658,46 @@
 				3C115173289A259500565C41 /* Release */,
 				3C115174289A259500565C41 /* Debug */,
 				DECE6F5A28C903D7007058EE /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3CC063AF2B6D7A8E002BB07F /* Build configuration list for PBXNativeTarget "OneSignalCoreMocks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CC063A92B6D7A8E002BB07F /* Release */,
+				3CC063AA2B6D7A8E002BB07F /* Debug */,
+				3CC063AB2B6D7A8E002BB07F /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3CC063B02B6D7A8E002BB07F /* Build configuration list for PBXNativeTarget "OneSignalCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CC063AC2B6D7A8E002BB07F /* Release */,
+				3CC063AD2B6D7A8E002BB07F /* Debug */,
+				3CC063AE2B6D7A8E002BB07F /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3CC063E12B6D7F2A002BB07F /* Build configuration list for PBXNativeTarget "OneSignalUserMocks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CC063E22B6D7F2A002BB07F /* Release */,
+				3CC063E32B6D7F2A002BB07F /* Debug */,
+				3CC063E42B6D7F2A002BB07F /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3CC063F22B6D7FE8002BB07F /* Build configuration list for PBXNativeTarget "OneSignalUserTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3CC063F32B6D7FE8002BB07F /* Release */,
+				3CC063F42B6D7FE8002BB07F /* Debug */,
+				3CC063F52B6D7FE8002BB07F /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

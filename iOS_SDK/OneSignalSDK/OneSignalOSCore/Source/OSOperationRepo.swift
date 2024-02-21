@@ -41,8 +41,8 @@ public class OSOperationRepo: NSObject {
     var executors: [OSOperationExecutor] = []
     var deltaQueue: [OSDelta] = []
 
-    // TODO: This should come from a config, plist, method, remote params
-    var pollIntervalSeconds = 5
+    // TODO: This could come from a config, plist, method, remote params
+    var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
 
     /**
@@ -76,7 +76,7 @@ public class OSOperationRepo: NSObject {
     }
 
     private func pollFlushQueue() {
-        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
+        DispatchQueue.global().asyncAfter(deadline: .now() + .milliseconds(pollIntervalMilliseconds)) { [weak self] in
             self?.flushDeltaQueue()
             self?.pollFlushQueue()
         }

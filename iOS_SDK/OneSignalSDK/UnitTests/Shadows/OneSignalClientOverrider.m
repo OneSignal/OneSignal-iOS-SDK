@@ -145,7 +145,7 @@
 //    __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
 //
 //    for (NSString *key in requests.allKeys) {
-//        [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
+//        [OneSignalCore.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
 //            results[key] = result;
 //            dispatch_semaphore_signal(semaphore);
 //        } onFailure:^(NSError *error) {

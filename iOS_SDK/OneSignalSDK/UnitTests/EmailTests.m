@@ -277,7 +277,7 @@
 //    
 //    expectation.expectedFulfillmentCount = 1;
 //    
-//    [OneSignalClient.sharedClient executeSimultaneousRequests:@{@"first" : first, @"second" : second} withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
+//    [OneSignalCore.sharedClient executeSimultaneousRequests:@{@"first" : first, @"second" : second} withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
 //        [expectation fulfill];
 //    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
 //        XCTFail("Failed with error: %@", errors);
