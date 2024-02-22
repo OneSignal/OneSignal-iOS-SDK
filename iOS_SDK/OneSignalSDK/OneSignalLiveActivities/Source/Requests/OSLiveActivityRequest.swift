@@ -34,6 +34,11 @@ import OneSignalCore
  */
 protocol OSLiveActivityRequest: OneSignalRequest, NSCoding {
     /**
+     The unique key for this request.
+     */
+    var key: String { get }
+    
+    /**
      Whether the request has been successfully executed.
      */
     var requestSuccessful: Bool { get set }
@@ -50,22 +55,20 @@ protocol OSLiveActivityRequest: OneSignalRequest, NSCoding {
     func prepareForExecution() -> Bool
     
     /**
-     Only one request "per action" (i.e. activityId or activityType) is outstanding. This method determines
+     Only one request "per" (i.e. activityId or activityType) can exist. This method determines
      whether  this request supersedes the provided (existing) request.
      */
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool
 }
 
 /**
- A live activity request that is related to the update token of a specific `activityId`.
+ A live activity request that is related to the update token of a specific `activityId` key.
  */
 protocol OSLiveActivityUpdateTokenRequest: OSLiveActivityRequest {
-    var activityId: String { get }
 }
 
 /**
- A live activity request that is related to the start token of a specific `activityType`.
+ A live activity request that is related to the start token of a specific `activityType` key.
  */
 protocol OSLiveActivityStartTokenRequest: OSLiveActivityRequest {
-    var activityType: String { get }
 }

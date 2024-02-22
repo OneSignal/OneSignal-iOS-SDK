@@ -29,9 +29,9 @@ import OneSignalCore
 import OneSignalUser
 
 class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
-    override var description: String { return "(OSRequestSetStartToken) activityType:\(activityType) requestSuccessful:\(requestSuccessful) token:\(token)" }
+    override var description: String { return "(OSRequestSetStartToken) key:\(key) requestSuccessful:\(requestSuccessful) token:\(token)" }
     
-    var activityType: String
+    var key: String
     var token: String
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = false
@@ -47,9 +47,9 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
             return false
         }
         
-        let safeActivityType = NSString.addingPercentEncoding(self.activityType as NSString)
-        self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/live_activities/startToken/\(String(describing: safeActivityType))"
-        self.parameters = ["token": self.token]
+        let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
+        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
+        self.parameters = ["token": self.token, "device_type": 0]
         self.method = PUT
         
         return true
@@ -65,15 +65,15 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
         return self.timestamp > existing.timestamp
     }
     
-    init(activityType: String, token: String) {
-        self.activityType = activityType
+    init(key: String, token: String) {
+        self.key = key
         self.token = token
         self.requestSuccessful = false
         super.init()
     }
     
     func encode(with coder: NSCoder) {
-        coder.encode(activityType, forKey: "activityType")
+        coder.encode(key, forKey: "key")
         coder.encode(token, forKey: "token")
         coder.encode(requestSuccessful, forKey: "requestSuccessful")
         coder.encode(timestamp, forKey: "timestamp")
@@ -81,7 +81,7 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
 
     required init?(coder: NSCoder) {
         guard
-            let activityType = coder.decodeObject(forKey: "activityType") as? String,
+            let key = coder.decodeObject(forKey: "key") as? String,
             let token = coder.decodeObject(forKey: "token") as? String,
             let requestSuccessful = coder.decodeObject(forKey: "requestSuccessful") as? Bool,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
@@ -89,7 +89,7 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
             // Log error
             return nil
         }
-        self.activityType = activityType
+        self.key = key
         self.token = token
         self.requestSuccessful = requestSuccessful
         super.init()

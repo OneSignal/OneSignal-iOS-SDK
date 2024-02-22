@@ -36,7 +36,7 @@ public protocol OneSignalLiveActivityAttributes: ActivityAttributes {
     /**
      A reserved attribute name used by the OneSignal SDK.  If starting the live activity via
      pushToStart, this will be a populated attribute by the push to start notification. If starting
-     the live activity programmatically, use OneSignalActivity<Attributes>.createLiveActivityAttributeData
+     the live activity programmatically, use `OneSignalLiveActivityAttributeData.create`
      to create this data.
      */
     var onesignal: OneSignalLiveActivityAttributeData { get set }
@@ -45,10 +45,15 @@ public protocol OneSignalLiveActivityAttributes: ActivityAttributes {
 /**
  OneSignal-specific metadata used internally. If using pushToStart, this will be passed into
  the started live activity.  If starting the live activity programmatically, use
- OneSignalActivity<Attributes>.createLiveActivityAttributeData to create a new instance.
+ `OneSignalLiveActivityAttributeData.create` to create this data.
  */
 public struct OneSignalLiveActivityAttributeData : Decodable, Encodable {
     
+    /**
+     Create a new instance of `OneSignalLiveActivityAttributeData`
+     - Parameters
+        - activityId: The activity identifier OneSignal will use to push updates for.
+     */
     public static func create(activityId: String) -> OneSignalLiveActivityAttributeData {
         OneSignalLiveActivityAttributeData(activityId: activityId)
     }

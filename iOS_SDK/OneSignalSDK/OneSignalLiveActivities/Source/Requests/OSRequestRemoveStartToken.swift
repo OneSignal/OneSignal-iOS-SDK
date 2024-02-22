@@ -29,9 +29,9 @@ import OneSignalCore
 import OneSignalUser
 
 class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
-    override var description: String { return "(OSRequestRemoveStartToken) activityType:\(activityType) requestSuccessful:\(requestSuccessful)" }
+    override var description: String { return "(OSRequestRemoveStartToken) key:\(key) requestSuccessful:\(requestSuccessful)" }
     
-    var activityType: String
+    var key: String
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = true
     
@@ -46,9 +46,8 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
             return false
         }
         
-        let safeActivityType = NSString.addingPercentEncoding(self.activityType as NSString)
-        
-        self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/live_activities/startToken/\(String(describing: safeActivityType))"
+        let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
+        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.method = DELETE
         
         return true
@@ -58,28 +57,28 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
         return self.timestamp > existing.timestamp
     }
 
-    init(activityType: String) {
-        self.activityType = activityType
+    init(key: String) {
+        self.key = key
         self.requestSuccessful = false
         super.init()
     }
     
     func encode(with coder: NSCoder) {
-        coder.encode(activityType, forKey: "activityType")
+        coder.encode(key, forKey: "key")
         coder.encode(requestSuccessful, forKey: "requestSuccessful")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
-            let activityType = coder.decodeObject(forKey: "activityType") as? String,
+            let key = coder.decodeObject(forKey: "key") as? String,
             let requestSuccessful = coder.decodeObject(forKey: "requestSuccessful") as? Bool,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
             return nil
         }
-        self.activityType = activityType
+        self.key = key
         self.requestSuccessful = requestSuccessful
         super.init()
         self.timestamp = timestamp
