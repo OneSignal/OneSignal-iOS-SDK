@@ -35,11 +35,12 @@ import OneSignalCore
 public class OSOperationRepo: NSObject {
     public static let sharedInstance = OSOperationRepo()
     private var hasCalledStart = false
+    private let deltaQueueLock = UnfairLock()
 
     // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
-    var deltaQueue: [OSDelta] = []
+    private var deltaQueue: [OSDelta] = []
 
     // TODO: This could come from a config, plist, method, remote params
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
@@ -102,10 +103,12 @@ public class OSOperationRepo: NSObject {
         }
         start()
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
-        deltaQueue.append(delta)
 
-        // Persist the deltas (including new delta) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        deltaQueueLock.locked {
+            deltaQueue.append(delta)
+            // Persist the deltas (including new delta) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
     }
 
     @objc public func flushDeltaQueue(inBackground: Bool = false) {
@@ -123,35 +126,37 @@ public class OSOperationRepo: NSObject {
         }
 
         start()
-        if !deltaQueue.isEmpty {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(deltaQueue)")
-        }
 
-        var index = 0
-        for delta in deltaQueue {
-            if let executor = deltasToExecutorMap[delta.name] {
-                executor.enqueueDelta(delta)
-                deltaQueue.remove(at: index)
-            } else {
-                // keep in queue if no executor matches, we may not have the executor available yet
-                index += 1
+        deltaQueueLock.locked {
+            if !deltaQueue.isEmpty {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(deltaQueue)")
+            }
+
+            var index = 0
+            for delta in deltaQueue {
+                if let executor = deltasToExecutorMap[delta.name] {
+                    executor.enqueueDelta(delta)
+                    deltaQueue.remove(at: index)
+                } else {
+                    // keep in queue if no executor matches, we may not have the executor available yet
+                    index += 1
+                }
+            }
+
+            // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            for executor in executors {
+                executor.cacheDeltaQueue()
+            }
+
+            for executor in executors {
+                executor.processDeltaQueue(inBackground: inBackground)
+            }
+
+            if inBackground {
+                OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
             }
         }
-
-        // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-
-        for executor in executors {
-            executor.cacheDeltaQueue()
-        }
-
-        for executor in executors {
-            executor.processDeltaQueue(inBackground: inBackground)
-        }
-
-        if inBackground {
-            OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
-        }
-
     }
 }
