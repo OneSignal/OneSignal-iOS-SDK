@@ -29,6 +29,7 @@ import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
 import OneSignalUserMocks
+import OneSignalOSCore
 @testable import OneSignalUser
 
 final class OneSignalUserTests: XCTestCase {
@@ -61,5 +62,35 @@ final class OneSignalUserTests: XCTestCase {
 
         XCTAssertEqual(identityModelStoreExternalId, "my-external-id")
         XCTAssertEqual(userInstanceExternalId, "my-external-id")
+    }
+
+    /**
+     This test reproduces a crash in the Operation Repo's flushing delta queue.
+     It is possible for two threads to flush concurrently.
+     However, this test does not crash 100% of the time.
+     */
+    func testOperationRepoFlushingConcurrency() throws {
+        /* Setup */
+        OneSignalCore.setSharedClient(MockOneSignalClient())
+
+        /* When */
+
+        // 1. Enqueue 10 Deltas to the Operation Repo
+        for num in 0...9 {
+            OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag\(num)", value: "value")
+        }
+
+        // 2. Flush the delta queue from 4 multiple threads
+        for _ in 1...4 {
+            DispatchQueue.global().async {
+                print("🧪 flushDeltaQueue on thread \(Thread.current)")
+                OSOperationRepo.sharedInstance.flushDeltaQueue()
+            }
+        }
+
+        /* Then */
+        // There are two places that can crash, as multiple threads are manipulating arrays:
+        // 1. OpRepo: `deltaQueue.remove(at: index)` index out of bounds
+        // 2. OSPropertyOperationExecutor: `deltaQueue.append(delta)` EXC_BAD_ACCESS
     }
 }
