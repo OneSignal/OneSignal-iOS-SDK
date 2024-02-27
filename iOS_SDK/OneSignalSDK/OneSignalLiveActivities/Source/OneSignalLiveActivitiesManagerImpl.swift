@@ -98,8 +98,8 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
     
     @available(iOS 16.1, *)
-    public static func monitor<Attributes : OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type) {
-        if #available(iOS 17.2, *) {
+    public static func setup<Attributes : OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
+        if #available(iOS 17.2, *), (options == nil || options!.enablePushToStart) {
             Task {
                 for try await data in Activity<Attributes>.pushToStartTokenUpdates {
                     let token = data.map {String(format: "%02x", $0)}.joined()
@@ -134,11 +134,13 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     }
                 }
                 
-                // listen for activity update token updates so we can tell OneSignal how to update the activity
-                Task {
-                    for await pushToken in activity.pushTokenUpdates {
-                        let token = pushToken.map {String(format: "%02x", $0)}.joined()
-                        OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
+                if (options == nil || options!.enablePushToUpdate) {
+                    // listen for activity update token updates so we can tell OneSignal how to update the activity
+                    Task {
+                        for await pushToken in activity.pushTokenUpdates {
+                            let token = pushToken.map {String(format: "%02x", $0)}.joined()
+                            OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
+                        }
                     }
                 }
             }

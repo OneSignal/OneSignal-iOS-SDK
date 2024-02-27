@@ -28,8 +28,6 @@
 import Foundation
 import ActivityKit
 import UserNotifications
-import OneSignalUser
-import OneSignalLiveActivities
 import OneSignalFramework
 
 @objc
@@ -40,8 +38,8 @@ class LiveActivityController: NSObject {
     static func start() {
         // ExampleAppFirstWidgetAttributes and ExampleAppSecondWidgetAttributes enable the OneSignal SDK to
         // listen for start/update tokens, this is the only call needed.
-        OneSignal.LiveActivities.monitor(ExampleAppFirstWidgetAttributes.self)
-        OneSignal.LiveActivities.monitor(ExampleAppSecondWidgetAttributes.self)
+        OneSignal.LiveActivities.setup(ExampleAppFirstWidgetAttributes.self)
+        OneSignal.LiveActivities.setup(ExampleAppSecondWidgetAttributes.self)
         
         if #available(iOS 17.2, *) {
             // ExampleAppThirdWidgetAttributes is an example of how to manually set up LA.

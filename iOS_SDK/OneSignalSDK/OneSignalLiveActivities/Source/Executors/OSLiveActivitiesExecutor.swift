@@ -121,7 +121,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
     
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: DispatchQueue = DispatchQueue(label: "OneSignal.LiveActivities")
-    private var pollIntervalSeconds = 60
+    private var pollIntervalSeconds = 30
     
     func start() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities starting executor")
@@ -216,7 +216,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
                     return
                 }
             }
-            self.pollPendingRequests()
+            // retryable failures will stay in the cache, and will retry the next time the app starts
         }
     }
 }
