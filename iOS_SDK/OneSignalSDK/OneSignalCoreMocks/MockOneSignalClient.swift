@@ -31,6 +31,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public let executionQueue: DispatchQueue = DispatchQueue(label: "com.onesignal.execution")
 
     var mockResponses: [String: [String: Any]] = [:]
+    var mockFailureResponses: [String: NSError] = [:]
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
@@ -114,6 +115,8 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         }
         if (mockResponses[String(describing: request)]) != nil {
             successBlock(mockResponses[String(describing: request)])
+        } else if (mockFailureResponses[String(describing: request)]) != nil {
+            failureBlock(mockFailureResponses[String(describing: request)])
         } else {
             print("🧪 cannot find a mock response for request: \(request)")
         }
@@ -135,5 +138,9 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
     public func setMockResponseForRequest(request: String, response: [String: Any]) {
         mockResponses[request] = response
+    }
+    
+    public func setMockFailureResponseForRequest(request: String, error: NSError) {
+        mockFailureResponses[request] = error
     }
 }

@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 
 /**
@@ -39,7 +40,7 @@ import OneSignalUser
  
  WARNING: This cache is **not** thread safe, synchronization required!
  */
-private class RequestCache {
+class RequestCache {
     var items: [String : OSLiveActivityRequest]
     private var cacheKey: String
     private var ttl: TimeInterval
@@ -96,7 +97,7 @@ private class RequestCache {
     }
 }
 
-private class UpdateRequestCache : RequestCache {
+class UpdateRequestCache : RequestCache {
     // An update token should not last longer than 8 hours, we keep for 24 hours to be safe.
     static let ONE_DAY_IN_SECONDS = TimeInterval(60 * 60 * 24 * 365)
 
@@ -105,7 +106,7 @@ private class UpdateRequestCache : RequestCache {
     }
 }
 
-private class StartRequestCache : RequestCache {
+class StartRequestCache : RequestCache {
     // A start token will exist for a year in the cache.
     static let ONE_YEAR_IN_SECONDS = TimeInterval(60 * 60 * 24 * 365)
     
@@ -116,13 +117,17 @@ private class StartRequestCache : RequestCache {
 
 class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
     // The currently tracked update and start tokens (key) and their associated request (value). THESE ARE NOT THREAD SAFE
-    private let updateTokens: UpdateRequestCache = UpdateRequestCache()
-    private let startTokens: StartRequestCache = StartRequestCache()
+    let updateTokens: UpdateRequestCache = UpdateRequestCache()
+    let startTokens: StartRequestCache = StartRequestCache()
     
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
-    private var requestDispatch: DispatchQueue = DispatchQueue(label: "OneSignal.LiveActivities")
+    private var requestDispatch: OSDispatchQueue
     private var pollIntervalSeconds = 30
     
+    init(requestDispatch: OSDispatchQueue) {
+        self.requestDispatch = requestDispatch
+    }
+
     func start() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities starting executor")
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.addObserver(self)
@@ -159,7 +164,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
     private func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
         
-        self.requestDispatch.asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
+        self.requestDispatch.asyncAfterTime(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing outstanding requests")
 
             // execute any request that hasn't been successfully executed.
@@ -197,7 +202,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
         }
         
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing request: \(request)")
-        OneSignalClient.shared().execute(request) { _ in
+        OneSignalCore.sharedClient().execute(request) { _ in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request succeeded: \(request)")
             self.requestDispatch.async {

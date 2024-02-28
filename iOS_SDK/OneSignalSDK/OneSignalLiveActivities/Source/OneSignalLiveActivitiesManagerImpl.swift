@@ -29,7 +29,7 @@ import OneSignalCore
 import ActivityKit
 
 public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
-    private static let _executor: OSLiveActivitiesExecutor = OSLiveActivitiesExecutor()
+    private static let _executor: OSLiveActivitiesExecutor = OSLiveActivitiesExecutor(requestDispatch: DispatchQueue(label: "OneSignal.LiveActivities"))
     
     @objc
     public static func LiveActivities() -> AnyClass {

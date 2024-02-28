@@ -62,7 +62,7 @@ class LiveActivitiesSwiftTests: XCTestCase {
         OneSignal.LiveActivities.exit("my-activity-id", withSuccess: {_ in }, withFailure: {_ in })
         
         if #available(iOS 16.1, *) {
-            OneSignal.LiveActivities.monitor(DummyOneSignalAwareActivityAttributes.self)
+            OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self)
         }
         
         if #available(iOS 17.2, *) {

@@ -153,6 +153,16 @@
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "473542492B8F93330016DB4C"
+               BuildableName = "OneSignalLiveActivitiesTests.xctest"
+               BlueprintName = "OneSignalLiveActivitiesTests"
+               ReferencedContainer = "container:OneSignal.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

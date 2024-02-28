@@ -54,7 +54,9 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
     }
     
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
-        return self.timestamp > existing.timestamp
+        // Note that NSDate has nanosecond precision. It's possible for two requests to come in at the same time. If
+        // that does happen, we assume the current one supersedes the existing one.
+        return self.timestamp >= existing.timestamp
     }
 
     init(key: String) {
