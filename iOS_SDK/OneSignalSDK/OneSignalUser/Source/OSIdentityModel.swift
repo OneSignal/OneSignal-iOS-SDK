@@ -31,14 +31,19 @@ import OneSignalOSCore
 
 class OSIdentityModel: OSModel {
     var onesignalId: String? {
-        return aliases[OS_ONESIGNAL_ID]
+        aliasesLock.locked {
+            return aliases[OS_ONESIGNAL_ID]
+        }
     }
 
     var externalId: String? {
-        return aliases[OS_EXTERNAL_ID]
+        aliasesLock.locked {
+            return aliases[OS_EXTERNAL_ID]
+        }
     }
 
     var aliases: [String: String] = [:]
+    private let aliasesLock = UnfairLock()
 
     // TODO: We need to make this token secure
     public var jwtBearerToken: String?
@@ -69,22 +74,28 @@ class OSIdentityModel: OSModel {
      Called to clear the model's data in preparation for hydration via a fetch user call.
      */
     func clearData() {
-        self.aliases = [:]
+        aliasesLock.locked {
+            self.aliases = [:]
+        }
     }
 
     // MARK: - Alias Methods
 
     func addAliases(_ aliases: [String: String]) {
-        for (label, id) in aliases {
-            self.aliases[label] = id
+        aliasesLock.locked {
+            for (label, id) in aliases {
+                self.aliases[label] = id
+            }
+            self.set(property: "aliases", newValue: aliases)
         }
-        self.set(property: "aliases", newValue: aliases)
     }
 
     func removeAliases(_ labels: [String]) {
-        for label in labels {
-            self.aliases.removeValue(forKey: label)
-            self.set(property: "aliases", newValue: [label: ""])
+        aliasesLock.locked {
+            for label in labels {
+                self.aliases.removeValue(forKey: label)
+                self.set(property: "aliases", newValue: [label: ""])
+            }
         }
     }
 
@@ -93,18 +104,20 @@ class OSIdentityModel: OSModel {
         var newOnesignalId: String?
         var newExternalId: String?
 
-        for property in response {
-            switch property.key {
-            case "external_id":
-                newExternalId = property.value as? String
-                aliases[OS_EXTERNAL_ID] = newExternalId
-            case "onesignal_id":
-                newOnesignalId = property.value as? String
-                aliases[OS_ONESIGNAL_ID] = newOnesignalId
-            default:
-                aliases[property.key] = property.value as? String
+        aliasesLock.locked {
+            for property in response {
+                switch property.key {
+                case "external_id":
+                    newExternalId = property.value as? String
+                    aliases[OS_EXTERNAL_ID] = newExternalId
+                case "onesignal_id":
+                    newOnesignalId = property.value as? String
+                    aliases[OS_ONESIGNAL_ID] = newOnesignalId
+                default:
+                    aliases[property.key] = property.value as? String
+                }
+                self.set(property: "aliases", newValue: aliases)
             }
-            self.set(property: "aliases", newValue: aliases)
         }
         fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
