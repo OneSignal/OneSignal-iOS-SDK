@@ -50,21 +50,30 @@ NSMutableDictionary<NSString*, NSNumber*> *tasks;
                                   @"OSBackgroundTaskManagerImpl: expirationHandler called for %@", taskIdentifier]];
         [self endBackgroundTask:taskIdentifier];
     }];
-    tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:uiIdentifier];
+    @synchronized (tasks) {
+        tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:uiIdentifier];
+    }
 }
 
 - (void)endBackgroundTask:(NSString * _Nonnull)taskIdentifier {
-    UIBackgroundTaskIdentifier uiIdentifier = [[tasks objectForKey:taskIdentifier] unsignedLongValue];
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
-                     message:[NSString stringWithFormat:
-                              @"OSBackgroundTaskManagerImpl:endBackgroundTask: %@ with UIBackgroundTaskIdentifier %lu",
-                              taskIdentifier, (unsigned long)uiIdentifier]];
-    [UIApplication.sharedApplication endBackgroundTask:uiIdentifier];
+    @synchronized (tasks) {
+        UIBackgroundTaskIdentifier uiIdentifier = [[tasks objectForKey:taskIdentifier] unsignedLongValue];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
+                         message:[NSString stringWithFormat:
+                                  @"OSBackgroundTaskManagerImpl:endBackgroundTask: %@ with UIBackgroundTaskIdentifier %lu",
+                                  taskIdentifier, (unsigned long)uiIdentifier]];
+        [UIApplication.sharedApplication endBackgroundTask:uiIdentifier];
+    }
     [self setTaskInvalid:taskIdentifier];
 }
 
+/**
+ This method is called when the background task ends or directly by other services within the SDK
+ */
 - (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier {
-    tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:UIBackgroundTaskInvalid];
+    @synchronized (tasks) {
+        tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:UIBackgroundTaskInvalid];
+    }
 }
 
 @end
