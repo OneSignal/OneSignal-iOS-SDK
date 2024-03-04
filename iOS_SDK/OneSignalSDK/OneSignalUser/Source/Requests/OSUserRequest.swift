@@ -41,4 +41,16 @@ internal extension OneSignalRequest {
 //        additionalHeaders["Authorization"] = "Bearer \(token)"
 //        self.additionalHeaders = additionalHeaders
     }
+    
+    /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
+    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
+        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
+            var additionalHeaders = self.additionalHeaders ?? [String: String]()
+            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
+            self.additionalHeaders = additionalHeaders
+            return true
+        } else {
+            return false
+        }
+    }
 }

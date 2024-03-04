@@ -43,25 +43,14 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     // Note Android adds it to requests, if the push sub ID exists
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId,
-            let appId = OneSignalConfigManager.getAppId(),
-           addPushSubscriptionIdToAdditionalHeaders() {
+            let appId = OneSignalConfigManager.getAppId() {
+            let _ = self.addPushSubscriptionIdToAdditionalHeaders()
             self.addJWTHeader(identityModel: identityModel)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
             return true
         } else {
             // self.path is non-nil, so set to empty string
             self.path = ""
-            return false
-        }
-    }
-
-    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
-        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
-            var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
-            self.additionalHeaders = additionalHeaders
-            return true
-        } else {
             return false
         }
     }
