@@ -84,7 +84,7 @@ final class OneSignalUserTests: XCTestCase {
         for _ in 1...4 {
             DispatchQueue.global().async {
                 print("🧪 flushDeltaQueue on thread \(Thread.current)")
-                OSOperationRepo.sharedInstance.flushDeltaQueue()
+                OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
             }
         }
 

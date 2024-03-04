@@ -594,7 +594,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        OSOperationRepo.sharedInstance.flushDeltaQueue(inBackground: true)
+        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
 
