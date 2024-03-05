@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050100"
+#define ONESIGNAL_VERSION                                                   @"050101"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -255,6 +255,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // Defines the maximum delay time for confirmed deliveries
     #define MAX_CONF_DELIVERY_DELAY 25.0
+
+    // Flush interval for operation repo in milliseconds
+    #define POLL_INTERVAL_MS 5000
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -271,6 +274,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // We don't want to delay confirmed deliveries in unit tests
     #define MAX_CONF_DELIVERY_DELAY 0
+
+    // Reduce flush interval for operation repo in tests
+    #define POLL_INTERVAL_MS 100
 
 #endif
 
