@@ -25,7 +25,7 @@ jobs:
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v4
         with:
-          ref: ${{env.release_branch}}
+          ref: ${{github.event.inputs.release_branch}}
 
       - name: Install the Apple certificate and provisioning profile
         uses: apple-actions/import-codesign-certs@v2
@@ -44,14 +44,14 @@ jobs:
         run: |
           cd iOS_SDK/OneSignalSDK
           chmod +x ./update_swift_package.sh
-          ./update_swift_package.sh ${{env.version}}
+          ./update_swift_package.sh ${{github.event.inputs.version}}
         shell: bash
       - name: Commit Changes
         run: |
           git config --local user.email "noreply@onesignal.com"
           git config --local user.name "SyncR 🤖"
           git add .
-          git commit -m "Release ${{env.version}}"
+          git commit -m "Release ${{github.event.inputs.version}}"
 
       - name: Pushing changes
         uses: ad-m/github-push-action@master
@@ -59,7 +59,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: 'OneSignal/OneSignal-iOS-SDK'
           force: true
-          branch: ${{env.release_branch}}
+          branch: ${{github.event.inputs.release_branch}}
 
       - name: "Submitting PR"
         uses: octokit/request-action@v2.x
@@ -67,10 +67,10 @@ jobs:
           route: POST /repos/{owner}/{repo}/pulls
           owner: OneSignal
           repo: OneSignal-iOS-SDK
-          head: ${{env.release_branch}}
+          head: ${{github.event.inputs.release_branch}}
           base: main
           title: |
-            "Release ${{env.version}}"
+            "Release ${{github.event.inputs.version}}"
           body: |
             "Add Release Notes For Review Here"
         env:
