@@ -13,7 +13,7 @@ import _StringProcessing
   public var paused: Swift.Bool
   public func start()
   public func addExecutor(_ executor: OneSignalOSCore.OSOperationExecutor)
-  @objc public func flushDeltaQueue(inBackground: Swift.Bool = false)
+  @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
   @objc override dynamic public init()
   @objc deinit
 }
@@ -95,6 +95,11 @@ public protocol OSModelStoreChangedHandler {
   @objc public func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
   @objc deinit
+}
+final public class UnfairLock {
+  public init()
+  @objc deinit
+  final public func locked<ReturnValue>(_ closure: () throws -> ReturnValue) rethrows -> ReturnValue
 }
 @objc @_hasMissingDesignatedInitializers public class OSModelChangedArgs : ObjectiveC.NSObject {
   final public let model: OneSignalOSCore.OSModel

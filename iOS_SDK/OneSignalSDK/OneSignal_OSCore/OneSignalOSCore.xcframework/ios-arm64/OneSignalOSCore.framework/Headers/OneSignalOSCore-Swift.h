@@ -306,7 +306,7 @@ SWIFT_CLASS("_TtC15OneSignalOSCore18OSModelChangedArgs")
 /// OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
 SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
-- (void)flushDeltaQueueInBackground:(BOOL)inBackground;
+- (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

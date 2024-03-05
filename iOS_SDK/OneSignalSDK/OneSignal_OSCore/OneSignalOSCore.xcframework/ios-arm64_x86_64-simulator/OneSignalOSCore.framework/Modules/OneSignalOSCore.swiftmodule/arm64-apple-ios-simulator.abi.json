@@ -213,8 +213,8 @@
           },
           {
             "kind": "Function",
-            "name": "flushDeltaQueue",
-            "printedName": "flushDeltaQueue(inBackground:)",
+            "name": "addFlushDeltaQueueToDispatchQueue",
+            "printedName": "addFlushDeltaQueueToDispatchQueue(inBackground:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -230,10 +230,10 @@
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo(im)flushDeltaQueueInBackground:",
-            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC15flushDeltaQueue12inBackgroundySb_tF",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo(im)addFlushDeltaQueueToDispatchQueueInBackground:",
+            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC028addFlushDeltaQueueToDispatchI012inBackgroundySb_tF",
             "moduleName": "OneSignalOSCore",
-            "objc_name": "flushDeltaQueueInBackground:",
+            "objc_name": "addFlushDeltaQueueToDispatchQueueInBackground:",
             "declAttributes": [
               "AccessControl",
               "ObjC"
@@ -2978,6 +2978,88 @@
         ]
       },
       {
+        "kind": "TypeDecl",
+        "name": "UnfairLock",
+        "printedName": "UnfairLock",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UnfairLock",
+                "printedName": "OneSignalOSCore.UnfairLock",
+                "usr": "s:15OneSignalOSCore10UnfairLockC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore10UnfairLockCACycfc",
+            "mangledName": "$s15OneSignalOSCore10UnfairLockCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "locked",
+            "printedName": "locked(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GenericTypeParam",
+                "printedName": "τ_0_0"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() throws -> τ_0_0",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "typeAttributes": [
+                  "noescape"
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore10UnfairLockC6lockedyxxyKXEKlF",
+            "mangledName": "$s15OneSignalOSCore10UnfairLockC6lockedyxxyKXEKlF",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0>",
+            "sugared_genericSig": "<ReturnValue>",
+            "declAttributes": [
+              "Final",
+              "Rethrows",
+              "AccessControl"
+            ],
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:15OneSignalOSCore10UnfairLockC",
+        "mangledName": "$s15OneSignalOSCore10UnfairLockC",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "RawDocComment"
+        ]
+      },
+      {
         "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
@@ -3575,84 +3657,91 @@
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
       "offset": 1573,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 1747,
+      "length": 27,
+      "value": "\"OneSignal.OSOperationRepo\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Dictionary",
-      "offset": 1711,
+      "offset": 1927,
       "length": 3,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 1758,
+      "offset": 1974,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 1793,
+      "offset": 2017,
       "length": 2,
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1901,
-      "length": 1,
-      "value": "5"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 1927,
+      "offset": 2175,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 4475,
+      "offset": 4830,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "BooleanLiteral",
+      "offset": 5006,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
       "kind": "StringLiteral",
       "offset": 1257,
       "length": 12,
       "value": "\"OneSignalOSCore.OSModelStore\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "BooleanLiteral",
       "offset": 1419,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "StringLiteral",
       "offset": 1260,
       "length": 7,
       "value": "\"OneSignalOSCore.OSModel\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
       "offset": 1455,
       "length": 7,
       "value": "\"OneSignalOSCore.OSDelta\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
       "kind": "StringLiteral",
       "offset": 1256,
       "length": 18,

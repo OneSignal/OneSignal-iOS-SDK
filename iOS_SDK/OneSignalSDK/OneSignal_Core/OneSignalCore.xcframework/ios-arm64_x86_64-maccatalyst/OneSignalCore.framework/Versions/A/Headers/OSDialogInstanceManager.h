@@ -35,6 +35,6 @@ typedef void (^OSDialogActionCompletion)(int tappedActionIndex);
 @end
 
 @interface OSDialogInstanceManager : NSObject
-+ (void)setSharedInstance:(NSObject<OSDialogPresenter> *_Nonnull)instance;
++ (void)setSharedOSDialogInstance:(NSObject<OSDialogPresenter> *_Nonnull)instance;
 + (NSObject<OSDialogPresenter> *_Nullable)sharedInstance;
 @end
