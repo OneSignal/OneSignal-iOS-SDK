@@ -51,7 +51,7 @@ final class OneSignalUserTests: XCTestCase {
     // Comparable to Android test: "externalId is backed by the identity model"
     func testLoginSetsExternalId() throws {
         /* Setup */
-        OneSignalCore.setSharedClient(MockOneSignalClient())
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
 
         /* When */
         OneSignalUserManagerImpl.sharedInstance.login(externalId: "my-external-id", token: nil)
@@ -71,7 +71,7 @@ final class OneSignalUserTests: XCTestCase {
      */
     func testOperationRepoFlushingConcurrency() throws {
         /* Setup */
-        OneSignalCore.setSharedClient(MockOneSignalClient())
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
 
         /* When */
 

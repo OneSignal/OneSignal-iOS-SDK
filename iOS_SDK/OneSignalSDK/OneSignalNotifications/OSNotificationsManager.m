@@ -716,7 +716,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalCore.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:[self pushSubscriptionId]
+        [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:[self pushSubscriptionId]
                                                                                              appId:[OneSignalConfigManager getAppId]
                                                                                          wasOpened:YES
                                                                                          messageId:messageId

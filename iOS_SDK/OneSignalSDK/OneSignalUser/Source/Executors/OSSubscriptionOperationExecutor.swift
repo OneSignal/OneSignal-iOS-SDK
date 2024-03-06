@@ -246,7 +246,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
-        OneSignalCore.sharedClient().execute(request) { result in
+        OneSignalCoreImpl.sharedClient().execute(request) { result in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
             self.addRequestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
@@ -308,7 +308,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         // This request can be executed as-is.
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
-        OneSignalCore.sharedClient().execute(request) { _ in
+        OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -347,7 +347,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalCore.sharedClient().execute(request) { _ in
+        OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.updateRequestQueue.removeAll(where: { $0 == request})

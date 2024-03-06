@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalCore.h"
 
-@implementation OneSignalCore
+@implementation OneSignalCoreImpl
 
 static id<IOneSignalClient> _sharedClient;
 + (id<IOneSignalClient>)sharedClient {

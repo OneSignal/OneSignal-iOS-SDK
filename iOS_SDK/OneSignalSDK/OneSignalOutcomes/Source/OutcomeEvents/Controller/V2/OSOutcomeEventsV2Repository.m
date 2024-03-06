@@ -43,7 +43,7 @@ THE SOFTWARE.
                                                                  appId:appId
                                                             deviceType:deviceType];
 
-    [OneSignalCore.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 @end

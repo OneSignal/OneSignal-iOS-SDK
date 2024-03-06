@@ -58,7 +58,7 @@
 #import <OneSignalCore/OSLocation.h>
 
 // TODO: Testing: Should this class be defined in this file?
-@interface OneSignalCore : NSObject
+@interface OneSignalCoreImpl : NSObject
 
 + (void)setSharedClient:(nonnull id<IOneSignalClient>)client;
 + (nonnull id<IOneSignalClient>)sharedClient;

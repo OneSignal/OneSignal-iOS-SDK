@@ -65,7 +65,7 @@ THE SOFTWARE.
             return;
     }
 
-    [OneSignalCore.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 @end
