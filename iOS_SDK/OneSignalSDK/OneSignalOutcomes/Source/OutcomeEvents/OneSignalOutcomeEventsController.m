@@ -111,7 +111,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
                influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams
                      onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
                      onFailure:(OSFailureBlock _Nonnull)failureBlock {
-    [OneSignalCore.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
+    [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
                                                   withActiveTime:timeElapsed
                                                   appId:appId
                                                   pushSubscriptionId:pushSubscriptionId

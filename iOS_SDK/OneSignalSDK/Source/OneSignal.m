@@ -601,7 +601,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     NSString *userId = nil;
 
-    [OneSignalCore.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
+    [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
             OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
