@@ -5033,7 +5033,7 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "BooleanLiteral",
-      "offset": 10634,
+      "offset": 10638,
       "length": 5,
       "value": "false"
     },
@@ -5075,7 +5075,7 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "BooleanLiteral",
-      "offset": 22248,
+      "offset": 22264,
       "length": 5,
       "value": "false"
     },
