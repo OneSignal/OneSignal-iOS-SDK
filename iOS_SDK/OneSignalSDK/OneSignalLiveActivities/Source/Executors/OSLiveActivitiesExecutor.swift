@@ -202,7 +202,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
         }
         
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing request: \(request)")
-        OneSignalCore.sharedClient().execute(request) { _ in
+        OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request succeeded: \(request)")
             self.requestDispatch.async {
