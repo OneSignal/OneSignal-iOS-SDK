@@ -218,7 +218,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
-    return [OneSignalLiveActivitiesManagerImpl LiveActivities];
+    return [OneSignalLiveActivitiesManagerImpl liveActivities];
 }
 
 + (Class<OSLocation>)Location {

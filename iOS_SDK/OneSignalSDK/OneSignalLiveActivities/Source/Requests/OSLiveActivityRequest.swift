@@ -37,23 +37,23 @@ protocol OSLiveActivityRequest: OneSignalRequest, NSCoding {
      The unique key for this request.
      */
     var key: String { get }
-    
+
     /**
      Whether the request has been successfully executed.
      */
     var requestSuccessful: Bool { get set }
-    
+
     /**
      Whether this request should be forgotten about when successful.
      */
     var shouldForgetWhenSuccessful: Bool { get }
-    
+
     /**
      Call this prior to executing the request. In addition to preparing the request for execution, it also
      returns whether the request *can* be executed.
      */
     func prepareForExecution() -> Bool
-    
+
     /**
      Only one request "per" (i.e. activityId or activityType) can exist. This method determines
      whether  this request supersedes the provided (existing) request.

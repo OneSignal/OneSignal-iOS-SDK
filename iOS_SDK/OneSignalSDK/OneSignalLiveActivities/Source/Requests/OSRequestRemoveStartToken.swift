@@ -30,29 +30,29 @@ import OneSignalUser
 
 class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
     override var description: String { return "(OSRequestRemoveStartToken) key:\(key) requestSuccessful:\(requestSuccessful)" }
-    
+
     var key: String
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = true
-    
+
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove start token request due to null app ID.")
             return false
         }
-        
+
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove start token request due to null subscription ID.")
             return false
         }
-        
+
         let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
         self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.method = DELETE
-        
+
         return true
     }
-    
+
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
         // Note that NSDate has nanosecond precision. It's possible for two requests to come in at the same time. If
         // that does happen, we assume the current one supersedes the existing one.
@@ -64,7 +64,7 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
         self.requestSuccessful = false
         super.init()
     }
-    
+
     func encode(with coder: NSCoder) {
         coder.encode(key, forKey: "key")
         coder.encode(requestSuccessful, forKey: "requestSuccessful")

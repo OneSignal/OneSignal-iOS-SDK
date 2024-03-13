@@ -41,7 +41,7 @@ import OneSignalLiveActivities
 
      // Fixed non-changing properties about your activity go here!
      var title: String
-    
+
      // OneSignal Attributes to allow the SDK to do it's thing
      var onesignal: OneSignalLiveActivityAttributeData
  }
@@ -60,7 +60,7 @@ import OneSignalLiveActivities
 
      // Fixed non-changing properties about your activity go here!
      var title: String
-    
+
      // OneSignal Attributes to allow the SDK to do it's thing
      var onesignal: OneSignalLiveActivityAttributeData
  }
@@ -78,7 +78,7 @@ import OneSignalLiveActivities
 
      // Fixed non-changing properties about your activity go here!
      var title: String
-     
+
      // Whether this LA was started via pushToStart (true), or via app (false)
      var isPushToStart: Bool
  }

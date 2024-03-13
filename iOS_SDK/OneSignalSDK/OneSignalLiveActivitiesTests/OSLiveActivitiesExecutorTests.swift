@@ -52,18 +52,18 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
     func testAppendSetStartTokenWithSuccessfulRequest() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
-        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
         XCTAssert(executor.startTokens.items["my-activity-type"] == request)
@@ -71,43 +71,43 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testRemoveStartTokenWithSuccessfulRequest() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestRemoveStartToken(key: "my-activity-type")
-        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testSetUpdateTokenWithSuccessfulRequest() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
-        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
         XCTAssert(executor.updateTokens.items["my-activity-id"] == request)
@@ -115,59 +115,59 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testRemoveUpdateTokenWithSuccessfulRequest() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestRemoveStartToken(key: "my-activity-id")
-        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testRequestWillNotExecuteWhenNoSubscription() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
-        
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
         XCTAssert(executor.startTokens.items["my-activity-type"] == request)
         XCTAssertFalse(request.requestSuccessful)
         XCTAssertEqual(mockClient.executedRequests.count, 0)
     }
-    
+
     func testRequestStaysInCacheForRetryableError() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
         mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 500))
-        
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
         XCTAssert(executor.startTokens.items["my-activity-type"] == request)
@@ -175,71 +175,71 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testRequestRemovedFromCacheForNonRetryableError() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
         mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 401))
-        
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
-    
+
     func testSetStartRequestNotExecutedWithSameActivityTypeAndToken() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
         let request2 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
         XCTAssert(executor.startTokens.items["my-activity-type"] == request1)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
-    
+
     func testSetStartRequestNotExecutedWithSameActivityTypeAndDiffToken() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token-1")
         let request2 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token-2")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
         XCTAssert(executor.startTokens.items["my-activity-type"] == request2)
@@ -247,75 +247,75 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
         XCTAssertTrue(mockClient.executedRequests[1] == request2)
     }
-    
+
     func testSetStartRequestFollowedByRemoveStartIsSuccessful() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token-1")
         let request2 = OSRequestRemoveStartToken(key: "my-activity-type")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 2)
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
         XCTAssertTrue(mockClient.executedRequests[1] == request2)
     }
-    
+
     func testSetUpdateRequestNotExecutedWithSameActivityIdAndToken() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
         let request2 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
         XCTAssert(executor.updateTokens.items["my-activity-id"] == request1)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
-    
+
     func testSetUpdateRequestNotExecutedWithSameActivityIdAndDiffToken() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token-1")
         let request2 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token-2")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
         XCTAssert(executor.updateTokens.items["my-activity-id"] == request2)
@@ -323,25 +323,25 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
         XCTAssertTrue(mockClient.executedRequests[1] == request2)
     }
-    
+
     func testSetUpdateRequestFollowedByRemoveUpdateIsSuccessful() throws {
         /* Setup */
         let mockClient = MockOneSignalClient()
-        OneSignalCore.setSharedClient(mockClient)
+        OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
         mockClient.reset()
-        
+
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token-1")
         let request2 = OSRequestRemoveUpdateToken(key: "my-activity-id")
-        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String : Any]())
-        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String : Any]())
-        
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.append(request1)
         executor.append(request2)
-        
+
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 2)

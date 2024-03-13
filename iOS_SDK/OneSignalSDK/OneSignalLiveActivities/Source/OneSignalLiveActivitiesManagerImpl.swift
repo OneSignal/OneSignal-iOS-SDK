@@ -30,76 +30,82 @@ import ActivityKit
 
 public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     private static let _executor: OSLiveActivitiesExecutor = OSLiveActivitiesExecutor(requestDispatch: DispatchQueue(label: "OneSignal.LiveActivities"))
-    
+
     @objc
-    public static func LiveActivities() -> AnyClass {
+    public static func liveActivities() -> AnyClass {
         return OneSignalLiveActivitiesManagerImpl.self
     }
-    
+
     @objc
     public static func start() {
         _executor.start()
     }
-    
+
     @objc
     public static func enter(_ activityId: String, withToken: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities enter called with activityId: \(activityId) token: \(withToken)")
         _executor.append(OSRequestSetUpdateToken(key: activityId, token: withToken))
     }
-    
+
     @objc
     public static func exit(_ activityId: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities leave called with activityId: \(activityId)")
         _executor.append(OSRequestRemoveUpdateToken(key: activityId))
     }
-    
+
     @available(iOS 17.2, *)
     public static func setPushToStartToken(_ activityType: String, withToken: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities setStartToken called with activityType: \(activityType) token: \(withToken)")
         _executor.append(OSRequestSetStartToken(key: activityType, token: withToken))
     }
-    
+
     @available(iOS 17.2, *)
     public static func removePushToStartToken(_ activityType: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities removeStartToken called with activityType: \(activityType)")
         _executor.append(OSRequestRemoveStartToken(key: "\(activityType)"))
     }
-    
+
     @available(iOS 17.2, *)
-    public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: String) where T : ActivityAttributes {
+    public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: String) where T: ActivityAttributes {
         OneSignalLiveActivitiesManagerImpl.setPushToStartToken("\(activityType)", withToken: withToken)
     }
-    
+
     @available(iOS 17.2, *)
-    public static func removePushToStartToken<T>(_ activityType: T.Type) where T : ActivityAttributes {
+    public static func removePushToStartToken<T>(_ activityType: T.Type) where T: ActivityAttributes {
         OneSignalLiveActivitiesManagerImpl.removePushToStartToken("\(activityType)")
     }
-    
+
     @objc
     public static func enter(_ activityId: String, withToken: String, withSuccess: OSResultSuccessBlock?, withFailure: OSFailureBlock?) {
         enter(activityId, withToken: withToken)
-        
-        if(withSuccess != nil) {
+
+        if withSuccess != nil {
             DispatchQueue.main.async {
-                withSuccess!([AnyHashable : Any]())
+                withSuccess!([AnyHashable: Any]())
             }
         }
     }
-    
+
     @objc
     public static func exit(_ activityId: String, withSuccess: OSResultSuccessBlock?, withFailure: OSFailureBlock?) {
         exit(activityId)
-        
-        if(withSuccess != nil) {
+
+        if withSuccess != nil {
             DispatchQueue.main.async {
-                withSuccess!([AnyHashable : Any]())
+                withSuccess!([AnyHashable: Any]())
             }
         }
     }
-    
+
     @available(iOS 16.1, *)
-    public static func setup<Attributes : OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
-        if #available(iOS 17.2, *), (options == nil || options!.enablePushToStart) {
+    public static func setup<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
+        listenForPushToStart(activityType, options: options)
+        listenForActivity(activityType, options: options)
+    }
+
+    @available(iOS 16.1, *)
+    private static func listenForPushToStart<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
+        if #available(iOS 17.2, *), options == nil || options!.enablePushToStart {
             Task {
                 for try await data in Activity<Attributes>.pushToStartTokenUpdates {
                     let token = data.map {String(format: "%02x", $0)}.joined()
@@ -107,7 +113,10 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                 }
             }
         }
-        
+    }
+
+    @available(iOS 16.1, *)
+    private static func listenForActivity<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
         Task {
             for await activity in Activity<Attributes>.activityUpdates {
                 if #available(iOS 16.2, *) {
@@ -119,29 +128,38 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                         }
                     }
                 }
-                
-                // listen for activity dismisses so we can forget about the token
-                Task {
-                    for await activityState in activity.activityStateUpdates {
-                        switch activityState {
-                        case .dismissed:
-                            OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
-                        case .active: break
-                        case .ended: break
-                        case .stale: break
-                        default: break
-                        }
-                    }
+
+                listenForActivityStateUpdates(activityType, activity: activity, options: options)
+                listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+            }
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func listenForActivityStateUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
+        // listen for activity dismisses so we can forget about the token
+        Task {
+            for await activityState in activity.activityStateUpdates {
+                switch activityState {
+                case .dismissed:
+                    OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
+                case .active: break
+                case .ended: break
+                case .stale: break
+                default: break
                 }
-                
-                if (options == nil || options!.enablePushToUpdate) {
-                    // listen for activity update token updates so we can tell OneSignal how to update the activity
-                    Task {
-                        for await pushToken in activity.pushTokenUpdates {
-                            let token = pushToken.map {String(format: "%02x", $0)}.joined()
-                            OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
-                        }
-                    }
+            }
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func listenForActivityPushToUpdate<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
+        if options == nil || options!.enablePushToUpdate {
+            // listen for activity update token updates so we can tell OneSignal how to update the activity
+            Task {
+                for await pushToken in activity.pushTokenUpdates {
+                    let token = pushToken.map {String(format: "%02x", $0)}.joined()
+                    OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
                 }
             }
         }

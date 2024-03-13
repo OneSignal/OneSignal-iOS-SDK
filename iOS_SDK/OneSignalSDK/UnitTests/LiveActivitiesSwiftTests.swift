@@ -28,43 +28,33 @@
 import XCTest
 import ActivityKit
 
-class DummyActivityAttributes : ActivityAttributes {
+class DummyActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
     }
 }
 
-class DummyOneSignalAwareActivityAttributes : OneSignalLiveActivityAttributes {
+class DummyOneSignalAwareActivityAttributes: OneSignalLiveActivityAttributes {
     var onesignal: OneSignalLiveActivities.OneSignalLiveActivityAttributeData
-    
+
     public struct ContentState: Codable, Hashable {
     }
 }
 
 class LiveActivitiesSwiftTests: XCTestCase {
-    
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-        try super.setUpWithError()
-    }
-    
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        try super.tearDownWithError()
-    }
-    
+
     /**
      This test lays out the public APIs of live activities
      */
     func testUserModelMethodAccess() throws {
-        OneSignal.LiveActivities.enter("my-activity-id",withToken: "my-token")
+        OneSignal.LiveActivities.enter("my-activity-id", withToken: "my-token")
         OneSignal.LiveActivities.enter("my-activity-id", withToken: "my-token", withSuccess: {_ in }, withFailure: {_ in })
         OneSignal.LiveActivities.exit("my-activity-id")
         OneSignal.LiveActivities.exit("my-activity-id", withSuccess: {_ in }, withFailure: {_ in })
-        
+
         if #available(iOS 16.1, *) {
             OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self)
         }
-        
+
         if #available(iOS 17.2, *) {
             OneSignal.LiveActivities.setPushToStartToken(DummyActivityAttributes.self, withToken: "my-token")
             OneSignal.LiveActivities.setPushToStartToken("\(DummyActivityAttributes.self)", withToken: "my-token")
@@ -73,4 +63,3 @@ class LiveActivitiesSwiftTests: XCTestCase {
         }
     }
 }
-

@@ -41,89 +41,87 @@ import OneSignalUser
  WARNING: This cache is **not** thread safe, synchronization required!
  */
 class RequestCache {
-    var items: [String : OSLiveActivityRequest]
+    var items: [String: OSLiveActivityRequest]
     private var cacheKey: String
     private var ttl: TimeInterval
-    
+
     init(cacheKey: String, ttl: TimeInterval) {
         self.cacheKey = cacheKey
         self.ttl = ttl
-        self.items = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: cacheKey, defaultValue: nil) as? [String : OSLiveActivityRequest] ?? [String: OSLiveActivityRequest]()
+        self.items = OneSignalUserDefaults.initShared()
+            .getSavedCodeableData(forKey: cacheKey, defaultValue: nil) as? [String: OSLiveActivityRequest] ?? [String: OSLiveActivityRequest]()
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities initialized token cache \(self): \(items)")
     }
-    
+
     func add(_ request: OSLiveActivityRequest) {
         self.items.updateValue(request, forKey: request.key)
         self.save()
     }
-    
+
     func remove(_ request: OSLiveActivityRequest) {
         if self.items.contains(where: { $0.1 == request}) {
             self.items.removeValue(forKey: request.key)
             self.save()
         }
     }
-    
+
     func markAllUnsuccessful() {
         for (_, request) in self.items {
             request.requestSuccessful = false
         }
         self.save()
     }
-    
+
     func markSuccessful(_ request: OSLiveActivityRequest) {
         if self.items.contains(where: { $0.1 == request}) {
             // Save the appropriate cache with the updated request for this request key.
             if request.shouldForgetWhenSuccessful {
                 self.items.removeValue(forKey: request.key)
-            }
-            else {
+            } else {
                 request.requestSuccessful = true
             }
             self.save()
         }
     }
-    
+
     private func save() {
         // before saving, remove any stale requests from the cache.
-        for (_, request) in self.items {
-            if -request.timestamp.timeIntervalSinceNow > ttl {
-                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities remove stale request from token cache \(self): \(request)")
-                self.items.removeValue(forKey: request.key)
-            }
+        for (_, request) in self.items where -request.timestamp.timeIntervalSinceNow > ttl {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities remove stale request from token cache \(self): \(request)")
+            self.items.removeValue(forKey: request.key)
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities saving token cache \(self): \(items)")
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey:  self.cacheKey, withValue: self.items)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.cacheKey, withValue: self.items)
     }
 }
 
-class UpdateRequestCache : RequestCache {
+class UpdateRequestCache: RequestCache {
     // An update token should not last longer than 8 hours, we keep for 24 hours to be safe.
-    static let ONE_DAY_IN_SECONDS = TimeInterval(60 * 60 * 24 * 365)
+    static let OneDayInSeconds = TimeInterval(60 * 60 * 24 * 365)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY, ttl: UpdateRequestCache.ONE_DAY_IN_SECONDS)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY, ttl: UpdateRequestCache.OneDayInSeconds)
     }
 }
 
-class StartRequestCache : RequestCache {
+class StartRequestCache: RequestCache {
     // A start token will exist for a year in the cache.
-    static let ONE_YEAR_IN_SECONDS = TimeInterval(60 * 60 * 24 * 365)
-    
+    static let OneYearInSeconds = TimeInterval(60 * 60 * 24 * 365)
+
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY, ttl: StartRequestCache.ONE_YEAR_IN_SECONDS)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY, ttl: StartRequestCache.OneYearInSeconds)
     }
 }
 
-class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
+class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     // The currently tracked update and start tokens (key) and their associated request (value). THESE ARE NOT THREAD SAFE
     let updateTokens: UpdateRequestCache = UpdateRequestCache()
     let startTokens: StartRequestCache = StartRequestCache()
-    
+
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
     private var pollIntervalSeconds = 30
-    
+
     init(requestDispatch: OSDispatchQueue) {
         self.requestDispatch = requestDispatch
     }
@@ -131,28 +129,28 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
     func start() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities starting executor")
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.addObserver(self)
-        
+
         // drive a poll in case there are any outstanding requests in the cache.
         self.pollPendingRequests()
     }
-    
+
     func onPushSubscriptionDidChange(state: OneSignalUser.OSPushSubscriptionChangedState) {
         // when a push subscription changes, we need to re-send up all update and start tokens with the new ID.
         self.requestDispatch.async {
-            self.caches { cache in
+            self.caches { _ in
                 self.startTokens.markAllUnsuccessful()
             }
-            
+
             self.pollPendingRequests()
         }
     }
-    
+
     func append(_ request: OSLiveActivityRequest) {
         self.requestDispatch.async {
             let cache = self.getCache(request)
             let existingRequest = cache.items[request.key]
 
-            if (existingRequest == nil || request.supersedes(existingRequest!)) {
+            if existingRequest == nil || request.supersedes(existingRequest!) {
                 cache.add(request)
                 self.executeRequest(cache, request: request)
             } else {
@@ -163,7 +161,7 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
 
     private func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
-        
+
         self.requestDispatch.asyncAfterTime(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing outstanding requests")
 
@@ -175,32 +173,32 @@ class OSLiveActivitiesExecutor : OSPushSubscriptionObserver {
             }
         }
     }
-    
+
     private func caches(_ block: (RequestCache) -> Void) {
         block(self.startTokens)
         block(self.updateTokens)
     }
-    
+
     private func getCache(_ request: OSLiveActivityRequest) -> RequestCache {
         if request is OSLiveActivityUpdateTokenRequest {
             return self.updateTokens
         }
-        
+
         return self.startTokens
     }
 
     private func executeRequest(_ cache: RequestCache, request: OSLiveActivityRequest) {
-        if(OSPrivacyConsentController.requiresUserPrivacyConsent()) {
+        if OSPrivacyConsentController.requiresUserPrivacyConsent() {
             OneSignalLog.onesignalLog(.LL_WARN, message: "Cannot send live activity request when the user has not granted privacy permission")
             self.pollPendingRequests()
             return
         }
-        
-        if (!request.prepareForExecution()) {
+
+        if !request.prepareForExecution() {
             self.pollPendingRequests()
             return
         }
-        
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing request: \(request)")
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!

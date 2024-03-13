@@ -30,52 +30,52 @@ import OneSignalUser
 
 class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityUpdateTokenRequest {
     override var description: String { return "(OSRequestSetUpdateToken) key:\(key) requestSuccessful:\(requestSuccessful) token:\(token)" }
-    
+
     var requestSuccessful: Bool
     var key: String
     var token: String
     var shouldForgetWhenSuccessful: Bool = false
-    
+
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null app ID.")
             return false
         }
-        
+
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null subscription ID.")
             return false
         }
-        
+
         let activityId = String(describing: NSString.addingPercentEncoding(self.key as NSString))
-        //self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
-        //self.parameters = ["token": self.token, "device_type": 0]
+        // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
+        // self.parameters = ["token": self.token, "device_type": 0]
         self.path = "apps/\(appId)/live_activities/\(activityId)/token"
         self.parameters = ["subscription_id": subscriptionId, "push_token": self.token, "device_type": 0]
         self.method = POST
-        
+
         return true
     }
-    
+
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
         if let existingSetRequest = existing as? OSRequestSetUpdateToken {
             if self.token == existingSetRequest.token {
                 return false
             }
         }
-        
+
         // Note that NSDate has nanosecond precision. It's possible for two requests to come in at the same time. If
         // that does happen, we assume the current one supersedes the existing one.
         return self.timestamp >= existing.timestamp
     }
-    
+
     init(key: String, token: String) {
         self.key = key
         self.token = token
         self.requestSuccessful = false
         super.init()
     }
-    
+
     func encode(with coder: NSCoder) {
         coder.encode(key, forKey: "key")
         coder.encode(token, forKey: "token")

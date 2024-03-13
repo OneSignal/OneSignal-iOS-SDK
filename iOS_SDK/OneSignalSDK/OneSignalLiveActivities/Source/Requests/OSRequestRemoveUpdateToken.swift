@@ -30,42 +30,42 @@ import OneSignalUser
 
 class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityUpdateTokenRequest {
     override var description: String { return "(OSRequestRemoveUpdateToken) key:\(key) requestSuccessful:\(requestSuccessful)" }
-    
+
     var key: String
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = true
-    
+
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the reemove update token request due to null app ID.")
             return false
         }
-        
+
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove update token request due to null subscription ID.")
             return false
         }
-        
+
         let activityId = String(describing: NSString.addingPercentEncoding(self.key as NSString))
-        //self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
+        // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
         self.path = "apps/\(appId)/live_activities/\(activityId)/token/\(subscriptionId)"
         self.method = DELETE
-        
+
         return true
     }
-    
+
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
         // Note that NSDate has nanosecond precision. It's possible for two requests to come in at the same time. If
         // that does happen, we assume the current one supersedes the existing one.
         return self.timestamp >= existing.timestamp
     }
-    
+
     init(key: String) {
         self.key = key
         self.requestSuccessful = false
         super.init()
     }
-    
+
     func encode(with coder: NSCoder) {
         coder.encode(key, forKey: "key")
         coder.encode(timestamp, forKey: "timestamp")

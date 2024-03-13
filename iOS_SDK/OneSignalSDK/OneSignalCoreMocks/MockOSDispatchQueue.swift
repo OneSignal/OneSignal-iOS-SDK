@@ -29,11 +29,11 @@ import OneSignalOSCore
 
 public class MockDispatchQueue: OSDispatchQueue {
     public init() {}
-    
+
     public func async(execute work: @escaping @convention(block) () -> Void) {
         work()
     }
-    
+
     public func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
         work()
     }

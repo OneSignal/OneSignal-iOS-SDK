@@ -34,8 +34,8 @@ extension DispatchQueue: OSDispatchQueue {
     public func async(execute work: @escaping @convention(block) () -> Void) {
         async(group: nil, qos: .unspecified, flags: [], execute: work)
     }
-    
-    public func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void){
+
+    public func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
         asyncAfter(deadline: deadline, execute: work)
     }
 }

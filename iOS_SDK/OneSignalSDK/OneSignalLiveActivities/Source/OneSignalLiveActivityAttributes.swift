@@ -47,8 +47,8 @@ public protocol OneSignalLiveActivityAttributes: ActivityAttributes {
  the started live activity.  If starting the live activity programmatically, use
  `OneSignalLiveActivityAttributeData.create` to create this data.
  */
-public struct OneSignalLiveActivityAttributeData : Decodable, Encodable {
-    
+public struct OneSignalLiveActivityAttributeData: Decodable, Encodable {
+
     /**
      Create a new instance of `OneSignalLiveActivityAttributeData`
      - Parameters
@@ -57,6 +57,6 @@ public struct OneSignalLiveActivityAttributeData : Decodable, Encodable {
     public static func create(activityId: String) -> OneSignalLiveActivityAttributeData {
         OneSignalLiveActivityAttributeData(activityId: activityId)
     }
-    
+
     public var activityId: String
 }

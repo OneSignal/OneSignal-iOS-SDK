@@ -32,7 +32,7 @@ import OneSignalFramework
 
 @objc
 class LiveActivityController: NSObject {
-    
+
     @available(iOS 16.1, *)
     @objc
     static func start() {
@@ -40,7 +40,7 @@ class LiveActivityController: NSObject {
         // listen for start/update tokens, this is the only call needed.
         OneSignal.LiveActivities.setup(ExampleAppFirstWidgetAttributes.self)
         OneSignal.LiveActivities.setup(ExampleAppSecondWidgetAttributes.self)
-        
+
         if #available(iOS 17.2, *) {
             // ExampleAppThirdWidgetAttributes is an example of how to manually set up LA.
             // Setup an async task to monitor and send pushToStartToken updates to OneSignalSDK.
@@ -57,13 +57,12 @@ class LiveActivityController: NSObject {
             // the activity-id (i.e. "my-activity-id") is most likely passed down as an attribute within
             // ExampleAppThirdWidgetAttributes.
             Task {
-                for await activity in Activity<ExampleAppThirdWidgetAttributes>.activityUpdates {
-                    if activity.attributes.isPushToStart {
-                        Task {
-                            for await pushToken in activity.pushTokenUpdates {
-                                let token = pushToken.map {String(format: "%02x", $0)}.joined()
-                                OneSignalLiveActivitiesManagerImpl.enter("my-activity-id", withToken: token)
-                            }
+                for await activity in Activity<ExampleAppThirdWidgetAttributes>.activityUpdates
+                    where activity.attributes.isPushToStart {
+                    Task {
+                        for await pushToken in activity.pushTokenUpdates {
+                            let token = pushToken.map {String(format: "%02x", $0)}.joined()
+                            OneSignalLiveActivitiesManagerImpl.enter("my-activity-id", withToken: token)
                         }
                     }
                 }
@@ -84,7 +83,7 @@ class LiveActivityController: NSObject {
              let attributes = ExampleAppFirstWidgetAttributes(title: "#" + String(counter1) + " OneSignal Dev App Live Activity", onesignal: oneSignalAttribute)
              let contentState = ExampleAppFirstWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
              do {
-                 let _ = try Activity<ExampleAppFirstWidgetAttributes>.request(
+                 _ = try Activity<ExampleAppFirstWidgetAttributes>.request(
                          attributes: attributes,
                          contentState: contentState,
                          pushType: .token)
@@ -93,7 +92,7 @@ class LiveActivityController: NSObject {
              }
          }
      }
-    
+
     /**
      An example of starting a Live Activity whose attributes are **not** "OneSignal SDK aware".  The app must handle listening for update tokens and notify the OneSignal SDK.
      */

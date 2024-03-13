@@ -30,31 +30,31 @@ import OneSignalUser
 
 class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
     override var description: String { return "(OSRequestSetStartToken) key:\(key) requestSuccessful:\(requestSuccessful) token:\(token)" }
-    
+
     var key: String
     var token: String
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = false
-    
+
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set start token request due to null app ID.")
             return false
         }
-        
+
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set start token request due to null subscription ID.")
             return false
         }
-        
+
         let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
         self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.parameters = ["token": self.token, "device_type": 0]
         self.method = PUT
-        
+
         return true
     }
-    
+
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
         if let existingSetRequest = existing as? OSRequestSetStartToken {
             if self.token == existingSetRequest.token {
@@ -66,14 +66,14 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
         // that does happen, we assume the current one supersedes the existing one.
         return self.timestamp >= existing.timestamp
     }
-    
+
     init(key: String, token: String) {
         self.key = key
         self.token = token
         self.requestSuccessful = false
         super.init()
     }
-    
+
     func encode(with coder: NSCoder) {
         coder.encode(key, forKey: "key")
         coder.encode(token, forKey: "token")

@@ -139,7 +139,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public func setMockResponseForRequest(request: String, response: [String: Any]) {
         mockResponses[request] = response
     }
-    
+
     public func setMockFailureResponseForRequest(request: String, error: NSError) {
         mockFailureResponses[request] = error
     }
