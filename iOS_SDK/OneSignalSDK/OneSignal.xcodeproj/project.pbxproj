@@ -2063,29 +2063,6 @@
 			name = OneSignalLiveActivitiesFramework;
 			sourceTree = "<group>";
 		};
-		47AE65232B7D38D5006EBAA9 /* LiveActivities */ = {
-			isa = PBXGroup;
-			children = (
-				47AE65242B7D38DC006EBAA9 /* Executors */,
-				47AE65252B7D38E1006EBAA9 /* Requests */,
-			);
-			name = LiveActivities;
-			sourceTree = "<group>";
-		};
-		47AE65242B7D38DC006EBAA9 /* Executors */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Executors;
-			sourceTree = "<group>";
-		};
-		47AE65252B7D38E1006EBAA9 /* Requests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Requests;
-			sourceTree = "<group>";
-		};
 		7A5A818324899050002E07C8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -2239,7 +2216,6 @@
 		DE69E1A8282ED8360090BB3D /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				47AE65232B7D38D5006EBAA9 /* LiveActivities */,
 				3C9AD6BA2B2284AB00BC1540 /* Executors */,
 				3C9AD6BD2B22877600BC1540 /* Requests */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
@@ -6026,7 +6002,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.UnitTestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.UnitTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUser/Source/UnitTestApp-Bridging-Header.h";
@@ -7194,7 +7170,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CFLAGS = "-fembed-bitcode";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.UnitTestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.UnitTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUser/Source/UnitTestApp-Bridging-Header.h";
@@ -7245,7 +7221,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.UnitTestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.UnitTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUser/Source/UnitTestApp-Bridging-Header.h";
