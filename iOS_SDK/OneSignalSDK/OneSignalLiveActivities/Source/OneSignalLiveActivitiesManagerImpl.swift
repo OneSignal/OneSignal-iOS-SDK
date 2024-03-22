@@ -99,13 +99,15 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
     @available(iOS 16.1, *)
     public static func setup<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
-        listenForPushToStart(activityType, options: options)
+        if #available(iOS 17.2, *) {
+            listenForPushToStart(activityType, options: options)
+        }
         listenForActivity(activityType, options: options)
     }
 
-    @available(iOS 16.1, *)
+    @available(iOS 17.2, *)
     private static func listenForPushToStart<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
-        if #available(iOS 17.2, *), options == nil || options!.enablePushToStart {
+        if options == nil || options!.enablePushToStart {
             Task {
                 for try await data in Activity<Attributes>.pushToStartTokenUpdates {
                     let token = data.map {String(format: "%02x", $0)}.joined()
