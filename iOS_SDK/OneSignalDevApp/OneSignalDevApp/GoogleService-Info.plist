@@ -17,7 +17,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.onesignal.example.OneSignalNotificationServiceExtensionA</string>
+	<string>com.onesignal.example.staging.OneSignalNotificationServiceExtensionA</string>
 	<key>PROJECT_ID</key>
 	<string>onesignalexample-8d956</string>
 	<key>STORAGE_BUCKET</key>

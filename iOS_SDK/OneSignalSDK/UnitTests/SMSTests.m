@@ -637,7 +637,7 @@
 //    [UnitTestCommonMethods foregroundApp];
 //    [UnitTestCommonMethods runBackgroundThreads];
 //    
-//    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
+//    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.staging.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
 //    // Should make two requests (one for sms player Id, one for push)
 //    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 //    XCTAssertEqualObjects(expectedUrl, OneSignalClientOverrider.lastUrl);
@@ -666,7 +666,7 @@
 //    [UnitTestCommonMethods foregroundApp];
 //    [UnitTestCommonMethods runBackgroundThreads];
 //    
-//    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
+//    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.staging.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
 //    // Should make two requests (one for sms player Id, one for push)
 //    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 //    XCTAssertEqualObjects(expectedUrl, OneSignalClientOverrider.lastUrl);
