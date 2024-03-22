@@ -30,6 +30,7 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "OneSignalExample-Swift.h"
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -46,7 +47,7 @@
 OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
+    // Blah Blah
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
@@ -73,6 +74,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages addClickListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
+    
+    if (@available(iOS 16.1, *)) {
+        [LiveActivityController start];
+    }
     
     return YES;
 }

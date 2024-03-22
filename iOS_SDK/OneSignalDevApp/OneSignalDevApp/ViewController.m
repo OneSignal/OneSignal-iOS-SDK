@@ -234,11 +234,7 @@
         NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
         if (activityId && activityId.length) {
-            [LiveActivityController createActivityWithCompletionHandler:^(NSString * token) {
-                if(token){
-                    [OneSignal.LiveActivities enter:activityId withToken:token];
-                }
-            }];
+            [LiveActivityController createActivityWithActivityId:activityId completionHandler:nil ];
         }
     } else {
         NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
