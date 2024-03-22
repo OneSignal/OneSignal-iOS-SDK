@@ -175,6 +175,12 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     
     [self.messageView setupWebViewConstraints];
     
+    // Add drop shadow to the messageView
+    self.messageView.layer.shadowOffset = CGSizeMake(0, 3);
+    self.messageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.messageView.layer.shadowRadius = 3.0f;
+    self.messageView.layer.shadowOpacity = 0.55f;
+    
     [self.view addSubview:self.messageView];
     
     [self addConstraintsForMessage];
