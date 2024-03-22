@@ -56,6 +56,8 @@
 		03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */; };
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3C9B5B252BAE05870080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEDD0F582B570FEB00E6D1D1 /* PrivacyInfo.xcprivacy */; };
+		3C9B5B262BAE05930080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEDD0F572B570DA100E6D1D1 /* PrivacyInfo.xcprivacy */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */; };
@@ -2146,6 +2148,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C9B5B252BAE05870080C6FB /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2167,6 +2170,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C9B5B262BAE05930080C6FB /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
