@@ -46,8 +46,12 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
             return false
         }
 
-        let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
-        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
+        guard let activityType = self.key.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
+            return false
+        }
+
+        self.path = "api/v1/apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.method = DELETE
 
         return true

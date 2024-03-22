@@ -47,9 +47,13 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
             return false
         }
 
-        let activityType = String(describing: NSString.addingPercentEncoding(self.key as NSString))
-        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
-        self.parameters = ["token": self.token, "device_type": 0]
+        guard let activityType = self.key.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
+            return false
+        }
+        
+        self.path = "api/v1/apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
+        self.parameters = ["activity_token": self.token, "device_type": 0]
         self.method = PUT
 
         return true

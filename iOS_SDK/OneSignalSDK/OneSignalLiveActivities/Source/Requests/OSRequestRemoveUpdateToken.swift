@@ -46,9 +46,13 @@ class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiv
             return false
         }
 
-        let activityId = String(describing: NSString.addingPercentEncoding(self.key as NSString))
+        guard let activityId = self.key.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
+            return false
+        }
+        
         // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
-        self.path = "apps/\(appId)/live_activities/\(activityId)/token/\(subscriptionId)"
+        self.path = "api/v1/apps/\(appId)/live_activities/\(activityId)/token/\(subscriptionId)"
         self.method = DELETE
 
         return true
