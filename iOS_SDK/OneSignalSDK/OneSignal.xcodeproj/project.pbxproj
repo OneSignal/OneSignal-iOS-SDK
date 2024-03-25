@@ -58,6 +58,8 @@
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3C9B5B252BAE05870080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEDD0F582B570FEB00E6D1D1 /* PrivacyInfo.xcprivacy */; };
 		3C9B5B262BAE05930080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEDD0F572B570DA100E6D1D1 /* PrivacyInfo.xcprivacy */; };
+		3C9B5B2A2BB1E5040080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C9B5B292BB1E5040080C6FB /* PrivacyInfo.xcprivacy */; };
+		3C9B5B2C2BB1E5380080C6FB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C9B5B2B2BB1E5380080C6FB /* PrivacyInfo.xcprivacy */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */; };
@@ -644,6 +646,8 @@
 		1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OneSignal.m"; sourceTree = "<group>"; };
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		3C9B5B292BB1E5040080C6FB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C9B5B2B2BB1E5380080C6FB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3E2400381D4FFC31008BDE70 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E24003B1D4FFC31008BDE70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1503,6 +1507,7 @@
 			children = (
 				DE7D182127026C31002D3A5D /* Source */,
 				DE7D17E927026B95002D3A5D /* OneSignalCore.docc */,
+				3C9B5B2B2BB1E5380080C6FB /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalCore;
 			sourceTree = "<group>";
@@ -1594,6 +1599,7 @@
 				7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */,
 				7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */,
 				DE7D188327037F43002D3A5D /* OneSignalOutcomes.docc */,
+				3C9B5B292BB1E5040080C6FB /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalOutcomes;
 			sourceTree = "<group>";
@@ -2163,6 +2169,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C9B5B2C2BB1E5380080C6FB /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2178,6 +2185,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C9B5B2A2BB1E5040080C6FB /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
