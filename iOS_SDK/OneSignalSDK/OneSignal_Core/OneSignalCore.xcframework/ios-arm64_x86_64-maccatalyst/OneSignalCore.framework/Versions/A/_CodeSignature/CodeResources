@@ -8,6 +8,10 @@
 		<data>
 		MNSoZjzKtQKkJLhkdk0vLZ9tra8=
 		</data>
+		<key>Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		XlIKkK6ZsRF9uaJ3GJUkQOw9WVU=
+		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
@@ -85,7 +89,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OCf1Z5mGrNDaop5ezpy/DIE59e3KW2WA5E6lr4/AsQI=
+			0PQtsxG+XvpPsNp5o+/n4jB0SNSV4aPUyLROEXZaYBA=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
@@ -142,6 +146,13 @@
 			<key>hash2</key>
 			<data>
 			GtRo3fldyjE7z2E+ZzTMbVXU6S6zdxGKnbApe36BmSg=
+			</data>
+		</dict>
+		<key>Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			g2luGY1Qnqmr7GYOsrX4x85UQRA+lLE7nPLikUEQQ3Y=
 			</data>
 		</dict>
 	</dict>
