@@ -52,9 +52,14 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities leave called with activityId: \(activityId)")
         _executor.append(OSRequestRemoveUpdateToken(key: activityId))
     }
+    
+    @available(iOS 16.1, *)
+    public static func setupDefault() {
+        setup(DefaultLiveActivityAttributes.self)
+    }
 
     @available(iOS 17.2, *)
-    public static func setPushToStartToken(_ activityType: String, withToken: String) {
+    static func setPushToStartToken(_ activityType: String, withToken: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities setStartToken called with activityType: \(activityType) token: \(withToken)")
         
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
@@ -67,7 +72,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
 
     @available(iOS 17.2, *)
-    public static func removePushToStartToken(_ activityType: String) {
+    static func removePushToStartToken(_ activityType: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities removeStartToken called with activityType: \(activityType)")
         
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
@@ -117,6 +122,32 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             listenForPushToStart(activityType, options: options)
         }
         listenForActivity(activityType, options: options)
+    }
+    
+    @available(iOS 16.1, *)
+    public static func enterDefault(activityId: String, attributes: [String : Any], content: [String : Any]) {
+        let oneSignalAttribute = OneSignalLiveActivityAttributeData.create(activityId: activityId)
+        
+        var attributeValues = [String: AnyCodable]()
+        for attribute in attributes {
+            attributeValues.updateValue(AnyCodable(attribute.value), forKey: attribute.key)
+        }
+        
+        var contentValues = [String: AnyCodable]()
+        for contentItem in content {
+            contentValues.updateValue(AnyCodable(contentItem.value), forKey: contentItem.key)
+        }
+        
+        let attributes = DefaultLiveActivityAttributes(values: attributeValues, onesignal: oneSignalAttribute)
+        let contentState = DefaultLiveActivityAttributes.ContentState(values: contentValues)
+        do {
+            _ = try Activity<DefaultLiveActivityAttributes>.request(
+                    attributes: attributes,
+                    contentState: contentState,
+                    pushType: .token)
+        } catch let error {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: " + error.localizedDescription)
+        }
     }
 
     @available(iOS 17.2, *)

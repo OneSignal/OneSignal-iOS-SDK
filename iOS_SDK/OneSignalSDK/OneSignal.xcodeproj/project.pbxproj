@@ -203,6 +203,9 @@
 		475F474A2B8E3B4600EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
 		475F474F2B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
 		475F47502B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A885CC2BB317B300ED91FA /* AnyCodable.swift */; };
+		47A885CF2BB3186600ED91FA /* AnyEncodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A885CE2BB3186600ED91FA /* AnyEncodable.swift */; };
+		47A885D12BB3188A00ED91FA /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A885D02BB3188A00ED91FA /* AnyDecodable.swift */; };
 		5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */; };
 		7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A123294235DFE3B002B6CE3 /* OutcomeTests.m */; };
 		7A1232A2235E1743002B6CE3 /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411F11E73342200E41FD7 /* OneSignal.m */; };
@@ -1220,6 +1223,9 @@
 		475F47402B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSLiveActivityRequest.swift; path = Source/Requests/OSLiveActivityRequest.swift; sourceTree = "<group>"; };
 		475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSRequestRemoveStartToken.swift; path = Source/Requests/OSRequestRemoveStartToken.swift; sourceTree = "<group>"; };
 		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OneSignalLiveActivitiesFramework/Info.plist; sourceTree = "<group>"; };
+		47A885CC2BB317B300ED91FA /* AnyCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodable.swift; sourceTree = "<group>"; };
+		47A885CE2BB3186600ED91FA /* AnyEncodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyEncodable.swift; sourceTree = "<group>"; };
+		47A885D02BB3188A00ED91FA /* AnyDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyDecodable.swift; sourceTree = "<group>"; };
 		5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceOverrider.h; sourceTree = "<group>"; };
 		5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceOverrider.m; sourceTree = "<group>"; };
 		7A123294235DFE3B002B6CE3 /* OutcomeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeTests.m; sourceTree = "<group>"; };
@@ -2031,6 +2037,9 @@
 				475F47382B8E39F300EC05B3 /* OneSignalLiveActivityAttributes.swift */,
 				475F47392B8E39F300EC05B3 /* OSLiveActivities.swift */,
 				475F47202B8E398E00EC05B3 /* OneSignalLiveActivities.h */,
+				47A885CC2BB317B300ED91FA /* AnyCodable.swift */,
+				47A885CE2BB3186600ED91FA /* AnyEncodable.swift */,
+				47A885D02BB3188A00ED91FA /* AnyDecodable.swift */,
 			);
 			path = OneSignalLiveActivities;
 			sourceTree = "<group>";
@@ -3781,13 +3790,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47A885D12BB3188A00ED91FA /* AnyDecodable.swift in Sources */,
 				475F473C2B8E39F300EC05B3 /* OSLiveActivities.swift in Sources */,
 				475F47432B8E3A0A00EC05B3 /* OSRequestSetStartToken.swift in Sources */,
 				475F473B2B8E39F300EC05B3 /* OneSignalLiveActivityAttributes.swift in Sources */,
 				475F47362B8E39DD00EC05B3 /* OSLiveActivitiesExecutor.swift in Sources */,
 				475F473A2B8E39F300EC05B3 /* OneSignalLiveActivitiesManagerImpl.swift in Sources */,
 				475F47422B8E3A0A00EC05B3 /* OSRequestRemoveUpdateToken.swift in Sources */,
+				47A885CF2BB3186600ED91FA /* AnyEncodable.swift in Sources */,
 				475F47452B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift in Sources */,
+				47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */,
 				475F47462B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift in Sources */,
 				475F47442B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift in Sources */,
 			);

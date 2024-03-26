@@ -28,6 +28,22 @@
 import ActivityKit
 
 /**
+ A default struct conforming to OneSignalLiveActivityAttributes which is registered with OneSignal as a Live Activity
+ through `OneSignal.LiveActivities.setupDefault`.  The only action required by the customer app is
+ to implement a Widget in their Widget Extension with an `ActivityConfiguration` for
+ `DefaultLiveActivityAttributes`.  All properties (attributes and content-state) within this widget are
+ dynamically defined as a dictionary of values within the static `values` property.
+ */
+public struct DefaultLiveActivityAttributes: OneSignalLiveActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        public var values : [String: AnyCodable]
+    }
+
+    public var values : [String: AnyCodable]
+    public var onesignal: OneSignalLiveActivityAttributeData
+}
+
+/**
  The protocol your ActivityAttributes should conform to in order to allow the OneSignal SDK to manage
  the pushToStart and update token synchronization process on your behalf.
  */

@@ -72,25 +72,24 @@ public protocol OSLiveActivities {
     static func exit(_ activityId: String, withSuccess: OSResultSuccessBlock?, withFailure: OSFailureBlock?)
 
     /**
-     Indicate this device is capable of receiving pushToStart live activities for the `activityType`.  The `activityType` **must be**
-     the name of the `ActivityAttributes` structure tied to the live activity.  Recommend using the generic version of `setPushToStartToken`
-     to ensure correctness.
-     - Parameters
-        - activityType: The name of the `ActivityAttributes` structure tied to the live activity.
-        - withToken: The activity type's pushToStart token.
+     Enable the OneSignalSDK to setup the default`DefaultLiveActivityAttributes` structure, which conforms to the
+     `OneSignalLiveActivityAttributes`. When using this function, OneSignal will manage the capturing
+     and synchronizing of both pushToStart and pushToUpdate tokens.  A Live Activity widget using
+     `DefaultLiveActivityAttributes` should be created in your extension
      */
-    @available(iOS 17.2, *)
-    static func setPushToStartToken(_ activityType: String, withToken: String)
-
+    @available(iOS 16.1, *)
+    static func setupDefault()
+    
     /**
-     Indicate this device is no longer capable of receiving pushToStart live activities for the `activityType`. The `activityType` **must be**
-     the name of the `ActivityAttributes` structure tied to the live activity.  Recommend using the generic version of `removePushToStartToken`
-     to ensure correctness.
+     Enter a new LiveActivity that is modelled by the default`DefaultLiveActivityAttributes` structure. The `DefaultLiveActivityAttributes`
+     is initialized with the dynamic `attributes` and `content` passed in.
      - Parameters
-        - activityType: The name of the `ActivityAttributes` structure tied to the live activity.
+        - activityId: The activity identifier the live activity on this device will be started and eligible to receive updates for.
+        - attributes: A dictionary of the static attributes passed into `DefaultLiveActivityAttributes`.
+        - content: A dictionary of the initital content state passed into `DefaultLiveActivityAttributes`.
      */
-    @available(iOS 17.2, *)
-    static func removePushToStartToken(_ activityType: String)
+    @available(iOS 16.1, *)
+    static func enterDefault(activityId: String, attributes: [String : Any], content: [String : Any])
 }
 
 public extension OSLiveActivities {
