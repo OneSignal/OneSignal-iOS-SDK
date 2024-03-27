@@ -31,6 +31,8 @@ import SwiftUI
 @main
 struct OneSignalWidgetExtensionBundle: WidgetBundle {
     var body: some Widget {
-        OneSignalWidgetExtensionLiveActivity()
+         ExampleAppFirstWidget()
+         ExampleAppSecondWidget()
+         ExampleAppThirdWidget()
     }
 }
