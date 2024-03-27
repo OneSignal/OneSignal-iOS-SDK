@@ -51,7 +51,7 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
             return false
         }
 
-        self.path = "api/v1/apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
+        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.method = DELETE
 
         return true

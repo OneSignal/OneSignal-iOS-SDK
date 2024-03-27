@@ -52,7 +52,7 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
             return false
         }
         
-        self.path = "api/v1/apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
+        self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.parameters = ["activity_token": self.token, "device_type": 0]
         self.method = PUT
 

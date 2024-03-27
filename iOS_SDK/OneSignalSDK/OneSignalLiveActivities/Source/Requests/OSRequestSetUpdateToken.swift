@@ -54,7 +54,7 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
 
         // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
         // self.parameters = ["token": self.token, "device_type": 0]
-        self.path = "api/v1/apps/\(appId)/live_activities/\(activityId)/token"
+        self.path = "apps/\(appId)/live_activities/\(activityId)/token"
         self.parameters = ["subscription_id": subscriptionId, "push_token": self.token, "device_type": 0]
         self.method = POST
 

@@ -52,7 +52,7 @@ class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiv
         }
         
         // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
-        self.path = "api/v1/apps/\(appId)/live_activities/\(activityId)/token/\(subscriptionId)"
+        self.path = "apps/\(appId)/live_activities/\(activityId)/token/\(subscriptionId)"
         self.method = DELETE
 
         return true
