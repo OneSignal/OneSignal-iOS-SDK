@@ -170,7 +170,6 @@
 		4710EA562B8FD08F00435356 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		4710EA572B8FD08F00435356 /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4710EA5A2B8FD18800435356 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
-		4710EA5B2B8FD18800435356 /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4735424D2B8F93340016DB4C /* OSLiveActivitiesExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4735424C2B8F93340016DB4C /* OSLiveActivitiesExecutorTests.swift */; };
 		473542552B8F93760016DB4C /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
 		473542562B8F93760016DB4C /* OneSignalCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -188,9 +187,7 @@
 		475F47242B8E398E00EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
 		475F47252B8E398E00EC05B3 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		475F472A2B8E399F00EC05B3 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
-		475F472B2B8E399F00EC05B3 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		475F472E2B8E399F00EC05B3 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
-		475F472F2B8E399F00EC05B3 /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		475F47362B8E39DD00EC05B3 /* OSLiveActivitiesExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F47352B8E39DD00EC05B3 /* OSLiveActivitiesExecutor.swift */; };
 		475F473A2B8E39F300EC05B3 /* OneSignalLiveActivitiesManagerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F47372B8E39F300EC05B3 /* OneSignalLiveActivitiesManagerImpl.swift */; };
 		475F473B2B8E39F300EC05B3 /* OneSignalLiveActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F47382B8E39F300EC05B3 /* OneSignalLiveActivityAttributes.swift */; };
@@ -1041,19 +1038,6 @@
 				4735425F2B8F93830016DB4C /* OneSignalCore.framework in Embed Frameworks */,
 				473542632B8F93830016DB4C /* OneSignalUser.framework in Embed Frameworks */,
 				473542562B8F93760016DB4C /* OneSignalCoreMocks.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		475F47322B8E399F00EC05B3 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				475F472F2B8E399F00EC05B3 /* OneSignalUser.framework in Embed Frameworks */,
-				475F472B2B8E399F00EC05B3 /* OneSignalCore.framework in Embed Frameworks */,
-				4710EA5B2B8FD18800435356 /* OneSignalOSCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3119,7 +3103,6 @@
 				475F471A2B8E398D00EC05B3 /* Sources */,
 				475F471B2B8E398D00EC05B3 /* Frameworks */,
 				475F471C2B8E398D00EC05B3 /* Resources */,
-				475F47322B8E399F00EC05B3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

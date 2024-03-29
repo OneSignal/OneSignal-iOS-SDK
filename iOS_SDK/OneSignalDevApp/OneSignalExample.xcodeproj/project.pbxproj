@@ -15,7 +15,6 @@
 		47AE65502B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; };
 		47AE65512B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		47AE65532B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65522B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework */; };
-		47AE65542B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65522B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		47AE65572B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65562B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift */; };
 		47AE65582B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65562B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift */; };
 		9112E8871E724C320022A1CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8861E724C320022A1CB /* main.m */; };
@@ -118,17 +117,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		47AE65552B7D3DBF006EBAA9 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				47AE65542B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9150E77E1E73BEDD00C5D46A /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -539,7 +527,6 @@
 				945C59D8296CF2A00097041D /* Sources */,
 				945C59D9296CF2A00097041D /* Frameworks */,
 				945C59DA296CF2A00097041D /* Resources */,
-				47AE65552B7D3DBF006EBAA9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
