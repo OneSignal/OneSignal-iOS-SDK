@@ -197,7 +197,7 @@
 		475F47442B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F473F2B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift */; };
 		475F47452B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F47402B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift */; };
 		475F47462B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */; };
-		475F474A2B8E3B4600EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
+		475F474A2B8E3B4600EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; platformFilter = ios; };
 		475F474F2B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
 		475F47502B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */; };
@@ -4162,6 +4162,7 @@
 		};
 		475F474D2B8E3B4600EC05B3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 475F471D2B8E398D00EC05B3 /* OneSignalLiveActivities */;
 			targetProxy = 475F474C2B8E3B4600EC05B3 /* PBXContainerItemProxy */;
 		};
