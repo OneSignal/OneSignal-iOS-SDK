@@ -86,22 +86,35 @@ import SwiftUI
              // Lock screen/banner UI goes here\VStack(alignment: .leading) {
              VStack {
                  Spacer()
-                 Text("SECOND: " + context.attributes.title).font(.headline)
-                 Spacer()
                  HStack {
+                     Image("onesignaldemo")
+                         .resizable()
+                         .scaledToFit()
+                         .frame(width: 40.0, height: 40.0)
                      Spacer()
-                     Label {
-                         Text(String(context.state.message))
-                     } icon: {
-                         Image("onesignaldemo")
-                             .resizable()
-                             .scaledToFit()
-                             .frame(width: 40.0, height: 40.0)
-                     }
+                     Text(context.attributes.title).font(.headline)
+                 }
+                 Spacer()
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Update:   ").font(.title2)
                      Spacer()
+                     Text(context.state.message)
+                 }
+                 Spacer()
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Progress: ").font(.title2)
+                     ProgressView(value: context.state.progress)
+                         .padding([.bottom, .top], 5)
+                     Text(context.state.status)
+                 }
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Bugs:     ").font(.title2)
+                     Spacer()
+                     Text(String(context.state.bugs))
                  }
                  Spacer()
              }
+             .padding([.all], 20)
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
          } dynamicIsland: { _ in
@@ -125,7 +138,6 @@ import SwiftUI
              } minimal: {
                  Text("Min")
              }
-             .widgetURL(URL(string: "http://www.apple.com"))
              .keylineTint(Color.red)
          }
      }

@@ -54,8 +54,10 @@ import OneSignalLiveActivities
   */
  struct ExampleAppSecondWidgetAttributes: OneSignalLiveActivityAttributes {
      public struct ContentState: Codable, Hashable {
-         // Dynamic stateful properties about your activity go here!
          var message: String
+         var status: String
+         var progress: Double
+         var bugs: Int
      }
 
      // Fixed non-changing properties about your activity go here!
