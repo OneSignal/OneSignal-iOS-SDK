@@ -70,27 +70,6 @@ public protocol OSLiveActivities {
      */
     @available(*, deprecated)
     static func exit(_ activityId: String, withSuccess: OSResultSuccessBlock?, withFailure: OSFailureBlock?)
-
-    /**
-     Indicate this device is capable of receiving pushToStart live activities for the `activityType`.  The `activityType` **must be**
-     the name of the `ActivityAttributes` structure tied to the live activity.  Recommend using the generic version of `setPushToStartToken`
-     to ensure correctness.
-     - Parameters
-        - activityType: The name of the `ActivityAttributes` structure tied to the live activity.
-        - withToken: The activity type's pushToStart token.
-     */
-    @available(iOS 17.2, *)
-    static func setPushToStartToken(_ activityType: String, withToken: String)
-
-    /**
-     Indicate this device is no longer capable of receiving pushToStart live activities for the `activityType`. The `activityType` **must be**
-     the name of the `ActivityAttributes` structure tied to the live activity.  Recommend using the generic version of `removePushToStartToken`
-     to ensure correctness.
-     - Parameters
-        - activityType: The name of the `ActivityAttributes` structure tied to the live activity.
-     */
-    @available(iOS 17.2, *)
-    static func removePushToStartToken(_ activityType: String)
 }
 
 public extension OSLiveActivities {

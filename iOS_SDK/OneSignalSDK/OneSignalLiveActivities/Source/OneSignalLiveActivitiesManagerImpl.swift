@@ -54,7 +54,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
 
     @available(iOS 17.2, *)
-    public static func setPushToStartToken(_ activityType: String, withToken: String) {
+    static func setPushToStartToken(_ activityType: String, withToken: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities setStartToken called with activityType: \(activityType) token: \(withToken)")
         
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
@@ -67,7 +67,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
 
     @available(iOS 17.2, *)
-    public static func removePushToStartToken(_ activityType: String) {
+    static func removePushToStartToken(_ activityType: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities removeStartToken called with activityType: \(activityType)")
         
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
