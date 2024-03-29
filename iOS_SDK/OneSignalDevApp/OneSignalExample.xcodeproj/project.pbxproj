@@ -39,7 +39,7 @@
 		945C59EA296CF2A10097041D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 945C59E9296CF2A10097041D /* Assets.xcassets */; };
 		945C59EC296CF2A10097041D /* OneSignalWidgetExtension.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 945C59E8296CF2A00097041D /* OneSignalWidgetExtension.intentdefinition */; };
 		945C59ED296CF2A10097041D /* OneSignalWidgetExtension.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 945C59E8296CF2A00097041D /* OneSignalWidgetExtension.intentdefinition */; };
-		945C59F0296CF2A10097041D /* OneSignalWidgetExtensionExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 945C59DC296CF2A00097041D /* OneSignalWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		945C59F0296CF2A10097041D /* OneSignalWidgetExtensionExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 945C59DC296CF2A00097041D /* OneSignalWidgetExtensionExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		945C59F6296CF30B0097041D /* LiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945C59F5296CF30B0097041D /* LiveActivityController.swift */; };
 		CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
 		CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
@@ -724,6 +724,7 @@
 		};
 		945C59EF296CF2A10097041D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 945C59DB296CF2A00097041D /* OneSignalWidgetExtensionExtension */;
 			targetProxy = 945C59EE296CF2A10097041D /* PBXContainerItemProxy */;
 		};
