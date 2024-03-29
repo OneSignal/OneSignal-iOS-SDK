@@ -230,6 +230,8 @@
 }
 
 - (IBAction)startAndEnterLiveActivity:(id)sender {
+#if TARGET_OS_MACCATALYST
+#else
     if (@available(iOS 13.0, *)) {
         NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
@@ -239,6 +241,7 @@
     } else {
         NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
     }
+#endif
 }
 - (IBAction)exitLiveActivity:(id)sender {
     if (self.activityId.text && self.activityId.text.length) {

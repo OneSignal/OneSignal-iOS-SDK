@@ -12,8 +12,8 @@
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
-		47AE65502B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; };
-		47AE65512B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		47AE65502B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; platformFilter = ios; };
+		47AE65512B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		47AE65532B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47AE65522B7D3DBF006EBAA9 /* OneSignalLiveActivities.framework */; };
 		47AE65572B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65562B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift */; };
 		47AE65582B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47AE65562B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift */; };

@@ -218,7 +218,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
-    return [OneSignalLiveActivitiesManagerImpl liveActivities];
+    let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(liveActivities)]) {
+        return [oneSignalLiveActivities performSelector:@selector(liveActivities)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+        return [OSStubLiveActivities liveActivities];
+    }
 }
 
 + (Class<OSLocation>)Location {
@@ -453,7 +459,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)startLiveActivitiesManager {
-    [OneSignalLiveActivitiesManagerImpl start];
+    let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(start)]) {
+        [oneSignalLiveActivities performSelector:@selector(start)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+    }
 }
 
 + (void)delayInitializationForPrivacyConsent {

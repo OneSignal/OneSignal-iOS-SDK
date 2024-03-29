@@ -26,10 +26,11 @@
  */
 
 import Foundation
-import ActivityKit
 import UserNotifications
 import OneSignalFramework
-
+#if targetEnvironment(macCatalyst)
+#else
+import ActivityKit
 @objc
 class LiveActivityController: NSObject {
 
@@ -119,3 +120,4 @@ class LiveActivityController: NSObject {
         }
     }
 }
+#endif

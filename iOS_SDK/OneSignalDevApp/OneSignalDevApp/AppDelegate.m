@@ -75,9 +75,13 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
+    #if TARGET_OS_MACCATALYST
+    #else
     if (@available(iOS 16.1, *)) {
         [LiveActivityController start];
     }
+    #endif
+
     
     return YES;
 }

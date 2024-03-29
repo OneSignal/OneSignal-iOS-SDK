@@ -24,6 +24,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#if targetEnvironment(macCatalyst)
+#else
 import ActivityKit
 import OneSignalLiveActivities
 
@@ -84,3 +86,4 @@ import OneSignalLiveActivities
      // Whether this LA was started via pushToStart (true), or via app (false)
      var isPushToStart: Bool
  }
+#endif

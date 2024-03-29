@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import ActivityKit
 
 public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
