@@ -31,6 +31,7 @@ import OneSignalFramework
 #if targetEnvironment(macCatalyst)
 #else
 import ActivityKit
+import OneSignalLiveActivities
 @objc
 class LiveActivityController: NSObject {
 
@@ -63,7 +64,7 @@ class LiveActivityController: NSObject {
                     Task {
                         for await pushToken in activity.pushTokenUpdates {
                             let token = pushToken.map {String(format: "%02x", $0)}.joined()
-                            OneSignalLiveActivitiesManagerImpl.enter("my-activity-id", withToken: token)
+                            OneSignal.LiveActivities.enter("my-activity-id", withToken: token)
                         }
                     }
                 }
