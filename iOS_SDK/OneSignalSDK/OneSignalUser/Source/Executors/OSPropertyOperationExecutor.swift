@@ -47,6 +47,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     delta.model = modelInStore
                 } else {
                     // 2. The model does not exist, drop this Delta
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -71,6 +72,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(request)")
                     updateRequestQueue.remove(at: index)
                 }
             }

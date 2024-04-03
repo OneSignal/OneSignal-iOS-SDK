@@ -111,7 +111,7 @@ class OSUserExecutor {
                     self.transferSubscriptionRequestQueue = [request]
                 } else if !request.prepareForExecution() {
                     // The model do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() reading request \(request) from cache failed. Dropping request.")
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                     self.transferSubscriptionRequestQueue = []
                 }
             }
@@ -144,6 +144,7 @@ class OSUserExecutor {
 
     static func executePendingRequests() {
         let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(requestQueue)")
 
         if requestQueue.isEmpty {
             return
@@ -155,6 +156,7 @@ class OSUserExecutor {
         }) {
             // Return as soon as we reach an un-executable request
             if !request.prepareForExecution() {
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
                 return
             }
 
@@ -388,10 +390,7 @@ class OSUserExecutor {
         request.sentToClient = true
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             removeFromQueue(request)
-
-            // TODO: ... hydrate with returned identity object?
             executePendingRequests()
-
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {

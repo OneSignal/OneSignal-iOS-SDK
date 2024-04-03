@@ -71,8 +71,9 @@ public class OSOperationRepo: NSObject {
         // Read the Deltas from cache, if any...
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo.start() with deltaQueue: \(deltaQueue)")
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo.start() is unable to uncache the OSDelta queue.")
         }
 
         pollFlushQueue()

@@ -260,7 +260,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         start()
         guard externalId != "" else {
-            // Log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User login called with empty externalId. This is not allowed.")
             return
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
@@ -539,7 +539,7 @@ extension OneSignalUserManagerImpl {
     @objc
     public func startNewSession() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl starting new session")
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "_startNewSession") else {
             return
         }
         start()
