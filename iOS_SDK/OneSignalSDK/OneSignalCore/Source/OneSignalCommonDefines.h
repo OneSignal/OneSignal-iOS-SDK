@@ -141,6 +141,7 @@
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
 #define ONESIGNAL_SUPRESS_LAUNCH_URLS @"OneSignal_suppress_launch_urls"
 #define ONESIGNAL_IN_APP_HIDE_DROP_SHADOW @"OneSignal_in_app_message_hide_drop_shadow"
+#define ONESIGNAL_IN_APP_HIDE_GRAY_OVERLAY @"OneSignal_in_app_message_hide_gray_overlay"
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
