@@ -357,7 +357,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         return;
     }
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startNewSession"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignal.startNewSession"];
     
     // Run on the main queue as it is possible for this to be called from multiple queues.
     // Also some of the code in the method is not thread safe such as _outcomeEventsController.
@@ -367,7 +367,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)startNewSessionInternal {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startNewSessionInternal"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignal.startNewSessionInternal"];
     
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])

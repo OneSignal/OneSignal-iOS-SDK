@@ -47,10 +47,12 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     delta.model = modelInStore
                 } else {
                     // 2. The model does not exist, drop this Delta
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
             self.deltaQueue = deltaQueue
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY)")
         }
@@ -71,10 +73,12 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     request.identityModel = identityModel
                 } else if !request.prepareForExecution() {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(request)")
                     updateRequestQueue.remove(at: index)
                 }
             }
             self.updateRequestQueue = updateRequestQueue
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
         }

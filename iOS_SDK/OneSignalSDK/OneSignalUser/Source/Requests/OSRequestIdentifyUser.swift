@@ -55,6 +55,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         } else {
             // self.path is non-nil, so set to empty string
             self.path = ""
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request due to null app ID or null OneSignal ID.")
             return false
         }
     }
@@ -71,7 +72,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
@@ -105,7 +106,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
         super.init()
         self.timestamp = timestamp
         self.parameters = parameters

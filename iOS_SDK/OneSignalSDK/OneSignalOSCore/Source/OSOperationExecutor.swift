@@ -27,8 +27,9 @@
 
 import OneSignalCore
 
-// TODO: Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. Revisit this behavior of dropping.
-
+/**
+ Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
+ */
 public protocol OSOperationExecutor {
     var supportedDeltas: [String] { get }
     var deltaQueue: [OSDelta] { get }
