@@ -91,6 +91,12 @@ class OSUserExecutor {
                         identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
                     } else {
                         // 4. Both models don't exist yet
+                        // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
+                        // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
+                        guard request.prepareForExecution() else {
+                            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
+                            continue
+                        }
                         identityModels[req.identityModelToIdentify.modelId] = req.identityModelToIdentify
                         identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
                     }
