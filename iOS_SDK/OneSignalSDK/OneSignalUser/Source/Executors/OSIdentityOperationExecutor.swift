@@ -49,6 +49,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
             self.deltaQueue = deltaQueue
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY)")
         }
@@ -70,6 +71,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
             self.addRequestQueue = addRequestQueue
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
@@ -89,6 +91,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
             self.removeRequestQueue = removeRequestQueue
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
         }
