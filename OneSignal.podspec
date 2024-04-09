@@ -77,6 +77,7 @@ Pod::Spec.new do |s|
       ss.dependency 'OneSignal/OneSignalExtension'
       ss.dependency 'OneSignal/OneSignalNotifications'
       ss.dependency 'OneSignal/OneSignalUser'
+      ss.dependency 'OneSignal/OneSignalLiveActivities'
       ss.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignalFramework.xcframework'
     end
 
