@@ -58,7 +58,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))"
+        self.stringDescription = "<OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))>"
         super.init()
 
         var propertiesObject = properties
@@ -99,7 +99,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         }
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestUpdateProperties with parameters: \(parameters)"
+        self.stringDescription = "<OSRequestUpdateProperties with parameters: \(parameters)>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

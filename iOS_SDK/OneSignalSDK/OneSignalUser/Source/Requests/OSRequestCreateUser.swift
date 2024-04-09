@@ -66,7 +66,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
         self.originalPushToken = originalPushToken
-        self.stringDescription = "OSRequestCreateUser"
+        self.stringDescription = "<OSRequestCreateUser with externalId: \(identityModel.externalId ?? "nil")>"
         super.init()
 
         var params: [String: Any] = [:]
@@ -114,7 +114,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
         self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
-        self.stringDescription = "OSRequestCreateUser"
+        self.stringDescription = "<OSRequestCreateUser with externalId: \(identityModel.externalId ?? "nil")>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

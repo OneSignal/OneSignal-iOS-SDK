@@ -91,6 +91,12 @@ class OSUserExecutor {
                         identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
                     } else {
                         // 4. Both models don't exist yet
+                        // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
+                        // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
+                        guard request.prepareForExecution() else {
+                            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
+                            continue
+                        }
                         identityModels[req.identityModelToIdentify.modelId] = req.identityModelToIdentify
                         identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
                     }
@@ -99,7 +105,7 @@ class OSUserExecutor {
             }
         }
         self.userRequestQueue = userRequestQueue
-
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
         // Read unfinished Transfer Subscription requests from cache, if any...
         if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestTransferSubscription] {
             // We only care about the last transfer subscription request
@@ -111,14 +117,14 @@ class OSUserExecutor {
                     self.transferSubscriptionRequestQueue = [request]
                 } else if !request.prepareForExecution() {
                     // The model do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() reading request \(request) from cache failed. Dropping request.")
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                     self.transferSubscriptionRequestQueue = []
                 }
             }
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor error encountered reading from cache for \(OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)")
         }
-
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
         executePendingRequests()
     }
 
@@ -144,6 +150,7 @@ class OSUserExecutor {
 
     static func executePendingRequests() {
         let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(requestQueue)")
 
         if requestQueue.isEmpty {
             return
@@ -155,6 +162,7 @@ class OSUserExecutor {
         }) {
             // Return as soon as we reach an un-executable request
             if !request.prepareForExecution() {
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
                 return
             }
 
@@ -388,10 +396,7 @@ class OSUserExecutor {
         request.sentToClient = true
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             removeFromQueue(request)
-
-            // TODO: ... hydrate with returned identity object?
             executePendingRequests()
-
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {

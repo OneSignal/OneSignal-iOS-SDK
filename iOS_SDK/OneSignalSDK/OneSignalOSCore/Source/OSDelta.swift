@@ -39,7 +39,7 @@ open class OSDelta: NSObject, NSCoding {
     public let value: Any
 
     override open var description: String {
-        return "OSDelta \(name) with property: \(property) value: \(value)"
+        return "<OSDelta \(name) with property: \(property) value: \(value)>"
     }
 
     public init(name: String, model: OSModel, property: String, value: Any) {
