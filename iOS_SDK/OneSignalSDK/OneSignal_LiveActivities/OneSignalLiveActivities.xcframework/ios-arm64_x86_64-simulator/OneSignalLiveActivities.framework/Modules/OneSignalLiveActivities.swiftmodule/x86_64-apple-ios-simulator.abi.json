@@ -1,0 +1,2584 @@
+{
+  "ABIRoot": {
+    "kind": "Root",
+    "name": "TopLevel",
+    "printedName": "TopLevel",
+    "children": [
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "ActivityKit",
+        "printedName": "ActivityKit",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "LiveActivitySetupOptions",
+        "printedName": "LiveActivitySetupOptions",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "enablePushToStart",
+            "printedName": "enablePushToStart",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvp",
+            "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvp",
+            "moduleName": "OneSignalLiveActivities",
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvg",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvg",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvs",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvs",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvM",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV17enablePushToStartSbvM",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "enablePushToUpdate",
+            "printedName": "enablePushToUpdate",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvp",
+            "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvp",
+            "moduleName": "OneSignalLiveActivities",
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvg",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvg",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvs",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvs",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvM",
+                "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV18enablePushToUpdateSbvM",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV",
+        "mangledName": "$s23OneSignalLiveActivities0C20ActivitySetupOptionsV",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "ActivityKit",
+        "printedName": "ActivityKit",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OneSignalLiveActivityAttributes",
+        "printedName": "OneSignalLiveActivityAttributes",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "onesignal",
+            "printedName": "onesignal",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OneSignalLiveActivityAttributeData",
+                "printedName": "OneSignalLiveActivities.OneSignalLiveActivityAttributeData",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvp",
+            "mangledName": "$s23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvp",
+            "moduleName": "OneSignalLiveActivities",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OneSignalLiveActivityAttributeData",
+                    "printedName": "OneSignalLiveActivities.OneSignalLiveActivityAttributeData",
+                    "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvg",
+                "mangledName": "$s23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvg",
+                "moduleName": "OneSignalLiveActivities",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "sugared_genericSig": "<Self where Self : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OneSignalLiveActivityAttributeData",
+                    "printedName": "OneSignalLiveActivities.OneSignalLiveActivityAttributeData",
+                    "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvs",
+                "mangledName": "$s23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvs",
+                "moduleName": "OneSignalLiveActivities",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "sugared_genericSig": "<Self where Self : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvM",
+                "mangledName": "$s23OneSignalLiveActivities0abC18ActivityAttributesP9onesignalAA0abcE13AttributeDataVvM",
+                "moduleName": "OneSignalLiveActivities",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "sugared_genericSig": "<Self where Self : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+                "protocolReq": true,
+                "implicit": true,
+                "intro_iOS": "16.1",
+                "declAttributes": [
+                  "Available"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:23OneSignalLiveActivities0abC18ActivityAttributesP",
+        "mangledName": "$s23OneSignalLiveActivities0abC18ActivityAttributesP",
+        "moduleName": "OneSignalLiveActivities",
+        "genericSig": "<τ_0_0 : ActivityKit.ActivityAttributes>",
+        "sugared_genericSig": "<Self : ActivityKit.ActivityAttributes>",
+        "intro_iOS": "16.1",
+        "declAttributes": [
+          "AccessControl",
+          "Available",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "ActivityAttributes",
+            "printedName": "ActivityAttributes",
+            "usr": "s:11ActivityKit0A10AttributesP",
+            "mangledName": "$s11ActivityKit0A10AttributesP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OneSignalLiveActivityAttributeData",
+        "printedName": "OneSignalLiveActivityAttributeData",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "create",
+            "printedName": "create(activityId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OneSignalLiveActivityAttributeData",
+                "printedName": "OneSignalLiveActivities.OneSignalLiveActivityAttributeData",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV6create10activityIdACSS_tFZ",
+            "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV6create10activityIdACSS_tFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "activityId",
+            "printedName": "activityId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvp",
+            "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvp",
+            "moduleName": "OneSignalLiveActivities",
+            "declAttributes": [
+              "HasStorage",
+              "AccessControl"
+            ],
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvg",
+                "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvg",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvs",
+                "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvs",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvM",
+                "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV10activityIdSSvM",
+                "moduleName": "OneSignalLiveActivities",
+                "implicit": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OneSignalLiveActivityAttributeData",
+                "printedName": "OneSignalLiveActivities.OneSignalLiveActivityAttributeData",
+                "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "OneSignalLiveActivities",
+            "implicit": true,
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV6encode2toys7Encoder_p_tKF",
+            "moduleName": "OneSignalLiveActivities",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:23OneSignalLiveActivities0abC21ActivityAttributeDataV",
+        "mangledName": "$s23OneSignalLiveActivities0abC21ActivityAttributeDataV",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "ActivityKit",
+        "printedName": "ActivityKit",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OneSignalLiveActivitiesManagerImpl",
+        "printedName": "OneSignalLiveActivitiesManagerImpl",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "liveActivities",
+            "printedName": "liveActivities()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ExistentialMetatype",
+                "printedName": "AnyObject.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ProtocolComposition",
+                    "printedName": "AnyObject"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)liveActivities",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC04liveD0yXlXpyFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "start",
+            "printedName": "start()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)start",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC5startyyFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "enter",
+            "printedName": "enter(_:withToken:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)enter:withToken:",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC5enter_9withTokenySS_SStFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "objc_name": "enter:withToken:",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "exit",
+            "printedName": "exit(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)exit:",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC4exityySSFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "objc_name": "exit:",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setPushToStartToken",
+            "printedName": "setPushToStartToken(_:withToken:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_0_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:23OneSignalLiveActivities0abcD11ManagerImplC19setPushToStartToken_04withK0yxm_SSt11ActivityKit0M10AttributesRzlFZ",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC19setPushToStartToken_04withK0yxm_SSt11ActivityKit0M10AttributesRzlFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0 where τ_0_0 : ActivityKit.ActivityAttributes>",
+            "sugared_genericSig": "<T where T : ActivityKit.ActivityAttributes>",
+            "static": true,
+            "intro_iOS": "17.2",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removePushToStartToken",
+            "printedName": "removePushToStartToken(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_0_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:23OneSignalLiveActivities0abcD11ManagerImplC22removePushToStartTokenyyxm11ActivityKit0L10AttributesRzlFZ",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC22removePushToStartTokenyyxm11ActivityKit0L10AttributesRzlFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0 where τ_0_0 : ActivityKit.ActivityAttributes>",
+            "sugared_genericSig": "<T where T : ActivityKit.ActivityAttributes>",
+            "static": true,
+            "intro_iOS": "17.2",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "enter",
+            "printedName": "enter(_:withToken:withSuccess:withFailure:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(([Swift.AnyHashable : Any]?) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "([Swift.AnyHashable : Any]?) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "[Swift.AnyHashable : Any]?",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Dictionary",
+                            "printedName": "[Swift.AnyHashable : Any]",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "AnyHashable",
+                                "printedName": "Swift.AnyHashable",
+                                "usr": "s:s11AnyHashableV"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "Any"
+                              }
+                            ],
+                            "usr": "s:SD"
+                          }
+                        ],
+                        "usr": "s:Sq"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Swift.Error?) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Error?) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Swift.Error?",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Error",
+                            "printedName": "Swift.Error",
+                            "usr": "s:s5ErrorP"
+                          }
+                        ],
+                        "usr": "s:Sq"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)enter:withToken:withSuccess:withFailure:",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC5enter_9withToken0H7Success0H7FailureySS_SSySDys11AnyHashableVypGSgcSgys5Error_pSgcSgtFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "objc_name": "enter:withToken:withSuccess:withFailure:",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "exit",
+            "printedName": "exit(_:withSuccess:withFailure:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "(([Swift.AnyHashable : Any]?) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "([Swift.AnyHashable : Any]?) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "[Swift.AnyHashable : Any]?",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Dictionary",
+                            "printedName": "[Swift.AnyHashable : Any]",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "AnyHashable",
+                                "printedName": "Swift.AnyHashable",
+                                "usr": "s:s11AnyHashableV"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "ProtocolComposition",
+                                "printedName": "Any"
+                              }
+                            ],
+                            "usr": "s:SD"
+                          }
+                        ],
+                        "usr": "s:Sq"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "((Swift.Error?) -> ())?",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Error?) -> ()",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Optional",
+                        "printedName": "Swift.Error?",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Error",
+                            "printedName": "Swift.Error",
+                            "usr": "s:s5ErrorP"
+                          }
+                        ],
+                        "usr": "s:Sq"
+                      }
+                    ]
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(cm)exit:withSuccess:withFailure:",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC4exit_11withSuccess0H7FailureySS_ySDys11AnyHashableVypGSgcSgys5Error_pSgcSgtFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "static": true,
+            "objc_name": "exit:withSuccess:withFailure:",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setup",
+            "printedName": "setup(_:options:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_0_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "OneSignalLiveActivities.LiveActivitySetupOptions?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "LiveActivitySetupOptions",
+                    "printedName": "OneSignalLiveActivities.LiveActivitySetupOptions",
+                    "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:23OneSignalLiveActivities0abcD11ManagerImplC5setup_7optionsyxm_AA0C20ActivitySetupOptionsVSgtAA0abcI10AttributesRzlFZ",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC5setup_7optionsyxm_AA0C20ActivitySetupOptionsVSgtAA0abcI10AttributesRzlFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+            "sugared_genericSig": "<Attributes where Attributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+            "static": true,
+            "intro_iOS": "16.1",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "Available"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OneSignalLiveActivitiesManagerImpl",
+                "printedName": "OneSignalLiveActivities.OneSignalLiveActivitiesManagerImpl",
+                "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl(im)init",
+            "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplCACycfc",
+            "moduleName": "OneSignalLiveActivities",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalLiveActivities@objc(cs)OneSignalLiveActivitiesManagerImpl",
+        "mangledName": "$s23OneSignalLiveActivities0abcD11ManagerImplC",
+        "moduleName": "OneSignalLiveActivities",
+        "objc_name": "OneSignalLiveActivitiesManagerImpl",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "OSLiveActivities",
+            "printedName": "OSLiveActivities",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities",
+            "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalLiveActivities"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSLiveActivities",
+        "printedName": "OSLiveActivities",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "setup",
+            "printedName": "setup(_:options:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_1_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_1_0"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "OneSignalLiveActivities.LiveActivitySetupOptions?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "LiveActivitySetupOptions",
+                    "printedName": "OneSignalLiveActivities.LiveActivitySetupOptions",
+                    "usr": "s:23OneSignalLiveActivities0C20ActivitySetupOptionsV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E5setup_7optionsyqd__m_AD0F20ActivitySetupOptionsVSgtAD0abfI10AttributesRd__lFZ",
+            "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E5setup_7optionsyqd__m_AD0F20ActivitySetupOptionsVSgtAD0abfI10AttributesRd__lFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0, τ_1_0 where τ_0_0 : OneSignalOSCore.OSLiveActivities, τ_1_0 : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+            "sugared_genericSig": "<Self, T where Self : OneSignalOSCore.OSLiveActivities, T : OneSignalLiveActivities.OneSignalLiveActivityAttributes>",
+            "static": true,
+            "intro_iOS": "16.1",
+            "declAttributes": [
+              "Available",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setPushToStartToken",
+            "printedName": "setPushToStartToken(_:withToken:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_1_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_1_0"
+                  }
+                ]
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E19setPushToStartToken_04withK0yqd__m_SSt11ActivityKit0M10AttributesRd__lFZ",
+            "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E19setPushToStartToken_04withK0yqd__m_SSt11ActivityKit0M10AttributesRd__lFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0, τ_1_0 where τ_0_0 : OneSignalOSCore.OSLiveActivities, τ_1_0 : ActivityKit.ActivityAttributes>",
+            "sugared_genericSig": "<Self, T where Self : OneSignalOSCore.OSLiveActivities, T : ActivityKit.ActivityAttributes>",
+            "static": true,
+            "intro_iOS": "17.2",
+            "declAttributes": [
+              "Available",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removePushToStartToken",
+            "printedName": "removePushToStartToken(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Metatype",
+                "printedName": "τ_1_0.Type",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_1_0"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E22removePushToStartTokenyyqd__m11ActivityKit0L10AttributesRd__lFZ",
+            "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E22removePushToStartTokenyyqd__m11ActivityKit0L10AttributesRd__lFZ",
+            "moduleName": "OneSignalLiveActivities",
+            "genericSig": "<τ_0_0, τ_1_0 where τ_0_0 : OneSignalOSCore.OSLiveActivities, τ_1_0 : ActivityKit.ActivityAttributes>",
+            "sugared_genericSig": "<Self, T where Self : OneSignalOSCore.OSLiveActivities, T : ActivityKit.ActivityAttributes>",
+            "static": true,
+            "intro_iOS": "17.2",
+            "declAttributes": [
+              "Available",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities",
+        "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP",
+        "moduleName": "OneSignalOSCore",
+        "genericSig": "<τ_0_0 : AnyObject>",
+        "sugared_genericSig": "<Self : AnyObject>",
+        "declAttributes": [
+          "ObjC"
+        ],
+        "isExternal": true
+      }
+    ],
+    "json_format_version": 8
+  },
+  "ConstValues": [
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3298,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3518,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1418,
+      "length": 91,
+      "value": "\"(OSRequestSetStartToken) key:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1454,
+      "length": 17,
+      "value": "\" requestSuccessful:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1493,
+      "length": 5,
+      "value": "\" token:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1508,
+      "length": 3,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1630,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1803,
+      "length": 65,
+      "value": "\"Cannot generate the set start token request due to null app ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1889,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2065,
+      "length": 74,
+      "value": "\"Cannot generate the set start token request due to null subscription ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2160,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2360,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2436,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2481,
+      "length": 87,
+      "value": "\"apps\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2495,
+      "length": 1,
+      "value": "\"\/activities\/tokens\/start\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2535,
+      "length": 1,
+      "value": "\"\/subscriptions\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2567,
+      "length": 1,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2596,
+      "length": 16,
+      "value": "\"activity_token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2626,
+      "length": 13,
+      "value": "\"device_type\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2641,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2686,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2916,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3329,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3436,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3479,
+      "length": 7,
+      "value": "\"token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3536,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3597,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3717,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3787,
+      "length": 7,
+      "value": "\"token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3871,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3957,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1273,
+      "length": 22,
+      "value": "\"OneSignalLiveActivities.OSRequestSetStartToken\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 2436,
+      "length": 68,
+      "value": "\"OneSignal.LiveActivities initialized token cache \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 2493,
+      "length": 1,
+      "value": "\": \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 2503,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2973,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3402,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3709,
+      "length": 84,
+      "value": "\"OneSignal.LiveActivities remove stale request from token cache \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3780,
+      "length": 1,
+      "value": "\": \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3792,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3917,
+      "length": 63,
+      "value": "\"OneSignal.LiveActivities saving token cache \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3969,
+      "length": 1,
+      "value": "\": \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 3979,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4277,
+      "length": 2,
+      "value": "60"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4282,
+      "length": 2,
+      "value": "60"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4287,
+      "length": 2,
+      "value": "24"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4292,
+      "length": 3,
+      "value": "365"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 4103,
+      "length": 18,
+      "value": "\"OneSignalLiveActivities.UpdateRequestCache\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4581,
+      "length": 2,
+      "value": "60"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4586,
+      "length": 2,
+      "value": "60"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4591,
+      "length": 2,
+      "value": "24"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 4596,
+      "length": 3,
+      "value": "365"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 4443,
+      "length": 17,
+      "value": "\"OneSignalLiveActivities.StartRequestCache\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "IntegerLiteral",
+      "offset": 5259,
+      "length": 2,
+      "value": "30"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 5437,
+      "length": 44,
+      "value": "\"OneSignal.LiveActivities starting executor\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 6641,
+      "length": 76,
+      "value": "\"OneSignal.LiveActivities superseded request not saved\/executed: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 6716,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 6847,
+      "length": 46,
+      "value": "\"OneSignal.LiveActivities pollPendingRequests\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 7067,
+      "length": 57,
+      "value": "\"OneSignal.LiveActivities executing outstanding requests\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8007,
+      "length": 84,
+      "value": "\"Cannot send live activity request when the user has not granted privacy permission\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8331,
+      "length": 56,
+      "value": "\"OneSignal.LiveActivities executing request: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8386,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8592,
+      "length": 56,
+      "value": "\"OneSignal.LiveActivities request succeeded: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8647,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8921,
+      "length": 78,
+      "value": "\"OneSignal.LiveActivities request failed with error \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 8998,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 1606,
+      "length": 26,
+      "value": "\"OneSignal.LiveActivities\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 1976,
+      "length": 90,
+      "value": "\"OneSignal.LiveActivities enter called with activityId: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2045,
+      "length": 5,
+      "value": "\" token: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2065,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2278,
+      "length": 70,
+      "value": "\"OneSignal.LiveActivities leave called with activityId: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2347,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2599,
+      "length": 102,
+      "value": "\"OneSignal.LiveActivities setStartToken called with activityType: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2680,
+      "length": 5,
+      "value": "\" token: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2700,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 2899,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3224,
+      "length": 85,
+      "value": "\"OneSignal.LiveActivities removeStartToken called with activityType: \""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3308,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3507,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3631,
+      "length": 17,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3647,
+      "length": 3,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3889,
+      "length": 17,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 3905,
+      "length": 24,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 4280,
+      "length": 35,
+      "value": "\"Could not set push to start token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 4552,
+      "length": 17,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 4568,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 4921,
+      "length": 35,
+      "value": "\"Could not set push to start token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 6402,
+      "length": 6,
+      "value": "\"%02x\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "kind": "StringLiteral",
+      "offset": 9021,
+      "length": 6,
+      "value": "\"%02x\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1423,
+      "length": 80,
+      "value": "\"(OSRequestRemoveUpdateToken) key:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1463,
+      "length": 17,
+      "value": "\" requestSuccessful:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1502,
+      "length": 3,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1602,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1774,
+      "length": 70,
+      "value": "\"Cannot generate the reemove update token request due to null app ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1865,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2041,
+      "length": 78,
+      "value": "\"Cannot generate the remove update token request due to null subscription ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2140,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2338,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2414,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2569,
+      "length": 69,
+      "value": "\"apps\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2583,
+      "length": 1,
+      "value": "\"\/live_activities\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2613,
+      "length": 1,
+      "value": "\"\/token\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2637,
+      "length": 1,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2684,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3101,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3208,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3255,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3316,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3444,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3526,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3612,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1273,
+      "length": 26,
+      "value": "\"OneSignalLiveActivities.OSRequestRemoveUpdateToken\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1421,
+      "length": 79,
+      "value": "\"(OSRequestRemoveStartToken) key:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1460,
+      "length": 17,
+      "value": "\" requestSuccessful:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1499,
+      "length": 3,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1599,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1771,
+      "length": 68,
+      "value": "\"Cannot generate the remove start token request due to null app ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1860,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2036,
+      "length": 77,
+      "value": "\"Cannot generate the remove start token request due to null subscription ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2134,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2334,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2410,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2447,
+      "length": 87,
+      "value": "\"apps\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2461,
+      "length": 1,
+      "value": "\"\/activities\/tokens\/start\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2501,
+      "length": 1,
+      "value": "\"\/subscriptions\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2533,
+      "length": 1,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2580,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2997,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3104,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3159,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3220,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3340,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3422,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3508,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1273,
+      "length": 25,
+      "value": "\"OneSignalLiveActivities.OSRequestRemoveStartToken\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1420,
+      "length": 92,
+      "value": "\"(OSRequestSetUpdateToken) key:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1457,
+      "length": 17,
+      "value": "\" requestSuccessful:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1496,
+      "length": 5,
+      "value": "\" token:\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1511,
+      "length": 3,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1633,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1806,
+      "length": 66,
+      "value": "\"Cannot generate the set update token request due to null app ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1893,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2069,
+      "length": 75,
+      "value": "\"Cannot generate the set update token request due to null subscription ID.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2165,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2363,
+      "length": 55,
+      "value": "\"Cannot translate activity type to url encoded string.\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2439,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2655,
+      "length": 51,
+      "value": "\"apps\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2669,
+      "length": 1,
+      "value": "\"\/live_activities\/\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2699,
+      "length": 1,
+      "value": "\"\/token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2734,
+      "length": 17,
+      "value": "\"subscription_id\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2769,
+      "length": 12,
+      "value": "\"push_token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 2795,
+      "length": 13,
+      "value": "\"device_type\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2810,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2856,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3087,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3500,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3607,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3650,
+      "length": 7,
+      "value": "\"token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3707,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3768,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3888,
+      "length": 5,
+      "value": "\"key\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 3958,
+      "length": 7,
+      "value": "\"token\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 4042,
+      "length": 19,
+      "value": "\"requestSuccessful\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 4128,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "kind": "StringLiteral",
+      "offset": 1273,
+      "length": 23,
+      "value": "\"OneSignalLiveActivities.OSRequestSetUpdateToken\""
+    }
+  ]
+}

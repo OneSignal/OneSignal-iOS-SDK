@@ -52,17 +52,5 @@ NS_ASSUME_NONNULL_END
                                      appId:(NSString * _Nonnull)appId;
 @end
 
-@interface OSRequestLiveActivityEnter: OneSignalRequest
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId
-                              appId:(NSString * _Nonnull)appId
-                         activityId:(NSString * _Nonnull)activityId
-                              token:(NSString * _Nonnull)token;
-@end
-
-@interface OSRequestLiveActivityExit: OneSignalRequest
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId
-                              appId:(NSString * _Nonnull)appId
-                         activityId:(NSString * _Nonnull)activityId;
-@end
 #endif /* Requests_h */
 

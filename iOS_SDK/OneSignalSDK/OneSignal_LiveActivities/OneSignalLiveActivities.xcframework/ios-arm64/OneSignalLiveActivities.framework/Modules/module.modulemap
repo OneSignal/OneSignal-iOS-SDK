@@ -1,0 +1,11 @@
+framework module OneSignalLiveActivities {
+  umbrella header "OneSignalLiveActivities.h"
+  export *
+
+  module * { export * }
+}
+
+module OneSignalLiveActivities.Swift {
+  header "OneSignalLiveActivities-Swift.h"
+  requires objc
+}

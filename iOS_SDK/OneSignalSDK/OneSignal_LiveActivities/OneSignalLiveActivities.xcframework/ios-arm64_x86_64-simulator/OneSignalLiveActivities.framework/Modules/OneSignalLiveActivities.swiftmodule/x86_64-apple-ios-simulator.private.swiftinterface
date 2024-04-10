@@ -1,0 +1,51 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalLiveActivities
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import ActivityKit
+import OneSignalCore
+@_exported import OneSignalLiveActivities
+import OneSignalOSCore
+import OneSignalUser
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+extension OneSignalOSCore.OSLiveActivities {
+  @available(iOS 16.1, *)
+  public static func setup<T>(_ activityType: T.Type, options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil) where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+  @available(iOS 17.2, *)
+  public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: Swift.String) where T : ActivityKit.ActivityAttributes
+  @available(iOS 17.2, *)
+  public static func removePushToStartToken<T>(_ activityType: T.Type) where T : ActivityKit.ActivityAttributes
+}
+public struct LiveActivitySetupOptions {
+  public var enablePushToStart: Swift.Bool
+  public var enablePushToUpdate: Swift.Bool
+}
+@available(iOS 16.1, *)
+public protocol OneSignalLiveActivityAttributes : ActivityKit.ActivityAttributes {
+  var onesignal: OneSignalLiveActivities.OneSignalLiveActivityAttributeData { get set }
+}
+public struct OneSignalLiveActivityAttributeData : Swift.Decodable, Swift.Encodable {
+  public static func create(activityId: Swift.String) -> OneSignalLiveActivities.OneSignalLiveActivityAttributeData
+  public var activityId: Swift.String
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc(OneSignalLiveActivitiesManagerImpl) public class OneSignalLiveActivitiesManagerImpl : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
+  @objc public static func liveActivities() -> Swift.AnyClass
+  @objc public static func start()
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc public static func exit(_ activityId: Swift.String)
+  @available(iOS 17.2, *)
+  public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: Swift.String) where T : ActivityKit.ActivityAttributes
+  @available(iOS 17.2, *)
+  public static func removePushToStartToken<T>(_ activityType: T.Type) where T : ActivityKit.ActivityAttributes
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc public static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @available(iOS 16.1, *)
+  public static func setup<Attributes>(_ activityType: Attributes.Type, options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil) where Attributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+  @objc override dynamic public init()
+  @objc deinit
+}
