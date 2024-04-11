@@ -62,10 +62,6 @@
     return self.position == OSInAppMessageDisplayPositionTop || self.position == OSInAppMessageDisplayPositionBottom;
 }
 
-- (BOOL)isFullScreen {
-    return self.position == OSInAppMessageDisplayPositionFullScreen;
-}
-
 - (BOOL)takeActionAsUnique {
     if (self.actionTaken)
         return false;

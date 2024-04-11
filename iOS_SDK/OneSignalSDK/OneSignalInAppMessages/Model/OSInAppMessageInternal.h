@@ -50,7 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL hasLiquid;
 
 - (BOOL)isBanner;
-- (BOOL)isFullScreen;
 - (BOOL)takeActionAsUnique;
 
 - (NSSet<NSString *> *)getClickedClickIds;

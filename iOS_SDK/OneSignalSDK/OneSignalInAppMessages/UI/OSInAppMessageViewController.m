@@ -110,11 +110,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 }
 
 - (BOOL)prefersStatusBarHidden {
-    // Only the full screen IAM should remove status bar
-    if ([self.message isFullScreen]) {
-        return YES;
-    }
-    return NO;
+    // Only the full-bleed IAM should remove status bar
+    return self.isFullscreen;
 }
 
 - (void)viewDidLoad {
