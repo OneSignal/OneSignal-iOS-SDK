@@ -26,6 +26,7 @@ let package = Package(
                 "OneSignalFramework",
                 "OneSignalUser",
                 "OneSignalNotifications",
+                "OneSignalLiveActivities",
                 "OneSignalExtension",
                 "OneSignalOutcomes",
                 "OneSignalOSCore",
