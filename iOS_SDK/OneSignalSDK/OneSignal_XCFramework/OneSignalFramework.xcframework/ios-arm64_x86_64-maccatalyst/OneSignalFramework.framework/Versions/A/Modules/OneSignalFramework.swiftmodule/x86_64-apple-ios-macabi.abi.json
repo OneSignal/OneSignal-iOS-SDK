@@ -407,20 +407,20 @@
               {
                 "kind": "TypeNominal",
                 "name": "ExistentialMetatype",
-                "printedName": "OneSignalFramework.OSLiveActivities.Type",
+                "printedName": "OneSignalOSCore.OSLiveActivities.Type",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSLiveActivities",
-                    "printedName": "OneSignalFramework.OSLiveActivities",
-                    "usr": "c:objc(pl)OSLiveActivities"
+                    "printedName": "OneSignalOSCore.OSLiveActivities",
+                    "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities"
                   }
                 ]
               }
             ],
             "declKind": "Var",
-            "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvpZ",
-            "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvpZ",
+            "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivities0aB6OSCore06OSLiveE0_pXpvpZ",
+            "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivities0aB6OSCore06OSLiveE0_pXpvpZ",
             "moduleName": "OneSignalFramework",
             "static": true,
             "declAttributes": [
@@ -436,20 +436,20 @@
                   {
                     "kind": "TypeNominal",
                     "name": "ExistentialMetatype",
-                    "printedName": "OneSignalFramework.OSLiveActivities.Type",
+                    "printedName": "OneSignalOSCore.OSLiveActivities.Type",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSLiveActivities",
-                        "printedName": "OneSignalFramework.OSLiveActivities",
-                        "usr": "c:objc(pl)OSLiveActivities"
+                        "printedName": "OneSignalOSCore.OSLiveActivities",
+                        "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities"
                       }
                     ]
                   }
                 ],
                 "declKind": "Accessor",
-                "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvgZ",
-                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivitiesSo06OSLiveE0_pXpvgZ",
+                "usr": "s:So9OneSignalC0aB9FrameworkE14LiveActivities0aB6OSCore06OSLiveE0_pXpvgZ",
+                "mangledName": "$sSo9OneSignalC0aB9FrameworkE14LiveActivities0aB6OSCore06OSLiveE0_pXpvgZ",
                 "moduleName": "OneSignalFramework",
                 "static": true,
                 "declAttributes": [
