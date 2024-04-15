@@ -200,6 +200,19 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     }];
 }
 
+- (void)updateDropShadow {
+    // the plist value specifies whether the user wants to add drop shadow to the In App Message
+    NSDictionary *bundleDict = [[NSBundle mainBundle] infoDictionary];
+    BOOL hideDropShadow = [bundleDict[ONESIGNAL_IN_APP_HIDE_DROP_SHADOW] boolValue];
+    if (hideDropShadow) {
+        return;
+    }
+    self.messageView.layer.shadowOffset = CGSizeMake(0, 3);
+    self.messageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.messageView.layer.shadowRadius = 3.0f;
+    self.messageView.layer.shadowOpacity = 0.55f;
+}
+
 - (void)displayMessage {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
     
@@ -238,9 +251,11 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             if (self.waitForTags) {
                 return;
             }
+            [self updateDropShadow];
             [self.delegate messageWillDisplay:self.message];
             [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
             self.pendingHTMLContent = nil;
+            
         }];
     };
 }
