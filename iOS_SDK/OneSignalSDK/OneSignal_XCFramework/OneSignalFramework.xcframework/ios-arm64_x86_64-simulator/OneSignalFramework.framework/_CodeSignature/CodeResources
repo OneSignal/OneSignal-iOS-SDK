@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		5xiS9wCy6YWCsUIDgiTMtdz1G4c=
+		mvZGW4E+ewW/pi9ginLTIAnWDF8=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		FcVtnBR3ocmlt/jsAksdcJTuU4k=
+		QVVccMAASPYWLCR5OhHA6PBpAtQ=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -58,7 +58,7 @@
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Z7GoK2pf3j5gkVuh4f/Llq/v1Y4=
+		CU6+m+J2jwK7fwazeQXO8jmH81o=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -124,7 +124,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Mpy3sM+rXq04voGSYQy2clsl6BuFDUvcjK2RbGPx3tM=
+			RajsLqVrZR/LII+ogwna+a/c0L+IbhDTpSNkxEruITI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -159,7 +159,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6T8Er1k/Bwpb/s4xDvU0vl94duEGh4YC79gxDLKJUhI=
+			GLlnKgRdXkQ2Ob2TKNat5k7jdW95NOOLyIUe4/lqmDg=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
