@@ -189,8 +189,17 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // Only the center modal and full screen (both centered) IAM should have a dark background
     // So get the alpha based on the IAM being a banner or not
     double alphaBackground = [self.message isBanner] ? 0.0 : 0.5;
-    [UIView animateWithDuration:0.3 animations:^{
+    
+    // the plist value specifies whether the user wants to add a gray overlay to the In App Message
+    NSDictionary *bundleDict = [[NSBundle mainBundle] infoDictionary];
+    BOOL hideGrayOverlay = [bundleDict[ONESIGNAL_IN_APP_HIDE_GRAY_OVERLAY] boolValue];
+    if (hideGrayOverlay) {
+        self.view.backgroundColor = [UIColor clearColor];
+    } else {
         self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:alphaBackground];
+    }
+    
+    [UIView animateWithDuration:0.3 animations:^{
         self.view.alpha = 1.0;
     } completion:^(BOOL finished) {
         if (!finished)
