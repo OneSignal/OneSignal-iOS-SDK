@@ -5,10 +5,8 @@
 	<key>AvailableLibraries</key>
 	<array>
 		<dict>
-			<key>BinaryPath</key>
-			<string>OneSignalUser.framework/OneSignalUser</string>
 			<key>LibraryIdentifier</key>
-			<string>ios-arm64_x86_64-simulator</string>
+			<string>ios-arm64_x86_64-maccatalyst</string>
 			<key>LibraryPath</key>
 			<string>OneSignalUser.framework</string>
 			<key>SupportedArchitectures</key>
@@ -19,7 +17,7 @@
 			<key>SupportedPlatform</key>
 			<string>ios</string>
 			<key>SupportedPlatformVariant</key>
-			<string>simulator</string>
+			<string>maccatalyst</string>
 		</dict>
 		<dict>
 			<key>LibraryIdentifier</key>
@@ -34,10 +32,8 @@
 			<string>ios</string>
 		</dict>
 		<dict>
-			<key>BinaryPath</key>
-			<string>OneSignalUser.framework/Versions/A/OneSignalUser</string>
 			<key>LibraryIdentifier</key>
-			<string>ios-arm64_x86_64-maccatalyst</string>
+			<string>ios-arm64_x86_64-simulator</string>
 			<key>LibraryPath</key>
 			<string>OneSignalUser.framework</string>
 			<key>SupportedArchitectures</key>
@@ -48,7 +44,7 @@
 			<key>SupportedPlatform</key>
 			<string>ios</string>
 			<key>SupportedPlatformVariant</key>
-			<string>maccatalyst</string>
+			<string>simulator</string>
 		</dict>
 	</array>
 	<key>CFBundlePackageType</key>
