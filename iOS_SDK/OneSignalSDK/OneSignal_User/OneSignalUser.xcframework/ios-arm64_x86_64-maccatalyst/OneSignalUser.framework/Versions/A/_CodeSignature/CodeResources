@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		a/7TJvZsPYLip+7/DcoaGvZqHWc=
+		p/jMLzJYpHJ8je3+av8IspHmeYY=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -29,7 +29,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/CGU0UGjtRbDpsoKq1CkWm1mBkmlPDRHuhKTUy3GskM=
+			RntoDdW3mYw4rRFFcxUD8BGyuUzT/6Z/neP500Pk+z8=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
@@ -57,14 +57,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			skoKN+Du/FD5bJ83RU+DWxE0C1OxhV53FqIWe8RWShs=
+			Yd3/ZW1RVipRGo0Lsj9vQpCrZDOLePZQ1m/GGIf3Of4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/CGU0UGjtRbDpsoKq1CkWm1mBkmlPDRHuhKTUy3GskM=
+			RntoDdW3mYw4rRFFcxUD8BGyuUzT/6Z/neP500Pk+z8=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
@@ -92,7 +92,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pxrJguVyMSKIsOQdHLAfgFRW7HHPFmYS0Fy7HGnY/u8=
+			w5/pVessT7RT7Jj3sQqx2+I36AxqTPFOSeTlytlm0C8=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -106,7 +106,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			EvXkBeNW1jYu99F1dOgZHmd14jX81g89rM7ASgJRJS8=
+			licnCztnv9wdVZZ+d/3mSsTFNGThVBNgXo/r6K3+g8Q=
 			</data>
 		</dict>
 	</dict>
