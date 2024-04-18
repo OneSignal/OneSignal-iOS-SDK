@@ -279,9 +279,10 @@ API_AVAILABLE(macos(10.4), ios(2.0));
 }
 
 + (NSString*)trimURLSpacing:(NSString*)url {
-    if (!url)
-        return url;
-    
+    if (!url || [url isEqual:[NSNull null]]) {
+        return nil;
+    }
+
     return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
