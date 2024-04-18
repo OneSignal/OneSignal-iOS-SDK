@@ -93,4 +93,48 @@ final class OneSignalUserTests: XCTestCase {
         // 1. OpRepo: `deltaQueue.remove(at: index)` index out of bounds
         // 2. OSPropertyOperationExecutor: `deltaQueue.append(delta)` EXC_BAD_ACCESS
     }
+
+    /**
+     This test reproduced a crash when the property model is being encoded.
+     */
+    func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {
+        /* Setup */
+        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
+
+        /* When */
+        DispatchQueue.concurrentPerform(iterations: 5_000) { i in
+            // 1. Add tags
+            for num in 0...9 {
+                propertiesModel.addTags(["\(i)tag\(num)": "value"])
+            }
+
+            // 2. Encode the model
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: "PropertyModel", withValue: propertiesModel)
+
+            // 3. Clear the tags
+            propertiesModel.clearData()
+        }
+    }
+
+    /**
+     This test reproduced a crash when the identity model is being encoded.
+     */
+    func testEncodingIdentityModel_withConcurrency_doesNotCrash() throws {
+        /* Setup */
+        let identityModel = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
+
+        /* When */
+        DispatchQueue.concurrentPerform(iterations: 5_000) { i in
+            // 1. Add aliases
+            for num in 0...9 {
+                identityModel.addAliases(["\(i)alias\(num)": "value"])
+            }
+
+            // 2. Encode the model
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: "IdentityModel", withValue: identityModel)
+
+            // 2. Clear the aliases
+            identityModel.clearData()
+        }
+    }
 }
