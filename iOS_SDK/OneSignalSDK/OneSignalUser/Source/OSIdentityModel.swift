@@ -57,8 +57,10 @@ class OSIdentityModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        super.encode(with: coder)
-        coder.encode(aliases, forKey: "aliases")
+        aliasesLock.locked {
+            super.encode(with: coder)
+            coder.encode(aliases, forKey: "aliases")
+        }
     }
 
     required init?(coder: NSCoder) {

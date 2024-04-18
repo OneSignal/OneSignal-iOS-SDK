@@ -102,10 +102,12 @@ class OSPropertiesModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        super.encode(with: coder)
-        coder.encode(language, forKey: "language")
-        coder.encode(tags, forKey: "tags")
-        // ... and more
+        tagsLock.locked {
+            super.encode(with: coder)
+            coder.encode(language, forKey: "language")
+            coder.encode(tags, forKey: "tags")
+            // ... and more
+        }
     }
 
     required init?(coder: NSCoder) {
