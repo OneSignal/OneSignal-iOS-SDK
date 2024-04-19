@@ -40,7 +40,7 @@ class OSIdentityModel: OSModel {
 
     // All access to aliases should go through helper methods with locking
     var aliases: [String: String] = [:]
-    private let aliasesLock = UnfairLock()
+    private let aliasesLock = NSRecursiveLock()
 
     // TODO: We need to make this token secure
     public var jwtBearerToken: String?
@@ -54,7 +54,7 @@ class OSIdentityModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        aliasesLock.locked {
+        aliasesLock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
         }
@@ -71,14 +71,14 @@ class OSIdentityModel: OSModel {
 
     /** Threadsafe getter for an alias */
     private func internalGetAlias(_ label: String) -> String? {
-        aliasesLock.locked {
+        aliasesLock.withLock {
             return self.aliases[label]
         }
     }
 
     /** Threadsafe setter or removal for aliases */
     private func internalAddAliases(_ aliases: [String: String]) {
-        aliasesLock.locked {
+        aliasesLock.withLock {
             for (label, id) in aliases {
                 // Remove the alias if the ID field is ""
                 self.aliases[label] = id.isEmpty ? nil : id
@@ -91,7 +91,7 @@ class OSIdentityModel: OSModel {
      Called to clear the model's data in preparation for hydration via a fetch user call.
      */
     func clearData() {
-        aliasesLock.locked {
+        aliasesLock.withLock {
             self.aliases = [:]
         }
     }

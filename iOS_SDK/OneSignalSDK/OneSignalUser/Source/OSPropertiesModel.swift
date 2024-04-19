@@ -82,7 +82,7 @@ class OSPropertiesModel: OSModel {
     var timezoneId = TimeZone.current.identifier
 
     var tags: [String: String] = [:]
-    private let tagsLock = UnfairLock()
+    private let tagsLock = NSRecursiveLock()
 
     // MARK: - Initialization
 
@@ -102,7 +102,7 @@ class OSPropertiesModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        tagsLock.locked {
+        tagsLock.withLock {
             super.encode(with: coder)
             coder.encode(language, forKey: "language")
             coder.encode(tags, forKey: "tags")
@@ -127,7 +127,7 @@ class OSPropertiesModel: OSModel {
      */
     func clearData() {
         // TODO: What about language, lat, long?
-        tagsLock.locked {
+        tagsLock.withLock {
             self.tags = [:]
         }
     }
@@ -135,7 +135,7 @@ class OSPropertiesModel: OSModel {
     // MARK: - Tag Methods
 
     func addTags(_ tags: [String: String]) {
-        tagsLock.locked {
+        tagsLock.withLock {
             for (key, value) in tags {
                 self.tags[key] = value
             }
@@ -144,7 +144,7 @@ class OSPropertiesModel: OSModel {
     }
 
     func removeTags(_ tags: [String]) {
-        tagsLock.locked {
+        tagsLock.withLock {
             var tagsToSend: [String: String] = [:]
             for tag in tags {
                 self.tags.removeValue(forKey: tag)
@@ -160,7 +160,7 @@ class OSPropertiesModel: OSModel {
             case "language":
                 self.language = property.value as? String
             case "tags":
-                tagsLock.locked {
+                tagsLock.withLock {
                     self.tags = property.value as? [String: String] ?? [:]
                 }
             default:
