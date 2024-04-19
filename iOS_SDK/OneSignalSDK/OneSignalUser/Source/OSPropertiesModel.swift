@@ -139,19 +139,19 @@ class OSPropertiesModel: OSModel {
             for (key, value) in tags {
                 self.tags[key] = value
             }
-            self.set(property: "tags", newValue: tags)
         }
+        self.set(property: "tags", newValue: tags)
     }
 
     func removeTags(_ tags: [String]) {
+        var tagsToSend: [String: String] = [:]
         tagsLock.withLock {
-            var tagsToSend: [String: String] = [:]
             for tag in tags {
                 self.tags.removeValue(forKey: tag)
                 tagsToSend[tag] = ""
             }
-            self.set(property: "tags", newValue: tagsToSend)
         }
+        self.set(property: "tags", newValue: tagsToSend)
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
