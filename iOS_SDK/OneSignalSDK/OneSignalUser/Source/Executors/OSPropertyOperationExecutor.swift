@@ -61,10 +61,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
-                // 0. Hook up the properties model if its the current user's so it can hydrate
-                if let propertiesModel = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: request.modelToUpdate.modelId) {
-                    request.modelToUpdate = propertiesModel
-                }
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
                     // 1. The identity model exist in the store, set it to be the Request's models
                     request.identityModel = identityModel
@@ -103,16 +99,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
             }
             for delta in self.deltaQueue {
-                guard let model = delta.model as? OSPropertiesModel else {
-                    // Log error
-                    continue
-                }
-
                 let request = OSRequestUpdateProperties(
                     properties: [delta.property: delta.value],
                     deltas: nil,
                     refreshDeviceMetadata: false, // Sort this out.
-                    modelToUpdate: model,
                     identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
                 )
                 self.updateRequestQueue.append(request)
@@ -204,7 +194,6 @@ extension OSPropertyOperationExecutor {
             properties: [:],
             deltas: propertiesDeltas.jsonRepresentation(),
             refreshDeviceMetadata: refreshDeviceMetadata,
-            modelToUpdate: propertiesModel,
             identityModel: identityModel)
 
         if sendImmediately {

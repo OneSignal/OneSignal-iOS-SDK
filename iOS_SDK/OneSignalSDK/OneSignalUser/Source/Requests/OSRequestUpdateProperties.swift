@@ -34,9 +34,6 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    // TODO: does updating properties even have a response in which we need to hydrate from? Then we can get rid of modelToUpdate
-    // Yes we may, if we cleared local state
-    var modelToUpdate: OSPropertiesModel
     var identityModel: OSIdentityModel
 
     // TODO: Decide if addPushSubscriptionIdToAdditionalHeadersIfNeeded should block.
@@ -55,8 +52,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
-        self.modelToUpdate = modelToUpdate
+    init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, identityModel: OSIdentityModel) {
         self.identityModel = identityModel
         self.stringDescription = "<OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))>"
         super.init()
@@ -79,7 +75,6 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     }
 
     func encode(with coder: NSCoder) {
-        coder.encode(modelToUpdate, forKey: "modelToUpdate")
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
@@ -88,7 +83,6 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     required init?(coder: NSCoder) {
         guard
-            let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSPropertiesModel,
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
@@ -97,7 +91,6 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             // Log error
             return nil
         }
-        self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
         self.stringDescription = "<OSRequestUpdateProperties with parameters: \(parameters)>"
         super.init()
