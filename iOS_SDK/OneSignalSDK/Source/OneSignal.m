@@ -193,6 +193,14 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
 }
 
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
+    [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId jwtToken:token];
+}
+
++ (void)addJwtExpiredListener:()jwtExpiredHandler {
+    // Identity Verification TODO: register a listener to provide a new jwt in the event of current jwt expiring
+}
+
 + (void)logout {
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
@@ -615,6 +623,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+        
+        // Identity verficiation TODO: save userIdentityVerification from remote param
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {

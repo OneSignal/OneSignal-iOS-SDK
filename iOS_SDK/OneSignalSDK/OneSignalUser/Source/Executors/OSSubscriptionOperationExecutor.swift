@@ -284,6 +284,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized {
+                    // handle unauthorized operation
+                    request.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
@@ -324,7 +329,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized {
+                    // invalidate jwt for current user
+                    OneSignalUserManagerImpl.sharedInstance.user.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -363,7 +373,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized {
+                    // invalidate jwt for current user
+                    OneSignalUserManagerImpl.sharedInstance.user.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)

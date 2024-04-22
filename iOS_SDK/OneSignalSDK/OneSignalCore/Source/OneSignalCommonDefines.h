@@ -79,6 +79,7 @@
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OS_USE_IDENTITY_VERIFICATION"                                     // * OSUD_USE_IDENTITY_VERIFICATION
 // Outcomes
 #define OSUD_OUTCOMES_V2                                                    @"OSUD_OUTCOMES_V2"
 #define OSUD_NOTIFICATION_LIMIT                                             @"NOTIFICATION_LIMIT"                                               // * OSUD_NOTIFICATION_LIMIT
@@ -296,6 +297,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_ONESIGNAL_ID                                                     @"onesignal_id"
 #define OS_EXTERNAL_ID                                                      @"external_id"
+#define OS_JWT_TOKEN                                                        @"jwt_token"
 
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 

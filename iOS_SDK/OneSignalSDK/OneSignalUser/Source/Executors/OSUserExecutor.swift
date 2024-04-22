@@ -239,7 +239,12 @@ class OSUserExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
+                if responseType != .unauthorized {
+                    // handle unauthorized operation
+                    request.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
+                } else if responseType != .retryable {
                     // A failed create user request would leave the SDK in a bad state
                     // Don't remove the request from cache and pause the operation repo
                     // We will retry this request on a new session
@@ -291,7 +296,12 @@ class OSUserExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
+                if responseType != .unauthorized {
+                    // handle unauthorized operation
+                    request.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
+                } else if responseType != .retryable {
                     // Fail, no retry, remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     removeFromQueue(request)
@@ -349,10 +359,15 @@ class OSUserExecutor {
                         // TODO: Link ^ to the new user... what was this todo for?
                     }
                     transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
-                } else if responseType == .invalid || responseType == .unauthorized {
+                } else if responseType == .invalid {
                     // Failed, no retry
                     removeFromQueue(request)
                     executePendingRequests()
+                } else if responseType != .unauthorized {
+                    // handle unauthorized operation
+                    request.identityModelToIdentify.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
                 } else if responseType == .missing {
                     removeFromQueue(request)
                     executePendingRequests()
@@ -401,7 +416,12 @@ class OSUserExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
+                if responseType != .unauthorized {
+                    // invalidate jwt for current user
+                    OneSignalUserManagerImpl.sharedInstance.user.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     removeFromQueue(request)
                 }
@@ -471,6 +491,11 @@ class OSUserExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType != .unauthorized {
+                    // handle unauthorized operation
+                    request.identityModel.invalidateJwtToken()
+                    
+                    // Identity Verification TODO: conditional retry
                 } else if responseType != .retryable {
                     // If the error is not retryable, remove from cache and queue
                     removeFromQueue(request)

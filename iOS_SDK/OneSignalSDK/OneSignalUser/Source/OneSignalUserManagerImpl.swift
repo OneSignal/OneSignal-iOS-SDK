@@ -36,6 +36,7 @@ import OneSignalNotifications
     // swiftlint:disable identifier_name
     var User: OSUser { get }
     func login(externalId: String, token: String?)
+    func updateUserJwt(externalId: String, jwtToken: String)
     func logout()
     // Location
     func setLocation(latitude: Float, longitude: Float)
@@ -79,6 +80,7 @@ import OneSignalNotifications
     typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
     typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
     func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler)
+    func updateUserJwt(externalId: String, jwtToken: String)
 }
 
 /**
@@ -302,7 +304,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
-        newUser.identityModel.jwtBearerToken = token
+        newUser.identityModel.updateJwtToken(token)
         OSUserExecutor.createUser(newUser)
         return self.user
     }
@@ -365,7 +367,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if let externalId = externalId,
            let user = _user,
            user.isAnonymous {
-            user.identityModel.jwtBearerToken = token
+            user.identityModel.updateJwtToken(token)
             identifyUser(externalId: externalId, currentUser: user)
             return self.user
         }
@@ -525,10 +527,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         jwtExpiredHandler(externalId) { [self] (newToken) -> Void in
-            guard user.identityModel.externalId == externalId else {
-                return
-            }
-            user.identityModel.jwtBearerToken = newToken
+            // requesting for a new token
+            updateUserJwt(externalId: externalId, jwtToken: newToken)
         }
     }
 }
@@ -777,6 +777,14 @@ extension OneSignalUserManagerImpl: OSUser {
         }
 
         user.setLanguage(language)
+    }
+    
+    public func updateUserJwt(externalId: String, jwtToken: String) {
+        for model in identityModelStore.getModels().values {
+            if (model.externalId == externalId) {
+                model.updateJwtToken(jwtToken)
+            }
+        }
     }
 }
 
