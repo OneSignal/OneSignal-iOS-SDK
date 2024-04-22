@@ -901,6 +901,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)messageIsNotActive:(OSInAppMessageInternal *)message {
     [self deleteInactiveMessage:message];
+    [self cleanUpInAppWindow];
 }
 
 - (void)messageWillDisplay:(nonnull OSInAppMessageInternal *)message {
