@@ -106,4 +106,9 @@ public struct LiveActivitySetupOptions {
      `OneSignalLiveActivityAttributes` structure.
      */
     public var enablePushToUpdate: Bool = true
+    
+    public init(enablePushToStart: Bool = true, enablePushToUpdate: Bool = true) {
+        self.enablePushToStart = enablePushToStart
+        self.enablePushToUpdate = enablePushToUpdate
+    }
 }

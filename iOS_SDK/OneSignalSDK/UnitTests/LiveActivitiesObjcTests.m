@@ -57,9 +57,6 @@
     [OneSignal.LiveActivities exit:@"my-activity-id" withSuccess:^(NSDictionary *result) {
     } withFailure:^(NSError *error) {
     }];
-    
-    [OneSignal.LiveActivities setPushToStartToken:@"DummyActivityAttributes" withToken:@"my-token"];
-    [OneSignal.LiveActivities removePushToStartToken:@"DummyActivityAttributes"];
 }
 
 @end

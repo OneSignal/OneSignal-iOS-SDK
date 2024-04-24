@@ -27,6 +27,7 @@
 
 import XCTest
 import ActivityKit
+import OneSignalLiveActivities
 
 class DummyActivityAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
@@ -34,9 +35,11 @@ class DummyActivityAttributes: ActivityAttributes {
 }
 
 class DummyOneSignalAwareActivityAttributes: OneSignalLiveActivityAttributes {
-    var onesignal: OneSignalLiveActivities.OneSignalLiveActivityAttributeData
+    var onesignal: OneSignalLiveActivityAttributeData
 
-    public struct ContentState: Codable, Hashable {
+    public struct ContentState: OneSignalLiveActivityContentState {
+        public var onesignal: OneSignalLiveActivityContentStateData?
+        
     }
 }
 
@@ -50,16 +53,19 @@ class LiveActivitiesSwiftTests: XCTestCase {
         OneSignal.LiveActivities.enter("my-activity-id", withToken: "my-token", withSuccess: {_ in }, withFailure: {_ in })
         OneSignal.LiveActivities.exit("my-activity-id")
         OneSignal.LiveActivities.exit("my-activity-id", withSuccess: {_ in }, withFailure: {_ in })
-
+        
         if #available(iOS 16.1, *) {
             OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self)
+            OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self, options: LiveActivitySetupOptions())
+            OneSignal.LiveActivities.setupDefault()
+            OneSignal.LiveActivities.setupDefault(options: LiveActivitySetupOptions())
+            
+            OneSignal.LiveActivities.startDefault("my-activity-id", attributes: [:], content: [:])
         }
 
         if #available(iOS 17.2, *) {
             OneSignal.LiveActivities.setPushToStartToken(DummyActivityAttributes.self, withToken: "my-token")
-            OneSignal.LiveActivities.setPushToStartToken("\(DummyActivityAttributes.self)", withToken: "my-token")
             OneSignal.LiveActivities.removePushToStartToken(DummyActivityAttributes.self)
-            OneSignal.LiveActivities.removePushToStartToken("\(DummyActivityAttributes.self)")
         }
     }
 }

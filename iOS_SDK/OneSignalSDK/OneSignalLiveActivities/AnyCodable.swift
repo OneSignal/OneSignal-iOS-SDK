@@ -17,16 +17,6 @@ import Foundation
     
     public func asBool() -> Bool? { return value as? Bool }
     public func asInt() -> Int? { return value as? Int }
-    public func asInt8() -> Int8? { return value as? Int8 }
-    public func asInt16() -> Int16? { return value as? Int16 }
-    public func asInt32() -> Int32? { return value as? Int32 }
-    public func asInt64() -> Int64? { return value as? Int64 }
-    public func asUInt() -> UInt? { return value as? UInt }
-    public func asUInt8() -> UInt8? { return value as? UInt8 }
-    public func asUInt16() -> UInt16? { return value as? UInt16 }
-    public func asUInt32() -> UInt32? { return value as? UInt32 }
-    public func asUInt64() -> UInt64? { return value as? UInt64 }
-    public func asFloat() -> Float? { return value as? Float }
     public func asDouble() -> Double? { return value as? Double }
     public func asString() -> String? { return value as? String }
     public func asArray() -> [AnyCodable]? { return value as? [AnyCodable] }
