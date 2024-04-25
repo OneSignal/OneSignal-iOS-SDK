@@ -47,6 +47,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     delta.model = modelInStore
                 } else {
                     // The model does not exist, drop this Delta
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -75,14 +76,15 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     subscriptionModels[request.subscriptionModel.modelId] = request.subscriptionModel
                 }
                 // 2. Hook up the identity model
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // a. The model exist in the store
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                    // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
-                    // b. The model exist in the user executor
-                    request.identityModel = identityModel
-                } else if !request.prepareForExecution() {
-                    // The model do not exist AND this request cannot be sent, drop this Request
+                } else if request.prepareForExecution() {
+                    // b. The request can be sent, add the model to the repo
+                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+                } else {
+                    // c. The model do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped: \(request)")
                     continue
                 }
                 requestQueue.append(request)
@@ -104,6 +106,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     request.subscriptionModel = subscriptionModel
                 } else if !request.prepareForExecution() {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
                 }
             }
@@ -124,6 +127,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     request.subscriptionModel = subscriptionModel
                 } else if !request.prepareForExecution() {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
                 }
             }
@@ -161,29 +165,34 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
         for delta in deltaQueue {
-            guard let model = delta.model as? OSSubscriptionModel else {
-                // Log error
+            guard let subModel = delta.model as? OSSubscriptionModel
+            else {
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
                 continue
             }
 
             switch delta.name {
             case OS_ADD_SUBSCRIPTION_DELTA:
-                let request = OSRequestCreateSubscription(
-                    subscriptionModel: model,
-                    identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
-                )
-                addRequestQueue.append(request)
-
+                // Only create the request if the identity model exists
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
+                    let request = OSRequestCreateSubscription(
+                        subscriptionModel: subModel,
+                        identityModel: identityModel
+                    )
+                    addRequestQueue.append(request)
+                } else {
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                }
             case OS_REMOVE_SUBSCRIPTION_DELTA:
                 let request = OSRequestDeleteSubscription(
-                    subscriptionModel: model
+                    subscriptionModel: subModel
                 )
                 removeRequestQueue.append(request)
 
             case OS_UPDATE_SUBSCRIPTION_DELTA:
                 let request = OSRequestUpdateSubscription(
                     subscriptionObject: [delta.property: delta.value],
-                    subscriptionModel: model
+                    subscriptionModel: subModel
                 )
                 updateRequestQueue.append(request)
 
