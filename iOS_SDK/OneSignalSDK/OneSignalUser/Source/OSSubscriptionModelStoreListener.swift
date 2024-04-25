@@ -39,6 +39,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     func getAddModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
         return OSDelta(
             name: OS_ADD_SUBSCRIPTION_DELTA,
+            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -51,6 +52,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
         return OSDelta(
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
+            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -60,6 +62,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
             model: args.model,
             property: args.property,
             value: args.newValue

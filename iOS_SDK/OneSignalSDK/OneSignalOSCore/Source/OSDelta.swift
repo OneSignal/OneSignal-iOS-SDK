@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 
 // TODO: Known Issue: Since these don't carry the app_id, it may have changed by the time Deltas become Requests, if app_id changes.
 // All requests requiring unique ID's will effectively be dropped.
@@ -34,6 +35,7 @@ open class OSDelta: NSObject, NSCoding {
     public let name: String
     public let deltaId: String
     public let timestamp: Date
+    public let identityModelId: String
     public var model: OSModel
     public let property: String
     public let value: Any
@@ -42,10 +44,11 @@ open class OSDelta: NSObject, NSCoding {
         return "<OSDelta \(name) with property: \(property) value: \(value)>"
     }
 
-    public init(name: String, model: OSModel, property: String, value: Any) {
+    public init(name: String, identityModelId: String, model: OSModel, property: String, value: Any) {
         self.name = name
         self.deltaId = UUID().uuidString
         self.timestamp = Date()
+        self.identityModelId = identityModelId
         self.model = model
         self.property = property
         self.value = value
@@ -55,6 +58,7 @@ open class OSDelta: NSObject, NSCoding {
         coder.encode(name, forKey: "name")
         coder.encode(deltaId, forKey: "deltaId")
         coder.encode(timestamp, forKey: "timestamp")
+        coder.encode(identityModelId, forKey: "identityModelId")
         coder.encode(model, forKey: "model")
         coder.encode(property, forKey: "property")
         coder.encode(value, forKey: "value")
@@ -64,17 +68,19 @@ open class OSDelta: NSObject, NSCoding {
         guard let name = coder.decodeObject(forKey: "name") as? String,
               let deltaId = coder.decodeObject(forKey: "deltaId") as? String,
               let timestamp = coder.decodeObject(forKey: "timestamp") as? Date,
+              let identityModelId = coder.decodeObject(forKey: "identityModelId") as? String,
               let model = coder.decodeObject(forKey: "model") as? OSModel,
               let property = coder.decodeObject(forKey: "property") as? String,
               let value = coder.decodeObject(forKey: "value")
         else {
-            // Log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to init OSDelta from cache")
             return nil
         }
 
         self.name = name
         self.deltaId = deltaId
         self.timestamp = timestamp
+        self.identityModelId = identityModelId
         self.model = model
         self.property = property
         self.value = value
