@@ -42,7 +42,6 @@ public class OneSignalUserMocks: NSObject {
     public static func resetStaticUserExecutor() {
         OSUserExecutor.userRequestQueue.removeAll()
         OSUserExecutor.transferSubscriptionRequestQueue.removeAll()
-        OSUserExecutor.identityModels.removeAll()
     }
 
     /** 
@@ -51,6 +50,8 @@ public class OneSignalUserMocks: NSObject {
      This is adapting as more data needs to be considered and reset...
      */
     public static func resetUserManager() {
+        OneSignalUserManagerImpl.sharedInstance.identityModelRepo.reset()
+
         OneSignalUserManagerImpl.sharedInstance.identityModelStore.clearModelsFromStore()
         OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.clearModelsFromStore()
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
@@ -70,5 +71,11 @@ public class OneSignalUserMocks: NSObject {
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+    }
+}
+
+extension OSIdentityModelRepo {
+    func reset() {
+        self.models = [:]
     }
 }

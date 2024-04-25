@@ -118,6 +118,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     @objc public let pushSubscriptionImpl: OSPushSubscriptionImpl
 
+    var identityModelRepo = OSIdentityModelRepo()
+
     private var hasCalledStart = false
 
     private var jwtExpiredHandler: OSJwtExpiredHandler?
@@ -211,12 +213,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
            let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
             hasCachedUser = true
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+            addIdentityModelToRepo(identityModel)
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
         }
 
         // TODO: Update the push sub model with any new state from NotificationsManager
 
         // Setup the executors
+        // The OSUserExecutor has to run first, before other executors
         OSUserExecutor.start()
         OSOperationRepo.sharedInstance.start()
 
@@ -251,6 +255,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if hasCachedUser {
             _user?.pushSubscriptionModel.update()
         }
+    }
+
+    func addIdentityModelToRepo(_ model: OSIdentityModel) {
+        self.identityModelRepo.add(model: model)
+    }
+
+    func getIdentityModel(_ modelId: String) -> OSIdentityModel? {
+        return identityModelRepo.get(modelId: modelId)
     }
 
     @objc
@@ -429,6 +441,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
+        self.addIdentityModelToRepo(identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel, hydrating: false)
