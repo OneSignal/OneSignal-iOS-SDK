@@ -60,6 +60,7 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
 
         return OSDelta(
             name: name,
+            identityModelId: args.model.modelId,
             model: args.model,
             property: args.property,
             value: args.newValue
