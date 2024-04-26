@@ -134,7 +134,7 @@
 }
 
 - (IBAction)sendTagsButton:(id)sender {
-    NSLog(@"Sending tags %@", @{@"key1": @"value1", @"key2": @"value2"});
+    NSLog(@"Adding tags %@", @{@"key1": @"value1", @"key2": @"value2"});
     [OneSignal.User addTags:@{@"key1": @"value1", @"key2": @"value2"}];
 }
 
