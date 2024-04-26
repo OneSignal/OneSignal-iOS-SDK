@@ -95,18 +95,22 @@ public extension OSLiveActivities {
 /**
  The setup options for `OneSignal.LiveActivities.setup`.
  */
-public struct LiveActivitySetupOptions {
+@objc(LiveActivitySetupOptions)
+public class LiveActivitySetupOptions : NSObject {
     /**
      When true, OneSignal will listen for pushToStart tokens for the `OneSignalLiveActivityAttributes` structure.
      */
+    @objc
     public var enablePushToStart: Bool = true
 
     /**
      When true, OneSignal will listen for pushToUpdate  tokens for each start live activity that uses the
      `OneSignalLiveActivityAttributes` structure.
      */
+    @objc
     public var enablePushToUpdate: Bool = true
     
+    @objc
     public init(enablePushToStart: Bool = true, enablePushToUpdate: Bool = true) {
         self.enablePushToStart = enablePushToStart
         self.enablePushToUpdate = enablePushToUpdate
