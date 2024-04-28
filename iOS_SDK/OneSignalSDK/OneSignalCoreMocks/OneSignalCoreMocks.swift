@@ -22,6 +22,7 @@
 
 import Foundation
 import OneSignalCore
+import XCTest
 
 @objc
 public class OneSignalCoreMocks: NSObject {
@@ -42,5 +43,11 @@ public class OneSignalCoreMocks: NSObject {
         for key in sharedDictionary.keys {
             sharedUserDefaults.removeObject(forKey: key)
         }
+    }
+
+    /** Wait specified number of seconds for any async methods to run */
+    public static func waitForBackgroundThreads(seconds: Double) {
+        let expectation = XCTestExpectation(description: "Wait for \(seconds) seconds")
+        _ = XCTWaiter.wait(for: [expectation], timeout: seconds)
     }
 }
