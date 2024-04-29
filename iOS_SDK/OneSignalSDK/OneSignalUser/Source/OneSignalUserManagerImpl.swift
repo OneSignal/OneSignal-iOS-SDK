@@ -120,7 +120,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     var identityModelRepo = OSIdentityModelRepo()
 
-    private var hasCalledStart = false
+    var hasCalledStart = false
 
     private var jwtExpiredHandler: OSJwtExpiredHandler?
 
@@ -139,7 +139,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return user
     }
 
-    private var _user: OSUserInternal?
+    var _user: OSUserInternal?
 
     // This is a user instance to operate on when there is no app_id and/or privacy consent yet, effectively no-op.
     // The models are not added to any model stores.
