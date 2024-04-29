@@ -67,9 +67,8 @@
             //if so, we shouldn't present on top of existing dialog
             if (self.queue.count > 1)
                 return;
-            
-            [self displayDialog:request];
         }
+        [self displayDialog:request];
     });
 }
 
@@ -102,6 +101,7 @@
 
 - (void)delayResult:(int)result {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        OSDialogRequest *nextDialog = nil;
         @synchronized (self.queue) {
             if (self.queue.count > 0) {
                 let currentDialog = self.queue.firstObject;
@@ -116,8 +116,9 @@
             if (self.queue.count == 0)
                 return;
             
-            let nextDialog = self.queue.firstObject;
-            
+            nextDialog = self.queue.firstObject;
+        }
+        if (nextDialog != nil) {
             [self displayDialog:nextDialog];
         }
     });
