@@ -201,7 +201,7 @@ final class OneSignalUserTests: XCTestCase {
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
-        
+
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
 
