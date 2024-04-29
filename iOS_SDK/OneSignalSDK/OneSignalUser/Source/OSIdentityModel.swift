@@ -86,7 +86,7 @@ class OSIdentityModel: OSModel {
         }
         self.set(property: "aliases", newValue: aliases)
     }
-    
+
     /**
      Called to clear the model's data in preparation for hydration via a fetch user call.
      */
