@@ -520,10 +520,6 @@ extension OSUserExecutor {
             return
         }
 
-        if let identityObject = parseIdentityObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
-        }
-
         if let propertiesObject = parsePropertiesObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
         }

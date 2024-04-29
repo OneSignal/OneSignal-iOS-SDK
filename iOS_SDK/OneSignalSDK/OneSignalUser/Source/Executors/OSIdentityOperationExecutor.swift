@@ -124,7 +124,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 addRequestQueue.append(request)
 
             case OS_REMOVE_ALIAS_DELTA:
-                if let label = aliases.first?.key {
+                for (label, _) in aliases {
                     let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
                     removeRequestQueue.append(request)
                 }

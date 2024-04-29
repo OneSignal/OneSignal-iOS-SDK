@@ -31,19 +31,16 @@ import OneSignalOSCore
 
 class OSIdentityModel: OSModel {
     var onesignalId: String? {
-        aliasesLock.locked {
-            return aliases[OS_ONESIGNAL_ID]
-        }
+        return internalGetAlias(OS_ONESIGNAL_ID)
     }
 
     var externalId: String? {
-        aliasesLock.locked {
-            return aliases[OS_EXTERNAL_ID]
-        }
+        return internalGetAlias(OS_EXTERNAL_ID)
     }
 
+    // All access to aliases should go through helper methods with locking
     var aliases: [String: String] = [:]
-    private let aliasesLock = UnfairLock()
+    private let aliasesLock = NSRecursiveLock()
 
     // TODO: We need to make this token secure
     public var jwtBearerToken: String?
@@ -57,8 +54,10 @@ class OSIdentityModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        super.encode(with: coder)
-        coder.encode(aliases, forKey: "aliases")
+        aliasesLock.withLock {
+            super.encode(with: coder)
+            coder.encode(aliases, forKey: "aliases")
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -70,11 +69,29 @@ class OSIdentityModel: OSModel {
         self.aliases = aliases
     }
 
+    /** Threadsafe getter for an alias */
+    private func internalGetAlias(_ label: String) -> String? {
+        aliasesLock.withLock {
+            return self.aliases[label]
+        }
+    }
+
+    /** Threadsafe setter or removal for aliases */
+    private func internalAddAliases(_ aliases: [String: String]) {
+        aliasesLock.withLock {
+            for (label, id) in aliases {
+                // Remove the alias if the ID field is ""
+                self.aliases[label] = id.isEmpty ? nil : id
+            }
+        }
+        self.set(property: "aliases", newValue: aliases)
+    }
+    
     /**
      Called to clear the model's data in preparation for hydration via a fetch user call.
      */
     func clearData() {
-        aliasesLock.locked {
+        aliasesLock.withLock {
             self.aliases = [:]
         }
     }
@@ -82,43 +99,27 @@ class OSIdentityModel: OSModel {
     // MARK: - Alias Methods
 
     func addAliases(_ aliases: [String: String]) {
-        aliasesLock.locked {
-            for (label, id) in aliases {
-                self.aliases[label] = id
-            }
-            self.set(property: "aliases", newValue: aliases)
-        }
+        internalAddAliases(aliases)
     }
 
     func removeAliases(_ labels: [String]) {
-        aliasesLock.locked {
-            for label in labels {
-                self.aliases.removeValue(forKey: label)
-                self.set(property: "aliases", newValue: [label: ""])
-            }
+        let aliasesToRemoveAsDict = labels.reduce(into: [String: String]()) { result, label in
+            result[label] = ""
         }
+        internalAddAliases(aliasesToRemoveAsDict)
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel()")
-        var newOnesignalId: String?
-        var newExternalId: String?
-
-        aliasesLock.locked {
-            for property in response {
-                switch property.key {
-                case "external_id":
-                    newExternalId = property.value as? String
-                    aliases[OS_EXTERNAL_ID] = newExternalId
-                case "onesignal_id":
-                    newOnesignalId = property.value as? String
-                    aliases[OS_ONESIGNAL_ID] = newOnesignalId
-                default:
-                    aliases[property.key] = property.value as? String
-                }
-                self.set(property: "aliases", newValue: aliases)
-            }
+        guard let remoteAliases = response as? [String: String] else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModel.hydrateModel failed to parse response \(response) as Strings")
+            return
         }
+
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel with aliases: \(remoteAliases)")
+        let newOnesignalId = remoteAliases[OS_ONESIGNAL_ID]
+        let newExternalId = remoteAliases[OS_EXTERNAL_ID]
+
+        internalAddAliases(remoteAliases)
         fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
 

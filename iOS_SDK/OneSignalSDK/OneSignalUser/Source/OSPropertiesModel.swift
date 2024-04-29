@@ -82,7 +82,7 @@ class OSPropertiesModel: OSModel {
     var timezoneId = TimeZone.current.identifier
 
     var tags: [String: String] = [:]
-    private let tagsLock = UnfairLock()
+    private let tagsLock = NSRecursiveLock()
 
     // MARK: - Initialization
 
@@ -102,10 +102,12 @@ class OSPropertiesModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        super.encode(with: coder)
-        coder.encode(language, forKey: "language")
-        coder.encode(tags, forKey: "tags")
-        // ... and more
+        tagsLock.withLock {
+            super.encode(with: coder)
+            coder.encode(language, forKey: "language")
+            coder.encode(tags, forKey: "tags")
+            // ... and more
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -125,7 +127,7 @@ class OSPropertiesModel: OSModel {
      */
     func clearData() {
         // TODO: What about language, lat, long?
-        tagsLock.locked {
+        tagsLock.withLock {
             self.tags = [:]
         }
     }
@@ -133,23 +135,23 @@ class OSPropertiesModel: OSModel {
     // MARK: - Tag Methods
 
     func addTags(_ tags: [String: String]) {
-        tagsLock.locked {
+        tagsLock.withLock {
             for (key, value) in tags {
                 self.tags[key] = value
             }
-            self.set(property: "tags", newValue: tags)
         }
+        self.set(property: "tags", newValue: tags)
     }
 
     func removeTags(_ tags: [String]) {
-        tagsLock.locked {
-            var tagsToSend: [String: String] = [:]
+        var tagsToSend: [String: String] = [:]
+        tagsLock.withLock {
             for tag in tags {
                 self.tags.removeValue(forKey: tag)
                 tagsToSend[tag] = ""
             }
-            self.set(property: "tags", newValue: tagsToSend)
         }
+        self.set(property: "tags", newValue: tagsToSend)
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
@@ -158,7 +160,7 @@ class OSPropertiesModel: OSModel {
             case "language":
                 self.language = property.value as? String
             case "tags":
-                tagsLock.locked {
+                tagsLock.withLock {
                     self.tags = property.value as? [String: String] ?? [:]
                 }
             default:
