@@ -58,7 +58,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
         self.onNewSession = onNewSession
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "<OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
         super.init()
         self.method = GET
         _ = prepareForExecution() // sets the path property
@@ -88,7 +88,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
         self.onNewSession = coder.decodeBool(forKey: "onNewSession")
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "<OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp

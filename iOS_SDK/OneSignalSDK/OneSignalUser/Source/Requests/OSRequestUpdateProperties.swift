@@ -54,7 +54,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, identityModel: OSIdentityModel) {
         self.identityModel = identityModel
-        self.stringDescription = "<OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))>"
+        self.stringDescription = "<OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(refreshDeviceMetadata ?? false)>"
         super.init()
 
         var propertiesObject = properties
