@@ -72,6 +72,7 @@ public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandle
 }
 extension OneSignalOSCore.OSModelStoreListener {
   public func start()
+  public func close()
   public func onAdded(_ model: OneSignalOSCore.OSModel)
   public func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
   public func onRemoved(_ model: OneSignalOSCore.OSModel)
@@ -85,21 +86,17 @@ public protocol OSModelStoreChangedHandler {
   final public let name: Swift.String
   final public let deltaId: Swift.String
   final public let timestamp: Foundation.Date
+  final public let identityModelId: Swift.String
   public var model: OneSignalOSCore.OSModel
   final public let property: Swift.String
   final public let value: Any
   @objc override dynamic open var description: Swift.String {
     @objc get
   }
-  public init(name: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
+  public init(name: Swift.String, identityModelId: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
   @objc public func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
   @objc deinit
-}
-final public class UnfairLock {
-  public init()
-  @objc deinit
-  final public func locked<ReturnValue>(_ closure: () throws -> ReturnValue) rethrows -> ReturnValue
 }
 @objc @_hasMissingDesignatedInitializers public class OSModelChangedArgs : ObjectiveC.NSObject {
   final public let model: OneSignalOSCore.OSModel
