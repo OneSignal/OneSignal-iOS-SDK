@@ -34,7 +34,7 @@
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		sP/mfK+AGOinf+N5NNCzRvmEhGk=
+		r1OPSMjenD9tsc/0g3jxQVkjVDE=
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/_CodeSignature/CodeResources</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/OneSignalNotifications</key>
 		<data>
-		ZaMLwkniybK87ItSp8Ng4pUceAQ=
+		mnOmrqJFTseezP6zGSiMoBDGEPo=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -106,7 +106,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		Y2mzGrqZ2Vis1JJ+eCLqpReolT4=
+		63+SA4SXypK2p8Rkbjc60dcc4Yc=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/_CodeSignature/CodeResources</key>
 		<data>
@@ -196,11 +196,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			sP/mfK+AGOinf+N5NNCzRvmEhGk=
+			r1OPSMjenD9tsc/0g3jxQVkjVDE=
 			</data>
 			<key>hash2</key>
 			<data>
-			nOL80I6bPakTDvOwTnpfpEuGgRmzean55q9OzLmThrY=
+			6yVbx+Ed7r30IsK4ONSppKXaSJ+KCaEzzoMXt1HfjxM=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalNotifications.framework/_CodeSignature/CodeResources</key>
@@ -304,11 +304,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			ZaMLwkniybK87ItSp8Ng4pUceAQ=
+			mnOmrqJFTseezP6zGSiMoBDGEPo=
 			</data>
 			<key>hash2</key>
 			<data>
-			COkpjbqCjhBmQ4355B4ZzcurnVSJF8aj7jZTCjpU5zw=
+			L3B18D5T0bAc2qakw3veiKrCHMXhonPyYzMebfeQyTI=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
@@ -419,11 +419,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Y2mzGrqZ2Vis1JJ+eCLqpReolT4=
+			63+SA4SXypK2p8Rkbjc60dcc4Yc=
 			</data>
 			<key>hash2</key>
 			<data>
-			xOQMflNHiBVi7vCNYGAiF20SqtgMorzWS2CyaOsAh/U=
+			ZsPhDYWAfg5fwzsql4Xkn+YVNMoYr00FFs0l0fe/yM0=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/_CodeSignature/CodeResources</key>

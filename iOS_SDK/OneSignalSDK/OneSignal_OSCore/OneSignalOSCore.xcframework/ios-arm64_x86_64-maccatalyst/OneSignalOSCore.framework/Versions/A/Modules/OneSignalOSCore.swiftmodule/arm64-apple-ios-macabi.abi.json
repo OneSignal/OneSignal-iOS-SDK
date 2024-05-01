@@ -2163,6 +2163,29 @@
           },
           {
             "kind": "Function",
+            "name": "close",
+            "printedName": "close()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore20OSModelStoreListenerPAAE5closeyyF",
+            "mangledName": "$s15OneSignalOSCore20OSModelStoreListenerPAAE5closeyyF",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSModelStoreListener>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSModelStoreListener>",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "onAdded",
             "printedName": "onAdded(_:)",
             "children": [
@@ -2394,6 +2417,13 @@
         ]
       },
       {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
         "kind": "TypeDecl",
         "name": "OSDelta",
         "printedName": "OSDelta",
@@ -2533,6 +2563,54 @@
                 "declKind": "Accessor",
                 "usr": "s:15OneSignalOSCore7OSDeltaC9timestamp10Foundation4DateVvg",
                 "mangledName": "$s15OneSignalOSCore7OSDeltaC9timestamp10Foundation4DateVvg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "identityModelId",
+            "printedName": "identityModelId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore7OSDeltaC15identityModelIdSSvp",
+            "mangledName": "$s15OneSignalOSCore7OSDeltaC15identityModelIdSSvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore7OSDeltaC15identityModelIdSSvg",
+                "mangledName": "$s15OneSignalOSCore7OSDeltaC15identityModelIdSSvg",
                 "moduleName": "OneSignalOSCore",
                 "implicit": true,
                 "declAttributes": [
@@ -2777,13 +2855,19 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(name:model:property:value:)",
+            "printedName": "init(name:identityModelId:model:property:value:)",
             "children": [
               {
                 "kind": "TypeNominal",
                 "name": "OSDelta",
                 "printedName": "OneSignalOSCore.OSDelta",
                 "usr": "c:@M@OneSignalOSCore@objc(cs)OSDelta"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
               },
               {
                 "kind": "TypeNominal",
@@ -2810,8 +2894,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:15OneSignalOSCore7OSDeltaC4name5model8property5valueACSS_AA7OSModelCSSyptcfc",
-            "mangledName": "$s15OneSignalOSCore7OSDeltaC4name5model8property5valueACSS_AA7OSModelCSSyptcfc",
+            "usr": "s:15OneSignalOSCore7OSDeltaC4name15identityModelId5model8property5valueACSS_SSAA7OSModelCSSyptcfc",
+            "mangledName": "$s15OneSignalOSCore7OSDeltaC4name15identityModelId5model8property5valueACSS_SSAA7OSModelCSSyptcfc",
             "moduleName": "OneSignalOSCore",
             "declAttributes": [
               "AccessControl"
@@ -2975,88 +3059,6 @@
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
           }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "UnfairLock",
-        "printedName": "UnfairLock",
-        "children": [
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "UnfairLock",
-                "printedName": "OneSignalOSCore.UnfairLock",
-                "usr": "s:15OneSignalOSCore10UnfairLockC"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:15OneSignalOSCore10UnfairLockCACycfc",
-            "mangledName": "$s15OneSignalOSCore10UnfairLockCACycfc",
-            "moduleName": "OneSignalOSCore",
-            "declAttributes": [
-              "AccessControl"
-            ],
-            "init_kind": "Designated"
-          },
-          {
-            "kind": "Function",
-            "name": "locked",
-            "printedName": "locked(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "GenericTypeParam",
-                "printedName": "τ_0_0"
-              },
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "() throws -> τ_0_0",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "GenericTypeParam",
-                    "printedName": "τ_0_0"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "typeAttributes": [
-                  "noescape"
-                ]
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:15OneSignalOSCore10UnfairLockC6lockedyxxyKXEKlF",
-            "mangledName": "$s15OneSignalOSCore10UnfairLockC6lockedyxxyKXEKlF",
-            "moduleName": "OneSignalOSCore",
-            "genericSig": "<τ_0_0>",
-            "sugared_genericSig": "<ReturnValue>",
-            "declAttributes": [
-              "Final",
-              "Rethrows",
-              "AccessControl"
-            ],
-            "throwing": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Class",
-        "usr": "s:15OneSignalOSCore10UnfairLockC",
-        "mangledName": "$s15OneSignalOSCore10UnfairLockC",
-        "moduleName": "OneSignalOSCore",
-        "declAttributes": [
-          "Final",
-          "AccessControl",
-          "RawDocComment"
         ]
       },
       {
@@ -3736,7 +3738,7 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 1455,
+      "offset": 1476,
       "length": 7,
       "value": "\"OneSignalOSCore.OSDelta\""
     },

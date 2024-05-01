@@ -90,7 +90,7 @@
 		</data>
 		<key>ios-arm64/OneSignalOutcomes.framework/OneSignalOutcomes</key>
 		<data>
-		GYIokmw1laV6cHs3dXTXVvnR8wI=
+		pt3h4LDenrOzaU98QQD+kKlhkGs=
 		</data>
 		<key>ios-arm64/OneSignalOutcomes.framework/_CodeSignature/CodeResources</key>
 		<data>
@@ -178,7 +178,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/OneSignalOutcomes</key>
 		<data>
-		6pbgUb5GKy2aLb0iXgiAxNVx9T0=
+		O+encuARIgviB5ELFeMc7BKrjLY=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -274,7 +274,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/OneSignalOutcomes</key>
 		<data>
-		Pc/5WCmGme68Y643c9FmhFyvUN8=
+		dUHvIRu0SWe2yJTVAVHOmpdNm2g=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/_CodeSignature/CodeResources</key>
 		<data>
@@ -518,11 +518,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			GYIokmw1laV6cHs3dXTXVvnR8wI=
+			pt3h4LDenrOzaU98QQD+kKlhkGs=
 			</data>
 			<key>hash2</key>
 			<data>
-			mS6QP+AQFJhLnED02ktKrmVAeDVEu8yE78gJnmClXt4=
+			frzSyPyVu0ANn++8YY4sPEobAuWdSa2Xcn04g1yM+08=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalOutcomes.framework/_CodeSignature/CodeResources</key>
@@ -780,11 +780,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			6pbgUb5GKy2aLb0iXgiAxNVx9T0=
+			O+encuARIgviB5ELFeMc7BKrjLY=
 			</data>
 			<key>hash2</key>
 			<data>
-			nmHfia4c1+0/J5bS5WbpVEkj9KxkUva2FMf0szCDnAU=
+			7pDGlr9aYzR47vwQwV0i2WzJ8ld+Ci+PxG9v6b4pVCA=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/Resources/Info.plist</key>
@@ -1049,11 +1049,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Pc/5WCmGme68Y643c9FmhFyvUN8=
+			dUHvIRu0SWe2yJTVAVHOmpdNm2g=
 			</data>
 			<key>hash2</key>
 			<data>
-			KMPpKhhXqiECjuF1eQPyXhk+NkeS6GWylGPfLEegPO4=
+			pZRn5A94ocpPmdAvBcBl2zIOamnAYAsX3J2NuIlT/CY=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/_CodeSignature/CodeResources</key>
