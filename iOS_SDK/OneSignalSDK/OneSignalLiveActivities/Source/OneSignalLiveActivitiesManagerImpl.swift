@@ -176,6 +176,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     private static func listenForPushToStart<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
         if options == nil || options!.enablePushToStart {
             Task {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for pushToStart on: \(activityType)")
                 for try await data in Activity<Attributes>.pushToStartTokenUpdates {
                     let token = data.map {String(format: "%02x", $0)}.joined()
                     OneSignalLiveActivitiesManagerImpl.setPushToStartToken(Attributes.self, withToken: token)
@@ -187,6 +188,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     @available(iOS 16.1, *)
     private static func listenForActivity<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
         Task {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for activity on: \(activityType)")
             for await activity in Activity<Attributes>.activityUpdates {
                 if #available(iOS 16.2, *) {
                     // if there's already an activity with the same OneSignal activityId, dismiss it before
@@ -208,6 +210,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     private static func listenForActivityStateUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
         // listen for activity dismisses so we can forget about the token
         Task {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for state update on: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
             for await activityState in activity.activityStateUpdates {
                 switch activityState {
                 case .dismissed:
@@ -226,6 +229,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         if options == nil || options!.enablePushToUpdate {
             // listen for activity update token updates so we can tell OneSignal how to update the activity
             Task {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for pushToUpdate on: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
                 for await pushToken in activity.pushTokenUpdates {
                     let token = pushToken.map {String(format: "%02x", $0)}.joined()
                     OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
