@@ -144,46 +144,17 @@ final class OneSignalUserTests: XCTestCase {
         let client = MockOneSignalClient()
 
         // 1. Set up mock responses for the anonymous user
-        let anonCreateResponse = MockUserRequests.testIdentityPayload(onesignalId: anonUserOSID, externalId: nil)
-
-        client.setMockResponseForRequest(
-            request: "<OSRequestCreateUser with externalId: nil>",
-            response: anonCreateResponse)
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
 
         // 2. Set up mock responses for User A
         let tagsUserA = ["tag_a": "value_a"]
-        let createUserA = MockUserRequests.testIdentityPayload(onesignalId: userA_OSID, externalId: userA_EUID)
-        let tagsResponseUserA = MockUserRequests.testPropertiesPayload(properties: ["tags": tagsUserA])
-
-        client.setMockResponseForRequest(
-            request: "<OSRequestIdentifyUser with aliasLabel: external_id aliasId: \(userA_EUID)>",
-            response: createUserA
-        )
-        client.setMockResponseForRequest(
-            request: "<OSRequestFetchUser with aliasLabel: external_id aliasId: \(userA_EUID)>",
-            response: createUserA
-        )
-        client.setMockResponseForRequest(
-            request: "<OSRequestUpdateProperties with properties: [\"tags\": \(tagsUserA)] deltas: nil refreshDeviceMetadata: false>",
-            response: tagsResponseUserA
-        )
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID)
+        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserA)
 
         // 3. Set up mock responses for User B
         let tagsUserB = ["tag_b": "value_b"]
-        let createUserB = MockUserRequests.testIdentityPayload(onesignalId: userB_OSID, externalId: userB_EUID)
-        let tagsResponseUserB = MockUserRequests.testPropertiesPayload(properties: ["tags": tagsUserB])
-
-        client.setMockResponseForRequest(
-            request: "<OSRequestCreateUser with externalId: \(userB_EUID)>",
-            response: createUserB
-        )
-        client.setMockResponseForRequest(
-            request: "<OSRequestFetchUser with aliasLabel: external_id aliasId: \(userB_EUID)>",
-            response: createUserB
-        )
-        client.setMockResponseForRequest(
-            request: "<OSRequestUpdateProperties with properties: [\"tags\": \(tagsUserB)] deltas: nil refreshDeviceMetadata: false>",
-            response: tagsResponseUserB)
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userB_EUID)
+        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserB)
 
         OneSignalCoreImpl.setSharedClient(client)
 
@@ -205,9 +176,10 @@ final class OneSignalUserTests: XCTestCase {
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
 
-        // Assert there is only one request containing these tags and they are sent to userA
+        // Assert there is only one request containing these tags and they are sent to the Anon User
+        // This is because the Identify User request succeeded, so the user remains the same
         XCTAssertTrue(client.onlyOneRequest(
-            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
             contains: ["properties": ["tags": tagsUserA]])
         )
         // Assert there is only one request containing these tags and they are sent to userB
@@ -216,7 +188,7 @@ final class OneSignalUserTests: XCTestCase {
             contains: ["properties": ["tags": tagsUserB]])
         )
     }
-    
+
     /**
      Motivation: We had a bug where we did not hydrate the middle user's OSID, so any pending updates got dropped.
      */
