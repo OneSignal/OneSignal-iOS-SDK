@@ -329,6 +329,10 @@ class OSUserExecutor {
             if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
                 fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
             } else {
+                // Need to hydrate the identity model for any pending requests
+                if let osid = request.identityModelToIdentify.onesignalId {
+                    request.identityModelToUpdate.hydrate([OS_ONESIGNAL_ID: osid])
+                }
                 executePendingRequests()
             }
         } onFailure: { error in
@@ -340,12 +344,13 @@ class OSUserExecutor {
                     OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
 
                     removeFromQueue(request)
-                    // Fetch the user only if its the current user
+                    // Transfer the push subscription only if it's the current user
                     if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
-                        fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-                        // TODO: Link ^ to the new user... what was this todo for?
+                        transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
                     }
-                    transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
+                    // Need to still hydrate the identity model for any pending requests
+                    // TODO: After implementing JWT, instead of fetching just to hydrate the OSID for pending requests, maybe we can update the external_id on the Identity Model and set the alias to use for pending requests be the external_id
+                    fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                 } else if responseType == .invalid || responseType == .unauthorized {
                     // Failed, no retry
                     removeFromQueue(request)
