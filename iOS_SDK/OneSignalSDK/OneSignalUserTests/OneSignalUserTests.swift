@@ -216,4 +216,56 @@ final class OneSignalUserTests: XCTestCase {
             contains: ["properties": ["tags": tagsUserB]])
         )
     }
+    
+    /**
+     Motivation: We had a bug where we did not hydrate the middle user's OSID, so any pending updates got dropped.
+     */
+    func testIdentifyUserWithConflict_whenNotCurrentUser_sendsCorrectTags() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(client)
+
+        // 1. Set up mock responses for the anonymous user
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+
+        // 2. Set up mock responses for User A with 409 conflict response
+        let tagsUserA = ["tag_a": "value_a"]
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID, conflicted: true)
+        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserA)
+
+        // 3. Set up mock responses for User B
+        let tagsUserB = ["tag_b": "value_b"]
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userB_EUID)
+        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserB)
+
+        /* When */
+
+        // 1. Login to user A and add tag
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+        OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_a", value: "value_a")
+
+        // 2. Login to user B and add tag
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
+        OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_b", value: "value_b")
+
+        // 3. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+
+        // Assert that every request SDK makes has a response set, and is handled
+        XCTAssertTrue(client.allRequestsHandled)
+
+        // Assert there is only one request containing these tags and they are sent to userA
+        XCTAssertTrue(client.onlyOneRequest(
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+            contains: ["properties": ["tags": tagsUserA]])
+        )
+        // Assert there is only one request containing these tags and they are sent to userB
+        XCTAssertTrue(client.onlyOneRequest(
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+            contains: ["properties": ["tags": tagsUserB]])
+        )
+    }
 }
