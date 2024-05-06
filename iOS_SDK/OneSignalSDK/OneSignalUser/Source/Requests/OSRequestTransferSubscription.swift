@@ -66,7 +66,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         self.subscriptionModel = subscriptionModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestTransferSubscription"
+        self.stringDescription = "<OSRequestTransferSubscription to \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
@@ -97,7 +97,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         self.subscriptionModel = subscriptionModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestTransferSubscription"
+        self.stringDescription = "<OSRequestTransferSubscription to \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

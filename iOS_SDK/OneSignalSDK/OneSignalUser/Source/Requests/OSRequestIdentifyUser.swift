@@ -72,7 +72,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
+        self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
@@ -106,7 +106,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
+        self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.timestamp = timestamp
         self.parameters = parameters
