@@ -36,39 +36,47 @@ public class OneSignalUserMocks: NSObject {
 
     public static func reset() {
         resetStaticUserExecutor()
-        resetUserManager()
+        // TODO: Reset Operation Repo first
+        // OSCoreMocks.resetOperationRepo()
+        OneSignalUserManagerImpl.sharedInstance.reset()
     }
 
     public static func resetStaticUserExecutor() {
         OSUserExecutor.userRequestQueue.removeAll()
         OSUserExecutor.transferSubscriptionRequestQueue.removeAll()
-        OSUserExecutor.identityModels.removeAll()
     }
+}
 
-    /** 
+extension OSIdentityModelRepo {
+    func reset() {
+        self.models = [:]
+    }
+}
+
+extension OneSignalUserManagerImpl {
+    /**
      User Manager needs to reset between tests until we dependency inject the User Manager.
      For example, executors it owns may have cached requests or deltas that would have carried over.
      This is adapting as more data needs to be considered and reset...
      */
-    public static func resetUserManager() {
-        OneSignalUserManagerImpl.sharedInstance.identityModelStore.clearModelsFromStore()
-        OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.clearModelsFromStore()
-        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
-        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.clearModelsFromStore()
+    func reset() {
+        identityModelRepo.reset()
 
-        let propertyExecutor = OSPropertyOperationExecutor()
-        let identityExecutor = OSIdentityOperationExecutor()
-        let subscriptionExecutor = OSSubscriptionOperationExecutor()
+        // Model store listeners unsubscribe to their models
+        // User Manager start() will subscribe them
+        identityModelStoreListener.close()
+        propertiesModelStoreListener.close()
+        subscriptionModelStoreListener.close()
+        pushSubscriptionModelStoreListener.close()
 
-        OneSignalUserManagerImpl.sharedInstance.propertyExecutor = propertyExecutor
-        OneSignalUserManagerImpl.sharedInstance.identityExecutor = identityExecutor
-        OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor = subscriptionExecutor
+        // Executor instances do no need to be reset, they are initailized in start()
 
-        // TODO: Reset Operation Repo first
-        // OSCoreMocks.resetOperationRepo()
+        identityModelStore.clearModelsFromStore()
+        propertiesModelStore.clearModelsFromStore()
+        subscriptionModelStore.clearModelsFromStore()
+        pushSubscriptionModelStore.clearModelsFromStore()
 
-        OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
-        OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
-        OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+        _user = nil
+        hasCalledStart = false
     }
 }

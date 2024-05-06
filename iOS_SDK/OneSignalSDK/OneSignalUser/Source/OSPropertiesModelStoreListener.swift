@@ -47,6 +47,7 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: OS_UPDATE_PROPERTIES_DELTA,
+            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
             model: args.model,
             property: args.property,
             value: args.newValue

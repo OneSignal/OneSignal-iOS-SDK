@@ -27,11 +27,20 @@ jobs:
         with:
           ref: ${{github.event.inputs.release_branch}}
 
-      - name: Install the Apple certificate and provisioning profile
+      - name: Install the Apple distribution certificate and provisioning profile
         uses: apple-actions/import-codesign-certs@v2
-        with: 
+        with:
+          keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
           p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+
+      - name: Install the Apple distribution certificate and provisioning profile
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          create-keychain: false # do not create a new keychain for this value
+          keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+          p12-file-base64: ${{ secrets.DEV_CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.DEV_CERTIFICATES_P12_PASSWORD }}
       # - name: Bump Version Number
       #   run: |
       - name: Build Binaries
@@ -39,6 +48,19 @@ jobs:
           cd iOS_SDK/OneSignalSDK
           chmod +x ./build_all_frameworks.sh
           ./build_all_frameworks.sh
+        shell: bash
+      - name: Code Sign
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Core/OneSignalCore.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Extension/OneSignalExtension.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_InAppMessages/OneSignalInAppMessages.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Location/OneSignalLocation.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Notifications/OneSignalNotifications.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_OSCore/OneSignalOSCore.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Outcomes/OneSignalOutcomes.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_User/OneSignalUser.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
         shell: bash
       - name: Update Swift Package
         run: |

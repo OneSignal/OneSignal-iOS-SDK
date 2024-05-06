@@ -18,7 +18,7 @@
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/OneSignalInAppMessages</key>
 		<data>
-		GuRk2cwM8+qw6yBHtZHjDYo+BPw=
+		vROs2x06t0mjdiwzL8QfmJhfzWk=
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/OneSignalInAppMessages</key>
 		<data>
-		1q8MFSerlTIZqsFk6qCpQ+dd6Zs=
+		d1e7D8T80VJwpeH92LgdB80FoU8=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/OneSignalInAppMessages</key>
 		<data>
-		5HraPoShwq/tc9fvcBHh9hBeKd4=
+		Vl5n3o3U64ZeTMZD+9nXb5r/CqY=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -116,11 +116,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			GuRk2cwM8+qw6yBHtZHjDYo+BPw=
+			vROs2x06t0mjdiwzL8QfmJhfzWk=
 			</data>
 			<key>hash2</key>
 			<data>
-			EnnQ4dKs67irCLAJXLYFyItfN/UgGMEK97EvMK/FieQ=
+			Jkv+JU6pdwM7aodBWvruCiP1G3shXpe1a50amvhnPno=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
@@ -191,11 +191,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			1q8MFSerlTIZqsFk6qCpQ+dd6Zs=
+			d1e7D8T80VJwpeH92LgdB80FoU8=
 			</data>
 			<key>hash2</key>
 			<data>
-			pSGF/fe558WL4PiLo9b3/6eOyNrJGJlYt1djjFn3lPY=
+			iNSdmhs8o21yiw+jtrbjQf7Tw+mMogfkzR2mH8TyheI=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/Info.plist</key>
@@ -273,11 +273,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			5HraPoShwq/tc9fvcBHh9hBeKd4=
+			Vl5n3o3U64ZeTMZD+9nXb5r/CqY=
 			</data>
 			<key>hash2</key>
 			<data>
-			bgv+jU+jdceqr/awWAWDvkxnW1GItGqCSYG/C9Zqr+c=
+			VNwHMDi9J55+P4cpMjdqx9D/vnYSfPEqdEU6cOokeOc=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>

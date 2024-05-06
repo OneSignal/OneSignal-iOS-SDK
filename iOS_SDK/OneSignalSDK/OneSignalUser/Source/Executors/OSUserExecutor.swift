@@ -36,7 +36,6 @@ import OneSignalOSCore
 class OSUserExecutor {
     static var userRequestQueue: [OSUserRequest] = []
     static var transferSubscriptionRequestQueue: [OSRequestTransferSubscription] = []
-    static var identityModels: [String: OSIdentityModel] = [:]
 
     // Read in requests from the cache, do not read in FetchUser requests as this is not needed.
     static func start() {
@@ -47,58 +46,48 @@ class OSUserExecutor {
             // Hook each uncached Request to the right model reference
             for request in cachedRequestQueue {
                 if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let req = request as? OSRequestFetchIdentityBySubscription {
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModel.modelId) {
-                        // 1. The model exist in the store, set it to be the Request's model
-                        req.identityModel = identityModel
-                    } else if let identityModel = identityModels[req.identityModel.modelId] {
-                        // 2. The model exists in the dict of identityModels already processed to use
+                    if let identityModel = getIdentityModel(req.identityModel.modelId) {
+                        // 1. The model exist in the repo, set it to be the Request's model
+                        // It is the current user or the model has already been processed
                         req.identityModel = identityModel
                     } else {
-                        // 3. The models do not exist, use the model on the request, and add to dict.
-                        identityModels[req.identityModel.modelId] = req.identityModel
+                        // 2. The model do not exist, use the model on the request, and add to repo.
+                        addIdentityModel(req.identityModel)
                     }
                     userRequestQueue.append(req)
 
                 } else if request.isKind(of: OSRequestCreateUser.self), let req = request as? OSRequestCreateUser {
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModel.modelId) {
-                        // 1. The model exist in the store, set it to be the Request's model
-                        req.identityModel = identityModel
-                    } else if let identityModel = identityModels[req.identityModel.modelId] {
-                        // 2. The model exists in the dict of identityModels already processed to use
+                    if let identityModel = getIdentityModel(req.identityModel.modelId) {
+                        // 1. The model exist in the repo, set it to be the Request's model
                         req.identityModel = identityModel
                     } else {
-                        // 3. The models do not exist, use the model on the request, and add to dict.
-                        identityModels[req.identityModel.modelId] = req.identityModel
+                        // 2. The models do not exist, use the model on the request, and add to repo.
+                        addIdentityModel(req.identityModel)
                     }
                     userRequestQueue.append(req)
 
                 } else if request.isKind(of: OSRequestIdentifyUser.self), let req = request as? OSRequestIdentifyUser {
 
-                    if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
-                       let identityModelToUpdate = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: req.identityModelToUpdate.modelId) {
-                        // 1. A model exist in the dict and a model exist in the store, set it to be the Request's models
+                    if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
+                       let identityModelToUpdate = getIdentityModel(req.identityModelToUpdate.modelId) {
+                        // 1. Both models exist in the repo, set it to be the Request's models
                         req.identityModelToIdentify = identityModelToIdentify
                         req.identityModelToUpdate = identityModelToUpdate
-                    } else if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
-                              let identityModelToUpdate = identityModels[req.identityModelToUpdate.modelId] {
-                        // 2. The two models exist in the dict, set it to be the Request's models
+                    } else if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
+                              getIdentityModel(req.identityModelToUpdate.modelId) == nil {
+                        // 2. A model is in the repo, the other model does not exist
                         req.identityModelToIdentify = identityModelToIdentify
-                        req.identityModelToUpdate = identityModelToUpdate
-                    } else if let identityModelToIdentify = identityModels[req.identityModelToIdentify.modelId],
-                              identityModels[req.identityModelToUpdate.modelId] == nil {
-                        // 3. A model is in the dict, the other model does not exist
-                        req.identityModelToIdentify = identityModelToIdentify
-                        identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
+                        addIdentityModel(req.identityModelToUpdate)
                     } else {
-                        // 4. Both models don't exist yet
+                        // 3. Both models don't exist yet
                         // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
                         // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
                         guard request.prepareForExecution() else {
                             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                             continue
                         }
-                        identityModels[req.identityModelToIdentify.modelId] = req.identityModelToIdentify
-                        identityModels[req.identityModelToUpdate.modelId] = req.identityModelToUpdate
+                        addIdentityModel(req.identityModelToIdentify)
+                        addIdentityModel(req.identityModelToUpdate)
                     }
                     userRequestQueue.append(req)
                 }
@@ -126,6 +115,14 @@ class OSUserExecutor {
         }
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
         executePendingRequests()
+    }
+
+    static private func getIdentityModel(_ modelId: String) -> OSIdentityModel? {
+        return OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId)
+    }
+
+    static private func addIdentityModel(_ model: OSIdentityModel) {
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(model)
     }
 
     static func appendToQueue(_ request: OSUserRequest) {
@@ -518,10 +515,6 @@ extension OSUserExecutor {
         // If user has changed, don't hydrate, except for push subscription above
         guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
             return
-        }
-
-        if let identityObject = parseIdentityObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
         }
 
         if let propertiesObject = parsePropertiesObjectResponse(response) {

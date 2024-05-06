@@ -40,11 +40,12 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
-                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: delta.model.modelId) {
-                    // The model exists in the store, set it to be the Delta's model
+                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.model.modelId) {
+                    // The model exists in the repo, set it to be the Delta's model
                     delta.model = modelInStore
                 } else {
                     // The model does not exist, drop this Delta
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -59,14 +60,15 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // 1. The model exists in the store, so set it to be the Request's models
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                    // 1. The model exists in the repo, so set it to be the Request's models
                     request.identityModel = identityModel
-                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
-                    // 2. The model exists in the user executor
-                    request.identityModel = identityModel
-                } else if !request.prepareForExecution() {
-                    // 3. The models do not exist AND this request cannot be sent, drop this Request
+                } else if request.prepareForExecution() {
+                    // 2. The request can be sent, add the model to the repo
+                      OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+                } else {
+                    // 3. The model do not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
                     addRequestQueue.remove(at: index)
                 }
             }
@@ -79,14 +81,15 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // 1. The model exists in the store, so set it to be the Request's model
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                    // 1. The model exists in the repo, so set it to be the Request's model
                     request.identityModel = identityModel
-                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
-                    // 2. The model exists in the user executor
-                    request.identityModel = identityModel
-                } else if !request.prepareForExecution() {
+                } else if request.prepareForExecution() {
+                    // 2. The request can be sent, add the model to the repo
+                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+                } else {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
                 }
             }
@@ -124,7 +127,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 addRequestQueue.append(request)
 
             case OS_REMOVE_ALIAS_DELTA:
-                if let label = aliases.first?.key {
+                for (label, _) in aliases {
                     let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
                     removeRequestQueue.append(request)
                 }

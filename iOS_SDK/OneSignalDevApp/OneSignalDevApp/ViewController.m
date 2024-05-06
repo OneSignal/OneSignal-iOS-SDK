@@ -121,10 +121,12 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    if (self.tagKey.text && self.tagKey.text.length
-        && self.tagValue.text && self.tagValue.text.length) {
+    if (self.tagValue.text && self.tagValue.text.length) {
         NSLog(@"Sending tag with key: %@ value: %@", self.tagKey.text, self.tagValue.text);
         [OneSignal.User addTagWithKey:self.tagKey.text value:self.tagValue.text];
+    } else {
+        NSLog(@"Removing tag with key: %@", self.tagKey.text);
+        [OneSignal.User removeTag:self.tagKey.text];
     }
 }
 
@@ -134,7 +136,7 @@
 }
 
 - (IBAction)sendTagsButton:(id)sender {
-    NSLog(@"Sending tags %@", @{@"key1": @"value1", @"key2": @"value2"});
+    NSLog(@"Adding tags %@", @{@"key1": @"value1", @"key2": @"value2"});
     [OneSignal.User addTags:@{@"key1": @"value1", @"key2": @"value2"}];
 }
 

@@ -47,7 +47,7 @@ extension OSModelStoreListener {
         store.changeSubscription.subscribe(self)
     }
 
-    func close() {
+    public func close() {
         store.changeSubscription.unsubscribe(self)
     }
 

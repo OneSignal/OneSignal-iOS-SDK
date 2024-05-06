@@ -60,14 +60,14 @@
     //ensure this UI code executes on the main thread
     dispatch_async(dispatch_get_main_queue(), ^{
         let request = [[OSDialogRequest alloc] initWithTitle:title withMessage:message withActionTitles:actionTitles withCancelTitle:cancelTitle withCompletion:completion];
-        
-        [self.queue addObject:request];
-        
-        //check if already presenting a different dialog
-        //if so, we shouldn't present on top of existing dialog
-        if (self.queue.count > 1)
-            return;
-        
+        @synchronized (self.queue) {
+            [self.queue addObject:request];
+            
+            //check if already presenting a different dialog
+            //if so, we shouldn't present on top of existing dialog
+            if (self.queue.count > 1)
+                return;
+        }
         [self displayDialog:request];
     });
 }
@@ -101,23 +101,30 @@
 
 - (void)delayResult:(int)result {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        let currentDialog = self.queue.firstObject;
-        
-        if (currentDialog.completion)
-            currentDialog.completion(result);
-        
-        [self.queue removeObjectAtIndex:0];
-        
-        //check if no more dialogs left to display in queue
-        if (self.queue.count == 0)
-            return;
-        
-        let nextDialog = self.queue.firstObject;
-        
-        [self displayDialog:nextDialog];
+        OSDialogRequest *nextDialog = nil;
+        @synchronized (self.queue) {
+            if (self.queue.count > 0) {
+                let currentDialog = self.queue.firstObject;
+                
+                if (currentDialog.completion)
+                    currentDialog.completion(result);
+                
+                [self.queue removeObjectAtIndex:0];
+            }
+            
+            //check if no more dialogs left to display in queue
+            if (self.queue.count == 0)
+                return;
+            
+            nextDialog = self.queue.firstObject;
+        }
+        if (nextDialog != nil) {
+            [self displayDialog:nextDialog];
+        }
     });
 }
 
+// Unused. Currently only referenced in player model unit tests
 - (void)clearQueue {
     self.queue = [NSMutableArray new];
 }

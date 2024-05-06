@@ -25,23 +25,31 @@
  THE SOFTWARE.
  */
 
-// Taken from https://swiftrocks.com/thread-safety-in-swift
-// Read http://www.russbishop.net/the-law for more information on why this is necessary
-public final class UnfairLock {
-    private var _lock: UnsafeMutablePointer<os_unfair_lock>
+import Foundation
 
-    public init() {
-        _lock = UnsafeMutablePointer<os_unfair_lock>.allocate(capacity: 1)
-        _lock.initialize(to: os_unfair_lock())
+/**
+ This class stores all Identity Models that are being used during an app session.
+ Its purpose is to manage the instances for all referencing objects.
+ The models are built up on each new cold start, so no caching occurs.
+ 
+ When are Identity Models added to this repo?
+ 1. When the User Manager starts, and the Identity Model is loaded from cache.
+ 2. When users switch and new Identity Models are created.
+ 3. Identity Models are added when requests are uncached.
+ */
+class OSIdentityModelRepo {
+    let lock = NSLock()
+    var models: [String: OSIdentityModel] = [:]
+
+    func add(model: OSIdentityModel) {
+        lock.withLock {
+            models[model.modelId] = model
+        }
     }
 
-    deinit {
-        _lock.deallocate()
-    }
-
-    public func locked<ReturnValue>(_ closure: () throws -> ReturnValue) rethrows -> ReturnValue {
-        os_unfair_lock_lock(_lock)
-        defer { os_unfair_lock_unlock(_lock) }
-        return try closure()
+    func get(modelId: String) -> OSIdentityModel? {
+        lock.withLock {
+            return models[modelId]
+        }
     }
 }

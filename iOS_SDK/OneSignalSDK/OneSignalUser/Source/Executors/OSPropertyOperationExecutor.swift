@@ -40,13 +40,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         // Read unfinished deltas from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
-            // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
-                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: delta.model.modelId) {
-                    // 1. The model exists in the properties model store, set it to be the Delta's model
-                    delta.model = modelInStore
-                } else {
-                    // 2. The model does not exist, drop this Delta
+                if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
+                    // The identity model does not exist, drop this Delta
                     OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(delta)")
                     deltaQueue.remove(at: index)
                 }
@@ -61,17 +57,13 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
-                // 0. Hook up the properties model if its the current user's so it can hydrate
-                if let propertiesModel = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: request.modelToUpdate.modelId) {
-                    request.modelToUpdate = propertiesModel
-                }
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
-                    // 1. The identity model exist in the store, set it to be the Request's models
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                    // 1. The identity model exist in the repo, set it to be the Request's model
                     request.identityModel = identityModel
-                } else if let identityModel = OSUserExecutor.identityModels[request.identityModel.modelId] {
-                    // 2. The model exists in the user executor
-                    request.identityModel = identityModel
-                } else if !request.prepareForExecution() {
+                } else if request.prepareForExecution() {
+                    // 2. The request can be sent, add the model to the repo
+                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+                } else {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(request)")
                     updateRequestQueue.remove(at: index)
@@ -103,8 +95,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
             }
             for delta in self.deltaQueue {
-                guard let model = delta.model as? OSPropertiesModel else {
-                    // Log error
+                guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
+                else {
+                    // drop this delta
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
                     continue
                 }
 
@@ -112,8 +106,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     properties: [delta.property: delta.value],
                     deltas: nil,
                     refreshDeviceMetadata: false, // Sort this out.
-                    modelToUpdate: model,
-                    identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
+                    identityModel: identityModel
                 )
                 self.updateRequestQueue.append(request)
             }
@@ -204,7 +197,6 @@ extension OSPropertyOperationExecutor {
             properties: [:],
             deltas: propertiesDeltas.jsonRepresentation(),
             refreshDeviceMetadata: refreshDeviceMetadata,
-            modelToUpdate: propertiesModel,
             identityModel: identityModel)
 
         if sendImmediately {

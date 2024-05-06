@@ -1,0 +1,4 @@
+# in tests, we may want to force cast and throw any errors
+disabled_rules:
+  - force_cast
+  - identifier_name

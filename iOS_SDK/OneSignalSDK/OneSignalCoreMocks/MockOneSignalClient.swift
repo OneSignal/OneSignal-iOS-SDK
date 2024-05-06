@@ -41,6 +41,8 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     var shouldUseProvisionalAuthorization = false // new in iOS 12 (aka Direct to History)
     var remoteParamsOutcomes: [String: Any] = [:]
 
+    public var allRequestsHandled = true
+
     /** May add to or change this default remote params response*/
     public func getRemoteParamsResponse() -> [String: Any] {
         return remoteParamsResponse ?? [
@@ -71,7 +73,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
     // Temp. method to log info while building unit tests
     @objc public func logSelfInfo() {
-        print("🧪 MockOneSignalClient with executionQueue \(executionQueue)")
+        print("🧪 MockOneSignalClient with executedRequests \(executedRequests)")
     }
 
     public func reset() {
@@ -118,6 +120,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         } else if (mockFailureResponses[String(describing: request)]) != nil {
             failureBlock(mockFailureResponses[String(describing: request)])
         } else {
+            allRequestsHandled = false
             print("🧪 cannot find a mock response for request: \(request)")
         }
     }
@@ -142,5 +145,36 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
     public func setMockFailureResponseForRequest(request: String, error: NSError) {
         mockFailureResponses[request] = error
+    }
+}
+
+// MARK: - Asserts
+
+extension MockOneSignalClient {
+    /**
+     Checks if there is only one executed request that contains the payload provided, and the url matches the path provided.
+     */
+    public func onlyOneRequest(contains path: String, contains payload: [String: Any]) -> Bool {
+        var found = false
+
+        for request in executedRequests {
+            guard let params = request.parameters as? NSDictionary  else {
+                continue
+            }
+
+            if params.contains(payload) {
+                if request.path == path {
+                    guard !found else {
+                        // False if more than 1 request satisfies both requirements
+                        return false
+                    }
+                    found = true
+                } else {
+                    return false
+                }
+            }
+        }
+
+        return found
     }
 }

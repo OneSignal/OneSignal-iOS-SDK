@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build and Test using any available iPhone simulator
-    runs-on: macos-latest
+    runs-on: macos-latest-large
 
     steps:
       - name: Checkout OneSignal-iOS-SDK

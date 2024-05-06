@@ -209,7 +209,7 @@
     let unAttachments = [NSMutableArray new];
     
     for(NSString* key in notification.attachments) {
-        let URI = [OneSignalAttachmentHandler trimURLSpacing:[notification.attachments valueForKey:key]];
+        let URI = [OneSignalCoreHelper trimURLSpacing:[notification.attachments valueForKey:key]];
         
         let nsURL = [NSURL URLWithString:URI];
         
@@ -305,14 +305,6 @@
                                                   options:UNNotificationActionOptionForeground];
     }
 }
-
-+ (NSString*)trimURLSpacing:(NSString*)url {
-    if (!url)
-        return url;
-    
-    return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-
 
 /*
  Synchroneously downloads an attachment
