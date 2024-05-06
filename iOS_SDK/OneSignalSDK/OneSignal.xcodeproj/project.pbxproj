@@ -1194,7 +1194,7 @@
 		454F94F61FAD2EC300D74CCF /* OSNotification+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OSNotification+Internal.h"; sourceTree = "<group>"; };
 		4710EA522B8FCFB200435356 /* OSDispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDispatchQueue.swift; sourceTree = "<group>"; };
 		4710EA542B8FD04400435356 /* MockOSDispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockOSDispatchQueue.swift; sourceTree = "<group>"; };
-		47278E442BD7E62B00562820 /* DefaultLiveActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLiveActivityAttributes.swift; sourceTree = "<group>"; };
+		47278E442BD7E62B00562820 /* DefaultLiveActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DefaultLiveActivityAttributes.swift; path = Source/DefaultLiveActivityAttributes.swift; sourceTree = "<group>"; };
 		47278E462BD92B4B00562820 /* DefaultLiveActivityAttributesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultLiveActivityAttributesTests.swift; sourceTree = "<group>"; };
 		4735424A2B8F93330016DB4C /* OneSignalLiveActivitiesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalLiveActivitiesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4735424C2B8F93340016DB4C /* OSLiveActivitiesExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivitiesExecutorTests.swift; sourceTree = "<group>"; };
@@ -1212,7 +1212,7 @@
 		475F47402B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSLiveActivityRequest.swift; path = Source/Requests/OSLiveActivityRequest.swift; sourceTree = "<group>"; };
 		475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSRequestRemoveStartToken.swift; path = Source/Requests/OSRequestRemoveStartToken.swift; sourceTree = "<group>"; };
 		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OneSignalLiveActivitiesFramework/Info.plist; sourceTree = "<group>"; };
-		47A885CC2BB317B300ED91FA /* AnyCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodable.swift; sourceTree = "<group>"; };
+		47A885CC2BB317B300ED91FA /* AnyCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnyCodable.swift; path = Source/AnyCodable.swift; sourceTree = "<group>"; };
 		5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceOverrider.h; sourceTree = "<group>"; };
 		5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceOverrider.m; sourceTree = "<group>"; };
 		7A123294235DFE3B002B6CE3 /* OutcomeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeTests.m; sourceTree = "<group>"; };
