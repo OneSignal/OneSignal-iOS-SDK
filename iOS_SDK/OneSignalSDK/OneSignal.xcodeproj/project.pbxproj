@@ -87,8 +87,8 @@
 		3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
 		3C7A39C22B7BED900082665E /* OneSignalCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C7A39DC2B7C1C580082665E /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
-		3C87066D2BDE05B8000D8CD2 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; platformFilter = ios; };
-		3C87066E2BDE05B8000D8CD2 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C87066D2BDE05B8000D8CD2 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; };
+		3C87066E2BDE05B8000D8CD2 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C8706702BDE0957000D8CD2 /* MockUserRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */; };
 		3C8706722BDEE076000D8CD2 /* MockUserDefines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */; };
 		3C8706762BDEED75000D8CD2 /* NSDictionary+UnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8706752BDEED75000D8CD2 /* NSDictionary+UnitTests.swift */; };
