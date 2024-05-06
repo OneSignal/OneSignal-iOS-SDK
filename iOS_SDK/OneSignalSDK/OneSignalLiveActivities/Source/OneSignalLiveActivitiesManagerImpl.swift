@@ -63,11 +63,11 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     @available(iOS 17.2, *)
     public static func setPushToStartToken(_ activityType: String, withToken: String) throws {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities setStartToken called with activityType: \(activityType) token: \(withToken)")
-        
+
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
             throw LiveActivitiesError.invalidActivityType("Cannot translate activity type to url encoded string.")
         }
-        
+
         _executor.append(OSRequestSetStartToken(key: activityType, token: withToken))
     }
 
@@ -75,7 +75,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     @available(iOS 17.2, *)
     public static func removePushToStartToken(_ activityType: String) throws {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities removeStartToken called with activityType: \(activityType)")
-        
+
         guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
             throw LiveActivitiesError.invalidActivityType("Cannot translate activity type to url encoded string.")
         }
@@ -138,28 +138,28 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         }
         listenForActivity(activityType, options: options)
     }
-    
+
     @objc
     @available(iOS 16.1, *)
     public static func setupDefault(options: LiveActivitySetupOptions? = nil) {
         setup(DefaultLiveActivityAttributes.self, options: options)
     }
-    
+
     @objc
     @available(iOS 16.1, *)
-    public static func startDefault(_ activityId: String, attributes: [String : Any], content: [String : Any]) {
+    public static func startDefault(_ activityId: String, attributes: [String: Any], content: [String: Any]) {
         let oneSignalAttribute = OneSignalLiveActivityAttributeData.create(activityId: activityId)
-        
+
         var attributeData = [String: AnyCodable]()
         for attribute in attributes {
             attributeData.updateValue(AnyCodable(attribute.value), forKey: attribute.key)
         }
-        
+
         var contentData = [String: AnyCodable]()
         for contentItem in content {
             contentData.updateValue(AnyCodable(contentItem.value), forKey: contentItem.key)
         }
-        
+
         let attributes = DefaultLiveActivityAttributes(data: attributeData, onesignal: oneSignalAttribute)
         let contentState = DefaultLiveActivityAttributes.ContentState(data: contentData)
         do {

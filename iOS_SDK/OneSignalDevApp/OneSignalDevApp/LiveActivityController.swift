@@ -47,7 +47,7 @@ class LiveActivityController: NSObject {
         // This is mostly for cross-platform SDKs and allows OneSignal to handle everything but the
         // creation of the Widget Extension.
         OneSignal.LiveActivities.setupDefault()
-        
+
         if #available(iOS 17.2, *) {
             // ExampleAppThirdWidgetAttributes is an example of how to manually set up LA.
             // Setup an async task to monitor and send pushToStartToken updates to OneSignalSDK.
@@ -109,11 +109,11 @@ class LiveActivityController: NSObject {
         if #available(iOS 16.1, *) {
             let attributeData: [String: Any] = ["title": "in-app-title"]
             let contentData: [String: Any] = ["message": ["en": "HELLO", "es": "HOLA"], "progress": 0.58, "status": "1/15", "bugs": 2]
-            
+
             OneSignal.LiveActivities.startDefault(activityId, attributes: attributeData, content: contentData)
         }
     }
-    
+
     /**
      An example of starting a Live Activity whose attributes are **not** "OneSignal SDK aware".  The app must handle listening for update tokens and notify the OneSignal SDK.
      */

@@ -72,7 +72,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             }
         }
         """.data(using: .utf8)!
-        
+
         /* When */
         let decoder = JSONDecoder()
         let sut = try decoder.decode(DefaultLiveActivityAttributes.self, from: json)
@@ -113,7 +113,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
         XCTAssertEqual(sut.data["dictValue"]?.asDict()?["anotherDict"]?.asDict()?["intValue"]?.asInt(), 7)
         XCTAssertEqual(sut.onesignal.activityId, "my-activity-id")
     }
-    
+
     func testProperDecodingOfAttributesWithExtraOneSignalParameters() throws {
         /* Setup */
         let json = """
@@ -126,7 +126,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             }
         }
         """.data(using: .utf8)!
-        
+
         /* When */
         let decoder = JSONDecoder()
         _ = try decoder.decode(DefaultLiveActivityAttributes.self, from: json)
@@ -134,19 +134,19 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
         /* Then */
         // not blowing up is a passed test
     }
-    
+
     func testEmptyAttributesPayloadThrowsError() {
         /* Setup */
         let json = """
         {
         }
         """.data(using: .utf8)!
-        
+
         /* When/Then */
         let decoder = JSONDecoder()
         XCTAssertThrowsError(try decoder.decode(DefaultLiveActivityAttributes.self, from: json))
     }
-    
+
     func testMissingDataInAttributesPayloadThrowsError() {
         /* Setup */
         let json = """
@@ -154,12 +154,12 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             "notData": {}
         }
         """.data(using: .utf8)!
-        
+
         /* When/Then */
         let decoder = JSONDecoder()
         XCTAssertThrowsError(try decoder.decode(DefaultLiveActivityAttributes.self, from: json))
     }
-    
+
     func testProperDecodingOfContentStatePayload() throws {
         /* Setup */
         let json = """
@@ -192,7 +192,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             }
         }
         """.data(using: .utf8)!
-        
+
         /* When */
         let decoder = JSONDecoder()
         let sut = try decoder.decode(DefaultLiveActivityAttributes.ContentState.self, from: json)
@@ -233,7 +233,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
         XCTAssertEqual(sut.data["dictValue"]?.asDict()?["anotherDict"]?.asDict()?["intValue"]?.asInt(), 7)
         XCTAssertNil(sut.onesignal)
     }
-    
+
     func testProperDecodingOfContentStateWithOneSignalPayload() throws {
         /* Setup */
         let json = """
@@ -245,7 +245,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             }
         }
         """.data(using: .utf8)!
-        
+
         /* When */
         let decoder = JSONDecoder()
         let sut = try decoder.decode(DefaultLiveActivityAttributes.ContentState.self, from: json)
@@ -253,7 +253,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
         /* Then */
         XCTAssertEqual(sut.onesignal?.notificationId, "my-notification-id")
     }
-    
+
     func testProperDecodingOfContentStateWithExtraOneSignalParameters() throws {
         /* Setup */
         let json = """
@@ -266,7 +266,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             }
         }
         """.data(using: .utf8)!
-        
+
         /* When */
         let decoder = JSONDecoder()
         _ = try decoder.decode(DefaultLiveActivityAttributes.ContentState.self, from: json)
@@ -274,19 +274,19 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
         /* Then */
         // not blowing up is a passed test
     }
-    
+
     func testEmptyContentStatePayloadThrowsError() {
         /* Setup */
         let json = """
         {
         }
         """.data(using: .utf8)!
-        
+
         /* When/Then */
         let decoder = JSONDecoder()
         XCTAssertThrowsError(try decoder.decode(DefaultLiveActivityAttributes.ContentState.self, from: json))
     }
-    
+
     func testMissingDataInContentStatePayloadThrowsError() {
         /* Setup */
         let json = """
@@ -294,7 +294,7 @@ final class DefaultLiveActivityAttributesTests: XCTestCase {
             "notData": {}
         }
         """.data(using: .utf8)!
-        
+
         /* When/Then */
         let decoder = JSONDecoder()
         XCTAssertThrowsError(try decoder.decode(DefaultLiveActivityAttributes.ContentState.self, from: json))

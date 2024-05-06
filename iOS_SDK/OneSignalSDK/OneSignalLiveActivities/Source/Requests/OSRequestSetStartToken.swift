@@ -51,7 +51,7 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
             return false
         }
-        
+
         self.path = "apps/\(appId)/activities/tokens/start/\(activityType)/subscriptions/\(subscriptionId)"
         self.parameters = ["activity_token": self.token, "device_type": 0]
         self.method = PUT

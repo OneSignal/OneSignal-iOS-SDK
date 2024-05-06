@@ -77,7 +77,7 @@ public extension OSLiveActivities {
     static func setupDefault(options: LiveActivitySetupOptions? = nil) {
         OneSignalLiveActivitiesManagerImpl.setupDefault(options: options)
     }
-    
+
     /**
      Start a new LiveActivity that is modelled by the default`DefaultLiveActivityAttributes` structure. The `DefaultLiveActivityAttributes`
      is initialized with the dynamic `attributes` and `content` passed in.
@@ -87,7 +87,7 @@ public extension OSLiveActivities {
         - content: A dictionary of the initital content state passed into `DefaultLiveActivityAttributes`.
      */
     @available(iOS 16.1, *)
-    static func startDefault(_ activityId: String, attributes: [String : Any], content: [String : Any]) {
+    static func startDefault(_ activityId: String, attributes: [String: Any], content: [String: Any]) {
         OneSignalLiveActivitiesManagerImpl.startDefault(activityId, attributes: attributes, content: content)
     }
 }
@@ -96,7 +96,7 @@ public extension OSLiveActivities {
  The setup options for `OneSignal.LiveActivities.setup`.
  */
 @objc(LiveActivitySetupOptions)
-public class LiveActivitySetupOptions : NSObject {
+public class LiveActivitySetupOptions: NSObject {
     /**
      When true, OneSignal will listen for pushToStart tokens for the `OneSignalLiveActivityAttributes` structure.
      */
@@ -109,7 +109,7 @@ public class LiveActivitySetupOptions : NSObject {
      */
     @objc
     public var enablePushToUpdate: Bool = true
-    
+
     @objc
     public init(enablePushToStart: Bool = true, enablePushToUpdate: Bool = true) {
         self.enablePushToStart = enablePushToStart

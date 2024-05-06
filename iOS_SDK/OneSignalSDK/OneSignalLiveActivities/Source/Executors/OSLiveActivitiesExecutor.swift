@@ -138,7 +138,7 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         if state.previous.id == state.current.id {
             return
         }
-        
+
         // when a push subscription id changes, we need to re-send up all update and start tokens with the new ID.
         self.requestDispatch.async {
             self.caches { _ in

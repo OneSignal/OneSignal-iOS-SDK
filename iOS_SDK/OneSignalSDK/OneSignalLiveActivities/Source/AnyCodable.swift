@@ -14,18 +14,18 @@ import Foundation
  */
 @frozen public struct AnyCodable: Codable {
     public let value: Any
-    
+
     public func asBool() -> Bool? { return value as? Bool }
     public func asInt() -> Int? { return value as? Int }
     public func asDouble() -> Double? { return value as? Double }
     public func asString() -> String? { return value as? String }
     public func asArray() -> [AnyCodable]? { return value as? [AnyCodable] }
-    public func asDict() -> [String : AnyCodable]? { return value as? [String : AnyCodable] }
+    public func asDict() -> [String: AnyCodable]? { return value as? [String: AnyCodable] }
 
     public init<T>(_ value: T?) {
         self.value = value ?? ()
     }
-    
+
     public init(nilLiteral _: ()) {
         self.init(nil as Any?)
     }
@@ -57,7 +57,7 @@ import Foundation
     public init(dictionaryLiteral elements: (AnyHashable, Any)...) {
         self.init([AnyHashable: Any](elements, uniquingKeysWith: { first, _ in first }))
     }
-    
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
@@ -85,7 +85,7 @@ import Foundation
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "AnyCodable value cannot be decoded")
         }
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
@@ -146,7 +146,7 @@ import Foundation
 
     #if canImport(Foundation)
     private func encode(nsnumber: NSNumber, into container: inout SingleValueEncodingContainer) throws {
-        switch Character(Unicode.Scalar(UInt8(nsnumber.objCType.pointee)))  {
+        switch Character(Unicode.Scalar(UInt8(nsnumber.objCType.pointee))) {
         case "B":
             try container.encode(nsnumber.boolValue)
         case "c":
@@ -262,7 +262,6 @@ extension AnyCodable: ExpressibleByStringLiteral {}
 extension AnyCodable: ExpressibleByStringInterpolation {}
 extension AnyCodable: ExpressibleByArrayLiteral {}
 extension AnyCodable: ExpressibleByDictionaryLiteral {}
-
 
 extension AnyCodable: Hashable {
     public func hash(into hasher: inout Hasher) {

@@ -39,7 +39,7 @@ class DummyOneSignalAwareActivityAttributes: OneSignalLiveActivityAttributes {
 
     public struct ContentState: OneSignalLiveActivityContentState {
         public var onesignal: OneSignalLiveActivityContentStateData?
-        
+
     }
 }
 
@@ -53,13 +53,13 @@ class LiveActivitiesSwiftTests: XCTestCase {
         OneSignal.LiveActivities.enter("my-activity-id", withToken: "my-token", withSuccess: {_ in }, withFailure: {_ in })
         OneSignal.LiveActivities.exit("my-activity-id")
         OneSignal.LiveActivities.exit("my-activity-id", withSuccess: {_ in }, withFailure: {_ in })
-        
+
         if #available(iOS 16.1, *) {
             OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self)
             OneSignal.LiveActivities.setup(DummyOneSignalAwareActivityAttributes.self, options: LiveActivitySetupOptions())
             OneSignal.LiveActivities.setupDefault()
             OneSignal.LiveActivities.setupDefault(options: LiveActivitySetupOptions())
-            
+
             OneSignal.LiveActivities.startDefault("my-activity-id", attributes: [:], content: [:])
         }
 

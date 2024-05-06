@@ -39,7 +39,7 @@ import OneSignalLiveActivities
      public struct ContentState: OneSignalLiveActivityContentState {
          // Dynamic stateful properties about your activity go here!
          var message: String
-         
+
          var onesignal: OneSignalLiveActivityContentStateData?
      }
 
@@ -62,7 +62,7 @@ import OneSignalLiveActivities
          var status: String
          var progress: Double
          var bugs: Int
-         
+
          var onesignal: OneSignalLiveActivityContentStateData?
      }
 
