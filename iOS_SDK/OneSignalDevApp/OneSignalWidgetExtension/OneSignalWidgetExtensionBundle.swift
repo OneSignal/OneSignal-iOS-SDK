@@ -34,5 +34,6 @@ struct OneSignalWidgetExtensionBundle: WidgetBundle {
          ExampleAppFirstWidget()
          ExampleAppSecondWidget()
          ExampleAppThirdWidget()
+         DefaultOneSignalLiveActivityWidget()
     }
 }

@@ -36,9 +36,11 @@ import OneSignalLiveActivities
   you only need to call `enableLiveActivities`, the SDK takes care of the rest.
   */
  struct ExampleAppFirstWidgetAttributes: OneSignalLiveActivityAttributes {
-     public struct ContentState: Codable, Hashable {
+     public struct ContentState: OneSignalLiveActivityContentState {
          // Dynamic stateful properties about your activity go here!
          var message: String
+         
+         var onesignal: OneSignalLiveActivityContentStateData?
      }
 
      // Fixed non-changing properties about your activity go here!
@@ -55,11 +57,13 @@ import OneSignalLiveActivities
   Live Activity defined.
   */
  struct ExampleAppSecondWidgetAttributes: OneSignalLiveActivityAttributes {
-     public struct ContentState: Codable, Hashable {
+     public struct ContentState: OneSignalLiveActivityContentState {
          var message: String
          var status: String
          var progress: Double
          var bugs: Int
+         
+         var onesignal: OneSignalLiveActivityContentStateData?
      }
 
      // Fixed non-changing properties about your activity go here!

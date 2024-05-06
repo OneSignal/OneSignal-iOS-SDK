@@ -236,6 +236,7 @@
         NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
         if (activityId && activityId.length) {
+//            [LiveActivityController createDefaultActivityWithActivityId:activityId ];
             [LiveActivityController createActivityWithActivityId:activityId completionHandler:nil ];
         }
     } else {

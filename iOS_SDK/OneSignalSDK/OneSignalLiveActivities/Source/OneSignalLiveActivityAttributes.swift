@@ -32,7 +32,7 @@ import ActivityKit
  the pushToStart and update token synchronization process on your behalf.
  */
 @available(iOS 16.1, *)
-public protocol OneSignalLiveActivityAttributes: ActivityAttributes {
+public protocol OneSignalLiveActivityAttributes: ActivityAttributes where ContentState: OneSignalLiveActivityContentState {
     /**
      A reserved attribute name used by the OneSignal SDK.  If starting the live activity via
      pushToStart, this will be a populated attribute by the push to start notification. If starting
@@ -59,4 +59,27 @@ public struct OneSignalLiveActivityAttributeData: Decodable, Encodable {
     }
 
     public var activityId: String
+}
+
+/**
+ The protocol your ActivityAttributes.ContentState should conform to in order to allow the OneSignal SDK
+ to manage the pushToStart and update token synchronization process on your behalf.
+ */
+@available(iOS 16.1, *)
+public protocol OneSignalLiveActivityContentState: Decodable, Encodable, Hashable {
+    /**
+     A reserved attribute name used by the OneSignal SDK.  When the live activity is
+     updated, this attribute may be provided by the OneSignal backend as a way to
+     communicate with the OneSignal SDK.
+     */
+    var onesignal: OneSignalLiveActivityContentStateData? { get set }
+}
+
+/**
+ OneSignal-specific metadata used internally. When the live activity is updated, this
+ attribute may be provided by the OneSignal backend as a way to communicate with the
+ OneSignal SDK.
+ */
+public struct OneSignalLiveActivityContentStateData: Decodable, Encodable, Hashable {
+    public var notificationId: String
 }
