@@ -86,6 +86,8 @@ import Foundation
         }
     }
 
+    // swiftlint:disable cyclomatic_complexity
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
