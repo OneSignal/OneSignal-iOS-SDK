@@ -149,6 +149,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         /* Setup */
         let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(mockClient)
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
 
         /* When */
