@@ -344,13 +344,15 @@ class OSUserExecutor {
                     OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
 
                     removeFromQueue(request)
-                    // Transfer the push subscription only if it's the current user
+                    // Transfer the push subscription, and fetch only if it's the current user
                     if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
+                        fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                         transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
+                    } else {
+                        // Use external_id for any pending requests, avoiding a fetch to hydrate onesignal_id
+                        request.identityModelToUpdate.primaryAliasLabel = .external_id
+                        executePendingRequests()
                     }
-                    // Need to still hydrate the identity model for any pending requests
-                    // TODO: After implementing JWT, instead of fetching just to hydrate the OSID for pending requests, maybe we can update the external_id on the Identity Model and set the alias to use for pending requests be the external_id
-                    fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                 } else if responseType == .invalid || responseType == .unauthorized {
                     // Failed, no retry
                     removeFromQueue(request)

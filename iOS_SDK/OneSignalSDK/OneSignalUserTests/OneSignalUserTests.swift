@@ -213,7 +213,7 @@ final class OneSignalUserTests: XCTestCase {
 
         /* When */
 
-        // 1. Login to user A and add tag
+        // 1. Login to user A (will result in 409 conflict) and add tag
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
         OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_a", value: "value_a")
 
@@ -229,9 +229,9 @@ final class OneSignalUserTests: XCTestCase {
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
 
-        // Assert there is only one request containing these tags and they are sent to userA
+        // Assert only one request containing these tags and they are sent to userA by external_id
         XCTAssertTrue(client.onlyOneRequest(
-            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
             contains: ["properties": ["tags": tagsUserA]])
         )
         // Assert there is only one request containing these tags and they are sent to userB
