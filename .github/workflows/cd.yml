@@ -61,6 +61,7 @@ jobs:
           codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Outcomes/OneSignalOutcomes.xcframework
           codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_User/OneSignalUser.xcframework
           codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_LiveActivities/OneSignalLiveActivities.xcframework
         shell: bash
       - name: Update Swift Package
         run: |
