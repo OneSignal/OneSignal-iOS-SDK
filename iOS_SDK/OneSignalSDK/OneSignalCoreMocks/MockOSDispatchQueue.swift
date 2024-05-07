@@ -28,13 +28,30 @@
 import OneSignalOSCore
 
 public class MockDispatchQueue: OSDispatchQueue {
+    let requestDispatch = DispatchQueue(label: "MockDispatchQueue")
+    var numDispatches = 0
+    
     public init() {}
 
     public func async(execute work: @escaping @convention(block) () -> Void) {
-        work()
+        requestDispatch.async {
+            work()
+            self.numDispatches += 1
+        }
     }
 
     public func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
-        work()
+        requestDispatch.asyncAfterTime(deadline: deadline) {
+            work()
+            self.numDispatches += 1
+        }
+    }
+    
+    public func waitForDispatches(_ numDispatches: Int) -> Void {
+        while self.numDispatches < numDispatches {
+            requestDispatch.sync {
+                Thread.sleep(forTimeInterval: TimeInterval(1))
+            }
+        }
     }
 }

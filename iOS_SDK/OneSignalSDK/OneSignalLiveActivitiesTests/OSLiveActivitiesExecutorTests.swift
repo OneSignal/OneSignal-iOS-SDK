@@ -51,6 +51,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testAppendSetStartTokenWithSuccessfulRequest() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -61,8 +62,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
@@ -74,6 +76,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testRemoveStartTokenWithSuccessfulRequest() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -84,8 +87,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
@@ -95,6 +99,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetUpdateTokenWithSuccessfulRequest() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -105,8 +110,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
@@ -118,6 +124,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testRemoveUpdateTokenWithSuccessfulRequest() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -128,8 +135,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 0)
@@ -139,12 +147,14 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testRequestWillNotExecuteWhenNoSubscription() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(1)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
@@ -155,6 +165,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testRequestStaysInCacheForRetryableError() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -165,8 +176,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 500))
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(1)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
@@ -178,6 +190,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testRequestRemovedFromCacheForNonRetryableError() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -188,8 +201,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 401))
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
@@ -199,6 +213,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetStartRequestNotExecutedWithSameActivityTypeAndToken() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -211,9 +226,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
@@ -224,6 +240,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetStartRequestNotExecutedWithSameActivityTypeAndDiffToken() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -236,9 +253,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 1)
@@ -250,6 +268,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetStartRequestFollowedByRemoveStartIsSuccessful() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -262,9 +281,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(4)
 
         /* Then */
         XCTAssertEqual(executor.startTokens.items.count, 0)
@@ -275,6 +295,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetUpdateRequestNotExecutedWithSameActivityIdAndToken() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -287,9 +308,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
@@ -300,6 +322,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetUpdateRequestNotExecutedWithSameActivityIdAndDiffToken() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -312,9 +335,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 1)
@@ -326,6 +350,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     func testSetUpdateRequestFollowedByRemoveUpdateIsSuccessful() throws {
         /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -338,9 +363,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
         executor.append(request1)
         executor.append(request2)
+        mockDispatchQueue.waitForDispatches(4)
 
         /* Then */
         XCTAssertEqual(executor.updateTokens.items.count, 0)

@@ -37,7 +37,7 @@ class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiv
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the reemove update token request due to null app ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove update token request due to null app ID.")
             return false
         }
 

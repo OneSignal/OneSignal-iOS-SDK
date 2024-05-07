@@ -199,7 +199,6 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
 
         if !request.prepareForExecution() {
-            self.pollPendingRequests()
             return
         }
 
