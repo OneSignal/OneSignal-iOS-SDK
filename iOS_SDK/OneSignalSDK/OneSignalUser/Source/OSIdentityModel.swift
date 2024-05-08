@@ -43,7 +43,11 @@ class OSIdentityModel: OSModel {
     private let aliasesLock = NSRecursiveLock()
 
     // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    var jwtBearerToken: String? {
+        aliasesLock.locked {
+            return aliases[OS_JWT_TOKEN]
+        }
+    }
 
     // MARK: - Initialization
 
@@ -121,6 +125,22 @@ class OSIdentityModel: OSModel {
 
         internalAddAliases(remoteAliases)
         fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
+    }
+    
+    public func invalidateJwtToken() {
+        updateJwtToken(nil)
+        
+        // notify change
+    }
+    
+    public func updateJwtToken(_ newToken: String?) {
+        self.set(property: "jwt_token", newValue: newToken)
+        
+        guard newToken != nil else {
+            return
+        }
+        // TODO: notify that the jwt has been updated and retry any stalled operation that was previously unauthorized
+        
     }
 
     /**
