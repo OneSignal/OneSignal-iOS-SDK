@@ -46,6 +46,13 @@ Pod::Spec.new do |s|
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_User/OneSignalUser.xcframework'
     end
 
+    s.subspec 'OneSignalLiveActivities' do |ss|
+      ss.dependency 'OneSignal/OneSignalCore'
+      ss.dependency 'OneSignal/OneSignalOSCore'
+      ss.dependency 'OneSignal/OneSignalUser'
+      ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_LiveActivities/OneSignalLiveActivities.xcframework'
+    end
+
     s.subspec 'OneSignalLocation' do |ss|
       ss.dependency 'OneSignal/OneSignalCore'
       ss.dependency 'OneSignal/OneSignalOSCore'
@@ -70,6 +77,7 @@ Pod::Spec.new do |s|
       ss.dependency 'OneSignal/OneSignalExtension'
       ss.dependency 'OneSignal/OneSignalNotifications'
       ss.dependency 'OneSignal/OneSignalUser'
+      ss.dependency 'OneSignal/OneSignalLiveActivities'
       ss.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignalFramework.xcframework'
     end
 

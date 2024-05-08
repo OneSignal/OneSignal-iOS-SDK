@@ -232,19 +232,19 @@
 }
 
 - (IBAction)startAndEnterLiveActivity:(id)sender {
+#if TARGET_OS_MACCATALYST
+#else
     if (@available(iOS 13.0, *)) {
         NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
         if (activityId && activityId.length) {
-            [LiveActivityController createActivityWithCompletionHandler:^(NSString * token) {
-                if(token){
-                    [OneSignal.LiveActivities enter:activityId withToken:token];
-                }
-            }];
+//            [LiveActivityController createDefaultActivityWithActivityId:activityId ];
+            [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
         }
     } else {
         NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
     }
+#endif
 }
 - (IBAction)exitLiveActivity:(id)sender {
     if (self.activityId.text && self.activityId.text.length) {

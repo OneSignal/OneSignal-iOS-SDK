@@ -28,29 +28,209 @@
 import ActivityKit
 import WidgetKit
 import SwiftUI
+import OneSignalLiveActivities
 
-struct OneSignalWidgetExtensionLiveActivity: Widget {
+ struct ExampleAppFirstWidget: Widget {
+     var body: some WidgetConfiguration {
+         ActivityConfiguration(for: ExampleAppFirstWidgetAttributes.self) { context in
+             // Lock screen/banner UI goes here\VStack(alignment: .leading) {
+             VStack {
+                 Spacer()
+                 Text("FIRST: " + context.attributes.title).font(.headline)
+                 Spacer()
+                 HStack {
+                     Spacer()
+                     Label {
+                         Text(String(context.state.message))
+                     } icon: {
+                         Image("onesignaldemo")
+                             .resizable()
+                             .scaledToFit()
+                             .frame(width: 40.0, height: 40.0)
+                     }
+                     Spacer()
+                 }
+                 Spacer()
+             }
+             .activitySystemActionForegroundColor(.black)
+             .activityBackgroundTint(.white)
+         } dynamicIsland: { _ in
+             DynamicIsland {
+                 // Expanded UI goes here.  Compose the expanded UI through
+                 // various regions, like leading/trailing/center/bottom
+                 DynamicIslandExpandedRegion(.leading) {
+                     Text("Leading")
+                 }
+                 DynamicIslandExpandedRegion(.trailing) {
+                     Text("Trailing")
+                 }
+                 DynamicIslandExpandedRegion(.bottom) {
+                     Text("Bottom")
+                     // more content
+                 }
+             } compactLeading: {
+                 Text("L")
+             } compactTrailing: {
+                 Text("T")
+             } minimal: {
+                 Text("Min")
+             }
+             .widgetURL(URL(string: "http://www.apple.com"))
+             .keylineTint(Color.red)
+         }
+     }
+ }
+
+ struct ExampleAppSecondWidget: Widget {
+     var body: some WidgetConfiguration {
+         ActivityConfiguration(for: ExampleAppSecondWidgetAttributes.self) { context in
+             // Lock screen/banner UI goes here\VStack(alignment: .leading) {
+             VStack {
+                 Spacer()
+                 HStack {
+                     Image("onesignaldemo")
+                         .resizable()
+                         .scaledToFit()
+                         .frame(width: 40.0, height: 40.0)
+                     Spacer()
+                     Text(context.attributes.title).font(.headline)
+                 }
+                 Spacer()
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Update:   ").font(.title2)
+                     Spacer()
+                     Text(context.state.message)
+                 }
+                 Spacer()
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Progress: ").font(.title2)
+                     ProgressView(value: context.state.progress)
+                         .padding([.bottom, .top], 5)
+                     Text(context.state.status)
+                 }
+                 HStack(alignment: .firstTextBaseline, spacing: 16) {
+                     Text("Bugs:     ").font(.title2)
+                     Spacer()
+                     Text(String(context.state.bugs))
+                 }
+                 Spacer()
+             }
+             .padding([.all], 20)
+             .activitySystemActionForegroundColor(.black)
+             .activityBackgroundTint(.white)
+         } dynamicIsland: { _ in
+             DynamicIsland {
+                 // Expanded UI goes here.  Compose the expanded UI through
+                 // various regions, like leading/trailing/center/bottom
+                 DynamicIslandExpandedRegion(.leading) {
+                     Text("Leading")
+                 }
+                 DynamicIslandExpandedRegion(.trailing) {
+                     Text("Trailing")
+                 }
+                 DynamicIslandExpandedRegion(.bottom) {
+                     Text("Bottom")
+                     // more content
+                 }
+             } compactLeading: {
+                 Text("L")
+             } compactTrailing: {
+                 Text("T")
+             } minimal: {
+                 Text("Min")
+             }
+             .keylineTint(Color.red)
+         }
+     }
+ }
+
+ struct ExampleAppThirdWidget: Widget {
+     var body: some WidgetConfiguration {
+         ActivityConfiguration(for: ExampleAppThirdWidgetAttributes.self) { context in
+             // Lock screen/banner UI goes here\VStack(alignment: .leading) {
+             VStack {
+                 Spacer()
+                 Text("THIRD: " + context.attributes.title).font(.headline)
+                 Spacer()
+                 HStack {
+                     Spacer()
+                     Label {
+                         Text(context.state.message)
+                     } icon: {
+                         Image("onesignaldemo")
+                             .resizable()
+                             .scaledToFit()
+                             .frame(width: 40.0, height: 40.0)
+                     }
+                     Spacer()
+                 }
+                 Spacer()
+             }
+             .activitySystemActionForegroundColor(.black)
+             .activityBackgroundTint(.white)
+         } dynamicIsland: { _ in
+             DynamicIsland {
+                 // Expanded UI goes here.  Compose the expanded UI through
+                 // various regions, like leading/trailing/center/bottom
+                 DynamicIslandExpandedRegion(.leading) {
+                     Text("Leading")
+                 }
+                 DynamicIslandExpandedRegion(.trailing) {
+                     Text("Trailing")
+                 }
+                 DynamicIslandExpandedRegion(.bottom) {
+                     Text("Bottom")
+                     // more content
+                 }
+             } compactLeading: {
+                 Text("L")
+             } compactTrailing: {
+                 Text("T")
+             } minimal: {
+                 Text("Min")
+             }
+             .widgetURL(URL(string: "http://www.apple.com"))
+             .keylineTint(Color.red)
+         }
+     }
+ }
+
+struct DefaultOneSignalLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: OneSignalWidgetAttributes.self) { context in
+        ActivityConfiguration(for: DefaultLiveActivityAttributes.self) { context in
             // Lock screen/banner UI goes here\VStack(alignment: .leading) {
             VStack {
                 Spacer()
-                Text(context.attributes.title).font(.headline)
-                Spacer()
                 HStack {
+                    Image("onesignaldemo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40.0, height: 40.0)
                     Spacer()
-                    Label {
-                        Text(context.state.message)
-                    } icon: {
-                        Image("onesignaldemo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40.0, height: 40.0)
-                    }
+                    Text("DEFAULT: " + (context.attributes.data["title"]?.asString() ?? "")).font(.headline)
+                }
+                Spacer()
+                HStack(alignment: .firstTextBaseline, spacing: 16) {
+                    Text("Update:   ").font(.title2)
                     Spacer()
+                    Text(context.state.data["message"]?.asDict()?["en"]?.asString() ?? "")
+                }
+                Spacer()
+                HStack(alignment: .firstTextBaseline, spacing: 16) {
+                    Text("Progress: ").font(.title2)
+                    ProgressView(
+                        value: context.state.data["progress"]?.asDouble() ?? 0.0
+                    ).padding([.bottom, .top], 5)
+                    Text(context.state.data["status"]?.asString() ?? "")
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 16) {
+                    Text("Bugs:     ").font(.title2)
+                    Spacer()
+                    Text(String(context.state.data["bugs"]?.asInt() ?? 0))
                 }
                 Spacer()
             }
+            .padding([.all], 20)
             .activitySystemActionForegroundColor(.black)
             .activityBackgroundTint(.white)
         } dynamicIsland: { _ in
@@ -74,7 +254,6 @@ struct OneSignalWidgetExtensionLiveActivity: Widget {
             } minimal: {
                 Text("Min")
             }
-            .widgetURL(URL(string: "http://www.apple.com"))
             .keylineTint(Color.red)
         }
     }

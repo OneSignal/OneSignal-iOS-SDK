@@ -218,7 +218,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
-    return [OneSignalLiveActivityController LiveActivities];
+    let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(liveActivities)]) {
+        return [oneSignalLiveActivities performSelector:@selector(liveActivities)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+        return [OSStubLiveActivities liveActivities];
+    }
 }
 
 + (Class<OSLocation>)Location {
@@ -452,6 +458,15 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSNotificationsManager sendPushTokenToDelegate];
 }
 
++ (void)startLiveActivitiesManager {
+    let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(start)]) {
+        [oneSignalLiveActivities performSelector:@selector(start)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+    }
+}
+
 + (void)delayInitializationForPrivacyConsent {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
@@ -514,6 +529,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self startLifecycleObserver];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
+    [self startLiveActivitiesManager];
     [self startInAppMessages];
     [self startNewSession:YES];
     

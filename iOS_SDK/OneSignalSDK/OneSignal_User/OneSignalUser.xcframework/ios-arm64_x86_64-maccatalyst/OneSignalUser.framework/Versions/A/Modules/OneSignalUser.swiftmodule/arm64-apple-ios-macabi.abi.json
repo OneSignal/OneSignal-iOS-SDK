@@ -5234,14 +5234,14 @@
       "kind": "IntegerLiteral",
       "offset": 5271,
       "length": 2,
-      "value": "2"
+      "value": "-2"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
       "offset": 5312,
       "length": 2,
-      "value": "2"
+      "value": "-2"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
@@ -5262,14 +5262,14 @@
       "kind": "IntegerLiteral",
       "offset": 4997,
       "length": 2,
-      "value": "1"
+      "value": "-1"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
       "offset": 6427,
       "length": 2,
-      "value": "2"
+      "value": "-2"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
@@ -5403,6 +5403,34 @@
       "offset": 1252,
       "length": 36,
       "value": "\"OneSignalUser.OSRequestFetchIdentityBySubscription\""
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSIdentityModelStoreListener.swift",
+      "kind": "StringLiteral",
+      "offset": 2135,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSUserRequest.swift",
+      "kind": "StringLiteral",
+      "offset": 2133,
+      "length": 27,
+      "value": "\"OneSignal-Subscription-Id\""
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSUserRequest.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2257,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/elliotmawby\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSUserRequest.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2298,
+      "length": 5,
+      "value": "false"
     }
   ]
 }

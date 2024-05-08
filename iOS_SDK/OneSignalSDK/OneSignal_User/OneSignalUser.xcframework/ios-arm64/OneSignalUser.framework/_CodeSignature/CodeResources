@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalUser-Swift.h</key>
 		<data>
-		HMICLpVdRowD9F+QVLsDWsVLlXk=
+		iNUrXM2QIyhkx/jO4JXQnYbDJEU=
 		</data>
 		<key>Headers/OneSignalUser.h</key>
 		<data>
@@ -22,15 +22,15 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.private.swiftinterface</key>
 		<data>
-		RwmP8F21zqe+q2g6aTXhnfb485c=
+		YkhVcpafGKFlXzdBtJX7Uh3zlno=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<data>
-		yj+8+YpmnfYW8e61Qsz4e87Hkjg=
+		aJLeikRYNul/sMIC/lLLOOKPzDc=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<data>
-		RwmP8F21zqe+q2g6aTXhnfb485c=
+		YkhVcpafGKFlXzdBtJX7Uh3zlno=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftmodule</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		G7kIR7T48fnqMfkxMEz5Gq0mPZo=
+		aP/LrqnbMVk9jhd83qydqZNhzY8=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -47,7 +47,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			kX+TeFK60gxr2Ddp8mvencCRoVWBKK+J4HLEYCZi7FI=
+			PyVEsuJ5nWOcglv199Jyu5vQUCqbbjvUx2jHBLYsO4M=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -68,21 +68,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			sGMQEI2GkLsGz+xWQGLQ8yha0gVEKi/U2VKXJuwMK0o=
+			Og5TkiGWLO0eIOTb3UKpVNyULrrVSwqZsXuKRQqeivM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/CLsJNSqlYOZ3N35BU8tLWa6AvB5Hy0Gbp7q2xjdlIc=
+			DBTRk3vFJf+L38SCXicbY55qi+3L0sLTxMQ2xJd8ciM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			sGMQEI2GkLsGz+xWQGLQ8yha0gVEKi/U2VKXJuwMK0o=
+			Og5TkiGWLO0eIOTb3UKpVNyULrrVSwqZsXuKRQqeivM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftmodule</key>
@@ -96,7 +96,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			D9eZkSkXqymTKNbGMVvSiBm8jGPDNW9FHX+RgvGgjqc=
+			1GbEwnTxreiPN96l/26+nj4DtxyA6nT44bkvKUA4Fcs=
 			</data>
 		</dict>
 	</dict>

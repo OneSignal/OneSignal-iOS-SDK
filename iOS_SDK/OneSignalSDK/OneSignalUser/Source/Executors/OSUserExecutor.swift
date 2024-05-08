@@ -497,7 +497,7 @@ extension OSUserExecutor {
         // Ideally we only get push subscription for this device in the response, not others
 
         // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
-        if (OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil),
+        if OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil,
            let subscriptionObject = parseSubscriptionObjectResponse(response) {
             for subModel in subscriptionObject {
                 if subModel["type"] as? String == "iOSPush",

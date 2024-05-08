@@ -30,6 +30,7 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "OneSignalExample-Swift.h"
 
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -73,6 +74,14 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.InAppMessages addClickListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
+    
+    #if TARGET_OS_MACCATALYST
+    #else
+    if (@available(iOS 16.1, *)) {
+        [LiveActivityController start];
+    }
+    #endif
+
     
     return YES;
 }

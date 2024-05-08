@@ -26,6 +26,7 @@ let package = Package(
                 "OneSignalFramework",
                 "OneSignalUser",
                 "OneSignalNotifications",
+                "OneSignalLiveActivities",
                 "OneSignalExtension",
                 "OneSignalOutcomes",
                 "OneSignalOSCore",
@@ -103,6 +104,14 @@ let package = Package(
             ],
             path: "OneSignalOSCoreWrapper"
         ),
+        .target(
+            name: "OneSignalLiveActivitiesWrapper",
+            dependencies: [
+                "OneSignalUser",
+                "OneSignalCore"
+            ],
+            path: "OneSignalLiveActivitiesWrapper"
+        ),
         .binaryTarget(
           name: "OneSignalFramework",
           url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.1.6/OneSignalFramework.xcframework.zip",
@@ -147,6 +156,11 @@ let package = Package(
           name: "OneSignalCore",
           url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.1.6/OneSignalCore.xcframework.zip",
           checksum: "46be3f316ed4506ab88d787821476572c9b016d7778beaa60a59a607c6c223e7"
+        ),
+        .binaryTarget(
+          name: "OneSignalLiveActivities",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.1.0/OneSignalLiveActivities.xcframework.zip",
+          checksum: ""
         )
     ]
 )

@@ -47,29 +47,32 @@ update_framework() {
     open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
 }
 
+## OneSignal LiveActivities ##
+update_framework "OneSignal_LiveActivities" "OneSignalLiveActivities" "163" "162"
+
 ## OneSignal Core ##
-update_framework "OneSignal_Core" "OneSignalCore" "149" "148"
+update_framework "OneSignal_Core" "OneSignalCore" "158" "157"
 
 ## OneSignal OSCore ##
-update_framework "OneSignal_OSCore" "OneSignalOSCore" "144" "143"
+update_framework "OneSignal_OSCore" "OneSignalOSCore" "153" "152"
 
 ## OneSignal Outcomes ##
-update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "139" "138"
+update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "148" "147"
 
 ## OneSignal Extension ##
-update_framework "OneSignal_Extension" "OneSignalExtension" "134" "133"
+update_framework "OneSignal_Extension" "OneSignalExtension" "143" "142"
 
 ## OneSignal Notifications ##
-update_framework "OneSignal_Notifications" "OneSignalNotifications" "129" "128"
+update_framework "OneSignal_Notifications" "OneSignalNotifications" "138" "137"
 
 ## OneSignal User ##
-update_framework "OneSignal_User" "OneSignalUser" "124" "123"
+update_framework "OneSignal_User" "OneSignalUser" "133" "132"
 
 ## OneSignal Location ##
-update_framework "OneSignal_Location" "OneSignalLocation" "119" "118"
+update_framework "OneSignal_Location" "OneSignalLocation" "128" "127"
 
-## OneSignal Location ##
-update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages" "114" "113"
+## OneSignal InAppMessages ##
+update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages" "123" "122"
 
 ## OneSignal ##
-update_framework "OneSignal_XCFramework" "OneSignalFramework" "109" "108"
+update_framework "OneSignal_XCFramework" "OneSignalFramework" "118" "117"
