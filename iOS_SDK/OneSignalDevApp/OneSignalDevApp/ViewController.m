@@ -239,7 +239,7 @@
         // Will not make a live activity if activityId is empty
         if (activityId && activityId.length) {
 //            [LiveActivityController createDefaultActivityWithActivityId:activityId ];
-            [LiveActivityController createActivityWithActivityId:activityId completionHandler:nil ];
+            [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
         }
     } else {
         NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
