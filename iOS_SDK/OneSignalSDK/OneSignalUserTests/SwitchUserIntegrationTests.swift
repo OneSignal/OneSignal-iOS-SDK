@@ -4,7 +4,7 @@ import OneSignalCoreMocks
 import OneSignalUserMocks
 @testable import OneSignalUser
 
-final class SwitchUserTests: XCTestCase {
+final class SwitchUserIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
         // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
