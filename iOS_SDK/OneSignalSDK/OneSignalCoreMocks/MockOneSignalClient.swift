@@ -177,4 +177,10 @@ extension MockOneSignalClient {
 
         return found
     }
+
+    public func hasExecutedRequestOfType(_ type: AnyClass) -> Bool {
+        executedRequests.contains { request in
+            request.isKind(of: type)
+        }
+    }
 }
