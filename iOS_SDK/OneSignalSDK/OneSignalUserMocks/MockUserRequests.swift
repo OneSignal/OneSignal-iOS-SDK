@@ -125,12 +125,73 @@ extension MockUserRequests {
         )
     }
 
+    /**
+     Returns many user data to mimic pulling remote data. Used to test for hydration.
+     */
+    public static func setDefaultFetchUserResponseForHydration(with client: MockOneSignalClient, externalId: String) {
+        let osid = getOneSignalId(for: externalId)
+
+        var fetchResponse: [String: Any] = [
+            "identity": ["onesignal_id": osid, "external_id": externalId, "remote_alias": "remote_id"],
+            "properties": [
+                "tags": ["remote_tag": "remote_value"],
+                "language": "remote_language"
+            ],
+            "subscriptions": [
+                ["type": "Email",
+                 "id": "remote_email_id",
+                 "token": "remote_email@example.com"
+                ]
+            ]
+        ]
+        client.setMockResponseForRequest(
+            request: "<OSRequestFetchUser with external_id: \(externalId)>",
+            response: fetchResponse
+        )
+    }
+
     public static func setAddTagsResponse(with client: MockOneSignalClient, tags: [String: String]) {
         let tagsResponse = MockUserRequests.testPropertiesPayload(properties: ["tags": tags])
 
         client.setMockResponseForRequest(
             request: "<OSRequestUpdateProperties with properties: [\"tags\": \(tags)] deltas: nil refreshDeviceMetadata: false>",
             response: tagsResponse
+        )
+    }
+
+    public static func setSetLanguageResponse(with client: MockOneSignalClient, language: String) {
+        client.setMockResponseForRequest(
+            request: "<OSRequestUpdateProperties with properties: [\"language\": Optional(\"\(language)\")] deltas: nil refreshDeviceMetadata: false>",
+            response: [:] // The SDK does not use the response in any way
+        )
+    }
+
+    public static func setAddAliasesResponse(with client: MockOneSignalClient, aliases: [String: String]) {
+        client.setMockResponseForRequest(
+            request: "<OSRequestAddAliases with aliases: \(aliases)>",
+            response: [:] // The SDK does not use the response in any way
+        )
+    }
+
+    /** The real response will either contain a subscription payload or be empty (if already exists on user) */
+    public static func setAddEmailResponse(with client: MockOneSignalClient, email: String) {
+        let response = [
+            "subscription": [
+                "id": "\(email)_id",
+                "type": "Email",
+                "token": email
+            ]
+        ]
+        client.setMockResponseForRequest(
+            request: "<OSRequestCreateSubscription with token: \(email)>",
+            response: response
+        )
+    }
+
+    public static func setTransferSubscriptionResponse(with client: MockOneSignalClient, externalId: String) {
+        client.setMockResponseForRequest(
+            request: "<OSRequestTransferSubscription to external_id: \(externalId)>",
+            response: [:] // The SDK does not use the response
         )
     }
 }
