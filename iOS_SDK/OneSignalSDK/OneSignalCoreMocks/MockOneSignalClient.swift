@@ -95,7 +95,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         if executeInstantaneously {
             finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         } else {
-            executionQueue.async {
+            executionQueue.asyncAfter(deadline: .now() + .milliseconds(20)) {
                 self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
             }
         }
