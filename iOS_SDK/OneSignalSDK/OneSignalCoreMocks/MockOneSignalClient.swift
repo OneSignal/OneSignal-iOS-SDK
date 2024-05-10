@@ -35,7 +35,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
-    public var executeInstantaneously = true
+    public var executeInstantaneously = false
 
     var remoteParamsResponse: [String: Any]?
     var shouldUseProvisionalAuthorization = false // new in iOS 12 (aka Direct to History)
