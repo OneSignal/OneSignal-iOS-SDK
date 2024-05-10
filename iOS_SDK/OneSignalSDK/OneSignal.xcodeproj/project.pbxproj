@@ -82,6 +82,12 @@
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
+		3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */; };
+		3C6299A12BEEA38100649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */; };
+		3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */; };
+		3C6299A72BEEA41900649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A62BEEA40100649187 /* PrivacyInfo.xcprivacy */; };
+		3C6299A92BEEA46C00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */; };
+		3C6299AB2BEEA4C000649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
@@ -1121,6 +1127,12 @@
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
+		3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C6299A62BEEA40100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserRequests.swift; sourceTree = "<group>"; };
 		3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserDefines.swift; sourceTree = "<group>"; };
@@ -1859,6 +1871,7 @@
 			children = (
 				3C115178289A272F00565C41 /* Source */,
 				3C115164289A259500565C41 /* OneSignalOSCore.docc */,
+				3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalOSCore;
 			sourceTree = "<group>";
@@ -2051,6 +2064,7 @@
 				475F47202B8E398E00EC05B3 /* OneSignalLiveActivities.h */,
 				47A885CC2BB317B300ED91FA /* AnyCodable.swift */,
 				47278E442BD7E62B00562820 /* DefaultLiveActivityAttributes.swift */,
+				3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalLiveActivities;
 			sourceTree = "<group>";
@@ -2229,6 +2243,7 @@
 				DE69E19D282ED8060090BB3D /* OneSignalUser.h */,
 				DE69E1A8282ED8360090BB3D /* Source */,
 				DE69E19E282ED8060090BB3D /* OneSignalUser.docc */,
+				3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalUser;
 			sourceTree = "<group>";
@@ -2258,6 +2273,7 @@
 			children = (
 				DE7D182127026C31002D3A5D /* Source */,
 				DE7D17E927026B95002D3A5D /* OneSignalCore.docc */,
+				3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalCore;
 			sourceTree = "<group>";
@@ -2371,6 +2387,7 @@
 				DE3CD2FE270FA9F200A5BECD /* OSOutcomes.m */,
 				7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */,
 				7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */,
+				3C6299A62BEEA40100649187 /* PrivacyInfo.xcprivacy */,
 				DE7D188327037F43002D3A5D /* OneSignalOutcomes.docc */,
 			);
 			path = OneSignalOutcomes;
@@ -2686,6 +2703,7 @@
 				DEF784572912E4BA00A1F3A5 /* OSPermission.m */,
 				DEF7847029132AA700A1F3A5 /* OSNotification+OneSignal.h */,
 				DEF7847129132AA700A1F3A5 /* OSNotification+OneSignal.m */,
+				3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */,
 			);
 			path = OneSignalNotifications;
 			sourceTree = "<group>";
@@ -3488,6 +3506,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C6299A92BEEA46C00649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3538,6 +3557,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3552,6 +3572,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3559,6 +3580,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C6299AB2BEEA4C000649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3574,6 +3596,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C6299A72BEEA41900649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3607,6 +3630,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C6299A12BEEA38100649187 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
