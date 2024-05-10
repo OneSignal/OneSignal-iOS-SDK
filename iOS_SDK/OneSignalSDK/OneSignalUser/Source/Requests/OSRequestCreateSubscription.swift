@@ -44,9 +44,10 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
 
     // Need the onesignal_id of the user
     func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+        let aliasLabel = identityModel.primaryAliasLabel
+        if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
+            self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/subscriptions"
             return true
         } else {
             self.path = "" // self.path is non-nil, so set to empty string
@@ -57,7 +58,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
         self.method = POST
@@ -85,7 +86,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

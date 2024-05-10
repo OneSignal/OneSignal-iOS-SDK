@@ -38,9 +38,10 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
 
     func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+        let aliasLabel = identityModel.primaryAliasLabel
+        if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity/\(labelToRemove)"
+            self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity/\(labelToRemove)"
             return true
         } else {
             // self.path is non-nil, so set to empty string

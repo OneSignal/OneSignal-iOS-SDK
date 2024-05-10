@@ -39,9 +39,10 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+        let aliasLabel = identityModel.primaryAliasLabel
+        if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string
@@ -53,7 +54,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     init(aliases: [String: String], identityModel: OSIdentityModel) {
         self.identityModel = identityModel
         self.aliases = aliases
-        self.stringDescription = "OSRequestAddAliases with aliases: \(aliases)"
+        self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = ["identity": aliases]
         self.method = PATCH
@@ -81,7 +82,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         }
         self.identityModel = identityModel
         self.aliases = aliases
-        self.stringDescription = "OSRequestAddAliases with parameters: \(parameters)"
+        self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

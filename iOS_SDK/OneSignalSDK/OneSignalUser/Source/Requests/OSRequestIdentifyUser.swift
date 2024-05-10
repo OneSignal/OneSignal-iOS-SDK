@@ -48,14 +48,15 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
 
     // requires a onesignal_id to send this request
     func prepareForExecution() -> Bool {
-        if let onesignalId = identityModelToIdentify.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+        let aliasLabel = identityModelToIdentify.primaryAliasLabel
+        if let aliasId = identityModelToIdentify.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModelToIdentify)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string
             self.path = ""
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request due to null app ID or null OneSignal ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request due to null app ID or null \(aliasLabel) ID.")
             return false
         }
     }
@@ -72,7 +73,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
+        self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
@@ -106,7 +107,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "<OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)>"
+        self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.timestamp = timestamp
         self.parameters = parameters
