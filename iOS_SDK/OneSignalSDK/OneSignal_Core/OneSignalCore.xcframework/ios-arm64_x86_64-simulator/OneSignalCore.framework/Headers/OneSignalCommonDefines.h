@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050106"
+#define ONESIGNAL_VERSION                                                   @"050200"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -121,6 +121,7 @@
 // Class Names used with NSClassFromString
 #define ONE_SIGNAL_LOCATION_CLASS_NAME @"OneSignalLocationManager"
 #define ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME @"OneSignalInAppMessages"
+#define ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME @"OneSignalLiveActivitiesManagerImpl"
 
 // iOS Parameter Names
 #define IOS_FBA @"fba"
@@ -343,5 +344,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY                      @"OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+
+// Live Activies Executor
+#define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"
+#define OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY                        @"OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY"
 
 #endif /* OneSignalCommonDefines_h */

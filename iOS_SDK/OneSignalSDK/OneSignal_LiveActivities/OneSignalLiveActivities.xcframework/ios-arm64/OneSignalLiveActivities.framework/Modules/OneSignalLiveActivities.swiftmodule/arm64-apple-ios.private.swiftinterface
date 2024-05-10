@@ -1,0 +1,162 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target arm64-apple-ios11.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalLiveActivities
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import ActivityKit
+import Foundation
+import OneSignalCore
+@_exported import OneSignalLiveActivities
+import OneSignalOSCore
+import OneSignalUser
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+extension OneSignalOSCore.OSLiveActivities {
+  @available(iOS 16.1, *)
+  public static func setup<T>(_ activityType: T.Type, options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil) where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+  @available(iOS 17.2, *)
+  public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: Swift.String) where T : ActivityKit.ActivityAttributes
+  @available(iOS 17.2, *)
+  public static func removePushToStartToken<T>(_ activityType: T.Type) where T : ActivityKit.ActivityAttributes
+  @available(iOS 16.1, *)
+  public static func setupDefault(options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil)
+  @available(iOS 16.1, *)
+  public static func startDefault(_ activityId: Swift.String, attributes: [Swift.String : Any], content: [Swift.String : Any])
+}
+@objc(LiveActivitySetupOptions) public class LiveActivitySetupOptions : ObjectiveC.NSObject {
+  @objc public var enablePushToStart: Swift.Bool
+  @objc public var enablePushToUpdate: Swift.Bool
+  @objc public init(enablePushToStart: Swift.Bool = true, enablePushToUpdate: Swift.Bool = true)
+  @objc deinit
+}
+public struct DefaultLiveActivityAttributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes {
+  public struct ContentState : OneSignalLiveActivities.OneSignalLiveActivityContentState {
+    public var data: [Swift.String : OneSignalLiveActivities.AnyCodable]
+    public var onesignal: OneSignalLiveActivities.OneSignalLiveActivityContentStateData?
+    public func hash(into hasher: inout Swift.Hasher)
+    public static func == (a: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState, b: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState) -> Swift.Bool
+    public func encode(to encoder: any Swift.Encoder) throws
+    public var hashValue: Swift.Int {
+      get
+    }
+    public init(from decoder: any Swift.Decoder) throws
+  }
+  public var data: [Swift.String : OneSignalLiveActivities.AnyCodable]
+  public var onesignal: OneSignalLiveActivities.OneSignalLiveActivityAttributeData
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 16.1, *)
+public protocol OneSignalLiveActivityAttributes : ActivityKit.ActivityAttributes where Self.ContentState : OneSignalLiveActivities.OneSignalLiveActivityContentState {
+  var onesignal: OneSignalLiveActivities.OneSignalLiveActivityAttributeData { get set }
+}
+public struct OneSignalLiveActivityAttributeData : Swift.Decodable, Swift.Encodable {
+  public static func create(activityId: Swift.String) -> OneSignalLiveActivities.OneSignalLiveActivityAttributeData
+  public var activityId: Swift.String
+  public func encode(to encoder: any Swift.Encoder) throws
+  public init(from decoder: any Swift.Decoder) throws
+}
+@available(iOS 16.1, *)
+public protocol OneSignalLiveActivityContentState : Swift.Decodable, Swift.Encodable, Swift.Hashable {
+  var onesignal: OneSignalLiveActivities.OneSignalLiveActivityContentStateData? { get set }
+}
+public struct OneSignalLiveActivityContentStateData : Swift.Decodable, Swift.Encodable, Swift.Hashable {
+  public var notificationId: Swift.String
+  public func hash(into hasher: inout Swift.Hasher)
+  public static func == (a: OneSignalLiveActivities.OneSignalLiveActivityContentStateData, b: OneSignalLiveActivities.OneSignalLiveActivityContentStateData) -> Swift.Bool
+  public func encode(to encoder: any Swift.Encoder) throws
+  public var hashValue: Swift.Int {
+    get
+  }
+  public init(from decoder: any Swift.Decoder) throws
+}
+@_inheritsConvenienceInitializers @objc(OneSignalLiveActivitiesManagerImpl) public class OneSignalLiveActivitiesManagerImpl : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
+  @objc public static func liveActivities() -> Swift.AnyClass
+  @objc public static func start()
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc public static func exit(_ activityId: Swift.String)
+  @available(iOS 17.2, *)
+  @objc public static func setPushToStartToken(_ activityType: Swift.String, withToken: Swift.String) throws
+  @available(iOS 17.2, *)
+  @objc public static func removePushToStartToken(_ activityType: Swift.String) throws
+  @available(iOS 17.2, *)
+  public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: Swift.String) where T : ActivityKit.ActivityAttributes
+  @available(iOS 17.2, *)
+  public static func removePushToStartToken<T>(_ activityType: T.Type) where T : ActivityKit.ActivityAttributes
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc public static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @available(iOS 16.1, *)
+  public static func setup<Attributes>(_ activityType: Attributes.Type, options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil) where Attributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+  @available(iOS 16.1, *)
+  @objc public static func setupDefault(options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil)
+  @available(iOS 16.1, *)
+  @objc public static func startDefault(_ activityId: Swift.String, attributes: [Swift.String : Any], content: [Swift.String : Any])
+  @objc override dynamic public init()
+  @objc deinit
+}
+@frozen public struct AnyCodable : Swift.Codable {
+  public let value: Any
+  public func asBool() -> Swift.Bool?
+  public func asInt() -> Swift.Int?
+  public func asDouble() -> Swift.Double?
+  public func asString() -> Swift.String?
+  public func asArray() -> [OneSignalLiveActivities.AnyCodable]?
+  public func asDict() -> [Swift.String : OneSignalLiveActivities.AnyCodable]?
+  public init<T>(_ value: T?)
+  public init(nilLiteral _: ())
+  public init(booleanLiteral value: Swift.Bool)
+  public init(integerLiteral value: Swift.Int)
+  public init(floatLiteral value: Swift.Double)
+  public init(extendedGraphemeClusterLiteral value: Swift.String)
+  public init(stringLiteral value: Swift.String)
+  public init(arrayLiteral elements: Any...)
+  public init(dictionaryLiteral elements: (Swift.AnyHashable, Any)...)
+  public init(from decoder: any Swift.Decoder) throws
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.Equatable {
+  public static func == (lhs: OneSignalLiveActivities.AnyCodable, rhs: OneSignalLiveActivities.AnyCodable) -> Swift.Bool
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.CustomDebugStringConvertible {
+  public var debugDescription: Swift.String {
+    get
+  }
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByNilLiteral {
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByBooleanLiteral {
+  public typealias BooleanLiteralType = Swift.Bool
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByIntegerLiteral {
+  public typealias IntegerLiteralType = Swift.Int
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByFloatLiteral {
+  public typealias FloatLiteralType = Swift.Double
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByStringLiteral {
+  public typealias ExtendedGraphemeClusterLiteralType = Swift.String
+  public typealias StringLiteralType = Swift.String
+  public typealias UnicodeScalarLiteralType = Swift.String
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByStringInterpolation {
+  public typealias StringInterpolation = Swift.DefaultStringInterpolation
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByArrayLiteral {
+  public typealias ArrayLiteralElement = Any
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.ExpressibleByDictionaryLiteral {
+  public typealias Key = Swift.AnyHashable
+  public typealias Value = Any
+}
+extension OneSignalLiveActivities.AnyCodable : Swift.Hashable {
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}

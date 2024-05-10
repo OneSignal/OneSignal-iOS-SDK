@@ -70,7 +70,7 @@
 		</data>
 		<key>Headers/OSRequests.h</key>
 		<data>
-		J1Kk5zLcCjEXVkzVwqgbEN27Myk=
+		qtUkgqD1zynN/LLePYZTAGm6gHc=
 		</data>
 		<key>Headers/OneSignalClient.h</key>
 		<data>
@@ -78,7 +78,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		uuDBqBFUQ2t/pk4FVWiFibyUIS4=
+		5Pn0Co3fAnF2rMzTNZ85UrXVxjk=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -126,11 +126,15 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		Cl020GsA4JzJIrDU+71J+83Boz8=
+		6bEBreFpZUW9qT71YRpsBaBYkOc=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		UwBMj9m72xH28UG69kKWlAJjycc=
+		tm/kjLlh+28CbkRZg7DAQW25i7w=
+		</data>
+		<key>PrivacyInfo.xcprivacy</key>
+		<data>
+		XlIKkK6ZsRF9uaJ3GJUkQOw9WVU=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -251,7 +255,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			IgxmAHnDmkedMwrgA9QzZfoahOsSjNJjysKwkzKpq00=
+			zcPzshIWiNjURGAjtzmwJgFSHy4BeDwZu9d2K0H0kkY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalClient.h</key>
@@ -265,7 +269,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pKeh2Slg7eTpgvWu0daXhfgdSk4AEMC++zEs+0EIdlI=
+			JvVXTGgSZNbWqv30vzaapl9mKt3abal6xkiK963l60c=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -349,7 +353,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			K44cM22FGB3rV1SaGqR0xQQBO01/YgeIVYiCCcvFnOU=
+			4/vFIL4+9OxlK4ltb28iy5X1WUACo8mN74N7KRzmZMY=
+			</data>
+		</dict>
+		<key>PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			g2luGY1Qnqmr7GYOsrX4x85UQRA+lLE7nPLikUEQQ3Y=
 			</data>
 		</dict>
 	</dict>
