@@ -58,7 +58,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
         self.method = POST
@@ -86,7 +86,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)

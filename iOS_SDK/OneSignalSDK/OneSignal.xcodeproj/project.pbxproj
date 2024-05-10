@@ -82,6 +82,7 @@
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
+		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
@@ -1124,6 +1125,7 @@
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
+		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserRequests.swift; sourceTree = "<group>"; };
 		3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserDefines.swift; sourceTree = "<group>"; };
@@ -1963,6 +1965,7 @@
 			isa = PBXGroup;
 			children = (
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
+				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
 			);
 			path = OneSignalUserTests;
 			sourceTree = "<group>";
@@ -3743,6 +3746,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

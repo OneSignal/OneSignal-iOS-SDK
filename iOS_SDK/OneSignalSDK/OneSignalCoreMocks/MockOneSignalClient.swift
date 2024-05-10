@@ -95,7 +95,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         if executeInstantaneously {
             finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         } else {
-            executionQueue.async {
+            executionQueue.asyncAfter(deadline: .now() + .milliseconds(50)) {
                 self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
             }
         }
@@ -176,5 +176,11 @@ extension MockOneSignalClient {
         }
 
         return found
+    }
+
+    public func hasExecutedRequestOfType(_ type: AnyClass) -> Bool {
+        executedRequests.contains { request in
+            request.isKind(of: type)
+        }
     }
 }

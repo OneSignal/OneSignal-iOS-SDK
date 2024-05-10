@@ -54,7 +54,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     init(aliases: [String: String], identityModel: OSIdentityModel) {
         self.identityModel = identityModel
         self.aliases = aliases
-        self.stringDescription = "OSRequestAddAliases with aliases: \(aliases)"
+        self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = ["identity": aliases]
         self.method = PATCH
@@ -82,7 +82,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         }
         self.identityModel = identityModel
         self.aliases = aliases
-        self.stringDescription = "OSRequestAddAliases with parameters: \(parameters)"
+        self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
