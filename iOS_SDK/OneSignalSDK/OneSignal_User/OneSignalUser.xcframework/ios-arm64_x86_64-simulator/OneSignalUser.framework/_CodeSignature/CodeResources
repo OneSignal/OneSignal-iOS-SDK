@@ -14,11 +14,11 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		3RDXbQ9FOriVofapo3MJw1SdX+k=
+		2h7k8z/WEguLZ6ZbEWZw77Ou0Ug=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		I8VZoBLEZlfIQrprTrXQjanMCF0=
+		l2eLpXx8CuZW4jVgCdKh+BM2OV4=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -34,11 +34,11 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		4YCffGULm0hKQfj1R3yWqEpE3rg=
+		LpRSD9RYOV2LzBTLEmbvrXbayvs=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		I8VZoBLEZlfIQrprTrXQjanMCF0=
+		l2eLpXx8CuZW4jVgCdKh+BM2OV4=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -54,11 +54,15 @@
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		IG2N/EIComusXCLgZqjQPF0jOpE=
+		sG1nTS6Z5cXJIYoq2skyrBcwJEc=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
 		aP/LrqnbMVk9jhd83qydqZNhzY8=
+		</data>
+		<key>PrivacyInfo.xcprivacy</key>
+		<data>
+		sPiNcrfoW+9u4f1ugLZxxZVsUic=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -81,7 +85,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			yQCjuJAVjDFdtDtufy7+4NdPwPhwgw21c1CdaDUiIos=
+			Vm16uYegiyTxo6K8PULtvn0YDPu6Mz9Ibo8Lds5ZFl0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
@@ -109,14 +113,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			A+uu/hyEpMbUrE1oK/Eiz9IrptSBZgdocmv6WazVyVo=
+			Jq17pVnq8FsiunSr1k1WSLztZpL7ZTuDVVWT0+ffT1g=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			yQCjuJAVjDFdtDtufy7+4NdPwPhwgw21c1CdaDUiIos=
+			Vm16uYegiyTxo6K8PULtvn0YDPu6Mz9Ibo8Lds5ZFl0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
@@ -144,7 +148,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			UxSxo9a8TB4TZ9e5c9hB6iWkVUVBIeq9YxcDt5P1a+c=
+			oHDYF8F32ZMae8syo/fZ43ELZJqTcW3boQ1UeSHXsrg=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -152,6 +156,13 @@
 			<key>hash2</key>
 			<data>
 			1GbEwnTxreiPN96l/26+nj4DtxyA6nT44bkvKUA4Fcs=
+			</data>
+		</dict>
+		<key>PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			lmTJyikvlyx4mGf6g/pLawINPOp6fKuJq9SzGWDHEpc=
 			</data>
 		</dict>
 	</dict>

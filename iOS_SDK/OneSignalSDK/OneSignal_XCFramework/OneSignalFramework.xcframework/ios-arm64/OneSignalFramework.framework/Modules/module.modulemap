@@ -1,7 +1,7 @@
 framework module OneSignalFramework {
   umbrella header "OneSignalFramework.h"
-
   export *
+
   module * { export * }
 }
 

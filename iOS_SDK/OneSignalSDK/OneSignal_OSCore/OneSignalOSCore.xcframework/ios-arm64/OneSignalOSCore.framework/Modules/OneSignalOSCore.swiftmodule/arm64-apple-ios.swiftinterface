@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.7.1 (swiftlang-5.7.1.135.3 clang-1400.0.29.51)
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
 // swift-module-flags: -target arm64-apple-ios11.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
 // swift-module-flags-ignorable: -enable-bare-slash-regex
 import Foundation
@@ -8,11 +8,20 @@ import OneSignalCore
 import Swift
 import _Concurrency
 import _StringProcessing
+import _SwiftConcurrencyShims
+@objc public protocol OSLiveActivities {
+  @objc static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc @available(*, deprecated)
+  static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc static func exit(_ activityId: Swift.String)
+  @objc @available(*, deprecated)
+  static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+}
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
   public static let sharedInstance: OneSignalOSCore.OSOperationRepo
   public var paused: Swift.Bool
   public func start()
-  public func addExecutor(_ executor: OneSignalOSCore.OSOperationExecutor)
+  public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
   @objc override dynamic public init()
   @objc deinit
@@ -25,7 +34,7 @@ import _StringProcessing
   @objc deinit
 }
 open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
-  public init(changeSubscription: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
+  public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
   public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
   @objc deinit
   public func getModel(key: Swift.String) -> TModel?
@@ -40,8 +49,8 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
 }
 @objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
   final public let modelId: Swift.String
-  public var changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>
-  public init(changeNotifier: OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>)
+  public var changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>
+  public init(changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>)
   @objc open func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
   public func set<T>(property: Swift.String, newValue: T)
@@ -55,7 +64,7 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   @objc func setTaskInvalid(_ taskIdentifier: Swift.String)
 }
 @_inheritsConvenienceInitializers @objc public class OSBackgroundTaskManager : ObjectiveC.NSObject {
-  @objc public static var taskHandler: OneSignalOSCore.OSBackgroundTaskHandler?
+  @objc public static var taskHandler: (any OneSignalOSCore.OSBackgroundTaskHandler)?
   @objc public static func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func endBackgroundTask(_ taskIdentifier: Swift.String)
   @objc public static func setTaskInvalid(_ taskIdentifier: Swift.String)
@@ -96,6 +105,27 @@ public protocol OSModelStoreChangedHandler {
   public init(name: Swift.String, identityModelId: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
   @objc public func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
+  @objc deinit
+}
+public protocol OSDispatchQueue {
+  func async(execute work: @escaping @convention(block) () -> Swift.Void)
+  #if compiler(>=5.3) && $Sendable
+  func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
+  #endif
+}
+extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
+  public func async(execute work: @escaping @convention(block) () -> Swift.Void)
+  #if compiler(>=5.3) && $Sendable
+  public func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
+  #endif
+}
+@objc @_inheritsConvenienceInitializers public class OSStubLiveActivities : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
+  @objc public static func liveActivities() -> Swift.AnyClass
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc public static func exit(_ activityId: Swift.String)
+  @objc public static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc override dynamic public init()
   @objc deinit
 }
 @objc @_hasMissingDesignatedInitializers public class OSModelChangedArgs : ObjectiveC.NSObject {

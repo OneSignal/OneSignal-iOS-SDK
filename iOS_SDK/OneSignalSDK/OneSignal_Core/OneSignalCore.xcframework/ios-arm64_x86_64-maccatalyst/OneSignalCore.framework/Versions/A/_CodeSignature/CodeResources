@@ -6,7 +6,11 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		r3826/bCm6NhxpvPWBCscUaOxbI=
+		Cu158pR0EZsoSEM0hERjOU+30NI=
+		</data>
+		<key>Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		XlIKkK6ZsRF9uaJ3GJUkQOw9WVU=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -127,7 +131,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			IgxmAHnDmkedMwrgA9QzZfoahOsSjNJjysKwkzKpq00=
+			zcPzshIWiNjURGAjtzmwJgFSHy4BeDwZu9d2K0H0kkY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalClient.h</key>
@@ -141,7 +145,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pKeh2Slg7eTpgvWu0daXhfgdSk4AEMC++zEs+0EIdlI=
+			JvVXTGgSZNbWqv30vzaapl9mKt3abal6xkiK963l60c=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -225,14 +229,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			K44cM22FGB3rV1SaGqR0xQQBO01/YgeIVYiCCcvFnOU=
+			4/vFIL4+9OxlK4ltb28iy5X1WUACo8mN74N7KRzmZMY=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			2ZTRGuVpfp1qYjjUo2qVZa0q+gzFhIcc6pOLOKK8b5M=
+			KFSFMCNlNPvMjWpnLs5f5bS/WDcRjXxuzbvpPh7r0/w=
+			</data>
+		</dict>
+		<key>Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			g2luGY1Qnqmr7GYOsrX4x85UQRA+lLE7nPLikUEQQ3Y=
 			</data>
 		</dict>
 	</dict>
