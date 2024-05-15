@@ -89,7 +89,6 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
         guard
             let key = coder.decodeObject(forKey: "key") as? String,
             let token = coder.decodeObject(forKey: "token") as? String,
-            let requestSuccessful = coder.decodeObject(forKey: "requestSuccessful") as? Bool,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
@@ -97,7 +96,7 @@ class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAct
         }
         self.key = key
         self.token = token
-        self.requestSuccessful = requestSuccessful
+        self.requestSuccessful = coder.decodeBool(forKey: "requestSuccessful")
         super.init()
         self.timestamp = timestamp
     }
