@@ -46,7 +46,7 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import <OneSignalUser/OneSignalUser.h>
-#import <OneSignalOSCore/OneSignalOSCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 
 #pragma clang diagnostic push
