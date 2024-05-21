@@ -1,7 +1,8 @@
 import OneSignalCore
 import OneSignalCoreMocks
 
-public class MockUserRequests {
+@objc
+public class MockUserRequests: NSObject {
 
     public static func testIdentityPayload(onesignalId: String, externalId: String?) -> [String: [String: String]] {
         var aliases = [OS_ONESIGNAL_ID: onesignalId]
@@ -74,6 +75,7 @@ extension MockUserRequests {
         }
     }
 
+    @objc
     public static func setDefaultCreateAnonUserResponses(with client: MockOneSignalClient) {
         let anonCreateResponse = testDefaultFullCreateUserResponse(onesignalId: anonUserOSID, externalId: nil, subscriptionId: testPushSubId)
 

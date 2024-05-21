@@ -141,6 +141,7 @@
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CCF44BF299B17290021964D /* OneSignalWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CCF44BD299B17290021964D /* OneSignalWrapper.m */; };
+		3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */; };
 		3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */; };
 		3CE795F928DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */; };
 		3CE795FB28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */; };
@@ -1175,6 +1176,8 @@
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
 		3CCF44BD299B17290021964D /* OneSignalWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWrapper.m; sourceTree = "<group>"; };
+		3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalUserTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalUserObjcTests.m; sourceTree = "<group>"; };
 		3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStoreChangedHandler.swift; sourceTree = "<group>"; };
 		3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModelStoreListener.swift; sourceTree = "<group>"; };
 		3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionOperationExecutor.swift; sourceTree = "<group>"; };
@@ -1980,8 +1983,10 @@
 		3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */ = {
 			isa = PBXGroup;
 			children = (
+				3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */,
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
+				3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */,
 			);
 			path = OneSignalUserTests;
 			sourceTree = "<group>";
@@ -3395,6 +3400,7 @@
 					3CC063EA2B6D7FE8002BB07F = {
 						CreatedOnToolsVersion = 15.2;
 						DevelopmentTeam = 99SW8E36CT;
+						LastSwiftMigration = 1520;
 						ProvisioningStyle = Automatic;
 						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
@@ -3783,6 +3789,7 @@
 			files = (
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
+				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5114,6 +5121,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUserTests/OneSignalUserTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
@@ -5167,6 +5175,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUserTests/OneSignalUserTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5215,6 +5224,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalUserTests/OneSignalUserTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";

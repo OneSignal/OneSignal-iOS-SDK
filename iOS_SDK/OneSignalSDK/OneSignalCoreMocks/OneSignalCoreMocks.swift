@@ -26,7 +26,7 @@ import XCTest
 
 @objc
 public class OneSignalCoreMocks: NSObject {
-
+    @objc
     public static func clearUserDefaults() {
         guard let userDefaults = OneSignalUserDefaults.initStandard().userDefaults else {
             return
@@ -46,6 +46,7 @@ public class OneSignalCoreMocks: NSObject {
     }
 
     /** Wait specified number of seconds for any async methods to run */
+    @objc
     public static func waitForBackgroundThreads(seconds: Double) {
         let expectation = XCTestExpectation(description: "Wait for \(seconds) seconds")
         _ = XCTWaiter.wait(for: [expectation], timeout: seconds)

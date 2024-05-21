@@ -154,6 +154,7 @@ extension MockOneSignalClient {
     /**
      Checks if there is only one executed request that contains the payload provided, and the url matches the path provided.
      */
+    @objc
     public func onlyOneRequest(contains path: String, contains payload: [String: Any]) -> Bool {
         var found = false
 
