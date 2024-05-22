@@ -100,7 +100,14 @@ public class OSOperationRepo: NSObject {
         }
     }
 
-    func enqueueDelta(_ delta: OSDelta) {
+    /**
+     Enqueueing is driven by model changes and called manually by the User Manager to
+     add session time, session count and purchase data.
+     
+     // TODO: We can make this method internal once there is no manual adding of a Delta except through stores.
+     This can happen when session data and purchase data use the model / store / listener infrastructure.
+     */
+    public func enqueueDelta(_ delta: OSDelta) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }

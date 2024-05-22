@@ -188,33 +188,3 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 }
-
-extension OSPropertyOperationExecutor {
-    // TODO: We can make this go through the operation repo
-    func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
-
-        let request = OSRequestUpdateProperties(
-            properties: [:],
-            deltas: propertiesDeltas.jsonRepresentation(),
-            refreshDeviceMetadata: refreshDeviceMetadata,
-            identityModel: identityModel)
-
-        if sendImmediately {
-            // Bypass the request queues
-            OneSignalCoreImpl.sharedClient().execute(request) { _ in
-                if let onSuccess = onSuccess {
-                    onSuccess()
-                }
-            } onFailure: { _ in
-                if let onFailure = onFailure {
-                    onFailure()
-                }
-            }
-        } else {
-            self.dispatchQueue.async {
-                self.updateRequestQueue.append(request)
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-            }
-        }
-    }
-}
