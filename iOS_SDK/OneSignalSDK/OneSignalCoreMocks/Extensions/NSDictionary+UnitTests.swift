@@ -66,9 +66,15 @@ extension NSDictionary {
     }
 
     private func equals(_ x: Any, _ y: Any) -> Bool {
-        guard x is AnyHashable else { return false }
-        guard y is AnyHashable else { return false }
-        return (x as! AnyHashable) == (y as! AnyHashable)
+        switch (x, y) {
+        case let (x as NSNumber, y as NSNumber):
+            // Handle float equality imprecision
+            return abs(x.floatValue - y.floatValue) <= .ulpOfOne
+        default:
+            guard x is AnyHashable else { return false }
+            guard y is AnyHashable else { return false }
+            return (x as! AnyHashable) == (y as! AnyHashable)
+        }
     }
 
     /**
