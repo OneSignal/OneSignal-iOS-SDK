@@ -77,6 +77,17 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+/**
+ Implements the `log` method of protocol `OSDebug`.
+ */
+@implementation OneSignalLog (OSLoggable)
++ (void)dump {
+    NSLog(@"💛 calling LOG!");
+    [OneSignalUserManagerImpl.sharedInstance logSelf];
+    [OSOperationRepo.sharedInstance logSelf];
+}
+@end
+
 @interface OneSignal (SessionStatusDelegate)
 @end
 

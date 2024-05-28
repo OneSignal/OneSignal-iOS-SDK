@@ -558,3 +558,14 @@ extension OSUserExecutor {
         return response?["identity"] as? [String: String]
     }
 }
+
+extension OSUserExecutor: OSLoggable {
+    func logSelf() {
+        print("💛 OSUserExecutor has the following queues: ")
+        print(
+            """
+            💛 userRequestQueue: \(self.userRequestQueue)
+            """
+        )
+    }
+}
