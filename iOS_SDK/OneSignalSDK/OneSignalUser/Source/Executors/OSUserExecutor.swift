@@ -583,3 +583,20 @@ extension OSUserExecutor {
         return response?["identity"] as? [String: String]
     }
 }
+
+// Does not conform to `OSLoggable` as the method here is static
+extension OSUserExecutor {
+    static public func logSelf() {
+        print("💛 OSUserExecutor has the following queues: ")
+        print(
+            """
+            💛 userRequestQueue: \(self.userRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 transferSubscriptionRequestQueue: \(self.transferSubscriptionRequestQueue)
+            """
+        )
+    }
+}

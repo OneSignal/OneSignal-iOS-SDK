@@ -266,3 +266,25 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSIdentityOperationExecutor: OSLoggable {
+    func logSelf() {
+        print("💛 OSIdentityOperationExecutor has the following queues: ")
+        print(
+            """
+            💛 addRequestQueue: \(self.addRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 removeRequestQueue: \(self.removeRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 deltaQueue: \(self.deltaQueue)
+            """
+        )
+
+    }
+}

@@ -33,7 +33,7 @@ import OneSignalCore
  OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
 public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo()
+    @objc public static let sharedInstance = OSOperationRepo()
     private var hasCalledStart = false
 
     // The Operation Repo dispatch queue, serial. This synchronizes access to `deltaQueue` and flushing behavior.
@@ -170,6 +170,21 @@ public class OSOperationRepo: NSObject {
 
         if inBackground {
             OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
+        }
+    }
+}
+
+extension OSOperationRepo: OSLoggable {
+    @objc
+    public func logSelf() {
+        print("💛 Operation Repo: executors")
+        for executor in self.executors {
+            executor.logSelf()
+        }
+
+        print("💛 Operation Repo: deltaQueue: ")
+        for delta in self.deltaQueue {
+            print(delta)
         }
     }
 }

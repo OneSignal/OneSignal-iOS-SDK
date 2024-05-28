@@ -54,6 +54,7 @@
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */; };
+		3C10E0632BF5651500A7B37F /* OSLoggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C10E0622BF5651500A7B37F /* OSLoggable.swift */; };
 		3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = 3C115164289A259500565C41 /* OneSignalOSCore.docc */; };
 		3C115171289A259500565C41 /* OneSignalOSCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C115163289A259500565C41 /* OneSignalOSCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C115185289ADE4F00565C41 /* OSModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C115184289ADE4F00565C41 /* OSModel.swift */; };
@@ -1121,6 +1122,7 @@
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUserInternalImpl.swift; sourceTree = "<group>"; };
+		3C10E0622BF5651500A7B37F /* OSLoggable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggable.swift; sourceTree = "<group>"; };
 		3C115161289A259500565C41 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C115163289A259500565C41 /* OneSignalOSCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalOSCore.h; sourceTree = "<group>"; };
 		3C115164289A259500565C41 /* OneSignalOSCore.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = OneSignalOSCore.docc; sourceTree = "<group>"; };
@@ -1917,6 +1919,7 @@
 				4710EA522B8FCFB200435356 /* OSDispatchQueue.swift */,
 				DEFB3E642BB7346D00E65DAD /* OSLiveActivities.swift */,
 				DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */,
+				3C10E0622BF5651500A7B37F /* OSLoggable.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -3754,6 +3757,7 @@
 				DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
+				3C10E0632BF5651500A7B37F /* OSLoggable.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,

@@ -384,3 +384,29 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSSubscriptionOperationExecutor: OSLoggable {
+    func logSelf() {
+        print("💛 OSSubscriptionOperationExecutor has the following queues: ")
+        print(
+            """
+            💛 addRequestQueue: \(self.addRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 removeRequestQueue: \(self.removeRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 updateRequestQueue: \(self.updateRequestQueue)
+            """
+        )
+        print(
+            """
+            💛 deltaQueue: \(self.deltaQueue)
+            """
+        )
+    }
+}
