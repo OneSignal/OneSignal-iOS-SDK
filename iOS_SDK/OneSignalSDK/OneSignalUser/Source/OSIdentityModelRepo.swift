@@ -53,10 +53,14 @@ class OSIdentityModelRepo {
             return models[modelId]
         }
     }
-}
 
 extension OSIdentityModelRepo: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        print(
+            """
+            💛 OSIdentityModelRepo has the following models:
+                models: \(self.models)
+            """
+        )
     }
 }

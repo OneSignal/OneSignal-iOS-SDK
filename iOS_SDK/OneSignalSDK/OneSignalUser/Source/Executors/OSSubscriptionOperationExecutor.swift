@@ -449,6 +449,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
 extension OSSubscriptionOperationExecutor: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        print(
+            """
+            💛 OSSubscriptionOperationExecutor has the following queues:
+                addRequestQueue: \(self.addRequestQueue)
+                removeRequestQueue: \(self.removeRequestQueue)
+                updateRequestQueue: \(self.updateRequestQueue)
+                deltaQueue: \(self.deltaQueue)
+            """
+        )
     }
 }
