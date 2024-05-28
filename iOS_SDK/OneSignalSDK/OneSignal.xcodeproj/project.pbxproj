@@ -155,6 +155,7 @@
 		3CE8CC5B29143F4B000DB0D3 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */; };
 		3CEE90A72BFE6ABD00B0FB5B /* SupportedProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEE90A62BFE6ABD00B0FB5B /* SupportedProperty.swift */; };
+		3CEE90A92C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */; };
 		3CEE93422B7C4174008440BD /* OneSignalUserMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; };
 		3CEE93432B7C4174008440BD /* OneSignalUserMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CEE93462B7C73AB008440BD /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
@@ -1189,6 +1190,7 @@
 		3CE8CC572911B2B2000DB0D3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelStoreListener.swift; sourceTree = "<group>"; };
 		3CEE90A62BFE6ABD00B0FB5B /* SupportedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedProperty.swift; sourceTree = "<group>"; };
+		3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalRequest+UnitTests.swift"; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -1912,6 +1914,7 @@
 			isa = PBXGroup;
 			children = (
 				3C8706752BDEED75000D8CD2 /* NSDictionary+UnitTests.swift */,
+				3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3760,6 +3763,7 @@
 				4710EA552B8FD04400435356 /* MockOSDispatchQueue.swift in Sources */,
 				3CC063B22B6D7AD8002BB07F /* MockOneSignalClient.swift in Sources */,
 				3C8706762BDEED75000D8CD2 /* NSDictionary+UnitTests.swift in Sources */,
+				3CEE90A92C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift in Sources */,
 				3CC063B42B6D7BA2002BB07F /* OneSignalCoreMocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
