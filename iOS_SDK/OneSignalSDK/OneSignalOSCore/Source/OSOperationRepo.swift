@@ -176,6 +176,10 @@ public class OSOperationRepo: NSObject {
 
 extension OSOperationRepo: OSLoggable {
     public func logSelf() {
-        // TODO: You fill in
+        print("💛 Operation Repo: deltaQueue: \(self.deltaQueue )")
+        print("💛 Operation Repo: executors that are subscribed:")
+        for executor in self.executors {
+            executor.logSelf()
+        }
     }
 }

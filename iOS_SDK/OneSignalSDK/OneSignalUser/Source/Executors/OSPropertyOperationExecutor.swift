@@ -291,6 +291,12 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
 extension OSPropertyOperationExecutor: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        print(
+            """
+            💛 OSPropertyOperationExecutor has the following queues:
+                updateRequestQueue: \(self.updateRequestQueue)
+                deltaQueue: \(self.deltaQueue)
+            """
+        )
     }
 }

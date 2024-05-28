@@ -603,6 +603,11 @@ extension OSUserExecutor {
 
 extension OSUserExecutor: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        print(
+            """
+            💛 OSUserExecutor has the following queues:
+                userRequestQueue: \(self.userRequestQueue)
+            """
+        )
     }
 }
