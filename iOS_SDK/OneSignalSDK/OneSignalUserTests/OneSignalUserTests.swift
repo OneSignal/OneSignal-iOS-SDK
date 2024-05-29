@@ -29,7 +29,8 @@ import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
 import OneSignalUserMocks
-import OneSignalOSCore
+// Testable import OSCore to allow setting a different poll flush interval
+@testable import OneSignalOSCore
 @testable import OneSignalUser
 
 final class OneSignalUserTests: XCTestCase {
@@ -152,6 +153,9 @@ final class OneSignalUserTests: XCTestCase {
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         OneSignalCoreImpl.setSharedClient(client)
 
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        
         /* When */
 
         OneSignalUserManagerImpl.sharedInstance.sendSessionTime(100)
