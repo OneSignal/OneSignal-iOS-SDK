@@ -1,9 +1,8 @@
 name: iOS CI
 
 on:
-  pull_request:
-    branches:
-      - '**'
+  push:
+    branches: [ "tests_flaky" ]
     paths-ignore:
       - '.github/**'
       - 'README.md'

@@ -4,6 +4,8 @@ import OneSignalCoreMocks
 import OneSignalUserMocks
 @testable import OneSignalUser
 
+// making a change to trigger CI tests
+
 final class SwitchUserIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
