@@ -5,6 +5,7 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 // making a change to trigger CI tests
+// 1. attempt 1 passed
 
 final class SwitchUserIntegrationTests: XCTestCase {
 
