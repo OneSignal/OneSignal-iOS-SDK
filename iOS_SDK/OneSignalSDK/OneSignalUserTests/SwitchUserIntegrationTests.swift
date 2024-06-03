@@ -7,6 +7,7 @@ import OneSignalUserMocks
 // making a change to trigger CI tests
 // 1. attempt 1 passed
 // 2. attempt 2 passed
+// 3. attempt 3 passed
 
 final class SwitchUserIntegrationTests: XCTestCase {
 
