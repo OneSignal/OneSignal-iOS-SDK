@@ -8,6 +8,7 @@ import OneSignalUserMocks
 // 1. attempt 1 passed
 // 2. attempt 2 passed
 // 3. attempt 3 passed
+// 4. attempt 4 passed
 
 final class SwitchUserIntegrationTests: XCTestCase {
 
