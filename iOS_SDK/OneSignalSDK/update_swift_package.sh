@@ -4,8 +4,8 @@ set -e
 WORKING_DIR=$(pwd)
 
 #Ask for the new release version number to be placed in the package URL
-# echo -e "\033[1mEnter the new SDK release version number\033[0m"
-# read VERSION_NUMBER
+echo -e "\033[1mEnter the new SDK release version number\033[0m"
+read VERSION_NUMBER
 VERSION_NUMBER=$1
 
 update_framework() {
