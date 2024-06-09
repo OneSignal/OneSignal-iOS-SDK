@@ -90,7 +90,7 @@ create_xcframework "OneSignal_Notifications" "OneSignalNotifications" "OneSignal
 create_xcframework "OneSignal_User" "OneSignalUser" "OneSignalUser"
 
 ## BUILD ONESIGNAL LIVE ACTIVITIES ##
-create_xcframework_no_catalyst "OneSignal_LiveActivities" "OneSignalLiveActivities" "OneSignalLiveActivities"
+create_xcframework "OneSignal_LiveActivities" "OneSignalLiveActivities" "OneSignalLiveActivities"
 
 ## BUILD ONESIGNAL USER ##
 create_xcframework "OneSignal_Location" "OneSignalLocation" "OneSignalLocation"
