@@ -25,6 +25,8 @@
  THE SOFTWARE.
  */
 
+#if targetEnvironment(macCatalyst)
+#else
 import ActivityKit
 
 /**
@@ -83,3 +85,4 @@ public protocol OneSignalLiveActivityContentState: Decodable, Encodable, Hashabl
 public struct OneSignalLiveActivityContentStateData: Decodable, Encodable, Hashable {
     public var notificationId: String
 }
+#endif

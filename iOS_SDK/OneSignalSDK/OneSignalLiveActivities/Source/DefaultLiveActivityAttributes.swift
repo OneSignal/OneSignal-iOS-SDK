@@ -65,6 +65,8 @@
  }
  ```
  */
+#if targetEnvironment(macCatalyst)
+#else
 public struct DefaultLiveActivityAttributes: OneSignalLiveActivityAttributes {
     public struct ContentState: OneSignalLiveActivityContentState {
         public var data: [String: AnyCodable]
@@ -74,3 +76,4 @@ public struct DefaultLiveActivityAttributes: OneSignalLiveActivityAttributes {
     public var data: [String: AnyCodable]
     public var onesignal: OneSignalLiveActivityAttributeData
 }
+#endif
