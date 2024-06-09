@@ -25,6 +25,10 @@
  THE SOFTWARE.
  */
 
+// Effectively blanks out this file for Mac Catalyst
+#if targetEnvironment(macCatalyst)
+#else
+
 /**
  A default struct conforming to OneSignalLiveActivityAttributes which is registered with OneSignal as a Live Activity
  through `OneSignal.LiveActivities.setupDefault`.  The only action required by the customer app is
@@ -74,3 +78,4 @@ public struct DefaultLiveActivityAttributes: OneSignalLiveActivityAttributes {
     public var data: [String: AnyCodable]
     public var onesignal: OneSignalLiveActivityAttributeData
 }
+#endif

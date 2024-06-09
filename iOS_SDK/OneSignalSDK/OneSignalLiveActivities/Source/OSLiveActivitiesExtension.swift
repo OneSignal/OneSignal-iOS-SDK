@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Effectively blanks out this file for Mac Catalyst
+#if targetEnvironment(macCatalyst)
+#else
 import OneSignalOSCore
 import ActivityKit
 
@@ -116,3 +119,4 @@ public class LiveActivitySetupOptions: NSObject {
         self.enablePushToUpdate = enablePushToUpdate
     }
 }
+#endif
