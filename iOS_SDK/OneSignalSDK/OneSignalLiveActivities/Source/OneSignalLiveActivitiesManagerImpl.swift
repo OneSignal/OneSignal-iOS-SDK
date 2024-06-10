@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Effectively blanks out this file for Mac Catalyst
+#if targetEnvironment(macCatalyst)
+#else
 import OneSignalCore
 import OneSignalOSCore
 import ActivityKit
@@ -238,3 +241,4 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         }
     }
 }
+#endif
