@@ -124,8 +124,14 @@ static OneSignalTrackIAP* singleInstance = nil;
         NSString* productSku = [skProduct performSelector:@selector(productIdentifier)];
         NSMutableDictionary* purchase = skusToTrack[productSku];
         if (purchase) { // In rare cases this can be nil when there wasn't a connection to Apple when opening the app but there was when buying an IAP item.
+            
+            // SKProduct.price is an NSDecimalNumber, but the backend expects a String
+            NSNumberFormatter *formatter = [NSNumberFormatter new];
+            [formatter setMinimumFractionDigits:2];
+            NSString *formattedPrice = [formatter stringFromNumber:[skProduct performSelector:@selector(price)]];
+
             purchase[@"sku"] = productSku;
-            purchase[@"amount"] = [skProduct performSelector:@selector(price)];
+            purchase[@"amount"] = formattedPrice;
             purchase[@"iso"] = [[skProduct performSelector:@selector(priceLocale)] objectForKey:NSLocaleCurrencyCode];
             if ([purchase[@"count"] intValue] == 1)
                 [purchase removeObjectForKey:@"count"];

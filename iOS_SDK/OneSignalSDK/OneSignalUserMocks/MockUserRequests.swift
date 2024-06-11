@@ -1,7 +1,8 @@
 import OneSignalCore
 import OneSignalCoreMocks
 
-public class MockUserRequests {
+@objc
+public class MockUserRequests: NSObject {
 
     public static func testIdentityPayload(onesignalId: String, externalId: String?) -> [String: [String: String]] {
         var aliases = [OS_ONESIGNAL_ID: onesignalId]
@@ -74,6 +75,7 @@ extension MockUserRequests {
         }
     }
 
+    @objc
     public static func setDefaultCreateAnonUserResponses(with client: MockOneSignalClient) {
         let anonCreateResponse = testDefaultFullCreateUserResponse(onesignalId: anonUserOSID, externalId: nil, subscriptionId: testPushSubId)
 
@@ -151,18 +153,36 @@ extension MockUserRequests {
     }
 
     public static func setAddTagsResponse(with client: MockOneSignalClient, tags: [String: String]) {
+        let params: NSDictionary = [
+            "properties": [
+                "tags": tags
+            ],
+            "refresh_device_metadata": false
+        ]
+
         let tagsResponse = MockUserRequests.testPropertiesPayload(properties: ["tags": tags])
 
         client.setMockResponseForRequest(
-            request: "<OSRequestUpdateProperties with properties: [\"tags\": \(tags)] deltas: nil refreshDeviceMetadata: false>",
+            request: "<OSRequestUpdateProperties with parameters: \(params.toSortedString())>",
             response: tagsResponse
         )
     }
 
-    public static func setSetLanguageResponse(with client: MockOneSignalClient, language: String) {
+    /// Sets the mock response when tags and language are added, which will be sent in one request
+    public static func setAddTagsAndLanguageResponse(with client: MockOneSignalClient, tags: [String: String], language: String) {
+        let params: NSDictionary = [
+            "properties": [
+                "language": Optional(language), // to match the stringify of the actual request
+                "tags": tags
+            ],
+            "refresh_device_metadata": false
+        ]
+
+        let tagsResponse = testPropertiesPayload(properties: ["tags": tags])
+
         client.setMockResponseForRequest(
-            request: "<OSRequestUpdateProperties with properties: [\"language\": Optional(\"\(language)\")] deltas: nil refreshDeviceMetadata: false>",
-            response: [:] // The SDK does not use the response in any way
+            request: "<OSRequestUpdateProperties with parameters: \(params.toSortedString())>",
+            response: tagsResponse
         )
     }
 

@@ -29,22 +29,6 @@ import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
-struct OSPropertiesDeltas {
-    let sessionTime: NSNumber?
-    let sessionCount: NSNumber?
-    let amountSpent: NSNumber?
-    let purchases: [[String: AnyObject]]?
-
-    func jsonRepresentation() -> [String: Any] {
-        var deltas = [String: Any]()
-        deltas["session_count"] = sessionCount
-        deltas["session_time"] = sessionTime?.intValue // server expects an int
-        deltas["amountSpent"] = amountSpent
-        deltas["purchases"] = purchases
-        return deltas
-    }
-}
-
 // Both lat and long must exist to be accepted by the server
 class OSLocationPoint: NSObject, NSCoding {
     let lat: Float

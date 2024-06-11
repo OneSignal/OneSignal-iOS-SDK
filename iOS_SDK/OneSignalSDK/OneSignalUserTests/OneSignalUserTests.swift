@@ -29,7 +29,8 @@ import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
 import OneSignalUserMocks
-import OneSignalOSCore
+// Testable import OSCore to allow setting a different poll flush interval
+@testable import OneSignalOSCore
 @testable import OneSignalUser
 
 final class OneSignalUserTests: XCTestCase {
@@ -136,5 +137,89 @@ final class OneSignalUserTests: XCTestCase {
             // 2. Clear the aliases
             identityModel.clearData()
         }
+    }
+
+    /**
+     Tests multiple user updates should be combined and sent together.
+     Multiple session times should be added.
+     Adding and removing multiple tags should be combined correctly.
+     Language uses the last language that is set.
+     Location uses the last point that is set.
+     */
+    func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        
+        /* When */
+
+        OneSignalUserManagerImpl.sharedInstance.sendSessionTime(100)
+
+        // This adds a `session_count` property with value of 1
+        // It also sets `refresh_device_metadata` to `true`
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+
+        OneSignalUserManagerImpl.sharedInstance.setLanguage("lang_1")
+
+        OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_1", value: "value_1")
+
+        OneSignalUserManagerImpl.sharedInstance.setLanguage("lang_2")
+
+        OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_2", value: "value_2")
+
+        OneSignalUserManagerImpl.sharedInstance.sendSessionTime(50)
+
+        OneSignalUserManagerImpl.sharedInstance.setLocation(latitude: 123.123, longitude: 145.145)
+
+        OneSignalUserManagerImpl.sharedInstance.removeTag("tag_1")
+
+        OneSignalUserManagerImpl.sharedInstance.addTags(["a": "a", "b": "b", "c": "c"])
+
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+
+        let purchases = [
+            ["sku": "sku1", "amount": "1.25", "iso": "USD"],
+            ["sku": "sku2", "amount": "3.99", "iso": "USD"]
+        ]
+
+        OneSignalUserManagerImpl.sharedInstance.sendPurchases(purchases as [[String: AnyObject]])
+
+        OneSignalUserManagerImpl.sharedInstance.setLocation(latitude: 111.111, longitude: 222.222)
+
+        /* Then */
+
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        let expectedPayload: [String: Any] = [
+            "deltas": [
+                "session_time": 150, // addition of 2 session times
+                "session_count": 2, // addition of 2 session counts
+                "purchases": purchases
+            ],
+            "properties": [
+                "lat": 111.111,
+                "long": 222.222,
+                "language": "lang_2",
+                "tags": [
+                    "tag_1": "",
+                    "tag_2": "value_2",
+                    "a": "a",
+                    "b": "b",
+                    "c": "c"
+                ]
+            ],
+            "refresh_device_metadata": true
+        ]
+
+        // Assert there is an update user request with the expected payload
+        XCTAssertTrue(client.onlyOneRequest(
+            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
+            contains: expectedPayload)
+        )
     }
 }

@@ -66,8 +66,38 @@ extension NSDictionary {
     }
 
     private func equals(_ x: Any, _ y: Any) -> Bool {
-        guard x is AnyHashable else { return false }
-        guard y is AnyHashable else { return false }
-        return (x as! AnyHashable) == (y as! AnyHashable)
+        switch (x, y) {
+        case let (x as NSNumber, y as NSNumber):
+            // Handle float equality imprecision
+            return abs(x.floatValue - y.floatValue) <= .ulpOfOne
+        default:
+            guard x is AnyHashable else { return false }
+            guard y is AnyHashable else { return false }
+            return (x as! AnyHashable) == (y as! AnyHashable)
+        }
+    }
+
+    /**
+     Returns a string representation of a dictionary in alphabetical order by key.
+     If there are dictionaries within this dictionary, those will also be stringified in alphabetical order by key.
+     This method is motivated by the need to compare two requests whose payloads may be unordered dictionaries.
+     */
+    public func toSortedString() -> String {
+        guard let dict = self as? [String: Any] else {
+            return "[:]"
+        }
+        var result = "["
+        let sortedKeys = Array(dict.keys).sorted(by: <)
+        for key in sortedKeys {
+            if let value = dict[key] as? NSDictionary {
+                result += " \(key): \(value.toSortedString()),"
+            } else {
+                result += " \(key): \(String(describing: dict[key])),"
+            }
+        }
+        // drop the last comma within a dictionary's items
+        result = String(result.dropLast())
+        result += "]"
+        return result
     }
 }

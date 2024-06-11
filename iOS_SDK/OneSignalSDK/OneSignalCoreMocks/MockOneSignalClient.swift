@@ -101,6 +101,21 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         }
     }
 
+    /// Helper method to stringify the name of a request for identification and comparison
+    private func stringify(_ request: OneSignalRequest) -> String {
+        var stringified = request.description
+
+        switch request.description {
+        case let str where str.contains("OSRequestUpdateProperties"):
+            // Return an ordered representation of the request parameters
+            stringified = "<OSRequestUpdateProperties with parameters: \(request.stringifyParams())>"
+        default:
+            break
+        }
+
+        return stringified
+    }
+
     func finishExecutingRequest(_ request: OneSignalRequest, onSuccess successBlock: OSResultSuccessBlock, onFailure failureBlock: OSFailureBlock) {
 
         // TODO: This entire method needs to contained within the equivalent of @synchronized ❗️
@@ -110,18 +125,19 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
         self.didCompleteRequest(request)
 
+        let stringifiedRequest = stringify(request)
         // Switch between types of requests with mock responses
         if request.isKind(of: OSRequestGetIosParams.self) {
             // send a mock remote params response
             successBlock(["mockTodo": "responseTodo"])
         }
-        if (mockResponses[String(describing: request)]) != nil {
-            successBlock(mockResponses[String(describing: request)])
-        } else if (mockFailureResponses[String(describing: request)]) != nil {
-            failureBlock(mockFailureResponses[String(describing: request)])
+        if (mockResponses[stringifiedRequest]) != nil {
+            successBlock(mockResponses[stringifiedRequest])
+        } else if (mockFailureResponses[stringifiedRequest]) != nil {
+            failureBlock(mockFailureResponses[stringifiedRequest])
         } else {
             allRequestsHandled = false
-            print("🧪 cannot find a mock response for request: \(request)")
+            print("🧪 cannot find a mock response for request: \(stringifiedRequest)")
         }
     }
 
@@ -154,6 +170,7 @@ extension MockOneSignalClient {
     /**
      Checks if there is only one executed request that contains the payload provided, and the url matches the path provided.
      */
+    @objc
     public func onlyOneRequest(contains path: String, contains payload: [String: Any]) -> Bool {
         var found = false
 

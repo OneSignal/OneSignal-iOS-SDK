@@ -36,7 +36,6 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 - (instancetype)init {
     self = [super init];
-    [OSBackgroundTaskManager setTaskInvalid:UNATTRIBUTED_FOCUS_TASK];
     return self;
 }
 
@@ -71,21 +70,9 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    // should dispatch_async?
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OSBackgroundTaskManager beginBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
-        
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSUnattributedFocusTimeProcessor:sendOnFocusCallWithParams start"];
-        
-        [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:nil sessionTime:@(totalTimeActive) refreshDeviceMetadata:false sendImmediately:true onSuccess:^{
-            [super saveUnsentActiveTime:0];
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
-            [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
-        } onFailure:^{
-            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
-            [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
-        }];
-    });
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:sendSessionTime of %@", @(totalTimeActive)]];
+    [OneSignalUserManagerImpl.sharedInstance sendSessionTime:@(totalTimeActive)];
+    [super saveUnsentActiveTime:0];
 }
 
 - (void)cancelDelayedJob {

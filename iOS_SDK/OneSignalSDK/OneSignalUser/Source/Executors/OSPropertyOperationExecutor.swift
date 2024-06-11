@@ -28,6 +28,38 @@
 import OneSignalOSCore
 import OneSignalCore
 
+/// Helper struct to process and combine OSDeltas into one payload
+private struct OSCombinedProperties {
+    var properties: [String: Any] = [:]
+    var tags: [String: String] = [:]
+    var location: OSLocationPoint?
+    var refreshDeviceMetadata = false
+
+    // Items of Properties Deltas
+    var sessionTime: Int = 0
+    var sessionCount: Int = 0
+    var purchases: [[String: AnyObject]] = []
+
+    func jsonRepresentation() -> [String: Any] {
+        var propertiesObject = properties
+        propertiesObject["tags"] = tags.isEmpty ? nil : tags
+        propertiesObject["lat"] = location?.lat
+        propertiesObject["long"] = location?.long
+
+        var deltas = [String: Any]()
+        deltas["session_count"] = (sessionCount > 0) ? sessionCount : nil
+        deltas["session_time"] = (sessionTime > 0) ? sessionTime : nil
+        deltas["purchases"] = purchases.isEmpty ? nil : purchases
+
+        var params: [String: Any] = [:]
+        params["properties"] = propertiesObject.isEmpty ? nil : propertiesObject
+        params["refresh_device_metadata"] = refreshDeviceMetadata
+        params["deltas"] = deltas.isEmpty ? nil : deltas
+
+        return params
+    }
+}
+
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
@@ -78,7 +110,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     func enqueueDelta(_ delta: OSDelta) {
         self.dispatchQueue.async {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor enqueue delta\(delta)")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor enqueue delta \(delta)")
             self.deltaQueue.append(delta)
         }
     }
@@ -89,38 +121,98 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
+    /// The `deltaQueue` should only contain updates for one user.
+    /// Even when login -> addTag -> login -> addTag are called in immediate succession.
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
-            if !self.deltaQueue.isEmpty {
-                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
+            if self.deltaQueue.isEmpty {
+                // Delta queue is empty but there may be pending requests
+                self.processRequestQueue(inBackground: inBackground)
+                return
             }
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
+
+            // Holds mapping of identity model ID to the updates for it; there should only be one user
+            var combinedProperties: [String: OSCombinedProperties] = [:]
+
+            // 1. Combined deltas into a single OSCombinedProperties for every user
             for delta in self.deltaQueue {
                 guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
                 else {
-                    // drop this delta
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
                     continue
                 }
+                let combinedSoFar: OSCombinedProperties? = combinedProperties[identityModel.modelId]
+                combinedProperties[identityModel.modelId] = self.combineProperties(existing: combinedSoFar, delta: delta)
+            }
 
+            if combinedProperties.count > 1 {
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.combinedProperties contains \(combinedProperties.count) users")
+            }
+
+            // 2. Turn each OSCombinedProperties' data into a Request
+            for (modelId, properties) in combinedProperties {
+                guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId)
+                else {
+                    // This should never happen as we already checked this during Deltas processing above
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(properties)")
+                    continue
+                }
                 let request = OSRequestUpdateProperties(
-                    properties: [delta.property: delta.value],
-                    deltas: nil,
-                    refreshDeviceMetadata: false, // Sort this out.
+                    params: properties.jsonRepresentation(),
                     identityModel: identityModel
                 )
                 self.updateRequestQueue.append(request)
             }
-            self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
 
-            // persist executor's requests (including new request) to storage
+            self.deltaQueue.removeAll()
+
+            // Persist executor's requests (including new request) to storage
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: [])
 
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
             self.processRequestQueue(inBackground: inBackground)
         }
     }
 
-    // This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
+    /// Helper method to combine the information in an `OSDelta` to the existing `OSCombinedProperties` so far.
+    private func combineProperties(existing: OSCombinedProperties?, delta: OSDelta) -> OSCombinedProperties {
+        var combinedProperties = existing ?? OSCombinedProperties()
+
+        guard let property = OSPropertiesSupportedProperty(rawValue: delta.property) else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.combineProperties dropped unsupported property: \(delta.property)")
+            return combinedProperties
+        }
+
+        switch property {
+        case .tags:
+            if let tags = delta.value as? [String: String] {
+                for (tag, value) in tags {
+                    combinedProperties.tags[tag] = value
+                }
+            }
+        case .location:
+            // Use the most recent location point
+            combinedProperties.location = delta.value as? OSLocationPoint
+        case .session_time:
+            combinedProperties.sessionTime += (delta.value as? Int ?? 0)
+        case .session_count:
+            combinedProperties.refreshDeviceMetadata = true
+            combinedProperties.sessionCount += (delta.value as? Int ?? 0)
+        case .purchases:
+            if let purchases = delta.value as? [[String: AnyObject]] {
+                for purchase in purchases {
+                    combinedProperties.purchases.append(purchase)
+                }
+            }
+        default:
+            // First-level, un-nested properties as "language"
+            combinedProperties.properties[delta.property] = delta.value
+        }
+        return combinedProperties
+    }
+
+    /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     func processRequestQueue(inBackground: Bool) {
         if updateRequestQueue.isEmpty {
             return
@@ -184,36 +276,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
-            }
-        }
-    }
-}
-
-extension OSPropertyOperationExecutor {
-    // TODO: We can make this go through the operation repo
-    func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
-
-        let request = OSRequestUpdateProperties(
-            properties: [:],
-            deltas: propertiesDeltas.jsonRepresentation(),
-            refreshDeviceMetadata: refreshDeviceMetadata,
-            identityModel: identityModel)
-
-        if sendImmediately {
-            // Bypass the request queues
-            OneSignalCoreImpl.sharedClient().execute(request) { _ in
-                if let onSuccess = onSuccess {
-                    onSuccess()
-                }
-            } onFailure: { _ in
-                if let onFailure = onFailure {
-                    onFailure()
-                }
-            }
-        } else {
-            self.dispatchQueue.async {
-                self.updateRequestQueue.append(request)
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
             }
         }
     }

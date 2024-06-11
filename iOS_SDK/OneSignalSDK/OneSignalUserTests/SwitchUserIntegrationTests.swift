@@ -95,16 +95,14 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserAnon)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_anon")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserAnon, language: "lang_anon")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_anon": "id_anon"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_anon@example.com")
 
         // 2. Set up mock responses for User A with 409 conflict response
         let tagsUserA = ["tag_a": "value_a"]
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID, conflicted: true)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserA)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_a")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserA, language: "lang_a")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_a": "id_a"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_a@example.com")
         MockUserRequests.setTransferSubscriptionResponse(with: client, externalId: userA_EUID)
@@ -135,13 +133,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         XCTAssertTrue(client.allRequestsHandled)
 
         // 1. Asserts for first Anonymous User
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["tags": tagsUserAnon]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["language": "lang_anon"]])
+            contains: ["properties": ["language": "lang_anon", "tags": tagsUserAnon]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/identity",
@@ -153,13 +147,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         )
 
         // 2. Asserts for User A - expected requests are sent
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
-            contains: ["properties": ["tags": tagsUserA]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
-            contains: ["properties": ["language": "lang_a"]])
+            contains: ["properties": ["language": "lang_a", "tags": tagsUserA]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
@@ -209,23 +199,20 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserAnon)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_anon")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserAnon, language: "lang_anon")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_anon": "id_anon"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_anon@example.com")
 
         // 2. Set up mock responses for User A with 409 conflict response
         let tagsUserA = ["tag_a": "value_a"]
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID, conflicted: true)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserA)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_a")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserA, language: "lang_a")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_a": "id_a"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_a@example.com")
 
         // 3. Set up mock responses for second Anonymous User
         let tagsUserB = ["tag_b": "value_b"]
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserB)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_b")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserB, language: "lang_b")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_b": "id_b"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_b@example.com")
 
@@ -260,13 +247,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         XCTAssertTrue(client.allRequestsHandled)
 
         // 1. Asserts for first Anonymous User
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["tags": tagsUserAnon]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["language": "lang_anon"]])
+            contains: ["properties": ["language": "lang_anon", "tags": tagsUserAnon]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/identity",
@@ -278,13 +261,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         )
 
         // 2. Asserts for User A
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
-            contains: ["properties": ["tags": tagsUserA]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
-            contains: ["properties": ["language": "lang_a"]])
+            contains: ["properties": ["language": "lang_a", "tags": tagsUserA]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/identity",
@@ -296,13 +275,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         )
 
         // 3. Asserts for the second Anonymous User
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["tags": tagsUserB]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["language": "lang_b"]])
+            contains: ["properties": ["language": "lang_b", "tags": tagsUserB]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/identity",
@@ -347,24 +322,21 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserAnon)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_anon")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserAnon, language: "lang_anon")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_anon": "id_anon"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_anon@example.com")
 
         // 2. Set up mock responses for User A with 409 conflict response
         let tagsUserA = ["tag_a": "value_a"]
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID, conflicted: true)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserA)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_a")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserA, language: "lang_a")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_a": "id_a"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_a@example.com")
 
         // 3. Set up mock responses for for User B
         let tagsUserB = ["tag_b": "value_b"]
         MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userB_EUID)
-        MockUserRequests.setAddTagsResponse(with: client, tags: tagsUserB)
-        MockUserRequests.setSetLanguageResponse(with: client, language: "lang_b")
+        MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserB, language: "lang_b")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_b": "id_b"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_b@example.com")
         // Returns mocked user data to test hydration
@@ -401,13 +373,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         XCTAssertTrue(client.allRequestsHandled)
 
         // 1. Asserts for first Anonymous User
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["tags": tagsUserAnon]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: ["properties": ["language": "lang_anon"]])
+            contains: ["properties": ["language": "lang_anon", "tags": tagsUserAnon]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/identity",
@@ -419,13 +387,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         )
 
         // 2. Asserts for User A
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
-            contains: ["properties": ["tags": tagsUserA]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
-            contains: ["properties": ["language": "lang_a"]])
+            contains: ["properties": ["language": "lang_a", "tags": tagsUserA]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/identity",
@@ -437,13 +401,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         )
 
         // 3. Asserts for User B - expected requests sent
-        XCTAssertTrue(client.onlyOneRequest( // Tag
+        XCTAssertTrue(client.onlyOneRequest( // Tag + Language
             contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
-            contains: ["properties": ["tags": tagsUserB]])
-        )
-        XCTAssertTrue(client.onlyOneRequest( // Language
-            contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
-            contains: ["properties": ["language": "lang_b"]])
+            contains: ["properties": ["language": "lang_b", "tags": tagsUserB]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
             contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/identity",

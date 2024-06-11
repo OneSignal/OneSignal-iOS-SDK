@@ -53,23 +53,10 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, identityModel: OSIdentityModel) {
+    init(params: [String: Any], identityModel: OSIdentityModel) {
         self.identityModel = identityModel
-        self.stringDescription = "<OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(refreshDeviceMetadata ?? false)>"
+        self.stringDescription = "<OSRequestUpdateProperties with parameters: \(params)>"
         super.init()
-
-        var propertiesObject = properties
-        if let location = propertiesObject["location"] as? OSLocationPoint {
-            propertiesObject["lat"] = location.lat
-            propertiesObject["long"] = location.long
-            propertiesObject.removeValue(forKey: "location")
-        }
-        var params: [String: Any] = [:]
-        params["properties"] = propertiesObject
-        params["refresh_device_metadata"] = refreshDeviceMetadata
-        if let deltas = deltas {
-            params["deltas"] = deltas
-        }
         self.parameters = params
         self.method = PATCH
         _ = prepareForExecution() // sets the path property

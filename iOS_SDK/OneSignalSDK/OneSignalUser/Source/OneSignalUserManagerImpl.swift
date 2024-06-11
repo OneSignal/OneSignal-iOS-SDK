@@ -511,26 +511,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendPurchases") else {
             return
         }
-        guard let user = _user else {
-            OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_DEBUG, message: "Failed to send purchases because User is nil")
-            return
-        }
-        // Get the identity and properties model of the current user
-        let identityModel = user.identityModel
-        let propertiesModel = user.propertiesModel
-        let propertiesDeltas = OSPropertiesDeltas(sessionTime: nil, sessionCount: nil, amountSpent: nil, purchases: purchases)
-
-        // propertyExecutor should exist as this should be called after `start()` has been called
-        if let propertyExecutor = self.propertyExecutor {
-            propertyExecutor.updateProperties(
-                propertiesDeltas: propertiesDeltas,
-                refreshDeviceMetadata: false,
-                propertiesModel: propertiesModel,
-                identityModel: identityModel
-            )
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.sendPurchases with purchases: \(purchases) cannot be executed due to missing property executor.")
-        }
+        updatePropertiesDeltas(property: .purchases, value: purchases)
     }
 
     private func fireJwtExpired() {
@@ -559,7 +540,7 @@ extension OneSignalUserManagerImpl {
 
         OSUserExecutor.executePendingRequests()
         OSOperationRepo.sharedInstance.paused = false
-        updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
+        updatePropertiesDeltas(property: .session_count, value: 1)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -571,37 +552,36 @@ extension OneSignalUserManagerImpl {
         }
     }
 
-    @objc
-    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool, sendImmediately: Bool = false, onSuccess: (() -> Void)? = nil, onFailure: (() -> Void)? = nil) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
-            if let onFailure = onFailure {
-                onFailure()
-            }
+    /// This method accepts properties updates that not driven by model changes.
+    /// It enqueues an OSDelta to the Operation Repo.
+    /// 
+    /// - Parameter property:Expected inputs are `.session_time"`, `.session_count"`, and `.purchases"`.
+    func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updatePropertiesDeltas") else {
             return
         }
 
         // Get the identity and properties model of the current user
         let identityModel = user.identityModel
         let propertiesModel = user.propertiesModel
-        let propertiesDeltas = OSPropertiesDeltas(sessionTime: sessionTime, sessionCount: sessionCount, amountSpent: nil, purchases: nil)
 
-        // propertyExecutor should exist as this should be called after `start()` has been called
-        if let propertyExecutor = self.propertyExecutor {
-            propertyExecutor.updateProperties(
-                propertiesDeltas: propertiesDeltas,
-                refreshDeviceMetadata: refreshDeviceMetadata,
-                propertiesModel: propertiesModel,
-                identityModel: identityModel,
-                sendImmediately: sendImmediately,
-                onSuccess: onSuccess,
-                onFailure: onFailure
-            )
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.updateSession with sessionCount: \(String(describing: sessionCount)) sessionTime: \(String(describing: sessionTime)) cannot be executed due to missing property executor.")
-            if let onFailure = onFailure {
-                onFailure()
-            }
+        let delta = OSDelta(
+            name: OS_UPDATE_PROPERTIES_DELTA,
+            identityModelId: identityModel.modelId,
+            model: propertiesModel,
+            property: property.rawValue,
+            value: value
+        )
+        OSOperationRepo.sharedInstance.enqueueDelta(delta)
+    }
+
+    /// Time processors forward the session time to this method.
+    @objc
+    public func sendSessionTime(_ sessionTime: NSNumber) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendSessionTime") else {
+            return
         }
+        updatePropertiesDeltas(property: .session_time, value: sessionTime.intValue)
     }
 
     /**

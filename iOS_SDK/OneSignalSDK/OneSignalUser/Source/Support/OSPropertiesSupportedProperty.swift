@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,37 +25,20 @@
  THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalCore
-import OneSignalOSCore
-
-class OSPropertiesModelStoreListener: OSModelStoreListener {
-    var store: OSModelStore<OSPropertiesModel>
-
-    required init(store: OSModelStore<OSPropertiesModel>) {
-        self.store = store
-    }
-
-    func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
-        return nil
-    }
-
-    func getRemoveModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
-        return nil
-    }
-
-    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        guard let _ = OSPropertiesSupportedProperty(rawValue: args.property) else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property)")
-            return nil
-        }
-
-        return OSDelta(
-            name: OS_UPDATE_PROPERTIES_DELTA,
-            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
-            model: args.model,
-            property: args.property,
-            value: args.newValue
-        )
-    }
+/**
+ These are supported properties for updating a user's properties.
+ The `OSDelta` `property` field for user updates must be one of the following.
+ The `OSPropertyOperationExecutor` will only process the following updates.
+ */
+// swiftlint:disable identifier_name
+enum OSPropertiesSupportedProperty: String {
+    // Driven by Properties Model changes
+    case language
+    case location
+    case tags
+    // Created manually by User Manager, not through Models
+    case session_count
+    case session_time
+    case purchases
 }
+// swiftlint:enable identifier_name
