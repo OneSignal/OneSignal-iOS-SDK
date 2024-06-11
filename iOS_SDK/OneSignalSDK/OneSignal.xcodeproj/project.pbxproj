@@ -154,7 +154,7 @@
 		3CE8CC582911B2B2000DB0D3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CE8CC572911B2B2000DB0D3 /* SystemConfiguration.framework */; };
 		3CE8CC5B29143F4B000DB0D3 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */; };
-		3CEE90A72BFE6ABD00B0FB5B /* SupportedProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEE90A62BFE6ABD00B0FB5B /* SupportedProperty.swift */; };
+		3CEE90A72BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */; };
 		3CEE90A92C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */; };
 		3CEE93422B7C4174008440BD /* OneSignalUserMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; };
 		3CEE93432B7C4174008440BD /* OneSignalUserMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC063DD2B6D7F2A002BB07F /* OneSignalUserMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1189,7 +1189,7 @@
 		3CE8CC552911B1E0000DB0D3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/System/iOSSupport/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		3CE8CC572911B2B2000DB0D3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelStoreListener.swift; sourceTree = "<group>"; };
-		3CEE90A62BFE6ABD00B0FB5B /* SupportedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedProperty.swift; sourceTree = "<group>"; };
+		3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesSupportedProperty.swift; sourceTree = "<group>"; };
 		3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalRequest+UnitTests.swift"; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
@@ -1922,7 +1922,6 @@
 		3C9AD6BA2B2284AB00BC1540 /* Executors */ = {
 			isa = PBXGroup;
 			children = (
-				3CEE90A52BFE6A7700B0FB5B /* Support */,
 				3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */,
 				3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */,
 				3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */,
@@ -1997,7 +1996,7 @@
 		3CEE90A52BFE6A7700B0FB5B /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				3CEE90A62BFE6ABD00B0FB5B /* SupportedProperty.swift */,
+				3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -2277,6 +2276,7 @@
 		DE69E1A8282ED8360090BB3D /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				3CEE90A52BFE6A7700B0FB5B /* Support */,
 				3C9AD6BA2B2284AB00BC1540 /* Executors */,
 				3C9AD6BD2B22877600BC1540 /* Requests */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
@@ -3948,7 +3948,7 @@
 				3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */,
 				3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */,
 				3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */,
-				3CEE90A72BFE6ABD00B0FB5B /* SupportedProperty.swift in Sources */,
+				3CEE90A72BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift in Sources */,
 				3C9AD6C12B22886600BC1540 /* OSRequestUpdateSubscription.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,

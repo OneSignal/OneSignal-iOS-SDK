@@ -511,7 +511,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendPurchases") else {
             return
         }
-        updatePropertiesDeltas(property: "purchases", value: purchases)
+        updatePropertiesDeltas(property: .purchases, value: purchases)
     }
 
     private func fireJwtExpired() {
@@ -540,7 +540,7 @@ extension OneSignalUserManagerImpl {
 
         OSUserExecutor.executePendingRequests()
         OSOperationRepo.sharedInstance.paused = false
-        updatePropertiesDeltas(property: "session_count", value: 1)
+        updatePropertiesDeltas(property: .session_count, value: 1)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -555,8 +555,8 @@ extension OneSignalUserManagerImpl {
     /// This method accepts properties updates that not driven by model changes.
     /// It enqueues an OSDelta to the Operation Repo.
     /// 
-    /// - Parameter property:Expected inputs are `"session_time"`, `"session_count"`, and `"purchases"`.
-    func updatePropertiesDeltas(property: String, value: Any) {
+    /// - Parameter property:Expected inputs are `.session_time"`, `.session_count"`, and `.purchases"`.
+    func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updatePropertiesDeltas") else {
             return
         }
@@ -569,7 +569,7 @@ extension OneSignalUserManagerImpl {
             name: OS_UPDATE_PROPERTIES_DELTA,
             identityModelId: identityModel.modelId,
             model: propertiesModel,
-            property: property,
+            property: property.rawValue,
             value: value
         )
         OSOperationRepo.sharedInstance.enqueueDelta(delta)
@@ -581,7 +581,7 @@ extension OneSignalUserManagerImpl {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendSessionTime") else {
             return
         }
-        updatePropertiesDeltas(property: "session_time", value: sessionTime.intValue)
+        updatePropertiesDeltas(property: .session_time, value: sessionTime.intValue)
     }
 
     /**

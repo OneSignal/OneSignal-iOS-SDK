@@ -142,9 +142,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
                     continue
                 }
-                var combinedSoFar: OSCombinedProperties? = combinedProperties[identityModel.modelId]
-                combinedSoFar = self.combineProperties(existing: combinedSoFar, delta: delta)
-                combinedProperties[identityModel.modelId] = combinedSoFar
+                let combinedSoFar: OSCombinedProperties? = combinedProperties[identityModel.modelId]
+                combinedProperties[identityModel.modelId] = self.combineProperties(existing: combinedSoFar, delta: delta)
             }
 
             if combinedProperties.count > 1 {
