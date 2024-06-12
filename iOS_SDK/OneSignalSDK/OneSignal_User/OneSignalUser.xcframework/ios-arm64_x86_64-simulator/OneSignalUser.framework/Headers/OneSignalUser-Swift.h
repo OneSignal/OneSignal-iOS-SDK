@@ -455,7 +455,8 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
 - (void)startNewSession;
-- (void)updateSessionWithSessionCount:(NSNumber * _Nullable)sessionCount sessionTime:(NSNumber * _Nullable)sessionTime refreshDeviceMetadata:(BOOL)refreshDeviceMetadata sendImmediately:(BOOL)sendImmediately onSuccess:(void (^ _Nullable)(void))onSuccess onFailure:(void (^ _Nullable)(void))onFailure;
+/// Time processors forward the session time to this method.
+- (void)sendSessionTime:(NSNumber * _Nonnull)sessionTime;
 /// App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
 /// Need to consider app killed vs app backgrounded and handle gracefully.
 - (void)runBackgroundTasks;
@@ -957,7 +958,8 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
 - (void)startNewSession;
-- (void)updateSessionWithSessionCount:(NSNumber * _Nullable)sessionCount sessionTime:(NSNumber * _Nullable)sessionTime refreshDeviceMetadata:(BOOL)refreshDeviceMetadata sendImmediately:(BOOL)sendImmediately onSuccess:(void (^ _Nullable)(void))onSuccess onFailure:(void (^ _Nullable)(void))onFailure;
+/// Time processors forward the session time to this method.
+- (void)sendSessionTime:(NSNumber * _Nonnull)sessionTime;
 /// App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
 /// Need to consider app killed vs app backgrounded and handle gracefully.
 - (void)runBackgroundTasks;

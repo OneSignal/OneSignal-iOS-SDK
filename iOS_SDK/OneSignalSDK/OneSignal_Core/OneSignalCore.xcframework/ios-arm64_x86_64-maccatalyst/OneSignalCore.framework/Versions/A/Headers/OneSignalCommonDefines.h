@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050200"
+#define ONESIGNAL_VERSION                                                   @"050201"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -192,8 +192,6 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 
 // OneSignal Background Task Identifiers
 #define ATTRIBUTED_FOCUS_TASK                   @"ATTRIBUTED_FOCUS_TASK"
-#define UNATTRIBUTED_FOCUS_TASK                 @"UNATTRIBUTED_FOCUS_TASK"
-#define SEND_SESSION_TIME_TO_USER_TASK          @"SEND_SESSION_TIME_TO_USER_TASK"
 #define OPERATION_REPO_BACKGROUND_TASK          @"OPERATION_REPO_BACKGROUND_TASK"
 #define IDENTITY_EXECUTOR_BACKGROUND_TASK       @"IDENTITY_EXECUTOR_BACKGROUND_TASK_"
 #define PROPERTIES_EXECUTOR_BACKGROUND_TASK     @"PROPERTIES_EXECUTOR_BACKGROUND_TASK_"

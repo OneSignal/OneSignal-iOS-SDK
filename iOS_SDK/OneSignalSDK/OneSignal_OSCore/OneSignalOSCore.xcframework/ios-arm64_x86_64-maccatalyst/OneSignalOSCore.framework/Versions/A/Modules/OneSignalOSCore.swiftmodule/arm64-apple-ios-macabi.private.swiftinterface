@@ -22,6 +22,7 @@ import _SwiftConcurrencyShims
   public var paused: Swift.Bool
   public func start()
   public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
+  public func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
   @objc override dynamic public init()
   @objc deinit
