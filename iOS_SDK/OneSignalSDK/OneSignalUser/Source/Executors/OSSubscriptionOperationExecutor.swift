@@ -38,7 +38,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
 
     init() {
-        // Read unfinished deltas from cache, if any...
+        // Read unfinished deltas and requests from cache, if any...
+        uncacheDeltas()
+        uncacheCreateSubscriptionRequests()
+        uncacheDeleteSubscriptionRequests()
+        uncacheUpdateSubscriptionRequests()
+    }
+
+    private func uncacheDeltas() {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
@@ -56,9 +63,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY)")
         }
+    }
 
-        // Read unfinished requests from cache, if any...
-
+    private func uncacheCreateSubscriptionRequests() {
         var requestQueue: [OSRequestCreateSubscription] = []
 
         if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
@@ -94,7 +101,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
+    }
 
+    private func uncacheDeleteSubscriptionRequests() {
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestDeleteSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
@@ -115,7 +124,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
         }
+    }
 
+    private func uncacheUpdateSubscriptionRequests() {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {

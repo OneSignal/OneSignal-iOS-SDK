@@ -69,8 +69,13 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
     init() {
-        // Read unfinished deltas from cache, if any...
+        // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
+        uncacheDeltas()
+        uncacheUpdateRequests()
+    }
+
+    private func uncacheDeltas() {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
@@ -84,8 +89,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY)")
         }
+    }
 
-        // Read unfinished requests from cache, if any...
+    private func uncacheUpdateRequests() {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {

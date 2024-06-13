@@ -37,11 +37,18 @@ class OSUserExecutor {
     static var userRequestQueue: [OSUserRequest] = []
     static var transferSubscriptionRequestQueue: [OSRequestTransferSubscription] = []
 
-    // Read in requests from the cache, do not read in FetchUser requests as this is not needed.
+    /// Read in requests from the cache, do not read in FetchUser requests as this is not needed.
     static func start() {
+        // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
+        uncacheUserRequests()
+        uncacheTransferRequests()
+        executePendingRequests()
+    }
+
+    /// Reads `OSRequestFetchIdentityBySubscription` `OSRequestCreateUser` `OSRequestIdentifyUser` requests
+    static private func uncacheUserRequests() {
         var userRequestQueue: [OSUserRequest] = []
 
-        // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
         if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
             // Hook each uncached Request to the right model reference
             for request in cachedRequestQueue {
@@ -95,7 +102,9 @@ class OSUserExecutor {
         }
         self.userRequestQueue = userRequestQueue
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-        // Read unfinished Transfer Subscription requests from cache, if any...
+    }
+
+    static private func uncacheTransferRequests() {
         if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestTransferSubscription] {
             // We only care about the last transfer subscription request
             if let request = transferSubscriptionRequestQueue.last {
@@ -114,7 +123,6 @@ class OSUserExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor error encountered reading from cache for \(OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)")
         }
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
-        executePendingRequests()
     }
 
     static private func getIdentityModel(_ modelId: String) -> OSIdentityModel? {
