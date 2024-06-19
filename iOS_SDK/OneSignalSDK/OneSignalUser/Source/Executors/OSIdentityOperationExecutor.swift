@@ -35,6 +35,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     var addRequestQueue: [OSRequestAddAliases] = []
     var removeRequestQueue: [OSRequestRemoveAlias] = []
 
+    // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
+    private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
+
     init() {
         // Read unfinished deltas from cache, if any...
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
@@ -101,53 +104,60 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor enqueueDelta: \(delta)")
-        deltaQueue.append(delta)
+        self.dispatchQueue.async {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor enqueueDelta: \(delta)")
+            self.deltaQueue.append(delta)
+        }
     }
 
     func cacheDeltaQueue() {
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        self.dispatchQueue.async {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
     }
 
     func processDeltaQueue(inBackground: Bool) {
-        if !deltaQueue.isEmpty {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
-        }
-        for delta in deltaQueue {
-            guard let model = delta.model as? OSIdentityModel,
-                  let aliases = delta.value as? [String: String]
-            else {
-                // Log error
-                continue
+        self.dispatchQueue.async {
+            if !self.deltaQueue.isEmpty {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
             }
-
-            switch delta.name {
-            case OS_ADD_ALIAS_DELTA:
-                let request = OSRequestAddAliases(aliases: aliases, identityModel: model)
-                addRequestQueue.append(request)
-
-            case OS_REMOVE_ALIAS_DELTA:
-                for (label, _) in aliases {
-                    let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
-                    removeRequestQueue.append(request)
+            for delta in self.deltaQueue {
+                guard let model = delta.model as? OSIdentityModel,
+                      let aliases = delta.value as? [String: String]
+                else {
+                    // Log error
+                    continue
                 }
 
-            default:
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor met incompatible OSDelta type: \(delta)")
+                switch delta.name {
+                case OS_ADD_ALIAS_DELTA:
+                    let request = OSRequestAddAliases(aliases: aliases, identityModel: model)
+                    self.addRequestQueue.append(request)
+
+                case OS_REMOVE_ALIAS_DELTA:
+                    for (label, _) in aliases {
+                        let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
+                        self.removeRequestQueue.append(request)
+                    }
+
+                default:
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor met incompatible OSDelta type: \(delta)")
+                }
             }
+
+            self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
+
+            // persist executor's requests (including new request) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
+
+            self.processRequestQueue(inBackground: inBackground)
         }
-
-        self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
-
-        // persist executor's requests (including new request) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
-
-        processRequestQueue(inBackground: inBackground)
     }
 
+    /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     func processRequestQueue(inBackground: Bool) {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue
 
@@ -188,38 +198,42 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // No hydration from response
             // On success, remove request from cache
-            self.addRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                self.addRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType == .missing {
-                    // Remove from cache and queue
-                    self.addRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                    else {
-                        if inBackground {
-                            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                if let nsError = error as? NSError {
+                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                    if responseType == .missing {
+                        // Remove from cache and queue
+                        self.addRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        // Logout if the user in the SDK is the same
+                        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                        else {
+                            if inBackground {
+                                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                            }
+                            return
                         }
-                        return
+                        // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                        OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType != .retryable {
+                        // Fail, no retry, remove from cache and queue
+                        self.addRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                     }
-                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                    OneSignalUserManagerImpl.sharedInstance._logout()
-                } else if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    self.addRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 }
-            }
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         }
     }
@@ -243,25 +257,28 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // There is nothing to hydrate
             // On success, remove request from cache
-            self.removeRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                self.removeRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
-
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
-                    self.removeRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            self.dispatchQueue.async {
+                if let nsError = error as? NSError {
+                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                    if responseType != .retryable {
+                        // Fail, no retry, remove from cache and queue
+                        // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
+                        self.removeRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                    }
                 }
-            }
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         }
     }

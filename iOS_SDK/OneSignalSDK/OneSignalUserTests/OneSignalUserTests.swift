@@ -137,6 +137,45 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     This test reproduces a crash in the Identity Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testIdentityExecutorConcurrency() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        let aliases = [UUID().uuidString: "id"]
+
+        OneSignalCoreImpl.setSharedClient(client)
+        MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
+
+        let executor = OSIdentityOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Add Alias Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // Previously caused crash: signal SIGABRT - malloc: double free for ptr
+        // Assert that every request SDK makes has a response set, and is handled
+        XCTAssertTrue(client.allRequestsHandled)
+    }
+
+    /**
      This test reproduced a crash when the property model is being encoded.
      */
     func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {
