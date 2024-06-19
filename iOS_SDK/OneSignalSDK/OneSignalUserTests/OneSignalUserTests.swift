@@ -96,6 +96,47 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     This test reproduces a crash in the Subscription Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testSubscriptionExecutorConcurrency() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        client.setMockResponseForRequest(
+            request: "<OSRequestDeleteSubscription with subscriptionModel: nil>",
+            response: [:]
+        )
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let executor = OSSubscriptionOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Remove Subscription Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // Previously caused crash: signal SIGABRT - malloc: double free for ptr
+        // Assert that every request SDK makes has a response set, and is handled
+        XCTAssertTrue(client.allRequestsHandled)
+    }
+
+    /**
      This test reproduced a crash when the property model is being encoded.
      */
     func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {

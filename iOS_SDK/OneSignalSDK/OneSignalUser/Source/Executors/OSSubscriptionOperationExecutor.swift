@@ -37,6 +37,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
 
+    // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
+    private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
+
     init() {
         // Read unfinished deltas from cache, if any...
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
@@ -152,75 +155,84 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor enqueueDelta: \(delta)")
-        deltaQueue.append(delta)
+        self.dispatchQueue.async {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor enqueueDelta: \(delta)")
+            self.deltaQueue.append(delta)
+        }
     }
 
     func cacheDeltaQueue() {
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        self.dispatchQueue.async {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
     }
 
     func processDeltaQueue(inBackground: Bool) {
-        if !deltaQueue.isEmpty {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
-        }
-        for delta in deltaQueue {
-            guard let subModel = delta.model as? OSSubscriptionModel
-            else {
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
-                continue
+        self.dispatchQueue.async {
+            if !self.deltaQueue.isEmpty {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
             }
-
-            switch delta.name {
-            case OS_ADD_SUBSCRIPTION_DELTA:
-                // Only create the request if the identity model exists
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
-                    let request = OSRequestCreateSubscription(
-                        subscriptionModel: subModel,
-                        identityModel: identityModel
-                    )
-                    addRequestQueue.append(request)
-                } else {
+            for delta in self.deltaQueue {
+                guard let subModel = delta.model as? OSSubscriptionModel
+                else {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                    continue
                 }
-            case OS_REMOVE_SUBSCRIPTION_DELTA:
-                let request = OSRequestDeleteSubscription(
-                    subscriptionModel: subModel
-                )
-                removeRequestQueue.append(request)
 
-            case OS_UPDATE_SUBSCRIPTION_DELTA:
-                let request = OSRequestUpdateSubscription(
-                    subscriptionObject: [delta.property: delta.value],
-                    subscriptionModel: subModel
-                )
-                updateRequestQueue.append(request)
+                switch delta.name {
+                case OS_ADD_SUBSCRIPTION_DELTA:
+                    // Only create the request if the identity model exists
+                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
+                        let request = OSRequestCreateSubscription(
+                            subscriptionModel: subModel,
+                            identityModel: identityModel
+                        )
+                        self.addRequestQueue.append(request)
+                    } else {
+                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                    }
+                case OS_REMOVE_SUBSCRIPTION_DELTA:
+                    let request = OSRequestDeleteSubscription(
+                        subscriptionModel: subModel
+                    )
+                    self.removeRequestQueue.append(request)
 
-            default:
-                // Log error
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor met incompatible OSDelta type: \(delta).")
+                case OS_UPDATE_SUBSCRIPTION_DELTA:
+                    let request = OSRequestUpdateSubscription(
+                        subscriptionObject: [delta.property: delta.value],
+                        subscriptionModel: subModel
+                    )
+                    self.updateRequestQueue.append(request)
+
+                default:
+                    // Log error
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor met incompatible OSDelta type: \(delta).")
+                }
             }
+
+            self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
+
+            // persist executor's requests (including new request) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
+
+            self.processRequestQueue(inBackground: inBackground)
         }
-
-        self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
-
-        // persist executor's requests (including new request) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
-
-        processRequestQueue(inBackground: inBackground)
     }
 
     // Bypasses the operation repo to create a push subscription request
     func createPushSubscription(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         let request = OSRequestCreateSubscription(subscriptionModel: subscriptionModel, identityModel: identityModel)
-        addRequestQueue.append(request)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+        self.dispatchQueue.async {
+            self.addRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+        }
     }
 
+    /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     func processRequestQueue(inBackground: Bool) {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue + updateRequestQueue
 
@@ -261,46 +273,50 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalCoreImpl.sharedClient().execute(request) { result in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
-            self.addRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            self.dispatchQueue.async {
+                self.addRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
-            guard let response = result?["subscription"] as? [String: Any] else {
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
+                guard let response = result?["subscription"] as? [String: Any] else {
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
+                    if inBackground {
+                        OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                    }
+                    return
+                }
+                request.subscriptionModel.hydrate(response)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
-                return
-            }
-            request.subscriptionModel.hydrate(response)
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType == .missing {
-                    self.addRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                    else {
-                        if inBackground {
-                            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                if let nsError = error as? NSError {
+                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                    if responseType == .missing {
+                        self.addRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        // Logout if the user in the SDK is the same
+                        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                        else {
+                            if inBackground {
+                                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                            }
+                            return
                         }
-                        return
+                        // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                        OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType != .retryable {
+                        // Fail, no retry, remove from cache and queue
+                        self.addRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                     }
-                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                    OneSignalUserManagerImpl.sharedInstance._logout()
-                } else if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    self.addRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 }
-            }
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         }
     }
@@ -324,24 +340,28 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.removeRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                self.removeRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    // If this request returns a missing status, that is ok as this is a delete request
-                    self.removeRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            self.dispatchQueue.async {
+                if let nsError = error as? NSError {
+                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                    if responseType != .retryable {
+                        // Fail, no retry, remove from cache and queue
+                        // If this request returns a missing status, that is ok as this is a delete request
+                        self.removeRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                    }
                 }
-            }
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         }
     }
@@ -363,23 +383,27 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.updateRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+            self.dispatchQueue.async {
+                self.updateRequestQueue.removeAll(where: { $0 == request})
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    self.updateRequestQueue.removeAll(where: { $0 == request})
-                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            self.dispatchQueue.async {
+                if let nsError = error as? NSError {
+                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
+                    if responseType != .retryable {
+                        // Fail, no retry, remove from cache and queue
+                        self.updateRequestQueue.removeAll(where: { $0 == request})
+                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                    }
                 }
-            }
-            if inBackground {
-                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         }
     }
