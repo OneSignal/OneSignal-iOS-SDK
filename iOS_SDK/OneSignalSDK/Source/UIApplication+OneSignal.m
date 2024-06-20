@@ -27,11 +27,12 @@
 
 #import "UIApplication+OneSignal.h"
 #import <OneSignalCore/OneSignalCommonDefines.h>
+#import <OneSignalCore/OSBundleUtils.h>
 
 @implementation UIApplication (OneSignal)
 
 + (BOOL)applicationIsActive {
-    if ([self isAppUsingUIScene] && [NSThread isMainThread]) {
+    if ([OSBundleUtils isAppUsingUIScene] && [NSThread isMainThread]) {
         if (@available(iOS 13.0, *)) {
             UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
             id windowScene = [keyWindow performSelector:@selector(windowScene)];
@@ -41,13 +42,6 @@
         }
     }
     return [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-}
-
-+ (BOOL)isAppUsingUIScene {
-    if (@available(iOS 13.0, *)) {
-        return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"] != nil;
-    }
-    return NO;
 }
 
 @end

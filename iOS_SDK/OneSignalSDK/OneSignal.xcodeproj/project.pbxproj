@@ -469,6 +469,10 @@
 		DEA98C1928C90EE5000C6856 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DEA98C1C28C90EE6000C6856 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		DEA98C1E28C90EE9000C6856 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		DEBA2A1D2C20E35E00E234DB /* OneSignalNotificationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEBA2A1C2C20E35E00E234DB /* OneSignalNotificationsTests.swift */; };
+		DEBA2A1E2C20E35E00E234DB /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
+		DEBA2A262C20E9AA00E234DB /* OSBundleUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBA2A252C20E9AA00E234DB /* OSBundleUtils.m */; };
+		DEBA2A282C24D0F400E234DB /* OSBundleUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBA2A272C24D0ED00E234DB /* OSBundleUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEBAADFC2A420A3900BF2C1C /* OneSignalLocationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAADFB2A420A3900BF2C1C /* OneSignalLocationManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEBAAE042A420C9800BF2C1C /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DEBAAE0A2A420CA500BF2C1C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE092A420CA500BF2C1C /* UIKit.framework */; };
@@ -879,6 +883,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3CC063992B6D7A8C002BB07F;
 			remoteInfo = OneSignalCoreMocks;
+		};
+		DEBA2A1F2C20E35E00E234DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
+			remoteInfo = OneSignalNotifications;
 		};
 		DEBAAE062A420C9800BF2C1C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1460,6 +1471,10 @@
 		DEB843A127C0245B00D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEB843A327C0246A00D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEB843A527C0247700D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEBA2A1A2C20E35E00E234DB /* OneSignalNotificationsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalNotificationsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEBA2A1C2C20E35E00E234DB /* OneSignalNotificationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalNotificationsTests.swift; sourceTree = "<group>"; };
+		DEBA2A252C20E9AA00E234DB /* OSBundleUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBundleUtils.m; sourceTree = "<group>"; };
+		DEBA2A272C24D0ED00E234DB /* OSBundleUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBundleUtils.h; sourceTree = "<group>"; };
 		DEBAADF92A420A3700BF2C1C /* OneSignalLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEBAADFB2A420A3900BF2C1C /* OneSignalLocationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLocationManager.h; sourceTree = "<group>"; };
 		DEBAAE022A420B8000BF2C1C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1721,6 +1736,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEBA2A172C20E35E00E234DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEBA2A1E2C20E35E00E234DB /* OneSignalNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DEBAADF62A420A3700BF2C1C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1807,6 +1830,7 @@
 		37747F8A19147D6400558FAD = {
 			isa = PBXGroup;
 			children = (
+				DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				3E2400391D4FFC31008BDE70 /* OneSignalFramework */,
 				DEBAAE212A42119100BF2C1C /* OneSignalInAppMessagesFramework */,
@@ -1860,6 +1884,7 @@
 				3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */,
 				475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */,
 				4735424A2B8F93330016DB4C /* OneSignalLiveActivitiesTests.xctest */,
+				DEBA2A1A2C20E35E00E234DB /* OneSignalNotificationsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2379,6 +2404,8 @@
 				DEBAAEAF2A435AE900BF2C1C /* OSInAppMessages.h */,
 				DEBAAEB22A436CE800BF2C1C /* OSStubInAppMessages.m */,
 				DEBAAEB42A436D5D00BF2C1C /* OSStubLocation.m */,
+				DEBA2A272C24D0ED00E234DB /* OSBundleUtils.h */,
+				DEBA2A252C20E9AA00E234DB /* OSBundleUtils.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -2599,6 +2626,14 @@
 				DEA98C1628C90C87000C6856 /* Info.plist */,
 			);
 			path = OneSignalOSCoreFramework;
+			sourceTree = "<group>";
+		};
+		DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */ = {
+			isa = PBXGroup;
+			children = (
+				DEBA2A1C2C20E35E00E234DB /* OneSignalNotificationsTests.swift */,
+			);
+			path = OneSignalNotificationsTests;
 			sourceTree = "<group>";
 		};
 		DEBAADFA2A420A3900BF2C1C /* OneSignalLocation */ = {
@@ -2876,6 +2911,7 @@
 				DE7D1868270374EE002D3A5D /* OneSignalRequest.h in Headers */,
 				DE7D183027027973002D3A5D /* OSNotification+Internal.h in Headers */,
 				DE7D183D27027F13002D3A5D /* NSURL+OneSignal.h in Headers */,
+				DEBA2A282C24D0F400E234DB /* OSBundleUtils.h in Headers */,
 				DEF784792914667A00A1F3A5 /* NSDateFormatter+OneSignal.h in Headers */,
 				DE7D17EB27026B95002D3A5D /* OneSignalCore.h in Headers */,
 				DE7D182A270271A9002D3A5D /* OneSignalCommonDefines.h in Headers */,
@@ -3286,6 +3322,24 @@
 			productReference = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		DEBA2A192C20E35E00E234DB /* OneSignalNotificationsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEBA2A242C20E35E00E234DB /* Build configuration list for PBXNativeTarget "OneSignalNotificationsTests" */;
+			buildPhases = (
+				DEBA2A162C20E35E00E234DB /* Sources */,
+				DEBA2A172C20E35E00E234DB /* Frameworks */,
+				DEBA2A182C20E35E00E234DB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DEBA2A202C20E35E00E234DB /* PBXTargetDependency */,
+			);
+			name = OneSignalNotificationsTests;
+			productName = OneSignalNotificationsTests;
+			productReference = DEBA2A1A2C20E35E00E234DB /* OneSignalNotificationsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DEBAADF82A420A3700BF2C1C /* OneSignalLocation */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DEBAAE002A420A3A00BF2C1C /* Build configuration list for PBXNativeTarget "OneSignalLocation" */;
@@ -3381,7 +3435,7 @@
 		37747F8B19147D6400558FAD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1520;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Hiptic;
 				TargetAttributes = {
@@ -3474,6 +3528,9 @@
 						DevelopmentTeam = 99SW8E36CT;
 						ProvisioningStyle = Automatic;
 					};
+					DEBA2A192C20E35E00E234DB = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					DEBAADF82A420A3700BF2C1C = {
 						CreatedOnToolsVersion = 14.3;
 						DevelopmentTeam = 99SW8E36CT;
@@ -3536,6 +3593,7 @@
 				3CC063A02B6D7A8D002BB07F /* OneSignalCoreTests */,
 				3CC063EA2B6D7FE8002BB07F /* OneSignalUserTests */,
 				473542492B8F93330016DB4C /* OneSignalLiveActivitiesTests */,
+				DEBA2A192C20E35E00E234DB /* OneSignalNotificationsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -3636,6 +3694,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C6299A72BEEA41900649187 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEBA2A182C20E35E00E234DB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3987,6 +4052,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEBAAEB32A436CE800BF2C1C /* OSStubInAppMessages.m in Sources */,
+				DEBA2A262C20E9AA00E234DB /* OSBundleUtils.m in Sources */,
 				3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */,
 				DE7D1874270375FF002D3A5D /* OSReattemptRequest.m in Sources */,
 				DE7D183427027A73002D3A5D /* OneSignalLog.m in Sources */,
@@ -4060,6 +4126,14 @@
 				DE7D18BE27038194002D3A5D /* OSOutcomeEventParams.m in Sources */,
 				3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */,
 				DE7D18C02703819D002D3A5D /* OSOutcomeEventsV1Repository.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEBA2A162C20E35E00E234DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEBA2A1D2C20E35E00E234DB /* OneSignalNotificationsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4340,6 +4414,11 @@
 			isa = PBXTargetDependency;
 			target = 3CC063992B6D7A8C002BB07F /* OneSignalCoreMocks */;
 			targetProxy = DEA69F472C190045009BB128 /* PBXContainerItemProxy */;
+		};
+		DEBA2A202C20E35E00E234DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
+			targetProxy = DEBA2A1F2C20E35E00E234DB /* PBXContainerItemProxy */;
 		};
 		DEBAAE072A420C9800BF2C1C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6979,6 +7058,146 @@
 			};
 			name = Debug;
 		};
+		DEBA2A212C20E35E00E234DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotificationsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DEBA2A222C20E35E00E234DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotificationsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DEBA2A232C20E35E00E234DB /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotificationsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Test;
+		};
 		DEBAADFD2A420A3A00BF2C1C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7877,6 +8096,16 @@
 				DE7D188B27037F43002D3A5D /* Release */,
 				DE7D188C27037F43002D3A5D /* Debug */,
 				DE3D8F4228C15839008C2BBF /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEBA2A242C20E35E00E234DB /* Build configuration list for PBXNativeTarget "OneSignalNotificationsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEBA2A212C20E35E00E234DB /* Release */,
+				DEBA2A222C20E35E00E234DB /* Debug */,
+				DEBA2A232C20E35E00E234DB /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

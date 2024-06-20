@@ -251,8 +251,37 @@ static NSString *_pushSubscriptionId;
         @selector(onesignalSetApplicationIconBadgeNumber:)
     );
     [OneSignalNotificationsUNUserNotificationCenter setup];
+    
+    [self registerLifecycleObserver];
+    
 }
 #pragma clang diagnostic pop
+
++ (void)registerLifecycleObserver {
+    // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
+    if ([OSBundleUtils isAppUsingUIScene]) {
+        [self registerLifecycleObserverAsUIScene];
+    } else {
+        [self registerLifecycleObserverAsUIApplication];
+    }
+}
+
++ (void)registerLifecycleObserverAsUIScene {
+    if (@available(iOS 13.0, *)) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Scene Lifecycle notifications"];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:@"UISceneWillEnterForegroundNotification" object:nil];
+    }
+}
+
++ (void)registerLifecycleObserverAsUIApplication {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Application Lifecycle notifications"];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
++ (void)willEnterForeground {
+    [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
+    [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
+}
 
 + (void)resetLocals {
     _lastMessageReceived = nil;
@@ -967,6 +996,10 @@ static NSString *_lastnonActiveMessageId;
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
 }
 
+- (void)dealloc {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationsManager observer deallocated"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 @end
 

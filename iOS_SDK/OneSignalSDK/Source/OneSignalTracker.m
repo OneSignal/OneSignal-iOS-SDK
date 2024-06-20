@@ -81,14 +81,6 @@ static BOOL lastOnFocusWasToBackground = YES;
     }
 }
 
-// This is a separate lifecycle event than application became active
-// Notably this is NOT called when the app resumes after resigning active
-// From things like entering and exiting the notification center
-+ (void)applicationWillEnterForeground {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
-    [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
-}
-
 + (void)applicationBecameActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Active started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
@@ -102,8 +94,6 @@ static BOOL lastOnFocusWasToBackground = YES;
     if ([OneSignal shouldStartNewSession])
         [OneSignal startNewSession:NO];
     else {
-        // This checks if notification permissions changed when app was backgrounded
-        [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade];
         // TODO: Here it used to call receivedInAppMessageJson with nil, this method no longer exists
         // [OneSignal receivedInAppMessageJson:nil];

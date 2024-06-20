@@ -49,7 +49,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 + (void)registerLifecycleObserver {
     // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
-    if ([UIApplication isAppUsingUIScene]) {
+    if ([OSBundleUtils isAppUsingUIScene]) {
         [self registerLifecycleObserverAsUIScene];
     } else {
         [self registerLifecycleObserverAsUIApplication];
@@ -68,7 +68,6 @@ static OneSignalLifecycleObserver* _instance = nil;
 + (void)registerLifecycleObserverAsUIApplication {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"registering for Application Lifecycle notifications"];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:UIApplicationWillResignActiveNotification object:nil];
 }
@@ -111,11 +110,6 @@ static OneSignalLifecycleObserver* _instance = nil;
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:NO];
         }
     }
-}
-
-- (void)willEnterForeground {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willEnterForeground"];
-    [OneSignalTracker applicationWillEnterForeground];
 }
 
 - (void)dealloc {

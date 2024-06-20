@@ -31,6 +31,5 @@
 
 + (void)onFocus:(BOOL)toBackground;
 + (void)onSessionEnded:(NSArray<OSInfluence *> *) lastInfluences;
-+ (void)applicationWillEnterForeground;
 
 @end
