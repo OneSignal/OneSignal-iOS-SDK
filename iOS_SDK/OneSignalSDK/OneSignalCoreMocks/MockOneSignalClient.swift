@@ -28,7 +28,8 @@ import OneSignalCore
  */
 @objc
 public class MockOneSignalClient: NSObject, IOneSignalClient {
-    public let executionQueue: DispatchQueue = DispatchQueue(label: "com.onesignal.execution")
+    public let executionQueue: DispatchQueue = DispatchQueue(label: "com.onesignal.execution", attributes: .concurrent)
+    let lock = NSLock()
 
     var mockResponses: [String: [String: Any]] = [:]
     var mockFailureResponses: [String: NSError] = [:]
@@ -90,7 +91,9 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
         print("🧪 MockOneSignalClient execute called")
 
-        executedRequests.append(request)
+        lock.withLock {
+            executedRequests.append(request)
+        }
 
         if executeInstantaneously {
             finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
