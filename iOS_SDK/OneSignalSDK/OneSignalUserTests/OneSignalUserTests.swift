@@ -176,6 +176,45 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     This test aims to ensure concurrency safety in the User Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     Currently, this executor only allows one request to send at a time, which should prevent concurrent access.
+     But out of caution and future-proofing, this test is added.
+     */
+    func testUserExecutorConcurrency() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        // Ensure all requests fire the executor's callback so it will modify queues and cache it
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+        let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+
+        OSUserExecutor.start()
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            let identifyRequest = OSRequestIdentifyUser(aliasLabel: OS_EXTERNAL_ID, aliasId: UUID().uuidString, identityModelToIdentify: identityModel1, identityModelToUpdate: identityModel2)
+            let fetchRequest = OSRequestFetchUser(identityModel: identityModel1, aliasLabel: OS_ONESIGNAL_ID, aliasId: UUID().uuidString, onNewSession: false)
+
+            // Append and execute requests simultaneously
+            OSUserExecutor.appendToQueue(identifyRequest)
+            OSUserExecutor.appendToQueue(fetchRequest)
+            OSUserExecutor.executeIdentifyUserRequest(identifyRequest)
+            OSUserExecutor.executeFetchUserRequest(fetchRequest)
+        }
+
+        // Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // No crash
+    }
+
+    /**
      This test reproduced a crash when the property model is being encoded.
      */
     func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {
