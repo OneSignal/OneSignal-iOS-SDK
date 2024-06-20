@@ -454,6 +454,8 @@
 		DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */ = {isa = PBXBuildFile; fileRef = DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE9717642756BCFB00FC409E /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
 		DE9717662756BCFD00FC409E /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		DE9776FF2C24DFE800ACB25F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9776FE2C24DFE800ACB25F /* UIKit.framework */; };
+		DE9777012C24DFF300ACB25F /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE9777002C24DFF300ACB25F /* UserNotifications.framework */; };
 		DEA4B44E2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA4B44C2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m */; };
 		DEA4B45A2888BFAB00E9FE12 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DEA4B45C2888C1D000E9FE12 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
@@ -1485,6 +1487,8 @@
 		DE7D18DE2703B49B002D3A5D /* OSFocusRequests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSFocusRequests.m; sourceTree = "<group>"; };
 		DE971751274C48B700FC409E /* OSPrivacyConsentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSPrivacyConsentController.m; sourceTree = "<group>"; };
 		DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSPrivacyConsentController.h; sourceTree = "<group>"; };
+		DE9776FE2C24DFE800ACB25F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/iOSSupport/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		DE9777002C24DFF300ACB25F /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/UserNotifications.framework; sourceTree = DEVELOPER_DIR; };
 		DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDateFormatter+OneSignal.h"; sourceTree = "<group>"; };
 		DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDateFormatter+OneSignal.m"; sourceTree = "<group>"; };
 		DEA4B44C2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalUNUserNotificationCenterOverrider.m; sourceTree = "<group>"; };
@@ -1763,7 +1767,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE9777012C24DFF300ACB25F /* UserNotifications.framework in Frameworks */,
 				DEBA2A302C24DA5C00E234DB /* OneSignalCoreMocks.framework in Frameworks */,
+				DE9776FF2C24DFE800ACB25F /* UIKit.framework in Frameworks */,
 				DEBA2A2B2C24DA5800E234DB /* OneSignalCore.framework in Frameworks */,
 				DEBA2A1E2C20E35E00E234DB /* OneSignalNotifications.framework in Frameworks */,
 			);
@@ -1917,6 +1923,8 @@
 		37747F9519147D6500558FAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE9777002C24DFF300ACB25F /* UserNotifications.framework */,
+				DE9776FE2C24DFE800ACB25F /* UIKit.framework */,
 				DEFB3E622BB731BD00E65DAD /* ActivityKit.framework */,
 				3C7A39D42B7C18EE0082665E /* XCTest.framework */,
 				DEBAAE9A2A4222B000BF2C1C /* CoreGraphics.framework */,

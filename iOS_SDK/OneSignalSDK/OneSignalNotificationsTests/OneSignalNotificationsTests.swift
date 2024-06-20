@@ -7,66 +7,78 @@
 //
 
 import XCTest
+import OneSignalNotifications
+import OneSignalCoreMocks
+import UIKit
 
 final class OneSignalNotificationsTests: XCTestCase {
+    
+    var notifTypes: Int32 = 0
+    var token: String = ""
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        self.notifTypes = 0
+        self.token = ""
     }
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
     func testClearBadgesWhenAppEntersForeground() throws {
-        // NotificationManager Start? Or Mock NotificationManager start
-        // Mock receive a notification or have badge count > 0
-        
+        // NotificationManager Start to register lifecycle listener
+        OSNotificationsManager.start()
+        // Set badge count > 0
+        UIApplication.shared.applicationIconBadgeNumber = 1
         // Then background the app
-        
+        OneSignalCoreMocks.backgroundApp()
         // Foreground the app
-        
+        OneSignalCoreMocks.foregroundApp()
         // Ensure that badge count == 0
+        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
     }
     
     func testDontclearBadgesWhenAppBecomesActive() throws {
-        // NotificationManager Start? Or Mock NotificationManager start
-        // Mock receive a notification or have badge count > 0
-        
+        // NotificationManager Start to register lifecycle listener
+        OSNotificationsManager.start()
+        // Set badge count > 0
+        UIApplication.shared.applicationIconBadgeNumber = 1
         // Then resign active
-        
+        OneSignalCoreMocks.resignActive()
         // App becomes active the app
-        
-        // Ensure that badge count == previous badge count
+        OneSignalCoreMocks.becomeActive()
+        // Ensure that badge count == 0
+        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
     }
     
     func testUpdateNotificationTypesOnAppEntersForeground() throws {
-        // NotificationManager Start? Or Mock NotificationManager start
-        // Deny notification permission
+        // NotificationManager Start to register lifecycle listener
+        OSNotificationsManager.start()
+        
+        OSNotificationsManager.delegate = self
+        
+        XCTAssertEqual(self.notifTypes, 0)
         
         // Then background the app
-        
-        // Change app notification permissions
+        OneSignalCoreMocks.backgroundApp()
         
         // Foreground the app for within 30 seconds
+        OneSignalCoreMocks.foregroundApp()
         
-        // Ensure that we update the notification types
+        // Ensure that the delegate is updated with the new notification type
+        XCTAssertEqual(self.notifTypes, ERROR_PUSH_NEVER_PROMPTED)
     }
     
 
+}
+
+extension OneSignalNotificationsTests: OneSignalNotificationsDelegate {
+    public func setNotificationTypes(_ notificationTypes: Int32) {
+        self.notifTypes = notificationTypes
+    }
+
+    public func setPushToken(_ pushToken: String) {
+        self.token = pushToken
+    }
 }
