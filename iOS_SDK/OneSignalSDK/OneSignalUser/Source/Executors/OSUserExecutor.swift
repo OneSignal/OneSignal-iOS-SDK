@@ -196,7 +196,10 @@ class OSUserExecutor {
             }
         }
     }
+}
 
+// MARK: - Execution
+extension OSUserExecutor {
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
         let originalPushToken = user.pushSubscriptionModel.address
