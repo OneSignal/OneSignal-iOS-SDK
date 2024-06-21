@@ -37,6 +37,8 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public var networkRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
     public var executeInstantaneously = false
+    /// Set to true to make it unnecessary to setup mock responses for every request possible
+    public var fireSuccessForAllRequests = false
 
     var remoteParamsResponse: [String: Any]?
     var shouldUseProvisionalAuthorization = false // new in iOS 12 (aka Direct to History)
@@ -138,6 +140,9 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
             successBlock(mockResponses[stringifiedRequest])
         } else if (mockFailureResponses[stringifiedRequest]) != nil {
             failureBlock(mockFailureResponses[stringifiedRequest])
+        } else if fireSuccessForAllRequests {
+            allRequestsHandled = false
+            successBlock([:])
         } else {
             allRequestsHandled = false
             print("🧪 cannot find a mock response for request: \(stringifiedRequest)")
