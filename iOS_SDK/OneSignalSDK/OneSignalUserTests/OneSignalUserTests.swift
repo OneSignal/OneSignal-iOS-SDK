@@ -176,6 +176,44 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     This test aims to ensure concurrency safety in the Property Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testPropertyExecutorConcurrency() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        // Ensure all requests fire the executor's callback so it will modify queues and cache it
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
+
+        let executor = OSPropertyOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // No crash
+    }
+
+    /**
      This test aims to ensure concurrency safety in the User Executor.
      It is possible for two threads to modify and cache queues concurrently.
      Currently, this executor only allows one request to send at a time, which should prevent concurrent access.
