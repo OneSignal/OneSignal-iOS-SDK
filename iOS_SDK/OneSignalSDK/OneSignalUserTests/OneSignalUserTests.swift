@@ -311,7 +311,9 @@ final class OneSignalUserTests: XCTestCase {
 
         // Increase flush interval to allow all the updates to batch
         OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-        
+        // Wait to let any pending flushes in the Operation Repo to run
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.1)
+
         /* When */
 
         OneSignalUserManagerImpl.sharedInstance.sendSessionTime(100)
@@ -349,7 +351,7 @@ final class OneSignalUserTests: XCTestCase {
 
         /* Then */
 
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
 
         let expectedPayload: [String: Any] = [
             "deltas": [
