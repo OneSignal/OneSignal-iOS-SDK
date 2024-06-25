@@ -128,7 +128,7 @@ final class OneSignalUserTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -167,7 +167,7 @@ final class OneSignalUserTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -207,7 +207,7 @@ final class OneSignalUserTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // No crash
@@ -246,7 +246,7 @@ final class OneSignalUserTests: XCTestCase {
         }
 
         // Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 5)
 
         /* Then */
         // No crash

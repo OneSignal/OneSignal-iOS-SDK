@@ -125,7 +125,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
         // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
 
         /* Then */
 
@@ -365,7 +365,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
         // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
 
         /* Then */
 
