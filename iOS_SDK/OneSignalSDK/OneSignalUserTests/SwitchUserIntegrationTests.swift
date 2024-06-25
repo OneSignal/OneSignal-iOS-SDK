@@ -131,6 +131,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 0. Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 10)
 
         // 1. Asserts for first Anonymous User
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
@@ -376,6 +377,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 0. Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 13)
 
         // 1. Asserts for first Anonymous User
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
