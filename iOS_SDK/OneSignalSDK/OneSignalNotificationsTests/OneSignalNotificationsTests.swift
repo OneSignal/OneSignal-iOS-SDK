@@ -12,7 +12,7 @@ import OneSignalCoreMocks
 import UIKit
 
 final class OneSignalNotificationsTests: XCTestCase {
-    
+
     var notifTypes: Int32 = 0
     var token: String = ""
 
@@ -38,7 +38,7 @@ final class OneSignalNotificationsTests: XCTestCase {
         // Ensure that badge count == 0
         XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
     }
-    
+
     func testDontclearBadgesWhenAppBecomesActive() throws {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
@@ -51,25 +51,24 @@ final class OneSignalNotificationsTests: XCTestCase {
         // Ensure that badge count == 0
         XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
     }
-    
+
     func testUpdateNotificationTypesOnAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
-        
+
         OSNotificationsManager.delegate = self
-        
+
         XCTAssertEqual(self.notifTypes, 0)
-        
+
         // Then background the app
         OneSignalCoreMocks.backgroundApp()
-        
+
         // Foreground the app for within 30 seconds
         OneSignalCoreMocks.foregroundApp()
-        
+
         // Ensure that the delegate is updated with the new notification type
         XCTAssertEqual(self.notifTypes, ERROR_PUSH_NEVER_PROMPTED)
     }
-    
 
 }
 
