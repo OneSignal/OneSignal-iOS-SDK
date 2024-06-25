@@ -37,17 +37,16 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     override func setUpWithError() throws {
         // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
+        // TODO: Need to clear all data between tests for user manager, models, etc.
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
         OneSignalConfigManager.setAppId("test-app-id")
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws {
-        // TODO: Need to clear all data between tests for user manager, models, etc.
-        OneSignalCoreMocks.clearUserDefaults()
-        OneSignalUserMocks.reset()
-    }
+    override func tearDownWithError() throws { }
 
     func testAppendSetStartTokenWithSuccessfulRequest() throws {
         /* Setup */
