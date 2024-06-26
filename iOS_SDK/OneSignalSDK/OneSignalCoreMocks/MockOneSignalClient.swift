@@ -101,7 +101,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         }
 
         if executeInstantaneously {
-            executionQueue.async{
+            executionQueue.async {
                 self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
             }
         } else {
@@ -173,6 +173,14 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
     public func setMockFailureResponseForRequest(request: String, error: NSError) {
         mockFailureResponses[request] = error
+    }
+
+    public func waitForDispatches(_ numDispatches: Int) {
+        while self.executedRequestCount < numDispatches {
+            executionQueue.sync {
+                Thread.sleep(forTimeInterval: TimeInterval(1))
+            }
+        }
     }
 }
 

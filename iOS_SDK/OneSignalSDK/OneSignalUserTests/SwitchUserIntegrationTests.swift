@@ -126,6 +126,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 3. Run background threads
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        client.waitForDispatches(10)
 
         /* Then */
 
