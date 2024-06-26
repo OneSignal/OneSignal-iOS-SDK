@@ -25,42 +25,20 @@
  THE SOFTWARE.
  */
 
-import Foundation
-
-/**
- This class stores all Identity Models that are being used during an app session.
- Its purpose is to manage the instances for all referencing objects.
- The models are built up on each new cold start, so no caching occurs.
- 
- When are Identity Models added to this repo?
- 1. When the User Manager starts, and the Identity Model is loaded from cache.
- 2. When users switch and new Identity Models are created.
- 3. Identity Models are added when requests are uncached.
- */
-class OSIdentityModelRepo {
-    let lock = NSLock()
-    var models: [String: OSIdentityModel] = [:]
-
-    func add(model: OSIdentityModel) {
-        lock.withLock {
-            models[model.modelId] = model
-        }
-    }
-
-    func get(modelId: String) -> OSIdentityModel? {
-        lock.withLock {
-            return models[modelId]
-        }
-    }
+public enum OSRequiresUserAuth: String {
+    case onViaRemoteParams
+    case offViaRemoteParams
+    case unknown
+    // TODO: JWT 🔐 consider additional reasons such as detecting this by dev calling loginWithJWT
     
-    func get(externalId: String) -> OSIdentityModel? {
-        lock.withLock {
-            for model in models.values {
-                if model.externalId == externalId {
-                    return model
-                }
-            }
-            return nil
+    public func isRequired() -> Bool? {
+        return switch self {
+        case .onViaRemoteParams:
+            true
+        case .offViaRemoteParams:
+            false
+        default:
+            nil
         }
     }
 }

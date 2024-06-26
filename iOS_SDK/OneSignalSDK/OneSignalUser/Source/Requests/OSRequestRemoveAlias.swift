@@ -37,10 +37,12 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     let labelToRemove: String
     var identityModel: OSIdentityModel
 
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         let aliasLabel = identityModel.primaryAliasLabel
-        if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
-            self.addJWTHeader(identityModel: identityModel)
+        if let aliasId = identityModel.primaryAliasId,
+           let appId = OneSignalConfigManager.getAppId(),
+           self.addJWTHeader(required: requiresJwt, identityModel: identityModel)
+        {
             self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity/\(labelToRemove)"
             return true
         } else {
@@ -56,7 +58,6 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         self.stringDescription = "OSRequestRemoveAlias with aliasLabel: \(labelToRemove)"
         super.init()
         self.method = DELETE
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -82,6 +83,5 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

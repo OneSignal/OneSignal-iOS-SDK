@@ -29,6 +29,30 @@ import OneSignalCore
 import OneSignalNotifications
 import OneSignalOSCore
 
+class OSUserExecutorJwtConfigListener: OSUserJwtConfigListener {
+    func onUserAuthChanged(from: Bool?, to: Bool?) {
+        print("❌ OSUserExecutor onUserAuthChanged from \(from) to \(to)")
+
+        // If auth changed from false or unknown to true, process requests
+        if (to == true) {
+            OSUserExecutor.removeInvalidRequests()
+        }
+        OSUserExecutor.requiresAuth = to
+        OSUserExecutor.executePendingRequests()
+    }
+    
+    func onJwtInvalidated(externalId: String, error: String?) {
+        //
+    }
+    
+    func onJwtUpdated(externalId: String, jwtToken: String) {
+        //
+    }
+    
+    func onJwtTokenChanged(externalId: String, from: String?, to: String?) {
+        //
+    }
+}
 /**
  Involved in the login process and responsible for Identify User and Create User.
  Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestTransferSubscription`, `OSRequestFetchUser`, `OSRequestFetchIdentityBySubscription`.
@@ -36,24 +60,36 @@ import OneSignalOSCore
 class OSUserExecutor {
     static var userRequestQueue: [OSUserRequest] = []
     static var transferSubscriptionRequestQueue: [OSRequestTransferSubscription] = []
+    static var requiresAuth: Bool?
 
+    static var jwtListenerToDo = OSUserExecutorJwtConfigListener()
+    
     /// Read in requests from the cache, do not read in FetchUser requests as this is not needed.
-    static func start() {
+    static func start(requiresAuth: Bool?) {
+        print("❌ OSUserExecutor start(\(requiresAuth)")
+
+        self.requiresAuth = requiresAuth
         // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
         uncacheUserRequests()
         uncacheTransferRequests()
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.changeNotifier.subscribe(jwtListenerToDo, key: "OSUserExecutor") // TODO: JWT 🔐
         executePendingRequests()
     }
 
     /// Reads `OSRequestFetchIdentityBySubscription` `OSRequestCreateUser` `OSRequestIdentifyUser` requests
     static private func uncacheUserRequests() {
+        print("❌ OSUserExecutor uncacheUserRequests")
         var userRequestQueue: [OSUserRequest] = []
 
         if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
             // Hook each uncached Request to the right model reference
             for request in cachedRequestQueue {
                 if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let req = request as? OSRequestFetchIdentityBySubscription {
-                    if let identityModel = getIdentityModel(req.identityModel.modelId) {
+                    // Remove this request if JWT is enabled
+                    guard requiresAuth != true else {
+                        continue
+                    }
+                    if let identityModel = getIdentityModel(modelId: req.identityModel.modelId) {
                         // 1. The model exist in the repo, set it to be the Request's model
                         // It is the current user or the model has already been processed
                         req.identityModel = identityModel
@@ -64,24 +100,38 @@ class OSUserExecutor {
                     userRequestQueue.append(req)
 
                 } else if request.isKind(of: OSRequestCreateUser.self), let req = request as? OSRequestCreateUser {
-                    if let identityModel = getIdentityModel(req.identityModel.modelId) {
-                        // 1. The model exist in the repo, set it to be the Request's model
-                        req.identityModel = identityModel
-                    } else {
-                        // 2. The models do not exist, use the model on the request, and add to repo.
+                    if requiresAuth == true {
+                        // Remove this request if there is no EUID or the EUID is already processed
+                        guard getIdentityModel(externalId: req.identityModel.externalId) != nil
+                        else {
+                            continue
+                        }
+                        
+                        // The model does not exist, use the model on the request, and add to repo.
                         addIdentityModel(req.identityModel)
+                    } else {
+                        if let identityModel = getIdentityModel(modelId: req.identityModel.modelId) {
+                            // 1. The model exist in the repo, set it to be the Request's model
+                            req.identityModel = identityModel
+                        } else {
+                            // 2. The models do not exist, use the model on the request, and add to repo.
+                            addIdentityModel(req.identityModel)
+                        }
                     }
                     userRequestQueue.append(req)
 
                 } else if request.isKind(of: OSRequestIdentifyUser.self), let req = request as? OSRequestIdentifyUser {
-
-                    if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
-                       let identityModelToUpdate = getIdentityModel(req.identityModelToUpdate.modelId) {
+                    // Remove this request if JWT is enabled
+                    guard requiresAuth != true else {
+                        continue
+                    }
+                    if let identityModelToIdentify = getIdentityModel(modelId: req.identityModelToIdentify.modelId),
+                       let identityModelToUpdate = getIdentityModel(modelId: req.identityModelToUpdate.modelId) {
                         // 1. Both models exist in the repo, set it to be the Request's models
                         req.identityModelToIdentify = identityModelToIdentify
                         req.identityModelToUpdate = identityModelToUpdate
-                    } else if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
-                              getIdentityModel(req.identityModelToUpdate.modelId) == nil {
+                    } else if let identityModelToIdentify = getIdentityModel(modelId: req.identityModelToIdentify.modelId),
+                              getIdentityModel(modelId: req.identityModelToUpdate.modelId) == nil {
                         // 2. A model is in the repo, the other model does not exist
                         req.identityModelToIdentify = identityModelToIdentify
                         addIdentityModel(req.identityModelToUpdate)
@@ -89,7 +139,7 @@ class OSUserExecutor {
                         // 3. Both models don't exist yet
                         // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
                         // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
-                        guard request.prepareForExecution() else {
+                        guard request.prepareForExecution(requiresJwt: nil) else {
                             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                             continue
                         }
@@ -105,6 +155,12 @@ class OSUserExecutor {
     }
 
     static private func uncacheTransferRequests() {
+        // Remove this request if JWT is enabled
+        guard requiresAuth != true else {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: [])
+            return
+        }
+        
         if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestTransferSubscription] {
             // We only care about the last transfer subscription request
             if let request = transferSubscriptionRequestQueue.last {
@@ -113,7 +169,7 @@ class OSUserExecutor {
                     // The model exist, set it to be the Request's model
                     request.subscriptionModel = OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel
                     self.transferSubscriptionRequestQueue = [request]
-                } else if !request.prepareForExecution() {
+                } else if !request.prepareForExecution(requiresJwt: nil) {
                     // The model do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                     self.transferSubscriptionRequestQueue = []
@@ -125,8 +181,12 @@ class OSUserExecutor {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
     }
 
-    static private func getIdentityModel(_ modelId: String) -> OSIdentityModel? {
-        return OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId)
+    static private func getIdentityModel(modelId: String) -> OSIdentityModel? {
+        return OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId: modelId)
+    }
+
+    static private func getIdentityModel(externalId: String?) -> OSIdentityModel? {
+        return OneSignalUserManagerImpl.sharedInstance.getIdentityModel(externalId: externalId)
     }
 
     static private func addIdentityModel(_ model: OSIdentityModel) {
@@ -153,9 +213,28 @@ class OSUserExecutor {
         }
     }
 
-    static func executePendingRequests() {
+    static private func executePendingRequestsWithAuth() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequestsWithAuth called with queue \(userRequestQueue)")
+
+        if userRequestQueue.isEmpty {
+            return
+        }
+        
+        for request in userRequestQueue {
+            if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
+                executeCreateUserRequest(createUserRequest)
+            } else if request.isKind(of: OSRequestFetchUser.self), let fetchUserRequest = request as? OSRequestFetchUser {
+                executeFetchUserRequest(fetchUserRequest)
+            } else {
+                // Log Error
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor met incompatible Request type that cannot be executed.")
+            }
+        }
+    }
+    
+    static private func executePendingRequestsWithoutAuth() {
         let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(requestQueue)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequestsWithoutAuth called with queue \(requestQueue)")
 
         if requestQueue.isEmpty {
             return
@@ -166,7 +245,7 @@ class OSUserExecutor {
             return first.timestamp < second.timestamp
         }) {
             // Return as soon as we reach an un-executable request
-            if !request.prepareForExecution() {
+            if !request.prepareForExecution(requiresJwt: false) {
                 OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
                 return
             }
@@ -193,6 +272,20 @@ class OSUserExecutor {
         }
     }
 
+    static func executePendingRequests() {
+        guard let requiresAuth = requiresAuth else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor.executePendingRequests returning early due to unknown Identity Verification status.")
+            return
+        }
+
+        if requiresAuth {
+            executePendingRequestsWithAuth()
+        } else {
+            executePendingRequestsWithoutAuth()
+        }
+    }
+
+    
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
         let originalPushToken = user.pushSubscriptionModel.address
@@ -207,8 +300,7 @@ class OSUserExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
-            // Currently there are no requirements needed before sending this request
+        guard request.prepareForExecution(requiresJwt: requiresAuth) else {
             return
         }
         request.sentToClient = true
@@ -271,7 +363,7 @@ class OSUserExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             return
         }
         request.sentToClient = true
@@ -323,7 +415,7 @@ class OSUserExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             // Missing onesignal_id
             return
         }
@@ -400,7 +492,7 @@ class OSUserExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             // Missing subscriptionId
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor.executeTransferPushSubscriptionRequest with request \(request) cannot be executed due to failing prepareForExecution()")
             return
@@ -434,7 +526,8 @@ class OSUserExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        // TODO: JWT 🔐 No need to fetch user if the user is different
+        guard request.prepareForExecution(requiresJwt: requiresAuth) else {
             // This should not happen as we set the alias to use for the request path
             return
         }
@@ -444,6 +537,7 @@ class OSUserExecutor {
 
             if let response = response {
                 // Clear local data in preparation for hydration
+                // TODO: JWT 🔐 um the following line feels wrong... maybe the user's changed
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
@@ -589,6 +683,41 @@ extension OSUserExecutor {
 
     static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: String]? {
         return response?["identity"] as? [String: String]
+    }
+}
+
+extension OSUserExecutor {
+    static func removeInvalidRequests() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.removeInvalidRequests")
+        
+        // Clear transfer subscriptions queue
+        if !transferSubscriptionRequestQueue.isEmpty {
+            self.transferSubscriptionRequestQueue = []
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: [])
+        }
+        if userRequestQueue.isEmpty {
+            return
+        }
+        
+        for request in userRequestQueue {
+            if request.isKind(of: OSRequestFetchIdentityBySubscription.self) ||
+                request.isKind(of: OSRequestIdentifyUser.self) ||
+                request.isKind(of: OSRequestTransferSubscription.self)
+            {
+                userRequestQueue.removeAll(where: { $0 == request})
+            } else if request.isKind(of: OSRequestCreateUser.self),
+                      let createUserRequest = request as? OSRequestCreateUser,
+                      createUserRequest.identityModel.externalId == nil
+            {
+                userRequestQueue.removeAll(where: { $0 == request})
+            } else if request.isKind(of: OSRequestFetchUser.self),
+                      let fetchUserRequest = request as? OSRequestFetchUser,
+                      fetchUserRequest.identityModel.externalId == nil
+            {
+                userRequestQueue.removeAll(where: { $0 == request})
+            }
+        }
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
     }
 }
 

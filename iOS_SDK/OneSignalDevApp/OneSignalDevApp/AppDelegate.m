@@ -54,7 +54,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     
-    [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
+    [OneSignal initialize:@"0139bd6f-451f-438c-8886-4e0f0fe3a085" withLaunchOptions:launchOptions];
     
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     

@@ -46,11 +46,13 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let aliasLabel: String
     let aliasId: String
 
-    // requires a onesignal_id to send this request
-    func prepareForExecution() -> Bool {
+    /**
+     Requires a OneSignal ID to send this request.
+     This request does not exist when Identity Verification is enabled.
+     */
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         let aliasLabel = identityModelToIdentify.primaryAliasLabel
         if let aliasId = identityModelToIdentify.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
-            self.addJWTHeader(identityModel: identityModelToIdentify)
             self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity"
             return true
         } else {
@@ -77,7 +79,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
+        _ = prepareForExecution(requiresJwt: nil) // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -112,6 +114,5 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.timestamp = timestamp
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
-        _ = prepareForExecution()
     }
 }

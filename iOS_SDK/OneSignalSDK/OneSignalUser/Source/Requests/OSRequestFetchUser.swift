@@ -43,12 +43,17 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let aliasId: String
     let onNewSession: Bool
 
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request due to null app ID.")
             return false
         }
-        self.addJWTHeader(identityModel: identityModel)
+        
+        guard addJWTHeader(required: requiresJwt, identityModel: identityModel) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request due to unknown or invalid JWT.")
+            return false
+        }
+        
         self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
         return true
     }
@@ -61,7 +66,6 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.stringDescription = "<OSRequestFetchUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.method = GET
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -92,6 +96,5 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

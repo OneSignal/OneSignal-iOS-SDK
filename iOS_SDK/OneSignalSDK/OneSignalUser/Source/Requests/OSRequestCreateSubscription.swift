@@ -43,10 +43,10 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
 
     // Need the onesignal_id of the user
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         let aliasLabel = identityModel.primaryAliasLabel
         if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
-            self.addJWTHeader(identityModel: identityModel)
+//            self.addJWTHeader(identityModel: identityModel) // TODO: JWT 🔐
             self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/subscriptions"
             return true
         } else {
@@ -62,7 +62,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
         self.method = POST
-        _ = prepareForExecution() // sets the path property
+        _ = prepareForExecution(requiresJwt: nil) // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -91,6 +91,6 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
+        _ = prepareForExecution(requiresJwt: nil)
     }
 }

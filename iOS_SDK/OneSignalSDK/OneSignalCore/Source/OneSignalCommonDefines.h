@@ -33,8 +33,11 @@
 // Networking
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
-#define OS_API_SERVER_URL @"https://api.onesignal.com/"
-#define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
+//#define OS_API_SERVER_URL @"https://api.onesignal.com/"
+//#define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
+#define OS_API_SERVER_URL @"https://api.staging.onesignal.com/"
+#define OS_IAM_WEBVIEW_BASE_URL @"https://staging.onesignal.com/"
+
 
 // OneSignalUserDefault keys
 // String values start with "OSUD_" to maintain a level of uniqueness from other libs and app code
@@ -77,6 +80,7 @@
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes

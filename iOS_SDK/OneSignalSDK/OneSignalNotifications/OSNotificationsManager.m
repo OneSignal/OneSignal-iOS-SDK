@@ -452,6 +452,7 @@ static NSString *_pushSubscriptionId;
     }
 }
 
+// TODO: JWT 🔐 handle this
 + (void)sendPushTokenToDelegate {
     // TODO: Keep this as a check on _pushToken instead of self.pushToken?
     if (_pushToken != nil && self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
