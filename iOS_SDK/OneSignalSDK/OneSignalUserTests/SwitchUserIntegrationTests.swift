@@ -198,6 +198,8 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
@@ -242,7 +244,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
         client.waitForDispatches(12)
 
         /* Then */
