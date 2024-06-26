@@ -702,7 +702,7 @@ extension OSUserExecutor {
         for request in userRequestQueue {
             if request.isKind(of: OSRequestFetchIdentityBySubscription.self) ||
                 request.isKind(of: OSRequestIdentifyUser.self) ||
-                request.isKind(of: OSRequestTransferSubscription.self)
+                request.isKind(of: OSRequestTransferSubscription.self) // TODO: JWT 🔐 unnecessary
             {
                 userRequestQueue.removeAll(where: { $0 == request})
             } else if request.isKind(of: OSRequestCreateUser.self),
