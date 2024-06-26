@@ -35,6 +35,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     var mockFailureResponses: [String: NSError] = [:]
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
+    public var executedRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
     public var executeInstantaneously = false
     /// Set to true to make it unnecessary to setup mock responses for every request possible
@@ -83,6 +84,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         mockResponses = [:]
         lastHTTPRequest = nil
         networkRequestCount = 0
+        executedRequestCount = 0
         executedRequests.removeAll()
         executeInstantaneously = true
         remoteParamsResponse = nil
@@ -91,14 +93,17 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     }
 
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
-        print("🧪 MockOneSignalClient execute called")
+        executedRequestCount += 1
+        print("🧪 MockOneSignalClient execute(\(executedRequestCount) \(request)")
 
         lock.withLock {
             executedRequests.append(request)
         }
 
         if executeInstantaneously {
-            finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
+            executionQueue.async{
+                self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
+            }
         } else {
             executionQueue.asyncAfter(deadline: .now() + .milliseconds(50)) {
                 self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
@@ -124,7 +129,6 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     func finishExecutingRequest(_ request: OneSignalRequest, onSuccess successBlock: OSResultSuccessBlock, onFailure failureBlock: OSFailureBlock) {
 
         // TODO: This entire method needs to contained within the equivalent of @synchronized ❗️
-        print("🧪 completing HTTP request: \(request)")
 
         // TODO: Check for existence of app_id in the request and fail if not.
 
@@ -152,7 +156,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     func didCompleteRequest(_ request: OneSignalRequest) {
         networkRequestCount += 1
 
-        print("🧪 didCompleteRequest url(\(networkRequestCount)): \(String(describing: request.urlRequest().url)) params: \(String(describing: request.parameters))")
+        print("🧪 didCompleteRequest url(\(networkRequestCount)): \(request) \(String(describing: request.urlRequest().url)) params: \(String(describing: request.parameters))")
 
         lastHTTPRequest = request
     }
