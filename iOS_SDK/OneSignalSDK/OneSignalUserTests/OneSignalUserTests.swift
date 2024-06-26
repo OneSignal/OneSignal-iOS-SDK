@@ -379,5 +379,7 @@ final class OneSignalUserTests: XCTestCase {
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
             contains: expectedPayload)
         )
+
+        XCTAssertEqual(client.executedRequests.count, 2)
     }
 }
