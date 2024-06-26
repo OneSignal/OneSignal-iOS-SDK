@@ -20,7 +20,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws { }
 
-    func testIdentifyUserSuccessfully_thenLogin_sendsCorrectTags() throws {
+    func testIdentifyUserSuccessfully_thenLogin_sendsCorrectTags💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -86,7 +86,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_a", id: "id_a")
      OneSignal.User.addEmail("email_a@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_sendsCorrectUpdatesAndFetchesUser() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_sendsCorrectUpdatesAndFetchesUser💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -191,7 +191,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_b", id: "id_b")
      OneSignal.User.addEmail("email_b@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -314,7 +314,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_b", id: "id_b")
      OneSignal.User.addEmail("email_b@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_thenLogin_sendsCorrectUpdatesAndFetchesUser() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_thenLogin_sendsCorrectUpdatesAndFetchesUser💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()

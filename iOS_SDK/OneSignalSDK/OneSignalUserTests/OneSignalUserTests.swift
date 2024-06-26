@@ -49,7 +49,7 @@ final class OneSignalUserTests: XCTestCase {
     override func tearDownWithError() throws { }
 
     // Comparable to Android test: "externalId is backed by the identity model"
-    func testLoginSetsExternalId() throws {
+    func testLoginSetsExternalId💛() throws {
         /* Setup */
         OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
 
@@ -69,7 +69,7 @@ final class OneSignalUserTests: XCTestCase {
      It is possible for two threads to flush concurrently.
      However, this test does not crash 100% of the time.
      */
-    func testOperationRepoFlushingConcurrency() throws {
+    func testOperationRepoFlushingConcurrency💛() throws {
         /* Setup */
         OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
 
@@ -98,7 +98,7 @@ final class OneSignalUserTests: XCTestCase {
      This test reproduces a crash in the Subscription Executor.
      It is possible for two threads to modify and cache queues concurrently.
      */
-    func testSubscriptionExecutorConcurrency() throws {
+    func testSubscriptionExecutorConcurrency💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -139,7 +139,7 @@ final class OneSignalUserTests: XCTestCase {
      This test reproduces a crash in the Identity Executor.
      It is possible for two threads to modify and cache queues concurrently.
      */
-    func testIdentityExecutorConcurrency() throws {
+    func testIdentityExecutorConcurrency💛() throws {
         /* Setup */
         let client = MockOneSignalClient()
         let aliases = [UUID().uuidString: "id"]
@@ -178,7 +178,7 @@ final class OneSignalUserTests: XCTestCase {
      This test aims to ensure concurrency safety in the Property Executor.
      It is possible for two threads to modify and cache queues concurrently.
      */
-    func testPropertyExecutorConcurrency() throws {
+    func testPropertyExecutorConcurrency💛() throws {
         /* Setup */
         let client = MockOneSignalClient()
         // Ensure all requests fire the executor's callback so it will modify queues and cache it
@@ -218,7 +218,7 @@ final class OneSignalUserTests: XCTestCase {
      Currently, this executor only allows one request to send at a time, which should prevent concurrent access.
      But out of caution and future-proofing, this test is added.
      */
-    func testUserExecutorConcurrency() throws {
+    func testUserExecutorConcurrency💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -254,7 +254,7 @@ final class OneSignalUserTests: XCTestCase {
     /**
      This test reproduced a crash when the property model is being encoded.
      */
-    func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {
+    func testEncodingPropertiesModel_withConcurrency_doesNotCrash💛() throws {
         /* Setup */
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
 
@@ -276,7 +276,7 @@ final class OneSignalUserTests: XCTestCase {
     /**
      This test reproduced a crash when the identity model is being encoded.
      */
-    func testEncodingIdentityModel_withConcurrency_doesNotCrash() throws {
+    func testEncodingIdentityModel_withConcurrency_doesNotCrash💛() throws {
         /* Setup */
         let identityModel = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
 
@@ -302,7 +302,7 @@ final class OneSignalUserTests: XCTestCase {
      Language uses the last language that is set.
      Location uses the last point that is set.
      */
-    func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
+    func testBasicCombiningUserUpdateDeltas_resultsInOneRequest💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()

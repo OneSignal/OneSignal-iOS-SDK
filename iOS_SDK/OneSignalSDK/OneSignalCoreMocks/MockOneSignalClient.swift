@@ -94,7 +94,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
 
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
         executedRequestCount += 1
-        print("🧪 MockOneSignalClient execute(\(executedRequestCount) \(request)")
+        print("🧪 MockOneSignalClient execute(\(executedRequestCount)) \(request)")
 
         lock.withLock {
             executedRequests.append(request)
