@@ -34,7 +34,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     var mockResponses: [String: [String: Any]] = [:]
     var mockFailureResponses: [String: NSError] = [:]
     public var lastHTTPRequest: OneSignalRequest?
-    public var networkRequestCount = 0
+    @objc public var networkRequestCount = 0
     public var executedRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
     public var executeInstantaneously = false
@@ -175,6 +175,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         mockFailureResponses[request] = error
     }
 
+    @objc
     public func waitForDispatches(_ numDispatches: Int) {
         while self.executedRequestCount < numDispatches {
             executionQueue.sync {
