@@ -52,11 +52,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 3. Run background threads
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-
+        client.waitForDispatches(6)
         /* Then */
 
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 6)
 
         // Assert there is only one request containing these tags and they are sent to the Anon User
         // This is because the Identify User request succeeded, so the user remains the same
