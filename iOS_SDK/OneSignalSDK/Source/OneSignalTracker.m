@@ -77,12 +77,12 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (toBackground) {
         [self applicationBackgrounded];
     } else {
-        [self applicationForegrounded];
+        [self applicationBecameActive];
     }
 }
 
-+ (void)applicationForegrounded {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
++ (void)applicationBecameActive {
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Active started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OSSessionManager.sharedSessionManager.appEntryState != NOTIFICATION_CLICK)
@@ -94,14 +94,10 @@ static BOOL lastOnFocusWasToBackground = YES;
     if ([OneSignal shouldStartNewSession])
         [OneSignal startNewSession:NO];
     else {
-        // This checks if notification permissions changed when app was backgrounded
-        [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade];
         // TODO: Here it used to call receivedInAppMessageJson with nil, this method no longer exists
         // [OneSignal receivedInAppMessageJson:nil];
     }
-    
-    [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
 }
 
 + (void)applicationBackgrounded {

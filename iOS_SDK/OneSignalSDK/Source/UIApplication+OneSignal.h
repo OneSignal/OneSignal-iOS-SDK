@@ -28,5 +28,4 @@
 #import <UIKit/UIKit.h>
 @interface UIApplication (OneSignal)
 + (BOOL)applicationIsActive;
-+ (BOOL)isAppUsingUIScene;
 @end

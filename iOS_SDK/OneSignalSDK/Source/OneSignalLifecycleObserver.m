@@ -49,7 +49,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 + (void)registerLifecycleObserver {
     // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
-    if ([UIApplication isAppUsingUIScene]) {
+    if ([OSBundleUtils isAppUsingUIScene]) {
         [self registerLifecycleObserverAsUIScene];
     } else {
         [self registerLifecycleObserverAsUIApplication];
