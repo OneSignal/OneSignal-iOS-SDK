@@ -119,7 +119,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
-                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
+//                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
             }
             for delta in self.deltaQueue {
                 guard let model = delta.model as? OSIdentityModel,
