@@ -133,6 +133,7 @@ final class OneSignalUserTests: XCTestCase {
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.networkRequestCount, 200)
     }
 
     /**
@@ -167,6 +168,7 @@ final class OneSignalUserTests: XCTestCase {
 
         // 4. Run background threads
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+        XCTAssertEqual(client.networkRequestCount, 200)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
