@@ -53,7 +53,6 @@
 		03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */; };
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		3C0151912C2E298F0079E076 /* OneSignalInAppMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0151902C2E298F0079E076 /* OneSignalInAppMessagesTests.swift */; };
 		3C0151922C2E298F0079E076 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
 		3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01519B2C2E29F90079E076 /* IAMRequestTests.m */; };
 		3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */; };
@@ -1174,7 +1173,6 @@
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalInAppMessagesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3C0151902C2E298F0079E076 /* OneSignalInAppMessagesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalInAppMessagesTests.swift; sourceTree = "<group>"; };
 		3C01519B2C2E29F90079E076 /* IAMRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IAMRequestTests.m; sourceTree = "<group>"; };
 		3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUserInternalImpl.swift; sourceTree = "<group>"; };
 		3C115161289A259500565C41 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1981,7 +1979,6 @@
 		3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */ = {
 			isa = PBXGroup;
 			children = (
-				3C0151902C2E298F0079E076 /* OneSignalInAppMessagesTests.swift */,
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
 			);
 			path = OneSignalInAppMessagesTests;
@@ -3924,7 +3921,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C0151912C2E298F0079E076 /* OneSignalInAppMessagesTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
