@@ -34,7 +34,7 @@
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		jV6kQN/bWIMDjYpvZ8J4nly0nlw=
+		gE4dadVnyQNfwBhZkTM48rjydu8=
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/OneSignalNotifications</key>
 		<data>
-		LHiRF++VedzLASaEo8WGHyqYJa4=
+		WZFd/UJsZWjh4V/8pet3uuUwJ2c=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -114,7 +114,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		U61TMviq014N5tvBfsM5Uj5Z+us=
+		qmKbFAfIjVK2I2mxZhffHLyO/fg=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -208,11 +208,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			jV6kQN/bWIMDjYpvZ8J4nly0nlw=
+			gE4dadVnyQNfwBhZkTM48rjydu8=
 			</data>
 			<key>hash2</key>
 			<data>
-			fKXTWVZQFRPmWblsF+LX+Jlc9EFdvh2TpXujgNOXYvM=
+			R8Nzjipv3MO7CFNn7u4bX58nz3PPSwUBpiPxknzGb5M=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
@@ -327,11 +327,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			LHiRF++VedzLASaEo8WGHyqYJa4=
+			WZFd/UJsZWjh4V/8pet3uuUwJ2c=
 			</data>
 			<key>hash2</key>
 			<data>
-			j0mJnLjD92lBmsHFGyDX/Q5RaUOmOqSuVaGSNe6Qk+o=
+			UMvuJ1HiIeIuM+WP6NMaLwBw8RF2KsQDCQ/+8ClrmSQ=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
@@ -453,11 +453,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			U61TMviq014N5tvBfsM5Uj5Z+us=
+			qmKbFAfIjVK2I2mxZhffHLyO/fg=
 			</data>
 			<key>hash2</key>
 			<data>
-			RZfL3bHJbHtVCEAYevtavrlhroMJ20vDvGC0EwKIcjg=
+			tGeyBW6HtqKuuL1WD6yn+LwcF/0QH0VLy4BR+3wW354=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
