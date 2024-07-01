@@ -37,17 +37,16 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     override func setUpWithError() throws {
         // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
+        // TODO: Need to clear all data between tests for user manager, models, etc.
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
         OneSignalConfigManager.setAppId("test-app-id")
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws {
-        // TODO: Need to clear all data between tests for user manager, models, etc.
-        OneSignalCoreMocks.clearUserDefaults()
-        OneSignalUserMocks.reset()
-    }
+    override func tearDownWithError() throws { }
 
     func testAppendSetStartTokenWithSuccessfulRequest() throws {
         /* Setup */
@@ -56,6 +55,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
@@ -81,6 +82,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestRemoveStartToken(key: "my-activity-type")
@@ -104,6 +107,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
@@ -129,6 +134,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestRemoveStartToken(key: "my-activity-id")
@@ -171,6 +178,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
@@ -196,6 +205,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
@@ -219,6 +230,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
@@ -246,6 +259,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token-1")
@@ -274,6 +289,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetStartToken(key: "my-activity-type", token: "my-token-1")
@@ -301,6 +318,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
@@ -328,6 +347,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token-1")
@@ -356,6 +377,8 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
         OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
         let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token-1")

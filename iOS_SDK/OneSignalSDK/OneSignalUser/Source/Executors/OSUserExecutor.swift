@@ -158,7 +158,7 @@ class OSUserExecutor {
     static func executePendingRequests() {
         self.dispatchQueue.async {
             let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(requestQueue)")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue.isEmpty? \(requestQueue.isEmpty)")
 
             if requestQueue.isEmpty {
                 return

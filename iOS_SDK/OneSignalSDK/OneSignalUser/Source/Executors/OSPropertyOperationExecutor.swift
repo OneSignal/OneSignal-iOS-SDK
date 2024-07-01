@@ -130,7 +130,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 self.processRequestQueue(inBackground: inBackground)
                 return
             }
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
+//            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
 
             // Holds mapping of identity model ID to the updates for it; there should only be one user
             var combinedProperties: [String: OSCombinedProperties] = [:]

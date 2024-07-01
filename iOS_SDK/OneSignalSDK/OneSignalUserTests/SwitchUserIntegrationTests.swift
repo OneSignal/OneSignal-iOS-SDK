@@ -2,25 +2,25 @@ import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
 import OneSignalUserMocks
+@testable import OneSignalOSCore
 @testable import OneSignalUser
 
 final class SwitchUserIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
         // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
+        // TODO: Need to clear all data between tests for client, user manager, models, etc.
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
         OneSignalConfigManager.setAppId("test-app-id")
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws {
-        // TODO: Need to clear all data between tests for client, user manager, models, etc.
-        OneSignalCoreMocks.clearUserDefaults()
-        OneSignalUserMocks.reset()
-    }
+    override func tearDownWithError() throws { }
 
-    func testIdentifyUserSuccessfully_thenLogin_sendsCorrectTags() throws {
+    func testIdentifyUserSuccessfully_thenLogin_sendsCorrectTags💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -52,11 +52,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 3. Run background threads
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-
+        client.waitForDispatches(6)
         /* Then */
 
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 6)
 
         // Assert there is only one request containing these tags and they are sent to the Anon User
         // This is because the Identify User request succeeded, so the user remains the same
@@ -86,7 +87,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_a", id: "id_a")
      OneSignal.User.addEmail("email_a@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_sendsCorrectUpdatesAndFetchesUser() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_sendsCorrectUpdatesAndFetchesUser💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
@@ -125,12 +126,14 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
         // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        client.waitForDispatches(10)
 
         /* Then */
 
         // 0. Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 10)
 
         // 1. Asserts for first Anonymous User
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
@@ -190,11 +193,13 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_b", id: "id_b")
      OneSignal.User.addEmail("email_b@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
@@ -239,12 +244,13 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        client.waitForDispatches(12)
 
         /* Then */
 
         // 0. Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 12)
 
         // 1. Asserts for first Anonymous User
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
@@ -313,11 +319,14 @@ final class SwitchUserIntegrationTests: XCTestCase {
      OneSignal.User.addAlias(label: "alias_b", id: "id_b")
      OneSignal.User.addEmail("email_b@example.com")
      */
-    func testAnonUser_thenIdentifyUserWithConflict_thenLogin_sendsCorrectUpdatesAndFetchesUser() throws {
+    func testAnonUser_thenIdentifyUserWithConflict_thenLogin_sendsCorrectUpdatesAndFetchesUser💛() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
+
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
@@ -365,12 +374,14 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
         // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        client.waitForDispatches(13)
 
         /* Then */
 
         // 0. Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        XCTAssertEqual(client.executedRequests.count, 13)
 
         // 1. Asserts for first Anonymous User
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language

@@ -42,7 +42,7 @@ public class OSOperationRepo: NSObject {
     // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
-    private var deltaQueue: [OSDelta] = []
+    var deltaQueue: [OSDelta] = []
 
     // TODO: This could come from a config, plist, method, remote params
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
@@ -143,7 +143,9 @@ public class OSOperationRepo: NSObject {
         self.start()
 
         if !self.deltaQueue.isEmpty {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
+//            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue!!!!!")
+
         }
 
         var index = 0
