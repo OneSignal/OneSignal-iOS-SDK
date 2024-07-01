@@ -51,9 +51,9 @@ public class OneSignalCoreMocks: NSObject {
         let expectation = XCTestExpectation(description: "Wait for \(seconds) seconds")
         _ = XCTWaiter.wait(for: [expectation], timeout: seconds)
     }
-    
+
     @objc public static func backgroundApp() {
-        if (OSBundleUtils.isAppUsingUIScene()) {
+        if OSBundleUtils.isAppUsingUIScene() {
             if #available(iOS 13.0, *) {
                 NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
                 NotificationCenter.default.post(name: UIScene.didEnterBackgroundNotification, object: nil)
@@ -63,9 +63,9 @@ public class OneSignalCoreMocks: NSObject {
             NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         }
     }
-    
+
     @objc public static func foregroundApp() {
-        if (OSBundleUtils.isAppUsingUIScene()) {
+        if OSBundleUtils.isAppUsingUIScene() {
             if #available(iOS 13.0, *) {
                 NotificationCenter.default.post(name: UIScene.willEnterForegroundNotification, object: nil)
                 NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
@@ -75,9 +75,9 @@ public class OneSignalCoreMocks: NSObject {
             NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         }
     }
-    
+
     @objc public static func resignActive() {
-        if (OSBundleUtils.isAppUsingUIScene()) {
+        if OSBundleUtils.isAppUsingUIScene() {
             if #available(iOS 13.0, *) {
                 NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
             }
@@ -85,9 +85,9 @@ public class OneSignalCoreMocks: NSObject {
             NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
         }
     }
-    
+
     @objc public static func becomeActive() {
-        if (OSBundleUtils.isAppUsingUIScene()) {
+        if OSBundleUtils.isAppUsingUIScene() {
             if #available(iOS 13.0, *) {
                 NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
             }

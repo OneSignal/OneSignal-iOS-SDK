@@ -55,7 +55,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     init(subscriptionModel: OSSubscriptionModel) {
         self.subscriptionModel = subscriptionModel
-        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
@@ -77,7 +77,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel =  subscriptionModel
-        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
+        self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp

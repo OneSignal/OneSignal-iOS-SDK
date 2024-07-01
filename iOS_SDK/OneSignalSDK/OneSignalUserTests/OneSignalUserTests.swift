@@ -96,6 +96,163 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     This test reproduces a crash in the Subscription Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testSubscriptionExecutorConcurrency() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        client.setMockResponseForRequest(
+            request: "<OSRequestDeleteSubscription with subscriptionModel: nil>",
+            response: [:]
+        )
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let executor = OSSubscriptionOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Remove Subscription Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // Previously caused crash: signal SIGABRT - malloc: double free for ptr
+        // Assert that every request SDK makes has a response set, and is handled
+        XCTAssertTrue(client.allRequestsHandled)
+    }
+
+    /**
+     This test reproduces a crash in the Identity Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testIdentityExecutorConcurrency() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        let aliases = [UUID().uuidString: "id"]
+
+        OneSignalCoreImpl.setSharedClient(client)
+        MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
+
+        let executor = OSIdentityOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Add Alias Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // Previously caused crash: signal SIGABRT - malloc: double free for ptr
+        // Assert that every request SDK makes has a response set, and is handled
+        XCTAssertTrue(client.allRequestsHandled)
+    }
+
+    /**
+     This test aims to ensure concurrency safety in the Property Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     */
+    func testPropertyExecutorConcurrency() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        // Ensure all requests fire the executor's callback so it will modify queues and cache it
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
+
+        let executor = OSPropertyOperationExecutor()
+        OSOperationRepo.sharedInstance.addExecutor(executor)
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            // 1. Enqueue Deltas to the Operation Repo
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+
+            // 2. Flush Operation Repo
+            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+
+            // 3. Simulate updating the executor's request queue from a network response
+            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
+        }
+
+        // 4. Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // No crash
+    }
+
+    /**
+     This test aims to ensure concurrency safety in the User Executor.
+     It is possible for two threads to modify and cache queues concurrently.
+     Currently, this executor only allows one request to send at a time, which should prevent concurrent access.
+     But out of caution and future-proofing, this test is added.
+     */
+    func testUserExecutorConcurrency() throws {
+        /* Setup */
+
+        let client = MockOneSignalClient()
+        // Ensure all requests fire the executor's callback so it will modify queues and cache it
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+        let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+
+        OSUserExecutor.start()
+
+        /* When */
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            let identifyRequest = OSRequestIdentifyUser(aliasLabel: OS_EXTERNAL_ID, aliasId: UUID().uuidString, identityModelToIdentify: identityModel1, identityModelToUpdate: identityModel2)
+            let fetchRequest = OSRequestFetchUser(identityModel: identityModel1, aliasLabel: OS_ONESIGNAL_ID, aliasId: UUID().uuidString, onNewSession: false)
+
+            // Append and execute requests simultaneously
+            OSUserExecutor.appendToQueue(identifyRequest)
+            OSUserExecutor.appendToQueue(fetchRequest)
+            OSUserExecutor.executeIdentifyUserRequest(identifyRequest)
+            OSUserExecutor.executeFetchUserRequest(fetchRequest)
+        }
+
+        // Run background threads
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        // No crash
+    }
+
+    /**
      This test reproduced a crash when the property model is being encoded.
      */
     func testEncodingPropertiesModel_withConcurrency_doesNotCrash() throws {
