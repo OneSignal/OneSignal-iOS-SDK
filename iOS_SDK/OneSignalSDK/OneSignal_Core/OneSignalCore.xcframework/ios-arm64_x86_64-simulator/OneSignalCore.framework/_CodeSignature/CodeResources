@@ -16,6 +16,10 @@
 		<data>
 		RUcvMsE7Pj+BUpa1H4SgBH/O/EQ=
 		</data>
+		<key>Headers/OSBundleUtils.h</key>
+		<data>
+		1OjzHfby6YUEqCQ8Y4AD1HL52Q8=
+		</data>
 		<key>Headers/OSDeviceUtils.h</key>
 		<data>
 		qZnSYyg9QxHCH9m743tw/0wlLEE=
@@ -78,7 +82,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		RR9RSoxOud/YmeTG+r6rm4VepRE=
+		uIHiMRPYeXY6I2RU+luHHtaGLNE=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -86,7 +90,7 @@
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		A5diIhe11EigU1EdavSdpYTXdmA=
+		q5VJJvQC6h92TYA+7bvLJZNOS2s=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -158,6 +162,13 @@
 			<key>hash2</key>
 			<data>
 			DC9WcVr/94eTh7NHtwKhA8C2fPJVJfY0nn9A6fuHGhA=
+			</data>
+		</dict>
+		<key>Headers/OSBundleUtils.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			gY8LrC0BeRK8tZLRGnN1SvqL2kIauX7Cyo5WAqriWcw=
 			</data>
 		</dict>
 		<key>Headers/OSDeviceUtils.h</key>
@@ -269,7 +280,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			FxdhAjq7h6Ekc4pqybctKFqh4axJx3moN3VRmLKEiAw=
+			8ryddUw/duY4w6fVvP45kNVSBUzjh+oMtUZAFlpO7jA=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -283,7 +294,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			bNJqZIbqxv7lhnk5ArffKSp7Y82rYzXbvscXeyors2M=
+			20S2Oh1SwfMtiT7LPUzwHwsDF3y7dYYPdCzAfHqTVJ8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
