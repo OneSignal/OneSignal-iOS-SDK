@@ -44,13 +44,13 @@
                       forVariantId:(NSString *)variantId {
     let request = [OSRequestInAppMessageViewed new];
 
-    request.parameters = @{
-       @"device_type": @0,
-       @"player_id": playerId,
-       @"app_id": appId,
-       @"variant_id": variantId
-    };
+    let params = [NSMutableDictionary new];
+    params[@"device_type"] = @0;
+    params[@"player_id"] = playerId;
+    params[@"app_id"] = appId;
+    params[@"variant_id"] = variantId;
 
+    request.parameters = params;
     request.method = POST;
     request.path = [NSString stringWithFormat:@"in_app_messages/%@/impression", messageId];
 
@@ -66,14 +66,14 @@
                       forVariantId:(NSString *)variantId {
     let request = [OSRequestInAppMessagePageViewed new];
 
-    request.parameters = @{
-       @"device_type": @0,
-       @"player_id": playerId,
-       @"app_id": appId,
-       @"variant_id": variantId,
-       @"page_id": pageId
-    };
+    let params = [NSMutableDictionary new];
+    params[@"device_type"] = @0;
+    params[@"player_id"] = playerId;
+    params[@"app_id"] = appId;
+    params[@"variant_id"] = variantId;
+    params[@"page_id"] = pageId;
 
+    request.parameters = params;
     request.method = POST;
     request.path = [NSString stringWithFormat:@"in_app_messages/%@/pageImpression", messageId];
 
@@ -89,15 +89,15 @@
                      withAction:(OSInAppMessageClickResult * _Nonnull)action {
     let request = [OSRequestInAppMessageClicked new];
 
-    request.parameters = @{
-       @"app_id": appId,
-       @"device_type": @0,
-       @"player_id": playerId,
-       @"click_id": action.clickId ?: @"",
-       @"variant_id": variantId,
-       @"first_click": @(action.firstClick)
-    };
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"device_type"] = @0;
+    params[@"player_id"] = playerId;
+    params[@"click_id"] = action.clickId ?: @"";
+    params[@"variant_id"] = variantId;
+    params[@"first_click"] = @(action.firstClick);
 
+    request.parameters = params;
     request.method = POST;
     request.path = [NSString stringWithFormat:@"in_app_messages/%@/click", messageId];
 

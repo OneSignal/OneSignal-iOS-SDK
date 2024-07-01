@@ -53,6 +53,8 @@
 		03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */; };
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3C0151922C2E298F0079E076 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
+		3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C01519B2C2E29F90079E076 /* IAMRequestTests.m */; };
 		3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */; };
 		3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = 3C115164289A259500565C41 /* OneSignalOSCore.docc */; };
 		3C115171289A259500565C41 /* OneSignalOSCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C115163289A259500565C41 /* OneSignalOSCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -587,6 +589,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		3C0151932C2E298F0079E076 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEBAAE272A4211D900BF2C1C;
+			remoteInfo = OneSignalInAppMessages;
+		};
+		3C0151992C2E29AC0079E076 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF5CCF02539321A0003E9CC;
+			remoteInfo = UnitTestApp;
+		};
 		3C115194289AF85400565C41 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -1156,6 +1172,8 @@
 		1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OneSignal.m"; sourceTree = "<group>"; };
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalInAppMessagesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C01519B2C2E29F90079E076 /* IAMRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IAMRequestTests.m; sourceTree = "<group>"; };
 		3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUserInternalImpl.swift; sourceTree = "<group>"; };
 		3C115161289A259500565C41 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C115163289A259500565C41 /* OneSignalOSCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalOSCore.h; sourceTree = "<group>"; };
@@ -1613,6 +1631,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3C01518B2C2E298E0079E076 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C0151922C2E298F0079E076 /* OneSignalInAppMessages.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C11515E289A259500565C41 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1889,6 +1915,7 @@
 				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
 				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
 				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
+				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
 				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
@@ -1916,6 +1943,7 @@
 				475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */,
 				4735424A2B8F93330016DB4C /* OneSignalLiveActivitiesTests.xctest */,
 				DEBA2A1A2C20E35E00E234DB /* OneSignalNotificationsTests.xctest */,
+				3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1946,6 +1974,14 @@
 				37E6B2BA19D9CAF300D0C601 /* UIKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */ = {
+			isa = PBXGroup;
+			children = (
+				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
+			);
+			path = OneSignalInAppMessagesTests;
 			sourceTree = "<group>";
 		};
 		3C115162289A259500565C41 /* OneSignalOSCore */ = {
@@ -3078,6 +3114,25 @@
 			productReference = 37747F9319147D6500558FAD /* libOneSignal.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		3C01518D2C2E298E0079E076 /* OneSignalInAppMessagesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C0151982C2E298F0079E076 /* Build configuration list for PBXNativeTarget "OneSignalInAppMessagesTests" */;
+			buildPhases = (
+				3C01518A2C2E298E0079E076 /* Sources */,
+				3C01518B2C2E298E0079E076 /* Frameworks */,
+				3C01518C2C2E298E0079E076 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3C0151942C2E298F0079E076 /* PBXTargetDependency */,
+				3C01519A2C2E29AC0079E076 /* PBXTargetDependency */,
+			);
+			name = OneSignalInAppMessagesTests;
+			productName = OneSignalInAppMessagesTests;
+			productReference = 3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3C115160289A259500565C41 /* OneSignalOSCore */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3C115172289A259500565C41 /* Build configuration list for PBXNativeTarget "OneSignalOSCore" */;
@@ -3471,12 +3526,17 @@
 		37747F8B19147D6400558FAD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1600;
+				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Hiptic;
 				TargetAttributes = {
 					37747F9219147D6500558FAD = {
 						LastSwiftMigration = 1410;
+					};
+					3C01518D2C2E298E0079E076 = {
+						CreatedOnToolsVersion = 15.2;
+						LastSwiftMigration = 1520;
+						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					3C115160289A259500565C41 = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -3631,11 +3691,19 @@
 				3CC063EA2B6D7FE8002BB07F /* OneSignalUserTests */,
 				473542492B8F93330016DB4C /* OneSignalLiveActivitiesTests */,
 				DEBA2A192C20E35E00E234DB /* OneSignalNotificationsTests */,
+				3C01518D2C2E298E0079E076 /* OneSignalInAppMessagesTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3C01518C2C2E298E0079E076 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C11515F289A259500565C41 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3846,6 +3914,14 @@
 				7AECE59023674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
 				912412361E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				CA1A6E6A20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3C01518A2C2E298E0079E076 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4236,6 +4312,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3C0151942C2E298F0079E076 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEBAAE272A4211D900BF2C1C /* OneSignalInAppMessages */;
+			targetProxy = 3C0151932C2E298F0079E076 /* PBXContainerItemProxy */;
+		};
+		3C01519A2C2E29AC0079E076 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF5CCF02539321A0003E9CC /* UnitTestApp */;
+			targetProxy = 3C0151992C2E29AC0079E076 /* PBXContainerItemProxy */;
+		};
 		3C115195289AF85400565C41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
@@ -4569,6 +4655,152 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		3C0151952C2E298F0079E076 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Release;
+		};
+		3C0151962C2E298F0079E076 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Debug;
+		};
+		3C0151972C2E298F0079E076 /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Test;
+		};
 		3C115173289A259500565C41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -8004,6 +8236,16 @@
 				CA2951B72167F4120064227A /* Release */,
 				CA2951C32167FB950064227A /* Debug */,
 				DE3D8F3928C15839008C2BBF /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3C0151982C2E298F0079E076 /* Build configuration list for PBXNativeTarget "OneSignalInAppMessagesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C0151952C2E298F0079E076 /* Release */,
+				3C0151962C2E298F0079E076 /* Debug */,
+				3C0151972C2E298F0079E076 /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

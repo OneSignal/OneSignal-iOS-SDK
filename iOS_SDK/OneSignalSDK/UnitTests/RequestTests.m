@@ -674,39 +674,6 @@
 //    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"ping", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds}));
 //}
 //
-//- (void)testInAppMessageViewed {
-//    let request = [OSRequestInAppMessageViewed withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId forVariantId:testInAppMessageVariantId];
-//    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/impression", testInAppMessageId]);
-//
-//    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
-//    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
-//       @"device_type": @0,
-//       @"player_id": testUserId,
-//       @"app_id": testAppId,
-//       @"variant_id": testInAppMessageVariantId
-//    }));
-//}
-//
-//- (void)testInAppMessageClicked {
-//    let request = [OSRequestInAppMessageClicked
-//                   withAppId:testAppId
-//                   withPlayerId:testUserId
-//                   withMessageId:testInAppMessageId
-//                   forVariantId:testInAppMessageVariantId
-//                   withAction:testAction];
-//    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testInAppMessageId]);
-//
-//    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
-//    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
-//       @"app_id": testAppId,
-//       @"device_type": @0,
-//       @"player_id": testUserId,
-//       @"click_id": testAction.clickId ?: @"",
-//       @"variant_id": testInAppMessageVariantId,
-//       @"first_click": @(testAction.firstClick)
-//   }));
-//}
-//
 //- (void)testLoadMessageContent {
 //    [UnitTestCommonMethods initOneSignal];
 //
