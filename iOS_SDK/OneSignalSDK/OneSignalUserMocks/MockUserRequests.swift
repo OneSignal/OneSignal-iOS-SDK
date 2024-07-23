@@ -94,7 +94,7 @@ extension MockUserRequests {
             response: userResponse
         )
         client.setMockResponseForRequest(
-            request: "<OSRequestFetchUser with external_id: \(externalId)>",
+            request: "<OSRequestFetchUser with onesignal_id: \(osid)>",
             response: userResponse
         )
     }
@@ -111,6 +111,16 @@ extension MockUserRequests {
                 request: "<OSRequestIdentifyUser with external_id: \(externalId)>",
                 error: NSError(domain: "not-important", code: 409)
             )
+            // 2. Set the response for the subsequent Create User request
+            let userResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)
+            client.setMockResponseForRequest(
+                request: "<OSRequestCreateUser with externalId: \(externalId)>",
+                response: userResponse)
+            // 3. Set the response for the subsequent Fetch User request
+            client.setMockResponseForRequest(
+                request: "<OSRequestFetchUser with onesignal_id: \(osid)>",
+                response: fetchResponse
+            )
         } else {
             // The Identify User is successful, the OSID is unchanged
             osid = anonUserOSID
@@ -119,12 +129,12 @@ extension MockUserRequests {
                 request: "<OSRequestIdentifyUser with external_id: \(externalId)>",
                 response: fetchResponse
             )
+            // 2. Set the response for the subsequent Fetch User request
+            client.setMockResponseForRequest(
+                request: "<OSRequestFetchUser with onesignalId: \(osid)>",
+                response: fetchResponse
+            )
         }
-        // 2. Set the response for the subsequent Fetch User request
-        client.setMockResponseForRequest(
-            request: "<OSRequestFetchUser with external_id: \(externalId)>",
-            response: fetchResponse
-        )
     }
 
     /**
@@ -147,7 +157,7 @@ extension MockUserRequests {
             ]
         ]
         client.setMockResponseForRequest(
-            request: "<OSRequestFetchUser with external_id: \(externalId)>",
+            request: "<OSRequestFetchUser with onesignal_id: \(osid)>",
             response: fetchResponse
         )
     }
@@ -205,13 +215,6 @@ extension MockUserRequests {
         client.setMockResponseForRequest(
             request: "<OSRequestCreateSubscription with token: \(email)>",
             response: response
-        )
-    }
-
-    public static func setTransferSubscriptionResponse(with client: MockOneSignalClient, externalId: String) {
-        client.setMockResponseForRequest(
-            request: "<OSRequestTransferSubscription to external_id: \(externalId)>",
-            response: [:] // The SDK does not use the response
         )
     }
 }
