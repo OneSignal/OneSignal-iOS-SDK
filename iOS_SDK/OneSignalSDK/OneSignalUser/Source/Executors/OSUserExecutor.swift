@@ -343,7 +343,6 @@ extension OSUserExecutor {
                 executePendingRequests()
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed with error \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType == .conflict {
@@ -351,14 +350,13 @@ extension OSUserExecutor {
                     OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
 
                     removeFromQueue(request)
-                    // Transfer the push subscription, and fetch only if it's the current user
+
                     if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
-                        fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-                        transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId)
+                        // Generate a Create User request, if it's still the current user
+                        createUser(OneSignalUserManagerImpl.sharedInstance.user)
                     } else {
-                        // Use external_id for any pending requests, avoiding a fetch to hydrate onesignal_id
-                        request.identityModelToUpdate.primaryAliasLabel = .external_id
-                        executePendingRequests()
+                        // This will hydrate the OneSignal ID for any pending requests
+                        createUser(identityModel: request.identityModelToUpdate)
                     }
                 } else if responseType == .invalid || responseType == .unauthorized {
                     // Failed, no retry
