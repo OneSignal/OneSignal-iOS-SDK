@@ -232,11 +232,12 @@ extension OSUserExecutor {
 
                 // If this user already exists and we logged into an external_id, fetch the user data
                 // TODO: Only do this if response code is 200 or 202
-                // Fetch the user only if its the current user
+                // Fetch the user only if its the current user and non-anonymous
                 if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
                    let identity = request.parameters?["identity"] as? [String: String],
-                   let externalId = identity[OS_EXTERNAL_ID] {
-                    fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
+                   let onesignalId = identity[OS_ONESIGNAL_ID],
+                   identity[OS_EXTERNAL_ID] != nil {
+                    fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
                 } else {
                     executePendingRequests()
                 }
@@ -337,12 +338,8 @@ extension OSUserExecutor {
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             // Fetch the user only if its the current user
             if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
-                fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
+                fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModelToUpdate)
             } else {
-                // Need to hydrate the identity model for any pending requests
-                if let osid = request.identityModelToIdentify.onesignalId {
-                    request.identityModelToUpdate.hydrate([OS_ONESIGNAL_ID: osid])
-                }
                 executePendingRequests()
             }
         } onFailure: { error in
