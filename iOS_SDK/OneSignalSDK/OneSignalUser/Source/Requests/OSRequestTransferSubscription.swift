@@ -28,80 +28,36 @@
 import OneSignalCore
 
 /**
+ Deprecated as of `5.2.3`. Use CreateUser instead. This class skeleton remains due to potentially cached requests.
+ When this request is uncached, it will be translated to a CreateUser request, if appropriate.
+ -------
  Transfers the Subscription specified by the subscriptionId to the User identified by the identity in the payload.
  Only one entry is allowed, `onesignal_id` or an Alias. We will use the alias specified.
  The anticipated usage of this request is only for push subscriptions.
  */
+@available(*, deprecated, message: "Replaced by Create User")
 class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     var sentToClient = false
-    let stringDescription: String
-    override var description: String {
-        return stringDescription
-    }
 
-    var subscriptionModel: OSSubscriptionModel
     let aliasLabel: String
     let aliasId: String
 
-    // Need an alias and subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
-            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/owner"
-            // TODO: self.addJWTHeader(identityModel: identityModel) ??
-            return true
-        } else {
-            self.path = "" // self.path is non-nil, so set to empty string
-            return false
-        }
+        return false
     }
 
-    /**
-     Must pass an Alias pair to identify the User.
-     */
-    init(
-        subscriptionModel: OSSubscriptionModel,
-        aliasLabel: String,
-        aliasId: String
-    ) {
-        self.subscriptionModel = subscriptionModel
-        self.aliasLabel = aliasLabel
-        self.aliasId = aliasId
-        self.stringDescription = "<OSRequestTransferSubscription to \(aliasLabel): \(aliasId)>"
-        super.init()
-        self.parameters = ["identity": [aliasLabel: aliasId]]
-        self.method = PATCH
-        _ = prepareForExecution() // sets the path property
-    }
+    func encode(with coder: NSCoder) { }
 
-    func encode(with coder: NSCoder) {
-        coder.encode(subscriptionModel, forKey: "subscriptionModel")
-        coder.encode(aliasLabel, forKey: "aliasLabel")
-        coder.encode(aliasId, forKey: "aliasId")
-        coder.encode(parameters, forKey: "parameters")
-        coder.encode(method.rawValue, forKey: "method") // Encodes as String
-        coder.encode(timestamp, forKey: "timestamp")
-    }
-
+    /// All cached instances should have External ID as the alias
     required init?(coder: NSCoder) {
         guard
-            let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
             let aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String,
-            let aliasId = coder.decodeObject(forKey: "aliasId") as? String,
-            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
-            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
+            let aliasId = coder.decodeObject(forKey: "aliasId") as? String
         else {
             // Log error
             return nil
         }
-        self.subscriptionModel = subscriptionModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "<OSRequestTransferSubscription to \(aliasLabel): \(aliasId)>"
-        super.init()
-        self.parameters = parameters
-        self.method = HTTPMethod(rawValue: rawMethod)
-        self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

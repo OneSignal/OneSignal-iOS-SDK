@@ -31,11 +31,10 @@ import OneSignalOSCore
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
- Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestTransferSubscription`, `OSRequestFetchUser`, `OSRequestFetchIdentityBySubscription`.
+ Can execute `OSRequestCreateUser`, `OSRequestIdentifyUser`, `OSRequestFetchUser`, `OSRequestFetchIdentityBySubscription`.
  */
 class OSUserExecutor {
     static var userRequestQueue: [OSUserRequest] = []
-    static var transferSubscriptionRequestQueue: [OSRequestTransferSubscription] = []
 
     // The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private static let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
@@ -99,27 +98,25 @@ class OSUserExecutor {
             }
             self.userRequestQueue = userRequestQueue
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-            // Read unfinished Transfer Subscription requests from cache, if any...
-            if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestTransferSubscription] {
-                // We only care about the last transfer subscription request
-                if let request = transferSubscriptionRequestQueue.last {
-                    // Hook the uncached Request to the model in the store
-                    if request.subscriptionModel.modelId == OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.modelId {
-                        // The model exist, set it to be the Request's model
-                        request.subscriptionModel = OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel
-                        self.transferSubscriptionRequestQueue = [request]
-                    } else if !request.prepareForExecution() {
-                        // The model do not exist AND this request cannot be sent, drop this Request
-                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
-                        self.transferSubscriptionRequestQueue = []
-                    }
-                }
-            } else {
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor error encountered reading from cache for \(OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)")
-            }
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
 
+            migrateTransferSubscriptionRequests()
             executePendingRequests()
+        }
+    }
+
+    /**
+     Read Transfer Subscription requests from cache, if any.
+     As of `5.2.3`, the SDK will no longer send Transfer Subscription requests, so migrate the request into an equivalent Create User request.
+     */
+    static private func migrateTransferSubscriptionRequests() {
+        if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: nil) as? [OSRequestTransferSubscription] {
+            OneSignalUserDefaults.initShared().removeValue(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)
+
+            // Translate the last request into a Create User request, if the current user is the same
+            if let request = transferSubscriptionRequestQueue.last,
+               OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.aliasId) {
+                createUser(OneSignalUserManagerImpl.sharedInstance.user)
+            }
         }
     }
 
@@ -133,41 +130,27 @@ class OSUserExecutor {
 
     static func appendToQueue(_ request: OSUserRequest) {
         self.dispatchQueue.async {
-            if request.isKind(of: OSRequestTransferSubscription.self), let req = request as? OSRequestTransferSubscription {
-                self.transferSubscriptionRequestQueue.append(req)
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
-            } else {
-                self.userRequestQueue.append(request)
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-            }
+            self.userRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
         }
     }
 
     static func removeFromQueue(_ request: OSUserRequest) {
         self.dispatchQueue.async {
-            if request.isKind(of: OSRequestTransferSubscription.self), let req = request as? OSRequestTransferSubscription {
-                transferSubscriptionRequestQueue.removeAll(where: { $0 == req})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, withValue: self.transferSubscriptionRequestQueue)
-            } else {
-                userRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-            }
+            userRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
         }
     }
 
     static func executePendingRequests() {
         self.dispatchQueue.async {
-            let requestQueue: [OSUserRequest] = userRequestQueue + transferSubscriptionRequestQueue
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(requestQueue)")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(userRequestQueue)")
 
-            if requestQueue.isEmpty {
+            if userRequestQueue.isEmpty {
                 return
             }
 
-            // Sort the requestQueue by timestamp
-            for request in requestQueue.sorted(by: { first, second in
-                return first.timestamp < second.timestamp
-            }) {
+            for request in userRequestQueue {
                 // Return as soon as we reach an un-executable request
                 if !request.prepareForExecution() {
                     OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
@@ -182,9 +165,6 @@ class OSUserExecutor {
                     return
                 } else if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
                     executeIdentifyUserRequest(identifyUserRequest)
-                    return
-                } else if request.isKind(of: OSRequestTransferSubscription.self), let transferSubscriptionRequest = request as? OSRequestTransferSubscription {
-                    executeTransferPushSubscriptionRequest(transferSubscriptionRequest)
                     return
                 } else if request.isKind(of: OSRequestFetchUser.self), let fetchUserRequest = request as? OSRequestFetchUser {
                     executeFetchUserRequest(fetchUserRequest)
@@ -387,45 +367,6 @@ extension OSUserExecutor {
             } else {
                 executePendingRequests()
             }
-        }
-    }
-
-    static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String) {
-        // TODO: Where to get pushSubscriptionModel for this request
-        let request = OSRequestTransferSubscription(
-            subscriptionModel: OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel,
-            aliasLabel: aliasLabel,
-            aliasId: aliasId
-        )
-
-        appendToQueue(request)
-
-        executePendingRequests()
-    }
-
-    static func executeTransferPushSubscriptionRequest(_ request: OSRequestTransferSubscription) {
-        guard !request.sentToClient else {
-            return
-        }
-        guard request.prepareForExecution() else {
-            // Missing subscriptionId
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor.executeTransferPushSubscriptionRequest with request \(request) cannot be executed due to failing prepareForExecution()")
-            return
-        }
-        request.sentToClient = true
-        OneSignalCoreImpl.sharedClient().execute(request) { _ in
-            removeFromQueue(request)
-            executePendingRequests()
-        } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeTransferPushSubscriptionRequest failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // Fail, no retry, remove from cache and queue
-                    removeFromQueue(request)
-                }
-            }
-            executePendingRequests()
         }
     }
 
