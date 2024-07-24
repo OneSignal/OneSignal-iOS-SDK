@@ -30,7 +30,8 @@ import OneSignalCore
 /**
  This request will be made with the minimum information needed. The payload will contain an externalId or no identities.
  The push subscription may or may not have a token or suscriptionId already.
- There will be no properties sent.
+ This request is used for typical User Create, which will include properties and the push subscription,
+ or to hydrate OneSignal ID for a given External ID, which will only contain the Identity object in the payload.
  */
 class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var sentToClient = false
@@ -40,7 +41,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     }
 
     var identityModel: OSIdentityModel
-    var pushSubscriptionModel: OSSubscriptionModel
+    var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
     func prepareForExecution() -> Bool {
@@ -55,14 +56,17 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         return true
     }
 
-    // When reading from the cache, update the push subscription model
+    // When reading from the cache, update the push subscription model, if appropriate
     func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
+        guard self.pushSubscriptionModel != nil else {
+            return
+        }
         self.pushSubscriptionModel = pushSubscriptionModel
         self.parameters?["subscriptions"] = [pushSubscriptionModel.jsonRepresentation()]
         self.originalPushToken = pushSubscriptionModel.address
     }
 
-    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
+    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel?, pushSubscriptionModel: OSSubscriptionModel?, originalPushToken: String?) {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
         self.originalPushToken = originalPushToken
@@ -78,14 +82,18 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         }
 
         // Properties Object
-        var propertiesObject: [String: Any] = [:]
-        propertiesObject["language"] = propertiesModel.language
-        propertiesObject["timezone_id"] = propertiesModel.timezoneId
-        params["properties"] = propertiesObject
+        if let propertiesModel = propertiesModel {
+            var propertiesObject: [String: Any] = [:]
+            propertiesObject["language"] = propertiesModel.language
+            propertiesObject["timezone_id"] = propertiesModel.timezoneId
+            params["properties"] = propertiesObject
+        }
 
         params["refresh_device_metadata"] = true
         self.parameters = params
-        self.updatePushSubscriptionModel(pushSubscriptionModel)
+        if let pushSub = pushSubscriptionModel {
+            self.updatePushSubscriptionModel(pushSub)
+        }
         self.method = POST
     }
 
@@ -102,7 +110,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
-            let pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let path = coder.decodeObject(forKey: "path") as? String,
@@ -112,7 +119,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
-        self.pushSubscriptionModel = pushSubscriptionModel
+        self.pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel
         self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
         self.stringDescription = "<OSRequestCreateUser with externalId: \(identityModel.externalId ?? "nil")>"
         super.init()

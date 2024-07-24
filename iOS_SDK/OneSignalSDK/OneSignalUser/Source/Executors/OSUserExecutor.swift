@@ -190,6 +190,20 @@ extension OSUserExecutor {
         executePendingRequests()
     }
 
+    /**
+     This Create User call expects an Identity Model with external ID to hydrate the OneSignal ID
+     */
+    static func createUser(identityModel: OSIdentityModel) {
+        guard identityModel.externalId != nil else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "createUser(identityModel) called with missing external ID")
+            return
+        }
+
+        let request = OSRequestCreateUser(identityModel: identityModel, propertiesModel: nil, pushSubscriptionModel: nil, originalPushToken: nil)
+        appendToQueue(request)
+        executePendingRequests()
+    }
+
     static func executeCreateUserRequest(_ request: OSRequestCreateUser) {
         guard !request.sentToClient else {
             return
@@ -200,8 +214,9 @@ extension OSUserExecutor {
         }
         request.sentToClient = true
 
-        // Hook up push subscription model, it may be updated with a subscription_id, etc.
-        if let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: request.pushSubscriptionModel.modelId) {
+        // Hook up push subscription model if exists, it may be updated with a subscription_id, etc.
+        if let modelId = request.pushSubscriptionModel?.modelId,
+           let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
             request.pushSubscriptionModel = pushSubscriptionModel
             request.updatePushSubscriptionModel(pushSubscriptionModel)
         }
