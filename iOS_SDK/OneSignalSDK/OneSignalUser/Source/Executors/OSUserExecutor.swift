@@ -335,6 +335,19 @@ extension OSUserExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             removeFromQueue(request)
 
+            guard let onesignalId = request.identityModelToIdentify.onesignalId else {
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "executeIdentifyUserRequest succeeded but is now missing OneSignal ID!")
+                executePendingRequests()
+                return
+            }
+
+            // Need to hydrate the identity model for current user or past user with pending requests
+            let aliases = [
+                OS_ONESIGNAL_ID: onesignalId,
+                request.aliasLabel: request.aliasId
+            ]
+            request.identityModelToUpdate.hydrate(aliases)
+
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             // Fetch the user only if its the current user
             if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
