@@ -66,7 +66,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.originalPushToken = pushSubscriptionModel.address
     }
 
-    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel?, pushSubscriptionModel: OSSubscriptionModel?, originalPushToken: String?) {
+    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel, originalPushToken: String?) {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
         self.originalPushToken = originalPushToken
@@ -82,18 +82,25 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         }
 
         // Properties Object
-        if let propertiesModel = propertiesModel {
-            var propertiesObject: [String: Any] = [:]
-            propertiesObject["language"] = propertiesModel.language
-            propertiesObject["timezone_id"] = propertiesModel.timezoneId
-            params["properties"] = propertiesObject
-        }
+        var propertiesObject: [String: Any] = [:]
+        propertiesObject["language"] = propertiesModel.language
+        propertiesObject["timezone_id"] = propertiesModel.timezoneId
+        params["properties"] = propertiesObject
 
         params["refresh_device_metadata"] = true
         self.parameters = params
-        if let pushSub = pushSubscriptionModel {
-            self.updatePushSubscriptionModel(pushSub)
-        }
+        self.updatePushSubscriptionModel(pushSubscriptionModel)
+        self.method = POST
+    }
+
+    init(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
+        self.identityModel = identityModel
+        self.stringDescription = "<OSRequestCreateUser with alias \(aliasLabel): \(aliasId)>"
+        super.init()
+        self.parameters = [
+            "identity": [aliasLabel: aliasId],
+            "refresh_device_metadata": true,
+        ]
         self.method = POST
     }
 
@@ -103,7 +110,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         coder.encode(originalPushToken, forKey: "originalPushToken")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
-        coder.encode(path, forKey: "path")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
@@ -112,7 +118,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let path = coder.decodeObject(forKey: "path") as? String,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
@@ -125,7 +130,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
-        self.path = path
         self.timestamp = timestamp
     }
 }

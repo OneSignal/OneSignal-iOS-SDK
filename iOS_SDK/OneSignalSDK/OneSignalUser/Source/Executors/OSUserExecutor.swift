@@ -191,15 +191,10 @@ extension OSUserExecutor {
     }
 
     /**
-     This Create User call expects an Identity Model with external ID to hydrate the OneSignal ID
+     This Create User call expects an external ID and the Identity Model to hydrate with the OneSignal ID
      */
-    static func createUser(identityModel: OSIdentityModel) {
-        guard identityModel.externalId != nil else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "createUser(identityModel) called with missing external ID")
-            return
-        }
-
-        let request = OSRequestCreateUser(identityModel: identityModel, propertiesModel: nil, pushSubscriptionModel: nil, originalPushToken: nil)
+    static func createUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
+        let request = OSRequestCreateUser(aliasLabel: aliasLabel, aliasId: aliasId, identityModel: identityModel)
         appendToQueue(request)
         executePendingRequests()
     }
@@ -209,7 +204,7 @@ extension OSUserExecutor {
             return
         }
         guard request.prepareForExecution() else {
-            // Currently there are no requirements needed before sending this request
+            // Currently there are no requirements needed before sending this request, so this will set the path
             return
         }
         request.sentToClient = true
@@ -369,7 +364,7 @@ extension OSUserExecutor {
                         createUser(OneSignalUserManagerImpl.sharedInstance.user)
                     } else {
                         // This will hydrate the OneSignal ID for any pending requests
-                        createUser(identityModel: request.identityModelToUpdate)
+                        createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                     }
                 } else if responseType == .invalid || responseType == .unauthorized {
                     // Failed, no retry
