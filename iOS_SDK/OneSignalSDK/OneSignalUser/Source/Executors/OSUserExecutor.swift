@@ -230,7 +230,7 @@ extension OSUserExecutor {
                 // Fetch the user only if its the current user and non-anonymous
                 if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
                    let identity = request.parameters?["identity"] as? [String: String],
-                   let onesignalId = identity[OS_ONESIGNAL_ID],
+                   let onesignalId = request.identityModel.onesignalId,
                    identity[OS_EXTERNAL_ID] != nil {
                     fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
                 } else {
