@@ -39,8 +39,14 @@ class OSUserExecutor {
     // The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
-    // Read in requests from the cache, do not read in FetchUser requests as this is not needed.
     init() {
+        uncacheUserRequests()
+        migrateTransferSubscriptionRequests()
+        executePendingRequests()
+    }
+
+    // Read in requests from the cache, do not read in FetchUser requests as this is not needed.
+    private func uncacheUserRequests() {
         var userRequestQueue: [OSUserRequest] = []
 
         // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
@@ -97,9 +103,6 @@ class OSUserExecutor {
         }
         self.userRequestQueue = userRequestQueue
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-
-        migrateTransferSubscriptionRequests()
-        executePendingRequests()
     }
 
     /**
