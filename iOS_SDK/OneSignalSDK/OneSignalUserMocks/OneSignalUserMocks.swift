@@ -35,14 +35,9 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
-        resetStaticUserExecutor()
         // TODO: Reset Operation Repo first
         // OSCoreMocks.resetOperationRepo()
         OneSignalUserManagerImpl.sharedInstance.reset()
-    }
-
-    public static func resetStaticUserExecutor() {
-        OSUserExecutor.userRequestQueue.removeAll()
     }
 }
 
