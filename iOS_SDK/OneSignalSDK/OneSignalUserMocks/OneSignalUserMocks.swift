@@ -27,6 +27,7 @@
 
 import Foundation
 import OneSignalOSCore
+import OneSignalOSCoreMocks
 @testable import OneSignalUser
 
 @objc
@@ -35,8 +36,7 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
-        // TODO: Reset Operation Repo first
-        // OSCoreMocks.resetOperationRepo()
+        OSCoreMocks.resetOperationRepo()
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 }

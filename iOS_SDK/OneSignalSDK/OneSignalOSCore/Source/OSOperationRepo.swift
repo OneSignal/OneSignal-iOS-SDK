@@ -42,7 +42,7 @@ public class OSOperationRepo: NSObject {
     // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
-    private var deltaQueue: [OSDelta] = []
+    var deltaQueue: [OSDelta] = [] // non-private for unit test access
 
     // TODO: This could come from a config, plist, method, remote params
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
