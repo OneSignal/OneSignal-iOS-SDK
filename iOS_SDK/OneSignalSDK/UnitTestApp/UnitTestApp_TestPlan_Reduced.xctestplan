@@ -41,6 +41,9 @@
       }
     },
     {
+      "skippedTests" : [
+        "UserConcurrencyTests"
+      ],
       "target" : {
         "containerPath" : "container:OneSignal.xcodeproj",
         "identifier" : "3CC063EA2B6D7FE8002BB07F",
