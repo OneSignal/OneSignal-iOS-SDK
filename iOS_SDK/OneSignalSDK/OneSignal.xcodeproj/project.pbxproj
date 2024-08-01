@@ -145,6 +145,7 @@
 		3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */; };
 		3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */; };
 		3CC063EF2B6D7FE8002BB07F /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
+		3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1272,6 +1273,7 @@
 		3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserMocks.swift; sourceTree = "<group>"; };
 		3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalUserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserTests.swift; sourceTree = "<group>"; };
+		3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConcurrencyTests.swift; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
@@ -2147,6 +2149,7 @@
 			children = (
 				3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */,
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
+				3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
 				3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */,
 			);
@@ -4087,6 +4090,7 @@
 			files = (
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
+				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
 				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
