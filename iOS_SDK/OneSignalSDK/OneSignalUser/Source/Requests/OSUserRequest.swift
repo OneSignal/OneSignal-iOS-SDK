@@ -29,21 +29,28 @@ import OneSignalCore
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
     var sentToClient: Bool { get set }
-    func prepareForExecution() -> Bool
+    func prepareForExecution(requiresJwt: Bool?) -> Bool
 }
 
 internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
+    /**
+     Add JWT token to header if valid, regardless of requirement.
+     Returns false if JWT requirement is unknown, or turned on but the token is missing or invalid.
+     */
+    func addJWTHeader(required: Bool?, identityModel: OSIdentityModel) -> Bool {
+        let tokenIsValid = identityModel.isJwtValid()
+        // Add the JWT token if it is valid, regardless of requirements
+        if tokenIsValid {
+            var additionalHeaders = self.additionalHeaders ?? [String: String]()
+            additionalHeaders["Authorization"] = "Bearer \(identityModel.jwtToken ?? "")"
+            self.additionalHeaders = additionalHeaders
+        }
+        return required == false || (required == true && tokenIsValid)
     }
 
     /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
     func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
+        addPushToken()
         if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
             var additionalHeaders = self.additionalHeaders ?? [String: String]()
             additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
@@ -52,5 +59,16 @@ internal extension OneSignalRequest {
         } else {
             return false
         }
+    }
+    
+    func addPushToken() -> Bool {
+        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address {
+            var additionalHeaders = self.additionalHeaders ?? [String: String]()
+            additionalHeaders["Device-Auth-Push-Token"] = "Basic \(token)"
+            return true
+        } else {
+            return false
+        }
+        
     }
 }
