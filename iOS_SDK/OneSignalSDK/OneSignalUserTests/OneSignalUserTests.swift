@@ -230,7 +230,7 @@ final class OneSignalUserTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        OSUserExecutor.start()
+        let userExecutor = OSUserExecutor()
 
         /* When */
 
@@ -239,10 +239,10 @@ final class OneSignalUserTests: XCTestCase {
             let fetchRequest = OSRequestFetchUser(identityModel: identityModel1, aliasLabel: OS_ONESIGNAL_ID, aliasId: UUID().uuidString, onNewSession: false)
 
             // Append and execute requests simultaneously
-            OSUserExecutor.appendToQueue(identifyRequest)
-            OSUserExecutor.appendToQueue(fetchRequest)
-            OSUserExecutor.executeIdentifyUserRequest(identifyRequest)
-            OSUserExecutor.executeFetchUserRequest(fetchRequest)
+            userExecutor.appendToQueue(identifyRequest)
+            userExecutor.appendToQueue(fetchRequest)
+            userExecutor.executeIdentifyUserRequest(identifyRequest)
+            userExecutor.executeFetchUserRequest(fetchRequest)
         }
 
         // Run background threads

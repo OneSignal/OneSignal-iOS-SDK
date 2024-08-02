@@ -177,6 +177,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let pushSubscriptionModelStoreListener: OSSubscriptionModelStoreListener
 
     // Executors must be initialize after sharedInstance is initialized
+    var userExecutor: OSUserExecutor?
     var propertyExecutor: OSPropertyOperationExecutor?
     var identityExecutor: OSIdentityOperationExecutor?
     var subscriptionExecutor: OSSubscriptionOperationExecutor?
@@ -221,7 +222,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // Setup the executors
         // The OSUserExecutor has to run first, before other executors
-        OSUserExecutor.start()
+        self.userExecutor = OSUserExecutor()
         OSOperationRepo.sharedInstance.start()
 
         // Cannot initialize these executors in `init` as they reference the sharedInstance
@@ -290,7 +291,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let newUser = setNewInternalUser(externalId: nil, pushSubscriptionModel: pushSubscriptionModel)
 
         // 3. Make the request
-        OSUserExecutor.fetchIdentityBySubscription(newUser)
+        userExecutor!.fetchIdentityBySubscription(newUser)
     }
 
     private func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
@@ -315,7 +316,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         newUser.identityModel.jwtBearerToken = token
-        OSUserExecutor.createUser(newUser)
+        userExecutor!.createUser(newUser)
         return self.user
     }
 
@@ -340,7 +341,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
 
         // Now proceed to identify the previous user
-        OSUserExecutor.identifyUser(
+        userExecutor!.identifyUser(
             externalId: externalId,
             identityModelToIdentify: identityModelToIdentify,
             identityModelToUpdate: newUser.identityModel
@@ -546,13 +547,13 @@ extension OneSignalUserManagerImpl {
         }
         start()
 
-        OSUserExecutor.executePendingRequests()
+        userExecutor!.executePendingRequests()
         OSOperationRepo.sharedInstance.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
-            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
+            userExecutor!.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
         } else {
             // It is possible to init a user from cache who is missing the onesignalId
             // This can happen if any createUser or identifyUser requests are cached

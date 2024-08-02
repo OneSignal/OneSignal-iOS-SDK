@@ -39,7 +39,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
     init() {
-        // Read unfinished deltas from cache, if any...
+        // Read unfinished deltas and requests from cache, if any...
+        uncacheDeltas()
+        uncacheAddAliasRequests()
+        uncacheRemoveAliasRequests()
+    }
+
+    private func uncacheDeltas() {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
@@ -57,9 +63,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY)")
         }
+    }
 
-        // Read unfinished requests from cache, if any...
-
+    private func uncacheAddAliasRequests() {
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
@@ -80,7 +86,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
+    }
 
+    private func uncacheRemoveAliasRequests() {
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {

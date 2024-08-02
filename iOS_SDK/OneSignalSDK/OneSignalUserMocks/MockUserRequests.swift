@@ -80,7 +80,7 @@ extension MockUserRequests {
         let anonCreateResponse = testDefaultFullCreateUserResponse(onesignalId: anonUserOSID, externalId: nil, subscriptionId: testPushSubId)
 
         client.setMockResponseForRequest(
-            request: "<OSRequestCreateUser with externalId: nil>",
+            request: "<OSRequestCreateUser with external_id: nil>",
             response: anonCreateResponse)
     }
 
@@ -90,7 +90,7 @@ extension MockUserRequests {
         let userResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)
 
         client.setMockResponseForRequest(
-            request: "<OSRequestCreateUser with externalId: \(externalId)>",
+            request: "<OSRequestCreateUser with external_id: \(externalId)>",
             response: userResponse
         )
         client.setMockResponseForRequest(
@@ -114,7 +114,7 @@ extension MockUserRequests {
             // 2. Set the response for the subsequent Create User request
             let userResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)
             client.setMockResponseForRequest(
-                request: "<OSRequestCreateUser with externalId: \(externalId)>",
+                request: "<OSRequestCreateUser with external_id: \(externalId)>",
                 response: userResponse)
             // 3. Set the response for the subsequent Fetch User request
             client.setMockResponseForRequest(
