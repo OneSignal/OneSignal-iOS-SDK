@@ -44,11 +44,11 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
 
 extension OSModelStoreListener {
     public func start() {
-        store.changeSubscription.subscribe(self)
+        store.changeSubscription.subscribe(self, key: store.storeKey)
     }
 
     public func close() {
-        store.changeSubscription.unsubscribe(self)
+        store.changeSubscription.unsubscribe(self, key: store.storeKey)
     }
 
     public func onAdded(_ model: OSModel) {

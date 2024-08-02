@@ -77,6 +77,7 @@
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes

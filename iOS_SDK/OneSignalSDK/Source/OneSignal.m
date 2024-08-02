@@ -196,7 +196,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
-    // TODO: Need to await download iOS params
     // return if no app_id / the user has not granted privacy permissions
     if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
         return;
@@ -206,6 +205,14 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (void)logout {
     [OneSignalUserManagerImpl.sharedInstance logout];
+}
+
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    // return if no app_id / the user has not granted privacy permissions
+    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
+        return;
+    }
+    [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId token:token];
 }
 
 #pragma mark: Namespaces
@@ -630,9 +637,9 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-        }
+//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = true;
+//        }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
