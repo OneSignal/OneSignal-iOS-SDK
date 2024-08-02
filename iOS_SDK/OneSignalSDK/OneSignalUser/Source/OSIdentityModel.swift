@@ -58,8 +58,20 @@ class OSIdentityModel: OSModel {
     var aliases: [String: String] = [:]
     private let aliasesLock = NSRecursiveLock()
 
-    // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    public var jwtToken: String? {
+        didSet {
+            guard jwtToken != oldValue else {
+                return
+            }
+            self.set(property: "jwtToken", newValue: jwtToken, hydrating: true)
+            guard let euid = externalId else { return }
+            OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: euid, from: oldValue, to: jwtToken)
+        }
+    }
+    
+    func isJwtValid() -> Bool {
+        return jwtToken != nil && jwtToken != "" && jwtToken != "invalid"
+    }
 
     // MARK: - Initialization
 
@@ -73,6 +85,7 @@ class OSIdentityModel: OSModel {
         aliasesLock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
+            coder.encode(jwtToken, forKey: "jwtToken")
             coder.encode(primaryAliasLabel.rawValue, forKey: "primaryAliasLabel") // Encodes as String
         }
     }
@@ -89,6 +102,7 @@ class OSIdentityModel: OSModel {
         } else {
             self.primaryAliasLabel = .onesignal_id
         }
+        self.jwtToken = coder.decodeObject(forKey: "jwtToken") as? String
         self.aliases = aliases
     }
 
@@ -108,6 +122,7 @@ class OSIdentityModel: OSModel {
             }
         }
         self.set(property: "aliases", newValue: aliases)
+        
     }
 
     /**
