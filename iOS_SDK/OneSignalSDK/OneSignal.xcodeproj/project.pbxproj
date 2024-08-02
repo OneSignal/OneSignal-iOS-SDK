@@ -142,6 +142,8 @@
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 3CCF44BC299B17290021964D /* OneSignalWrapper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3CCF44BF299B17290021964D /* OneSignalWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CCF44BD299B17290021964D /* OneSignalWrapper.m */; };
+		3CD50C3C2C210A4800FDE285 /* OSRequiresUserAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDE03B42C1CB99D0037FD1E /* OSRequiresUserAuth.swift */; };
+		3CD50C3D2C210A4900FDE285 /* OSUserJwtConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD50C3A2C1F5B6900FDE285 /* OSUserJwtConfig.swift */; };
 		3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */; };
 		3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */; };
 		3CE795F928DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */; };
@@ -1189,6 +1191,8 @@
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCF44BC299B17290021964D /* OneSignalWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWrapper.h; sourceTree = "<group>"; };
 		3CCF44BD299B17290021964D /* OneSignalWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWrapper.m; sourceTree = "<group>"; };
+		3CD50C3A2C1F5B6900FDE285 /* OSUserJwtConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfig.swift; sourceTree = "<group>"; };
+		3CDE03B42C1CB99D0037FD1E /* OSRequiresUserAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequiresUserAuth.swift; sourceTree = "<group>"; };
 		3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalUserTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalUserObjcTests.m; sourceTree = "<group>"; };
 		3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStoreChangedHandler.swift; sourceTree = "<group>"; };
@@ -1906,6 +1910,7 @@
 			isa = PBXGroup;
 			children = (
 				3C115163289A259500565C41 /* OneSignalOSCore.h */,
+				3CDE03B32C1CB9420037FD1E /* JWT */,
 				3C115188289ADEA300565C41 /* OSModelStore.swift */,
 				3C115186289ADE7700565C41 /* OSModelStoreListener.swift */,
 				3C115184289ADE4F00565C41 /* OSModel.swift */,
@@ -2005,6 +2010,15 @@
 				3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */,
 			);
 			path = OneSignalUserTests;
+			sourceTree = "<group>";
+		};
+		3CDE03B32C1CB9420037FD1E /* JWT */ = {
+			isa = PBXGroup;
+			children = (
+				3CDE03B42C1CB99D0037FD1E /* OSRequiresUserAuth.swift */,
+				3CD50C3A2C1F5B6900FDE285 /* OSUserJwtConfig.swift */,
+			);
+			path = JWT;
 			sourceTree = "<group>";
 		};
 		3CEE90A52BFE6A7700B0FB5B /* Support */ = {
@@ -3760,6 +3774,8 @@
 				3C10E0632BF5651500A7B37F /* OSLoggable.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
+				3CD50C3D2C210A4900FDE285 /* OSUserJwtConfig.swift in Sources */,
+				3CD50C3C2C210A4800FDE285 /* OSRequiresUserAuth.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
 				3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
