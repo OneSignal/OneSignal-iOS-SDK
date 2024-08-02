@@ -28,8 +28,8 @@
 import OneSignalCore
 
 /**
- If an alias is passed in, it will be used to fetch the user. If not, then by default, use the `onesignal_id` in the `identityModel` to fetch the user.
- The `identityModel` is also used to reference the user that is updated with the response.
+ Fetch the user by the provided alias. This is expected to be `onesignal_id` in most cases.
+ The `identityModel` is used to reference the user that is updated with the response.
  */
 class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     var sentToClient = false

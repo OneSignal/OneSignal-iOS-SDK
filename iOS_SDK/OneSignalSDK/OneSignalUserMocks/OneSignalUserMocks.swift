@@ -43,7 +43,6 @@ public class OneSignalUserMocks: NSObject {
 
     public static func resetStaticUserExecutor() {
         OSUserExecutor.userRequestQueue.removeAll()
-        OSUserExecutor.transferSubscriptionRequestQueue.removeAll()
     }
 }
 

@@ -29,23 +29,7 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-// By matching the enum name to the raw value, it will always stringify correctly
-enum OSDefaultAlias: String {
-    // swiftlint:disable identifier_name
-    case onesignal_id = "onesignal_id"
-    case external_id = "external_id"
-    // swiftlint:enable identifier_name
-}
-
 class OSIdentityModel: OSModel {
-    /**
-     Set either `onesignal_id` or `external_id`, representing the alias that will be used in requests.
-     */
-    var primaryAliasLabel: OSDefaultAlias = .onesignal_id
-    var primaryAliasId: String? {
-        return if primaryAliasLabel == .external_id { externalId } else { onesignalId }
-    }
-
     var onesignalId: String? {
         return internalGetAlias(OS_ONESIGNAL_ID)
     }
@@ -73,7 +57,6 @@ class OSIdentityModel: OSModel {
         aliasesLock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
-            coder.encode(primaryAliasLabel.rawValue, forKey: "primaryAliasLabel") // Encodes as String
         }
     }
 
@@ -82,12 +65,6 @@ class OSIdentityModel: OSModel {
         guard let aliases = coder.decodeObject(forKey: "aliases") as? [String: String] else {
             // log error
             return nil
-        }
-        if let rawType = coder.decodeObject(forKey: "primaryAliasLabel") as? String,
-           let label = OSDefaultAlias(rawValue: rawType) {
-            self.primaryAliasLabel = label
-        } else {
-            self.primaryAliasLabel = .onesignal_id
         }
         self.aliases = aliases
     }

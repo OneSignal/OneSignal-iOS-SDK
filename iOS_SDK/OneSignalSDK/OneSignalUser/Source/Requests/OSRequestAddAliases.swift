@@ -39,10 +39,9 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
-        let aliasLabel = identityModel.primaryAliasLabel
-        if let aliasId = identityModel.primaryAliasId, let appId = OneSignalConfigManager.getAppId() {
+        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)/identity"
+            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string

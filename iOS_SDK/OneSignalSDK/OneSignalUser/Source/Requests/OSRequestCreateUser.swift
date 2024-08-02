@@ -30,7 +30,8 @@ import OneSignalCore
 /**
  This request will be made with the minimum information needed. The payload will contain an externalId or no identities.
  The push subscription may or may not have a token or suscriptionId already.
- There will be no properties sent.
+ This request is used for typical User Create, which will include properties and the push subscription,
+ or to hydrate OneSignal ID for a given External ID, which will only contain the Identity object in the payload.
  */
 class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var sentToClient = false
@@ -40,7 +41,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     }
 
     var identityModel: OSIdentityModel
-    var pushSubscriptionModel: OSSubscriptionModel
+    var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
     func prepareForExecution() -> Bool {
@@ -55,8 +56,11 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         return true
     }
 
-    // When reading from the cache, update the push subscription model
+    // When reading from the cache, update the push subscription model, if appropriate
     func updatePushSubscriptionModel(_ pushSubscriptionModel: OSSubscriptionModel) {
+        guard self.pushSubscriptionModel != nil else {
+            return
+        }
         self.pushSubscriptionModel = pushSubscriptionModel
         self.parameters?["subscriptions"] = [pushSubscriptionModel.jsonRepresentation()]
         self.originalPushToken = pushSubscriptionModel.address
@@ -89,36 +93,43 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.method = POST
     }
 
+    init(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
+        self.identityModel = identityModel
+        self.stringDescription = "<OSRequestCreateUser with alias \(aliasLabel): \(aliasId)>"
+        super.init()
+        self.parameters = [
+            "identity": [aliasLabel: aliasId],
+            "refresh_device_metadata": true,
+        ]
+        self.method = POST
+    }
+
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
         coder.encode(originalPushToken, forKey: "originalPushToken")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
-        coder.encode(path, forKey: "path")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
-            let pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel,
             let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let path = coder.decodeObject(forKey: "path") as? String,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
             return nil
         }
         self.identityModel = identityModel
-        self.pushSubscriptionModel = pushSubscriptionModel
+        self.pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel
         self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
         self.stringDescription = "<OSRequestCreateUser with externalId: \(identityModel.externalId ?? "nil")>"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
-        self.path = path
         self.timestamp = timestamp
     }
 }

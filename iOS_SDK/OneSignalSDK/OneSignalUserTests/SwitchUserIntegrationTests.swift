@@ -105,7 +105,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
         MockUserRequests.setAddTagsAndLanguageResponse(with: client, tags: tagsUserA, language: "lang_a")
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_a": "id_a"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_a@example.com")
-        MockUserRequests.setTransferSubscriptionResponse(with: client, externalId: userA_EUID)
         // Returns mocked user data to test hydration
         MockUserRequests.setDefaultFetchUserResponseForHydration(with: client, externalId: userA_EUID)
 
@@ -160,7 +159,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
             contains: ["subscription": ["token": "email_a@example.com"]])
         )
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestFetchUser.self))
-        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestTransferSubscription.self))
 
         // 3. Asserts for User A - local data is updated via hydration
         XCTAssertEqual("remote_language", OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.language)
@@ -262,15 +260,15 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 2. Asserts for User A
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
             contains: ["properties": ["language": "lang_a", "tags": tagsUserA]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/identity",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
             contains: ["identity": ["alias_a": "id_a"]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Email
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/subscriptions",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
             contains: ["subscription": ["token": "email_a@example.com"]])
         )
 
@@ -388,15 +386,15 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // 2. Asserts for User A
         XCTAssertTrue(client.onlyOneRequest( // Tag + Language
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
             contains: ["properties": ["language": "lang_a", "tags": tagsUserA]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Alias
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/identity",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
             contains: ["identity": ["alias_a": "id_a"]])
         )
         XCTAssertTrue(client.onlyOneRequest( // Email
-            contains: "apps/test-app-id/users/by/external_id/\(userA_EUID)/subscriptions",
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
             contains: ["subscription": ["token": "email_a@example.com"]])
         )
 

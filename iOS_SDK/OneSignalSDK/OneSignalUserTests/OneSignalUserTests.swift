@@ -312,7 +312,7 @@ final class OneSignalUserTests: XCTestCase {
 
         // Increase flush interval to allow all the updates to batch
         OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-        
+
         /* When */
 
         OneSignalUserManagerImpl.sharedInstance.sendSessionTime(100)
