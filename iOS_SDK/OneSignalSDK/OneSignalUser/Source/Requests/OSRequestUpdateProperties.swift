@@ -38,12 +38,13 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     // TODO: Decide if addPushSubscriptionIdToAdditionalHeadersIfNeeded should block.
     // Note Android adds it to requests, if the push sub ID exists
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         let aliasLabel = identityModel.primaryAliasLabel
         if let aliasId = identityModel.primaryAliasId,
-            let appId = OneSignalConfigManager.getAppId() {
+           let appId = OneSignalConfigManager.getAppId(),
+           self.addJWTHeader(required: requiresJwt, identityModel: identityModel)
+        {
             _ = self.addPushSubscriptionIdToAdditionalHeaders()
-            self.addJWTHeader(identityModel: identityModel)
             self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
             return true
         } else {
@@ -59,7 +60,6 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = params
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -85,6 +85,5 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

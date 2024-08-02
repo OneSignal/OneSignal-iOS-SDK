@@ -43,13 +43,21 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var pushSubscriptionModel: OSSubscriptionModel
     var originalPushToken: String?
 
-    func prepareForExecution() -> Bool {
+    /**
+     When Identity Verification is disabled, there are no requirements before sending this request.
+     */
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request due to null app ID.")
             return false
         }
+        
+        guard addJWTHeader(required: requiresJwt, identityModel: identityModel) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request due to unknown or invalid JWT.")
+            return false
+        }
+        
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
-        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
         // The pushSub doesn't need to have a token.
         return true

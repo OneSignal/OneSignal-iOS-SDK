@@ -42,7 +42,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true
@@ -58,7 +58,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
         self.method = DELETE
-        _ = prepareForExecution() // sets the path property
+        _ = prepareForExecution(requiresJwt: nil) // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -81,6 +81,6 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
+        _ = prepareForExecution(requiresJwt: nil)
     }
 }
