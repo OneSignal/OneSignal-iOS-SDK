@@ -44,7 +44,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     let aliasId: String
 
     // Need an alias and subscription_id
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/owner"
             // TODO: self.addJWTHeader(identityModel: identityModel) ??
@@ -70,7 +70,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
+        _ = prepareForExecution(requiresJwt: nil) // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -102,6 +102,6 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
+        _ = prepareForExecution(requiresJwt: nil)
     }
 }
