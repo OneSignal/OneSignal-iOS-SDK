@@ -30,13 +30,14 @@ import OneSignalOSCore
 import OneSignalNotifications
 
 /**
- Public-facing API to access the User Manager.
+ Internal API to access the User Manager.
  */
 @objc protocol OneSignalUserManager {
     // swiftlint:disable identifier_name
     var User: OSUser { get }
     func login(externalId: String, token: String?)
     func logout()
+    func updateUserJwt(externalId: String, token: String)
     // Location
     func setLocation(latitude: Float, longitude: Float)
     // Purchase Tracking
@@ -521,6 +522,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         updatePropertiesDeltas(property: .purchases, value: purchases)
+    }
+
+    @objc
+    public func updateUserJwt(externalId: String, token: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
+            return
+        }
+        guard let identityModel = getIdentityModel(externalId: externalId) else {
+            OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_ERROR, message: "Update User JWT called with external ID \(externalId) that does not exist")
+            return
+        }
+        OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
+
+        identityModel.jwtToken = token
     }
 
     private func fireJwtExpired() {
