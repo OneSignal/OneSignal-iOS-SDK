@@ -1,0 +1,114 @@
+/*
+ Modified MIT License
+
+ Copyright 2024 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import Foundation
+import OneSignalCore
+
+/**
+ Use an enum to avoid working with optional Bool, which is unsightly to cache and uncache.
+ */
+enum OSRequiresUserAuth: String {
+    case on
+    case off
+    case unknown
+    // TODO: JWT 🔐 consider additional reasons such as detecting this by dev calling loginWithJWT / onViaRemoteParams
+
+    func isRequired() -> Bool? {
+        return switch self {
+        case .on:
+            true
+        case .off:
+            false
+        default:
+            nil
+        }
+    }
+}
+
+/**
+ Internal listener.
+ */
+public protocol OSUserJwtConfigListener {
+    // TODO: JWT 🔐 exact callbacks TBD
+    func onRequiresUserAuthChanged(from: Bool?, to: Bool?)
+    func onJwtInvalidated(externalId: String, error: String?)
+    func onJwtUpdated(externalId: String, jwtToken: String)
+    func onJwtTokenChanged(externalId: String, from: String?, to: String?)
+}
+
+public class OSUserJwtConfig {
+    public let changeNotifier = OSEventProducer<OSUserJwtConfigListener>()
+
+    private var requiresUserAuth: OSRequiresUserAuth {
+        didSet {
+            guard oldValue != requiresUserAuth else {
+                return
+            }
+
+            print("💛 OSUserJwtConfig.requiresUserAuth: changing from \(oldValue) to \(requiresUserAuth), firing \(changeNotifier)")
+
+            // Persist new value
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: requiresUserAuth.rawValue)
+
+            self.changeNotifier.fire { listener in
+                listener.onRequiresUserAuthChanged(from: oldValue.isRequired(), to: requiresUserAuth.isRequired())
+            }
+        }
+    }
+
+    public var isRequired: Bool? {
+        get {
+            return requiresUserAuth.isRequired()
+        }
+        set {
+            requiresUserAuth = switch newValue {
+            case true:
+                OSRequiresUserAuth.on
+            case false:
+                OSRequiresUserAuth.off
+            default:
+                OSRequiresUserAuth.unknown
+            }
+        }
+    }
+
+    public init() {
+        let rawValue = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_USE_IDENTITY_VERIFICATION, defaultValue: OSRequiresUserAuth.unknown.rawValue)
+
+        print("❌ OSUserJwtConfig init rawValue: \(String(describing: rawValue)), OSRequiresUserAuth: \(String(describing: OSRequiresUserAuth(rawValue: rawValue!)))")
+
+        requiresUserAuth = OSRequiresUserAuth(rawValue: rawValue ?? OSRequiresUserAuth.unknown.rawValue) ?? OSRequiresUserAuth.unknown
+    }
+
+    public func onJwtTokenChanged(externalId: String, from: String?, to: String?) {
+        if to == "invalid" {
+            changeNotifier.fire { listener in
+                listener.onJwtInvalidated(externalId: externalId, error: nil)
+            }
+        }
+    }
+}
