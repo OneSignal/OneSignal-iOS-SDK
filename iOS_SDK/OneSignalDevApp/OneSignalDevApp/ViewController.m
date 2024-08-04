@@ -196,8 +196,16 @@
 
 - (IBAction)loginExternalUserId:(UIButton *)sender {
     NSString* externalUserId = self.externalUserIdTextField.text;
-    NSLog(@"Dev App: Logging in to external user ID %@", externalUserId);
-    [OneSignal login:externalUserId];
+    NSString* token = self.tokenTextField.text;
+    NSLog(@"❌ Dev App: Logging in to external user ID %@ and token %@", externalUserId, token);
+    [OneSignal login:externalUserId withToken:token];
+}
+
+- (IBAction)updateJwt:(id)sender {
+    NSString* externalUserId = self.externalUserIdTextField.text;
+    NSString* token = self.tokenTextField.text;
+    NSLog(@"❌ Dev App: updating JWT for external user ID %@ and token %@", externalUserId, token);
+    [OneSignal updateUserJwt:externalUserId withToken:token];
 }
 
 - (IBAction)logout:(UIButton *)sender {
