@@ -151,6 +151,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     var jwtConfig = OSUserJwtConfig()
 
+    @objc
+    public func setRequiresUserAuth(_ required: Bool) {
+        jwtConfig.isRequired = required
+    }
+
     // User State Observer
     private var _userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState>?
     var userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState> {
