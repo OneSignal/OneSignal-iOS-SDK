@@ -149,6 +149,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
         pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: true, changeNotifier: OSEventProducer()))
 
+    // TODO: JWT 🔐 make private
     var jwtConfig = OSUserJwtConfig()
 
     @objc
@@ -228,13 +229,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // Setup the executors
         // The OSUserExecutor has to run first, before other executors
-        self.userExecutor = OSUserExecutor()
-        OSOperationRepo.sharedInstance.start()
+        self.userExecutor = OSUserExecutor(requiresAuth: jwtConfig.isRequired)
+        OSOperationRepo.sharedInstance.start(requiresAuth: jwtConfig.isRequired)
+        jwtConfig.changeNotifier.subscribe(OSOperationRepo.sharedInstance, key: "OSOperationRepo") // TODO: JWT 🔐 not great this way
 
         // Cannot initialize these executors in `init` as they reference the sharedInstance
-        let propertyExecutor = OSPropertyOperationExecutor()
-        let identityExecutor = OSIdentityOperationExecutor()
-        let subscriptionExecutor = OSSubscriptionOperationExecutor()
+        let propertyExecutor = OSPropertyOperationExecutor(requiresAuth: jwtConfig.isRequired)
+        let identityExecutor = OSIdentityOperationExecutor(requiresAuth: jwtConfig.isRequired)
+        let subscriptionExecutor = OSSubscriptionOperationExecutor(requiresAuth: jwtConfig.isRequired)
         self.propertyExecutor = propertyExecutor
         self.identityExecutor = identityExecutor
         self.subscriptionExecutor = subscriptionExecutor
@@ -249,8 +251,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
             OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
             OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+        }
+
+        // Path 3. There is no user because JWT is on
+        // Is this actually true?
+        if jwtConfig.isRequired == true {
+            // Do nothing
         } else {
-            // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
+            // Path 4. Creates an anonymous user if there isn't one in the cache nor a legacy player, and JWT is unknown or off
             createUserIfNil()
         }
 
@@ -270,6 +278,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     func getIdentityModel(_ modelId: String) -> OSIdentityModel? {
         return identityModelRepo.get(modelId: modelId)
+    }
+
+    func getIdentityModel(externalId: String) -> OSIdentityModel? {
+//        guard let externalId = externalId else { return nil }
+        return identityModelRepo.get(externalId: externalId)
     }
 
     @objc
@@ -322,7 +335,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         newUser.identityModel.jwtBearerToken = token
-        userExecutor!.createUser(newUser)
+        userExecutor!.createUser(newUser) // TODO: JWT 🔐 Not call this before remote params
         return self.user
     }
 
@@ -387,17 +400,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager internal _login called with externalId: \(externalId ?? "nil")")
 
+        userExecutor!.logSelf()
         // If have token, validate token. Account for this being a requirement.
         // Logging into an identified user from an anonymous user
         if let externalId = externalId,
            let user = _user,
-           user.isAnonymous {
+           user.isAnonymous,
+           jwtConfig.isRequired != true {
             user.identityModel.jwtBearerToken = token
             identifyUser(externalId: externalId, currentUser: user)
             return self.user
         }
 
-        // Logging into anon -> anon, identified -> anon, identified -> identified, or nil -> any user
+        // JWT Off: Logging into anon -> anon, identified -> anon, identified -> identified, or nil -> any user
+        // JWT On: Logging into anon -> identified ,identified -> identified, or nil -> any user
         return createNewUser(externalId: externalId, token: token)
     }
 
@@ -540,7 +556,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
 
-        identityModel.jwtToken = token
+        identityModel.jwtBearerToken = token
     }
 
     private func fireJwtExpired() {
