@@ -29,21 +29,49 @@ import OneSignalCore
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
     var sentToClient: Bool { get set }
-    func prepareForExecution() -> Bool
+    func prepareForExecution(requiresJwt: Bool?) -> Bool
 }
 
 internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
+
+    /**
+     Returns the alias pair to use to send this request for. Defaults to Onesignal Id, unless Identity Verification is on.
+     */
+    func getAlias(authRequired: Bool?, identityModel: OSIdentityModel) -> (label: String, id: String?) {
+        var label = OS_ONESIGNAL_ID
+        var id = identityModel.onesignalId
+        if authRequired == true {
+            label = OS_EXTERNAL_ID
+            id = identityModel.externalId
+        }
+        return (label, id)
+    }
+
+    /**
+     Adds JWT token to header if valid, regardless of requirement.
+     Returns false if JWT requirement is unknown, or turned on but the token is missing or invalid.
+     
+     |                    |  unknown  |   on    |   off   |
+     | --------------- | -------------- | ------- | ------- |
+     |   hasToken  |                  |   ✔️    |   ✔️   |
+     |   noToken    |                  |           |   ✔️   |
+     | --------------- | -------------- | ------- | ------- |
+     */
+    func addJWTHeaderIsValid(required: Bool?, identityModel: OSIdentityModel) -> Bool {
+        let tokenIsValid = identityModel.isJwtValid()
+        let canBeSent = required == false || (required == true && tokenIsValid)
+        if canBeSent, tokenIsValid {
+            // Add the JWT token if it is valid, regardless of requirements
+            var additionalHeaders = self.additionalHeaders ?? [String: String]()
+            additionalHeaders["Authorization"] = "Bearer \(identityModel.jwtBearerToken ?? "")"
+            self.additionalHeaders = additionalHeaders
+        }
+        return canBeSent
     }
 
     /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
     func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
+        addPushToken()
         if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
             var additionalHeaders = self.additionalHeaders ?? [String: String]()
             additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
@@ -52,5 +80,16 @@ internal extension OneSignalRequest {
         } else {
             return false
         }
+    }
+
+    func addPushToken() -> Bool {
+        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address {
+            var additionalHeaders = self.additionalHeaders ?? [String: String]()
+            additionalHeaders["Device-Auth-Push-Token"] = "Basic \(token)"
+            return true
+        } else {
+            return false
+        }
+
     }
 }
