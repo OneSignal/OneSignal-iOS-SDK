@@ -52,4 +52,15 @@ class OSIdentityModelRepo {
             return models[modelId]
         }
     }
+
+    func get(externalId: String) -> OSIdentityModel? {
+        lock.withLock {
+            for model in models.values {
+                if model.externalId == externalId {
+                    return model
+                }
+            }
+            return nil
+        }
+    }
 }
