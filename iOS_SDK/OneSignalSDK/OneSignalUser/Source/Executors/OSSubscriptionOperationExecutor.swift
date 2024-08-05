@@ -36,11 +36,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
+    var requiresAuth: Bool?
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init() {
+    // TODO: JWT 🔐 Subscription details are TBD
+    init(requiresAuth: Bool?) {
+        self.requiresAuth = requiresAuth
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -86,10 +89,10 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     subscriptionModels[request.subscriptionModel.modelId] = request.subscriptionModel
                 }
                 // 2. Hook up the identity model
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId: request.identityModel.modelId) {
                     // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if request.prepareForExecution() {
+                } else if request.prepareForExecution(requiresJwt: nil) {
                     // b. The request can be sent, add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
@@ -116,7 +119,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution() {
+                } else if !request.prepareForExecution(requiresJwt: nil) {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
@@ -139,7 +142,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution() {
+                } else if !request.prepareForExecution(requiresJwt: nil) {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
@@ -271,7 +274,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             return
         }
         request.sentToClient = true
@@ -336,7 +339,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             return
         }
         request.sentToClient = true
@@ -381,7 +384,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(requiresJwt: nil) else {
             return
         }
         request.sentToClient = true
