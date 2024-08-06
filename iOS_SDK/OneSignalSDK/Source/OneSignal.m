@@ -293,7 +293,10 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (BOOL)isValidAppId:(NSString*)appId {
     if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:[NSString stringWithFormat:@"OneSignal AppId: %@ - AppId is null or format is invalid, stopping initialization.\nExample usage: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n", appId]];
+        if (!OneSignalWrapper.sdkType) {
+            // Fatal log if not a wrapper SDK, wrappers will call init with null App Id
+            [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:[NSString stringWithFormat:@"OneSignal AppId: %@ - AppId is null or format is invalid, stopping initialization.\nExample usage: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n", appId]];
+        }
         return false;
     }
     return true;
