@@ -2,23 +2,23 @@ import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
 import OneSignalUserMocks
+@testable import OneSignalOSCore
 @testable import OneSignalUser
 
 final class SwitchUserIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
         // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
+        // TODO: Need to clear all data between tests for client, user manager, models, etc.
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
         OneSignalConfigManager.setAppId("test-app-id")
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws {
-        // TODO: Need to clear all data between tests for client, user manager, models, etc.
-        OneSignalCoreMocks.clearUserDefaults()
-        OneSignalUserMocks.reset()
-    }
+    override func tearDownWithError() throws { }
 
     func testIdentifyUserSuccessfully_thenLogin_sendsCorrectTags() throws {
         /* Setup */
@@ -190,6 +190,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
      */
     func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch() throws {
         /* Setup */
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
@@ -316,6 +317,11 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
+
+        // Increase flush interval to allow all the updates to batch
+        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        // Wait to let any pending flushes in the Operation Repo to run
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.1)
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]

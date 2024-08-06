@@ -13,17 +13,16 @@
 
 - (void)setUp {
     // TODO: Something like the existing [UnitTestCommonMethods beforeEachTest:self];
+    // TODO: Need to clear all data between tests for client, user manager, models, etc.
+    [OneSignalCoreMocks clearUserDefaults];
+    [OneSignalUserMocks reset];
     // App ID is set because User Manager has guards against nil App ID
     [OneSignalConfigManager setAppId:@"test-app-id"];
     // Temp. logging to help debug during testing
     [OneSignalLog setLogLevel:ONE_S_LL_VERBOSE];
 }
 
-- (void)tearDown {
-    // TODO: Need to clear all data between tests for client, user manager, models, etc.
-    [OneSignalCoreMocks clearUserDefaults];
-    [OneSignalUserMocks reset];
-}
+- (void)tearDown { }
 
 /**
  Tests passing purchase data to the User Manager to process and send.

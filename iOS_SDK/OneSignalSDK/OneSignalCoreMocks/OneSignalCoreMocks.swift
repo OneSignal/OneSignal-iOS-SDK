@@ -28,20 +28,18 @@ import XCTest
 public class OneSignalCoreMocks: NSObject {
     @objc
     public static func clearUserDefaults() {
-        guard let userDefaults = OneSignalUserDefaults.initStandard().userDefaults else {
-            return
-        }
-        let dictionary = userDefaults.dictionaryRepresentation()
-        for key in dictionary.keys {
-            userDefaults.removeObject(forKey: key)
+        if let userDefaults = OneSignalUserDefaults.initStandard().userDefaults {
+            let dictionary = userDefaults.dictionaryRepresentation()
+            for key in dictionary.keys {
+                userDefaults.removeObject(forKey: key)
+            }
         }
 
-        guard let sharedUserDefaults = OneSignalUserDefaults.initShared().userDefaults else {
-            return
-        }
-        let sharedDictionary = sharedUserDefaults.dictionaryRepresentation()
-        for key in sharedDictionary.keys {
-            sharedUserDefaults.removeObject(forKey: key)
+        if let sharedUserDefaults = OneSignalUserDefaults.initShared().userDefaults {
+            let sharedDictionary = sharedUserDefaults.dictionaryRepresentation()
+            for key in sharedDictionary.keys {
+                sharedUserDefaults.removeObject(forKey: key)
+            }
         }
     }
 

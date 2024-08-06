@@ -1,0 +1,62 @@
+{
+  "configurations" : [
+    {
+      "id" : "8253BCEA-8327-4C5E-9C87-76E08A0CA354",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "3CC063A02B6D7A8D002BB07F",
+        "name" : "OneSignalCoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "3C01518D2C2E298E0079E076",
+        "name" : "OneSignalInAppMessagesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "473542492B8F93330016DB4C",
+        "name" : "OneSignalLiveActivitiesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "DEBA2A192C20E35E00E234DB",
+        "name" : "OneSignalNotificationsTests"
+      }
+    },
+    {
+      "skippedTests" : [
+        "UserConcurrencyTests"
+      ],
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "3CC063EA2B6D7FE8002BB07F",
+        "name" : "OneSignalUserTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "911E2CB91E398AB3003112A4",
+        "name" : "UnitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
