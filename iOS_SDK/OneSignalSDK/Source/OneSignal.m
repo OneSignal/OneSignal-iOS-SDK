@@ -77,6 +77,17 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+/**
+ Implements the `log` method of protocol `OSDebug`.
+ */
+@implementation OneSignalLog (OSLoggable)
++ (void)dump {
+    NSLog(@"💛 calling LOG!");
+    [OneSignalUserManagerImpl.sharedInstance logSelf];
+    [OSOperationRepo.sharedInstance logSelf];
+}
+@end
+
 @interface OneSignal (SessionStatusDelegate)
 @end
 
@@ -195,6 +206,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (void)logout {
     [OneSignalUserManagerImpl.sharedInstance logout];
+}
+
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
+        return;
+    }
+    [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId token:token];
 }
 
 #pragma mark: Namespaces
@@ -618,10 +636,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     NSString *userId = nil;
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
-
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-        }
+        
+        // TODO: JWT 🔐 Mock it for now to always be true
+        OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = true;
+//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+//            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
+//        }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];

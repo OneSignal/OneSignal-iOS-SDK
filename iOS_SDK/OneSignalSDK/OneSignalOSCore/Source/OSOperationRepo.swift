@@ -33,7 +33,7 @@ import OneSignalCore
  OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
 public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo()
+    @objc public static let sharedInstance = OSOperationRepo()
     private var hasCalledStart = false
 
     // The Operation Repo dispatch queue, serial. This synchronizes access to `deltaQueue` and flushing behavior.
@@ -48,12 +48,21 @@ public class OSOperationRepo: NSObject {
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
 
+    var requiresAuth: Bool?
+
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
      If everything starts up on initialize(), order can matter, ideally not but it can.
      Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
-    public func start() {
+    public func start(requiresAuth: Bool?) {
+        print("❌ OSOperationRepo start(\(requiresAuth))")
+
+        if self.requiresAuth == nil {
+            self.requiresAuth = requiresAuth
+        }
+        // TODO: JWT OneSignalUserManagerImpl.sharedInstance.jwtConfig.changeNotifier.subscribe(self)
+
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
@@ -93,7 +102,13 @@ public class OSOperationRepo: NSObject {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
+
+        // TODO: JWT 🔐
+//        start()
+        if !hasCalledStart {
+            fatalError("❌❌❌❌ Operation Repo has not called start in addExecutor()")
+        }
+
         executors.append(executor)
         for delta in executor.supportedDeltas {
             deltasToExecutorMap[delta] = executor
@@ -111,7 +126,11 @@ public class OSOperationRepo: NSObject {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
+        // TODO: JWT 🔐
+//        start()
+        if !hasCalledStart {
+            fatalError("❌❌❌❌ Operation Repo has not called start in enqueueDelta()")
+        }
         self.dispatchQueue.async {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
             self.deltaQueue.append(delta)
@@ -140,7 +159,11 @@ public class OSOperationRepo: NSObject {
             OSBackgroundTaskManager.beginBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
         }
 
-        self.start()
+        // TODO: JWT 🔐
+//        self.start()
+        if !hasCalledStart {
+            fatalError("❌❌❌❌ Operation Repo has not called start in flushDeltaQueue()")
+        }
 
         if !self.deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
@@ -170,6 +193,48 @@ public class OSOperationRepo: NSObject {
 
         if inBackground {
             OSBackgroundTaskManager.endBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
+        }
+    }
+}
+
+extension OSOperationRepo: OSUserJwtConfigListener {
+    func removeInvalidDeltas() {
+        print("❌ OSOperationRepo removeInvalidDeltas")
+    }
+    public func onRequiresUserAuthChanged(from: Bool?, to: Bool?) {
+        print("❌ OSOperationRepo onUserAuthChanged from \(from) to \(to)")
+
+        // If auth changed from false or unknown to true, process requests
+        if to == true {
+            removeInvalidDeltas()
+        }
+        pollFlushQueue()
+    }
+
+    public func onJwtInvalidated(externalId: String, error: String?) {
+        //
+    }
+
+    public func onJwtUpdated(externalId: String, jwtToken: String) {
+        //
+    }
+
+    public func onJwtTokenChanged(externalId: String, from: String?, to: String?) {
+        //
+    }
+}
+
+extension OSOperationRepo: OSLoggable {
+    @objc
+    public func logSelf() {
+        print("💛 Operation Repo: executors")
+        for executor in self.executors {
+            executor.logSelf()
+        }
+
+        print("💛 Operation Repo: deltaQueue: ")
+        for delta in self.deltaQueue {
+            print(delta)
         }
     }
 }

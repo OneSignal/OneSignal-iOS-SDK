@@ -38,18 +38,19 @@ class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel
 
-    func prepareForExecution() -> Bool {
+    /// Only send this request if Identity Verification is off.
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the FetchIdentityBySubscription request due to null app ID.")
             return false
         }
 
-        if let subscriptionId = pushSubscriptionModel.subscriptionId {
+        if let subscriptionId = pushSubscriptionModel.subscriptionId,
+           requiresJwt == false {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/user/identity"
             return true
         } else {
-            // This is an error, and should never happen
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the FetchIdentityBySubscription request due to null subscriptionId.")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the FetchIdentityBySubscription request due to null subscriptionId or auth status: \(String(describing: requiresJwt)).")
             self.path = ""
             return false
         }

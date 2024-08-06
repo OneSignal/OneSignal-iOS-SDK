@@ -54,6 +54,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
 @property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
 @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
+- (IBAction)updateJwt:(id)sender;
 @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeName;

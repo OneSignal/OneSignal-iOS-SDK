@@ -30,7 +30,7 @@ import OneSignalCore
 /**
  Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
  */
-public protocol OSOperationExecutor {
+public protocol OSOperationExecutor: OSLoggable {
     var supportedDeltas: [String] { get }
     var deltaQueue: [OSDelta] { get }
 

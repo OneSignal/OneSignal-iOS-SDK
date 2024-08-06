@@ -37,11 +37,13 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     let aliases: [String: String]
 
-    // requires a `onesignal_id` to send this request
-    func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+    /// Needs the `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
+    func prepareForExecution(requiresJwt: Bool?) -> Bool {
+        let alias = getAlias(authRequired: requiresJwt, identityModel: identityModel)
+        if let id = alias.id,
+           let appId = OneSignalConfigManager.getAppId(),
+           addJWTHeaderIsValid(required: requiresJwt, identityModel: identityModel) {
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(id)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string
@@ -57,7 +59,6 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["identity": aliases]
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -86,6 +87,5 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

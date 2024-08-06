@@ -32,5 +32,7 @@ class SwiftTest: NSObject {
     func testSwiftUserModel() {
         let token1 = OneSignal.User.pushSubscription.token
         let token = OneSignal.User.pushSubscription.token
+        OneSignal.Debug.dump()
+        OneSignal.updateUserJwt("externalId", withToken: "jwtToken")
     }
 }

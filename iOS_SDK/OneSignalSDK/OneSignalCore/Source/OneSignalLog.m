@@ -29,6 +29,10 @@
 #import "OneSignalLog.h"
 #import "OSDialogInstanceManager.h"
 
+/**
+ Implements the setter methods of protocol `OSDebug`.
+ The `log` method will be implemented in OneSignal module.
+ */
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
@@ -45,6 +49,9 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
 + (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel {
     _alertLogLevel = logLevel;
 }
+
++ (void)dump {}
+
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
     onesignal_Log(logLevel, message);
@@ -79,9 +86,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         default:
             break;
     }
-
-    if (logLevel <= _nsLogLevel)
-        NSLog(@"%@", [levelString stringByAppendingString:message]);
+    
+    if (logLevel <= _nsLogLevel) {
+        NSString *thread = @"";
+        if ([NSThread.currentThread isMainThread]) {
+            thread = @"[main]: ";
+        }
+        // NSLog(@"%@", [levelString stringByAppendingString:message]);
+        NSLog(@"%@", [NSString stringWithFormat:@"%@%@%@", thread, levelString, message]);
+    }
     
     if (logLevel <= _alertLogLevel) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
