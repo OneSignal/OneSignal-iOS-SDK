@@ -4795,126 +4795,126 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 2017,
+      "offset": 2009,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 2175,
+      "offset": 2203,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 2726,
+      "offset": 2754,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 2788,
+      "offset": 2816,
       "length": 33,
       "value": "\"OSOperationRepo calling start()\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 3367,
+      "offset": 3395,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 3488,
+      "offset": 3516,
       "length": 56,
       "value": "\"OSOperationRepo.start() with deltaQueue: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 3543,
+      "offset": 3571,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 3621,
+      "offset": 3649,
       "length": 65,
       "value": "\"OSOperationRepo.start() is unable to uncache the OSDelta queue.\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5057,
+      "offset": 5085,
       "length": 40,
       "value": "\"OSOperationRepo enqueueDelta: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5096,
+      "offset": 5124,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 5437,
+      "offset": 5465,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 5613,
+      "offset": 5641,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5709,
+      "offset": 5737,
       "length": 56,
       "value": "\"OSOperationRepo not flushing queue due to being paused\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6177,
+      "offset": 6205,
       "length": 95,
       "value": "\"OSOperationRepo flushDeltaQueue in background: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6240,
+      "offset": 6268,
       "length": 4,
       "value": "\" with queue: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6271,
+      "offset": 6299,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "IntegerLiteral",
-      "offset": 6305,
+      "offset": 6333,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "IntegerLiteral",
-      "offset": 6656,
+      "offset": 6684,
       "length": 1,
       "value": "1"
     },
