@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  Fetch the user by the provided alias. This is expected to be `onesignal_id` in most cases.
@@ -43,9 +44,11 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let aliasId: String
     let onNewSession: Bool
 
-    func prepareForExecution() -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request due to null app ID.")
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+        guard let appId = OneSignalConfigManager.getAppId(),
+              newRecordsState.canAccess(aliasId)
+        else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(aliasLabel): \(aliasId) yet.")
             return false
         }
         self.addJWTHeader(identityModel: identityModel)
@@ -61,7 +64,6 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.stringDescription = "<OSRequestFetchUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.method = GET
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -92,6 +94,5 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

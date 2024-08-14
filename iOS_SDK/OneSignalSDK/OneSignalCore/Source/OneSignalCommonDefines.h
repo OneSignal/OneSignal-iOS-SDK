@@ -259,6 +259,13 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // Flush interval for operation repo in milliseconds
     #define POLL_INTERVAL_MS 5000
+
+    /**
+     The number of seconds to delay after an operation completes that creates or changes IDs.
+     This is a "cold down" period to avoid a caveat with OneSignal's backend replication, where you may
+     incorrectlyget a 404 when attempting a GET or PATCH REST API call on something just after it is created.
+     */
+    #define OP_REPO_POST_CREATE_DELAY_SECONDS 3
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -279,6 +286,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
     // Reduce flush interval for operation repo in tests
     #define POLL_INTERVAL_MS 100
 
+    // Reduce delay in tests
+    #define OP_REPO_POST_CREATE_DELAY_SECONDS 0
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

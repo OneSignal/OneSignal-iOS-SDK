@@ -64,11 +64,13 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
     var updateRequestQueue: [OSRequestUpdateProperties] = []
+    let newRecordsState: OSNewRecordsState
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init() {
+    init(newRecordsState: OSNewRecordsState) {
+        self.newRecordsState = newRecordsState
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         uncacheDeltas()
@@ -98,7 +100,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The identity model exist in the repo, set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution() {
+                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
                     // 2. The request can be sent, add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
@@ -233,7 +235,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true

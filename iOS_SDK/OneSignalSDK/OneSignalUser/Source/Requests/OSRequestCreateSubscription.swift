@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  Primary uses of this request are for adding Email and SMS subscriptions. Push subscriptions typically won't be created using
@@ -43,13 +44,15 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
 
     // Need the onesignal_id of the user
-    func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+        if let onesignalId = identityModel.onesignalId,
+           newRecordsState.canAccess(onesignalId),
+           let appId = OneSignalConfigManager.getAppId()
+        {
             self.addJWTHeader(identityModel: identityModel)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
             return true
         } else {
-            self.path = "" // self.path is non-nil, so set to empty string
             return false
         }
     }
@@ -61,7 +64,6 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
         self.method = POST
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -90,6 +92,5 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

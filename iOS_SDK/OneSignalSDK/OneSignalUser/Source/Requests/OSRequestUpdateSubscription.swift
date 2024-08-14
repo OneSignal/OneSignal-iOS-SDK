@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  Currently, only the Push Subscription will make this Update Request.
@@ -40,12 +41,14 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
-    func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+        if let subscriptionId = subscriptionModel.subscriptionId,
+           newRecordsState.canAccess(subscriptionId),
+           let appId = OneSignalConfigManager.getAppId()
+        {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true
         } else {
-            self.path = "" // self.path is non-nil, so set to empty string
             return false
         }
     }
@@ -77,7 +80,6 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -103,6 +105,5 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

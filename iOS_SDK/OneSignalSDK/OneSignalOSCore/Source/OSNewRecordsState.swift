@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -26,32 +26,45 @@
  */
 
 import OneSignalCore
-import OneSignalOSCore
 
-protocol OSUserRequest: OneSignalRequest, NSCoding {
-    var sentToClient: Bool { get set }
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool
-}
+/**
+ * Purpose: Keeps track of IDs that were just created on the backend.
+ * This list gets used to delay network calls to ensure upcoming
+ * requests are ready to be accepted by the backend.
+ */
+public class OSNewRecordsState {
+    /**
+     Params:
+     - Key - a string ID such as onesignal ID or subscription ID
+     - Value - a Date timestamp of when the ID was created
+     */
+    private var records: [String: Date] = [:]
+    private let lock = NSRecursiveLock()
 
-internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
+    public init() { }
+
+    /**
+     Only add a new record with the current timestamp if overwriting is requested, or it is not already present
+     */
+    public func add(_ key: String, _ overwrite: Bool = false) {
+        lock.withLock {
+            if overwrite || records[key] == nil {
+                records[key] = Date()
+            }
+        }
     }
 
-    /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
-    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
-        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
-            var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
-            self.additionalHeaders = additionalHeaders
-            return true
-        } else {
-            return false
+    public func canAccess(_ key: String?) -> Bool {
+        lock.withLock {
+            guard let key = key,
+                  let timeLastMovedOrCreated = records[key]
+            else {
+                return true
+            }
+
+            let minimumTime = timeLastMovedOrCreated.addingTimeInterval(TimeInterval(OP_REPO_POST_CREATE_DELAY_SECONDS))
+
+            return Date() >= minimumTime
         }
     }
 }
