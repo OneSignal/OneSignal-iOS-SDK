@@ -92,7 +92,7 @@ final class UserConcurrencyTests: XCTestCase {
         )
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor()
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
         OSOperationRepo.sharedInstance.addExecutor(executor)
 
         /* When */
@@ -131,7 +131,7 @@ final class UserConcurrencyTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
         MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
 
-        let executor = OSIdentityOperationExecutor()
+        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState())
         OSOperationRepo.sharedInstance.addExecutor(executor)
 
         /* When */
@@ -172,7 +172,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
 
-        let executor = OSPropertyOperationExecutor()
+        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState())
         OSOperationRepo.sharedInstance.addExecutor(executor)
 
         /* When */
@@ -213,7 +213,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        let userExecutor = OSUserExecutor()
+        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState())
 
         /* When */
 
