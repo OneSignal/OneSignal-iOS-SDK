@@ -54,11 +54,9 @@ public class OSNewRecordsState {
         }
     }
 
-    public func canAccess(_ key: String?) -> Bool {
+    public func canAccess(_ key: String) -> Bool {
         lock.withLock {
-            guard let key = key,
-                  let timeLastMovedOrCreated = records[key]
-            else {
+            guard let timeLastMovedOrCreated = records[key] else {
                 return true
             }
 

@@ -47,16 +47,21 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId(),
-              newRecordsState.canAccess(pushSubscriptionModel?.subscriptionId)
-        else {
+        guard let appId = OneSignalConfigManager.getAppId() else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the create user request due to null app ID.")
+            return false
+        }
+
+        if let subscriptionId = pushSubscriptionModel?.subscriptionId,
+           !newRecordsState.canAccess(subscriptionId)
+        {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request yet.")
             return false
         }
+
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
         self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
-        // The pushSub doesn't need to have a token.
         return true
     }
 
