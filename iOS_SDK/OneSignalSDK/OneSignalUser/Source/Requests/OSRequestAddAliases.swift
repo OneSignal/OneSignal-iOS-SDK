@@ -42,7 +42,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalConfigManager.getAppId() 
+           let appId = OneSignalConfigManager.getAppId()
         {
             self.addJWTHeader(identityModel: identityModel)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"

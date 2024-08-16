@@ -442,7 +442,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     /**
      Creates and sets a blank new SDK user with the provided externalId, if any.
      */
-    private func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
+    func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
         let aliases: [String: String]?
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]

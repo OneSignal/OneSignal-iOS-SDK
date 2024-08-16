@@ -20,7 +20,7 @@ public class MockUserRequests: NSObject {
 
     public static func testDefaultPushSubPayload(id: String) -> [String: Any] {
         return [
-            "id": testPushSubId,
+            "id": id,
             "app_id": "test-app-id",
             "type": "iOSPush",
             "token": "",
@@ -43,7 +43,7 @@ public class MockUserRequests: NSObject {
 
     public static func testDefaultFullCreateUserResponse(onesignalId: String, externalId: String?, subscriptionId: String?) -> [String: Any] {
         let identity = testIdentityPayload(onesignalId: onesignalId, externalId: externalId)
-        let subscription = testDefaultPushSubPayload(id: testPushSubId)
+        let subscription = testDefaultPushSubPayload(id: subscriptionId ?? testPushSubId)
         let properties = [
             "language": "en",
             "timezone_id": "America/Los_Angeles",
@@ -84,11 +84,10 @@ extension MockUserRequests {
             response: anonCreateResponse)
     }
 
-    public static func setDefaultCreateUserResponses(with client: MockOneSignalClient, externalId: String) {
+    public static func setDefaultCreateUserResponses(with client: MockOneSignalClient, externalId: String, subscriptionId: String? = nil) {
         let osid = getOneSignalId(for: externalId)
 
-        let userResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)
-
+        let userResponse = testDefaultFullCreateUserResponse(onesignalId: osid, externalId: externalId, subscriptionId: subscriptionId)
         client.setMockResponseForRequest(
             request: "<OSRequestCreateUser with external_id: \(externalId)>",
             response: userResponse
