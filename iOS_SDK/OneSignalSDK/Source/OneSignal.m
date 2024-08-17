@@ -632,10 +632,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     NSString *userId = nil;
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
-
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-        }
+        
+        // TODO: JWT 🔐 Mock it for now to always be true
+        OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = true;
+//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+//            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
+//        }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
