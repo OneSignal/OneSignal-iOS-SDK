@@ -97,7 +97,7 @@ import OneSignalNotifications
 
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
-    @objc public static let sharedInstance = OneSignalUserManagerImpl()
+    @objc public static let sharedInstance = OneSignalUserManagerImpl(jwtConfig: OSUserJwtConfig())
 
     /**
      Convenience accessor. We access the push subscription model via the model store instead of via`user.pushSubscriptionModel`.
@@ -126,6 +126,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var hasCalledStart = false
 
     private var jwtExpiredHandler: OSJwtExpiredHandler?
+    let jwtConfig: OSUserJwtConfig
 
     var user: OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -148,8 +149,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         identityModel: OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer()),
         propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
         pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: true, changeNotifier: OSEventProducer()))
-
-    @objc public var requiresUserAuth = false
 
     // User State Observer
     private var _userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState>?
@@ -183,7 +182,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var identityExecutor: OSIdentityOperationExecutor?
     var subscriptionExecutor: OSSubscriptionOperationExecutor?
 
-    private override init() {
+    private init(jwtConfig: OSUserJwtConfig) {
+        self.jwtConfig = jwtConfig
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
@@ -617,6 +617,14 @@ extension OneSignalUserManagerImpl {
     @objc
     public func runBackgroundTasks() {
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue(inBackground: true)
+    }
+}
+
+// MARK: - JWT
+
+extension OneSignalUserManagerImpl {
+    @objc public func setRequiresUserAuth(_ required: Bool) {
+        jwtConfig.isRequired = required
     }
 }
 
