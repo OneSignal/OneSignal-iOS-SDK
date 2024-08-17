@@ -208,6 +208,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
+        return;
+    }
+    [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId token:token];
+}
+
 #pragma mark: Namespaces
 
 + (Class<OSNotifications>)Notifications {
