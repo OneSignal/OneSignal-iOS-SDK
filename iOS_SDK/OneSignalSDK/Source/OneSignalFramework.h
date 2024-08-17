@@ -70,6 +70,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token;
 + (void)logout;
 
 #pragma mark Notifications
