@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 import OneSignalOSCore
 
 /**
@@ -45,6 +46,8 @@ class OSIdentityModelRepo {
     func add(model: OSIdentityModel) {
         lock.withLock {
             models[model.modelId] = model
+            // listen for changes to model's JWT Token
+            model.changeNotifier.subscribe(self, key: OS_IDENTITY_MODEL_REPO)
         }
     }
 
@@ -53,6 +56,55 @@ class OSIdentityModelRepo {
             return models[modelId]
         }
     }
+
+    func get(externalId: String) -> OSIdentityModel? {
+        lock.withLock {
+            for model in models.values {
+                if model.externalId == externalId {
+                    return model
+                }
+            }
+            return nil
+        }
+    }
+
+    /**
+     There may be multiple Identity Models with the same external ID, so update them all.
+     This can be optimized in the future to re-use an Identity Model if multiple logins are made for the same user.
+     */
+    func updateJwtToken(externalId: String, token: String) {
+        var found = false
+        lock.withLock {
+            for model in models.values {
+                if model.externalId == externalId {
+                    model.jwtBearerToken = token
+                    found = true
+                }
+            }
+        }
+        if !found {
+            OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_ERROR, message: "Update User JWT called for external ID \(externalId) that does not exist")
+        }
+    }
+}
+
+extension OSIdentityModelRepo: OSModelChangedHandler {
+    /**
+     Listen for updates to the JWT Token and notify the User Manager of this change.
+     */
+    public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
+        guard
+            args.property == OS_JWT_BEARER_TOKEN,
+            let model = args.model as? OSIdentityModel,
+            let externalId = model.externalId,
+            let token = args.newValue as? String
+        else {
+            return
+        }
+        print("❌ OSIdentityModelRepo onModelUpdated for \(externalId): \(token)")
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: externalId, to: token)
+    }
+}
 
 extension OSIdentityModelRepo: OSLoggable {
     func logSelf() {
