@@ -42,8 +42,20 @@ class OSIdentityModel: OSModel {
     var aliases: [String: String] = [:]
     private let aliasesLock = NSRecursiveLock()
 
-    // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    // MARK: - JWT
+
+    public var jwtBearerToken: String? {
+        didSet {
+            guard jwtBearerToken != oldValue else {
+                return
+            }
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: jwtBearerToken)
+        }
+    }
+
+    func isJwtValid() -> Bool {
+        return jwtBearerToken != nil && jwtBearerToken != "" && jwtBearerToken != OS_JWT_TOKEN_INVALID
+    }
 
     // MARK: - Initialization
 
@@ -57,6 +69,7 @@ class OSIdentityModel: OSModel {
         aliasesLock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
+            coder.encode(jwtBearerToken, forKey: OS_JWT_BEARER_TOKEN)
         }
     }
 
@@ -66,6 +79,7 @@ class OSIdentityModel: OSModel {
             // log error
             return nil
         }
+        self.jwtBearerToken = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
         self.aliases = aliases
     }
 
