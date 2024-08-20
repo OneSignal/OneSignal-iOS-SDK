@@ -37,12 +37,15 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
     let newRecordsState: OSNewRecordsState
+    let jwtConfig: OSUserJwtConfig
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    // TODO: JWT 🔐 Subscription Executor updates are still WIP
+    init(newRecordsState: OSNewRecordsState, jwtConfig: OSUserJwtConfig) {
         self.newRecordsState = newRecordsState
+        self.jwtConfig = jwtConfig
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -195,15 +198,22 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 switch delta.name {
                 case OS_ADD_SUBSCRIPTION_DELTA:
                     // Only create the request if the identity model exists
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
-                        let request = OSRequestCreateSubscription(
-                            subscriptionModel: subModel,
-                            identityModel: identityModel
-                        )
-                        self.addRequestQueue.append(request)
-                    } else {
+                    guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) else {
                         OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                        continue
                     }
+
+                    // If JWT is on but the external ID does not exist, drop this Delta
+                    if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
+                        print("❌ \(delta) is Invalid with JWT, being dropped")
+                    }
+
+                    let request = OSRequestCreateSubscription(
+                        subscriptionModel: subModel,
+                        identityModel: identityModel
+                    )
+                    self.addRequestQueue.append(request)
+
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
                     let request = OSRequestDeleteSubscription(
                         subscriptionModel: subModel

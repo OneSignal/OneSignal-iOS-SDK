@@ -225,13 +225,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // Setup the executors
         // The OSUserExecutor has to run first, before other executors
-        self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
+        self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
         OSOperationRepo.sharedInstance.start()
 
         // Cannot initialize these executors in `init` as they reference the sharedInstance
-        let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
-        let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
-        let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
+        let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
+        let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
+        let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
         self.propertyExecutor = propertyExecutor
         self.identityExecutor = identityExecutor
         self.subscriptionExecutor = subscriptionExecutor
