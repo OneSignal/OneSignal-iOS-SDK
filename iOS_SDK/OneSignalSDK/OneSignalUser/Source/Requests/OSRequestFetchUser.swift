@@ -40,35 +40,39 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     }
 
     let identityModel: OSIdentityModel
-    let aliasLabel: String
-    let aliasId: String
     let onNewSession: Bool
 
+    /// This should always be `OS_ONESIGNAL_ID` even with JWT on, as a way to know if the user has been created on the server and for the post-create cool off period
+    let onesignalId: String
+
+    // TODO: JWT 🔐 Is external ID already handled by this time? Or do we need to check the alias here?
+    /// Needs `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId(),
-              newRecordsState.canAccess(aliasId)
+        let alias = getAlias(identityModel: identityModel)
+        guard
+            let aliasIdToUse = alias.id,
+            let appId = OneSignalConfigManager.getAppId(),
+            newRecordsState.canAccess(onesignalId),
+            addJWTHeaderIsValid( identityModel: identityModel)
         else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(aliasLabel): \(aliasId) yet.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(alias) yet.")
             return false
         }
-        self.addJWTHeader(identityModel: identityModel)
-        self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasIdToUse)"
         return true
     }
 
-    init(identityModel: OSIdentityModel, aliasLabel: String, aliasId: String, onNewSession: Bool) {
+    init(identityModel: OSIdentityModel, onesignalId: String, onNewSession: Bool) {
         self.identityModel = identityModel
-        self.aliasLabel = aliasLabel
-        self.aliasId = aliasId
+        self.onesignalId = onesignalId
         self.onNewSession = onNewSession
-        self.stringDescription = "<OSRequestFetchUser with \(aliasLabel): \(aliasId)>"
+        self.stringDescription = "<OSRequestFetchUser with \(OS_ONESIGNAL_ID): \(onesignalId)>"
         super.init()
         self.method = GET
     }
 
     func encode(with coder: NSCoder) {
-        coder.encode(aliasLabel, forKey: "aliasLabel")
-        coder.encode(aliasId, forKey: "aliasId")
+        coder.encode(onesignalId, forKey: "onesignalId")
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(onNewSession, forKey: "onNewSession")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
@@ -78,8 +82,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
-            let aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String,
-            let aliasId = coder.decodeObject(forKey: "aliasId") as? String,
+            let onesignalId = coder.decodeObject(forKey: "onesignalId") as? String,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
@@ -87,10 +90,9 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
-        self.aliasLabel = aliasLabel
-        self.aliasId = aliasId
+        self.onesignalId = onesignalId
         self.onNewSession = coder.decodeBool(forKey: "onNewSession")
-        self.stringDescription = "<OSRequestFetchUser with \(aliasLabel): \(aliasId)>"
+        self.stringDescription = "<OSRequestFetchUser with \(OS_ONESIGNAL_ID): \(onesignalId)>"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp

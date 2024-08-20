@@ -48,20 +48,20 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let aliasId: String
 
     /// requires a `onesignal_id` to send this request
+    /// Only  send this request if Identity Verification is off
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let onesignalId = identityModelToIdentify.onesignalId,
-           newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalConfigManager.getAppId()
-        {
-            self.addJWTHeader(identityModel: identityModelToIdentify)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
-            return true
-        } else {
-            // self.path is non-nil, so set to empty string
-            self.path = ""
+        guard
+            let onesignalId = identityModelToIdentify.onesignalId,
+            newRecordsState.canAccess(onesignalId),
+            let appId = OneSignalConfigManager.getAppId(),
+            OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired == false
+        else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request yet.")
             return false
         }
+
+        self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+        return true
     }
 
     /**

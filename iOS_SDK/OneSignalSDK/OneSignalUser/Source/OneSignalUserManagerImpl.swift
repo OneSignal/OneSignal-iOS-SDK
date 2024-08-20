@@ -576,7 +576,7 @@ extension OneSignalUserManagerImpl {
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
-            userExecutor!.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
+            userExecutor!.fetchUser(onesignalId: onesignalId, identityModel: user.identityModel, onNewSession: true)
         } else {
             // It is possible to init a user from cache who is missing the onesignalId
             // This can happen if any createUser or identifyUser requests are cached

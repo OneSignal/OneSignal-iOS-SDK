@@ -38,17 +38,21 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     let labelToRemove: String
     var identityModel: OSIdentityModel
 
+    /// Needs `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let onesignalId = identityModel.onesignalId,
-           newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalConfigManager.getAppId()
-        {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity/\(labelToRemove)"
-            return true
-        } else {
+        let alias = getAlias(identityModel: identityModel)
+        guard
+            let onesignalId = identityModel.onesignalId,
+            newRecordsState.canAccess(onesignalId),
+            let aliasIdToUse = alias.id,
+            let appId = OneSignalConfigManager.getAppId(),
+            addJWTHeaderIsValid(identityModel: identityModel)
+        else {
             return false
         }
+
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasIdToUse)/identity/\(labelToRemove)"
+        return true
     }
 
     init(labelToRemove: String, identityModel: OSIdentityModel) {

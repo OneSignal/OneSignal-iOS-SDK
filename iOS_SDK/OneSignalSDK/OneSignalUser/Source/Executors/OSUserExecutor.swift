@@ -255,7 +255,7 @@ extension OSUserExecutor {
                    let identity = request.parameters?["identity"] as? [String: String],
                    let onesignalId = request.identityModel.onesignalId,
                    identity[OS_EXTERNAL_ID] != nil {
-                    self.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
+                    self.fetchUser(onesignalId: onesignalId, identityModel: request.identityModel)
                 } else {
                     self.executePendingRequests()
                 }
@@ -326,7 +326,7 @@ extension OSUserExecutor {
                     return
                 }
 
-                self.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
+                self.fetchUser(onesignalId: onesignalId, identityModel: request.identityModel)
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
@@ -385,7 +385,7 @@ extension OSUserExecutor {
             if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
                 // Add onesignal ID to new records because an immediate fetch may not return the newly-applied external ID
                 self.newRecordsState.add(onesignalId, true)
-                self.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModelToUpdate)
+                self.fetchUser(onesignalId: onesignalId, identityModel: request.identityModelToUpdate)
             } else {
                 self.executePendingRequests()
             }
@@ -424,8 +424,8 @@ extension OSUserExecutor {
         }
     }
 
-    func fetchUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel, onNewSession: Bool = false) {
-        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: aliasLabel, aliasId: aliasId, onNewSession: onNewSession)
+    func fetchUser(onesignalId: String, identityModel: OSIdentityModel, onNewSession: Bool = false) {
+        let request = OSRequestFetchUser(identityModel: identityModel, onesignalId: onesignalId, onNewSession: onNewSession)
 
         appendToQueue(request)
 

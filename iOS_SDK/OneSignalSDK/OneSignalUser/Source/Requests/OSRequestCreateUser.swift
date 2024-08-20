@@ -45,6 +45,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
+    // TODO: JWT 🔐 confirm existence of external ID is already addressed before getting here
     /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
@@ -59,8 +60,12 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             return false
         }
 
+        guard addJWTHeaderIsValid(identityModel: identityModel) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request yet due to auth.")
+            return false
+        }
+
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
-        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
         return true
     }
