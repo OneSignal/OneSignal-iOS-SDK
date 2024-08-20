@@ -327,6 +327,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY                                @"OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY"
 #define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
 #define OS_MODEL_STORE_LISTENER_POSTFIX                                     @"_LISTENER"
+#define OS_IDENTITY_MODEL_REPO                                              @"OS_IDENTITY_MODEL_REPO"
 
 // Deltas
 #define OS_ADD_ALIAS_DELTA                                                  @"OS_ADD_ALIAS_DELTA"
