@@ -48,8 +48,8 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
      Determines if this update is adding aliases or removing aliases.
      */
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        // TODO: Let users call addAliases with "" IDs? If so, this will change...
         guard
+            args.property == "aliases", // avoids JWT token updates
             let aliasesDict = args.newValue as? [String: String],
             let (_, id) = aliasesDict.first
         else {
