@@ -43,18 +43,21 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
     var identityModel: OSIdentityModel
 
-    // Need the onesignal_id of the user
+    /// Needs the `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let onesignalId = identityModel.onesignalId,
-           newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalConfigManager.getAppId()
-        {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
-            return true
-        } else {
+        let alias = getAlias(identityModel: identityModel)
+        guard
+            let onesignalId = identityModel.onesignalId,
+            newRecordsState.canAccess(onesignalId),
+            let aliasIdToUse = alias.id,
+            let appId = OneSignalConfigManager.getAppId(),
+            addJWTHeaderIsValid(identityModel: identityModel)
+        else {
             return false
         }
+
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasIdToUse)/subscriptions"
+        return true
     }
 
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
