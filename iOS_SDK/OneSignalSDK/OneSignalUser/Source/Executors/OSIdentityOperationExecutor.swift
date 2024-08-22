@@ -293,3 +293,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSIdentityOperationExecutor: OSLoggable {
+    func logSelf() {
+        // TODO: You fill in
+    }
+}
