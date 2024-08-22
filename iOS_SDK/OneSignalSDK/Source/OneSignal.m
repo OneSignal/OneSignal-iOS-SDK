@@ -77,6 +77,17 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+/**
+ Implements the `_dump` method of protocol `OSDebug`.
+ */
+@implementation OneSignalLog (OSLoggable)
++ (void)_dump {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignal.Debug._dump called!"];
+    [OneSignalUserManagerImpl.sharedInstance logSelf];
+    // And more ...
+}
+@end
+
 @interface OneSignal (SessionStatusDelegate)
 @end
 

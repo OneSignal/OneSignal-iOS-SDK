@@ -888,3 +888,9 @@ extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
         user.pushSubscriptionModel.address = pushToken
     }
 }
+
+extension OneSignalUserManagerImpl: OSLoggable {
+    @objc public func logSelf() {
+        // TODO: You fill in
+    }
+}
