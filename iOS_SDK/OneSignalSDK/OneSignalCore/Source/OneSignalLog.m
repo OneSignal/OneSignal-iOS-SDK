@@ -29,6 +29,10 @@
 #import "OneSignalLog.h"
 #import "OSDialogInstanceManager.h"
 
+/**
+ Implements the Log Level methods of protocol `OSDebug`.
+ The `_dump` method will be implemented in OneSignal module.
+ */
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
@@ -45,6 +49,8 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
 + (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel {
     _alertLogLevel = logLevel;
 }
+
++ (void)_dump {}
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
     onesignal_Log(logLevel, message);
