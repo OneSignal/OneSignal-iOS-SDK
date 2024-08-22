@@ -172,6 +172,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let pushSubscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY)
 
     // These must be initialized in init()
+    let operationRepo: OSOperationRepo
     let identityModelStoreListener: OSIdentityModelStoreListener
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
@@ -185,10 +186,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private init(jwtConfig: OSUserJwtConfig) {
         self.jwtConfig = jwtConfig
-        self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
-        self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
-        self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
-        self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore)
+        self.operationRepo = OSOperationRepo(jwtConfig: jwtConfig)
+        self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore, operationRepo: operationRepo)
+        self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore, operationRepo: operationRepo)
+        self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore, operationRepo: operationRepo)
+        self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
     }
 
@@ -226,7 +228,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
             self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
-            OSOperationRepo.sharedInstance.start()
+            operationRepo.start()
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
@@ -235,9 +237,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
-            OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
-            OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
-            OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+            operationRepo.addExecutor(identityExecutor)
+            operationRepo.addExecutor(propertyExecutor)
+            operationRepo.addExecutor(subscriptionExecutor)
 
             // Path 2. There is a legacy player to migrate
             if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
@@ -571,7 +573,7 @@ extension OneSignalUserManagerImpl {
         start()
 
         userExecutor!.executePendingRequests()
-        OSOperationRepo.sharedInstance.paused = false
+        operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
 
         // Fetch the user's data if there is a onesignal_id
@@ -609,7 +611,7 @@ extension OneSignalUserManagerImpl {
             property: property.rawValue,
             value: value
         )
-        OSOperationRepo.sharedInstance.enqueueDelta(delta, flush: flush)
+        operationRepo.enqueueDelta(delta, flush: flush)
     }
 
     /// Time processors forward the session time to this method.
@@ -627,7 +629,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue(inBackground: true)
+        operationRepo.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
 

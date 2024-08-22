@@ -30,9 +30,11 @@ import OneSignalCore
 import OneSignalOSCore
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
+    let operationRepo: OSOperationRepo
     var store: OSModelStore<OSPropertiesModel>
 
-    required init(store: OSModelStore<OSPropertiesModel>) {
+    required init(store: OSModelStore<OSPropertiesModel>, operationRepo: OSOperationRepo) {
+        self.operationRepo = operationRepo
         self.store = store
     }
 

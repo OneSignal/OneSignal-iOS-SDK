@@ -30,9 +30,11 @@ import OneSignalCore
 import OneSignalOSCore
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
+    let operationRepo: OSOperationRepo
     var store: OSModelStore<OSIdentityModel>
 
-    required init(store: OSModelStore<OSIdentityModel>) {
+    required init(store: OSModelStore<OSIdentityModel>, operationRepo: OSOperationRepo) {
+        self.operationRepo = operationRepo
         self.store = store
     }
 

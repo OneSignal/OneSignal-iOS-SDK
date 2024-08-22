@@ -349,6 +349,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_UPDATE_SUBSCRIPTION_DELTA                                        @"OS_UPDATE_SUBSCRIPTION_DELTA"
 
 // Operation Repo
+#define OS_OPERATION_REPO                                                   @"OS_OPERATION_REPO"
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
 // User Executor
