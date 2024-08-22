@@ -335,7 +335,7 @@ extension OSUserExecutor {
                     self.executePendingRequests()
                 }
             }
-            OSOperationRepo.sharedInstance.paused = false
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
@@ -344,7 +344,7 @@ extension OSUserExecutor {
                     // A failed create user request would leave the SDK in a bad state
                     // Don't remove the request from cache and pause the operation repo
                     // We will retry this request on a new session
-                    OSOperationRepo.sharedInstance.paused = true
+                    OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                     request.sentToClient = false
                 }
             } else {
