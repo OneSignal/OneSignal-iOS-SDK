@@ -268,17 +268,18 @@ static NSString *_pushSubscriptionId;
 
 + (void)registerLifecycleObserverAsUIScene {
     if (@available(iOS 13.0, *)) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Scene Lifecycle notifications"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"❌ OSNotificationManager registering for Scene Lifecycle notifications"];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:@"UISceneWillEnterForegroundNotification" object:nil];
     }
 }
 
 + (void)registerLifecycleObserverAsUIApplication {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Application Lifecycle notifications"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"❌ OSNotificationManager registering for Application Lifecycle notifications"];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 + (void)willEnterForeground {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"❌ OSNotificationManager willEnterForeground triggered"];
     [OSNotificationsManager clearBadgeCount:false fromClearAll:false];
     [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
 }

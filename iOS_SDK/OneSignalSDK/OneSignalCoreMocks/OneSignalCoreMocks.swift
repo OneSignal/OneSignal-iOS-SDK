@@ -51,24 +51,34 @@ public class OneSignalCoreMocks: NSObject {
     }
 
     @objc public static func backgroundApp() {
+        print("❌ calling OneSignalCoreMocks.backgroundApp")
         if OSBundleUtils.isAppUsingUIScene() {
+            print("❌ isAppUsingUIScene: true")
             if #available(iOS 13.0, *) {
+                print("❌ inside  #available(iOS 13.0, *)")
                 NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
                 NotificationCenter.default.post(name: UIScene.didEnterBackgroundNotification, object: nil)
             }
+            print("❌ after  #available(iOS 13.0, *)")
         } else {
+            print("❌ isAppUsingUIScene: false")
             NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
             NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         }
     }
 
     @objc public static func foregroundApp() {
+        print("❌ calling OneSignalCoreMocks.foregroundApp")
         if OSBundleUtils.isAppUsingUIScene() {
+            print("❌ isAppUsingUIScene: true")
             if #available(iOS 13.0, *) {
+                print("❌ inside  #available(iOS 13.0, *)")
                 NotificationCenter.default.post(name: UIScene.willEnterForegroundNotification, object: nil)
                 NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
             }
+            print("❌ after  #available(iOS 13.0, *)")
         } else {
+            print("❌ isAppUsingUIScene: false")
             NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
             NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         }

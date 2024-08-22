@@ -53,7 +53,8 @@ final class OneSignalNotificationsTests: XCTestCase {
         XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
     }
 
-    func testDontclearBadgesWhenAppBecomesActive() throws {
+    func testDontclearBadgesWhenAppBecomesActive() throws { // FAILS ⚠️
+        print("❌ UIDevice.current.systemVersion \(UIDevice.current.systemVersion)")
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
         // Set badge count > 0
