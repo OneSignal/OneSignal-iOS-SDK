@@ -526,6 +526,7 @@ extension OSUserExecutor {
 
             if let response = response {
                 // Clear local data in preparation for hydration
+                // TODO: JWT 🔐 the following line feels wrong... maybe the user's changed by now
                 OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 

@@ -28,6 +28,7 @@
 import OneSignalCore
 import OneSignalUser
 
+// TODO: JWT 🔐 This request needs the alias
 class OSRequestSetStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
     override var description: String { return "(OSRequestSetStartToken) key:\(key) requestSuccessful:\(requestSuccessful) token:\(token)" }
 
