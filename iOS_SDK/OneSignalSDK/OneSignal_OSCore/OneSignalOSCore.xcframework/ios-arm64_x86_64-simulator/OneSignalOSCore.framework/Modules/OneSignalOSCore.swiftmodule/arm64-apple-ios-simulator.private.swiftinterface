@@ -59,6 +59,12 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   open func hydrateModel(_ response: [Swift.String : Any])
   @objc deinit
 }
+public class OSNewRecordsState {
+  public init()
+  public func add(_ key: Swift.String, _ overwrite: Swift.Bool = false)
+  public func canAccess(_ key: Swift.String) -> Swift.Bool
+  @objc deinit
+}
 @objc public protocol OSBackgroundTaskHandler {
   @objc func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc func endBackgroundTask(_ taskIdentifier: Swift.String)
