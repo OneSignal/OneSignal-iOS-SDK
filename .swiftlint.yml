@@ -1,1 +1,4 @@
 line_length: 150
+disabled_rules:
+  # Track https://github.com/realm/SwiftLint/pull/5521
+  - opening_brace

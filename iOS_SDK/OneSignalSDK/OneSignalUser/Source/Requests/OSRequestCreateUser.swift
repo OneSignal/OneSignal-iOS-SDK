@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  This request will be made with the minimum information needed. The payload will contain an externalId or no identities.
@@ -44,15 +45,23 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
-    func prepareForExecution() -> Bool {
+    /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request due to null app ID.")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the create user request due to null app ID.")
             return false
         }
+
+        if let subscriptionId = pushSubscriptionModel?.subscriptionId,
+           !newRecordsState.canAccess(subscriptionId)
+        {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request yet.")
+            return false
+        }
+
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
         self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
-        // The pushSub doesn't need to have a token.
         return true
     }
 
@@ -99,7 +108,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = [
             "identity": [aliasLabel: aliasId],
-            "refresh_device_metadata": true,
+            "refresh_device_metadata": true
         ]
         self.method = POST
     }

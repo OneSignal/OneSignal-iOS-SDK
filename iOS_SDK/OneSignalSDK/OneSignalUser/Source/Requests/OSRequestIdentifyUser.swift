@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  The `identityModelToIdentify` is used for the `onesignal_id` of the user we want to associate with this alias.
@@ -46,16 +47,19 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let aliasLabel: String
     let aliasId: String
 
-    // requires a onesignal_id to send this request
-    func prepareForExecution() -> Bool {
-        if let onesignalId = identityModelToIdentify.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+    /// requires a `onesignal_id` to send this request
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+        if let onesignalId = identityModelToIdentify.onesignalId,
+           newRecordsState.canAccess(onesignalId),
+           let appId = OneSignalConfigManager.getAppId()
+        {
             self.addJWTHeader(identityModel: identityModelToIdentify)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string
             self.path = ""
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request due to null app ID or null OneSignal ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request yet.")
             return false
         }
     }
@@ -76,7 +80,6 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = PATCH
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -111,6 +114,5 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.timestamp = timestamp
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
-        _ = prepareForExecution()
     }
 }

@@ -177,6 +177,9 @@
 		3CEE93542B7C78EC008440BD /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CEE93572B7C78FD008440BD /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		3CEE93582B7C78FE008440BD /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
+		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
+		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -1294,6 +1297,9 @@
 		3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelStoreListener.swift; sourceTree = "<group>"; };
 		3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesSupportedProperty.swift; sourceTree = "<group>"; };
 		3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalRequest+UnitTests.swift"; sourceTree = "<group>"; };
+		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
+		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
+		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -2051,6 +2057,7 @@
 				3C115188289ADEA300565C41 /* OSModelStore.swift */,
 				3C115186289ADE7700565C41 /* OSModelStoreListener.swift */,
 				3C115184289ADE4F00565C41 /* OSModel.swift */,
+				3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */,
 				3C11518A289ADEEB00565C41 /* OSEventProducer.swift */,
 				3C11518C289AF5E800565C41 /* OSModelChangedHandler.swift */,
 				3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */,
@@ -2070,6 +2077,7 @@
 			children = (
 				3C8544B82C5AEFF700F542A9 /* OneSignalOSCoreMocks.h */,
 				3C8544C22C5AF18B00F542A9 /* OSCoreMocks.swift */,
+				3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */,
 			);
 			path = OneSignalOSCoreMocks;
 			sourceTree = "<group>";
@@ -2150,6 +2158,7 @@
 			isa = PBXGroup;
 			children = (
 				3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */,
+				3CF11E3E2C6D61AC002856F5 /* Executors */,
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
 				3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
@@ -2164,6 +2173,14 @@
 				3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */,
 			);
 			path = Support;
+			sourceTree = "<group>";
+		};
+		3CF11E3E2C6D61AC002856F5 /* Executors */ = {
+			isa = PBXGroup;
+			children = (
+				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
+			);
+			path = Executors;
 			sourceTree = "<group>";
 		};
 		3E2400391D4FFC31008BDE70 /* OneSignalFramework */ = {
@@ -4038,6 +4055,7 @@
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
+				3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */,
 				3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
 				3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */,
@@ -4054,6 +4072,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C8544C32C5AF18B00F542A9 /* OSCoreMocks.swift in Sources */,
+				3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4092,6 +4111,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,

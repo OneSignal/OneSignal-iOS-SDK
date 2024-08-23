@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  Deprecated as of `5.2.3`. Use CreateUser instead. This class skeleton remains due to potentially cached requests.
@@ -42,7 +43,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     let aliasLabel: String
     let aliasId: String
 
-    func prepareForExecution() -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         return false
     }
 

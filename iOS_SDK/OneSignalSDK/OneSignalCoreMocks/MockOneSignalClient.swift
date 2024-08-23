@@ -93,10 +93,6 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
         print("🧪 MockOneSignalClient execute called")
 
-        lock.withLock {
-            executedRequests.append(request)
-        }
-
         if executeInstantaneously {
             finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         } else {
@@ -127,6 +123,9 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         print("🧪 completing HTTP request: \(request)")
 
         // TODO: Check for existence of app_id in the request and fail if not.
+        lock.withLock {
+            executedRequests.append(request)
+        }
 
         self.didCompleteRequest(request)
 

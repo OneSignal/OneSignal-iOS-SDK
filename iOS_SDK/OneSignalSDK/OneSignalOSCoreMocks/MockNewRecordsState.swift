@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,36 @@
  THE SOFTWARE.
  */
 
-import OneSignalCore
-import OneSignalOSCore
+@testable import OneSignalOSCore
 
-protocol OSUserRequest: OneSignalRequest, NSCoding {
-    var sentToClient: Bool { get set }
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool
-}
-
-internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
+public class MockNewRecordsState: OSNewRecordsState {
+    public struct MockNewRecord {
+        let key: String
+        let overwrite: Bool
     }
 
-    /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
-    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
-        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
-            var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
-            self.additionalHeaders = additionalHeaders
-            return true
-        } else {
-            return false
-        }
+    public var records: [MockNewRecord] = []
+
+    override public func add(_ key: String, _ overwrite: Bool = false) {
+        let record = MockNewRecord(key: key, overwrite: overwrite)
+        records.append(record)
+
+        super.add(key, overwrite)
+    }
+
+    override public func canAccess(_ key: String) -> Bool {
+        return super.canAccess(key)
+    }
+
+    public func get(_ key: String?) -> [MockNewRecord] {
+        return records.filter { $0.key == key }
+    }
+
+    public func contains(_ key: String?) -> Bool {
+        return get(key).count > 0
+    }
+
+    public func wasOverwritten(_ key: String?) -> Bool {
+        return records.filter { $0.key == key && $0.overwrite }.count > 0
     }
 }

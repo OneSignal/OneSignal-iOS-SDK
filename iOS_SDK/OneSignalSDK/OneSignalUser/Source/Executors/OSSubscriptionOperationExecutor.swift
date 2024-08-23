@@ -36,11 +36,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
+    let newRecordsState: OSNewRecordsState
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init() {
+    init(newRecordsState: OSNewRecordsState) {
+        self.newRecordsState = newRecordsState
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -89,7 +91,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if request.prepareForExecution() {
+                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
                     // b. The request can be sent, add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
@@ -116,7 +118,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution() {
+                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
@@ -139,7 +141,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution() {
+                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
@@ -271,7 +273,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true
@@ -336,7 +338,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true
@@ -381,7 +383,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true

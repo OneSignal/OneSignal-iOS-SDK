@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 
 /**
  Delete the subscription specified by the `subscriptionId` in the `subscriptionModel`.
@@ -42,13 +43,14 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
-    func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
+    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+        if let subscriptionId = subscriptionModel.subscriptionId,
+           newRecordsState.canAccess(subscriptionId),
+           let appId = OneSignalConfigManager.getAppId()
+        {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true
         } else {
-            // self.path is non-nil, so set to empty string
-            self.path = ""
             return false
         }
     }
@@ -58,7 +60,6 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = DELETE
-        _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
@@ -81,6 +82,5 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
-        _ = prepareForExecution()
     }
 }

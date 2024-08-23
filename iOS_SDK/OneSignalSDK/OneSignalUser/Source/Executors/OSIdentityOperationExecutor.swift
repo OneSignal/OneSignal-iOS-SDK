@@ -34,11 +34,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     // To simplify uncaching, we maintain separate request queues for each type
     var addRequestQueue: [OSRequestAddAliases] = []
     var removeRequestQueue: [OSRequestRemoveAlias] = []
+    let newRecordsState: OSNewRecordsState
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
-    init() {
+    init(newRecordsState: OSNewRecordsState) {
+        self.newRecordsState = newRecordsState
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheAddAliasRequests()
@@ -72,7 +74,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's models
                     request.identityModel = identityModel
-                } else if request.prepareForExecution() {
+                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
                     // 2. The request can be sent, add the model to the repo
                       OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
@@ -95,7 +97,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution() {
+                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
                     // 2. The request can be sent, add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
@@ -191,7 +193,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true
@@ -250,7 +252,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution() else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
         request.sentToClient = true

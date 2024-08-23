@@ -120,6 +120,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     var identityModelRepo = OSIdentityModelRepo()
 
+    let newRecordsState = OSNewRecordsState()
+
     var hasCalledStart = false
 
     private var jwtExpiredHandler: OSJwtExpiredHandler?
@@ -222,13 +224,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // Setup the executors
         // The OSUserExecutor has to run first, before other executors
-        self.userExecutor = OSUserExecutor()
+        self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
         OSOperationRepo.sharedInstance.start()
 
         // Cannot initialize these executors in `init` as they reference the sharedInstance
-        let propertyExecutor = OSPropertyOperationExecutor()
-        let identityExecutor = OSIdentityOperationExecutor()
-        let subscriptionExecutor = OSSubscriptionOperationExecutor()
+        let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
+        let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
+        let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
         self.propertyExecutor = propertyExecutor
         self.identityExecutor = identityExecutor
         self.subscriptionExecutor = subscriptionExecutor
@@ -440,7 +442,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     /**
      Creates and sets a blank new SDK user with the provided externalId, if any.
      */
-    private func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
+    func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
         let aliases: [String: String]?
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
