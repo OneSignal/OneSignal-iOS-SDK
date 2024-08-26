@@ -37,11 +37,18 @@ import OneSignalUserMocks
 private class Mocks {
     let client = MockOneSignalClient()
     let newRecordsState = MockNewRecordsState()
+    let jwtConfig = OSUserJwtConfig()
     let userExecutor: OSUserExecutor
 
     init() {
         OneSignalCoreImpl.setSharedClient(client)
-        userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
+        userExecutor = OSUserExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
+    }
+
+    func setAuthRequired(_ required: Bool) {
+        // Set User Manager's JWT to off, or it blocks requests in prepareForExecution
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = required
+        jwtConfig.isRequired = required
     }
 
     func createUserInstance(externalId: String) -> OSUserInternal {
@@ -75,6 +82,7 @@ final class UserExecutorTests: XCTestCase {
     func testCreateUser_withPushSubscription_addsToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
         MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID, subscriptionId: "push-sub-id")
 
         /* When */
@@ -89,6 +97,7 @@ final class UserExecutorTests: XCTestCase {
     func testCreateUser_withoutPushSubscription_doesNot_addToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
         MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID)
 
         /* When */
@@ -110,6 +119,7 @@ final class UserExecutorTests: XCTestCase {
     func testIdentifyUser_successfully_forcesAddToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
         MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
 
         /* When */
@@ -135,6 +145,7 @@ final class UserExecutorTests: XCTestCase {
     func testIdentifyUserSuccessful_butUserHasChangedSince_doesNotAddToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
         MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
 
         /* When */
@@ -156,6 +167,7 @@ final class UserExecutorTests: XCTestCase {
     func testIdentifyUser_withConflict_addsToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
         let user = mocks.setUserManagerInternalUser(externalId: userB_EUID)
 
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
@@ -177,6 +189,7 @@ final class UserExecutorTests: XCTestCase {
     func testIdentifyUserWithConflict_butUserHasChangedSince_doesNot_addToNewRecords() {
         /* Setup */
         let mocks = Mocks()
+        mocks.setAuthRequired(false)
 
         let user = mocks.setUserManagerInternalUser(externalId: "new-eid")
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())

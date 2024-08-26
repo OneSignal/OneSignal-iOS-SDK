@@ -78,8 +78,11 @@ final class OneSignalUserTests: XCTestCase {
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         OneSignalCoreImpl.setSharedClient(client)
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         // Increase flush interval to allow all the updates to batch
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.pollIntervalMilliseconds = 300
 
         // Wait to let any pending flushes in the Operation Repo to run
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.1)
