@@ -31,9 +31,7 @@ import OneSignalCore
 
 @objc
 public class OSCoreMocks: NSObject {
-    public static func resetOperationRepo() {
-        OSOperationRepo.sharedInstance.reset()
-    }
+    // TODO: Add mocks here
 }
 
 extension OSOperationRepo {
@@ -41,7 +39,7 @@ extension OSOperationRepo {
      The Operation Repo needs to reset between tests until we dependency inject the Operation Repo,
      to prevent state from carrying over between tests.
      */
-    func reset() {
+    public func reset() {
         deltaQueue.removeAll()
         executors.removeAll()
         deltasToExecutorMap.removeAll()

@@ -57,6 +57,9 @@ final class UserConcurrencyTests: XCTestCase {
         /* Setup */
         OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         /* When */
 
         // 1. Enqueue 10 Deltas to the Operation Repo
@@ -68,7 +71,7 @@ final class UserConcurrencyTests: XCTestCase {
         for _ in 1...4 {
             DispatchQueue.global().async {
                 print("🧪 flushDeltaQueue on thread \(Thread.current)")
-                OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+                OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
             }
         }
 
@@ -82,6 +85,7 @@ final class UserConcurrencyTests: XCTestCase {
      This test reproduces a crash in the Subscription Executor.
      It is possible for two threads to modify and cache queues concurrently.
      */
+    // TODO: revisit this test once subscriptions are addressed for JWT
     func testSubscriptionExecutorConcurrency() throws {
         /* Setup */
 
@@ -92,18 +96,20 @@ final class UserConcurrencyTests: XCTestCase {
         )
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        let jwtConfig = OSUserJwtConfig()
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: jwtConfig)
+        let operationRepo = OSOperationRepo(jwtConfig: jwtConfig)
+        operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Remove Subscription Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
             executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
@@ -117,6 +123,8 @@ final class UserConcurrencyTests: XCTestCase {
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        // Ensure the requests are actually made, future proofing
+        XCTAssertEqual(client.executedRequests.count, 200)
     }
 
     /**
@@ -131,18 +139,22 @@ final class UserConcurrencyTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
         MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
 
-        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        // Set User Manager's JWT to off, or it blocks requests
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
+        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig)
+        let operationRepo = OSOperationRepo(jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig)
+        operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Add Alias Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            operationRepo.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            operationRepo.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
             executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
@@ -156,6 +168,8 @@ final class UserConcurrencyTests: XCTestCase {
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
         // Assert that every request SDK makes has a response set, and is handled
         XCTAssertTrue(client.allRequestsHandled)
+        // Ensure the requests are actually made, future proofing
+        XCTAssertGreaterThanOrEqual(client.executedRequests.count, 150)
     }
 
     /**
@@ -169,21 +183,24 @@ final class UserConcurrencyTests: XCTestCase {
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
 
-        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
             executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
@@ -194,6 +211,8 @@ final class UserConcurrencyTests: XCTestCase {
 
         /* Then */
         // No crash
+        // Ensure the requests are actually made, future proofing
+        XCTAssertGreaterThanOrEqual(client.executedRequests.count, 75)
     }
 
     /**
@@ -213,13 +232,16 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState())
+        // Set User Manager's JWT to off, or it blocks requests
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
+        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             let identifyRequest = OSRequestIdentifyUser(aliasLabel: OS_EXTERNAL_ID, aliasId: UUID().uuidString, identityModelToIdentify: identityModel1, identityModelToUpdate: identityModel2)
-            let fetchRequest = OSRequestFetchUser(identityModel: identityModel1, aliasLabel: OS_ONESIGNAL_ID, aliasId: UUID().uuidString, onNewSession: false)
+            let fetchRequest = OSRequestFetchUser(identityModel: identityModel1, onesignalId: UUID().uuidString, onNewSession: false)
 
             // Append and execute requests simultaneously
             userExecutor.appendToQueue(identifyRequest)
@@ -233,6 +255,8 @@ final class UserConcurrencyTests: XCTestCase {
 
         /* Then */
         // No crash
+        // Ensure the requests are actually made, future proofing
+        XCTAssertGreaterThanOrEqual(client.executedRequests.count, 75)
     }
 
     /**

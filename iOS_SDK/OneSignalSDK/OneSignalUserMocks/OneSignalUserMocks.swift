@@ -36,7 +36,6 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
-        OSCoreMocks.resetOperationRepo()
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 }
@@ -55,6 +54,7 @@ extension OneSignalUserManagerImpl {
      */
     func reset() {
         identityModelRepo.reset()
+        operationRepo.reset()
 
         // Model store listeners unsubscribe to their models
         // User Manager start() will subscribe them
