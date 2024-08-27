@@ -255,7 +255,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)

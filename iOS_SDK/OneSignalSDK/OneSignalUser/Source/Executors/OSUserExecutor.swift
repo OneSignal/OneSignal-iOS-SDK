@@ -337,7 +337,6 @@ extension OSUserExecutor {
             }
             OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType != .retryable {
@@ -546,7 +545,6 @@ extension OSUserExecutor {
             }
             self.executePendingRequests()
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
             if let nsError = error as? NSError {
                 let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                 if responseType == .missing {
