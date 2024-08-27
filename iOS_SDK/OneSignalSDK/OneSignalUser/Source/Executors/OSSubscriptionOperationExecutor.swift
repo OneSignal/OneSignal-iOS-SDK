@@ -441,7 +441,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType != .retryable {
