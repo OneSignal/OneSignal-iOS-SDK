@@ -176,8 +176,10 @@
 }
 
 - (void)prettyPrintDebugStatementWithRequest:(OneSignalRequest *)request {
-    if (![NSJSONSerialization isValidJSONObject:request.parameters])
+    if (![NSJSONSerialization isValidJSONObject:request.parameters]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, request.additionalHeaders]];
         return;
+    }
     
     NSError *error;
     
