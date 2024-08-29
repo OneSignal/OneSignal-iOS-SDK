@@ -35,16 +35,42 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
 
 internal extension OneSignalRequest {
     /**
-     Returns the alias pair to use to send this request for. Defaults to Onesignal Id, unless Identity Verification is on.
+     Handles a full check of user-related requirements.
+     - The existence of onesignal ID and the ability to access it.
+     - The existence of an appropriate alias.
+     - Checks JWT requirements and sets header.
+     
+     - Returns: The alias pair to use to send this request.
      */
-    func getAlias(identityModel: OSIdentityModel) -> (label: String, id: String?) {
-        var label = OS_ONESIGNAL_ID
-        var id = identityModel.onesignalId
-        if OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired == true {
-            label = OS_EXTERNAL_ID
-            id = identityModel.externalId
+    func checkUserRequirementsAndReturnAlias(_ identityModel: OSIdentityModel, _ newRecordsState: OSNewRecordsState) -> OSAliasPair? {
+        guard
+            let onesignalId = identityModel.onesignalId,
+            newRecordsState.canAccess(onesignalId),
+            let aliasPair = getAlias(identityModel: identityModel, jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig),
+            addJWTHeaderIsValid(identityModel: identityModel)
+        else {
+            return nil
         }
-        return (label, id)
+
+        return aliasPair
+    }
+
+    private func getAlias(identityModel: OSIdentityModel, jwtConfig: OSUserJwtConfig) -> OSAliasPair? {
+        guard let jwtRequired = jwtConfig.isRequired else {
+            return nil
+        }
+
+        if jwtRequired, let externalId = identityModel.externalId
+        {
+            // JWT is on and external ID exists
+            return OSAliasPair(OS_EXTERNAL_ID, externalId)
+        } else if !jwtRequired, let onesignalId = identityModel.onesignalId {
+            // JWT is off and onesignal ID exists
+            return OSAliasPair(OS_ONESIGNAL_ID, onesignalId)
+        }
+
+        // Missing onesignal ID or external ID, when expected
+        return nil
     }
 
     /**
