@@ -182,6 +182,7 @@
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
+		3CF807352C80E3A6003E5FE1 /* OSAliasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -1304,6 +1305,7 @@
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
+		3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -2082,6 +2084,7 @@
 			isa = PBXGroup;
 			children = (
 				3C2FF9CF2C5FCD760081293B /* OSUserJwtConfig.swift */,
+				3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */,
 			);
 			path = Jwt;
 			sourceTree = "<group>";
@@ -4063,6 +4066,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CF807352C80E3A6003E5FE1 /* OSAliasPair.swift in Sources */,
 				DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
