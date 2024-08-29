@@ -48,17 +48,14 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     // TODO: JWT 🔐 Is external ID already handled by this time? Or do we need to check the alias here?
     /// Needs `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        let alias = getAlias(identityModel: identityModel)
         guard
-            let aliasIdToUse = alias.id,
-            let appId = OneSignalConfigManager.getAppId(),
-            newRecordsState.canAccess(onesignalId),
-            addJWTHeaderIsValid( identityModel: identityModel)
+            let alias = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState),
+            let appId = OneSignalConfigManager.getAppId()
         else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(alias) yet.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(identityModel.aliases) yet.")
             return false
         }
-        self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasIdToUse)"
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)"
         return true
     }
 
