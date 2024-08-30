@@ -151,6 +151,21 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
 @dynamic isInAppMessagingPaused;
 // Maximum time decided to save IAM with redisplay on cache - current value: six months in seconds
 static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
+
+/**
+ If an attempt to get IAMs from the server returns an Unauthorized response,
+ the controller should re-attempt once the JWT token is updated.
+ */
+static BOOL shouldRetryGetInAppMessagesOnJwtUpdated = false;
+
+/**
+ If an attempt to get IAMs from the server is blocked by incomplete alias information,
+ the controller should re-attempt once the user state changes.
+ An example of when this can happen occurs when users are switching with Identity Verification turned off -
+ the SDK has a push subscription ID but no onesignal ID for the current user.
+ */
+static BOOL shouldRetryGetInAppMessagesOnUserChange = false;
+
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -173,6 +188,8 @@ static dispatch_once_t once;
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
     [OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance subscribeToJwtConfig:shared key:OS_MESSAGING_CONTROLLER];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -241,22 +258,50 @@ static BOOL _isInAppMessagingPaused = false;
                                                   dateFromString:timeSinceLastMessage]];
 }
 
-- (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
+/**
+ To get IAMs from the server, the following requirements are necessary:
+ - A subscription ID
+ - An appropriate alias (depending on Identity Verification enabled) for the subscription
+ - A valid JWT token for the user if Identity Verification is enabled
+ 
+ This current implementation is not completely correct, as it will always use the current subscription ID and the current user.
+ The SDK would need to consider if the current user owns the subscription on the server.
+ */
+- (void)getInAppMessagesFromServer {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer attempted"];
 
+        NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
         if (!subscriptionId) {
+            // When the subscription observer fires, it will drive a re-fetch
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by null subscriptionId"];
             return;
         }
 
-        OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
+        OSAliasPair *alias = [OneSignalUserManagerImpl.sharedInstance getAliasForCurrentUser];
+        if (!alias) {
+            // When the user observer fires, it will drive a re-fetch
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by null alias"];
+            shouldRetryGetInAppMessagesOnUserChange = true;
+            return;
+        }
+        
+        // We also need the onesignal ID for ryw consistency
         NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
-
         if (!onesignalId) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
             return;
         }
 
+        NSDictionary<NSString *, NSString*> *userHeader = [OneSignalUserManagerImpl.sharedInstance getCurrentUserFullHeader];
+        if (!userHeader) {
+            // When the JWT updated listener fires, it will drive a re-fetch
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by missing user header"];
+            shouldRetryGetInAppMessagesOnJwtUpdated = true;
+            return;
+        }
+
+        OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
         OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
         OSReadYourWriteData *rywData = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
         
@@ -272,6 +317,8 @@ static BOOL _isInAppMessagingPaused = false;
             
             // Initial request
             [self attemptFetchWithRetries:subscriptionId
+                                alias:alias
+                                userHeader:userHeader
                                  rywData:rywData
                                  attempts:@0 // Starting with 0 attempts
                                retryLimit:nil]; // Retry limit to be set dynamically on first failure
@@ -281,6 +328,8 @@ static BOOL _isInAppMessagingPaused = false;
 
 
 - (void)attemptFetchWithRetries:(NSString *)subscriptionId
+                          alias:(OSAliasPair * _Nonnull)alias
+                     userHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)userHeader
                        rywData:(OSReadYourWriteData *)rywData
                        attempts:(NSNumber *)attempts
                      retryLimit:(NSNumber *)retryLimit {
@@ -290,6 +339,9 @@ static BOOL _isInAppMessagingPaused = false;
 
     // Create the request with the current attempt count
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                    withAliasLabel:alias.label
+                                                                    withAliasId:alias.id
+                                                                    withUserHeader:userHeader
                                                                     withSessionDuration:sessionDuration
                                                                     withRetryCount:attempts
                                                                     withRywToken:rywToken];
@@ -319,7 +371,8 @@ static BOOL _isInAppMessagingPaused = false;
         NSDictionary* responseHeaders = error.responseHeaders;
         
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
-        
+
+        OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
         if (error.code == 425 || error.code == 429) { // 425 Too Early or 429 Too Many Requests
             NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
             
@@ -332,14 +385,22 @@ static BOOL _isInAppMessagingPaused = false;
                 NSInteger nextAttempt = [attempts integerValue] + 1; // Increment attempts
                 [self retryAfterDelay:retryAfter
                          subscriptionId:subscriptionId
+                                alias:alias
+                           userHeader:userHeader
                                 rywData:rywData
                                attempts:@(nextAttempt)
                              retryLimit:blockRetryLimit];
             } else {
                 // Final attempt without rywToken
-                [self fetchInAppMessagesWithoutToken:subscriptionId];
+                [self fetchInAppMessagesWithoutToken:subscriptionId
+                                               alias:alias
+                                          userHeader:userHeader];
             }
-        } else if (error.code >= 500 && error.code <= 599) {
+        }
+        else if (responseType == OSResponseStatusUnauthorized) {
+            shouldRetryGetInAppMessagesOnJwtUpdated = true;
+        }
+        else if (error.code >= 500 && error.code <= 599) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
         }
     }];
@@ -347,6 +408,8 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)retryAfterDelay:(NSInteger)retryAfter
          subscriptionId:(NSString *)subscriptionId
+                  alias:(OSAliasPair * _Nonnull)alias
+             userHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)userHeader
                rywData:(OSReadYourWriteData *)rywData
                attempts:(NSNumber *)attempts
              retryLimit:(NSNumber *)retryLimit {
@@ -354,16 +417,23 @@ static BOOL _isInAppMessagingPaused = false;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryAfter * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self attemptFetchWithRetries:subscriptionId
+                                alias:alias
+                           userHeader:userHeader
                              rywData:rywData
                              attempts:attempts
                            retryLimit:retryLimit];
     });
 }
 
-- (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId {
+- (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId
+                                 alias:(OSAliasPair * _Nonnull)alias
+                            userHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)userHeader {
     NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                        withAliasLabel:alias.label
+                                                                           withAliasId:alias.id
+                                                                        withUserHeader:userHeader
                                                                       withSessionDuration:sessionDuration
                                                                       withRetryCount:nil
                                                                       withRywToken:nil]; // No retries for the final attempt
@@ -388,6 +458,10 @@ static BOOL _isInAppMessagingPaused = false;
         });
     } onFailure:^(OneSignalClientError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
+        OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
+        if (responseType == OSResponseStatusUnauthorized) {
+            shouldRetryGetInAppMessagesOnJwtUpdated = true;
+        }
     }];
 }
 
@@ -1197,7 +1271,29 @@ static BOOL _isInAppMessagingPaused = false;
 
     // Pull new IAMs when the subscription id changes to a new valid subscription id
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to new valid subscription id"];
-    [self getInAppMessagesFromServer:state.current.id];
+    [self getInAppMessagesFromServer];
+}
+
+#pragma mark OSUserStateObserver Methods
+- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
+    NSLog(@"❌ OSMessagingController onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
+    if (state.current.onesignalId && shouldRetryGetInAppMessagesOnUserChange) {
+        shouldRetryGetInAppMessagesOnUserChange = false;
+        [self getInAppMessagesFromServer];
+    }
+}
+
+#pragma mark OSUserJwtConfigListener Methods
+- (void)onRequiresUserAuthChangedFrom:(enum OSRequiresUserAuth)from to:(enum OSRequiresUserAuth)to {
+    // This callback is unused, the controller will fetch when subscription ID changes
+}
+
+- (void)onJwtUpdatedWithExternalId:(NSString *)externalId token:(NSString *)token {
+    NSLog(@"❌ OSMessagingController onJwtUpdatedWithExternalId: %@ token: %@", externalId, token);
+    if (![token  isEqual: OS_JWT_TOKEN_INVALID] && shouldRetryGetInAppMessagesOnJwtUpdated) {
+        shouldRetryGetInAppMessagesOnJwtUpdated = false;
+        [self getInAppMessagesFromServer];
+    }
 }
 
 - (void)dealloc {

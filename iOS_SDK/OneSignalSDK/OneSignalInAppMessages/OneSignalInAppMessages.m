@@ -40,8 +40,8 @@
     [OSMessagingController start];
 }
 
-+ (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId {
-    [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
++ (void)getInAppMessagesFromServer {
+    [OSMessagingController.sharedInstance getInAppMessagesFromServer];
 }
 
 + (void)onApplicationDidBecomeActive {

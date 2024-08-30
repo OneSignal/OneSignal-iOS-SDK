@@ -29,13 +29,16 @@
 
 @implementation OSRequestGetInAppMessages
 + (instancetype _Nonnull)   withSubscriptionId:(NSString * _Nonnull)subscriptionId
+                            withAliasLabel:(NSString * _Nonnull)aliasLabel
+                            withAliasId:(NSString * _Nonnull)aliasId
+                            withUserHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)userHeader
                             withSessionDuration:(NSNumber * _Nonnull)sessionDuration
                             withRetryCount:(NSNumber *)retryCount
                             withRywToken:(NSString *)rywToken
 {
     let request = [OSRequestGetInAppMessages new];
     request.method = GET;
-    let headers = [NSMutableDictionary new];
+    NSMutableDictionary* headers = [userHeader mutableCopy];
     
     if (sessionDuration != nil) {
         // convert to ms & round
@@ -50,7 +53,7 @@
     request.additionalHeaders = headers;
 
     NSString *appId = [OneSignalConfigManager getAppId];
-    request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
+    request.path = [NSString stringWithFormat:@"apps/%@/users/by/%@/%@/subscriptions/%@/iams", appId, aliasLabel, aliasId, subscriptionId];
     return request;
 }
 @end

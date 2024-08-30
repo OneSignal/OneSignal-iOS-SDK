@@ -416,16 +416,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance startNewSession];
-    
-    // This is almost always going to be nil the first time.
-    // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
-    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
-    if (subscriptionId) {
-        let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
-        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer:)]) {
-            [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer:) withObject:subscriptionId];
-        }
-    }
+
+    [self fetchInAppMessages];
     
     // The below means there are NO IAMs until on_session returns
     // because they can be ended, paused, or deleted from the server, or your segment has changed and you're no longer eligible
@@ -435,6 +427,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     //    [OneSignalLocation sendLocation];
     //    [self executePendingLiveActivityUpdates];
     //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];  // go to controller
+}
+
++ (void)fetchInAppMessages {
+    let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer)]) {
+        [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer)];
+    }
 }
 
 + (void)startInAppMessages {
