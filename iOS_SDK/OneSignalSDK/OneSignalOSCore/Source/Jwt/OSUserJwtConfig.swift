@@ -28,13 +28,11 @@
 import Foundation
 import OneSignalCore
 
-/**
- Use an enum to avoid working with optional Bool, which is unsightly to cache and uncache.
- */
-enum OSRequiresUserAuth: String {
-    case on
-    case off
-    case unknown
+@objc
+public enum OSRequiresUserAuth: Int {
+    case on = 1
+    case off = -1
+    case unknown = 0
     // TODO: JWT 🔐 consider additional reasons such as detecting this by dev calling loginWithJWT / onViaRemoteParams
 
     func isRequired() -> Bool? {
@@ -52,8 +50,8 @@ enum OSRequiresUserAuth: String {
 /**
  Internal listener.
  */
-public protocol OSUserJwtConfigListener {
-    func onRequiresUserAuthChanged(from: Bool?, to: Bool?)
+@objc public protocol OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth)
     func onJwtUpdated(externalId: String, to: String?)
 }
 
@@ -69,10 +67,10 @@ public class OSUserJwtConfig {
             print("❌ OSUserJwtConfig.requiresUserAuth: changing from \(oldValue) to \(requiresUserAuth), firing \(changeNotifier)")
 
             // Persist new value
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: requiresUserAuth.rawValue)
+            OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: requiresUserAuth.rawValue)
 
             self.changeNotifier.fire { listener in
-                listener.onRequiresUserAuthChanged(from: oldValue.isRequired(), to: requiresUserAuth.isRequired())
+                listener.onRequiresUserAuthChanged(from: oldValue, to: requiresUserAuth)
             }
         }
     }
@@ -94,11 +92,11 @@ public class OSUserJwtConfig {
     }
 
     public init() {
-        let rawValue = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_USE_IDENTITY_VERIFICATION, defaultValue: OSRequiresUserAuth.unknown.rawValue)
+        let rawValue = OneSignalUserDefaults.initShared().getSavedInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, defaultValue: OSRequiresUserAuth.unknown.rawValue)
 
-        print("❌ OSUserJwtConfig init(): \(OSRequiresUserAuth(rawValue: rawValue!)))")
+        print("❌ OSUserJwtConfig init(): \(String(describing: OSRequiresUserAuth(rawValue: rawValue))))")
 
-        requiresUserAuth = OSRequiresUserAuth(rawValue: rawValue ?? OSRequiresUserAuth.unknown.rawValue) ?? OSRequiresUserAuth.unknown
+        requiresUserAuth = OSRequiresUserAuth(rawValue: rawValue) ?? OSRequiresUserAuth.unknown
     }
 
     public func subscribe(_ listener: OSUserJwtConfigListener, key: String) {
