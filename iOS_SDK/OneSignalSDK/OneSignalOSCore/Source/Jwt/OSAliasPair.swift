@@ -29,8 +29,8 @@
  An alias label and alias ID pair to represent a user.
  */
 @objc public class OSAliasPair: NSObject {
-    public let label: String
-    public let id: String
+    @objc public let label: String
+    @objc public let id: String
 
     public init(_ label: String, _ id: String) {
         self.label = label
