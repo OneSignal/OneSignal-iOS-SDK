@@ -682,10 +682,10 @@ extension OSUserExecutor {
 }
 
 extension OSUserExecutor: OSUserJwtConfigListener {
-    func onRequiresUserAuthChanged(from: Bool?, to: Bool?) {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
         print("❌ OSUserExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process requests
-        if to == true {
+        if to == .on {
             removeInvalidRequests()
         }
         self.executePendingRequests()

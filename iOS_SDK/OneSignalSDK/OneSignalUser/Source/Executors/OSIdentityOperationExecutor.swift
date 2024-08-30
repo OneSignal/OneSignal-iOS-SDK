@@ -329,10 +329,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 }
 
 extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
-    func onRequiresUserAuthChanged(from: Bool?, to: Bool?) {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
         print("❌ OSIdentityOperationExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process requests
-        if to == true {
+        if to == .on {
             removeInvalidDeltasAndRequests()
         }
     }
