@@ -102,7 +102,7 @@ extension OSIdentityModelRepo: OSModelChangedHandler {
             return
         }
         print("❌ OSIdentityModelRepo onModelUpdated for \(externalId): \(token)")
-        OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: externalId, to: token)
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: externalId, token: token)
     }
 }
 

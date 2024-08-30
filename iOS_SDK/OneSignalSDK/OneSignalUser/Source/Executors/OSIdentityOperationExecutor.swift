@@ -341,8 +341,8 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
         }
     }
 
-    func onJwtUpdated(externalId: String, to: String?) {
-        print("❌ OSIdentityOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: to))")
+    func onJwtUpdated(externalId: String, token: String?) {
+        print("❌ OSIdentityOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 
     private func removeInvalidDeltasAndRequests() {

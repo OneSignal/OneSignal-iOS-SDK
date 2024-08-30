@@ -52,7 +52,7 @@ public enum OSRequiresUserAuth: Int {
  */
 @objc public protocol OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth)
-    func onJwtUpdated(externalId: String, to: String?)
+    func onJwtUpdated(externalId: String, token: String?)
 }
 
 public class OSUserJwtConfig {
@@ -103,10 +103,10 @@ public class OSUserJwtConfig {
         self.changeNotifier.subscribe(listener, key: key)
     }
 
-    public func onJwtTokenChanged(externalId: String, to: String?) {
-        print("❌ OSUserJwtConfig.onJwtTokenChanged \(externalId): \(to)")
+    public func onJwtTokenChanged(externalId: String, token: String?) {
+        print("❌ OSUserJwtConfig.onJwtTokenChanged \(externalId): \(token)")
         changeNotifier.fire { listener in
-            listener.onJwtUpdated(externalId: externalId, to: to)
+            listener.onJwtUpdated(externalId: externalId, token: token)
         }
     }
 }
