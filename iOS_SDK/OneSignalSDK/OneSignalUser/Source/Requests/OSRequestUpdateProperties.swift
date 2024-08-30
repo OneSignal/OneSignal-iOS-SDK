@@ -46,7 +46,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             return false
         }
 
-        _ = self.addPushSubscriptionIdToAdditionalHeaders()
+        _ = self.addPushSubscriptionToAdditionalHeaders()
         self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)"
         return true
     }

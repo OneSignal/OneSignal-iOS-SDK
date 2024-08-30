@@ -42,7 +42,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
     // Need the subscription_id
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        addPushSubscriptionIdToAdditionalHeaders()
+        addPushSubscriptionToAdditionalHeaders()
         if let subscriptionId = subscriptionModel.subscriptionId,
            newRecordsState.canAccess(subscriptionId),
            let appId = OneSignalConfigManager.getAppId()

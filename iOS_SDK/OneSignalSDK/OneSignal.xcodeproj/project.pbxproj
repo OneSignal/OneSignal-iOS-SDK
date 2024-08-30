@@ -187,6 +187,7 @@
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
 		3CF807352C80E3A6003E5FE1 /* OSAliasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */; };
+		3CF807372C80F3B5003E5FE1 /* OSUserUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -1336,6 +1337,7 @@
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
+		3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserUtils.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -2237,6 +2239,7 @@
 			isa = PBXGroup;
 			children = (
 				3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */,
+				3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -4424,6 +4427,7 @@
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
 				3C9AD6CB2B228B5200BC1540 /* OSRequestIdentifyUser.swift in Sources */,
+				3CF807372C80F3B5003E5FE1 /* OSUserUtils.swift in Sources */,
 				3C9AD6BC2B2285FB00BC1540 /* OSUserExecutor.swift in Sources */,
 				3C9AD6C32B22887700BC1540 /* OSRequestCreateUser.swift in Sources */,
 				3C9AD6D12B228B9200BC1540 /* OSRequestRemoveAlias.swift in Sources */,

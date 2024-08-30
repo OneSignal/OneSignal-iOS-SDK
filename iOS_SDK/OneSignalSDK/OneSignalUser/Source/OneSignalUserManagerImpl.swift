@@ -399,6 +399,54 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         return userInstance.identityModel.externalId == externalId
     }
+
+    @objc
+    public func getAliasForCurrentUser() -> OSAliasPair? {
+        guard let identityModel = _user?.identityModel else {
+            return nil
+        }
+
+        return OSUserUtils.getAlias(
+            identityModel: identityModel,
+            jwtConfig: jwtConfig
+        )
+    }
+
+    /**
+     Helper method used by other modules in Objective-C such as fetching in app messages.
+     - Returns: The complete user header including push headers and jwt headers, if valid.
+                Returns `nil` if this request is not yet valid due to auth or null user instance.
+     
+     TODO: Alternative is to refactor and let OSRequestGetInAppMessages implement the OSUserRequest protocol
+     and have access to the extension methods on OneSignalRequest that handles the header.
+     */
+    @objc
+    public func getCurrentUserFullHeader() -> [String: String]? {
+        guard let required = jwtConfig.isRequired else {
+            return nil
+        }
+
+        guard let _user = _user else {
+            return nil
+        }
+
+        var fullHeader = OSUserUtils.getFullPushHeader()
+
+        if !required {
+            return fullHeader
+        }
+
+        // JWT is required
+
+        if _user.identityModel.isJwtValid(),
+           let token = _user.identityModel.jwtBearerToken
+        {
+            fullHeader["Authorization"] = "Bearer \(token)"
+            return fullHeader
+        }
+        return nil
+    }
+
     /**
      Clears the existing user's data in preparation for hydration via a fetch user call.
      */
