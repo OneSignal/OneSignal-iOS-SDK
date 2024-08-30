@@ -56,21 +56,7 @@ internal extension OneSignalRequest {
     }
 
     private func getAlias(identityModel: OSIdentityModel, jwtConfig: OSUserJwtConfig) -> OSAliasPair? {
-        guard let jwtRequired = jwtConfig.isRequired else {
-            return nil
-        }
-
-        if jwtRequired, let externalId = identityModel.externalId
-        {
-            // JWT is on and external ID exists
-            return OSAliasPair(OS_EXTERNAL_ID, externalId)
-        } else if !jwtRequired, let onesignalId = identityModel.onesignalId {
-            // JWT is off and onesignal ID exists
-            return OSAliasPair(OS_ONESIGNAL_ID, onesignalId)
-        }
-
-        // Missing onesignal ID or external ID, when expected
-        return nil
+        return OSUserUtils.getAlias(identityModel: identityModel, jwtConfig: jwtConfig)
     }
 
     /**
@@ -98,28 +84,14 @@ internal extension OneSignalRequest {
         return canBeSent
     }
 
-    /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
-    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
-        _ = addPushToken()
-        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
-            var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
-            self.additionalHeaders = additionalHeaders
-            return true
-        } else {
-            return false
-        }
-    }
-
-    /** Returns if the `Device-Auth-Push-Token` header was added successfully. */
-    private func addPushToken() -> Bool {
-        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address {
-            var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["Device-Auth-Push-Token"] = "Basic \(token)"
-            self.additionalHeaders = additionalHeaders
-            return true
-        } else {
-            return false
-        }
+    /**
+     The `OneSignal-Subscription-Id` header supports improved `last_active` tracking for subscriptions that were actually active.
+     The `Device-Auth-Push-Token` header includes the push token if available.
+     */
+    func addPushSubscriptionToAdditionalHeaders() {
+        let pushHeader = OSUserUtils.getFullPushHeader()
+        var additionalHeaders = self.additionalHeaders ?? [String: String]()
+        additionalHeaders = additionalHeaders.merging(pushHeader) { (_, new) in new }
+        self.additionalHeaders = additionalHeaders
     }
 }

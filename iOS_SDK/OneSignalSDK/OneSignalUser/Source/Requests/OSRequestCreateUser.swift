@@ -65,7 +65,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             return false
         }
 
-        _ = self.addPushSubscriptionIdToAdditionalHeaders()
+        _ = self.addPushSubscriptionToAdditionalHeaders()
         self.path = "apps/\(appId)/users"
         return true
     }
