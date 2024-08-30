@@ -267,6 +267,15 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
+    /**
+     End the background task identi
+     */
+    private func endBackgroundTask(_ backgroundTaskIdentifier: String, inBackground: Bool) {
+        if inBackground {
+            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+        }
+    }
+
     func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties, inBackground: Bool) {
         guard !request.sentToClient else {
             return
@@ -287,9 +296,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 self.updateRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-                if inBackground {
-                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                }
+                self.endBackgroundTask(backgroundTaskIdentifier, inBackground: inBackground)
             }
         } onFailure: { error in
             self.dispatchQueue.async {
@@ -302,23 +309,22 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                         // Logout if the user in the SDK is the same
                         guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                         else {
-                            if inBackground {
-                                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                            }
+                            self.endBackgroundTask(backgroundTaskIdentifier, inBackground: inBackground)
                             return
                         }
                         // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType == .unauthorized {
+                        print("❌ UNAUTHORIZED response")
+                        request.identityModel.jwtBearerToken = OS_JWT_TOKEN_INVALID
                     } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         self.updateRequestQueue.removeAll(where: { $0 == request})
                         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                     }
                 }
-                if inBackground {
-                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                }
+                self.endBackgroundTask(backgroundTaskIdentifier, inBackground: inBackground)
             }
         }
     }
