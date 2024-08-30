@@ -184,10 +184,10 @@ public class OSOperationRepo {
 }
 
 extension OSOperationRepo: OSUserJwtConfigListener {
-    public func onRequiresUserAuthChanged(from: Bool?, to: Bool?) {
+    public func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
         print("❌ OSOperationRepo onRequiresUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process deltas
-        if to == true {
+        if to == .on {
             removeInvalidDeltas()
         }
         start()

@@ -627,8 +627,14 @@ extension OneSignalUserManagerImpl {
 // MARK: - JWT
 
 extension OneSignalUserManagerImpl {
-    @objc public func setRequiresUserAuth(_ required: Bool) {
+    @objc
+    public func setRequiresUserAuth(_ required: Bool) {
         jwtConfig.isRequired = required
+    }
+
+    @objc
+    public func subscribeToJwtConfig(_ listener: OSUserJwtConfigListener, key: String) {
+        jwtConfig.subscribe(listener, key: key)
     }
 }
 
