@@ -333,8 +333,8 @@ extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
         }
     }
 
-    func onJwtUpdated(externalId: String, to: String?) {
-        print("❌ OSPropertyOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: to))")
+    func onJwtUpdated(externalId: String, token: String?) {
+        print("❌ OSPropertyOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 
     private func removeInvalidDeltasAndRequests() {

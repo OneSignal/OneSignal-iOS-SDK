@@ -686,8 +686,8 @@ extension OSUserExecutor: OSUserJwtConfigListener {
         self.executePendingRequests()
     }
 
-    func onJwtUpdated(externalId: String, to: String?) {
-        print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: to))")
+    func onJwtUpdated(externalId: String, token: String?) {
+        print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 
     private func removeInvalidRequests() {
