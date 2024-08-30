@@ -198,8 +198,8 @@ extension OSOperationRepo: OSUserJwtConfigListener {
         start()
     }
 
-    public func onJwtUpdated(externalId: String, to: String?) {
-        print("❌ OSOperationRepo onJwtUpdated for \(externalId) to \(String(describing: to))")
+    public func onJwtUpdated(externalId: String, token: String?) {
+        print("❌ OSOperationRepo onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 
     /**
