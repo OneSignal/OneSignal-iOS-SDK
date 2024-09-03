@@ -250,6 +250,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
+    // ECM THIS NEEDS TO RUN ON THE MAIN THREAD
     [self evaluateMessages];
 }
 
