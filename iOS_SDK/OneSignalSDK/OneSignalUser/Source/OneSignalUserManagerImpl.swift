@@ -77,9 +77,8 @@ import OneSignalNotifications
     // Language
     func setLanguage(_ language: String)
     // JWT Token Expire
-    typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
-    typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
-    func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler)
+    typealias OSJwtInvalidatedHandler =  (_ event: OSJwtInvalidatedEvent) -> Void
+    func onJwtInvalidated(invalidatedHandler: @escaping OSJwtInvalidatedHandler)
 }
 
 /**
@@ -126,7 +125,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private let startQueue = DispatchQueue(label: "com.onesignal.user.start")
     var hasCalledStart = false
 
-    private var jwtExpiredHandler: OSJwtExpiredHandler?
+    private var jwtInvalidatedHandler: OSJwtInvalidatedHandler?
     let jwtConfig: OSUserJwtConfig
 
     var user: OSUserInternal {
@@ -600,18 +599,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         identityModelRepo.updateJwtToken(externalId: externalId, token: token)
     }
-
-    private func fireJwtExpired() {
-        guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
-            return
-        }
-        jwtExpiredHandler(externalId) { [self] (newToken) in
-            guard user.identityModel.externalId == externalId else {
-                return
-            }
-            user.identityModel.jwtBearerToken = newToken
-        }
-    }
 }
 
 // MARK: - Sessions
@@ -700,14 +687,40 @@ extension OneSignalUserManagerImpl {
     }
     
     @objc
-    public func invalidJwtConfigResponse(error: NSError) {
-        fireJwtExpired()
+    public func invalidateJwtForExternalId(externalId: String, error: NSError) {
+        guard let identityModel = identityModelRepo.get(externalId: externalId) else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to find identity model for externalId: \(externalId)")
+            return
+        }
+        identityModel.jwtBearerToken = nil
+
+        let message = getMessageFromJwtError(error)
+        fireJwtExpired(externalId: externalId, message: message)
+    }
+    
+    
+    private func fireJwtExpired(externalId: String, message: String) {
+        guard let jwtInvalidatedHandler = self.jwtInvalidatedHandler else {
+            return
+        }
+        let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId, message: message)
+        
+        jwtInvalidatedHandler(invalidatedEvent)
+    }
+    
+    private func getMessageFromJwtError(_ error: NSError) -> String {
+        if let returnedObject = error.userInfo["returned"] as? Dictionary<String, AnyObject> {
+            if let errors = returnedObject["errors"] as? Array<Dictionary<String, AnyObject>> {
+                return errors[0]["title"] as? String ?? error.localizedDescription
+            }
+        }
+        return error.localizedDescription
     }
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    public func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler) {
-        jwtExpiredHandler = expiredHandler
+    public func onJwtInvalidated(invalidatedHandler: @escaping OSJwtInvalidatedHandler) {
+        jwtInvalidatedHandler = invalidatedHandler
     }
 
     public var User: OSUser {

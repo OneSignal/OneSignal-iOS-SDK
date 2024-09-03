@@ -360,6 +360,7 @@
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
 		DE16C17024D3989A00670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE1DD0602C87D87B00787071 /* OSJwtInvalidatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */; };
 		DE20425E24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
@@ -1548,6 +1549,7 @@
 		CACBAAAB218A662B000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLifecycleObserver.m; sourceTree = "<group>"; };
 		DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLifecycleObserver.h; sourceTree = "<group>"; };
+		DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSJwtInvalidatedEvent.swift; sourceTree = "<group>"; };
 		DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIApplication+OneSignal.h"; sourceTree = "<group>"; };
 		DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+OneSignal.m"; sourceTree = "<group>"; };
 		DE3CD2FE270FA9F200A5BECD /* OSOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomes.m; sourceTree = "<group>"; };
@@ -2570,6 +2572,7 @@
 				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
 				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
 				3C5117162B15C31E00563465 /* OSUserState.swift */,
+				DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -4415,6 +4418,7 @@
 			files = (
 				3CE795F928DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift in Sources */,
 				DE69E1AC282ED87A0090BB3D /* OneSignalUserManagerImpl.swift in Sources */,
+				DE1DD0602C87D87B00787071 /* OSJwtInvalidatedEvent.swift in Sources */,
 				3C9AD6CF2B228B7800BC1540 /* OSRequestAddAliases.swift in Sources */,
 				3C9AD6D32B228BB000BC1540 /* OSRequestUpdateProperties.swift in Sources */,
 				3C9AD6CD2B228B6300BC1540 /* OSRequestFetchUser.swift in Sources */,

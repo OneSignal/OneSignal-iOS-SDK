@@ -355,12 +355,17 @@ extension OSUserExecutor {
         } onFailure: { error in
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .unauthorized {
-                    OneSignalUserManagerImpl.sharedInstance.invalidJwtConfigResponse(error: nsError)
+                guard let externalId = request.identityModel.externalId else {
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor no externalId for unauthorized request.")
+                    return
                 }
-            if responseType != .retryable {
+                OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: nsError)
+                request.sentToClient = false
+            } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
                 // We will retry this request on a new session
+                // We can't do this anymore for 401s
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                 request.sentToClient = false
             }
@@ -696,7 +701,11 @@ extension OSUserExecutor: OSUserJwtConfigListener {
 
     func onJwtUpdated(externalId: String, token: String?) {
         /*
-         Handle pending 401 requests again
+         ECM
+         Do we actually even need this callback?
+         Requests that are invalidated do not pass prepare for execution
+         Once they are valid they will pass prepare for execution.
+         We could use this callback to optimize sending requests immediately
          */
         print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
