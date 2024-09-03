@@ -354,6 +354,9 @@ extension OSUserExecutor {
             OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType == .unauthorized {
+                    OneSignalUserManagerImpl.sharedInstance.invalidJwtConfigResponse(error: nsError)
+                }
             if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
@@ -692,6 +695,9 @@ extension OSUserExecutor: OSUserJwtConfigListener {
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
+        /*
+         Handle pending 401 requests again
+         */
         print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 

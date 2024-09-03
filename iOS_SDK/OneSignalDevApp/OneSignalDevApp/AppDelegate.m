@@ -46,6 +46,10 @@
 
 OneSignalNotificationCenterDelegate *_notificationDelegate;
 
+// ECM Should we ship these typedefs in OneSignalFramework.h to make them available to Objective C customers?
+typedef void (^JwtCompletionBlock)(NSString*);
+typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [FIRApp configure];
@@ -72,6 +76,13 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
+    
+    JwtExpiredBlock expiredBlock = ^(NSString *externalId, JwtCompletionBlock completion){
+        NSLog(@"JWT expired for external id: %@", externalId);
+        completion(@"test");
+    };
+    
+    [OneSignal.User onJwtExpiredWithExpiredHandler:expiredBlock];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -86,8 +97,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"STAGING_APP_HERE"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
+#define ONESIGNAL_APP_ID_DEFAULT @"0139bd6f-451f-438c-8886-4e0f0fe3a085"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"0139bd6f-451f-438c-8886-4e0f0fe3a085"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];

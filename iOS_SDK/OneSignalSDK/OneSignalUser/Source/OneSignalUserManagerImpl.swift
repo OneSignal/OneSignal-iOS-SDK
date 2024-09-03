@@ -698,6 +698,11 @@ extension OneSignalUserManagerImpl {
     public func subscribeToJwtConfig(_ listener: OSUserJwtConfigListener, key: String) {
         jwtConfig.subscribe(listener, key: key)
     }
+    
+    @objc
+    public func invalidJwtConfigResponse(error: NSError) {
+        fireJwtExpired()
+    }
 }
 
 extension OneSignalUserManagerImpl: OSUser {
