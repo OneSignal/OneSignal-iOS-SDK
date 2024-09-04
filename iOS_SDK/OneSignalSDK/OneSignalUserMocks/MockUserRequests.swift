@@ -115,6 +115,19 @@ extension MockUserRequests {
         let error = testUnauthorizedailureError()
         client.setMockFailureResponseForRequest(request:"<OSRequestFetchUser with onesignal_id: \(onesignalId)>", error: error)
     }
+    
+    public static func setUnauthorizedUpdatePropertiesFailureResponses(with client: MockOneSignalClient, tags: [String: String]) {
+        let error = testUnauthorizedailureError()
+        
+        let params: NSDictionary = [
+            "properties": [
+                "tags": tags
+            ],
+            "refresh_device_metadata": false
+        ]
+            
+        client.setMockFailureResponseForRequest(request:"<OSRequestUpdateProperties with parameters: \(params.toSortedString())>", error: error)
+    }
 
     public static func setDefaultIdentifyUserResponses(with client: MockOneSignalClient, externalId: String, conflicted: Bool = false) {
         var osid: String

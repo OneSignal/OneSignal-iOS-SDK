@@ -366,6 +366,8 @@
 		DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE2D8F452947D85800844084 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
 		DE2D8F4A2947D86200844084 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
+		DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */; };
+		DE3568EC2C88F5BD00AF447C /* OneSignalExecutorMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */; };
 		DE3784842888CFF900453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784852888D00300453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784862888D00B00453A8E /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1552,6 +1554,8 @@
 		DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSJwtInvalidatedEvent.swift; sourceTree = "<group>"; };
 		DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIApplication+OneSignal.h"; sourceTree = "<group>"; };
 		DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+OneSignal.m"; sourceTree = "<group>"; };
+		DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyExecutorTests.swift; sourceTree = "<group>"; };
+		DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalExecutorMocks.swift; sourceTree = "<group>"; };
 		DE3CD2FE270FA9F200A5BECD /* OSOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomes.m; sourceTree = "<group>"; };
 		DE51DDE3294262AB0073D5C4 /* OSRemoteParamController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSRemoteParamController.m; sourceTree = "<group>"; };
 		DE51DDE4294262AB0073D5C4 /* OSRemoteParamController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSRemoteParamController.h; sourceTree = "<group>"; };
@@ -2220,6 +2224,7 @@
 				3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */,
 				3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */,
 				3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */,
+				DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */,
 			);
 			path = OneSignalUserMocks;
 			sourceTree = "<group>";
@@ -2250,6 +2255,7 @@
 			isa = PBXGroup;
 			children = (
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
+				DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */,
 			);
 			path = Executors;
 			sourceTree = "<group>";
@@ -4251,6 +4257,7 @@
 				3C8706702BDE0957000D8CD2 /* MockUserRequests.swift in Sources */,
 				3C8706722BDEE076000D8CD2 /* MockUserDefines.swift in Sources */,
 				3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */,
+				DE3568EC2C88F5BD00AF447C /* OneSignalExecutorMocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4259,6 +4266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
+				DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,

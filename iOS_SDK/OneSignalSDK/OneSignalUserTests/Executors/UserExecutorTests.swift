@@ -33,36 +33,12 @@ import OneSignalOSCoreMocks
 import OneSignalUserMocks
 @testable import OneSignalUser
 
-/// This class has helpers that can be used in other tests and can be extracted out, as they are used
-private class Mocks {
-    let client = MockOneSignalClient()
-    let newRecordsState = MockNewRecordsState()
-    let jwtConfig = OSUserJwtConfig()
-    let userExecutor: OSUserExecutor
+private class Mocks: OneSignalExecutorMocks {
+    var userExecutor: OSUserExecutor!
 
-    init() {
-        OneSignalCoreImpl.setSharedClient(client)
+    override init() {
+        super.init()
         userExecutor = OSUserExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
-    }
-
-    func setAuthRequired(_ required: Bool) {
-        // Set User Manager's JWT to off, or it blocks requests in prepareForExecution
-        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = required
-        jwtConfig.isRequired = required
-    }
-
-    func createUserInstance(externalId: String) -> OSUserInternal {
-        let identityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: externalId], changeNotifier: OSEventProducer())
-        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        let pushModel = OSSubscriptionModel(type: .push, address: "", subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
-        return OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushModel)
-    }
-
-    func setUserManagerInternalUser(externalId: String) -> OSUserInternal {
-        return OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
-            externalId: externalId,
-            pushSubscriptionModel: OSSubscriptionModel(type: .push, address: "", subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
-        )
     }
 }
 
