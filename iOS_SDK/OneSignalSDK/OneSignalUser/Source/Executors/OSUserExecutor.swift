@@ -359,7 +359,7 @@ extension OSUserExecutor {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor no externalId for unauthorized request.")
                     return
                 }
-                OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: nsError)
+                self.handleUnauthorizedError(externalId: externalId, error: nsError)
                 request.sentToClient = false
             } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
@@ -369,6 +369,12 @@ extension OSUserExecutor {
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                 request.sentToClient = false
             }
+        }
+    }
+    
+    func handleUnauthorizedError(externalId: String, error: NSError) {
+        if (jwtConfig.isRequired ?? false) {
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
 
@@ -571,6 +577,11 @@ extension OSUserExecutor {
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
+            } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                if let externalId = request.identityModel.externalId {
+                    self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                }
+                request.sentToClient = false
             } else if responseType != .retryable {
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)
