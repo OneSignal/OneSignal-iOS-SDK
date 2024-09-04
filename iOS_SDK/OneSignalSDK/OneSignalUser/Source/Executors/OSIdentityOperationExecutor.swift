@@ -227,6 +227,12 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             }
         }
     }
+    
+    func handleUnauthorizedError(externalId: String, error: NSError) {
+        if (jwtConfig.isRequired ?? false) {
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases, inBackground: Bool) {
         guard !request.sentToClient else {
@@ -273,6 +279,11 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                         // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        }
+                        request.sentToClient = false
                     } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         self.addRequestQueue.removeAll(where: { $0 == request})
@@ -317,7 +328,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType != .retryable {
+                    if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        }
+                        request.sentToClient = false
+                    }
+                    else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
                         self.removeRequestQueue.removeAll(where: { $0 == request})

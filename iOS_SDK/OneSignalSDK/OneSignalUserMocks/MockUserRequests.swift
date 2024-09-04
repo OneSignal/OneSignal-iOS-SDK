@@ -143,6 +143,16 @@ extension MockUserRequests {
         let error = testUnauthorizedailureError()
         client.setMockFailureResponseForRequest(request:"OSRequestUpdateSubscription with subscriptionObject: [\"token\": \"\(token)\"]", error: error)
     }
+    
+    public static func setUnauthorizedAddAliasFailureResponse(with client: MockOneSignalClient, aliases: [String: String]) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"<OSRequestAddAliases with aliases: \(aliases)>", error: error)
+    }
+    
+    public static func setUnauthorizedRemoveAliasFailureResponse(with client: MockOneSignalClient, aliasLabel: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"OSRequestRemoveAlias with aliasLabel: \(aliasLabel)", error: error)
+    }
 
     public static func setDefaultIdentifyUserResponses(with client: MockOneSignalClient, externalId: String, conflicted: Bool = false) {
         var osid: String
