@@ -59,6 +59,14 @@ public class MockUserRequests: NSObject {
             "properties": properties
         ]
     }
+    
+    public static func testUnauthorizedailureError() -> NSError {
+        let userInfo = ["returned": [
+            "errors": [["title":"token has invalid claims: token is expired", "code":"auth-0"]],
+            "httpStatusCode": 401,
+        ]]
+        return NSError(domain: "not-important", code: 401, userInfo: userInfo)
+    }
 }
 
 // MARK: - Set Up Default Client Responses
@@ -96,6 +104,16 @@ extension MockUserRequests {
             request: "<OSRequestFetchUser with onesignal_id: \(osid)>",
             response: userResponse
         )
+    }
+    
+    public static func setUnauthorizedCreateUserFailureResponses(with client: MockOneSignalClient, externalId: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"<OSRequestCreateUser with external_id: \(externalId)>", error: error)
+    }
+    
+    public static func setUnauthorizedFetchUserFailureResponses(with client: MockOneSignalClient, onesignalId: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"<OSRequestFetchUser with onesignal_id: \(onesignalId)>", error: error)
     }
 
     public static func setDefaultIdentifyUserResponses(with client: MockOneSignalClient, externalId: String, conflicted: Bool = false) {
