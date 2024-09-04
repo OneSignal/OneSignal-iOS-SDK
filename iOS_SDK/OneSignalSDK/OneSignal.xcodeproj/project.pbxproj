@@ -369,6 +369,7 @@
 		DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */; };
 		DE3568EC2C88F5BD00AF447C /* OneSignalExecutorMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */; };
 		DE3568F02C89067400AF447C /* SubscriptionsExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */; };
+		DE3568F22C8911EA00AF447C /* IdentityExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */; };
 		DE3784842888CFF900453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784852888D00300453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784862888D00B00453A8E /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1558,6 +1559,7 @@
 		DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyExecutorTests.swift; sourceTree = "<group>"; };
 		DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalExecutorMocks.swift; sourceTree = "<group>"; };
 		DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionsExecutorTests.swift; sourceTree = "<group>"; };
+		DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityExecutorTests.swift; sourceTree = "<group>"; };
 		DE3CD2FE270FA9F200A5BECD /* OSOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomes.m; sourceTree = "<group>"; };
 		DE51DDE3294262AB0073D5C4 /* OSRemoteParamController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSRemoteParamController.m; sourceTree = "<group>"; };
 		DE51DDE4294262AB0073D5C4 /* OSRemoteParamController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSRemoteParamController.h; sourceTree = "<group>"; };
@@ -2259,6 +2261,7 @@
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
 				DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */,
 				DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */,
+				DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */,
 			);
 			path = Executors;
 			sourceTree = "<group>";
@@ -4270,6 +4273,7 @@
 			files = (
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
 				DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */,
+				DE3568F22C8911EA00AF447C /* IdentityExecutorTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
