@@ -113,7 +113,7 @@ final class PropertyExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
     }
     
-    func testCreateUser_IdentityVerificationRequired_withInvalidToken() {
+    func testUpdateProperty_IdentityVerificationRequired_withInvalidToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)

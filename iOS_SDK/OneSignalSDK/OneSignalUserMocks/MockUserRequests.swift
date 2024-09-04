@@ -128,6 +128,21 @@ extension MockUserRequests {
             
         client.setMockFailureResponseForRequest(request:"<OSRequestUpdateProperties with parameters: \(params.toSortedString())>", error: error)
     }
+    
+    public static func setUnauthorizedAddEmailFailureResponse(with client: MockOneSignalClient, email: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"<OSRequestCreateSubscription with token: \(email)>", error: error)
+    }
+    
+    public static func setUnauthorizedRemoveEmailFailureResponse(with client: MockOneSignalClient, email: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"<OSRequestDeleteSubscription with subscriptionModel: \(email)>", error: error)
+    }
+    
+    public static func setUnauthorizedUpdateSubscriptionFailureResponse(with client: MockOneSignalClient, token: String) {
+        let error = testUnauthorizedailureError()
+        client.setMockFailureResponseForRequest(request:"OSRequestUpdateSubscription with subscriptionObject: [\"token\": \"\(token)\"]", error: error)
+    }
 
     public static func setDefaultIdentifyUserResponses(with client: MockOneSignalClient, externalId: String, conflicted: Bool = false) {
         var osid: String

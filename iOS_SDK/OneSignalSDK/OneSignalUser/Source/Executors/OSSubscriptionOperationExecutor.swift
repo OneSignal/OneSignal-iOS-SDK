@@ -278,6 +278,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             }
         }
     }
+    
+    func handleUnauthorizedError(externalId: String, error: NSError) {
+        if (jwtConfig.isRequired ?? false) {
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
 
     func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription, inBackground: Bool) {
         guard !request.sentToClient else {
@@ -341,11 +347,16 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                         if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
-                        return
+                        return // TODO: 💛 check where these early returns came from
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                    if let externalId = request.identityModel.externalId {
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                    }
+                    request.sentToClient = false
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
@@ -388,7 +399,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                    // ECM The delete subscription request doesn't have an identity model?
+                    if let externalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId {
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                    }
+                    request.sentToClient = false
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -443,7 +460,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } onFailure: { error in
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                    // ECM The update subscription request doesn't have an identity model?
+                    if let externalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId {
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                    }
+                    request.sentToClient = false
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
