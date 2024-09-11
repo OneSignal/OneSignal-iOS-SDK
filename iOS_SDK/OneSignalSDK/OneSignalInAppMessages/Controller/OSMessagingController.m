@@ -251,7 +251,9 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
     // ECM THIS NEEDS TO RUN ON THE MAIN THREAD
-    [self evaluateMessages];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self evaluateMessages];
+    });
 }
 
 /**
@@ -324,9 +326,14 @@ static BOOL _isInAppMessagingPaused = false;
         OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
         if (responseType == OSResponseStatusUnauthorized) {
             shouldRetryGetInAppMessagesOnJwtUpdated = true;
+            [self handleUnauthroizedError:error externalId:alias.id];
         }
         [self updateInAppMessagesFromCache];
     }];
+}
+
+- (void)handleUnauthroizedError:(NSError*)error externalId:(NSString *)externalId {
+    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:externalId error:error];
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
