@@ -688,22 +688,21 @@ extension OneSignalUserManagerImpl {
     
     @objc
     public func invalidateJwtForExternalId(externalId: String, error: NSError) {
-        guard let identityModel = identityModelRepo.get(externalId: externalId) else {
+        guard jwtConfig.isRequired == true, let identityModel = identityModelRepo.get(externalId: externalId) else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to find identity model for externalId: \(externalId)")
             return
         }
         identityModel.jwtBearerToken = nil
 
-        let message = getMessageFromJwtError(error)
-        fireJwtExpired(externalId: externalId, message: message)
+        fireJwtExpired(externalId: externalId)
     }
     
     
-    private func fireJwtExpired(externalId: String, message: String) {
+    private func fireJwtExpired(externalId: String) {
         guard let jwtInvalidatedHandler = self.jwtInvalidatedHandler else {
             return
         }
-        let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId, message: message)
+        let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId)
         
         jwtInvalidatedHandler(invalidatedEvent)
     }
