@@ -30,10 +30,8 @@ import Foundation
 
 @objc public class OSJwtInvalidatedEvent: NSObject {
     @objc public let externalId: String
-    @objc public let message: String
-    
-    init(externalId: String, message: String) {
+
+    init(externalId: String) {
         self.externalId = externalId
-        self.message = message
     }
 }

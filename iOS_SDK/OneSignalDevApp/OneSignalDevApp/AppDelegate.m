@@ -76,13 +76,11 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
     [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
+
     
-    JwtExpiredBlock expiredBlock = ^(NSString *externalId, JwtCompletionBlock completion){
-        NSLog(@"JWT expired for external id: %@", externalId);
-        completion(@"test");
-    };
-    
-    [OneSignal.User onJwtExpiredWithExpiredHandler:expiredBlock];
+    [OneSignal.User onJwtInvalidatedWithInvalidatedHandler:^(OSJwtInvalidatedEvent * _Nonnull invalidatedEvent) {
+        NSLog(@"JWT INVALIDATED CALLBACK FOR: %@", invalidatedEvent.externalId);
+    }];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
