@@ -688,7 +688,10 @@ extension OneSignalUserManagerImpl {
     
     @objc
     public func invalidateJwtForExternalId(externalId: String, error: NSError) {
-        guard jwtConfig.isRequired == true, let identityModel = identityModelRepo.get(externalId: externalId) else {
+        guard jwtConfig.isRequired == true else {
+            return
+        }
+        guard let identityModel = identityModelRepo.get(externalId: externalId) else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to find identity model for externalId: \(externalId)")
             return
         }
