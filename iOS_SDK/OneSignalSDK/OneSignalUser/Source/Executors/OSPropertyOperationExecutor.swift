@@ -63,6 +63,7 @@ private struct OSCombinedProperties {
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
+    var pendingAuthRequests: [String: [OSRequestUpdateProperties]] = [String:[OSRequestUpdateProperties]]()
     var updateRequestQueue: [OSRequestUpdateProperties] = []
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
@@ -268,9 +269,26 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
     
-    func handleUnauthorizedError(externalId: String, error: NSError) {
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSRequestUpdateProperties) {
         if (jwtConfig.isRequired ?? false) {
+            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+    
+    func pendRequestUntilAuthUpdated(_ request: OSRequestUpdateProperties, externalId: String?) {
+        self.dispatchQueue.async {
+            self.updateRequestQueue.removeAll(where: { $0 == request})
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
         }
     }
 
@@ -278,9 +296,17 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
+        
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            return
+        }
+        
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
+        
+        print("ECM executing properties request: %@", request.identityModel.externalId)
         request.sentToClient = true
 
         let backgroundTaskIdentifier = PROPERTIES_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
@@ -333,7 +359,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -360,6 +386,21 @@ extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
 
     func onJwtUpdated(externalId: String, token: String?) {
         print("❌ OSPropertyOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+    
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                self.updateRequestQueue.append(request)
+            }
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     private func removeInvalidDeltasAndRequests() {
