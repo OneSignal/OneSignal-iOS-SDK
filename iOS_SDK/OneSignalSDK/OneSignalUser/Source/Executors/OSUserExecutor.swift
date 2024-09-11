@@ -35,6 +35,7 @@ import OneSignalOSCore
  */
 class OSUserExecutor {
     var userRequestQueue: [OSUserRequest] = []
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
     private let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
 
@@ -289,6 +290,22 @@ extension OSUserExecutor {
         appendToQueue(request)
         executePendingRequests()
     }
+    
+    func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
+        self.dispatchQueue.async {
+            self.userRequestQueue.removeAll(where: { $0 == request})
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
+        }
+    }
 
     func executeCreateUserRequest(_ request: OSRequestCreateUser) {
         guard !request.sentToClient else {
@@ -300,6 +317,11 @@ extension OSUserExecutor {
            let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
             request.pushSubscriptionModel = pushSubscriptionModel
             request.updatePushSubscriptionModel(pushSubscriptionModel)
+        }
+        
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            return
         }
 
         guard request.prepareForExecution(newRecordsState: newRecordsState)
@@ -344,7 +366,7 @@ extension OSUserExecutor {
                         OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor no externalId for unauthorized request.")
                         return
                     }
-                    self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                    self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     request.sentToClient = false
                 } else if responseType != .retryable {
                     // A failed create user request would leave the SDK in a bad state
@@ -361,8 +383,9 @@ extension OSUserExecutor {
         }
     }
     
-    func handleUnauthorizedError(externalId: String, error: NSError) {
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
         if (jwtConfig.isRequired ?? false) {
+            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
@@ -376,6 +399,7 @@ extension OSUserExecutor {
 
     /**
      For migrating legacy players from 3.x to 5.x. This request will fetch the identity object for a subscription ID, and we will use the returned onesignalId to fetch and hydrate the local user.
+     ECM can this ever succeed with identity verification on?
      */
     func executeFetchIdentityBySubscriptionRequest(_ request: OSRequestFetchIdentityBySubscription) {
         guard !request.sentToClient else {
@@ -485,7 +509,7 @@ extension OSUserExecutor {
                         // This will hydrate the OneSignal ID for any pending requests
                         self.createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                     }
-                } else if responseType == .invalid || responseType == .unauthorized {
+                } else if responseType == .invalid || responseType == .unauthorized { //Identify User should never be called with identity verification on
                     // Failed, no retry
                     self.removeFromQueue(request)
                     self.executePendingRequests()
@@ -574,7 +598,7 @@ extension OSUserExecutor {
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -707,14 +731,22 @@ extension OSUserExecutor: OSUserJwtConfigListener {
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
-        /*
-         ECM
-         Do we actually even need this callback?
-         Requests that are invalidated do not pass prepare for execution
-         Once they are valid they will pass prepare for execution.
-         We could use this callback to optimize sending requests immediately
-         */
+        reQueuePendingRequestsForExternalId(externalId: externalId)
         print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
+    }
+    
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                self.userRequestQueue.append(request)
+            }
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
+            self.executePendingRequests(withDelay: true)
+        }
     }
 
     private func removeInvalidRequests() {

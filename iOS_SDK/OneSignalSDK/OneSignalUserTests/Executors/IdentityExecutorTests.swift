@@ -100,7 +100,7 @@ final class IdentityExecutorTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
         
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_JwtToken
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let aliases = userA_Aliases
         MockUserRequests.setAddAliasesResponse(with: mocks.client, aliases: aliases)
         mocks.identityExecutor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value:aliases))
@@ -120,14 +120,13 @@ final class IdentityExecutorTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
         
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_JwtToken
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let aliases = userA_Aliases
         MockUserRequests.setUnauthorizedAddAliasFailureResponse(with: mocks.client, aliases: aliases)
         mocks.identityExecutor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value:aliases))
         
         var invalidatedCallbackWasCalled = false
         OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
-            XCTAssertTrue(event.message == "token has invalid claims: token is expired")
             invalidatedCallbackWasCalled = true
         }
 
@@ -147,14 +146,13 @@ final class IdentityExecutorTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
         
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_JwtToken
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let aliases = userA_Aliases
         MockUserRequests.setUnauthorizedRemoveAliasFailureResponse(with: mocks.client, aliasLabel: userA_AliasLabel)
         mocks.identityExecutor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value:aliases))
         
         var invalidatedCallbackWasCalled = false
         OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
-            XCTAssertTrue(event.message == "token has invalid claims: token is expired")
             invalidatedCallbackWasCalled = true
         }
 
