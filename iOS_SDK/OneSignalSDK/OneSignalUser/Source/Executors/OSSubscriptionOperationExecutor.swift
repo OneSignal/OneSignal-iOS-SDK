@@ -35,6 +35,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var addRequestQueue: [OSRequestCreateSubscription] = []
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
@@ -279,14 +280,38 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
     
-    func handleUnauthorizedError(externalId: String, error: NSError) {
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
         if (jwtConfig.isRequired ?? false) {
+            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+    
+    
+    func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
+        self.dispatchQueue.async {
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            self.updateRequestQueue.removeAll(where: { $0 == request})
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
         }
     }
 
     func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -354,7 +379,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -373,6 +398,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
+        // ECM TODO
+//        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+//            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+//            return
+//        }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
@@ -402,7 +432,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     // ECM The delete subscription request doesn't have an identity model?
                     if let externalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -422,6 +452,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
+        // ECM TODO
+//        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+//            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+//            return
+//        }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
@@ -463,7 +498,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     // ECM The update subscription request doesn't have an identity model?
                     if let externalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -475,6 +510,40 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
+        }
+    }
+}
+
+extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth) {
+        print("❌ OSSubscriptionOperationExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
+        // ECM TODO If auth changed from false or unknown to true, process requests
+    }
+    
+    func onJwtUpdated(externalId: String, token: String?) {
+        print("❌ OSSubscriptionOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+    
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                if let addRequest = request as? OSRequestCreateSubscription {
+                    self.addRequestQueue.append(addRequest)
+                } else if let removeRequest = request as? OSRequestDeleteSubscription {
+                    self.removeRequestQueue.append(removeRequest)
+                } else if let updateRequest = request as? OSRequestUpdateSubscription {
+                    self.updateRequestQueue.append(updateRequest)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            self.pendingAuthRequests[externalId] = nil
+            self.processRequestQueue(inBackground: false)
         }
     }
 }
