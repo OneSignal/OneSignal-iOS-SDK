@@ -34,6 +34,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     // To simplify uncaching, we maintain separate request queues for each type
     var addRequestQueue: [OSRequestAddAliases] = []
     var removeRequestQueue: [OSRequestRemoveAlias] = []
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
 
@@ -228,14 +229,36 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
     
-    func handleUnauthorizedError(externalId: String, error: NSError) {
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
         if (jwtConfig.isRequired ?? false) {
+            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+    
+    func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
+        self.dispatchQueue.async {
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
         }
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -281,7 +304,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                         OneSignalUserManagerImpl.sharedInstance._logout()
                     } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                         if let externalId = request.identityModel.externalId {
-                            self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                         }
                         request.sentToClient = false
                     } else if responseType != .retryable {
@@ -299,6 +322,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -330,7 +357,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                     if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                         if let externalId = request.identityModel.externalId {
-                            self.handleUnauthorizedError(externalId: externalId, error: nsError)
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                         }
                         request.sentToClient = false
                     }
@@ -360,6 +387,26 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
 
     func onJwtUpdated(externalId: String, token: String?) {
         print("❌ OSIdentityOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+    
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                if let addRequest = request as? OSRequestAddAliases {
+                    self.addRequestQueue.append(addRequest)
+                } else if let removeRequest = request as? OSRequestRemoveAlias {
+                    self.removeRequestQueue.append(removeRequest)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            self.pendingAuthRequests[externalId] = nil
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     private func removeInvalidDeltasAndRequests() {

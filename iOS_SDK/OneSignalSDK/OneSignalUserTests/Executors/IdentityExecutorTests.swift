@@ -165,5 +165,126 @@ final class IdentityExecutorTests: XCTestCase {
         XCTAssertTrue(invalidatedCallbackWasCalled)
     }
     
+    func testAddAliasRequests_Retry_OnTokenUpdate() {
+        
+        /* Setup */
+        let mocks = Mocks()
+        mocks.setAuthRequired(true)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
+        
+        let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
+        
+        // We need to use the user manager's executor because the onJWTUpdated callback won't fire on the mock executor
+        let executor = OneSignalUserManagerImpl.sharedInstance.identityExecutor!
+        
+        let aliases = userA_Aliases
+        MockUserRequests.setUnauthorizedAddAliasFailureResponse(with: mocks.client, aliases: userA_Aliases)
+        executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value:aliases))
+
+        var invalidatedCallbackWasCalled = false
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+            invalidatedCallbackWasCalled = true
+            MockUserRequests.setAddAliasesResponse(with: mocks.client, aliases: aliases)
+            OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
+        }
+        
+        /* When */
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
+        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertEqual(mocks.client.networkRequestCount, 2)
+    }
     
+    func testAddAliasRequests_RetryRequests_OnTokenUpdate_ForOnlyUpdatedUser() {
+        /* Setup */
+        let mocks = Mocks()
+        
+        mocks.setAuthRequired(true)
+        
+        let userA = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        userA.identityModel.jwtBearerToken = userA_InvalidJwtToken
+        
+        let userB = mocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        userB.identityModel.jwtBearerToken = userA_InvalidJwtToken
+        // We need to use the user manager's executor because the onJWTUpdated callback won't fire on the mock executor
+        let executor = OneSignalUserManagerImpl.sharedInstance.identityExecutor!
+        
+        let aliases = userA_Aliases
+        MockUserRequests.setUnauthorizedAddAliasFailureResponse(with: mocks.client, aliases: userA_Aliases)
+        
+        executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: userA.identityModel.modelId, model: userA.identityModel, property: "aliases", value:aliases))
+        executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: userB.identityModel.modelId, model: userB.identityModel, property: "aliases", value:aliases))
+        
+        var invalidatedCallbackWasCalled = false
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+            invalidatedCallbackWasCalled = true
+        }
+        
+        /* When */
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        
+        MockUserRequests.setAddAliasesResponse(with: mocks.client, aliases: aliases)
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userB_EUID, token: userB_ValidJwtToken)
+
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        
+        /* Then */
+        // The executor should execute this request since identity verification is required and the token was set
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
+        XCTAssertTrue(invalidatedCallbackWasCalled)
+        let addAliasRequests = mocks.client.executedRequests.filter { request in
+            request.isKind(of: OSRequestAddAliases.self)
+        }
+        // It is 4 because setting user B's OneSignal ID counts as an add alias request
+        XCTAssertEqual(addAliasRequests.count, 4)
+    }
+    
+    func testRemoveAliasRequests_RetryRequests_OnTokenUpdate_ForOnlyUpdatedUser() {
+        /* Setup */
+        let mocks = Mocks()
+        
+        mocks.setAuthRequired(true)
+        
+        let userA = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        userA.identityModel.jwtBearerToken = userA_InvalidJwtToken
+        
+        let userB = mocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        userB.identityModel.jwtBearerToken = userA_InvalidJwtToken
+        // We need to use the user manager's executor because the onJWTUpdated callback won't fire on the mock executor
+        let executor = OneSignalUserManagerImpl.sharedInstance.identityExecutor!
+        
+        let aliases = userA_Aliases
+        MockUserRequests.setUnauthorizedRemoveAliasFailureResponse(with: mocks.client, aliasLabel: userA_AliasLabel)
+
+        executor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: userA.identityModel.modelId, model: userA.identityModel, property: "aliases", value:aliases))
+        executor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: userB.identityModel.modelId, model: userB.identityModel, property: "aliases", value:aliases))
+        
+        var invalidatedCallbackWasCalled = false
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+            invalidatedCallbackWasCalled = true
+        }
+        
+        /* When */
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userB_EUID, token: userB_ValidJwtToken)
+
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        
+        /* Then */
+        // The executor should execute this request since identity verification is required and the token was set
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestRemoveAlias.self))
+        XCTAssertTrue(invalidatedCallbackWasCalled)
+        let removeAliasRequests = mocks.client.executedRequests.filter { request in
+            request.isKind(of: OSRequestRemoveAlias.self)
+        }
+
+        XCTAssertEqual(removeAliasRequests.count, 3)
+    }
 }
