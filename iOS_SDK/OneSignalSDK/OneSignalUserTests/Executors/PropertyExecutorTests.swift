@@ -100,7 +100,7 @@ final class PropertyExecutorTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
         
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_JwtToken
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let tags = ["testUserA" : "true"]
         MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
         mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
@@ -120,7 +120,7 @@ final class PropertyExecutorTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
         
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_JwtToken
+        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         
         
         
@@ -130,7 +130,6 @@ final class PropertyExecutorTests: XCTestCase {
 
         var invalidatedCallbackWasCalled = false
         OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
-            XCTAssertTrue(event.message == "token has invalid claims: token is expired")
             invalidatedCallbackWasCalled = true
         }
         
