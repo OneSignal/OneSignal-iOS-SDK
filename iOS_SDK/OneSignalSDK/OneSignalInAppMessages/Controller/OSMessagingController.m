@@ -177,8 +177,13 @@ static BOOL _isInAppMessagingPaused = false;
     _isInAppMessagingPaused = pause;
     
     // If IAM are not paused, try to evaluate and show IAMs
-    if (!pause)
+    if (!pause) {
         [self evaluateMessages];
+    } else if (self.isInAppMessageShowing) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.viewController dismissCurrentInAppMessage];
+        });
+    }
 }
 
 + (BOOL)doesDeviceSupportIAM {
