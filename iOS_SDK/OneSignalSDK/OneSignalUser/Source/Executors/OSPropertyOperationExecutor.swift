@@ -245,7 +245,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalCoreImpl.sharedClient().execute(request) { _ in
+        OneSignalCoreImpl.sharedClient().execute(request) { response in
             // On success, remove request from cache, and we do need to hydrate
             // TODO: We need to hydrate after all ? What why ?
             self.dispatchQueue.async {
@@ -253,6 +253,15 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
+            }
+            if let onesignalId = request.identityModel.onesignalId {
+                if let rywToken = response?["ryw_token"] as? String
+                {
+                    OSConsistencyManager.shared.setRywToken(id: onesignalId, key: OSIamFetchOffsetKey.userUpdate, value: rywToken)
+                } else {
+                    // handle a potential regression where ryw_token is no longer returned by API
+                    OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
                 }
             }
         } onFailure: { error in

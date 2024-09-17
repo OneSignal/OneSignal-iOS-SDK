@@ -258,6 +258,16 @@ extension OSUserExecutor {
                 } else {
                     self.executePendingRequests()
                 }
+                
+                if let onesignalId = request.identityModel.onesignalId {
+                    if let rywToken = response["ryw_token"] as? String
+                    {
+                        OSConsistencyManager.shared.setRywToken(id: onesignalId, key: OSIamFetchOffsetKey.userCreate, value: rywToken)
+                    } else {
+                        // handle a potential regression where ryw_token is no longer returned by API
+                        OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+                    }
+                }
             }
             OSOperationRepo.sharedInstance.paused = false
         } onFailure: { error in
