@@ -1,12 +1,32 @@
-//
-//  OSConsistencyManager.swift
-//  OneSignalOSCore
-//
-//  Created by Rodrigo Gomez-Palacio on 9/10/24.
-//  Copyright © 2024 OneSignal. All rights reserved.
-//
+/*
+ Modified MIT License
+
+ Copyright 2024 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 import Foundation
+import OneSignalCore
 
 @objc public class OSConsistencyManager: NSObject {
     // Singleton instance
@@ -41,10 +61,10 @@ import Foundation
     @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
         let semaphore = DispatchSemaphore(value: 0)
         queue.sync {
-            if self.conditions[id] == nil {
-                self.conditions[id] = []
+            if self.indexedConditions[id] == nil {
+                self.indexedConditions[id] = []
             }
-            self.conditions[id]?.append((condition, semaphore))
+            self.indexedConditions[id]?.append((condition, semaphore))
             self.checkConditionsAndComplete(forId: id)
         }
         semaphore.wait() // Block until the condition is met
@@ -55,7 +75,7 @@ import Foundation
     
     // Method to resolve conditions by condition ID (e.g. OSIamFetchReadyCondition.ID)
     @objc public func resolveConditionsWithID(id: String) {
-        guard let conditionList = conditions[id] else { return }
+        guard let conditionList = indexedConditions[id] else { return }
         var completedConditions: [(OSCondition, DispatchSemaphore)] = []
         for (condition, semaphore) in conditionList {
             if (condition.conditionId == id) {
@@ -63,25 +83,25 @@ import Foundation
                 completedConditions.append((condition, semaphore))
             }
         }
-        conditions[id]?.removeAll { condition, semaphore in
+        indexedConditions[id]?.removeAll { condition, semaphore in
             completedConditions.contains(where: { $0.0 === condition && $0.1 == semaphore })
         }
     }
 
     // Private method to check conditions for a specific id (unique ID like onesignalId)
     private func checkConditionsAndComplete(forId id: String) {
-        guard let conditionList = conditions[id] else { return }
+        guard let conditionList = indexedConditions[id] else { return }
         var completedConditions: [(OSCondition, DispatchSemaphore)] = []
         for (condition, semaphore) in conditionList {
             if condition.isMet(indexedTokens: indexedTokens) {
-                print("Condition met for id: \(id)")
+                OneSignalLog.onesignalLog(.LL_INFO, message: "Condition met for id: \(id)")
                 semaphore.signal()
                 completedConditions.append((condition, semaphore))
             } else {
-                print("Condition not met for id: \(id)")
+                OneSignalLog.onesignalLog(.LL_INFO, message: "Condition not met for id: \(id)")
             }
         }
-        conditions[id]?.removeAll { condition, semaphore in
+        indexedConditions[id]?.removeAll { condition, semaphore in
             completedConditions.contains(where: { $0.0 === condition && $0.1 == semaphore })
         }
     }
