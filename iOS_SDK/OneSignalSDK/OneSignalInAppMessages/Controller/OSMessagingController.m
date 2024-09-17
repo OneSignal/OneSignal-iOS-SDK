@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2024 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,14 @@
 #import "OSInAppMessagePrompt.h"
 #import "OSInAppMessagingRequests.h"
 #import "OneSignalWebViewManager.h"
+#import "OneSignalTracker.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSSessionManager.h"
+#import "OneSignalOSCore/OneSignalOSCore-Swift.h"
+
+static NSInteger const DEFAULT_RETRY_AFTER_SECONDS = 1;     // Default 1 second retry delay
+static NSInteger const DEFAULT_RETRY_LIMIT = 0;             // If not returned by backend, don't retry
+static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Delay by 500 ms to increase the probability of getting a 200 & not having to retry
 
 @implementation OSInAppMessageWillDisplayEvent
 
@@ -242,22 +248,61 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
 
-    if (!subscriptionId) {
-        [self updateInAppMessagesFromCache];
-        return;
-    }
-    
-    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
-    [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+        if (!subscriptionId) {
+            [self updateInAppMessagesFromCache];
+            return;
+        }
+
+        OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
+        NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
+
+        if (!onesignalId) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
+            return;
+        }
+
+        OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
+        NSString *rywToken = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
+
+        // Delay by 500 ms to increase the probability of getting a 200 & not having to retry
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(IAM_FETCH_DELAY_BUFFER * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            // Initial request
+            [self attemptFetchWithRetries:subscriptionId
+                                 rywToken:rywToken
+                                 attempts:@0 // Starting with 0 attempts
+                               retryLimit:nil]; // Retry limit to be set dynamically on first failure
+        });
+    });
+}
+
+
+- (void)attemptFetchWithRetries:(NSString *)subscriptionId
+                       rywToken:(NSString *)rywToken
+                       attempts:(NSNumber *)attempts
+                     retryLimit:(NSNumber *)retryLimit {
+    NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
+
+    // Create the request with the current attempt count
+    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                    withSessionDuration:sessionDuration
+                                                                    withRetryCount:attempts
+                                                                    withRywToken:rywToken];
+
+    __block NSNumber *blockRetryLimit = retryLimit;
+
+    [OneSignalCoreImpl.sharedClient executeRequest:request
+                                          onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
-            if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
-                let messages = [NSMutableArray new];
+            if (result[@"in_app_messages"]) {
+                NSMutableArray *messages = [NSMutableArray new];
                 
                 for (NSDictionary *messageJson in result[@"in_app_messages"]) {
-                    let message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                    OSInAppMessageInternal *message = [OSInAppMessageInternal instanceWithJson:messageJson];
                     if (message) {
                         [messages addObject:message];
                     }
@@ -266,11 +311,89 @@ static BOOL _isInAppMessagingPaused = false;
                 [self updateInAppMessagesFromServer:messages];
                 return;
             }
+        });
+    }
+    onFailure:^(NSError *error) {
+        NSDictionary *errorInfo = error.userInfo[@"returned"];
+        NSNumber *statusCode = errorInfo[@"httpStatusCode"];
+        NSDictionary* responseHeaders = errorInfo[@"headers"];
+
+        if (!statusCode) {
+            [self updateInAppMessagesFromCache];
+            return;
+        }
+
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
+        
+        NSInteger code = [statusCode integerValue];
+        if (code == 425 || code == 429) { // 425 Too Early or 429 Too Many Requests
+            NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
             
-            // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
-            // This is the existing implementation but it could mean this user has no IAMs?
-            
-            // Default is using cached IAMs in the messaging controller
+            // Dynamically set the retry limit from the header, if not already set
+            if (!blockRetryLimit) {
+                blockRetryLimit = @([responseHeaders[@"OneSignal-Retry-Limit"] integerValue] ?: DEFAULT_RETRY_LIMIT);
+            }
+
+            if ([attempts integerValue] < [blockRetryLimit integerValue]) {
+                NSInteger nextAttempt = [attempts integerValue] + 1; // Increment attempts
+                [self retryAfterDelay:retryAfter
+                         subscriptionId:subscriptionId
+                                rywToken:rywToken
+                               attempts:@(nextAttempt)
+                             retryLimit:blockRetryLimit];
+            } else {
+                // Final attempt without rywToken
+                [self fetchInAppMessagesWithoutToken:subscriptionId];
+            }
+        } else if (code >= 500 && code <= 599) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
+            [self updateInAppMessagesFromCache];
+        } else {
+            [self updateInAppMessagesFromCache];
+        }
+    }];
+}
+
+- (void)retryAfterDelay:(NSInteger)retryAfter
+         subscriptionId:(NSString *)subscriptionId
+               rywToken:(NSString *)rywToken
+               attempts:(NSNumber *)attempts
+             retryLimit:(NSNumber *)retryLimit {
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryAfter * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [self attemptFetchWithRetries:subscriptionId
+                             rywToken:rywToken
+                             attempts:attempts
+                           retryLimit:retryLimit];
+    });
+}
+
+- (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId {
+    NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
+    
+    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                      withSessionDuration:sessionDuration
+                                                                      withRetryCount:nil
+                                                                      withRywToken:nil]; // No retries for the final attempt
+
+    [OneSignalCoreImpl.sharedClient executeRequest:request
+                                          onSuccess:^(NSDictionary *result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Final attempt without token success"];
+            if (result[@"in_app_messages"]) {
+                NSMutableArray *messages = [NSMutableArray new];
+
+                for (NSDictionary *messageJson in result[@"in_app_messages"]) {
+                    OSInAppMessageInternal *message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                    if (message) {
+                        [messages addObject:message];
+                    }
+                }
+
+                [self updateInAppMessagesFromServer:messages];
+                return;
+            }
             [self updateInAppMessagesFromCache];
         });
     } onFailure:^(NSError *error) {
