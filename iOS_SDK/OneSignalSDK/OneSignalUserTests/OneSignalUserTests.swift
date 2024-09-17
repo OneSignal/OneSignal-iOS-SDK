@@ -87,10 +87,8 @@ final class OneSignalUserTests: XCTestCase {
         /* When */
 
         OneSignalUserManagerImpl.sharedInstance.sendSessionTime(100)
-
-        // This adds a `session_count` property with value of 1
-        // It also sets `refresh_device_metadata` to `true`
-        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        
+        OneSignalUserManagerImpl.sharedInstance.updatePropertiesDeltas(property: .session_count, value: 1, flush: false)
 
         OneSignalUserManagerImpl.sharedInstance.setLanguage("lang_1")
 
@@ -108,7 +106,6 @@ final class OneSignalUserTests: XCTestCase {
 
         OneSignalUserManagerImpl.sharedInstance.addTags(["a": "a", "b": "b", "c": "c"])
 
-        OneSignalUserManagerImpl.sharedInstance.startNewSession()
 
         let purchases = [
             ["sku": "sku1", "amount": "1.25", "iso": "USD"],
@@ -118,6 +115,10 @@ final class OneSignalUserTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.sendPurchases(purchases as [[String: AnyObject]])
 
         OneSignalUserManagerImpl.sharedInstance.setLocation(latitude: 111.111, longitude: 222.222)
+        
+        // This adds a `session_count` property with value of 1
+        // It also sets `refresh_device_metadata` to `true`
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
 
         /* Then */
 
