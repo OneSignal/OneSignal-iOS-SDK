@@ -34,7 +34,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     // To simplify uncaching, we maintain separate request queues for each type
     var addRequestQueue: [OSRequestAddAliases] = []
     var removeRequestQueue: [OSRequestRemoveAlias] = []
-    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String: [OSUserRequest]]()
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
 
@@ -228,14 +228,14 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             }
         }
     }
-    
+
     func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
-        if (jwtConfig.isRequired ?? false) {
-            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
-    
+
     func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
         self.dispatchQueue.async {
             self.addRequestQueue.removeAll(where: { $0 == request})
@@ -258,7 +258,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             return
         }
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
-            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -325,7 +325,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             return
         }
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
-            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -360,8 +360,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                             self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
                         }
                         request.sentToClient = false
-                    }
-                    else if responseType != .retryable {
+                    } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
                         self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -389,7 +388,7 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
         print("❌ OSIdentityOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
-    
+
     private func reQueuePendingRequestsForExternalId(externalId: String) {
         self.dispatchQueue.async {
             guard let requests = self.pendingAuthRequests[externalId] else {

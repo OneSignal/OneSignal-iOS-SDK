@@ -15,5 +15,4 @@ public let userB_ValidJwtToken = "fyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 public let userA_email = "userA@onesignal.com"
 
 public let userA_AliasLabel = "testAliasLabel"
-public let userA_Aliases = [userA_AliasLabel : "userAValue"]
-
+public let userA_Aliases = [userA_AliasLabel: "userAValue"]

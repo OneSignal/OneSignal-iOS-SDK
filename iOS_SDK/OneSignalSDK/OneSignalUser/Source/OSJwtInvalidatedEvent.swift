@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-
 import Foundation
 
 @objc public class OSJwtInvalidatedEvent: NSObject {

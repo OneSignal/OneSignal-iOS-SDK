@@ -671,7 +671,7 @@ extension OneSignalUserManagerImpl {
     public func subscribeToJwtConfig(_ listener: OSUserJwtConfigListener, key: String) {
         jwtConfig.subscribe(listener, key: key)
     }
-    
+
     @objc
     public func invalidateJwtForExternalId(externalId: String, error: NSError) {
         guard jwtConfig.isRequired == true else {
@@ -685,20 +685,19 @@ extension OneSignalUserManagerImpl {
 
         fireJwtExpired(externalId: externalId)
     }
-    
-    
+
     private func fireJwtExpired(externalId: String) {
         guard let jwtInvalidatedHandler = self.jwtInvalidatedHandler else {
             return
         }
         let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId)
-        
+
         jwtInvalidatedHandler(invalidatedEvent)
     }
-    
+
     private func getMessageFromJwtError(_ error: NSError) -> String {
-        if let returnedObject = error.userInfo["returned"] as? Dictionary<String, AnyObject> {
-            if let errors = returnedObject["errors"] as? Array<Dictionary<String, AnyObject>> {
+        if let returnedObject = error.userInfo["returned"] as? [String: AnyObject] {
+            if let errors = returnedObject["errors"] as? [[String: AnyObject]] {
                 return errors[0]["title"] as? String ?? error.localizedDescription
             }
         }

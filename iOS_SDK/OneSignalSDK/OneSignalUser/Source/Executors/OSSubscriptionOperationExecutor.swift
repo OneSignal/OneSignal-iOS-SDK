@@ -35,7 +35,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var addRequestQueue: [OSRequestCreateSubscription] = []
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
-    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String: [OSUserRequest]]()
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
@@ -279,15 +279,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             }
         }
     }
-    
+
     func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
-        if (jwtConfig.isRequired ?? false) {
-            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
-    
-    
+
     func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
         self.dispatchQueue.async {
             self.addRequestQueue.removeAll(where: { $0 == request})
@@ -311,7 +310,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             return
         }
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
-            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -494,12 +493,12 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
         print("❌ OSSubscriptionOperationExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // ECM TODO If auth changed from false or unknown to true, process requests
     }
-    
+
     func onJwtUpdated(externalId: String, token: String?) {
         print("❌ OSSubscriptionOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
-    
+
     private func reQueuePendingRequestsForExternalId(externalId: String) {
         self.dispatchQueue.async {
             guard let requests = self.pendingAuthRequests[externalId] else {

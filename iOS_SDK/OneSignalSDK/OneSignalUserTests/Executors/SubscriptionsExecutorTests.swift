@@ -54,138 +54,138 @@ final class SubscriptionExecutorTests: XCTestCase {
     }
 
     override func tearDownWithError() throws { }
-    
+
     func testAddEmailSendsWhenProcessed() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(false)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         let email = userA_email
         MockUserRequests.setAddEmailResponse(with: mocks.client, email: email)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value:email))
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
     }
-    
+
     func testAddEmail_IdentityVerificationRequired_butNoToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         let email = userA_email
         MockUserRequests.setAddEmailResponse(with: mocks.client, email: email)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value:email))
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
     }
-    
+
     func testAddEmail_IdentityVerificationRequired_withToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let email = userA_email
         MockUserRequests.setAddEmailResponse(with: mocks.client, email: email)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value:email))
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
     }
-    
+
     func testAddEmail_IdentityVerificationRequired_withInvalidToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let email = userA_email
         MockUserRequests.setUnauthorizedAddEmailFailureResponse(with: mocks.client, email: email)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value:email))
-        
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
+
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
         }
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
         XCTAssertTrue(invalidatedCallbackWasCalled)
     }
-    
+
     func testDeleteEmail_IdentityVerificationRequired_withInvalidToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let email = userA_email
         MockUserRequests.setUnauthorizedRemoveEmailFailureResponse(with: mocks.client, email: email)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: testEmailSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value:email))
-        
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: testEmailSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
+
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
         }
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestDeleteSubscription.self))
         XCTAssertTrue(invalidatedCallbackWasCalled)
     }
-    
+
     func testUpdateSubscription_IdentityVerificationRequired_withInvalidToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
         let token = testPushToken
         MockUserRequests.setUnauthorizedUpdateSubscriptionFailureResponse(with: mocks.client, token: token)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .push, address: token, subscriptionId: testPushSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "token", value:token))
-        
+        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .push, address: token, subscriptionId: testPushSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "token", value: token))
+
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
         }
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateSubscription.self))
         XCTAssertTrue(invalidatedCallbackWasCalled)

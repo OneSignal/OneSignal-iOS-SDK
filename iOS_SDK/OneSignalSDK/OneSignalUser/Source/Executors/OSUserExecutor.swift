@@ -35,7 +35,7 @@ import OneSignalOSCore
  */
 class OSUserExecutor {
     var userRequestQueue: [OSUserRequest] = []
-    var pendingAuthRequests: [String: [OSUserRequest]] = [String:[OSUserRequest]]()
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String: [OSUserRequest]]()
     private let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
 
@@ -290,7 +290,7 @@ extension OSUserExecutor {
         appendToQueue(request)
         executePendingRequests()
     }
-    
+
     func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
         self.dispatchQueue.async {
             self.userRequestQueue.removeAll(where: { $0 == request})
@@ -318,9 +318,9 @@ extension OSUserExecutor {
             request.pushSubscriptionModel = pushSubscriptionModel
             request.updatePushSubscriptionModel(pushSubscriptionModel)
         }
-        
+
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
-            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
 
@@ -372,7 +372,7 @@ extension OSUserExecutor {
                     // A failed create user request would leave the SDK in a bad state
                     // Don't remove the request from cache and pause the operation repo
                     // We will retry this request on a new session
-                    
+
                     // We can't do this anymore for 401s
                     OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                     request.sentToClient = false
@@ -382,10 +382,10 @@ extension OSUserExecutor {
             }
         }
     }
-    
+
     func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
-        if (jwtConfig.isRequired ?? false) {
-            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
@@ -509,7 +509,7 @@ extension OSUserExecutor {
                         // This will hydrate the OneSignal ID for any pending requests
                         self.createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                     }
-                } else if responseType == .invalid || responseType == .unauthorized { //Identify User should never be called with identity verification on
+                } else if responseType == .invalid || responseType == .unauthorized { // Identify User should never be called with identity verification on
                     // Failed, no retry
                     self.removeFromQueue(request)
                     self.executePendingRequests()
@@ -734,7 +734,7 @@ extension OSUserExecutor: OSUserJwtConfigListener {
         reQueuePendingRequestsForExternalId(externalId: externalId)
         print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
-    
+
     private func reQueuePendingRequestsForExternalId(externalId: String) {
         self.dispatchQueue.async {
             guard let requests = self.pendingAuthRequests[externalId] else {
