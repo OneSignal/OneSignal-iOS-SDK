@@ -63,8 +63,11 @@ class OSUserUtils {
         if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
             headers["OneSignal-Subscription-Id"] = pushSubscriptionId
         }
-        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address {
-            headers["Device-Auth-Push-Token"] = "Basic \(token)"
+        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address,
+           let data = token.data(using: .utf8)
+        {
+            let base64String = data.base64EncodedString()
+            headers["Device-Auth-Push-Token"] = "Basic \(base64String)"
         }
         return headers
     }

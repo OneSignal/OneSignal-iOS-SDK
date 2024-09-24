@@ -41,22 +41,26 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     }
 
     var subscriptionModel: OSSubscriptionModel
+    var identityModel: OSIdentityModel
 
-    // Need the subscription_id
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId,
-           newRecordsState.canAccess(subscriptionId),
-           let appId = OneSignalConfigManager.getAppId()
-        {
-            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
-            return true
-        } else {
+        guard
+            let subscriptionId = subscriptionModel.subscriptionId,
+            let token = subscriptionModel.address,
+            newRecordsState.canAccess(subscriptionId),
+            let appId = OneSignalConfigManager.getAppId(),
+            let _ = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState)
+        else {
             return false
         }
+
+        self.path = "apps/\(appId)/subscriptions/by/type/\(subscriptionModel.type)/token/\(token)"
+        return true
     }
 
-    init(subscriptionModel: OSSubscriptionModel) {
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.subscriptionModel = subscriptionModel
+        self.identityModel = identityModel
         self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = DELETE
@@ -64,6 +68,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
+        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -71,6 +76,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     required init?(coder: NSCoder) {
         guard
             let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
+            let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
@@ -78,6 +84,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel =  subscriptionModel
+        self.identityModel = identityModel
         self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
