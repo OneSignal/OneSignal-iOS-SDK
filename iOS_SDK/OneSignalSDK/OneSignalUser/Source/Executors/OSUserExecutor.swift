@@ -562,6 +562,11 @@ extension OSUserExecutor {
             return
         }
 
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
+            return
+        }
+
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             executePendingRequests(withDelay: true)
             return
