@@ -75,6 +75,8 @@
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C2FF9D02C5FCD760081293B /* OSUserJwtConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2FF9CF2C5FCD760081293B /* OSUserJwtConfig.swift */; };
+		3C3130E02CA383F800906665 /* OSUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3130DF2CA383F800906665 /* OSUser.swift */; };
+		3C3130E32CA3858500906665 /* OSPushSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3130E22CA3858500906665 /* OSPushSubscription.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -1238,6 +1240,8 @@
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C2FF9CF2C5FCD760081293B /* OSUserJwtConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfig.swift; sourceTree = "<group>"; };
+		3C3130DF2CA383F800906665 /* OSUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUser.swift; sourceTree = "<group>"; };
+		3C3130E22CA3858500906665 /* OSPushSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPushSubscription.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -2101,6 +2105,30 @@
 			path = Jwt;
 			sourceTree = "<group>";
 		};
+		3C3130E12CA384BD00906665 /* Modeling */ = {
+			isa = PBXGroup;
+			children = (
+				3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */,
+				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
+				3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */,
+				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
+				3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */,
+				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
+			);
+			path = Modeling;
+			sourceTree = "<group>";
+		};
+		3C3130E52CA385B700906665 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				3C3130DF2CA383F800906665 /* OSUser.swift */,
+				3C3130E22CA3858500906665 /* OSPushSubscription.swift */,
+				3C5117162B15C31E00563465 /* OSUserState.swift */,
+				DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */,
+			);
+			path = Public;
+			sourceTree = "<group>";
+		};
 		3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2493,20 +2521,14 @@
 			isa = PBXGroup;
 			children = (
 				3CEE90A52BFE6A7700B0FB5B /* Support */,
+				3C3130E12CA384BD00906665 /* Modeling */,
 				3C9AD6BA2B2284AB00BC1540 /* Executors */,
 				3C9AD6BD2B22877600BC1540 /* Requests */,
+				3C3130E52CA385B700906665 /* Public */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
-				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				DE69E1AA282ED8790090BB3D /* OneSignalUserManagerImpl.swift */,
+				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */,
-				3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */,
-				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
-				3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */,
-				3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */,
-				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
-				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
-				3C5117162B15C31E00563465 /* OSUserState.swift */,
-				DE1DD05F2C87D87B00787071 /* OSJwtInvalidatedEvent.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -4315,6 +4337,7 @@
 				3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */,
 				3CEE90A72BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift in Sources */,
 				3C9AD6C12B22886600BC1540 /* OSRequestUpdateSubscription.swift in Sources */,
+				3C3130E02CA383F800906665 /* OSUser.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
 				3C9AD6CB2B228B5200BC1540 /* OSRequestIdentifyUser.swift in Sources */,
@@ -4328,6 +4351,7 @@
 				3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */,
 				3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */,
 				3CE795FB28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift in Sources */,
+				3C3130E32CA3858500906665 /* OSPushSubscription.swift in Sources */,
 				3C5117172B15C31E00563465 /* OSUserState.swift in Sources */,
 				3C9AD6BF2B22881D00BC1540 /* OSRequestFetchIdentityBySubscription.swift in Sources */,
 				3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */,
