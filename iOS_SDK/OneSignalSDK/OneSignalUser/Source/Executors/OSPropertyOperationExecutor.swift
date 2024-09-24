@@ -110,13 +110,22 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheUpdateRequests() {
-        print("❌ OSPropertyOperationExecutor uncacheUpdateRequests called")
+        var updateRequestQueue: [OSRequestUpdateProperties] = []
 
-        guard var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
-            return
+        if let cachedQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
+            updateRequestQueue = cachedQueue
         }
 
+        if let pendingRequests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, defaultValue: [:]) as? [String: [OSRequestUpdateProperties]] {
+            print("❌ prop executor uncached pending \(pendingRequests)")
+
+            for requests in pendingRequests.values {
+                for request in requests {
+                    updateRequestQueue.append(request)
+                }
+            }
+        }
+        print("❌ prop executor uncached requests \(updateRequestQueue)")
         // Hook each uncached Request to the model in the store
         for (index, request) in updateRequestQueue.enumerated().reversed() {
             if jwtConfig.isRequired == true,
@@ -279,6 +288,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     func pendRequestUntilAuthUpdated(_ request: OSRequestUpdateProperties, externalId: String?) {
         self.dispatchQueue.async {
             self.updateRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
             guard let externalId = externalId else {
                 return
             }
@@ -289,6 +299,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             }
             requests.append(request)
             self.pendingAuthRequests[externalId] = requests
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
         }
     }
 
@@ -386,6 +397,7 @@ extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
             }
             self.pendingAuthRequests[externalId] = nil
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
             self.processRequestQueue(inBackground: false)
         }
     }
@@ -422,6 +434,7 @@ extension OSPropertyOperationExecutor: OSLoggable {
             💛 OSPropertyOperationExecutor has the following queues:
                 updateRequestQueue: \(self.updateRequestQueue)
                 deltaQueue: \(self.deltaQueue)
+                pendingAuthRequests: \(self.pendingAuthRequests)
             """
         )
     }
