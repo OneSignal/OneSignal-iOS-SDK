@@ -97,7 +97,8 @@ extension OSIdentityModelRepo: OSModelChangedHandler {
             args.property == OS_JWT_BEARER_TOKEN,
             let model = args.model as? OSIdentityModel,
             let externalId = model.externalId,
-            let token = args.newValue as? String
+            let token = args.newValue as? String,
+            token != OS_JWT_TOKEN_INVALID // Don't notify when token is invalidated internally
         else {
             return
         }
