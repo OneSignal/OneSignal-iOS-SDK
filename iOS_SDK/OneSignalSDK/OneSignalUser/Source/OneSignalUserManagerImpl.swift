@@ -695,7 +695,13 @@ extension OneSignalUserManagerImpl {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to find identity model for externalId: \(externalId)")
             return
         }
-        identityModel.jwtBearerToken = nil
+
+        // Return, if the token has already been invalidated
+        guard identityModel.jwtBearerToken != OS_JWT_TOKEN_INVALID else {
+            return
+        }
+
+        identityModel.jwtBearerToken = OS_JWT_TOKEN_INVALID
 
         fireJwtExpired(externalId: externalId)
     }
