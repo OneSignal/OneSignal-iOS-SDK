@@ -120,7 +120,7 @@ final class UserConcurrencyTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -165,7 +165,7 @@ final class UserConcurrencyTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr

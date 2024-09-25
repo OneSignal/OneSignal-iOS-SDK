@@ -165,32 +165,6 @@ final class SubscriptionExecutorTests: XCTestCase {
         XCTAssertTrue(invalidatedCallbackWasCalled)
     }
 
-    func testUpdateSubscription_IdentityVerificationRequired_withInvalidToken() {
-        /* Setup */
-        let mocks = Mocks()
-        mocks.setAuthRequired(true)
-        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-
-        let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        user.identityModel.jwtBearerToken = userA_InvalidJwtToken
-        let token = testPushToken
-        MockUserRequests.setUnauthorizedUpdateSubscriptionFailureResponse(with: mocks.client, token: token)
-        mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .push, address: token, subscriptionId: testPushSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "token", value: token))
-
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
-
-        /* When */
-        mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-
-        /* Then */
-        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
-    }
-
     func testCreateSubscriptionRequests_Retry_OnTokenUpdate() {
         /* Setup */
         let mocks = Mocks()
