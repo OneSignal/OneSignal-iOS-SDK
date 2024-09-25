@@ -61,7 +61,8 @@ open class OneSignalExecutorMocks: NSObject {
             externalId: externalId,
             pushSubscriptionModel: OSSubscriptionModel(type: .push, address: "", subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer()))
         if let onesignalId = onesignalId {
-            user.identityModel.addAliases([OS_ONESIGNAL_ID: onesignalId])
+            // Setting the OSID directly avoids generating a Delta
+            user.identityModel.aliases[OS_ONESIGNAL_ID] = onesignalId
         }
         return user
     }

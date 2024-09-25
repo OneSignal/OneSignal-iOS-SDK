@@ -240,8 +240,7 @@ final class IdentityExecutorTests: XCTestCase {
         let addAliasRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestAddAliases.self)
         }
-        // It is 4 because setting user B's OneSignal ID counts as an add alias request
-        XCTAssertEqual(addAliasRequests.count, 4)
+        XCTAssertEqual(addAliasRequests.count, 3)
     }
 
     func testRemoveAliasRequests_RetryRequests_OnTokenUpdate_ForOnlyUpdatedUser() {
