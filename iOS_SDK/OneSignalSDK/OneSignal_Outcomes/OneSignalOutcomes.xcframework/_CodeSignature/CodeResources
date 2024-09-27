@@ -90,7 +90,7 @@
 		</data>
 		<key>ios-arm64/OneSignalOutcomes.framework/OneSignalOutcomes</key>
 		<data>
-		taS4B6n30PES/EZPO4nNQSFp8P8=
+		cRRQtzivmR4av+bYnyPOAqDiKD4=
 		</data>
 		<key>ios-arm64/OneSignalOutcomes.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -182,7 +182,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/OneSignalOutcomes</key>
 		<data>
-		eZfhYJP2HYaklO80UbtY05aevBg=
+		PUa1ZhExuvkvqIvZk72YcFaVQN8=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -282,7 +282,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/OneSignalOutcomes</key>
 		<data>
-		/sdqE2TedSsaidMHgr8NNgr2aLM=
+		ucOFZuhO9x6nnfd49ORySVRlv7o=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -530,11 +530,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			taS4B6n30PES/EZPO4nNQSFp8P8=
+			cRRQtzivmR4av+bYnyPOAqDiKD4=
 			</data>
 			<key>hash2</key>
 			<data>
-			UwVVQbSUbyl4waJgYyF1fEcKaGGXIzysPaxn2qrB7l8=
+			0z4Q9WQQQ+zEuwIMj83Zi77wHJYpR2TqMsWk6IGT0AM=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalOutcomes.framework/PrivacyInfo.xcprivacy</key>
@@ -803,11 +803,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			eZfhYJP2HYaklO80UbtY05aevBg=
+			PUa1ZhExuvkvqIvZk72YcFaVQN8=
 			</data>
 			<key>hash2</key>
 			<data>
-			6Fl/fjpVerFJLHp14IbuzCZy9EXxPBwEyEO2UFBalQY=
+			sQW1VnqSYiHHLvmXhSsLvvVtSS/RqjTJBHE7tpp3KSM=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalOutcomes.framework/Versions/A/Resources/Info.plist</key>
@@ -1083,11 +1083,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			/sdqE2TedSsaidMHgr8NNgr2aLM=
+			ucOFZuhO9x6nnfd49ORySVRlv7o=
 			</data>
 			<key>hash2</key>
 			<data>
-			4xccwUbD0ae6HwM5wCekm4iXAmOGfkmdt/rj5h0rSJk=
+			AXUanN7YnNG00FXzNDtLX4aBrYjYjCZc2xlqObczCF0=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalOutcomes.framework/PrivacyInfo.xcprivacy</key>
