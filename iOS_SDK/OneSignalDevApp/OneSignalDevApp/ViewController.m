@@ -133,6 +133,7 @@
 - (IBAction)getTagsButton:(id)sender {
     NSDictionary<NSString *, NSString*> *tags = [OneSignal.User getTags];
     NSLog(@"Tags: %@", tags);
+    [OneSignal.Debug _dump];
 }
 
 - (IBAction)sendTagsButton:(id)sender {
