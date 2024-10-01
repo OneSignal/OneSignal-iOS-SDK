@@ -182,6 +182,26 @@ class OSUserExecutor {
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(model)
     }
 
+    /// Checks if two requests are creating the same user by external ID
+    private func isDuplicateCreateUser(_ request: OSRequestCreateUser, _ other: OSUserRequest) -> Bool {
+        guard let other = other as? OSRequestCreateUser,
+              request.identityModel.externalId != nil,
+              other.identityModel.externalId != nil
+        else {
+            return false
+        }
+        return request.identityModel.externalId == other.identityModel.externalId
+    }
+
+    /// Before enqueueing a Create User request, check for duplicates and remove previous matching duplicates
+    private func appendCreateUserToQueue(_ request: OSRequestCreateUser) {
+        self.dispatchQueue.async {
+            self.userRequestQueue.removeAll(where: { self.isDuplicateCreateUser(request, $0) })
+            self.userRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
+        }
+    }
+
     func appendToQueue(_ request: OSUserRequest) {
         self.dispatchQueue.async {
             self.userRequestQueue.append(request)
@@ -287,8 +307,7 @@ extension OSUserExecutor {
         let originalPushToken = user.pushSubscriptionModel.address
         let request = OSRequestCreateUser(identityModel: user.identityModel, propertiesModel: user.propertiesModel, pushSubscriptionModel: user.pushSubscriptionModel, originalPushToken: originalPushToken)
 
-        appendToQueue(request)
-
+        appendCreateUserToQueue(request)
         executePendingRequests()
     }
 
@@ -297,7 +316,7 @@ extension OSUserExecutor {
      */
     func createUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
         let request = OSRequestCreateUser(aliasLabel: aliasLabel, aliasId: aliasId, identityModel: identityModel)
-        appendToQueue(request)
+        appendCreateUserToQueue(request)
         executePendingRequests()
     }
 
