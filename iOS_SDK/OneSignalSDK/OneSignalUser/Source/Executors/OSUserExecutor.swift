@@ -342,11 +342,20 @@ extension OSUserExecutor {
             return
         }
 
-        // Hook up push subscription model if exists, it may be updated with a subscription_id, etc.
-        if let modelId = request.pushSubscriptionModel?.modelId,
-           let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
-            request.pushSubscriptionModel = pushSubscriptionModel
-            request.updatePushSubscriptionModel(pushSubscriptionModel)
+        if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel) {
+            // Hook up push subscription model if exists, it may be updated with a subscription_id, etc.
+            if let modelId = request.pushSubscriptionModel?.modelId,
+               let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
+                request.pushSubscriptionModel = pushSubscriptionModel
+                request.updatePushSubscriptionModel(pushSubscriptionModel)
+            }
+        } else if request.identityModel.externalId != nil {
+            /*
+             Remove the push subscription if not current user; we don't want to transfer the push sub.
+             However, don't remove if the user is anonymous or else the create will fail.
+             This detail is meant to handle JWT on, and previous failed user creates can be sent even though the user has changed.
+             */
+            request.parameters?.removeValue(forKey: "subscriptions")
         }
 
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
