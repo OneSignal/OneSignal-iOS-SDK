@@ -79,7 +79,6 @@
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
 
 /* Identity Verification */
-// TODO: JWT 🔐 Figure out the key below and may need to relate to existing key IOS_REQUIRES_USER_ID_AUTHENTICATION
 #define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
 #define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
 #define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
@@ -142,7 +141,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth" // TODO: JWT 🔐 Figure out the key, also think about needing to migrate this value
+#define IOS_JWT_REQUIRED @"jwt_required" // Returned by remote params
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
