@@ -380,17 +380,29 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
     }
 
+    /**
+     Entry point to creating and setting a user. It is called by the SDK to generate an anonymous user and also
+     by clients to login a user.
+     */
     private func _login(externalId: String?, token: String?) -> OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return _mockUser
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager internal _login called with externalId: \(externalId ?? "nil")")
 
-        // Logging into an identified user from an anonymous user, if JWT is not ON
+        /*
+         Logging in to a "new-to-the-sdk" externalId from an anonymous user, if JWT is OFF or UNKNOWN.
+         
+         Note: If we are logging in to an externalId that already exists in the SDK, from an anon user, we know the client has called:
+            login(userA) -> logout -> login(userA)
+         The userA is expected to exist and will not result in successfully identifying the anonymous user;
+         this login flow will instead fall into the createUser path below.
+         */
         if let externalId = externalId,
            let user = _user,
            user.isAnonymous,
-           jwtConfig.isRequired != true
+           jwtConfig.isRequired != true,
+           identityModelRepo.get(externalId: externalId) == nil
         {
             user.identityModel.jwtBearerToken = token
             identifyUser(externalId: externalId, currentUser: user)
@@ -449,15 +461,25 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
         let aliases: [String: String]?
+        let identityModel: OSIdentityModel
+
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
         } else {
             aliases = nil
         }
 
-        let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+        // If there is an existing identity model with the same external ID, use it
+        if let externalId = externalId,
+           let existingIdentityModel = identityModelRepo.get(externalId: externalId)
+        {
+            identityModel = existingIdentityModel
+        } else {
+            identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+            self.addIdentityModelToRepo(identityModel)
+        }
+
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
-        self.addIdentityModelToRepo(identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel, hydrating: false)

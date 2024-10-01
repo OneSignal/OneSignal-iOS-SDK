@@ -109,7 +109,7 @@ extension OSIdentityModelRepo: OSModelChangedHandler {
 
 extension OSIdentityModelRepo: OSLoggable {
     func logSelf() {
-        print("OSIdentityModelRepo has the following models: ")
+        print("🥭 OSIdentityModelRepo has the following models: ")
         for model in models.values {
             print("     modelID: \(model.modelId), alises: \(model.aliases) token: \(model.jwtBearerToken ?? "nil")")
         }
