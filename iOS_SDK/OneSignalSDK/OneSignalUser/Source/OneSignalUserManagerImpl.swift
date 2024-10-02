@@ -447,9 +447,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         /*
          If Identity Verification is on, disable the push subscription.
+         Since the anonymous placeholder user will not be created to the backend,
+         fire the user observer here to represent "no user" in the SDK.
+         This is necessary so internal user observers can know when a user logs out and then back in.
          */
         if jwtConfig.isRequired == true {
             user.pushSubscriptionModel._isDisabledInternally = true
+            OSUserUtils.fireUserStateChanged(newOnesignalId: nil, newExternalId: nil)
         }
     }
 
