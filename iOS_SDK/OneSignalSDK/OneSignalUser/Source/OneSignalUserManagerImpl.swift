@@ -246,6 +246,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
+        pushSubscriptionModel?._isDisabledInternally = false
+        
         /*
          Logging in to a "new-to-the-sdk" externalId from an anonymous user, if JWT is OFF or UNKNOWN.
          
@@ -443,6 +445,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         prepareForNewUser()
         _user = nil
         createUserIfNil()
+
+        /*
+         If Identity Verification is on, disable the push subscription.
+         */
+        if jwtConfig.isRequired == true {
+            user.pushSubscriptionModel._isDisabledInternally = true
+        }
     }
 
     @objc

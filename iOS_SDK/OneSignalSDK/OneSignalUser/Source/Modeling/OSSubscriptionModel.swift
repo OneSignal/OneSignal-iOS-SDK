@@ -98,6 +98,10 @@ enum OSSubscriptionType: String {
  Internal subscription model.
  */
 class OSSubscriptionModel: OSModel {
+    struct Constants {
+      static let isDisabledInternallyKey = "isDisabledInternallyKey"
+    }
+
     var type: OSSubscriptionType
 
     var address: String? { // This is token on push subs so must remain Optional
@@ -197,6 +201,21 @@ class OSSubscriptionModel: OSModel {
             }
             firePushSubscriptionChanged(.isDisabled(oldValue))
             notificationTypes = -2
+        }
+    }
+
+    /**
+     Set to `true` by the SDK when logout is called with Identity Verification turned on.
+     The properties of `_isDisabled` and `notificationTypes` remain unchanged, to maintain correct data.
+     When a subscription update is made, this value will be read and `enabled = false` and `notification_types = -2` will be sent.
+     When a user logs in, this property will be set to `false` and the subscription will be included in the User Create request..
+     */
+    var _isDisabledInternally = false {
+        didSet {
+            guard _isDisabledInternally != oldValue else {
+                return
+            }
+            self.set(property: Constants.isDisabledInternallyKey, newValue: _isDisabledInternally)
         }
     }
 

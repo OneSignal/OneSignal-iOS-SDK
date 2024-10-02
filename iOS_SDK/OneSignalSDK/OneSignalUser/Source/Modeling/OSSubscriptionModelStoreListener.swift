@@ -70,6 +70,14 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        /*
+         Don't generate a Delta if setting internal disable to false, which will generate a subscription update.
+         This means a user is logging in and a create user will be sent with the updated subscription included.
+         */
+        if args.property == OSSubscriptionModel.Constants.isDisabledInternallyKey && args.newValue as? Bool == false {
+            return nil
+        }
+
         // The OSIamFetchReadyCondition needs to know whether there is a subscription update pending
         // If so, we use this to await (in IAM-fetch) on its respective RYW token to be set. This is necessary
         // because we always make a user property update call but we DON'T always make a subscription update call.
@@ -81,7 +89,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             return nil
         }
         if let onesignalId = userInstance.identityModel.onesignalId {
-            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
+            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId) // TODO: 💛 figure out id for condition with JWT / alias / osid
             condition.setSubscriptionUpdatePending(value: true)
         }
 
