@@ -57,7 +57,4 @@
     func removeSms(_ number: String)
     // Language
     func setLanguage(_ language: String)
-    // JWT Token Expire
-    typealias OSJwtInvalidatedHandler =  (_ event: OSJwtInvalidatedEvent) -> Void
-    func onJwtInvalidated(invalidatedHandler: @escaping OSJwtInvalidatedHandler)
 }

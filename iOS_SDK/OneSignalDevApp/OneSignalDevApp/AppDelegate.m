@@ -76,11 +76,7 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
     [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
-
-    
-    [OneSignal.User onJwtInvalidatedWithInvalidatedHandler:^(OSJwtInvalidatedEvent * _Nonnull invalidatedEvent) {
-        NSLog(@"JWT INVALIDATED CALLBACK FOR: %@", invalidatedEvent.externalId);
-    }];
+    [OneSignal addUserJwtInvalidatedListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -128,6 +124,10 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
     NSLog(@"Dev App onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
+}
+
+- (void)onUserJwtInvalidatedWithEvent:(OSUserJwtInvalidatedEvent * _Nonnull)event {
+    NSLog(@"Dev App onUserJwtInvalidatedWithEvent: %@", [event jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate
