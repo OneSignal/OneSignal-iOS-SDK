@@ -25,12 +25,20 @@
  THE SOFTWARE.
  */
 
-import Foundation
-
-@objc public class OSJwtInvalidatedEvent: NSObject {
+@objc public class OSUserJwtInvalidatedEvent: NSObject {
     @objc public let externalId: String
 
     init(externalId: String) {
         self.externalId = externalId
     }
+
+    @objc public func jsonRepresentation() -> NSDictionary {
+        return [
+            "externalId": externalId
+        ]
+    }
+}
+
+@objc public protocol OSUserJwtInvalidatedListener {
+    @objc func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent)
 }

@@ -73,8 +73,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     var hasCalledStart = false
 
-    private var jwtInvalidatedHandler: OSJwtInvalidatedHandler?
     let jwtConfig: OSUserJwtConfig
+
+    private var _userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>?
+    var userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
+        if let observer = _userJwtInvalidatedObserver {
+            return observer
+        }
+        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:)))
+        _userJwtInvalidatedObserver = userJwtInvalidatedObserver
+
+        return userJwtInvalidatedObserver
+    }
 
     var user: OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -634,6 +644,16 @@ extension OneSignalUserManagerImpl {
 
 extension OneSignalUserManagerImpl {
     @objc
+    public func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedObserver.addObserver(listener)
+    }
+
+    @objc
+    public func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedObserver.removeObserver(listener)
+    }
+
+    @objc
     public func setRequiresUserAuth(_ required: Bool) {
         jwtConfig.isRequired = required
     }
@@ -664,12 +684,8 @@ extension OneSignalUserManagerImpl {
     }
 
     private func fireJwtExpired(externalId: String) {
-        guard let jwtInvalidatedHandler = self.jwtInvalidatedHandler else {
-            return
-        }
-        let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId)
-
-        jwtInvalidatedHandler(invalidatedEvent)
+        let event = OSUserJwtInvalidatedEvent(externalId: externalId)
+        userJwtInvalidatedObserver.notifyChange(event)
     }
 
     private func getMessageFromJwtError(_ error: NSError) -> String {
@@ -683,10 +699,6 @@ extension OneSignalUserManagerImpl {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    public func onJwtInvalidated(invalidatedHandler: @escaping OSJwtInvalidatedHandler) {
-        jwtInvalidatedHandler = invalidatedHandler
-    }
-
     public var User: OSUser {
         start()
         return self

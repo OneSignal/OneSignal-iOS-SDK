@@ -208,6 +208,16 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
++ (void)addUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener>)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"User Jwt Invalidated Listener added successfully"];
+    [OneSignalUserManagerImpl.sharedInstance addUserJwtInvalidatedListener:listener];
+}
+
++ (void)removeUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener>)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"User Jwt Invalidated Listener removed successfully"];
+    [OneSignalUserManagerImpl.sharedInstance removeUserJwtInvalidatedListener:listener];
+}
+
 + (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
     if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
         return;
