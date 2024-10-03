@@ -125,10 +125,8 @@ final class IdentityExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedAddAliasFailureResponse(with: mocks.client, aliases: aliases)
         mocks.identityExecutor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value: aliases))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.identityExecutor.processDeltaQueue(inBackground: false)
@@ -136,7 +134,7 @@ final class IdentityExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testRemoveAlias_IdentityVerificationRequired_withInvalidToken_firesCallback() {
@@ -151,10 +149,8 @@ final class IdentityExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedRemoveAliasFailureResponse(with: mocks.client, aliasLabel: userA_AliasLabel)
         mocks.identityExecutor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value: aliases))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.identityExecutor.processDeltaQueue(inBackground: false)
@@ -162,7 +158,7 @@ final class IdentityExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestRemoveAlias.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testAddAliasRequests_Retry_OnTokenUpdate() {
@@ -182,12 +178,12 @@ final class IdentityExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedAddAliasFailureResponse(with: mocks.client, aliases: userA_Aliases)
         executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value: aliases))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        userJwtInvalidatedListener.setCallback {
             MockUserRequests.setAddAliasesResponse(with: mocks.client, aliases: aliases)
             OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
         }
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -195,7 +191,7 @@ final class IdentityExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 2)
     }
 
@@ -219,10 +215,8 @@ final class IdentityExecutorTests: XCTestCase {
         executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: userA.identityModel.modelId, model: userA.identityModel, property: "aliases", value: aliases))
         executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: userB.identityModel.modelId, model: userB.identityModel, property: "aliases", value: aliases))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -236,7 +230,7 @@ final class IdentityExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         let addAliasRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestAddAliases.self)
         }
@@ -263,10 +257,8 @@ final class IdentityExecutorTests: XCTestCase {
         executor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: userA.identityModel.modelId, model: userA.identityModel, property: "aliases", value: aliases))
         executor.enqueueDelta(OSDelta(name: OS_REMOVE_ALIAS_DELTA, identityModelId: userB.identityModel.modelId, model: userB.identityModel, property: "aliases", value: aliases))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -279,7 +271,7 @@ final class IdentityExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestRemoveAlias.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         let removeAliasRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestRemoveAlias.self)
         }

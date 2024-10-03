@@ -125,10 +125,8 @@ final class SubscriptionExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedAddEmailFailureResponse(with: mocks.client, email: email)
         mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
@@ -136,7 +134,7 @@ final class SubscriptionExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testDeleteEmail_IdentityVerificationRequired_withInvalidToken() {
@@ -151,10 +149,8 @@ final class SubscriptionExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedRemoveEmailFailureResponse(with: mocks.client, email: email)
         mocks.subscriptionExecutor.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: testEmailSubId, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.subscriptionExecutor.processDeltaQueue(inBackground: false)
@@ -162,7 +158,7 @@ final class SubscriptionExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestDeleteSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testCreateSubscriptionRequests_Retry_OnTokenUpdate() {
@@ -181,12 +177,12 @@ final class SubscriptionExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedAddEmailFailureResponse(with: mocks.client, email: email)
         executor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: user.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        userJwtInvalidatedListener.setCallback {
             MockUserRequests.setAddEmailResponse(with: mocks.client, email: email)
             OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
         }
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -194,7 +190,7 @@ final class SubscriptionExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 2)
     }
 
@@ -218,10 +214,8 @@ final class SubscriptionExecutorTests: XCTestCase {
         executor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: userA.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
         executor.enqueueDelta(OSDelta(name: OS_ADD_SUBSCRIPTION_DELTA, identityModelId: userB.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: nil, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -234,7 +228,7 @@ final class SubscriptionExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         let addRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestCreateSubscription.self)
         }
@@ -262,10 +256,8 @@ final class SubscriptionExecutorTests: XCTestCase {
         executor.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: userA.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
         executor.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: userB.identityModel.modelId, model: OSSubscriptionModel(type: .email, address: email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: email))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -278,7 +270,7 @@ final class SubscriptionExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestDeleteSubscription.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         let deleteRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestDeleteSubscription.self)
         }
