@@ -576,16 +576,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         updatePropertiesDeltas(property: .purchases, value: purchases)
     }
-
-    @objc
-    public func updateUserJwt(externalId: String, token: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
-            return
-        }
-        OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
-
-        identityModelRepo.updateJwtToken(externalId: externalId, token: token)
-    }
 }
 
 // MARK: - Sessions
@@ -676,6 +666,16 @@ extension OneSignalUserManagerImpl {
     @objc
     public func subscribeToJwtConfig(_ listener: OSUserJwtConfigListener, key: String) {
         jwtConfig.subscribe(listener, key: key)
+    }
+
+    @objc
+    public func updateUserJwt(externalId: String, token: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
+            return
+        }
+        OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
+
+        identityModelRepo.updateJwtToken(externalId: externalId, token: token)
     }
 
     @objc
