@@ -85,39 +85,42 @@ final class UserConcurrencyTests: XCTestCase {
      This test reproduces a crash in the Subscription Executor.
      It is possible for two threads to modify and cache queues concurrently.
      */
-    // TODO: revisit this test once subscriptions are addressed for JWT
     func testSubscriptionExecutorConcurrency() throws {
         /* Setup */
 
         let client = MockOneSignalClient()
         client.setMockResponseForRequest(
-            request: "<OSRequestDeleteSubscription with subscriptionModel: nil>",
+            request: "<OSRequestDeleteSubscription with subscriptionModel: \(userA_email)>",
             response: [:]
         )
         OneSignalCoreImpl.setSharedClient(client)
 
-        let jwtConfig = OSUserJwtConfig()
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: jwtConfig)
-        let operationRepo = OSOperationRepo(jwtConfig: jwtConfig)
-        operationRepo.addExecutor(executor)
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
+        let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
+
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Remove Subscription Deltas to the Operation Repo
-            operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
-            operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: identityModel.modelId, model: OSSubscriptionModel(type: .email, address: userA_email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: userA_email))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: identityModel.modelId, model: OSSubscriptionModel(type: .email, address: userA_email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: OSSubscriptionType.email.rawValue, value: userA_email))
 
             // 2. Flush Operation Repo
-            operationRepo.addFlushDeltaQueueToDispatchQueue()
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: userA_email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), identityModel: identityModel), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: userA_email, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), identityModel: identityModel), inBackground: false)
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -162,7 +165,7 @@ final class UserConcurrencyTests: XCTestCase {
         }
 
         // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr

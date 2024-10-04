@@ -250,7 +250,10 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
-    [self evaluateMessages];
+    // ECM THIS NEEDS TO RUN ON THE MAIN THREAD
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self evaluateMessages];
+    });
 }
 
 /**
@@ -323,9 +326,14 @@ static BOOL _isInAppMessagingPaused = false;
         OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
         if (responseType == OSResponseStatusUnauthorized) {
             shouldRetryGetInAppMessagesOnJwtUpdated = true;
+            [self handleUnauthroizedError:error externalId:alias.id];
         }
         [self updateInAppMessagesFromCache];
     }];
+}
+
+- (void)handleUnauthroizedError:(NSError*)error externalId:(NSString *)externalId {
+    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:externalId error:error];
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
@@ -1146,7 +1154,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSUserStateObserver Methods
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
-    NSLog(@"❌ OSMessagingController onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
     if (state.current.onesignalId && shouldRetryGetInAppMessagesOnUserChange) {
         shouldRetryGetInAppMessagesOnUserChange = false;
         [self getInAppMessagesFromServer];
@@ -1159,7 +1166,6 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)onJwtUpdatedWithExternalId:(NSString *)externalId token:(NSString *)token {
-    NSLog(@"❌ OSMessagingController onJwtUpdatedWithExternalId: %@ token: %@", externalId, token);
     if (![token  isEqual: OS_JWT_TOKEN_INVALID] && shouldRetryGetInAppMessagesOnJwtUpdated) {
         shouldRetryGetInAppMessagesOnJwtUpdated = false;
         [self getInAppMessagesFromServer];

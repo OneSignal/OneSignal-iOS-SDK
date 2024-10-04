@@ -63,9 +63,32 @@ class OSUserUtils {
         if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
             headers["OneSignal-Subscription-Id"] = pushSubscriptionId
         }
-        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address {
-            headers["Device-Auth-Push-Token"] = "Basic \(token)"
+        if let token = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.address,
+           let data = token.data(using: .utf8)
+        {
+            let base64String = data.base64EncodedString()
+            headers["Device-Auth-Push-Token"] = "Basic \(base64String)"
         }
         return headers
+    }
+
+    /**
+     Fires the user observer if `onesignal_id` OR `external_id` has changed from the previous snapshot (previous hydration).
+     */
+    static func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
+        let prevOnesignalId  = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
+        let prevExternalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_EXTERNAL_ID, defaultValue: nil)
+
+        guard prevOnesignalId != newOnesignalId || prevExternalId != newExternalId else {
+            return
+        }
+
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
+
+        let curUserState = OSUserState(onesignalId: newOnesignalId, externalId: newExternalId)
+        let changedState = OSUserChangedState(current: curUserState)
+
+        OneSignalUserManagerImpl.sharedInstance.userStateChangesObserver.notifyChange(changedState)
     }
 }

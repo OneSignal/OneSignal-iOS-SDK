@@ -46,6 +46,10 @@
 
 OneSignalNotificationCenterDelegate *_notificationDelegate;
 
+// ECM Should we ship these typedefs in OneSignalFramework.h to make them available to Objective C customers?
+typedef void (^JwtCompletionBlock)(NSString*);
+typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [FIRApp configure];
@@ -72,6 +76,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
+    [OneSignal addUserJwtInvalidatedListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -86,8 +91,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"STAGING_APP_HERE"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
+#define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
@@ -119,6 +124,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
     NSLog(@"Dev App onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
+}
+
+- (void)onUserJwtInvalidatedWithEvent:(OSUserJwtInvalidatedEvent * _Nonnull)event {
+    NSLog(@"Dev App onUserJwtInvalidatedWithEvent: %@", [event jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate

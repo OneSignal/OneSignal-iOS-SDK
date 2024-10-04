@@ -97,22 +97,22 @@ extension OSIdentityModelRepo: OSModelChangedHandler {
             args.property == OS_JWT_BEARER_TOKEN,
             let model = args.model as? OSIdentityModel,
             let externalId = model.externalId,
-            let token = args.newValue as? String
+            let token = args.newValue as? String,
+            token != OS_JWT_TOKEN_INVALID // Don't notify when token is invalidated internally
         else {
             return
         }
-        print("❌ OSIdentityModelRepo onModelUpdated for \(externalId): \(token)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModelRepo onModelUpdated for \(externalId) with token \(token)")
         OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: externalId, token: token)
     }
 }
 
 extension OSIdentityModelRepo: OSLoggable {
     func logSelf() {
-        print(
-            """
-            💛 OSIdentityModelRepo has the following models:
-                models: \(self.models)
-            """
-        )
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModelRepo has the following models:")
+
+        for model in models.values {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "    modelID: \(model.modelId), alises: \(model.aliases) token: \(model.jwtBearerToken ?? "nil")")
+        }
     }
 }

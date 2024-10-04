@@ -65,17 +65,23 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         var subscriptionParams = subscriptionObject
         subscriptionParams.removeValue(forKey: "address")
         subscriptionParams.removeValue(forKey: "notificationTypes")
+        subscriptionParams.removeValue(forKey: OSSubscriptionModel.Constants.isDisabledInternallyKey)
         subscriptionParams["token"] = subscriptionModel.address
         subscriptionParams["device_os"] = subscriptionModel.deviceOs
         subscriptionParams["sdk"] = subscriptionModel.sdk
         subscriptionParams["app_version"] = subscriptionModel.appVersion
 
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if subscriptionModel.notificationTypes != -1 {
-            subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+        if subscriptionModel._isDisabledInternally {
+            subscriptionParams["enabled"] = false
+            subscriptionParams["notification_types"] = -2
+        } else {
+            // notificationTypes defaults to -1 instead of nil, don't send if it's -1
+            if subscriptionModel.notificationTypes != -1 {
+                subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+            }
+            subscriptionParams["enabled"] = subscriptionModel.enabled
         }
 
-        subscriptionParams["enabled"] = subscriptionModel.enabled
         // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
         // May use subscriptionObject, but enabled and notification_types should be sent together...
 

@@ -33,8 +33,8 @@
 // Networking
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
-#define OS_API_SERVER_URL @"https://api.staging.onesignal.com/"
-#define OS_IAM_WEBVIEW_BASE_URL @"https://staging.onesignal.com/"
+#define OS_API_SERVER_URL @"https://api.onesignal.com/"
+#define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 
 // OneSignalUserDefault keys
 // String values start with "OSUD_" to maintain a level of uniqueness from other libs and app code
@@ -79,7 +79,6 @@
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
 
 /* Identity Verification */
-// TODO: JWT 🔐 Figure out the key below and may need to relate to existing key IOS_REQUIRES_USER_ID_AUTHENTICATION
 #define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
 #define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
 #define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
@@ -135,7 +134,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth" // TODO: JWT 🔐 Figure out the key, also think about needing to migrate this value
+#define IOS_JWT_REQUIRED @"jwt_required" // Returned by remote params
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
@@ -347,23 +346,28 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_USER_EXECUTOR                                                    @"OS_USER_EXECUTOR"
 #define OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY                             @"OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY"
 #define OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY            @"OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY"
+#define OS_USER_EXECUTOR_PENDING_QUEUE_KEY                                  @"OS_USER_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Identity Executor
 #define OS_IDENTITY_EXECUTOR                                                @"OS_IDENTITY_EXECUTOR"
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY                          @"OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                       @"OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
+#define OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY                              @"OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Property Executor
 #define OS_PROPERTIES_EXECUTOR                                              @"OS_PROPERTIES_EXECUTOR"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                     @"OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+#define OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY                            @"OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Subscription Executor
+#define OS_SUBSCRIPTION_EXECUTOR                                            @"OS_SUBSCRIPTION_EXECUTOR"
 #define OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY                            @"OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY                      @"OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY                          @"OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Live Activies Executor
 #define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"
