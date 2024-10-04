@@ -9,6 +9,12 @@ import Swift
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+@objc public class OSAliasPair : ObjectiveC.NSObject {
+  @objc final public let label: Swift.String
+  @objc final public let id: Swift.String
+  public init(_ label: Swift.String, _ id: Swift.String)
+  @objc deinit
+}
 @objc public protocol OSLiveActivities {
   @objc static func enter(_ activityId: Swift.String, withToken: Swift.String)
   @objc @available(*, deprecated)
@@ -17,22 +23,31 @@ import _SwiftConcurrencyShims
   @objc @available(*, deprecated)
   static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
 }
-@objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
-  public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+public class OSOperationRepo {
   public var paused: Swift.Bool
+  public init(jwtConfig: OneSignalOSCore.OSUserJwtConfig)
   public func start()
   public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
   public func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
-  @objc override dynamic public init()
   @objc deinit
 }
+extension OneSignalOSCore.OSOperationRepo : OneSignalOSCore.OSUserJwtConfigListener {
+  @objc dynamic public func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth)
+  @objc dynamic public func onJwtUpdated(externalId: Swift.String, token: Swift.String?)
+}
+extension OneSignalOSCore.OSOperationRepo : OneSignalOSCore.OSLoggable {
+  public func logSelf()
+}
 @_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
-  public func subscribe(_ handler: THandler)
-  public func unsubscribe(_ handler: THandler)
+  public func subscribe(_ handler: THandler, key: Swift.String)
+  public func unsubscribe(_ handler: THandler, key: Swift.String)
   public func fire(callback: (THandler) -> Swift.Void)
   @objc override dynamic public init()
   @objc deinit
+}
+public protocol OSLoggable {
+  func logSelf()
 }
 open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
   public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
@@ -59,6 +74,12 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   open func hydrateModel(_ response: [Swift.String : Any])
   @objc deinit
 }
+public class OSNewRecordsState {
+  public init()
+  public func add(_ key: Swift.String, _ overwrite: Swift.Bool = false)
+  public func canAccess(_ key: Swift.String) -> Swift.Bool
+  @objc deinit
+}
 @objc public protocol OSBackgroundTaskHandler {
   @objc func beginBackgroundTask(_ taskIdentifier: Swift.String)
   @objc func endBackgroundTask(_ taskIdentifier: Swift.String)
@@ -74,8 +95,9 @@ extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
 }
 public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandler {
   associatedtype TModel : OneSignalOSCore.OSModel
+  var operationRepo: OneSignalOSCore.OSOperationRepo { get }
   var store: OneSignalOSCore.OSModelStore<Self.TModel> { get }
-  init(store: OneSignalOSCore.OSModelStore<Self.TModel>)
+  init(store: OneSignalOSCore.OSModelStore<Self.TModel>, operationRepo: OneSignalOSCore.OSOperationRepo)
   func getAddModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getRemoveModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getUpdateModelDelta(_ args: OneSignalOSCore.OSModelChangedArgs) -> OneSignalOSCore.OSDelta?
@@ -120,6 +142,30 @@ extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
   public func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
   #endif
 }
+@objc public enum OSRequiresUserAuth : Swift.Int {
+  case on = 1
+  case off = -1
+  case unknown = 0
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public protocol OSUserJwtConfigListener {
+  @objc func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth)
+  @objc func onJwtUpdated(externalId: Swift.String, token: Swift.String?)
+}
+public class OSUserJwtConfig {
+  public var isRequired: Swift.Bool? {
+    get
+    set
+  }
+  public init()
+  public func subscribe(_ listener: any OneSignalOSCore.OSUserJwtConfigListener, key: Swift.String)
+  public func onJwtTokenChanged(externalId: Swift.String, token: Swift.String?)
+  @objc deinit
+}
 @objc @_inheritsConvenienceInitializers public class OSStubLiveActivities : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
   @objc public static func liveActivities() -> Swift.AnyClass
   @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
@@ -141,7 +187,7 @@ extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
 public protocol OSModelChangedHandler {
   func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
 }
-public protocol OSOperationExecutor {
+public protocol OSOperationExecutor : OneSignalOSCore.OSLoggable {
   var supportedDeltas: [Swift.String] { get }
   var deltaQueue: [OneSignalOSCore.OSDelta] { get }
   func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
@@ -149,3 +195,6 @@ public protocol OSOperationExecutor {
   func processDeltaQueue(inBackground: Swift.Bool)
   func processRequestQueue(inBackground: Swift.Bool)
 }
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Equatable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Hashable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.RawRepresentable {}
