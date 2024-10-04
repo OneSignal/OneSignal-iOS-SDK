@@ -64,8 +64,7 @@ public class OSUserJwtConfig {
                 return
             }
 
-            print("❌ OSUserJwtConfig.requiresUserAuth: changing from \(oldValue) to \(requiresUserAuth), firing \(changeNotifier)")
-
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserJwtConfig.requiresUserAuth: changing from \(oldValue) to \(requiresUserAuth), firing listeners")
             // Persist new value
             OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: requiresUserAuth.rawValue)
 
@@ -93,9 +92,6 @@ public class OSUserJwtConfig {
 
     public init() {
         let rawValue = OneSignalUserDefaults.initShared().getSavedInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, defaultValue: OSRequiresUserAuth.unknown.rawValue)
-
-        print("❌ OSUserJwtConfig init(): \(String(describing: OSRequiresUserAuth(rawValue: rawValue))))")
-
         requiresUserAuth = OSRequiresUserAuth(rawValue: rawValue) ?? OSRequiresUserAuth.unknown
     }
 
@@ -104,7 +100,7 @@ public class OSUserJwtConfig {
     }
 
     public func onJwtTokenChanged(externalId: String, token: String?) {
-        print("❌ OSUserJwtConfig.onJwtTokenChanged \(externalId): \(token)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserJwtConfig.onJwtTokenChanged for \(externalId) with token \(token ?? "nil"), firing listeners")
         changeNotifier.fire { listener in
             listener.onJwtUpdated(externalId: externalId, token: token)
         }

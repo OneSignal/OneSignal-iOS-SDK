@@ -49,8 +49,6 @@ class OSUserExecutor {
         self.newRecordsState = newRecordsState
         self.jwtConfig = jwtConfig
         self.jwtConfig.subscribe(self, key: OS_USER_EXECUTOR)
-        print("❌ OSUserExecutor init requiresAuth: \(jwtConfig.isRequired)")
-
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
         executePendingRequests()
@@ -60,7 +58,7 @@ class OSUserExecutor {
     private func uncacheUserRequests() {
         var userRequestQueue: [OSUserRequest] = []
         var cachedRequestQueue: [OSUserRequest] = []
-        print(" OSUserExecutor uncacheUserRequests called")
+
         // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
         if let cache = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
             cachedRequestQueue = cache
@@ -79,7 +77,7 @@ class OSUserExecutor {
             if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let req = request as? OSRequestFetchIdentityBySubscription {
                 // Remove this request if JWT is enabled
                 guard jwtConfig.isRequired != true else {
-                    print(" uncacheUserRequests dropping request \(req)")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSUserExecutor.uncacheUserRequests dropped \(req)")
                     continue
                 }
                 if let identityModel = getIdentityModel(req.identityModel.modelId) {
@@ -98,7 +96,7 @@ class OSUserExecutor {
                    req.identityModel.externalId == nil
                 {
                     // Remove this request if there is no EUID
-                    print(" uncacheUserRequests dropping request \(req)")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSUserExecutor.uncacheUserRequests dropped \(req)")
                     continue
                 }
 
@@ -115,7 +113,6 @@ class OSUserExecutor {
 
                 // If JWT is enabled, we migrate this request into a Create User request
                 guard jwtConfig.isRequired != true else {
-                    print(" uncacheUserRequests converting \(req) to createUser")
                     convertIdentifyUserToCreateUser(req)
                     continue
                 }
@@ -146,7 +143,6 @@ class OSUserExecutor {
         }
         self.userRequestQueue = userRequestQueue
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-        print(" OSUserExecutor uncacheUserRequests done, now has queue: \(self.userRequestQueue)")
     }
 
     /**
@@ -167,6 +163,7 @@ class OSUserExecutor {
     }
 
     private func convertIdentifyUserToCreateUser(_ request: OSRequestIdentifyUser) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.convertIdentifyUserToCreateUser for \(request)")
         if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.aliasId) {
             self.createUser(OneSignalUserManagerImpl.sharedInstance.user)
         } else {
@@ -240,7 +237,7 @@ class OSUserExecutor {
      */
     func executePendingRequests(withDelay: Bool = false) {
         guard jwtConfig.isRequired != nil else {
-            print("❌ OSUserExecutor.executePendingRequests returning early due to unknown Identity Verification status.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor.executePendingRequests returning early due to unknown Identity Verification status")
             return
         }
 
@@ -770,7 +767,6 @@ extension OSUserExecutor {
 
 extension OSUserExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
-        print("❌ OSUserExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process requests
         if to == .on {
             removeInvalidRequests()
@@ -780,7 +776,6 @@ extension OSUserExecutor: OSUserJwtConfigListener {
 
     func onJwtUpdated(externalId: String, token: String?) {
         reQueuePendingRequestsForExternalId(externalId: externalId)
-        print("❌ OSUserExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
     }
 
     private func reQueuePendingRequestsForExternalId(externalId: String) {
@@ -800,24 +795,20 @@ extension OSUserExecutor: OSUserJwtConfigListener {
 
     private func removeInvalidRequests() {
         self.dispatchQueue.async {
-            print("❌ OSUserExecutor.removeInvalidRequests called")
-
             for request in self.userRequestQueue {
                 guard self.isRequestValidWithAuth(request) else {
-                    print(" \(request) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSUserExecutor.removeInvalidRequests dropped \(request)")
                     self.userRequestQueue.removeAll(where: { $0 == request})
                     continue
                 }
 
                 if request.isKind(of: OSRequestIdentifyUser.self), let req = request as? OSRequestIdentifyUser {
-                    print(" \(request) is IdentifyUser, being converted")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: \(request) is IdentifyUser, being converted")
                     self.userRequestQueue.removeAll(where: { $0 == request})
                     self.convertIdentifyUserToCreateUser(req)
                 }
             }
-
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
-            print(" OSUserExecutor.removeInvalidRequests done, \(self.userRequestQueue)")
         }
     }
 
@@ -843,11 +834,12 @@ extension OSUserExecutor: OSUserJwtConfigListener {
 
 extension OSUserExecutor: OSLoggable {
     func logSelf() {
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 OSUserExecutor has the following queues:
+            OSUserExecutor has the following queues:
                 userRequestQueue: \(self.userRequestQueue)
                 pendingAuthRequests: \(self.pendingAuthRequests)
+
             """
         )
     }
