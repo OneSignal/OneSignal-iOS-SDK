@@ -54,8 +54,6 @@ public class OSOperationRepo {
     public init(jwtConfig: OSUserJwtConfig) {
         self.jwtConfig = jwtConfig
         self.jwtConfig.subscribe(self, key: OS_OPERATION_REPO)
-        print("❌ OSOperationRepo init(\(String(describing: jwtConfig.isRequired))) called")
-
         // Read the Deltas from cache, if any...
         guard let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo is unable to uncache the OSDelta queue.")
@@ -73,7 +71,7 @@ public class OSOperationRepo {
         }
 
         guard jwtConfig.isRequired != nil else {
-            print("❌ OSOperationRepo.start() returning early due to unknown Identity Verification status.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo.start() returning early due to unknown Identity Verification status")
             return
         }
 
@@ -185,7 +183,6 @@ public class OSOperationRepo {
 
 extension OSOperationRepo: OSUserJwtConfigListener {
     public func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
-        print("❌ OSOperationRepo onRequiresUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process deltas
         if to == .on {
             removeInvalidDeltas()
@@ -194,7 +191,7 @@ extension OSOperationRepo: OSUserJwtConfigListener {
     }
 
     public func onJwtUpdated(externalId: String, token: String?) {
-        print("❌ OSOperationRepo onJwtUpdated for \(externalId) to \(String(describing: token))")
+        // Not used for now
     }
 
     /**
@@ -203,14 +200,19 @@ extension OSOperationRepo: OSUserJwtConfigListener {
      Executors will handle this.
      */
     func removeInvalidDeltas() {
-        print("❌ OSOperationRepo removeInvalidDeltas TODO!")
+        // Not used for now
     }
 }
 
 extension OSOperationRepo: OSLoggable {
     public func logSelf() {
-        print("💛 Operation Repo: deltaQueue: \(self.deltaQueue )")
-        print("💛 Operation Repo: executors that are subscribed:")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
+            """
+            Operation Repo: deltaQueue: \(self.deltaQueue)
+
+            Operation Repo: executors that are subscribed:
+            """
+        )
         for executor in self.executors {
             executor.logSelf()
         }

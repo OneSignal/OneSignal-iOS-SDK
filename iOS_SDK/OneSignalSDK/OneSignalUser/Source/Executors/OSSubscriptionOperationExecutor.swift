@@ -257,7 +257,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
                     // If JWT is on but the external ID does not exist, drop this Delta
                     if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
-                        print("❌ \(delta) is Invalid with JWT, being dropped")
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
                     }
 
                     let request = OSRequestCreateSubscription(
@@ -275,7 +275,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
                     // If JWT is on but the external ID does not exist, drop this Delta
                     if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
-                        print("❌ \(delta) is Invalid with JWT, being dropped")
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
                     }
 
                     let request = OSRequestDeleteSubscription(
@@ -514,14 +514,12 @@ extension OSSubscriptionOperationExecutor {
 
 extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth) {
-        print("❌ OSSubscriptionOperationExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         if to == .on {
             removeInvalidDeltasAndRequests()
         }
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
-        print("❌ OSSubscriptionOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
 
@@ -575,14 +573,12 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
      */
     private func removeInvalidDeltasAndRequests() {
         self.dispatchQueue.async {
-            print("❌ OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests called")
-
             for (index, delta) in self.deltaQueue.enumerated().reversed() {
                 if delta.name != OS_UPDATE_SUBSCRIPTION_DELTA,
                    let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId),
                    identityModel.externalId == nil
                 {
-                    print(" \(delta) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
                     self.deltaQueue.remove(at: index)
                 }
             }
@@ -590,7 +586,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
 
             for (index, request) in self.addRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
-                    print(" \(request) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
                     self.addRequestQueue.remove(at: index)
                 }
             }
@@ -598,7 +594,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
 
             for (index, request) in self.removeRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
-                    print(" \(request) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
                     self.removeRequestQueue.remove(at: index)
                 }
             }
@@ -609,14 +605,15 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
 
 extension OSSubscriptionOperationExecutor: OSLoggable {
     func logSelf() {
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 OSSubscriptionOperationExecutor has the following queues:
+            OSSubscriptionOperationExecutor has the following queues:
                 addRequestQueue: \(self.addRequestQueue)
                 removeRequestQueue: \(self.removeRequestQueue)
                 updateRequestQueue: \(self.updateRequestQueue)
                 deltaQueue: \(self.deltaQueue)
                 pendingAuthRequests: \(self.pendingAuthRequests)
+
             """
         )
     }
