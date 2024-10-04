@@ -126,10 +126,8 @@ final class PropertyExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedUpdatePropertiesFailureResponses(with: mocks.client, tags: tags)
         mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.propertyExecutor.processDeltaQueue(inBackground: false)
@@ -137,7 +135,7 @@ final class PropertyExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testUpdateRequests_Retry_OnTokenUpdate() {
@@ -157,12 +155,12 @@ final class PropertyExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedUpdatePropertiesFailureResponses(with: mocks.client, tags: tags)
         executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        userJwtInvalidatedListener.setCallback {
             MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
             OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
         }
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -170,7 +168,7 @@ final class PropertyExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 2)
     }
 
@@ -194,10 +192,8 @@ final class PropertyExecutorTests: XCTestCase {
         executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userA.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
         executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userB.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.processDeltaQueue(inBackground: false)
@@ -211,7 +207,7 @@ final class PropertyExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         let updateRequests = mocks.client.executedRequests.filter { request in
             request.isKind(of: OSRequestUpdateProperties.self)
         }

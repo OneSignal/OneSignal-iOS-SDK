@@ -1154,7 +1154,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSUserStateObserver Methods
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
-    NSLog(@"❌ OSMessagingController onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
     if (state.current.onesignalId && shouldRetryGetInAppMessagesOnUserChange) {
         shouldRetryGetInAppMessagesOnUserChange = false;
         [self getInAppMessagesFromServer];
@@ -1167,7 +1166,6 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)onJwtUpdatedWithExternalId:(NSString *)externalId token:(NSString *)token {
-    NSLog(@"❌ OSMessagingController onJwtUpdatedWithExternalId: %@ token: %@", externalId, token);
     if (![token  isEqual: OS_JWT_TOKEN_INVALID] && shouldRetryGetInAppMessagesOnJwtUpdated) {
         shouldRetryGetInAppMessagesOnJwtUpdated = false;
         [self getInAppMessagesFromServer];

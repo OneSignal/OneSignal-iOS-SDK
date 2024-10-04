@@ -232,10 +232,8 @@ final class UserExecutorTests: XCTestCase {
         newIdentityModel.jwtBearerToken = userA_InvalidJwtToken
         MockUserRequests.setUnauthorizedCreateUserFailureResponses(with: mocks.client, externalId: userA_EUID)
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.userExecutor.createUser(aliasLabel: OS_EXTERNAL_ID, aliasId: userA_EUID, identityModel: newIdentityModel)
@@ -244,7 +242,7 @@ final class UserExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testFetchUser_IdentityVerificationRequired_butNoToken() {
@@ -294,10 +292,8 @@ final class UserExecutorTests: XCTestCase {
         newIdentityModel.jwtBearerToken = userA_InvalidJwtToken
         MockUserRequests.setUnauthorizedFetchUserFailureResponses(with: mocks.client, onesignalId: userA_OSID)
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         mocks.userExecutor.fetchUser(onesignalId: userA_OSID, identityModel: newIdentityModel)
@@ -306,7 +302,7 @@ final class UserExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
     }
 
     func testUserRequests_Retry_OnTokenUpdate() {
@@ -324,21 +320,21 @@ final class UserExecutorTests: XCTestCase {
 
         MockUserRequests.setUnauthorizedFetchUserFailureResponses(with: mocks.client, onesignalId: userA_OSID)
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        userJwtInvalidatedListener.setCallback {
             MockUserRequests.setDefaultFetchUserResponseForHydration(with: mocks.client, externalId: userA_EUID)
             OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
         }
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.fetchUser(onesignalId: userA_OSID, identityModel: userAIdentityModel)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
 
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 2)
     }
 
@@ -357,10 +353,8 @@ final class UserExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedFetchUserFailureResponses(with: mocks.client, onesignalId: userA_OSID)
         MockUserRequests.setUnauthorizedCreateUserFailureResponses(with: mocks.client, externalId: userA_EUID)
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.fetchUser(onesignalId: userA_OSID, identityModel: userA.identityModel)
@@ -377,7 +371,7 @@ final class UserExecutorTests: XCTestCase {
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         /*
          Create and Fetch requests that fail
          Create and Fetch requests that pass
@@ -410,10 +404,8 @@ final class UserExecutorTests: XCTestCase {
         MockUserRequests.setUnauthorizedFetchUserFailureResponses(with: mocks.client, onesignalId: userA_OSID)
         MockUserRequests.setUnauthorizedCreateUserFailureResponses(with: mocks.client, externalId: userB_EUID)
 
-        var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
-            invalidatedCallbackWasCalled = true
-        }
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
 
         /* When */
         executor.fetchUser(onesignalId: userA_OSID, identityModel: userA.identityModel)
@@ -429,7 +421,7 @@ final class UserExecutorTests: XCTestCase {
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
-        XCTAssertTrue(invalidatedCallbackWasCalled)
+        XCTAssertTrue(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 3)
     }
 }

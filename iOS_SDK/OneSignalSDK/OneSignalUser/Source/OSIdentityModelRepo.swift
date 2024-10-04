@@ -102,16 +102,17 @@ extension OSIdentityModelRepo: OSModelChangedHandler {
         else {
             return
         }
-        print("❌ OSIdentityModelRepo onModelUpdated for \(externalId): \(token)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModelRepo onModelUpdated for \(externalId) with token \(token)")
         OneSignalUserManagerImpl.sharedInstance.jwtConfig.onJwtTokenChanged(externalId: externalId, token: token)
     }
 }
 
 extension OSIdentityModelRepo: OSLoggable {
     func logSelf() {
-        print("OSIdentityModelRepo has the following models: ")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModelRepo has the following models:")
+
         for model in models.values {
-            print("     modelID: \(model.modelId), alises: \(model.aliases) token: \(model.jwtBearerToken ?? "nil")")
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "    modelID: \(model.modelId), alises: \(model.aliases) token: \(model.jwtBearerToken ?? "nil")")
         }
     }
 }

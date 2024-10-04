@@ -73,8 +73,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     var hasCalledStart = false
 
-    private var jwtInvalidatedHandler: OSJwtInvalidatedHandler?
     let jwtConfig: OSUserJwtConfig
+
+    private var _userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>?
+    var userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
+        if let observer = _userJwtInvalidatedObserver {
+            return observer
+        }
+        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:)))
+        _userJwtInvalidatedObserver = userJwtInvalidatedObserver
+
+        return userJwtInvalidatedObserver
+    }
 
     var user: OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -380,17 +390,33 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
     }
 
+    /**
+     Entry point to creating and setting a user. It is called by the SDK to generate an anonymous user and also
+     by clients to login a user.
+     */
     private func _login(externalId: String?, token: String?) -> OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return _mockUser
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager internal _login called with externalId: \(externalId ?? "nil")")
 
-        // Logging into an identified user from an anonymous user, if JWT is not ON
+        if externalId != nil {
+            pushSubscriptionModel?._isDisabledInternally = false
+        }
+
+        /*
+         Logging in to a "new-to-the-sdk" externalId from an anonymous user, if JWT is OFF or UNKNOWN.
+         
+         Note: If we are logging in to an externalId that already exists in the SDK, from an anon user, we know the client has called:
+            login(userA) -> logout -> login(userA)
+         The userA is expected to exist and will not result in successfully identifying the anonymous user;
+         this login flow will instead fall into the createUser path below.
+         */
         if let externalId = externalId,
            let user = _user,
            user.isAnonymous,
-           jwtConfig.isRequired != true
+           jwtConfig.isRequired != true,
+           identityModelRepo.get(externalId: externalId) == nil
         {
             user.identityModel.jwtBearerToken = token
             identifyUser(externalId: externalId, currentUser: user)
@@ -418,6 +444,17 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         prepareForNewUser()
         _user = nil
         createUserIfNil()
+
+        /*
+         If Identity Verification is on, disable the push subscription.
+         Since the anonymous placeholder user will not be created to the backend,
+         fire the user observer here to represent "no user" in the SDK.
+         This is necessary so internal user observers can know when a user logs out and then back in.
+         */
+        if jwtConfig.isRequired == true {
+            user.pushSubscriptionModel._isDisabledInternally = true
+            OSUserUtils.fireUserStateChanged(newOnesignalId: nil, newExternalId: nil)
+        }
     }
 
     @objc
@@ -449,15 +486,25 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
         let aliases: [String: String]?
+        let identityModel: OSIdentityModel
+
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
         } else {
             aliases = nil
         }
 
-        let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+        // If there is an existing identity model with the same external ID, use it
+        if let externalId = externalId,
+           let existingIdentityModel = identityModelRepo.get(externalId: externalId)
+        {
+            identityModel = existingIdentityModel
+        } else {
+            identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+            self.addIdentityModelToRepo(identityModel)
+        }
+
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
-        self.addIdentityModelToRepo(identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel, hydrating: false)
@@ -528,16 +575,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         updatePropertiesDeltas(property: .purchases, value: purchases)
-    }
-
-    @objc
-    public func updateUserJwt(externalId: String, token: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
-            return
-        }
-        OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
-
-        identityModelRepo.updateJwtToken(externalId: externalId, token: token)
     }
 }
 
@@ -612,6 +649,16 @@ extension OneSignalUserManagerImpl {
 
 extension OneSignalUserManagerImpl {
     @objc
+    public func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedObserver.addObserver(listener)
+    }
+
+    @objc
+    public func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedObserver.removeObserver(listener)
+    }
+
+    @objc
     public func setRequiresUserAuth(_ required: Bool) {
         jwtConfig.isRequired = required
     }
@@ -619,6 +666,16 @@ extension OneSignalUserManagerImpl {
     @objc
     public func subscribeToJwtConfig(_ listener: OSUserJwtConfigListener, key: String) {
         jwtConfig.subscribe(listener, key: key)
+    }
+
+    @objc
+    public func updateUserJwt(externalId: String, token: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
+            return
+        }
+        OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_VERBOSE, message: "Update User JWT called with externalId: \(externalId) and token: \(token)")
+
+        identityModelRepo.updateJwtToken(externalId: externalId, token: token)
     }
 
     @objc
@@ -642,12 +699,8 @@ extension OneSignalUserManagerImpl {
     }
 
     private func fireJwtExpired(externalId: String) {
-        guard let jwtInvalidatedHandler = self.jwtInvalidatedHandler else {
-            return
-        }
-        let invalidatedEvent = OSJwtInvalidatedEvent(externalId: externalId)
-
-        jwtInvalidatedHandler(invalidatedEvent)
+        let event = OSUserJwtInvalidatedEvent(externalId: externalId)
+        userJwtInvalidatedObserver.notifyChange(event)
     }
 
     private func getMessageFromJwtError(_ error: NSError) -> String {
@@ -661,10 +714,6 @@ extension OneSignalUserManagerImpl {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    public func onJwtInvalidated(invalidatedHandler: @escaping OSJwtInvalidatedHandler) {
-        jwtInvalidatedHandler = invalidatedHandler
-    }
-
     public var User: OSUser {
         start()
         return self
@@ -926,55 +975,5 @@ extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
             return
         }
         user.pushSubscriptionModel.address = pushToken
-    }
-}
-
-extension OneSignalUserManagerImpl: OSLoggable {
-    @objc public func logSelf() {
-        print("💛 _user: \(String(describing: _user))")
-        print(
-            """
-            💛 identityModel:
-                aliases: \(String(describing: _user?.identityModel.aliases))
-                jwt: \(String(describing: _user?.identityModel.jwtBearerToken))
-                modelId: \(String(describing: _user?.identityModel.modelId))
-            """
-        )
-        print(
-            """
-            💛 propertiesModel:
-                tags: \(String(describing: _user?.propertiesModel.tags))
-                language: \(String(describing: _user?.propertiesModel.language))
-                modelId: \(String(describing: _user?.propertiesModel.modelId))
-            """
-        )
-        let subscriptionModels = subscriptionModelStore.getModels().values
-        for sub in subscriptionModels {
-            print(
-                """
-                💛 subscription model from store
-                    addess: \(String(describing: sub.address))
-                    subscriptionId: \(String(describing: sub.subscriptionId))
-                    enabled: \(sub.enabled)
-                    modelId: \(sub.modelId)
-                """
-            )
-        }
-        let pushSubModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
-        print(
-            """
-            💛 push sub model from store
-                token: \(String(describing: pushSubModel?.address))
-                subscriptionId: \(String(describing: pushSubModel?.subscriptionId))
-                enabled: \(String(describing: pushSubModel?.enabled))
-                notification_types: \(String(describing: pushSubModel?.notificationTypes))
-                optedIn: \(String(describing: pushSubModel?.optedIn))
-                modelId: \(String(describing: pushSubModel?.modelId))
-            """
-        )
-        operationRepo.logSelf()
-        userExecutor?.logSelf()
-        identityModelRepo.logSelf()
-        print("")
     }
 }
