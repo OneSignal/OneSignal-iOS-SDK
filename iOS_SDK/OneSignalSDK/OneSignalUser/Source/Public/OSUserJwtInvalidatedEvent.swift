@@ -25,15 +25,20 @@
  THE SOFTWARE.
  */
 
-/**
- An alias label and alias ID pair to represent a user.
- */
-@objc public class OSAliasPair: NSObject {
-    @objc public let label: String
-    @objc public let id: String
+@objc public class OSUserJwtInvalidatedEvent: NSObject {
+    @objc public let externalId: String
 
-    public init(_ label: String, _ id: String) {
-        self.label = label
-        self.id = id
+    init(externalId: String) {
+        self.externalId = externalId
     }
+
+    @objc public func jsonRepresentation() -> NSDictionary {
+        return [
+            "externalId": externalId
+        ]
+    }
+}
+
+@objc public protocol OSUserJwtInvalidatedListener {
+    @objc func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent)
 }

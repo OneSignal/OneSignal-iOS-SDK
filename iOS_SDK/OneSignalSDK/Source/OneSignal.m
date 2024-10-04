@@ -208,6 +208,16 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
++ (void)addUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener>)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"User Jwt Invalidated Listener added successfully"];
+    [OneSignalUserManagerImpl.sharedInstance addUserJwtInvalidatedListener:listener];
+}
+
++ (void)removeUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener>)listener {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"User Jwt Invalidated Listener removed successfully"];
+    [OneSignalUserManagerImpl.sharedInstance removeUserJwtInvalidatedListener:listener];
+}
+
 + (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
     if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
         return;
@@ -416,16 +426,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance startNewSession];
-    
-    // This is almost always going to be nil the first time.
-    // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
-    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
-    if (subscriptionId) {
-        let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
-        if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer:)]) {
-            [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer:) withObject:subscriptionId];
-        }
-    }
+
+    [self fetchInAppMessages];
     
     // The below means there are NO IAMs until on_session returns
     // because they can be ended, paused, or deleted from the server, or your segment has changed and you're no longer eligible
@@ -438,6 +440,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     
     // on failure:
     //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
+}
+
++ (void)fetchInAppMessages {
+    let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
+    if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(getInAppMessagesFromServer)]) {
+        [oneSignalInAppMessages performSelector:@selector(getInAppMessagesFromServer)];
+    }
 }
 
 + (void)startInAppMessages {
@@ -639,12 +648,9 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     NSString *userId = nil;
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
-        
-        // TODO: JWT 🔐 Mock it for now to always be true
-        OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = true;
-//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-//            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-//        }
+        if (result[IOS_JWT_REQUIRED]) {
+            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_JWT_REQUIRED] boolValue];
+        }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];

@@ -62,6 +62,14 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        /*
+         Don't generate a Delta if setting internal disable to false, which will generate a subscription update.
+         This means a user is logging in and a create user will be sent with the updated subscription included.
+         */
+        if args.property == OSSubscriptionModel.Constants.isDisabledInternallyKey && args.newValue as? Bool == false {
+            return nil
+        }
+
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,

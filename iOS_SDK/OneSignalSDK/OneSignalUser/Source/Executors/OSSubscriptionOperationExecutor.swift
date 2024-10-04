@@ -35,6 +35,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var addRequestQueue: [OSRequestCreateSubscription] = []
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
     var updateRequestQueue: [OSRequestUpdateSubscription] = []
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String: [OSUserRequest]]()
     var subscriptionModels: [String: OSSubscriptionModel] = [:]
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
@@ -46,11 +47,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     init(newRecordsState: OSNewRecordsState, jwtConfig: OSUserJwtConfig) {
         self.newRecordsState = newRecordsState
         self.jwtConfig = jwtConfig
-        // Read unfinished deltas and requests from cache, if any...
+        self.jwtConfig.subscribe(self, key: OS_SUBSCRIPTION_EXECUTOR)
         uncacheDeltas()
-        uncacheCreateSubscriptionRequests()
-        uncacheDeleteSubscriptionRequests()
-        uncacheUpdateSubscriptionRequests()
+        uncacheRequests()
     }
 
     private func uncacheDeltas() {
@@ -73,65 +72,102 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 
-    private func uncacheCreateSubscriptionRequests() {
-        var requestQueue: [OSRequestCreateSubscription] = []
+    private func uncacheRequests() {
+        // Uncache the Create and Delete requests from the queues and pending queue
+
+        var addRequestQueue: [OSRequestCreateSubscription] = []
+        var removeRequestQueue: [OSRequestDeleteSubscription] = []
 
         if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
-            // Hook each uncached Request to the model in the store
-            for request in cachedAddRequestQueue {
-                // 1. Hook up the subscription model
-                if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
-                    // a. The model exist in the store, set it to be the Request's models
-                    request.subscriptionModel = subscriptionModel
-                } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
-                    // b. The model exists in the dictionary of seen models
-                    request.subscriptionModel = subscriptionModel
-                } else {
-                    // c. The model has not been seen yet, add to dict
-                    subscriptionModels[request.subscriptionModel.modelId] = request.subscriptionModel
-                }
-                // 2. Hook up the identity model
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
-                    // a. The model exist in the repo
-                    request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // b. The request can be sent, add the model to the repo
-                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
-                } else {
-                    // c. The model do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped: \(request)")
-                    continue
-                }
-                requestQueue.append(request)
-            }
-            self.addRequestQueue = requestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
+            addRequestQueue = cachedAddRequestQueue
         }
+        if let cachedRemoveRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestDeleteSubscription] {
+            removeRequestQueue = cachedRemoveRequestQueue
+        }
+
+        if let pendingRequests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY, defaultValue: [:]) as? [String: [OSUserRequest]] {
+            for requests in pendingRequests.values {
+                for request in requests {
+                    if request.isKind(of: OSRequestCreateSubscription.self), let req = request as? OSRequestCreateSubscription {
+                        addRequestQueue.append(req)
+                    } else if request.isKind(of: OSRequestDeleteSubscription.self), let req = request as? OSRequestDeleteSubscription {
+                        removeRequestQueue.append(req)
+                    }
+                }
+            }
+        }
+
+        linkCreateSubscriptionRequests(requests: addRequestQueue)
+        linkDeleteSubscriptionRequests(requests: &removeRequestQueue)
+        // Update Requests are not added to the pending queues
+        uncacheUpdateSubscriptionRequests()
     }
 
-    private func uncacheDeleteSubscriptionRequests() {
-        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestDeleteSubscription] {
-            // Hook each uncached Request to the model in the store
-            for (index, request) in removeRequestQueue.enumerated().reversed() {
-                if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
-                    // 1. The model exists in the store, set it to be the Request's model
-                    request.subscriptionModel = subscriptionModel
-                } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
-                    // 2. The model exists in the dict of seen subscription models
-                    request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 3. The model does not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
-                    removeRequestQueue.remove(at: index)
-                }
+    private func linkCreateSubscriptionRequests(requests: [OSRequestCreateSubscription]) {
+        var requestQueue: [OSRequestCreateSubscription] = []
+
+        // Hook each uncached Request to the model in the store
+        for request in requests {
+            // 1. Hook up the subscription model
+            if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
+                // a. The model exist in the store, set it to be the Request's models
+                request.subscriptionModel = subscriptionModel
+            } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
+                // b. The model exists in the dictionary of seen models
+                request.subscriptionModel = subscriptionModel
+            } else {
+                // c. The model has not been seen yet, add to dict
+                subscriptionModels[request.subscriptionModel.modelId] = request.subscriptionModel
             }
-            self.removeRequestQueue = removeRequestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
+            // 2. Hook up the identity model
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // a. The model exist in the repo
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // b. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // c. The model do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped: \(request)")
+                continue
+            }
+            requestQueue.append(request)
         }
+        self.addRequestQueue = requestQueue
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+
+    }
+
+    private func linkDeleteSubscriptionRequests(requests: inout [OSRequestDeleteSubscription]) {
+        // Hook each uncached Request to the model in the store
+        for (index, request) in requests.enumerated().reversed() {
+            // 1. Hook up the subscription model
+            if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
+                // a. The model exists in the store, set it to be the Request's model
+                request.subscriptionModel = subscriptionModel
+            } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
+                // b. The model exists in the dict of seen subscription models
+                request.subscriptionModel = subscriptionModel
+            } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
+                // c. The model does not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
+                requests.remove(at: index)
+            }
+            // 2. Hook up the identity model
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // a. The model exist in the repo
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // b. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // c. The model do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped: \(request)")
+                requests.remove(at: index)
+            }
+        }
+        self.removeRequestQueue = requests
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
     }
 
     private func uncacheUpdateSubscriptionRequests() {
@@ -183,6 +219,22 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 
+    /**
+     This method does not handle concurrency; it should be called with thread-safe usage.
+     */
+    private func removeFromRequestQueueAndPersist(_ request: OSUserRequest) {
+        if request.isKind(of: OSRequestCreateSubscription.self) {
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+        } else if request.isKind(of: OSRequestDeleteSubscription.self) {
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+        } else if request.isKind(of: OSRequestUpdateSubscription.self) {
+            self.updateRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+        }
+    }
+
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
@@ -205,7 +257,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
                     // If JWT is on but the external ID does not exist, drop this Delta
                     if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
-                        print("❌ \(delta) is Invalid with JWT, being dropped")
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
                     }
 
                     let request = OSRequestCreateSubscription(
@@ -215,8 +267,20 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     self.addRequestQueue.append(request)
 
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
+                    // Only create the request if the identity model exists
+                    guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) else {
+                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                        continue
+                    }
+
+                    // If JWT is on but the external ID does not exist, drop this Delta
+                    if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                    }
+
                     let request = OSRequestDeleteSubscription(
-                        subscriptionModel: subModel
+                        subscriptionModel: subModel,
+                        identityModel: identityModel
                     )
                     self.removeRequestQueue.append(request)
 
@@ -278,9 +342,17 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             }
         }
     }
+}
 
+// MARK: - Execution
+
+extension OSSubscriptionOperationExecutor {
     func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -297,9 +369,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { result in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
             self.dispatchQueue.async {
-                self.addRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-
+                self.removeFromRequestQueueAndPersist(request)
                 guard let response = result?["subscription"] as? [String: Any] else {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
                     if inBackground {
@@ -318,8 +388,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                     if responseType == .missing {
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                         // Logout if the user in the SDK is the same
                         guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                         else {
@@ -331,10 +400,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                         // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        }
+                        request.sentToClient = false
                     } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                     }
                 }
                 if inBackground {
@@ -348,6 +421,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
+        // ECM TODO - Delete Subscription, not supported on JWT yet (9-23-2024)
+//        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+//            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+//            return
+//        }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
@@ -364,8 +442,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.dispatchQueue.async {
-                self.removeRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                self.removeFromRequestQueueAndPersist(request)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
@@ -375,11 +452,15 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType != .retryable {
+                    if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                         if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        }
+                        request.sentToClient = false
+                    } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         // If this request returns a missing status, that is ok as this is a delete request
-                        self.removeRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                     }
                 }
                 if inBackground {
@@ -407,21 +488,20 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.dispatchQueue.async {
-                self.updateRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                self.removeFromRequestQueueAndPersist(request)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType != .retryable {
+                    if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        // TODO: Jwt, do we need to handle this case, as this request does not use user JWT
+                    } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
-                        self.updateRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                     }
                 }
                 if inBackground {
@@ -432,15 +512,108 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 }
 
+extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth) {
+        if to == .on {
+            removeInvalidDeltasAndRequests()
+        }
+    }
+
+    func onJwtUpdated(externalId: String, token: String?) {
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+
+    func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
+        self.dispatchQueue.async {
+            self.removeFromRequestQueueAndPersist(request)
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+        }
+    }
+
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                if let addRequest = request as? OSRequestCreateSubscription {
+                    self.addRequestQueue.append(addRequest)
+                } else if let removeRequest = request as? OSRequestDeleteSubscription {
+                    self.removeRequestQueue.append(removeRequest)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
+    }
+
+    /**
+     Drops deltas and requests that add and remove subscriptions on unidentified users.
+     Subscription updates are used only for push subscriptions, which are kept as they do not use User JWT.
+     */
+    private func removeInvalidDeltasAndRequests() {
+        self.dispatchQueue.async {
+            for (index, delta) in self.deltaQueue.enumerated().reversed() {
+                if delta.name != OS_UPDATE_SUBSCRIPTION_DELTA,
+                   let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId),
+                   identityModel.externalId == nil
+                {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            for (index, request) in self.addRequestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.addRequestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+
+            for (index, request) in self.removeRequestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSSubscriptionOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.removeRequestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+        }
+    }
+}
+
 extension OSSubscriptionOperationExecutor: OSLoggable {
     func logSelf() {
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 OSSubscriptionOperationExecutor has the following queues:
+            OSSubscriptionOperationExecutor has the following queues:
                 addRequestQueue: \(self.addRequestQueue)
                 removeRequestQueue: \(self.removeRequestQueue)
                 updateRequestQueue: \(self.updateRequestQueue)
                 deltaQueue: \(self.deltaQueue)
+                pendingAuthRequests: \(self.pendingAuthRequests)
+
             """
         )
     }

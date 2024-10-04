@@ -75,6 +75,8 @@
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C2FF9D02C5FCD760081293B /* OSUserJwtConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2FF9CF2C5FCD760081293B /* OSUserJwtConfig.swift */; };
+		3C3130E02CA383F800906665 /* OSUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3130DF2CA383F800906665 /* OSUser.swift */; };
+		3C3130E32CA3858500906665 /* OSPushSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3130E22CA3858500906665 /* OSPushSubscription.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -86,6 +88,8 @@
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
+		3C5929E32CAD9EC50020D6FF /* OneSignalUserManagerImpl+OSLoggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5929E22CAD9EC50020D6FF /* OneSignalUserManagerImpl+OSLoggable.swift */; };
+		3C5929E52CAE523E0020D6FF /* MockUserJwtInvalidatedListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5929E42CAE523E0020D6FF /* MockUserJwtInvalidatedListener.swift */; };
 		3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A12BEEA38100649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */; };
@@ -183,6 +187,7 @@
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
 		3CF807352C80E3A6003E5FE1 /* OSAliasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */; };
+		3CF807372C80F3B5003E5FE1 /* OSUserUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -347,11 +352,16 @@
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
 		DE16C17024D3989A00670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE1DD0602C87D87B00787071 /* OSUserJwtInvalidatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1DD05F2C87D87B00787071 /* OSUserJwtInvalidatedEvent.swift */; };
 		DE20425E24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE2D8F452947D85800844084 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
 		DE2D8F4A2947D86200844084 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
+		DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */; };
+		DE3568EC2C88F5BD00AF447C /* OneSignalExecutorMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */; };
+		DE3568F02C89067400AF447C /* SubscriptionsExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */; };
+		DE3568F22C8911EA00AF447C /* IdentityExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */; };
 		DE3784842888CFF900453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784852888D00300453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784862888D00B00453A8E /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1232,6 +1242,8 @@
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C2FF9CF2C5FCD760081293B /* OSUserJwtConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfig.swift; sourceTree = "<group>"; };
+		3C3130DF2CA383F800906665 /* OSUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUser.swift; sourceTree = "<group>"; };
+		3C3130E22CA3858500906665 /* OSPushSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPushSubscription.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -1239,6 +1251,8 @@
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
+		3C5929E22CAD9EC50020D6FF /* OneSignalUserManagerImpl+OSLoggable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+OSLoggable.swift"; sourceTree = "<group>"; };
+		3C5929E42CAE523E0020D6FF /* MockUserJwtInvalidatedListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserJwtInvalidatedListener.swift; sourceTree = "<group>"; };
 		3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -1306,6 +1320,7 @@
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF807342C80E3A6003E5FE1 /* OSAliasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
+		3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserUtils.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -1508,8 +1523,13 @@
 		CACBAAAB218A662B000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLifecycleObserver.m; sourceTree = "<group>"; };
 		DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLifecycleObserver.h; sourceTree = "<group>"; };
+		DE1DD05F2C87D87B00787071 /* OSUserJwtInvalidatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtInvalidatedEvent.swift; sourceTree = "<group>"; };
 		DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIApplication+OneSignal.h"; sourceTree = "<group>"; };
 		DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+OneSignal.m"; sourceTree = "<group>"; };
+		DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyExecutorTests.swift; sourceTree = "<group>"; };
+		DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalExecutorMocks.swift; sourceTree = "<group>"; };
+		DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionsExecutorTests.swift; sourceTree = "<group>"; };
+		DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityExecutorTests.swift; sourceTree = "<group>"; };
 		DE3CD2FE270FA9F200A5BECD /* OSOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomes.m; sourceTree = "<group>"; };
 		DE51DDE3294262AB0073D5C4 /* OSRemoteParamController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSRemoteParamController.m; sourceTree = "<group>"; };
 		DE51DDE4294262AB0073D5C4 /* OSRemoteParamController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSRemoteParamController.h; sourceTree = "<group>"; };
@@ -2089,6 +2109,30 @@
 			path = Jwt;
 			sourceTree = "<group>";
 		};
+		3C3130E12CA384BD00906665 /* Modeling */ = {
+			isa = PBXGroup;
+			children = (
+				3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */,
+				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
+				3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */,
+				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
+				3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */,
+				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
+			);
+			path = Modeling;
+			sourceTree = "<group>";
+		};
+		3C3130E52CA385B700906665 /* Public */ = {
+			isa = PBXGroup;
+			children = (
+				3C3130DF2CA383F800906665 /* OSUser.swift */,
+				3C3130E22CA3858500906665 /* OSPushSubscription.swift */,
+				3C5117162B15C31E00563465 /* OSUserState.swift */,
+				DE1DD05F2C87D87B00787071 /* OSUserJwtInvalidatedEvent.swift */,
+			);
+			path = Public;
+			sourceTree = "<group>";
+		};
 		3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2167,6 +2211,8 @@
 				3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */,
 				3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */,
 				3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */,
+				DE3568EB2C88F5BD00AF447C /* OneSignalExecutorMocks.swift */,
+				3C5929E42CAE523E0020D6FF /* MockUserJwtInvalidatedListener.swift */,
 			);
 			path = OneSignalUserMocks;
 			sourceTree = "<group>";
@@ -2188,6 +2234,7 @@
 			isa = PBXGroup;
 			children = (
 				3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */,
+				3CF807362C80F3B5003E5FE1 /* OSUserUtils.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -2196,6 +2243,9 @@
 			isa = PBXGroup;
 			children = (
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
+				DE3568E92C88F56600AF447C /* PropertyExecutorTests.swift */,
+				DE3568EF2C89067400AF447C /* SubscriptionsExecutorTests.swift */,
+				DE3568F12C8911EA00AF447C /* IdentityExecutorTests.swift */,
 			);
 			path = Executors;
 			sourceTree = "<group>";
@@ -2476,19 +2526,15 @@
 			isa = PBXGroup;
 			children = (
 				3CEE90A52BFE6A7700B0FB5B /* Support */,
+				3C3130E12CA384BD00906665 /* Modeling */,
 				3C9AD6BA2B2284AB00BC1540 /* Executors */,
 				3C9AD6BD2B22877600BC1540 /* Requests */,
+				3C3130E52CA385B700906665 /* Public */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
-				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				DE69E1AA282ED8790090BB3D /* OneSignalUserManagerImpl.swift */,
+				3C5929E22CAD9EC50020D6FF /* OneSignalUserManagerImpl+OSLoggable.swift */,
+				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */,
-				3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */,
-				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
-				3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */,
-				3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */,
-				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
-				3CE795F828DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift */,
-				3C5117162B15C31E00563465 /* OSUserState.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -4124,6 +4170,8 @@
 				3C8706702BDE0957000D8CD2 /* MockUserRequests.swift in Sources */,
 				3C8706722BDEE076000D8CD2 /* MockUserDefines.swift in Sources */,
 				3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */,
+				3C5929E52CAE523E0020D6FF /* MockUserJwtInvalidatedListener.swift in Sources */,
+				DE3568EC2C88F5BD00AF447C /* OneSignalExecutorMocks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4132,9 +4180,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
+				DE3568EA2C88F56600AF447C /* PropertyExecutorTests.swift in Sources */,
+				DE3568F22C8911EA00AF447C /* IdentityExecutorTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
+				DE3568F02C89067400AF447C /* SubscriptionsExecutorTests.swift in Sources */,
 				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4283,6 +4334,8 @@
 			files = (
 				3CE795F928DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift in Sources */,
 				DE69E1AC282ED87A0090BB3D /* OneSignalUserManagerImpl.swift in Sources */,
+				DE1DD0602C87D87B00787071 /* OSUserJwtInvalidatedEvent.swift in Sources */,
+				3C5929E32CAD9EC50020D6FF /* OneSignalUserManagerImpl+OSLoggable.swift in Sources */,
 				3C9AD6CF2B228B7800BC1540 /* OSRequestAddAliases.swift in Sources */,
 				3C9AD6D32B228BB000BC1540 /* OSRequestUpdateProperties.swift in Sources */,
 				3C9AD6CD2B228B6300BC1540 /* OSRequestFetchUser.swift in Sources */,
@@ -4292,9 +4345,11 @@
 				3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */,
 				3CEE90A72BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift in Sources */,
 				3C9AD6C12B22886600BC1540 /* OSRequestUpdateSubscription.swift in Sources */,
+				3C3130E02CA383F800906665 /* OSUser.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
 				3C9AD6CB2B228B5200BC1540 /* OSRequestIdentifyUser.swift in Sources */,
+				3CF807372C80F3B5003E5FE1 /* OSUserUtils.swift in Sources */,
 				3C9AD6BC2B2285FB00BC1540 /* OSUserExecutor.swift in Sources */,
 				3C9AD6C32B22887700BC1540 /* OSRequestCreateUser.swift in Sources */,
 				3C9AD6D12B228B9200BC1540 /* OSRequestRemoveAlias.swift in Sources */,
@@ -4304,6 +4359,7 @@
 				3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */,
 				3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */,
 				3CE795FB28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift in Sources */,
+				3C3130E32CA3858500906665 /* OSPushSubscription.swift in Sources */,
 				3C5117172B15C31E00563465 /* OSUserState.swift in Sources */,
 				3C9AD6BF2B22881D00BC1540 /* OSRequestFetchIdentityBySubscription.swift in Sources */,
 				3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */,

@@ -26,14 +26,15 @@
  */
 
 /**
- An alias label and alias ID pair to represent a user.
+ This is the push subscription interface exposed to the public.
  */
-@objc public class OSAliasPair: NSObject {
-    @objc public let label: String
-    @objc public let id: String
+@objc public protocol OSPushSubscription {
+    var id: String? { get }
+    var token: String? { get }
+    var optedIn: Bool { get }
 
-    public init(_ label: String, _ id: String) {
-        self.label = label
-        self.id = id
-    }
+    func optIn()
+    func optOut()
+    func addObserver(_ observer: OSPushSubscriptionObserver)
+    func removeObserver(_ observer: OSPushSubscriptionObserver)
 }

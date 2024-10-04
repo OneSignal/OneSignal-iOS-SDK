@@ -26,14 +26,35 @@
  */
 
 /**
- An alias label and alias ID pair to represent a user.
+ This is the user interface exposed to the public.
  */
-@objc public class OSAliasPair: NSObject {
-    @objc public let label: String
-    @objc public let id: String
-
-    public init(_ label: String, _ id: String) {
-        self.label = label
-        self.id = id
-    }
+@objc public protocol OSUser {
+    var pushSubscription: OSPushSubscription { get }
+    var onesignalId: String? { get }
+    var externalId: String? { get }
+    /**
+     Add an observer to the user state, allowing the provider to be notified when the user state has changed.
+     Important: When using the observer to retrieve the `onesignalId`, check the `externalId` as well to confirm the values are associated with the expected user.
+     */
+    func addObserver(_ observer: OSUserStateObserver)
+    func removeObserver(_ observer: OSUserStateObserver)
+    // Aliases
+    func addAlias(label: String, id: String)
+    func addAliases(_ aliases: [String: String])
+    func removeAlias(_ label: String)
+    func removeAliases(_ labels: [String])
+    // Tags
+    func addTag(key: String, value: String)
+    func addTags(_ tags: [String: String])
+    func removeTag(_ tag: String)
+    func removeTags(_ tags: [String])
+    func getTags() -> [String: String]
+    // Email
+    func addEmail(_ email: String)
+    func removeEmail(_ email: String)
+    // SMS
+    func addSms(_ number: String)
+    func removeSms(_ number: String)
+    // Language
+    func setLanguage(_ language: String)
 }
