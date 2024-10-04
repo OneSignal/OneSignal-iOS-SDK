@@ -91,8 +91,8 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"0139bd6f-451f-438c-8886-4e0f0fe3a085"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"0139bd6f-451f-438c-8886-4e0f0fe3a085"
+#define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];

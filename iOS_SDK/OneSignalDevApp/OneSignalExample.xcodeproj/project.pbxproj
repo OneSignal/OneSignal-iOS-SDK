@@ -49,6 +49,32 @@
 		DE12F3F8289B2B7F002F63AA /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE61E483294810B900CD12F1 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E482294810B900CD12F1 /* OneSignalFramework.framework */; };
 		DE61E484294810B900CD12F1 /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E482294810B900CD12F1 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E4852948117000CD12F1 /* OneSignalExampleClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DE61E48A2948117A00CD12F1 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4892948117A00CD12F1 /* OneSignalCore.framework */; };
+		DE61E48B2948117A00CD12F1 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4892948117A00CD12F1 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E48E2948117D00CD12F1 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E48D2948117D00CD12F1 /* OneSignalExtension.framework */; };
+		DE61E48F2948117D00CD12F1 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E48D2948117D00CD12F1 /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E4912948118200CD12F1 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4902948118200CD12F1 /* OneSignalFramework.framework */; };
+		DE61E4922948118200CD12F1 /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4902948118200CD12F1 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E4942948118500CD12F1 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4932948118500CD12F1 /* OneSignalNotifications.framework */; };
+		DE61E4952948118500CD12F1 /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4932948118500CD12F1 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E4972948118900CD12F1 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4962948118900CD12F1 /* OneSignalOSCore.framework */; };
+		DE61E4982948118900CD12F1 /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4962948118900CD12F1 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E49A2948118C00CD12F1 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4992948118C00CD12F1 /* OneSignalOutcomes.framework */; };
+		DE61E49B2948118D00CD12F1 /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E4992948118C00CD12F1 /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE61E49D2948119100CD12F1 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E49C2948119100CD12F1 /* OneSignalUser.framework */; };
+		DE61E49E2948119100CD12F1 /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE61E49C2948119100CD12F1 /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE68DA5B24C7695900FC95A8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5A24C7695900FC95A8 /* AppDelegate.m */; };
+		DE68DA5E24C7695900FC95A8 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5D24C7695900FC95A8 /* SceneDelegate.m */; };
+		DE68DA6124C7695900FC95A8 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6024C7695900FC95A8 /* ViewController.m */; };
+		DE68DA6424C7695900FC95A8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6224C7695900FC95A8 /* Main.storyboard */; };
+		DE68DA6624C7695A00FC95A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6524C7695A00FC95A8 /* Assets.xcassets */; };
+		DE68DA6924C7695A00FC95A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6724C7695A00FC95A8 /* LaunchScreen.storyboard */; };
+		DE68DA6C24C7695A00FC95A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6B24C7695A00FC95A8 /* main.m */; };
+		DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
+		DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
+		DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
+		DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
 		DE7D180727026BB5002D3A5D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D180627026BB5002D3A5D /* OneSignalCore.framework */; };
 		DE7D180827026BB5002D3A5D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D180627026BB5002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D180927026BC5002D3A5D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D180627026BB5002D3A5D /* OneSignalCore.framework */; };
@@ -83,6 +109,13 @@
 			remoteGlobalIDString = 945C59DB296CF2A00097041D;
 			remoteInfo = OneSignalWidgetExtensionExtension;
 		};
+		DE61E4862948117000CD12F1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9112E87A1E724C320022A1CB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE68DA5624C7695900FC95A8;
+			remoteInfo = OneSignalExampleClip;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -104,8 +137,26 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
 			dstSubfolderSpec = 16;
 			files = (
+				DE61E4852948117000CD12F1 /* OneSignalExampleClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE61E48C2948117A00CD12F1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DE61E4952948118500CD12F1 /* OneSignalNotifications.framework in Embed Frameworks */,
+				DE61E49E2948119100CD12F1 /* OneSignalUser.framework in Embed Frameworks */,
+				DE61E4922948118200CD12F1 /* OneSignalFramework.framework in Embed Frameworks */,
+				DE61E48B2948117A00CD12F1 /* OneSignalCore.framework in Embed Frameworks */,
+				DE61E48F2948117D00CD12F1 /* OneSignalExtension.framework in Embed Frameworks */,
+				DE61E49B2948118D00CD12F1 /* OneSignalOutcomes.framework in Embed Frameworks */,
+				DE61E4982948118900CD12F1 /* OneSignalOSCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DEA226FA261F74060092FF58 /* Embed Frameworks */ = {
@@ -185,6 +236,7 @@
 		DE61E4962948118900CD12F1 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE61E4992948118C00CD12F1 /* OneSignalOutcomes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalOutcomes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE61E49C2948119100CD12F1 /* OneSignalUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExampleClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE68DA5924C7695900FC95A8 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE68DA5A24C7695900FC95A8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		DE68DA5C24C7695900FC95A8 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
@@ -261,6 +313,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE68DA5424C7695900FC95A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE61E48A2948117A00CD12F1 /* OneSignalCore.framework in Frameworks */,
+				DE61E4912948118200CD12F1 /* OneSignalFramework.framework in Frameworks */,
+				DE61E4972948118900CD12F1 /* OneSignalOSCore.framework in Frameworks */,
+				DE61E48E2948117D00CD12F1 /* OneSignalExtension.framework in Frameworks */,
+				DE61E49A2948118C00CD12F1 /* OneSignalOutcomes.framework in Frameworks */,
+				DE61E49D2948119100CD12F1 /* OneSignalUser.framework in Frameworks */,
+				DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */,
+				DE61E4942948118500CD12F1 /* OneSignalNotifications.framework in Frameworks */,
+				DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */,
+				DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */,
+				DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -292,6 +362,7 @@
 			children = (
 				9112E8821E724C320022A1CB /* OneSignalExample.app */,
 				9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */,
+				DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */,
 				945C59DC296CF2A00097041D /* OneSignalWidgetExtensionExtension.appex */,
 			);
 			name = Products;
@@ -434,6 +505,7 @@
 			);
 			dependencies = (
 				9150E7791E73BEDD00C5D46A /* PBXTargetDependency */,
+				DE61E4872948117000CD12F1 /* PBXTargetDependency */,
 				945C59EF296CF2A10097041D /* PBXTargetDependency */,
 			);
 			name = OneSignalExample;
@@ -479,6 +551,26 @@
 			productReference = 945C59DC296CF2A00097041D /* OneSignalWidgetExtensionExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		DE68DA5624C7695900FC95A8 /* OneSignalExampleClip */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE68DA7424C7695A00FC95A8 /* Build configuration list for PBXNativeTarget "OneSignalExampleClip" */;
+			buildPhases = (
+				DE68DA5324C7695900FC95A8 /* Sources */,
+				DE68DA5424C7695900FC95A8 /* Frameworks */,
+				DE68DA5524C7695900FC95A8 /* Resources */,
+				DE61E48C2948117A00CD12F1 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneSignalExampleClip;
+			packageProductDependencies = (
+			);
+			productName = OneSignalDevAppClip;
+			productReference = DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */;
+			productType = "com.apple.product-type.application.on-demand-install-capable";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -491,6 +583,7 @@
 				TargetAttributes = {
 					9112E8811E724C320022A1CB = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 99SW8E36CT;
 						LastSwiftMigration = 1320;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -518,6 +611,9 @@
 					945C59DB296CF2A00097041D = {
 						CreatedOnToolsVersion = 14.1;
 					};
+					DE68DA5624C7695900FC95A8 = {
+						CreatedOnToolsVersion = 12.0;
+					};
 				};
 			};
 			buildConfigurationList = 9112E87D1E724C320022A1CB /* Build configuration list for PBXProject "OneSignalExample" */;
@@ -538,6 +634,7 @@
 			targets = (
 				9112E8811E724C320022A1CB /* OneSignalExample */,
 				9150E7711E73BEDC00C5D46A /* OneSignalNotificationServiceExtension */,
+				DE68DA5624C7695900FC95A8 /* OneSignalExampleClip */,
 				945C59DB296CF2A00097041D /* OneSignalWidgetExtensionExtension */,
 			);
 		};
@@ -572,6 +669,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				945C59EA296CF2A10097041D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE68DA5524C7695900FC95A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE68DA6924C7695A00FC95A8 /* LaunchScreen.storyboard in Resources */,
+				DE68DA6624C7695A00FC95A8 /* Assets.xcassets in Resources */,
+				DE68DA6424C7695900FC95A8 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,6 +719,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE68DA5324C7695900FC95A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE68DA6124C7695900FC95A8 /* ViewController.m in Sources */,
+				DE68DA5B24C7695900FC95A8 /* AppDelegate.m in Sources */,
+				DE68DA6C24C7695A00FC95A8 /* main.m in Sources */,
+				DE68DA5E24C7695900FC95A8 /* SceneDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -625,6 +743,12 @@
 			platformFilter = ios;
 			target = 945C59DB296CF2A00097041D /* OneSignalWidgetExtensionExtension */;
 			targetProxy = 945C59EE296CF2A10097041D /* PBXContainerItemProxy */;
+		};
+		DE61E4872948117000CD12F1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = DE68DA5624C7695900FC95A8 /* OneSignalExampleClip */;
+			targetProxy = DE61E4862948117000CD12F1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -779,7 +903,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -811,7 +935,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -839,7 +963,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -867,7 +991,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -910,7 +1034,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -957,7 +1081,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalWidgetExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -965,6 +1089,88 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DE68DA7224C7695A00FC95A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalDevAppClip/OneSignalDevAppClip.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.4.4;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					OS_APP_CLIP,
+				);
+				INFOPLIST_FILE = OneSignalDevAppClip/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.4.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_NAME = OneSignalExampleClip;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DE68DA7324C7695A00FC95A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalDevAppClip/OneSignalDevAppClip.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.4.4;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = OS_APP_CLIP;
+				INFOPLIST_FILE = OneSignalDevAppClip/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.4.4;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_NAME = OneSignalExampleClip;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1004,6 +1210,15 @@
 			buildConfigurations = (
 				945C59F2296CF2A20097041D /* Debug */,
 				945C59F3296CF2A20097041D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE68DA7424C7695A00FC95A8 /* Build configuration list for PBXNativeTarget "OneSignalExampleClip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE68DA7224C7695A00FC95A8 /* Debug */,
+				DE68DA7324C7695A00FC95A8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

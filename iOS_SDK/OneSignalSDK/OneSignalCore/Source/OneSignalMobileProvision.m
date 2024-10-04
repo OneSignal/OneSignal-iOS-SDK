@@ -87,7 +87,7 @@
     NSDictionary *entitlements = nil;
     NSDictionary *provision = [self getProvision];
     if (provision) {
-        // [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"provision: %@", provision]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"provision: %@", provision]];
         entitlements = [provision objectForKey:@"Entitlements"];
     }
     else
