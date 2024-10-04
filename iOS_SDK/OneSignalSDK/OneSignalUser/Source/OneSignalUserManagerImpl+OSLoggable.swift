@@ -30,50 +30,53 @@ import OneSignalOSCore
 
 extension OneSignalUserManagerImpl: OSLoggable {
     @objc public func logSelf() {
-        print("💛 _user: \(String(describing: _user))")
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 identityModel:
+            OneSignalUserManagerImpl:
+            _user: \(String(describing: _user))
+
+            identityModel:
                 aliases: \(String(describing: _user?.identityModel.aliases))
                 jwt: \(String(describing: _user?.identityModel.jwtBearerToken))
                 modelId: \(String(describing: _user?.identityModel.modelId))
-            """
-        )
-        print(
-            """
-            💛 propertiesModel:
+
+            propertiesModel:
                 tags: \(String(describing: _user?.propertiesModel.tags))
                 language: \(String(describing: _user?.propertiesModel.language))
                 modelId: \(String(describing: _user?.propertiesModel.modelId))
+
             """
         )
+
         let subscriptionModels = subscriptionModelStore.getModels().values
         for sub in subscriptionModels {
-            print(
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message:
                 """
-                💛 subscription model from store
+                subscription model from store
                     addess: \(String(describing: sub.address))
                     subscriptionId: \(String(describing: sub.subscriptionId))
                     enabled: \(sub.enabled)
                     modelId: \(sub.modelId)
+
                 """
             )
         }
+
         let pushSubModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 push sub model from store
+            push sub model from store
                 token: \(String(describing: pushSubModel?.address))
                 subscriptionId: \(String(describing: pushSubModel?.subscriptionId))
                 enabled: \(String(describing: pushSubModel?.enabled))
                 notification_types: \(String(describing: pushSubModel?.notificationTypes))
                 optedIn: \(String(describing: pushSubModel?.optedIn))
                 modelId: \(String(describing: pushSubModel?.modelId))
+
             """
         )
         operationRepo.logSelf()
         userExecutor?.logSelf()
         identityModelRepo.logSelf()
-        print("")
     }
 }

@@ -45,7 +45,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         self.newRecordsState = newRecordsState
         self.jwtConfig = jwtConfig
         self.jwtConfig.subscribe(self, key: OS_IDENTITY_EXECUTOR)
-        print("❌ OSIdentityOperationExecutor init(\(jwtConfig.isRequired))")
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheRequests()
@@ -206,7 +205,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
                 // If JWT is on but the external ID does not exist, drop this Delta
                 if self.jwtConfig.isRequired == true, model.externalId == nil {
-                    print("❌ \(delta) is Invalid with JWT, being dropped")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.processDeltaQueue dropped \(delta)")
                 }
 
                 switch delta.name {
@@ -401,7 +400,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
 extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
-        print("❌ OSIdentityOperationExecutor onUserAuthChanged from \(String(describing: from)) to \(String(describing: to))")
         // If auth changed from false or unknown to true, process requests
         if to == .on {
             removeInvalidDeltasAndRequests()
@@ -409,7 +407,6 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
-        print("❌ OSIdentityOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
 
@@ -435,10 +432,9 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
 
     private func removeInvalidDeltasAndRequests() {
         self.dispatchQueue.async {
-            print("❌ OSIdentityOperationExecutor.removeInvalidDeltasAndRequests called")
             for (index, delta) in self.deltaQueue.enumerated().reversed() {
                 if (delta.model as? OSIdentityModel)?.externalId == nil {
-                    print(" \(delta) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
                     self.deltaQueue.remove(at: index)
                 }
             }
@@ -446,7 +442,7 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
 
             for (index, request) in self.addRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
-                    print(" \(request) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
                     self.addRequestQueue.remove(at: index)
                 }
             }
@@ -454,7 +450,7 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
 
             for (index, request) in self.removeRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
-                    print(" \(request) is Invalid, being removed")
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
                     self.removeRequestQueue.remove(at: index)
                 }
             }
@@ -465,13 +461,14 @@ extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
 
 extension OSIdentityOperationExecutor: OSLoggable {
     func logSelf() {
-        print(
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
             """
-            💛 OSIdentityOperationExecutor has the following queues:
+            OSIdentityOperationExecutor has the following queues:
                 addRequestQueue: \(self.addRequestQueue)
                 removeRequestQueue: \(self.removeRequestQueue)
                 deltaQueue: \(self.deltaQueue)
                 pendingAuthRequests: \(self.pendingAuthRequests)
+
             """
         )
     }
