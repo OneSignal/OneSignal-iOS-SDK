@@ -48,6 +48,62 @@
         "printedName": "OneSignal",
         "children": [
           {
+            "kind": "Function",
+            "name": "addUserJwtInvalidatedListener",
+            "printedName": "addUserJwtInvalidatedListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedListener",
+                "printedName": "OneSignalUser.OSUserJwtInvalidatedListener",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So9OneSignalC0aB9FrameworkE29addUserJwtInvalidatedListeneryy0abE006OSUserfgH0_pFZ",
+            "mangledName": "$sSo9OneSignalC0aB9FrameworkE29addUserJwtInvalidatedListeneryy0abE006OSUserfgH0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "static": true,
+            "declAttributes": [
+              "Final"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUserJwtInvalidatedListener",
+            "printedName": "removeUserJwtInvalidatedListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedListener",
+                "printedName": "OneSignalUser.OSUserJwtInvalidatedListener",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So9OneSignalC0aB9FrameworkE32removeUserJwtInvalidatedListeneryy0abE006OSUserfgH0_pFZ",
+            "mangledName": "$sSo9OneSignalC0aB9FrameworkE32removeUserJwtInvalidatedListeneryy0abE006OSUserfgH0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "static": true,
+            "declAttributes": [
+              "Final"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "Var",
             "name": "User",
             "printedName": "User",

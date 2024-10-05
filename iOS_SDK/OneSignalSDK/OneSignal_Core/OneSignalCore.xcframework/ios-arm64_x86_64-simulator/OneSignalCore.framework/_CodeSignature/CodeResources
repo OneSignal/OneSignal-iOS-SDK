@@ -54,7 +54,7 @@
 		</data>
 		<key>Headers/OSNotification.h</key>
 		<data>
-		nD/KzayDLS8tuPC5VneZLkDn8Tg=
+		O/8gkRAMw3nV6j7znZxoXDKCi3o=
 		</data>
 		<key>Headers/OSNotificationClasses.h</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<data>
-		7gxmQ+X0moSsUEqx+qli7yCJ59c=
+		M+s6N3SgUW271aVJk0EYnL/UIAo=
 		</data>
 		<key>Headers/OSRemoteParamController.h</key>
 		<data>
@@ -76,21 +76,13 @@
 		<data>
 		qtUkgqD1zynN/LLePYZTAGm6gHc=
 		</data>
-		<key>Headers/OneSignalBadgeHelpers.h</key>
-		<data>
-		TPbvDKrPvc3Frsg8EA2on821wTE=
-		</data>
 		<key>Headers/OneSignalClient.h</key>
 		<data>
-		bBy68H+SOkk0c4GRArzIjP5A60M=
-		</data>
-		<key>Headers/OneSignalClientError.h</key>
-		<data>
-		Ln1c2o4jwJxKe4cCr37xiDxVmsE=
+		2U/hJ9DbKlsx3Cvrnb2gD3aEgL4=
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		hVJ191W6dJmIhR7TwDAieGC8qp4=
+		k3DRIOD4ji8HFPAdsMW62gGDDQ0=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -98,7 +90,7 @@
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		PeshYU8MKCr65/vVYaIiXG1Xk5E=
+		q5VJJvQC6h92TYA+7bvLJZNOS2s=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -106,7 +98,7 @@
 		</data>
 		<key>Headers/OneSignalLog.h</key>
 		<data>
-		o5RSmHYkpLQOk/hhVawytbfylUg=
+		m4cUeDCj80NiMvjPbHbySfIND3w=
 		</data>
 		<key>Headers/OneSignalMobileProvision.h</key>
 		<data>
@@ -138,7 +130,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		uZKVSymb31F8D/UDDq1X8VcqJD0=
+		O4HMfv5EOaJDj4jG0OrKsJoHcGY=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -239,7 +231,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			E5x7O9DsPCSzd6c+vUPfd5suBOaorLFejKubR/fvKpw=
+			JOArzkdx1cCGHN5R6ITF+D2e8x/s5HVzQNEl26Gxdfg=
 			</data>
 		</dict>
 		<key>Headers/OSNotificationClasses.h</key>
@@ -260,7 +252,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			sp07+DUKscxnVfk2kLriqDDs+ennVReTHPK0Gmt+gv8=
+			ZbsLBZFACw0H6sd80zOvxaGw6Jq/0Sz1diu28fYUOZY=
 			</data>
 		</dict>
 		<key>Headers/OSRemoteParamController.h</key>
@@ -277,32 +269,18 @@
 			zcPzshIWiNjURGAjtzmwJgFSHy4BeDwZu9d2K0H0kkY=
 			</data>
 		</dict>
-		<key>Headers/OneSignalBadgeHelpers.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			jvkx2GOU9HL+g8DtxGBAAAn+nAn8feR2dltzBh8HIDg=
-			</data>
-		</dict>
 		<key>Headers/OneSignalClient.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bg16G8iXmo6DyBHRd1TLI2mgB5qwBoQU8pT4+UHoGXc=
-			</data>
-		</dict>
-		<key>Headers/OneSignalClientError.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			/s2teFkWNsHgBhV6KkT1NG+kqsfS2NZ7cqHEOHi3yOg=
+			bZZ7bNHZy8Mym+UeVjwRL9HtlIxmmTNomVrGmmHcw2A=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			E/JqmGJV28y40bsGTuWxjmD1o6OwbSaeFxRNhlv1Wj8=
+			ng3o6KLvWToPcw0FbLlVr8Fp7ymK9+YnmPWWXQK8aOM=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -316,7 +294,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ER95AFBvVYKvhKW7rvHbHhjDqfeAdUQfk6AqmctiCzY=
+			20S2Oh1SwfMtiT7LPUzwHwsDF3y7dYYPdCzAfHqTVJ8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -330,7 +308,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mBG60JTXM7cBDv7D7ZdAWOJbwxvoG7s2bg5IPmg/ZZM=
+			dxA7cLDNWcU1hbnKhX2IHVFqV7VyXiyL6XhOhEx9vGc=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>

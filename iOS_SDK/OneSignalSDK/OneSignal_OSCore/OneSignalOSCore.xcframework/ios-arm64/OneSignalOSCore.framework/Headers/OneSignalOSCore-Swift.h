@@ -307,6 +307,16 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 @class NSString;
 
+/// An alias label and alias ID pair to represent a user.
+SWIFT_CLASS("_TtC15OneSignalOSCore11OSAliasPair")
+@interface OSAliasPair : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull label;
+@property (nonatomic, readonly, copy) NSString * _Nonnull id;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSBackgroundTaskHandler_")
 @protocol OSBackgroundTaskHandler
 - (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
@@ -462,14 +472,11 @@ SWIFT_CLASS("_TtC15OneSignalOSCore18OSModelChangedArgs")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
-
-/// The OSOperationRepo is a static singleton.
-/// OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
-SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
-@interface OSOperationRepo : NSObject
-- (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
-@end
+typedef SWIFT_ENUM(NSInteger, OSRequiresUserAuth, open) {
+  OSRequiresUserAuthOn = 1,
+  OSRequiresUserAuthOff = -1,
+  OSRequiresUserAuthUnknown = 0,
+};
 
 
 SWIFT_CLASS("_TtC15OneSignalOSCore19OSReadYourWriteData")
@@ -492,6 +499,14 @@ SWIFT_CLASS("_TtC15OneSignalOSCore20OSStubLiveActivities")
 + (void)exit:(NSString * _Nonnull)activityId;
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Internal listener.
+SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSUserJwtConfigListener_")
+@protocol OSUserJwtConfigListener
+- (void)onRequiresUserAuthChangedFrom:(enum OSRequiresUserAuth)from to:(enum OSRequiresUserAuth)to;
+- (void)onJwtUpdatedWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nullable)token;
 @end
 
 #endif

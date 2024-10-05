@@ -114,53 +114,53 @@ let package = Package(
         ),
         .binaryTarget(
           name: "OneSignalFramework",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalFramework.xcframework.zip",
-          checksum: "fc2484e98debb85788abbce567d7e5ad3b7a8bfab36ac7c764e24af4d2352b20"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalFramework.xcframework.zip",
+          checksum: "204cf12c8d7ffe2b2c688178340b422f24a4d6675afa70f6ce9f9a474a590e50"
         ),
         .binaryTarget(
           name: "OneSignalInAppMessages",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalInAppMessages.xcframework.zip",
-          checksum: "f2c5492b60ae315af6c2c580801461be2bb0cf602069871b7d799a210834cacf"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalInAppMessages.xcframework.zip",
+          checksum: "3b99f728ccca1d803e31ea4a64c4f87cec5b34789dc6c1240a044b3a2adad58d"
         ),
         .binaryTarget(
           name: "OneSignalLocation",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalLocation.xcframework.zip",
-          checksum: "5b766576dc185e398e591e0e9f0b8dd61e020b3c1d097bfb72c03d56e4e5d66f"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalLocation.xcframework.zip",
+          checksum: "cc1644392c545fa5c3d5d210bca44bc8f595827b3a48bc61125059f5f066cab8"
         ),
         .binaryTarget(
           name: "OneSignalUser",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalUser.xcframework.zip",
-          checksum: "4a8a503e0add913747d7538d7b828681860326053db70c8cef78e69e43f42fa3"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalUser.xcframework.zip",
+          checksum: "79c24ec9908eae46aa3f0f99cc85df4cbddf9cc161a77d21fc62de873bc1f9a8"
         ),
         .binaryTarget(
           name: "OneSignalNotifications",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalNotifications.xcframework.zip",
-          checksum: "113f60ed3dac76204ea9df4569b9a046fe8b525f327cc84242e71f717762b725"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalNotifications.xcframework.zip",
+          checksum: "3228ae0b32f1c1ad7a8069bdb71f45be494cc32dc3ef50e985570e1b789732ee"
         ),
         .binaryTarget(
           name: "OneSignalExtension",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalExtension.xcframework.zip",
-          checksum: "c7d8fac3a26c1719fab1c5ec5b5392f7a7db88290b81d90f473ea57dfcd91a4f"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalExtension.xcframework.zip",
+          checksum: "b39a54116106769c41efab029e31af9be679a844a9c32cbe0198b769fe559765"
         ),
         .binaryTarget(
           name: "OneSignalOutcomes",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalOutcomes.xcframework.zip",
-          checksum: "92ab03ba85a172021f6d446eb12aaad71be29b7e39ca53ae420f645896e5d569"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalOutcomes.xcframework.zip",
+          checksum: "654accc8ce7c510c852c7a342af4866fb07a1395c5f861ea9a4d7b0f5d4b3025"
         ),
         .binaryTarget(
           name: "OneSignalOSCore",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalOSCore.xcframework.zip",
-          checksum: "cc203fbaae5f09075fbbb89472e8e9678ab3edc8fc075cfd7dbcb2e5f95ad631"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalOSCore.xcframework.zip",
+          checksum: "0a721b739e784fadabc86941c1abe126ce00d2bd7967734186e5f2f72e248bf6"
         ),
         .binaryTarget(
           name: "OneSignalCore",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalCore.xcframework.zip",
-          checksum: "2660b243d534f02f17c6a2ae1c1d960018dd6eb4f1816f95b89e902190d7e5aa"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalCore.xcframework.zip",
+          checksum: "8ae2fec7f33ae9e185555f764e280cbb33dda4e0f8d336af0597da217ee17218"
         ),
         .binaryTarget(
           name: "OneSignalLiveActivities",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.2.14/OneSignalLiveActivities.xcframework.zip",
-          checksum: "54a8321bbc9251977f87915b63068263aaa778a0d5d54c39fe8869717df79386"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/5.3.0-beta-01/OneSignalLiveActivities.xcframework.zip",
+          checksum: "15b2fafb61b79ac1d976eb7081cd84427e67f1cf6b4a09824c3881da5461a59d"
         )
     ]
 )
