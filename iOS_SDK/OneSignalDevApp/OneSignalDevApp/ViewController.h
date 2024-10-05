@@ -52,7 +52,9 @@
 @property (weak, nonatomic) IBOutlet UIButton *removeSmsButton;
 
 @property (weak, nonatomic) IBOutlet UITextField *externalUserIdTextField;
+@property (weak, nonatomic) IBOutlet UITextField *tokenTextField;
 @property (weak, nonatomic) IBOutlet UIButton *loginExternalUserIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *updateJwtButton;
 @property (weak, nonatomic) IBOutlet UIButton *logoutButton;
 
 @property (weak, nonatomic) IBOutlet UITextField *addAliasLabelTextField;

@@ -27,29 +27,37 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
-public class OSEventProducer<THandler>: NSObject {
-    private var subscribers: [String: THandler] = [:]
-    private let lock = NSLock()
+class OSPropertiesModelStoreListener: OSModelStoreListener {
+    let operationRepo: OSOperationRepo
+    var store: OSModelStore<OSPropertiesModel>
 
-    public func subscribe(_ handler: THandler, key: String) {
-        lock.withLock {
-            subscribers[key] = handler
-        }
+    required init(store: OSModelStore<OSPropertiesModel>, operationRepo: OSOperationRepo) {
+        self.operationRepo = operationRepo
+        self.store = store
     }
 
-    public func unsubscribe(_ handler: THandler, key: String) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.unsubscribe() called with handler: \(handler)")
-        lock.withLock {
-            subscribers.removeValue(forKey: key)
-        }
+    func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
+        return nil
     }
 
-    public func fire(callback: (THandler) -> Void) {
-        lock.withLock {
-            for subscriber in subscribers.values {
-                callback(subscriber)
-            }
+    func getRemoveModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
+        return nil
+    }
+
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        guard let _ = OSPropertiesSupportedProperty(rawValue: args.property) else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property)")
+            return nil
         }
+
+        return OSDelta(
+            name: OS_UPDATE_PROPERTIES_DELTA,
+            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
+            model: args.model,
+            property: args.property,
+            value: args.newValue
+        )
     }
 }

@@ -34,24 +34,64 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
 }
 
 internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
+    /**
+     Handles a full check of user-related requirements.
+     - The existence of onesignal ID and the ability to access it.
+     - The existence of an appropriate alias.
+     - Checks JWT requirements and sets header.
+     
+     - Returns: The alias pair to use to send this request.
+     */
+    func checkUserRequirementsAndReturnAlias(_ identityModel: OSIdentityModel, _ newRecordsState: OSNewRecordsState) -> OSAliasPair? {
+        guard
+            let onesignalId = identityModel.onesignalId,
+            newRecordsState.canAccess(onesignalId),
+            let aliasPair = getAlias(identityModel: identityModel, jwtConfig: OneSignalUserManagerImpl.sharedInstance.jwtConfig),
+            addJWTHeaderIsValid(identityModel: identityModel)
+        else {
+            return nil
+        }
+
+        return aliasPair
     }
 
-    /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
-    func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
-        if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
+    private func getAlias(identityModel: OSIdentityModel, jwtConfig: OSUserJwtConfig) -> OSAliasPair? {
+        return OSUserUtils.getAlias(identityModel: identityModel, jwtConfig: jwtConfig)
+    }
+
+    /**
+     Adds JWT token to header if valid, regardless of requirement.
+     Returns false if JWT requirement is unknown, or turned on but the token is missing or invalid.
+     
+     |                    |  unknown  |   on    |   off   |
+     | --------------- | -------------- | ------- | ------- |
+     |   hasToken  |                  |   ✔️    |   ✔️   |
+     |   noToken    |                  |           |   ✔️   |
+     | --------------- | -------------- | ------- | ------- |
+     */
+    func addJWTHeaderIsValid(identityModel: OSIdentityModel) -> Bool {
+        let tokenIsValid = identityModel.isJwtValid()
+        let required = OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired
+        let canBeSent = (required == false) || (required == true && tokenIsValid)
+        if canBeSent && tokenIsValid,
+           let token = identityModel.jwtBearerToken
+        {
+            // Add the JWT token if it is valid, regardless of requirements
             var additionalHeaders = self.additionalHeaders ?? [String: String]()
-            additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
+            additionalHeaders["Authorization"] = "Bearer \(token)"
             self.additionalHeaders = additionalHeaders
-            return true
-        } else {
-            return false
         }
+        return canBeSent
+    }
+
+    /**
+     The `OneSignal-Subscription-Id` header supports improved `last_active` tracking for subscriptions that were actually active.
+     The `Device-Auth-Push-Token` header includes the push token if available.
+     */
+    func addPushSubscriptionToAdditionalHeaders() {
+        let pushHeader = OSUserUtils.getFullPushHeader()
+        var additionalHeaders = self.additionalHeaders ?? [String: String]()
+        additionalHeaders = additionalHeaders.merging(pushHeader) { (_, new) in new }
+        self.additionalHeaders = additionalHeaders
     }
 }

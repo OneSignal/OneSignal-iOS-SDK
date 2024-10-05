@@ -39,22 +39,19 @@ class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel
 
+    /// Only send this request if Identity Verification is off.
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        // newRecordsState is unused for this request
-        guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the FetchIdentityBySubscription request due to null app ID.")
+        guard
+            let appId = OneSignalConfigManager.getAppId(),
+            let subscriptionId = pushSubscriptionModel.subscriptionId,
+            OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired == false
+        else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the FetchIdentityBySubscription request.")
             return false
         }
 
-        if let subscriptionId = pushSubscriptionModel.subscriptionId {
-            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/user/identity"
-            return true
-        } else {
-            // This is an error, and should never happen
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the FetchIdentityBySubscription request due to null subscriptionId.")
-            self.path = ""
-            return false
-        }
+        self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/user/identity"
+        return true
     }
 
     init(identityModel: OSIdentityModel, pushSubscriptionModel: OSSubscriptionModel) {

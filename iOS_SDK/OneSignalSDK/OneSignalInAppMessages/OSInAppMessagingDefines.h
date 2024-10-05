@@ -28,6 +28,8 @@
 #ifndef OSInAppMessagingDefines_h
 #define OSInAppMessagingDefines_h
 
+// OSMessagingController name
+#define OS_MESSAGING_CONTROLLER @"OSMessagingController"
 
 // IAM display position enums
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {

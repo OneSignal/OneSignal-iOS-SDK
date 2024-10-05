@@ -63,14 +63,18 @@ private struct OSCombinedProperties {
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
+    var pendingAuthRequests: [String: [OSRequestUpdateProperties]] = [String: [OSRequestUpdateProperties]]()
     var updateRequestQueue: [OSRequestUpdateProperties] = []
     let newRecordsState: OSNewRecordsState
+    let jwtConfig: OSUserJwtConfig
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, jwtConfig: OSUserJwtConfig) {
         self.newRecordsState = newRecordsState
+        self.jwtConfig = jwtConfig
+        self.jwtConfig.subscribe(self, key: OS_PROPERTIES_EXECUTOR)
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         uncacheDeltas()
@@ -80,9 +84,16 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private func uncacheDeltas() {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             for (index, delta) in deltaQueue.enumerated().reversed() {
-                if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
+                guard let model = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) else {
                     // The identity model does not exist, drop this Delta
                     OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(delta)")
+                    deltaQueue.remove(at: index)
+                    continue
+                }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if jwtConfig.isRequired == true, model.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSPropertyOperationExecutor.uncacheDeltas dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -94,26 +105,44 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheUpdateRequests() {
-        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
-            // Hook each uncached Request to the model in the store
-            for (index, request) in updateRequestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
-                    // 1. The identity model exist in the repo, set it to be the Request's model
-                    request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
-                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
-                } else {
-                    // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(request)")
-                    updateRequestQueue.remove(at: index)
+        var updateRequestQueue: [OSRequestUpdateProperties] = []
+
+        if let cachedQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
+            updateRequestQueue = cachedQueue
+        }
+
+        if let pendingRequests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, defaultValue: [:]) as? [String: [OSRequestUpdateProperties]] {
+            for requests in pendingRequests.values {
+                for request in requests {
+                    updateRequestQueue.append(request)
                 }
             }
-            self.updateRequestQueue = updateRequestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
         }
+
+        // Hook each uncached Request to the model in the store
+        for (index, request) in updateRequestQueue.enumerated().reversed() {
+            if jwtConfig.isRequired == true,
+               request.identityModel.externalId == nil
+            {
+                // remove if jwt is on but the model does not have external ID
+                updateRequestQueue.remove(at: index)
+                continue
+            }
+
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // 1. The identity model exist in the repo, set it to be the Request's model
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // 2. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.init dropped: \(request)")
+                updateRequestQueue.remove(at: index)
+            }
+        }
+        self.updateRequestQueue = updateRequestQueue
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
     }
 
     func enqueueDelta(_ delta: OSDelta) {
@@ -129,9 +158,17 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
-    /// The `deltaQueue` should only contain updates for one user.
-    /// Even when login -> addTag -> login -> addTag are called in immediate succession.
+    /**
+     The `deltaQueue` should typically only contain updates for one user
+     Even when login -> addTag -> login -> addTag are called in immediate succession.
+     However, when Identity Verification requirements are unknown, we keep deltas in the queue even when users switch.
+     */
     func processDeltaQueue(inBackground: Bool) {
+        guard jwtConfig.isRequired != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor processDeltaQueue returning early due to requiresAuth: \(String(describing: jwtConfig.isRequired))")
+            return
+        }
+
         self.dispatchQueue.async {
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
@@ -140,7 +177,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             }
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
 
-            // Holds mapping of identity model ID to the updates for it; there should only be one user
+            // Holds mapping of identity model ID to the updates for it
             var combinedProperties: [String: OSCombinedProperties] = [:]
 
             // 1. Combined deltas into a single OSCombinedProperties for every user
@@ -148,14 +185,17 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
                 else {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
+                    // ECM Remove the delta here. Need an iterator to do it in place
                     continue
                 }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSPropertyOperationExecutor.processDeltaQueue dropped \(delta)")
+                }
+
                 let combinedSoFar: OSCombinedProperties? = combinedProperties[identityModel.modelId]
                 combinedProperties[identityModel.modelId] = self.combineProperties(existing: combinedSoFar, delta: delta)
-            }
-
-            if combinedProperties.count > 1 {
-                OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.combinedProperties contains \(combinedProperties.count) users")
             }
 
             // 2. Turn each OSCombinedProperties' data into a Request
@@ -231,13 +271,45 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSRequestUpdateProperties) {
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+
+    func pendRequestUntilAuthUpdated(_ request: OSRequestUpdateProperties, externalId: String?) {
+        self.dispatchQueue.async {
+            self.updateRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+        }
+    }
+
     func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties, inBackground: Bool) {
         guard !request.sentToClient else {
             return
         }
+
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
+            return
+        }
+
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
+
         request.sentToClient = true
 
         let backgroundTaskIdentifier = PROPERTIES_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
@@ -256,7 +328,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
@@ -275,6 +346,11 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                         // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        }
+                        request.sentToClient = false
                     } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         self.updateRequestQueue.removeAll(where: { $0 == request})
@@ -289,8 +365,66 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 }
 
+extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
+        // If auth changed from false or unknown to true, process requests
+        if to == .on {
+            removeInvalidDeltasAndRequests()
+        }
+    }
+
+    func onJwtUpdated(externalId: String, token: String?) {
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                self.updateRequestQueue.append(request)
+            }
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
+    }
+
+    private func removeInvalidDeltasAndRequests() {
+        self.dispatchQueue.async {
+            for (index, delta) in self.deltaQueue.enumerated().reversed() {
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId),
+                   identityModel.externalId == nil
+                {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSPropertyOperationExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            for (index, request) in self.updateRequestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSPropertyOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.updateRequestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+        }
+    }
+}
+
 extension OSPropertyOperationExecutor: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
+            """
+            OSPropertyOperationExecutor has the following queues:
+                updateRequestQueue: \(self.updateRequestQueue)
+                deltaQueue: \(self.deltaQueue)
+                pendingAuthRequests: \(self.pendingAuthRequests)
+
+            """
+        )
     }
 }

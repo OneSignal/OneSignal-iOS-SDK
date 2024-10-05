@@ -32,7 +32,7 @@
 
 + (Class<OSInAppMessages>_Nonnull)InAppMessages;
 + (void)start;
-+ (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
++ (void)getInAppMessagesFromServer;
 + (void)onApplicationDidBecomeActive;
 + (void)migrate;
 @end

@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,45 +25,20 @@
  THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalCore
-import OneSignalOSCore
+@objc public class OSUserJwtInvalidatedEvent: NSObject {
+    @objc public let externalId: String
 
-class OSIdentityModelStoreListener: OSModelStoreListener {
-    var store: OSModelStore<OSIdentityModel>
-
-    required init(store: OSModelStore<OSIdentityModel>) {
-        self.store = store
+    init(externalId: String) {
+        self.externalId = externalId
     }
 
-    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
+    @objc public func jsonRepresentation() -> NSDictionary {
+        return [
+            "externalId": externalId
+        ]
     }
+}
 
-    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
-    }
-
-    /**
-     Determines if this update is adding aliases or removing aliases.
-     */
-    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        // TODO: Let users call addAliases with "" IDs? If so, this will change...
-        guard
-            let aliasesDict = args.newValue as? [String: String],
-            let (_, id) = aliasesDict.first
-        else {
-            // Log error
-            return nil
-        }
-        let name = ( id == "" ) ? OS_REMOVE_ALIAS_DELTA : OS_ADD_ALIAS_DELTA
-
-        return OSDelta(
-            name: name,
-            identityModelId: args.model.modelId,
-            model: args.model,
-            property: args.property,
-            value: args.newValue
-        )
-    }
+@objc public protocol OSUserJwtInvalidatedListener {
+    @objc func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent)
 }

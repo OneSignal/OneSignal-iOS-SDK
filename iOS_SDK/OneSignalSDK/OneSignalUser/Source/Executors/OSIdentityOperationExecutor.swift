@@ -34,83 +34,134 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     // To simplify uncaching, we maintain separate request queues for each type
     var addRequestQueue: [OSRequestAddAliases] = []
     var removeRequestQueue: [OSRequestRemoveAlias] = []
+    var pendingAuthRequests: [String: [OSUserRequest]] = [String: [OSUserRequest]]()
     let newRecordsState: OSNewRecordsState
+    let jwtConfig: OSUserJwtConfig
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, jwtConfig: OSUserJwtConfig) {
         self.newRecordsState = newRecordsState
+        self.jwtConfig = jwtConfig
+        self.jwtConfig.subscribe(self, key: OS_IDENTITY_EXECUTOR)
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
-        uncacheAddAliasRequests()
-        uncacheRemoveAliasRequests()
+        uncacheRequests()
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
-            // Hook each uncached Delta to the model in the store
-            for (index, delta) in deltaQueue.enumerated().reversed() {
-                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.model.modelId) {
-                    // The model exists in the repo, set it to be the Delta's model
-                    delta.model = modelInStore
-                } else {
-                    // The model does not exist, drop this Delta
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(delta)")
-                    deltaQueue.remove(at: index)
-                }
-            }
-            self.deltaQueue = deltaQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-        } else {
+        guard var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY)")
+            return
         }
+
+        // Hook each uncached Delta to the model in the store
+        for (index, delta) in deltaQueue.enumerated().reversed() {
+            if jwtConfig.isRequired == true,
+               (delta.model as? OSIdentityModel)?.externalId == nil
+            {
+                // remove if jwt is on but the model does not have external ID
+                deltaQueue.remove(at: index)
+                continue
+            }
+
+            if let modelInStore = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.model.modelId) {
+                // The model exists in the repo, set it to be the Delta's model
+                delta.model = modelInStore
+            } else {
+                // The model does not exist, drop this Delta
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(delta)")
+                deltaQueue.remove(at: index)
+            }
+        }
+
+        self.deltaQueue = deltaQueue
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    private func uncacheAddAliasRequests() {
-        if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
-            // Hook each uncached Request to the model in the store
-            for (index, request) in addRequestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
-                    // 1. The model exists in the repo, so set it to be the Request's models
-                    request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
-                      OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
-                } else {
-                    // 3. The model do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
-                    addRequestQueue.remove(at: index)
+    private func uncacheRequests() {
+        var addRequestQueue: [OSRequestAddAliases] = []
+        var removeRequestQueue: [OSRequestRemoveAlias] = []
+
+        if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
+            addRequestQueue = cachedAddRequestQueue
+        }
+
+        if let cachedRemoveRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
+            removeRequestQueue = cachedRemoveRequestQueue
+        }
+
+        if let pendingRequests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY, defaultValue: [:]) as? [String: [OSUserRequest]] {
+            for requests in pendingRequests.values {
+                for request in requests {
+                    if request.isKind(of: OSRequestAddAliases.self), let req = request as? OSRequestAddAliases {
+                        addRequestQueue.append(req)
+                    } else if request.isKind(of: OSRequestRemoveAlias.self), let req = request as? OSRequestRemoveAlias {
+                        removeRequestQueue.append(req)
+                    }
                 }
             }
-            self.addRequestQueue = addRequestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
+
+        linkAddAliasRequests(requests: &addRequestQueue)
+        linkRemoveAliasRequests(requests: &removeRequestQueue)
     }
 
-    private func uncacheRemoveAliasRequests() {
-        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
-            // Hook each uncached Request to the model in the store
-            for (index, request) in removeRequestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
-                    // 1. The model exists in the repo, so set it to be the Request's model
-                    request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
-                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
-                } else {
-                    // 3. The model does not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
-                    removeRequestQueue.remove(at: index)
-                }
+    private func linkAddAliasRequests(requests: inout [OSRequestAddAliases]) {
+        // Hook each uncached Request to the model in the store
+        for (index, request) in requests.enumerated().reversed() {
+            if jwtConfig.isRequired == true,
+               request.identityModel.externalId == nil
+            {
+                // remove if jwt is on but the model does not have external ID
+                requests.remove(at: index)
+                continue
             }
-            self.removeRequestQueue = removeRequestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
+
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // 1. The model exists in the repo, so set it to be the Request's models
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // 2. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // 3. The model do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
+                requests.remove(at: index)
+            }
         }
+
+        self.addRequestQueue = requests
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+    }
+
+    private func linkRemoveAliasRequests(requests: inout [OSRequestRemoveAlias]) {
+        // Hook each uncached Request to the model in the store
+        for (index, request) in requests.enumerated().reversed() {
+            if jwtConfig.isRequired == true,
+               request.identityModel.externalId == nil
+            {
+                // remove if jwt is on but the model does not have external ID
+                requests.remove(at: index)
+                continue
+            }
+
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // 1. The model exists in the repo, so set it to be the Request's models
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // 2. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // 3. The model do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
+                requests.remove(at: index)
+            }
+        }
+
+        self.removeRequestQueue = requests
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
     }
 
     func enqueueDelta(_ delta: OSDelta) {
@@ -126,6 +177,19 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
 
+    /**
+     This method does not handle concurrency; it should be called with thread-safe usage.
+     */
+    private func removeFromRequestQueueAndPersist(_ request: OSUserRequest) {
+        if request.isKind(of: OSRequestAddAliases.self) {
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+        } else if request.isKind(of: OSRequestRemoveAlias.self) {
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+        }
+    }
+
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
@@ -137,6 +201,11 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 else {
                     // Log error
                     continue
+                }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if self.jwtConfig.isRequired == true, model.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.processDeltaQueue dropped \(delta)")
                 }
 
                 switch delta.name {
@@ -189,8 +258,36 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
 
+    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+        }
+    }
+
+    func pendRequestUntilAuthUpdated(_ request: OSUserRequest, externalId: String?) {
+        self.dispatchQueue.async {
+            self.removeFromRequestQueueAndPersist(request)
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+        }
+    }
+
     func executeAddAliasesRequest(_ request: OSRequestAddAliases, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -209,21 +306,17 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             // No hydration from response
             // On success, remove request from cache
             self.dispatchQueue.async {
-                self.addRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                self.removeFromRequestQueueAndPersist(request)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
                     if responseType == .missing {
-                        // Remove from cache and queue
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                         // Logout if the user in the SDK is the same
                         guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
                         else {
@@ -235,10 +328,14 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                         // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance._logout()
+                    } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        }
+                        request.sentToClient = false
                     } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                     }
                 }
                 if inBackground {
@@ -250,6 +347,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias, inBackground: Bool) {
         guard !request.sentToClient else {
+            return
+        }
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
@@ -268,8 +369,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             // There is nothing to hydrate
             // On success, remove request from cache
             self.dispatchQueue.async {
-                self.removeRequestQueue.removeAll(where: { $0 == request})
-                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                self.removeFromRequestQueueAndPersist(request)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
@@ -279,11 +379,15 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 if let nsError = error as? NSError {
                     let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType != .retryable {
+                    if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                        if let externalId = request.identityModel.externalId {
+                            self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        }
+                        request.sentToClient = false
+                    } else if responseType != .retryable {
                         // Fail, no retry, remove from cache and queue
                         // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
-                        self.removeRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                        self.removeFromRequestQueueAndPersist(request)
                     }
                 }
                 if inBackground {
@@ -294,8 +398,78 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 }
 
+extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
+        // If auth changed from false or unknown to true, process requests
+        if to == .on {
+            removeInvalidDeltasAndRequests()
+        }
+    }
+
+    func onJwtUpdated(externalId: String, token: String?) {
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                if let addRequest = request as? OSRequestAddAliases {
+                    self.addRequestQueue.append(addRequest)
+                } else if let removeRequest = request as? OSRequestRemoveAlias {
+                    self.removeRequestQueue.append(removeRequest)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
+    }
+
+    private func removeInvalidDeltasAndRequests() {
+        self.dispatchQueue.async {
+            for (index, delta) in self.deltaQueue.enumerated().reversed() {
+                if (delta.model as? OSIdentityModel)?.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            for (index, request) in self.addRequestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.addRequestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+
+            for (index, request) in self.removeRequestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSIdentityOperationExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.removeRequestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+        }
+    }
+}
+
 extension OSIdentityOperationExecutor: OSLoggable {
     func logSelf() {
-        // TODO: You fill in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
+            """
+            OSIdentityOperationExecutor has the following queues:
+                addRequestQueue: \(self.addRequestQueue)
+                removeRequestQueue: \(self.removeRequestQueue)
+                deltaQueue: \(self.deltaQueue)
+                pendingAuthRequests: \(self.pendingAuthRequests)
+
+            """
+        )
     }
 }

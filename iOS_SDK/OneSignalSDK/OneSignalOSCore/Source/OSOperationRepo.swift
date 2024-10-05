@@ -32,8 +32,7 @@ import OneSignalCore
  The OSOperationRepo is a static singleton.
  OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
-public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo()
+public class OSOperationRepo {
     private var hasCalledStart = false
 
     // The Operation Repo dispatch queue, serial. This synchronizes access to `deltaQueue` and flushing behavior.
@@ -47,16 +46,35 @@ public class OSOperationRepo: NSObject {
     // TODO: This could come from a config, plist, method, remote params
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
+    let jwtConfig: OSUserJwtConfig
 
     /**
-     Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
-     If everything starts up on initialize(), order can matter, ideally not but it can.
-     Likely call init on this from oneSignal but exeuctors can come from diff modules.
+     Sets the jwt config and uncaches
+     */
+    public init(jwtConfig: OSUserJwtConfig) {
+        self.jwtConfig = jwtConfig
+        self.jwtConfig.subscribe(self, key: OS_OPERATION_REPO)
+        // Read the Deltas from cache, if any...
+        guard let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo is unable to uncache the OSDelta queue.")
+            return
+        }
+        self.deltaQueue = deltaQueue
+    }
+
+    /**
+     Start this Operation Repo.
      */
     public func start() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
+
+        guard jwtConfig.isRequired != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo.start() returning early due to unknown Identity Verification status")
+            return
+        }
+
         guard !hasCalledStart else {
             return
         }
@@ -68,13 +86,6 @@ public class OSOperationRepo: NSObject {
                                                selector: #selector(self.addFlushDeltaQueueToDispatchQueue),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE),
                                                object: nil)
-        // Read the Deltas from cache, if any...
-        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
-            self.deltaQueue = deltaQueue
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo.start() with deltaQueue: \(deltaQueue)")
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo.start() is unable to uncache the OSDelta queue.")
-        }
 
         pollFlushQueue()
     }
@@ -87,13 +98,12 @@ public class OSOperationRepo: NSObject {
     }
 
     /**
-     Add and start an executor.
+     Add an executor.
      */
     public func addExecutor(_ executor: OSOperationExecutor) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
         executors.append(executor)
         for delta in executor.supportedDeltas {
             deltasToExecutorMap[delta] = executor
@@ -111,7 +121,6 @@ public class OSOperationRepo: NSObject {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
         self.dispatchQueue.async {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
             self.deltaQueue.append(delta)
@@ -139,8 +148,6 @@ public class OSOperationRepo: NSObject {
         if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
         }
-
-        self.start()
 
         if !self.deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
@@ -174,8 +181,40 @@ public class OSOperationRepo: NSObject {
     }
 }
 
+extension OSOperationRepo: OSUserJwtConfigListener {
+    public func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
+        // If auth changed from false or unknown to true, process deltas
+        if to == .on {
+            removeInvalidDeltas()
+        }
+        start()
+    }
+
+    public func onJwtUpdated(externalId: String, token: String?) {
+        // Not used for now
+    }
+
+    /**
+     TODO: The operation repo cannot easily remove invalid Deltas that do not have an External ID.
+     Deltas have an Identity Model ID only and would need to access the User module to find the corresponding Identity Model.
+     Executors will handle this.
+     */
+    func removeInvalidDeltas() {
+        // Not used for now
+    }
+}
+
 extension OSOperationRepo: OSLoggable {
     public func logSelf() {
-        // TODO: You fill in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
+            """
+            Operation Repo: deltaQueue: \(self.deltaQueue)
+
+            Operation Repo: executors that are subscribed:
+            """
+        )
+        for executor in self.executors {
+            executor.logSelf()
+        }
     }
 }

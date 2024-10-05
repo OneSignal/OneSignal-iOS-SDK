@@ -145,6 +145,21 @@
 @dynamic isInAppMessagingPaused;
 // Maximum time decided to save IAM with redisplay on cache - current value: six months in seconds
 static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
+
+/**
+ If an attempt to get IAMs from the server returns an Unauthorized response,
+ the controller should re-attempt once the JWT token is updated.
+ */
+static BOOL shouldRetryGetInAppMessagesOnJwtUpdated = false;
+
+/**
+ If an attempt to get IAMs from the server is blocked by incomplete alias information,
+ the controller should re-attempt once the user state changes.
+ An example of when this can happen occurs when users are switching with Identity Verification turned off -
+ the SDK has a push subscription ID but no onesignal ID for the current user.
+ */
+static BOOL shouldRetryGetInAppMessagesOnUserChange = false;
+
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -167,6 +182,8 @@ static dispatch_once_t once;
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
     [OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance subscribeToJwtConfig:shared key:OS_MESSAGING_CONTROLLER];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -233,18 +250,54 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
-    [self evaluateMessages];
+    // ECM THIS NEEDS TO RUN ON THE MAIN THREAD
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self evaluateMessages];
+    });
 }
 
-- (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
-
+/**
+ To get IAMs from the server, the following requirements are necessary:
+ - A subscription ID
+ - An appropriate alias (depending on Identity Verification enabled) for the subscription
+ - A valid JWT token for the user if Identity Verification is enabled
+ 
+ This current implementation is not completely correct, as it will always use the current subscription ID and the current user.
+ The SDK would need to consider if the current user owns the subscription on the server.
+ */
+- (void)getInAppMessagesFromServer {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer attempted"];
+    
+    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
     if (!subscriptionId) {
+        // When the subscription observer fires, it will drive a re-fetch
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by null subscriptionId"];
         [self updateInAppMessagesFromCache];
         return;
     }
     
-    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
+    OSAliasPair *alias = [OneSignalUserManagerImpl.sharedInstance getAliasForCurrentUser];
+    if (!alias) {
+        // When the user observer fires, it will drive a re-fetch
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by null alias"];
+        shouldRetryGetInAppMessagesOnUserChange = true;
+        [self updateInAppMessagesFromCache];
+        return;
+    }
+
+    NSDictionary<NSString *, NSString*> *header = [OneSignalUserManagerImpl.sharedInstance getCurrentUserFullHeader];
+    if (!header) {
+        // When the JWT updated listener fires, it will drive a re-fetch
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer blocked by missing header"];
+        shouldRetryGetInAppMessagesOnJwtUpdated = true;
+        [self updateInAppMessagesFromCache];
+        return;
+    }
+    
+    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId 
+                                                                        withAliasLabel:alias.label
+                                                                           withAliasId:alias.id 
+                                                                            withHeader:header];
     [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
@@ -270,8 +323,17 @@ static BOOL _isInAppMessagingPaused = false;
         });
     } onFailure:^(NSError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
+        OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
+        if (responseType == OSResponseStatusUnauthorized) {
+            shouldRetryGetInAppMessagesOnJwtUpdated = true;
+            [self handleUnauthroizedError:error externalId:alias.id];
+        }
         [self updateInAppMessagesFromCache];
     }];
+}
+
+- (void)handleUnauthroizedError:(NSError*)error externalId:(NSString *)externalId {
+    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:externalId error:error];
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
@@ -1087,7 +1149,27 @@ static BOOL _isInAppMessagingPaused = false;
 
     // Pull new IAMs when the subscription id changes to a new valid subscription id
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to new valid subscription id"];
-    [self getInAppMessagesFromServer:state.current.id];
+    [self getInAppMessagesFromServer];
+}
+
+#pragma mark OSUserStateObserver Methods
+- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
+    if (state.current.onesignalId && shouldRetryGetInAppMessagesOnUserChange) {
+        shouldRetryGetInAppMessagesOnUserChange = false;
+        [self getInAppMessagesFromServer];
+    }
+}
+
+#pragma mark OSUserJwtConfigListener Methods
+- (void)onRequiresUserAuthChangedFrom:(enum OSRequiresUserAuth)from to:(enum OSRequiresUserAuth)to {
+    // This callback is unused, the controller will fetch when subscription ID changes
+}
+
+- (void)onJwtUpdatedWithExternalId:(NSString *)externalId token:(NSString *)token {
+    if (![token  isEqual: OS_JWT_TOKEN_INVALID] && shouldRetryGetInAppMessagesOnJwtUpdated) {
+        shouldRetryGetInAppMessagesOnJwtUpdated = false;
+        [self getInAppMessagesFromServer];
+    }
 }
 
 - (void)dealloc {

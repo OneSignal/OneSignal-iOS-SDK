@@ -27,29 +27,45 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
-public class OSEventProducer<THandler>: NSObject {
-    private var subscribers: [String: THandler] = [:]
-    private let lock = NSLock()
+class OSIdentityModelStoreListener: OSModelStoreListener {
+    let operationRepo: OSOperationRepo
+    var store: OSModelStore<OSIdentityModel>
 
-    public func subscribe(_ handler: THandler, key: String) {
-        lock.withLock {
-            subscribers[key] = handler
-        }
+    required init(store: OSModelStore<OSIdentityModel>, operationRepo: OSOperationRepo) {
+        self.operationRepo = operationRepo
+        self.store = store
     }
 
-    public func unsubscribe(_ handler: THandler, key: String) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.unsubscribe() called with handler: \(handler)")
-        lock.withLock {
-            subscribers.removeValue(forKey: key)
-        }
+    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
+        return nil
     }
 
-    public func fire(callback: (THandler) -> Void) {
-        lock.withLock {
-            for subscriber in subscribers.values {
-                callback(subscriber)
-            }
+    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
+        return nil
+    }
+
+    /**
+     Determines if this update is adding aliases or removing aliases.
+     */
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        guard
+            args.property == "aliases", // avoids JWT token updates
+            let aliasesDict = args.newValue as? [String: String],
+            let (_, id) = aliasesDict.first
+        else {
+            // Log error
+            return nil
         }
+        let name = ( id == "" ) ? OS_REMOVE_ALIAS_DELTA : OS_ADD_ALIAS_DELTA
+
+        return OSDelta(
+            name: name,
+            identityModelId: args.model.modelId,
+            model: args.model,
+            property: args.property,
+            value: args.newValue
+        )
     }
 }

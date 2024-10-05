@@ -31,9 +31,11 @@ import OneSignalCore
 public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
 
+    var operationRepo: OSOperationRepo { get }
+
     var store: OSModelStore<TModel> { get }
 
-    init(store: OSModelStore<TModel>)
+    init(store: OSModelStore<TModel>, operationRepo: OSOperationRepo)
 
     func getAddModelDelta(_ model: TModel) -> OSDelta?
 
@@ -44,11 +46,13 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
 
 extension OSModelStoreListener {
     public func start() {
-        store.changeSubscription.subscribe(self)
+        let key = store.storeKey + OS_MODEL_STORE_LISTENER_POSTFIX
+        store.changeSubscription.subscribe(self, key: key)
     }
 
     public func close() {
-        store.changeSubscription.unsubscribe(self)
+        let key = store.storeKey + OS_MODEL_STORE_LISTENER_POSTFIX
+        store.changeSubscription.unsubscribe(self, key: key)
     }
 
     public func onAdded(_ model: OSModel) {
@@ -57,13 +61,13 @@ extension OSModelStoreListener {
             return
         }
         if let delta = getAddModelDelta(addedModel) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
         if let delta = getUpdateModelDelta(args) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 
@@ -74,7 +78,7 @@ extension OSModelStoreListener {
             return
         }
         if let delta = getRemoveModelDelta(removedModel) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 }

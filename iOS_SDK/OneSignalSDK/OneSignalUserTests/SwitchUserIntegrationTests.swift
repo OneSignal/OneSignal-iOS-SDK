@@ -40,6 +40,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         OneSignalCoreImpl.setSharedClient(client)
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         /* When */
 
         // 1. Login to user A and add tag
@@ -107,6 +110,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         MockUserRequests.setAddEmailResponse(with: client, email: "email_a@example.com")
         // Returns mocked user data to test hydration
         MockUserRequests.setDefaultFetchUserResponseForHydration(with: client, externalId: userA_EUID)
+
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
 
         /* When */
 
@@ -215,6 +221,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_b": "id_b"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_b@example.com")
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         /* When */
 
         // 1. Anonymous user starts
@@ -318,8 +327,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
 
+        // Set JWT to off, before accessing the User Manager
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+
         // Increase flush interval to allow all the updates to batch
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.pollIntervalMilliseconds = 300
+
         // Wait to let any pending flushes in the Operation Repo to run
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.3)
 

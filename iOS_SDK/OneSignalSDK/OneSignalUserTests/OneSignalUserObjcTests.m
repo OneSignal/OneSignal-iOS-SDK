@@ -61,6 +61,8 @@
     };
     [arrayOfPurchases addObject:purchase2];
 
+    // Set JWT to off, before accessing the User Manager
+    [OneSignalUserManagerImpl.sharedInstance setRequiresUserAuth:false];
     [OneSignalUserManagerImpl.sharedInstance sendPurchases:arrayOfPurchases];
     
     // Run background threads

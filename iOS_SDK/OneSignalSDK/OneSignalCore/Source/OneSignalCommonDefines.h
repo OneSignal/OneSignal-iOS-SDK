@@ -77,6 +77,12 @@
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+
+/* Identity Verification */
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
+#define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
+#define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
+
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
@@ -128,7 +134,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth"
+#define IOS_JWT_REQUIRED @"jwt_required" // Returned by remote params
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
@@ -319,6 +325,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_PUSH_SUBSCRIPTION_MODEL_KEY                                      @"OS_PUSH_SUBSCRIPTION_MODEL_KEY"
 #define OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY                                @"OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY"
 #define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
+#define OS_MODEL_STORE_LISTENER_POSTFIX                                     @"_LISTENER"
+#define OS_IDENTITY_MODEL_REPO                                              @"OS_IDENTITY_MODEL_REPO"
 
 // Deltas
 #define OS_ADD_ALIAS_DELTA                                                  @"OS_ADD_ALIAS_DELTA"
@@ -331,26 +339,35 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_UPDATE_SUBSCRIPTION_DELTA                                        @"OS_UPDATE_SUBSCRIPTION_DELTA"
 
 // Operation Repo
+#define OS_OPERATION_REPO                                                   @"OS_OPERATION_REPO"
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
 // User Executor
+#define OS_USER_EXECUTOR                                                    @"OS_USER_EXECUTOR"
 #define OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY                             @"OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY"
 #define OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY            @"OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY"
+#define OS_USER_EXECUTOR_PENDING_QUEUE_KEY                                  @"OS_USER_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Identity Executor
+#define OS_IDENTITY_EXECUTOR                                                @"OS_IDENTITY_EXECUTOR"
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY                          @"OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                       @"OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
+#define OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY                              @"OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Property Executor
+#define OS_PROPERTIES_EXECUTOR                                              @"OS_PROPERTIES_EXECUTOR"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                     @"OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+#define OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY                            @"OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Subscription Executor
+#define OS_SUBSCRIPTION_EXECUTOR                                            @"OS_SUBSCRIPTION_EXECUTOR"
 #define OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY                            @"OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY                      @"OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY                   @"OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY                          @"OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Live Activies Executor
 #define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"

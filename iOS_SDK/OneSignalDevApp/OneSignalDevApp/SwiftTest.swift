@@ -28,10 +28,19 @@
 import Foundation
 import OneSignalFramework
 
-class SwiftTest: NSObject {
+class SwiftTest: NSObject, OSUserJwtInvalidatedListener {
+    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
+        print("event: \(event.jsonRepresentation())")
+        print("externalId: \(event.externalId)")
+    }
+
     func testSwiftUserModel() {
         let token1 = OneSignal.User.pushSubscription.token
         let token = OneSignal.User.pushSubscription.token
         OneSignal.Debug._dump()
+        OneSignal.login(externalId: "euid", token: "token")
+        OneSignal.updateUserJwt(externalId: "euid", token: "token")
+        OneSignal.addUserJwtInvalidatedListener(self)
+        OneSignal.removeUserJwtInvalidatedListener(self)
     }
 }

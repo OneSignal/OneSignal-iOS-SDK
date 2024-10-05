@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,31 +25,15 @@
  THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalCore
+/**
+ An alias label and alias ID pair to represent a user.
+ */
+@objc public class OSAliasPair: NSObject {
+    @objc public let label: String
+    @objc public let id: String
 
-public class OSEventProducer<THandler>: NSObject {
-    private var subscribers: [String: THandler] = [:]
-    private let lock = NSLock()
-
-    public func subscribe(_ handler: THandler, key: String) {
-        lock.withLock {
-            subscribers[key] = handler
-        }
-    }
-
-    public func unsubscribe(_ handler: THandler, key: String) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.unsubscribe() called with handler: \(handler)")
-        lock.withLock {
-            subscribers.removeValue(forKey: key)
-        }
-    }
-
-    public func fire(callback: (THandler) -> Void) {
-        lock.withLock {
-            for subscriber in subscribers.values {
-                callback(subscriber)
-            }
-        }
+    public init(_ label: String, _ id: String) {
+        self.label = label
+        self.id = id
     }
 }

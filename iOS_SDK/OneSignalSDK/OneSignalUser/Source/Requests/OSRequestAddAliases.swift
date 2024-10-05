@@ -38,18 +38,17 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     let aliases: [String: String]
 
-    /// requires a `onesignal_id` to send this request
+    /// Needs `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let onesignalId = identityModel.onesignalId,
-           newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalConfigManager.getAppId()
-        {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
-            return true
-        } else {
+        guard
+            let alias = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState),
+            let appId = OneSignalConfigManager.getAppId()
+        else {
             return false
         }
+
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/identity"
+        return true
     }
 
     init(aliases: [String: String], identityModel: OSIdentityModel) {

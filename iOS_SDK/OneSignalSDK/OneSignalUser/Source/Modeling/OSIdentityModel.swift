@@ -42,8 +42,20 @@ class OSIdentityModel: OSModel {
     var aliases: [String: String] = [:]
     private let aliasesLock = NSRecursiveLock()
 
-    // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    // MARK: - JWT
+
+    public var jwtBearerToken: String? {
+        didSet {
+            guard jwtBearerToken != oldValue else {
+                return
+            }
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: jwtBearerToken)
+        }
+    }
+
+    func isJwtValid() -> Bool {
+        return jwtBearerToken != nil && jwtBearerToken != "" && jwtBearerToken != OS_JWT_TOKEN_INVALID
+    }
 
     // MARK: - Initialization
 
@@ -57,6 +69,7 @@ class OSIdentityModel: OSModel {
         aliasesLock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
+            coder.encode(jwtBearerToken, forKey: OS_JWT_BEARER_TOKEN)
         }
     }
 
@@ -66,6 +79,7 @@ class OSIdentityModel: OSModel {
             // log error
             return nil
         }
+        self.jwtBearerToken = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
         self.aliases = aliases
     }
 
@@ -120,26 +134,6 @@ class OSIdentityModel: OSModel {
         let newExternalId = remoteAliases[OS_EXTERNAL_ID]
 
         internalAddAliases(remoteAliases)
-        fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
-    }
-
-    /**
-     Fires the user observer if `onesignal_id` OR `external_id` has changed from the previous snapshot (previous hydration).
-     */
-    private func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
-        let prevOnesignalId  = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
-        let prevExternalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_EXTERNAL_ID, defaultValue: nil)
-
-        guard prevOnesignalId != newOnesignalId || prevExternalId != newExternalId else {
-            return
-        }
-
-        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
-        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
-
-        let curUserState = OSUserState(onesignalId: newOnesignalId, externalId: newExternalId)
-        let changedState = OSUserChangedState(current: curUserState)
-
-        OneSignalUserManagerImpl.sharedInstance.userStateChangesObserver.notifyChange(changedState)
+        OSUserUtils.fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
 }

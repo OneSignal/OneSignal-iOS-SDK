@@ -29,7 +29,7 @@
 #import "OSInAppMessageClickResult.h"
 
 @interface OSRequestGetInAppMessages : OneSignalRequest
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId;
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId withAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId withHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)header;
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest

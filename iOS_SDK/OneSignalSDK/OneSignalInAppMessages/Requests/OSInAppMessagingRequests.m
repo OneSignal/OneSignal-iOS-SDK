@@ -28,11 +28,15 @@
 #import "OSInAppMessagingRequests.h"
 
 @implementation OSRequestGetInAppMessages
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId {
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId 
+                             withAliasLabel:(NSString * _Nonnull)aliasLabel
+                                withAliasId:(NSString * _Nonnull)aliasId
+                                 withHeader:(NSDictionary<NSString *, NSString *> * _Nonnull)header {
     let request = [OSRequestGetInAppMessages new];
     request.method = GET;
     NSString *appId = [OneSignalConfigManager getAppId];
-    request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
+    request.additionalHeaders = header;
+    request.path = [NSString stringWithFormat:@"apps/%@/users/by/%@/%@/subscriptions/%@/iams", appId, aliasLabel, aliasId, subscriptionId];
     return request;
 }
 @end
