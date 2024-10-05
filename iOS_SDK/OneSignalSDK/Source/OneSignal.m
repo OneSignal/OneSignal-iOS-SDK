@@ -650,6 +650,9 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_JWT_REQUIRED]) {
             OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_JWT_REQUIRED] boolValue];
+        } else {
+            // Remote params did not return IOS_JWT_REQUIRED
+            [OneSignalUserManagerImpl.sharedInstance remoteParamsReturnedUnknownRequiresUserAuth];
         }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
