@@ -544,7 +544,7 @@ static OneSignal* singleInstance = nil;
                     [webVC showInApp];
                 } else {
                     // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
-                    [[UIApplication sharedApplication] openURL:url];
+                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
                 }
             });
         }];
