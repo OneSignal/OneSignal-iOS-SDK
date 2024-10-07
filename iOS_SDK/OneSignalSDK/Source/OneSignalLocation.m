@@ -293,10 +293,7 @@ static OneSignalLocation* singleInstance = nil;
     [[OneSignalDialogController sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
         if (tappedActionIndex > -1) {
             [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManage open settings option click"];
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wdeprecated"
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-            #pragma clang diagnostic pop
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
         }
         [OneSignalLocation sendAndClearLocationListener:false];
         return;
