@@ -50,7 +50,7 @@
     @objc public static let CONDITIONID: String = "OSIamFetchReadyCondition"
     
     public var conditionId: String {
-            return OSIamFetchReadyCondition.CONDITIONID
+        return OSIamFetchReadyCondition.CONDITIONID
     }
     
     public func setSubscriptionUpdatePending(value: Bool) {
