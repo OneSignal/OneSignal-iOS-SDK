@@ -60,6 +60,11 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        if let onesignalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId {
+            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
+            condition.setSubscriptionUpdatePending(value: true)
+        }
+        
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
