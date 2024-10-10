@@ -247,33 +247,36 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
 
-    if (!subscriptionId) {
-        [self updateInAppMessagesFromCache];
-        return;
-    }
+        if (!subscriptionId) {
+            [self updateInAppMessagesFromCache];
+            return;
+        }
 
-    OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
-    NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
+        OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
+        NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
 
-    if (!onesignalId) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
-        return;
-    }
+        if (!onesignalId) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
+            return;
+        }
 
-    OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
-    NSString *rywToken = [consistencyManager registerCondition:condition forId:onesignalId];
+        OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
+        NSString *rywToken = [consistencyManager registerCondition:condition forId:onesignalId];
 
-    NSNumber *sessionDuration = @([OSSessionManager getTimeFocusedElapsed]);
+        NSNumber *sessionDuration = @([OSSessionManager getTimeFocusedElapsed]);
 
-    // Initial request
-    [self attemptFetchWithRetries:subscriptionId
-                           rywToken:rywToken
-                  sessionDuration:sessionDuration
-                        attempts:@0 // Starting with 0 attempts
-                     retryLimit:nil]; // Retry limit to be set dynamically on first failure
+        // Initial request
+        [self attemptFetchWithRetries:subscriptionId
+                             rywToken:rywToken
+                      sessionDuration:sessionDuration
+                             attempts:@0 // Starting with 0 attempts
+                           retryLimit:nil]; // Retry limit to be set dynamically on first failure
+    });
 }
+
 
 - (void)attemptFetchWithRetries:(NSString *)subscriptionId
                          rywToken:(NSString *)rywToken
@@ -315,6 +318,7 @@ static BOOL _isInAppMessagingPaused = false;
     onFailure:^(NSError *error) {
         NSDictionary *errorInfo = error.userInfo[@"returned"];
         NSNumber *statusCode = errorInfo[@"httpStatusCode"];
+        NSDictionary* responseHeaders = errorInfo[@"headers"];
 
         if (!statusCode) {
             [self updateInAppMessagesFromCache];
@@ -325,11 +329,11 @@ static BOOL _isInAppMessagingPaused = false;
         
         NSInteger code = [statusCode integerValue];
         if (code == 425 || code == 429) { // 425 Too Early or 429 Too Many Requests
-            NSInteger retryAfter = [errorInfo[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
+            NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
             
             // Dynamically set the retry limit from the header, if not already set
             if (!blockRetryLimit) {
-                blockRetryLimit = @([errorInfo[@"OneSignal-Retry-Limit"] integerValue] ?: DEFAULT_RETRY_LIMIT);
+                blockRetryLimit = @([responseHeaders[@"OneSignal-Retry-Limit"] integerValue] ?: DEFAULT_RETRY_LIMIT);
             }
 
             if ([attempts integerValue] < [blockRetryLimit integerValue]) {
