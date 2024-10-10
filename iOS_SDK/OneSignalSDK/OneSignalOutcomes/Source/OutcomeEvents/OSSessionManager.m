@@ -42,11 +42,30 @@ static OSSessionManager *_sessionManager;
 
 NSDate *_sessionLaunchTime;
 AppEntryAction _appEntryState = APP_CLOSE;
+static NSTimeInterval lastOpenedTime;
 
 + (OSSessionManager*)sharedSessionManager {
     if (!_sessionManager)
         _sessionManager = [[OSSessionManager alloc] init:nil withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
     return _sessionManager;
+}
+
++ (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
+    lastOpenedTime = lastOpened;
+}
+
++ (NSTimeInterval)getTimeFocusedElapsed {
+    if (!lastOpenedTime)
+        return -1;
+    
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval timeElapsed = now - lastOpenedTime;
+   
+    // Time is invalid if below 0 or over a day (86400 seconds)
+    if (timeElapsed < 0 || timeElapsed > 86400)
+        return -1;
+
+    return timeElapsed;
 }
 
 + (void)resetSharedSessionManager {

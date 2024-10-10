@@ -28,9 +28,25 @@
 #import "OSInAppMessagingRequests.h"
 
 @implementation OSRequestGetInAppMessages
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId {
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId
+                            withSessionDuration:(NSNumber * _Nonnull)sessionDuration
+                             withRetryCount:(NSNumber *)retryCount
+                               withRywToken:(NSString *)rywToken
+{
     let request = [OSRequestGetInAppMessages new];
     request.method = GET;
+    let headers = [NSMutableDictionary new];
+    
+    if (sessionDuration != nil) {
+        // convert to ms & round
+        sessionDuration = @(round([sessionDuration doubleValue] * 1000));
+        headers[@"OneSignal-Session-Duration" ] = [sessionDuration stringValue];
+    }
+    headers[@"OneSignal-RYW-Token"] = rywToken;
+    headers[@"OneSignal-Retry-Count"] = [retryCount stringValue];
+    
+    request.additionalHeaders = headers;
+
     NSString *appId = [OneSignalConfigManager getAppId];
     request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
     return request;

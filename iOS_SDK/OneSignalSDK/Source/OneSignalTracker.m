@@ -50,18 +50,7 @@
 
 @implementation OneSignalTracker
 
-static NSTimeInterval lastOpenedTime;
 static BOOL lastOnFocusWasToBackground = YES;
-
-+ (void)resetLocals {
-    [OSFocusTimeProcessorFactory resetUnsentActiveTime];
-    lastOpenedTime = 0;
-    lastOnFocusWasToBackground = YES;
-}
-
-+ (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
-    lastOpenedTime = lastOpened;
-}
 
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
@@ -88,7 +77,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (OSSessionManager.sharedSessionManager.appEntryState != NOTIFICATION_CLICK)
         OSSessionManager.sharedSessionManager.appEntryState = APP_OPEN;
    
-    lastOpenedTime = [NSDate date].timeIntervalSince1970;
+    [OSSessionManager setLastOpenedTime:[[NSDate date] timeIntervalSince1970]];
     
     // on_session tracking when resumming app.
     if ([OneSignal shouldStartNewSession])
@@ -104,7 +93,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [self updateLastClosedTime];
     
-    let timeElapsed = [self getTimeFocusedElapsed];
+    let timeElapsed = [OSSessionManager getTimeFocusedElapsed];
     if (timeElapsed < -1)
         return;
     
@@ -124,7 +113,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 // The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
-    let timeElapsed = [self getTimeFocusedElapsed];
+    let timeElapsed = [OSSessionManager getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
@@ -141,7 +130,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (OSFocusCallParams *)createFocusCallParams:(NSArray<OSInfluence *> *)lastInfluences onSessionEnded:(BOOL)onSessionEnded  {
-    let timeElapsed = [self getTimeFocusedElapsed];
+    let timeElapsed = [OSSessionManager getTimeFocusedElapsed];
     NSMutableArray<OSFocusInfluenceParam *> *focusInfluenceParams = [NSMutableArray new];
 
     for (OSInfluence *influence in lastInfluences) {
@@ -157,20 +146,6 @@ static BOOL lastOnFocusWasToBackground = YES;
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
-}
-
-+ (NSTimeInterval)getTimeFocusedElapsed {
-    if (!lastOpenedTime)
-        return -1;
-    
-    let now = [NSDate date].timeIntervalSince1970;
-    let timeElapsed = now - (int)(lastOpenedTime + 0.5);
-   
-    // Time is invalid if below 1 or over a day
-    if (timeElapsed < 0 || timeElapsed > 86400)
-        return -1;
-
-    return timeElapsed;
 }
 
 + (void)updateLastClosedTime {
