@@ -95,28 +95,28 @@ class RequestCache {
     }
 }
 
-class UpdateRequestCache: RequestCache {
+class LiveActivityIdRequestCache: RequestCache {
     // An update token should not last longer than 8 hours, we keep for 24 hours to be safe.
     static let OneDayInSeconds = TimeInterval(60 * 60 * 24 * 365)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY, ttl: UpdateRequestCache.OneDayInSeconds)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY, ttl: LiveActivityIdRequestCache.OneDayInSeconds)
     }
 }
 
-class StartRequestCache: RequestCache {
+class LiveActivityTypeRequestCache: RequestCache {
     // A start token will exist for a year in the cache.
     static let OneYearInSeconds = TimeInterval(60 * 60 * 24 * 365)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY, ttl: StartRequestCache.OneYearInSeconds)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY, ttl: LiveActivityTypeRequestCache.OneYearInSeconds)
     }
 }
 
 class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     // The currently tracked update and start tokens (key) and their associated request (value). THESE ARE NOT THREAD SAFE
-    let updateTokens: UpdateRequestCache = UpdateRequestCache()
-    let startTokens: StartRequestCache = StartRequestCache()
+    let idRequestCache: LiveActivityIdRequestCache = LiveActivityIdRequestCache()
+    let typeRequestCache: LiveActivityTypeRequestCache = LiveActivityTypeRequestCache()
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
@@ -142,13 +142,20 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         // when a push subscription id changes, we need to re-send up all update and start tokens with the new ID.
         self.requestDispatch.async {
             self.caches { _ in
-                self.startTokens.markAllUnsuccessful()
+                self.typeRequestCache.markAllUnsuccessful()
             }
 
             self.pollPendingRequests()
         }
     }
 
+    // TODO: For OSRequestTrackReciept we **must** build in a concept of waiting before sending up the request. The waiting would
+    //       have a randomness factor so we don't get a thundering herd problem.  We **should** consider waiting at least a few
+    //       minutes + some randomness. Normal push confirmed deliveries waits between 0 and 25 seconds, but the frequency of a
+    //       normal push notification is significanly less than LA push notifications. Some apps might send multiple LA updates per
+    //       minute.  By waiting minutes we can batch confirm multiple LA push notification deliveries.  Alternatively we might
+    //       consider not sending up confirmations until the user dismisses the LA?  How long we wait to send up confirmation will
+    //       have product consequences.
     func append(_ request: OSLiveActivityRequest) {
         self.requestDispatch.async {
             let cache = self.getCache(request)
@@ -179,16 +186,16 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     }
 
     private func caches(_ block: (RequestCache) -> Void) {
-        block(self.startTokens)
-        block(self.updateTokens)
+        block(self.typeRequestCache)
+        block(self.idRequestCache)
     }
 
     private func getCache(_ request: OSLiveActivityRequest) -> RequestCache {
-        if request is OSLiveActivityUpdateTokenRequest {
-            return self.updateTokens
+        if request is OSLiveActivityIdRequest {
+            return self.idRequestCache
         }
 
-        return self.startTokens
+        return self.typeRequestCache
     }
 
     private func executeRequest(_ cache: RequestCache, request: OSLiveActivityRequest) {

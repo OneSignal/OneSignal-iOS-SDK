@@ -61,6 +61,13 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities leave called with activityId: \(activityId)")
         _executor.append(OSRequestRemoveUpdateToken(key: activityId))
     }
+    
+    
+    @objc
+    public static func trackReceipt(_ activityId: String, notificationId: String) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities trackReceipt called with activityId: \(activityId) notificationId: \(notificationId)")
+        _executor.append(OSRequestTrackReceipt(key: activityId, notificationId: notificationId))
+    }
 
     @objc
     @available(iOS 17.2, *)
@@ -222,6 +229,18 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                 case .ended: break
                 case .stale: break
                 default: break
+                }
+            }
+        }
+        
+        if #available(iOSApplicationExtension 16.2, *) {
+            // listen for activity content updates to confirm reciept
+            Task {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for content update on: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
+                for await content in activity.contentUpdates {
+                    if let onesignalContent = content.state.onesignal {
+                        OneSignalLiveActivitiesManagerImpl.trackReceipt(activity.attributes.onesignal.activityId, notificationId: onesignalContent.notificationId)
+                    }
                 }
             }
         }

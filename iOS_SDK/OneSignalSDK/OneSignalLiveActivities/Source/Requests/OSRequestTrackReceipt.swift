@@ -28,61 +28,57 @@
 import OneSignalCore
 import OneSignalUser
 
-class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityIdRequest {
-    override var description: String { return "(OSRequestSetUpdateToken) key:\(key) requestSuccessful:\(requestSuccessful) token:\(token)" }
+class OSRequestTrackReceipt: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityIdRequest {
+    override var description: String { return "(OSRequestTrackReceipt) key:\(key) requestSuccessful:\(requestSuccessful) notificationIds:\(notificationIds)" }
 
-    var requestSuccessful: Bool
     var key: String
-    var token: String
+    var notificationIds: [String : Double]
+    var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = false
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null app ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the track receipt request due to null app ID.")
             return false
         }
 
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null subscription ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the track receipt request due to null subscription ID.")
             return false
         }
-
+        
         guard let activityId = self.key.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
             return false
         }
 
-        // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
-        // self.parameters = ["token": self.token, "device_type": 0]
-        self.path = "apps/\(appId)/live_activities/\(activityId)/token"
-        self.parameters = ["subscription_id": subscriptionId, "push_token": self.token, "device_type": 0]
-        self.method = POST
+        self.path = "apps/\(appId)/activities/\(activityId)/reciept"
+        self.parameters = ["notificationIds": self.notificationIds]
+        self.method = PUT
 
         return true
     }
 
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool {
-        if let existingSetRequest = existing as? OSRequestSetUpdateToken {
-            if self.token == existingSetRequest.token {
-                return false
-            }
+        if let existingTrackRequest = existing as? OSRequestTrackReceipt {
+            // add all exising notification IDs previously tracked into this new request.
+            existingTrackRequest.notificationIds.forEach({ (key, value) in self.notificationIds[key] = value })
+            return true
         }
-
-        // Note that NSDate has nanosecond precision. It's possible for two requests to come in at the same time. If
-        // that does happen, we assume the current one supersedes the existing one.
-        return self.timestamp >= existing.timestamp
+        
+        return false
     }
 
-    init(key: String, token: String) {
+    init(key: String, notificationId: String) {
         self.key = key
-        self.token = token
+        self.notificationIds = [notificationId : Date().timeIntervalSince1970]
         self.requestSuccessful = false
         super.init()
     }
 
     func encode(with coder: NSCoder) {
         coder.encode(key, forKey: "key")
-        coder.encode(token, forKey: "token")
+        coder.encode(notificationIds, forKey: "notificationIds")
         coder.encode(requestSuccessful, forKey: "requestSuccessful")
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -90,14 +86,14 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
     required init?(coder: NSCoder) {
         guard
             let key = coder.decodeObject(forKey: "key") as? String,
-            let token = coder.decodeObject(forKey: "token") as? String,
+            let notificationIds = coder.decodeObject(forKey: "notificationIds") as? [String: Double],
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
             return nil
         }
         self.key = key
-        self.token = token
+        self.notificationIds = notificationIds
         self.requestSuccessful = coder.decodeBool(forKey: "requestSuccessful")
         super.init()
         self.timestamp = timestamp

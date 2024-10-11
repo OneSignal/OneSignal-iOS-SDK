@@ -56,19 +56,20 @@ protocol OSLiveActivityRequest: OneSignalRequest, NSCoding {
 
     /**
      Only one request "per" (i.e. activityId or activityType) can exist. This method determines
-     whether  this request supersedes the provided (existing) request.
+     whether  this request supersedes the provided (existing) request. Depending on the type of
+     request this may alter the state of the request itself.
      */
     func supersedes(_ existing: OSLiveActivityRequest) -> Bool
 }
 
 /**
- A live activity request that is related to the update token of a specific `activityId` key.
+ A live activity request that is related to a specific `activityId` key.
  */
-protocol OSLiveActivityUpdateTokenRequest: OSLiveActivityRequest {
+protocol OSLiveActivityIdRequest: OSLiveActivityRequest {
 }
 
 /**
- A live activity request that is related to the start token of a specific `activityType` key.
+ A live activity request that is related to a specific `activityType` key.
  */
-protocol OSLiveActivityStartTokenRequest: OSLiveActivityRequest {
+protocol OSLiveActivityTypeRequest: OSLiveActivityRequest {
 }

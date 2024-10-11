@@ -28,7 +28,7 @@
 import OneSignalCore
 import OneSignalUser
 
-class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
+class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityTypeRequest {
     override var description: String { return "(OSRequestRemoveStartToken) key:\(key) requestSuccessful:\(requestSuccessful)" }
 
     var key: String

@@ -28,7 +28,7 @@
 import OneSignalCore
 import OneSignalUser
 
-class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityUpdateTokenRequest {
+class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityIdRequest {
     override var description: String { return "(OSRequestRemoveUpdateToken) key:\(key) requestSuccessful:\(requestSuccessful)" }
 
     var key: String
