@@ -77,15 +77,6 @@
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
-        // Messages Array
-        NSArray<OSInAppMessageInternal *> *messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
-                                                                                          defaultValue:[NSArray<OSInAppMessageInternal *> new]];
-        if (messages && messages.count) {
-            [NSKeyedArchiver setClassName:@"OSInAppMessageInternal" forClass:[OSInAppMessageInternal class]];
-            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:messages];
-        } else {
-            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:nil];
-        }
 
         // Redisplay Messages Dict
         NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
