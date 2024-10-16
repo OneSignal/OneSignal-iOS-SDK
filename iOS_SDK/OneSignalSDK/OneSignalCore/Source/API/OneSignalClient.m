@@ -189,24 +189,29 @@
     }
     
     NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString]];
+
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString, request.additionalHeaders]];
 }
 
 - (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
+    NSDictionary *headers = [HTTPResponse allHeaderFields];
     NSError* jsonError = nil;
     NSMutableDictionary* innerJson;
     
     if (data != nil && [data length] > 0) {
         innerJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
         innerJson[@"httpStatusCode"] = [NSNumber numberWithLong:statusCode];
+        innerJson[@"headers"] = headers;
+        
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request (%@) with URL %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, request.additionalHeaders]];
+
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
         if (jsonError) {
             if (failureBlock != nil)
-                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
+                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError, @"headers": headers}]); // Add headers to error block
             return;
         }
     }
@@ -224,14 +229,15 @@
     } else if (failureBlock != nil) {
         // Make sure to send all the infomation available to the client
         if (innerJson != nil && error != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"error": error}]);
+            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"error": error, @"headers": headers}]);
         else if (innerJson != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson}]);
+            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"headers": headers}]);
         else if (error != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"error" : error}]);
+            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"error" : error, @"headers": headers}]);
         else
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:nil]);
+            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"headers": headers}]);
     }
 }
+
 
 @end
