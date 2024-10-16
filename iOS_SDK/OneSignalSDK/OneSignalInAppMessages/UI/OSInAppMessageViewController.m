@@ -734,9 +734,9 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 - (void)jsEventOccurredWithBody:(NSData *)body {
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
-    NSString *eventMessage = [NSString stringWithFormat:@"Action Occured with Event: %@", event];
+    NSString *eventMessage = [NSString stringWithFormat:@"Action Occurred with Event: %@", event];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:eventMessage];
-    NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
+    NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occurred with Event Type: %lu", (unsigned long)event.type];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:eventTypeMessage];
 
     if (event) {
