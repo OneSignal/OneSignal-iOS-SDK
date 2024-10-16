@@ -27,7 +27,7 @@
 
 import Foundation
 
-@objc public enum OSIamFetchOffsetKey: Int, OSConsistencyKeyEnum, Hashable {
+public enum OSIamFetchOffsetKey: Int, OSConsistencyKeyEnum {
     case user = 0
     case subscription = 1
 }
