@@ -27,5 +27,5 @@
 
 import Foundation
 
-public protocol OSConsistencyKeyEnum: Hashable {
-}
+// Protocol for enums with Int raw values.
+public protocol OSConsistencyKeyEnum: RawRepresentable where RawValue == Int { }

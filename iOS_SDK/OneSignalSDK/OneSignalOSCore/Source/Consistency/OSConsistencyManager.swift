@@ -40,7 +40,7 @@ import OneSignalCore
     private override init() {}
 
     // Function to set the token in a thread-safe manner
-    @objc public func setRywToken(id: String, key: OSIamFetchOffsetKey, value: String?) {
+    public func setRywToken(id: String, key: any OSConsistencyKeyEnum, value: String?) {
         queue.sync {
             let nsKey = NSNumber(value: key.rawValue)
             if self.indexedTokens[id] == nil {
