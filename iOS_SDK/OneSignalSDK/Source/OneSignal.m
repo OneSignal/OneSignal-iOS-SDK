@@ -417,9 +417,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     //    [OneSignalLocation sendLocation];
     //    [self executePendingLiveActivityUpdates];
     //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];  // go to controller
-    
-    // on failure:
-    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
 }
 
 + (void)startInAppMessages {
