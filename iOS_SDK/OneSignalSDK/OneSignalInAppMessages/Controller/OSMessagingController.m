@@ -42,7 +42,7 @@
 
 static NSInteger const DEFAULT_RETRY_AFTER_SECONDS = 1;     // Default 1 second retry delay
 static NSInteger const DEFAULT_RETRY_LIMIT = 0;             // If not returned by backend, don't retry
-static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Delay by 500 ms to increase the probability of getting a 200 & not having to retry
+static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if ryw_delay is nil: delay by 500 ms to increase the probability of getting a 200 & not having to retry
 
 @implementation OSInAppMessageWillDisplayEvent
 
@@ -265,14 +265,19 @@ static BOOL _isInAppMessagingPaused = false;
         }
 
         OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
-        NSString *rywToken = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
-
-        // Delay by 500 ms to increase the probability of getting a 200 & not having to retry
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(IAM_FETCH_DELAY_BUFFER * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        OSReadYourWriteData *rywData = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
+        
+        NSTimeInterval rywDelayInSeconds;
+        if (rywData.rywDelay) {
+            rywDelayInSeconds = [rywData.rywDelay doubleValue] / 1000.0;
+        } else {
+            rywDelayInSeconds = IAM_FETCH_DELAY_BUFFER;
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(rywDelayInSeconds * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
             // Initial request
             [self attemptFetchWithRetries:subscriptionId
-                                 rywToken:rywToken
+                                 rywData:rywData
                                  attempts:@0 // Starting with 0 attempts
                                retryLimit:nil]; // Retry limit to be set dynamically on first failure
         });
@@ -281,10 +286,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 
 - (void)attemptFetchWithRetries:(NSString *)subscriptionId
-                       rywToken:(NSString *)rywToken
+                       rywData:(OSReadYourWriteData *)rywData
                        attempts:(NSNumber *)attempts
                      retryLimit:(NSNumber *)retryLimit {
     NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
+    NSString *rywToken = rywData.rywToken;
+    NSNumber *rywDelay = rywData.rywDelay;
 
     // Create the request with the current attempt count
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
@@ -338,7 +345,7 @@ static BOOL _isInAppMessagingPaused = false;
                 NSInteger nextAttempt = [attempts integerValue] + 1; // Increment attempts
                 [self retryAfterDelay:retryAfter
                          subscriptionId:subscriptionId
-                                rywToken:rywToken
+                                rywData:rywData
                                attempts:@(nextAttempt)
                              retryLimit:blockRetryLimit];
             } else {
@@ -356,14 +363,14 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)retryAfterDelay:(NSInteger)retryAfter
          subscriptionId:(NSString *)subscriptionId
-               rywToken:(NSString *)rywToken
+               rywData:(OSReadYourWriteData *)rywData
                attempts:(NSNumber *)attempts
              retryLimit:(NSNumber *)retryLimit {
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryAfter * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self attemptFetchWithRetries:subscriptionId
-                             rywToken:rywToken
+                             rywData:rywData
                              attempts:attempts
                            retryLimit:retryLimit];
     });
