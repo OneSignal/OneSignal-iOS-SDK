@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-@objc public class OSIamFetchReadyCondition: NSObject, OSCondition {
+@objc public class OSIamFetchReadyCondition: NSObject, OSCondition {  
     // the id used to index the token map (e.g. onesignalId)
     private let id: String
     private var hasSubscriptionUpdatePending: Bool = false
@@ -57,7 +57,7 @@
         hasSubscriptionUpdatePending = value
     }
 
-    public func isMet(indexedTokens: [String: [NSNumber: String]]) -> Bool {
+    public func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         guard let tokenMap = indexedTokens[id] else { return false }
 
         let userCreateTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.userCreate.rawValue)] != nil
@@ -74,11 +74,19 @@
         return userUpdateTokenSet
     }
 
-    public func getNewestToken(indexedTokens: [String: [NSNumber: String]]) -> String? {
+    public func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
+        // Check if the token map for the given `id` exists
         guard let tokenMap = indexedTokens[id] else { return nil }
 
-        return [tokenMap[NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue)],
-                tokenMap[NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue)]
-               ].compactMap { $0 }.max()
+        // Flatten all OSReadYourWriteData objects into an array
+        let allDataObjects = tokenMap.values.compactMap { $0 }
+
+        // Find the object with the max rywToken (if available)
+        let maxTokenObject = allDataObjects.max {
+            ($0.rywToken ?? "") < ($1.rywToken ?? "")
+        }
+
+        return maxTokenObject
     }
+
 }
