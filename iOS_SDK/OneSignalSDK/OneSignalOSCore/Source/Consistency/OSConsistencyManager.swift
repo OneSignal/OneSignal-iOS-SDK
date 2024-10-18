@@ -33,14 +33,20 @@ import OneSignalCore
     @objc public static let shared = OSConsistencyManager()
 
     private let queue = DispatchQueue(label: "com.consistencyManager.queue")
-    private var indexedTokens: [String: [NSNumber: String]] = [:]
+    private var indexedTokens: [String: [NSNumber: OSReadYourWriteData]] = [:]
     private var indexedConditions: [String: [(OSCondition, DispatchSemaphore)]] = [:] // Index conditions by condition id
 
     // Private initializer to prevent multiple instances
     private override init() {}
+    
+    // Used for testing
+    public func reset() {
+        indexedTokens = [:]
+        indexedConditions = [:]
+    }
 
     // Function to set the token in a thread-safe manner
-    public func setRywToken(id: String, key: any OSConsistencyKeyEnum, value: String?) {
+    public func setRywTokenAndDelay(id: String, key: any OSConsistencyKeyEnum, value: OSReadYourWriteData) {
         queue.sync {
             let nsKey = NSNumber(value: key.rawValue)
             if self.indexedTokens[id] == nil {
@@ -52,7 +58,7 @@ import OneSignalCore
     }
 
     // Register a condition and block the caller until the condition is met
-    @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> String? {
+    @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
         let semaphore = DispatchSemaphore(value: 0)
         queue.sync {
             if self.indexedConditions[id] == nil {

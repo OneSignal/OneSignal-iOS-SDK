@@ -20,7 +20,7 @@ class OSConsistencyManagerTests: XCTestCase {
     }
 
     override func tearDown() {
-        consistencyManager = nil
+        consistencyManager.reset()
         super.tearDown()
     }
 
@@ -30,21 +30,27 @@ class OSConsistencyManagerTests: XCTestCase {
 
         // Given
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.user
-        let value = "123"
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken = "123"
+        let rywDelay = 500
+        let rywData = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay as NSNumber)
 
         // Set the token
-        consistencyManager.setRywToken(id: id, key: key, value: value)
+        consistencyManager.setRywTokenAndDelay(
+            id: id,
+            key: key,
+            value: rywData
+        )
 
         // Create a condition that expects the value to be set
-        let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): value]])
+        let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): rywData]])
 
         // Register the condition
         DispatchQueue.global().async {
-            let rywToken = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+            let rywDataFromCondition = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
             // Assert that the result is the same as the value set
-            XCTAssertEqual(rywToken, value)
+            XCTAssertEqual(rywDataFromCondition, rywData, "Objects are not equal")
             expectation.fulfill()
         }
 
@@ -60,19 +66,25 @@ class OSConsistencyManagerTests: XCTestCase {
         let expectation = self.expectation(description: "Condition met")
 
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.user
-        let value = "123"
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken = "123"
+        let rywDelay = 500 as NSNumber
+        let value = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
 
         // Set the token to meet the condition
-        consistencyManager.setRywToken(id: id, key: key, value: value)
+        consistencyManager.setRywTokenAndDelay(
+            id: id,
+            key: key,
+            value: value
+        )
 
         // Create a condition that expects the value to be set
         let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): value]])
 
-        let rywToken = consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+        let rywTokenFromCondition = consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
-        XCTAssertNotNil(rywToken)
-        XCTAssertEqual(rywToken, value)
+        XCTAssertNotNil(rywTokenFromCondition)
+        XCTAssertEqual(rywTokenFromCondition, value)
         expectation.fulfill()
 
         waitForExpectations(timeout: 1, handler: nil)
@@ -80,23 +92,28 @@ class OSConsistencyManagerTests: XCTestCase {
 
     // Test: registerCondition does not complete when condition is not met
     func testRegisterConditionDoesNotCompleteWhenConditionIsNotMet() {
-       // Given a condition that will never be met
-       let condition = TestUnmetCondition()
+        // Given a condition that will never be met
+        let condition = TestUnmetCondition()
         let id = "test_id"
+        let rywDelay = 500 as NSNumber
 
        // Start on a background queue to simulate async behavior
        DispatchQueue.global().async {
            // Register the condition asynchronously
-           let rywToken = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+           let rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
            // Since the condition will never be met, rywToken should remain nil
-           XCTAssertNil(rywToken)
+           XCTAssertNil(rywData)
 
            // Set an unrelated token to verify that the unmet condition still doesn't complete
-           self.consistencyManager.setRywToken(id: "unrelated_id", key: OSIamFetchOffsetKey.user, value: "123")
+           self.consistencyManager.setRywTokenAndDelay(
+            id: "unrelated_id",
+            key: OSIamFetchOffsetKey.userUpdate,
+            value: OSReadYourWriteData(rywToken: "unrelated", rywDelay: rywDelay)
+           )
 
            // newest token should still be nil as the condition is not met
-           XCTAssertNil(rywToken)
+           XCTAssertNil(rywData)
        }
 
        // Use a short delay to let the async behavior complete without waiting indefinitely
@@ -108,10 +125,15 @@ class OSConsistencyManagerTests: XCTestCase {
     func testSetRywTokenWithoutAnyCondition() {
         // Given
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.user
+        let key = OSIamFetchOffsetKey.userUpdate
         let value = "123"
+        let rywDelay = 500 as NSNumber
 
-        consistencyManager.setRywToken(id: id, key: key, value: value)
+        consistencyManager.setRywTokenAndDelay(
+            id: id,
+            key: key,
+            value: OSReadYourWriteData(rywToken: value, rywDelay: rywDelay)
+        )
 
         // There is no condition registered, so we just check that no errors occur
         XCTAssertTrue(true) // If no errors occur, this test will pass
@@ -123,37 +145,50 @@ class OSConsistencyManagerTests: XCTestCase {
 
         // Given
         let id = "test_id"
-        let userUpdateKey = OSIamFetchOffsetKey.user
-        let subscriptionUpdateKey = OSIamFetchOffsetKey.subscription
-        let value = "123"
+        let userUpdateKey = OSIamFetchOffsetKey.userUpdate
+        let subscriptionUpdateKey = OSIamFetchOffsetKey.subscriptionUpdate
+        let userUpdateRywToken = "123"
+        let userUpdateRywDelay = 1 as NSNumber
+        let userUpdateRywData = OSReadYourWriteData(rywToken: userUpdateRywToken, rywDelay: userUpdateRywDelay)
+        let subscriptionUpdateRywToken = "456"
+        let subscriptionUpdateRywDelay = 1 as NSNumber
+        let subscriptionUpdateRywData = OSReadYourWriteData(rywToken: subscriptionUpdateRywToken, rywDelay: subscriptionUpdateRywDelay)
 
         // Create a serial queue to prevent race conditions
         let serialQueue = DispatchQueue(label: "com.consistencyManager.test.serialQueue")
 
         // Register two conditions for different keys
-        let userUpdateCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: userUpdateKey.rawValue): value]])
-        let subscriptionCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: subscriptionUpdateKey.rawValue): value]])
+        let userUpdateCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: userUpdateKey.rawValue): userUpdateRywData]])
+        let subscriptionCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: subscriptionUpdateKey.rawValue): subscriptionUpdateRywData]])
 
         // Set the userUpdate token first and verify its condition
         serialQueue.async {
-            self.consistencyManager.setRywToken(id: id, key: userUpdateKey, value: value)
+            self.consistencyManager.setRywTokenAndDelay(
+                id: id,
+                key: userUpdateKey,
+                value: userUpdateRywData
+            )
 
             // Introduce a short delay before checking the condition to ensure the token is set
             DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
                 let newestUserUpdateToken = self.registerConditionWithTimeout(userUpdateCondition, forId: id)
-                XCTAssertEqual(newestUserUpdateToken, value)
+                XCTAssertEqual(newestUserUpdateToken, userUpdateRywData)
                 expectation1.fulfill()
             }
         }
 
         // Set the subscriptionUpdate token separately and verify its condition after a short delay
         serialQueue.asyncAfter(deadline: .now() + 1.0) {
-            self.consistencyManager.setRywToken(id: id, key: subscriptionUpdateKey, value: value)
+            self.consistencyManager.setRywTokenAndDelay(
+                id: id,
+                key: subscriptionUpdateKey,
+                value: OSReadYourWriteData(rywToken: subscriptionUpdateRywToken, rywDelay: subscriptionUpdateRywDelay)
+            )
 
             // Introduce a short delay before checking the condition to ensure the token is set
             DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
-                let subscriptionRywToken = self.registerConditionWithTimeout(subscriptionCondition, forId: id)
-                XCTAssertEqual(subscriptionRywToken, value)
+                let subscriptionRywData = self.registerConditionWithTimeout(subscriptionCondition, forId: id)
+                XCTAssertEqual(subscriptionRywData?.rywToken, subscriptionUpdateRywToken)
                 expectation2.fulfill()
             }
         }
@@ -162,10 +197,10 @@ class OSConsistencyManagerTests: XCTestCase {
         wait(for: [expectation1, expectation2], timeout: 3.0)
     }
 
-    private func registerConditionWithTimeout(_ condition: OSCondition, forId id: String) -> String? {
+    private func registerConditionWithTimeout(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
         // This function wraps the registerCondition method with a timeout for testing
         let semaphore = DispatchSemaphore(value: 0)
-        var result: String?
+        var result: OSReadYourWriteData?
 
         DispatchQueue.global().async {
             result = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
@@ -186,21 +221,27 @@ class OSConsistencyManagerTests: XCTestCase {
 
         // Given
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.user
-        let value = "123"
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken = "123"
+        let rywDelay = 500 as NSNumber
+        let value = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
 
         // First, set the token
-        consistencyManager.setRywToken(id: id, key: key, value: value)
+        consistencyManager.setRywTokenAndDelay(
+            id: id,
+            key: key,
+            value: value
+        )
 
         // Now, register a condition expecting the token that was already set
         let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): value]])
 
         // Register the condition
         DispatchQueue.global().async {
-            let rywToken = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+            let rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
             // Assert that the result is immediately the same as the value set, without waiting
-            XCTAssertEqual(rywToken, value)
+            XCTAssertEqual(rywData, value)
             expectation.fulfill()
         }
 
@@ -211,7 +252,12 @@ class OSConsistencyManagerTests: XCTestCase {
         let expectation = self.expectation(description: "Concurrent updates handled correctly")
 
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.user
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken1 = "123"
+        let rywToken2 = "456"
+        let rywDelay = 0 as NSNumber
+        let value1 = OSReadYourWriteData(rywToken: rywToken1, rywDelay: rywDelay)
+        let value2 = OSReadYourWriteData(rywToken: rywToken2, rywDelay: rywDelay)
 
         // Set up concurrent queues
         let queue1 = DispatchQueue(label: "com.test.queue1", attributes: .concurrent)
@@ -219,20 +265,28 @@ class OSConsistencyManagerTests: XCTestCase {
 
         // Perform concurrent token updates
         queue1.async {
-            self.consistencyManager.setRywToken(id: id, key: key, value: "123")
+            self.consistencyManager.setRywTokenAndDelay(
+                id: id,
+                key: key,
+                value: OSReadYourWriteData(rywToken: rywToken1, rywDelay: rywDelay)
+            )
         }
 
         queue2.async {
-            self.consistencyManager.setRywToken(id: id, key: key, value: "456")
+            self.consistencyManager.setRywTokenAndDelay(
+                id: id,
+                key: key,
+                value: OSReadYourWriteData(rywToken: rywToken2, rywDelay: rywDelay)
+            )
         }
 
         // Allow some time for the updates to happen
         DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
             // Check that the most recent value was correctly set
-            let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): "456"]])
-            let rywToken = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+            let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): value2]])
+            let rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
-            XCTAssertEqual(rywToken, "456")
+            XCTAssertEqual(rywData?.rywToken, "456")
             expectation.fulfill()
         }
 
@@ -250,75 +304,84 @@ class TestUnmetCondition: NSObject, OSCondition {
             return TestUnmetCondition.CONDITIONID
     }
     
-    func isMet(indexedTokens: [String: [NSNumber: String]]) -> Bool {
+    func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         return false // Always returns false to simulate an unmet condition
     }
 
-    func getNewestToken(indexedTokens: [String: [NSNumber: String]]) -> String? {
+    func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
         return nil
     }
 }
 
 // Mock implementation of OSCondition for cases where the condition is met
 class TestMetCondition: NSObject, OSCondition {
-    private let expectedTokens: [String: [NSNumber: String]]
+    private let expectedTokens: [String: [NSNumber: OSReadYourWriteData]]
     
     // class-level constant for the ID
     public static let CONDITIONID = "TestMetCondition"
     
     public var conditionId: String {
-            return TestMetCondition.CONDITIONID
+        return TestMetCondition.CONDITIONID
     }
-
-    init(expectedTokens: [String: [NSNumber: String]]) {
+    
+    init(expectedTokens: [String: [NSNumber: OSReadYourWriteData]]) {
         self.expectedTokens = expectedTokens
     }
-
-    func isMet(indexedTokens: [String: [NSNumber: String]]) -> Bool {
+    
+    func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         print("Expected tokens: \(expectedTokens)")
         print("Actual tokens: \(indexedTokens)")
-
+        
         // Check if all the expected tokens are present in the actual tokens
         for (id, expectedTokenMap) in expectedTokens {
             guard let actualTokenMap = indexedTokens[id] else {
                 print("No tokens found for id: \(id)")
                 return false
             }
-
+            
             // Check if all expected keys (e.g., userUpdate, subscriptionUpdate) are present with the correct value
             for (expectedKey, expectedValue) in expectedTokenMap {
                 guard let actualValue = actualTokenMap[expectedKey] else {
                     print("Key \(expectedKey) not found in actual tokens")
                     return false
                 }
-
+                
                 if actualValue != expectedValue {
-                    print("Mismatch for key \(expectedKey): expected \(expectedValue), found \(actualValue)")
+                    print("Mismatch for key \(expectedKey): expected \(expectedValue.rywToken), found \(actualValue.rywToken)")
                     return false
                 }
             }
         }
-
+        
         print("Condition met for id")
         return true
     }
-
-    func getNewestToken(indexedTokens: [String: [NSNumber: String]]) -> String? {
-        var newestToken: String? = nil
+    
+    func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
+        var dataBasedOnNewestRywToken: OSReadYourWriteData? = nil
 
         // Loop through the token maps and compare the values
         for tokenMap in indexedTokens.values {
-            for token in tokenMap.values {
-                if let currentNewest = newestToken {
-                    // Use compare to determine the largest value
-                    if token.compare(currentNewest) == .orderedDescending {
-                        newestToken = token
-                    }
-                } else {
-                    newestToken = token
+            // Flatten all OSReadYourWriteData objects into an array
+            let allDataObjects = tokenMap.values.compactMap { $0 }
+
+            // Find the object with the max rywToken (if available)
+            let maxTokenObject = allDataObjects.max {
+                ($0.rywToken ?? "") < ($1.rywToken ?? "")
+            }
+
+            // Safely unwrap and compare rywToken values
+            if let maxToken = maxTokenObject?.rywToken,
+               let currentMaxToken = dataBasedOnNewestRywToken?.rywToken {
+                if maxToken > currentMaxToken {
+                    dataBasedOnNewestRywToken = maxTokenObject
                 }
+            } else if maxTokenObject != nil {
+                // If dataBasedOnNewestRywToken is nil, assign the current max token object
+                dataBasedOnNewestRywToken = maxTokenObject
             }
         }
-        return newestToken
+        return dataBasedOnNewestRywToken
     }
+
 }
