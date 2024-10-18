@@ -258,7 +258,13 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             if let onesignalId = request.identityModel.onesignalId {
                 if let rywToken = response?["ryw_token"] as? String
                 {
-                    OSConsistencyManager.shared.setRywToken(id: onesignalId, key: OSIamFetchOffsetKey.userUpdate, value: rywToken)
+                    let rywDelay = response?["ryw_delay"] as? NSNumber
+                    
+                    OSConsistencyManager.shared.setRywTokenAndDelay(
+                        id: onesignalId,
+                        key: OSIamFetchOffsetKey.userUpdate,
+                        value: OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
+                    )
                 } else {
                     // handle a potential regression where ryw_token is no longer returned by API
                     OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
