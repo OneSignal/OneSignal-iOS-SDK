@@ -267,6 +267,8 @@ static BOOL _isInAppMessagingPaused = false;
         OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
         OSReadYourWriteData *rywData = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
         
+        // We need to delay the first request by however long the backend is telling us (`ryw_delay`)
+        // This will help avoid unnecessary retries & can be easily adjusted from the backend
         NSTimeInterval rywDelayInSeconds;
         if (rywData.rywDelay) {
             rywDelayInSeconds = [rywData.rywDelay doubleValue] / 1000.0;
