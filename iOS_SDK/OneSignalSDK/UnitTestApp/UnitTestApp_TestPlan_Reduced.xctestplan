@@ -56,6 +56,13 @@
         "identifier" : "911E2CB91E398AB3003112A4",
         "name" : "UnitTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "5B053FB72CAE07EB002F30C4",
+        "name" : "OneSignalOSCoreTests"
+      }
     }
   ],
   "version" : 1

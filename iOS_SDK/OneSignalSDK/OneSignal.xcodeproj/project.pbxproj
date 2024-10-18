@@ -233,7 +233,15 @@
 		475F474F2B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; };
 		475F47502B8E3B5400EC05B3 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A885CC2BB317B300ED91FA /* AnyCodable.swift */; };
+		5B053FBC2CAE07EB002F30C4 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
+		5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */; };
 		5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */; };
+		5B58F09E2CC1B5C700298493 /* OSReadYourWriteData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B58F09D2CC1B5C700298493 /* OSReadYourWriteData.swift */; };
+		5BC1DE5C2C90B7E600CA8807 /* OSConsistencyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE5B2C90B7E600CA8807 /* OSConsistencyManager.swift */; };
+		5BC1DE5E2C90B80E00CA8807 /* OSCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE5D2C90B80E00CA8807 /* OSCondition.swift */; };
+		5BC1DE602C90B83900CA8807 /* OSConsistencyKeyEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE5F2C90B83900CA8807 /* OSConsistencyKeyEnum.swift */; };
+		5BC1DE622C90B85A00CA8807 /* OSIamFetchOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE612C90B85A00CA8807 /* OSIamFetchOffsetKey.swift */; };
+		5BC1DE642C90BB9000CA8807 /* OSIamFetchReadyCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE632C90BB9000CA8807 /* OSIamFetchReadyCondition.swift */; };
 		7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A123294235DFE3B002B6CE3 /* OutcomeTests.m */; };
 		7A1232A2235E1743002B6CE3 /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411F11E73342200E41FD7 /* OneSignal.m */; };
 		7A2E90622460DA1500B3428C /* OutcomeIntegrationV2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E90612460DA1500B3428C /* OutcomeIntegrationV2Tests.m */; };
@@ -844,6 +852,20 @@
 			remoteGlobalIDString = 475F471D2B8E398D00EC05B3;
 			remoteInfo = OneSignalLiveActivities;
 		};
+		5B053FBD2CAE07EB002F30C4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C115160289A259500565C41;
+			remoteInfo = OneSignalOSCore;
+		};
+		5B053FC42CAE08A1002F30C4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF5CCF02539321A0003E9CC;
+			remoteInfo = UnitTestApp;
+		};
 		DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -1358,8 +1380,16 @@
 		475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSRequestRemoveStartToken.swift; path = Source/Requests/OSRequestRemoveStartToken.swift; sourceTree = "<group>"; };
 		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OneSignalLiveActivitiesFramework/Info.plist; sourceTree = "<group>"; };
 		47A885CC2BB317B300ED91FA /* AnyCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnyCodable.swift; path = Source/AnyCodable.swift; sourceTree = "<group>"; };
+		5B053FB82CAE07EB002F30C4 /* OneSignalOSCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalOSCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceOverrider.h; sourceTree = "<group>"; };
 		5B58E4F6237CE7B4009401E0 /* UIDeviceOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIDeviceOverrider.m; sourceTree = "<group>"; };
+		5B58F09D2CC1B5C700298493 /* OSReadYourWriteData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSReadYourWriteData.swift; sourceTree = "<group>"; };
+		5BC1DE5B2C90B7E600CA8807 /* OSConsistencyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSConsistencyManager.swift; sourceTree = "<group>"; };
+		5BC1DE5D2C90B80E00CA8807 /* OSCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCondition.swift; sourceTree = "<group>"; };
+		5BC1DE5F2C90B83900CA8807 /* OSConsistencyKeyEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSConsistencyKeyEnum.swift; sourceTree = "<group>"; };
+		5BC1DE612C90B85A00CA8807 /* OSIamFetchOffsetKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIamFetchOffsetKey.swift; sourceTree = "<group>"; };
+		5BC1DE632C90BB9000CA8807 /* OSIamFetchReadyCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIamFetchReadyCondition.swift; sourceTree = "<group>"; };
+		5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSConsistencyManagerTests.swift; sourceTree = "<group>"; };
 		7A123294235DFE3B002B6CE3 /* OutcomeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeTests.m; sourceTree = "<group>"; };
 		7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSSessionManager.m; sourceTree = "<group>"; };
 		7A12EBD623060A6F005C4FA5 /* OSSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSSessionManager.h; sourceTree = "<group>"; };
@@ -1783,6 +1813,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5B053FB52CAE07EB002F30C4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B053FBC2CAE07EB002F30C4 /* OneSignalOSCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		911E2CB71E398AB3003112A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1971,6 +2009,7 @@
 				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
 				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
 				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
+				5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */,
 				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
@@ -2000,6 +2039,7 @@
 				DEBA2A1A2C20E35E00E234DB /* OneSignalNotificationsTests.xctest */,
 				3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */,
 				3C8544B62C5AEFF600F542A9 /* OneSignalOSCoreMocks.framework */,
+				5B053FB82CAE07EB002F30C4 /* OneSignalOSCoreTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2053,6 +2093,7 @@
 		3C115178289A272F00565C41 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				5BC1DE652C90BC9F00CA8807 /* Consistency */,
 				3C115163289A259500565C41 /* OneSignalOSCore.h */,
 				3C115188289ADEA300565C41 /* OSModelStore.swift */,
 				3C115186289ADE7700565C41 /* OSModelStoreListener.swift */,
@@ -2302,6 +2343,35 @@
 				475F47482B8E3A4400EC05B3 /* Info.plist */,
 			);
 			name = OneSignalLiveActivitiesFramework;
+			sourceTree = "<group>";
+		};
+		5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
+			);
+			path = OneSignalOSCoreTests;
+			sourceTree = "<group>";
+		};
+		5BC1DE652C90BC9F00CA8807 /* Consistency */ = {
+			isa = PBXGroup;
+			children = (
+				5BC1DE662C90BCD100CA8807 /* IamFetch */,
+				5BC1DE5B2C90B7E600CA8807 /* OSConsistencyManager.swift */,
+				5BC1DE5D2C90B80E00CA8807 /* OSCondition.swift */,
+				5BC1DE5F2C90B83900CA8807 /* OSConsistencyKeyEnum.swift */,
+				5B58F09D2CC1B5C700298493 /* OSReadYourWriteData.swift */,
+			);
+			path = Consistency;
+			sourceTree = "<group>";
+		};
+		5BC1DE662C90BCD100CA8807 /* IamFetch */ = {
+			isa = PBXGroup;
+			children = (
+				5BC1DE612C90B85A00CA8807 /* OSIamFetchOffsetKey.swift */,
+				5BC1DE632C90BB9000CA8807 /* OSIamFetchReadyCondition.swift */,
+			);
+			path = IamFetch;
 			sourceTree = "<group>";
 		};
 		7A5A818324899050002E07C8 /* Models */ = {
@@ -3416,6 +3486,25 @@
 			productReference = 475F471E2B8E398D00EC05B3 /* OneSignalLiveActivities.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		5B053FB72CAE07EB002F30C4 /* OneSignalOSCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B053FC22CAE07EB002F30C4 /* Build configuration list for PBXNativeTarget "OneSignalOSCoreTests" */;
+			buildPhases = (
+				5B053FB42CAE07EB002F30C4 /* Sources */,
+				5B053FB52CAE07EB002F30C4 /* Frameworks */,
+				5B053FB62CAE07EB002F30C4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B053FBE2CAE07EB002F30C4 /* PBXTargetDependency */,
+				5B053FC52CAE08A1002F30C4 /* PBXTargetDependency */,
+			);
+			name = OneSignalOSCoreTests;
+			productName = OneSignalOSCoreTests;
+			productReference = 5B053FB82CAE07EB002F30C4 /* OneSignalOSCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		911E2CB91E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 911E2CC41E398AB3003112A4 /* Build configuration list for PBXNativeTarget "UnitTests" */;
@@ -3634,7 +3723,7 @@
 		37747F8B19147D6400558FAD /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1520;
+				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Hiptic;
 				TargetAttributes = {
@@ -3699,6 +3788,10 @@
 						DevelopmentTeam = 99SW8E36CT;
 						LastSwiftMigration = 1520;
 						ProvisioningStyle = Automatic;
+					};
+					5B053FB72CAE07EB002F30C4 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					911E2CB91E398AB3003112A4 = {
 						CreatedOnToolsVersion = 8.1;
@@ -3805,6 +3898,7 @@
 				473542492B8F93330016DB4C /* OneSignalLiveActivitiesTests */,
 				DEBA2A192C20E35E00E234DB /* OneSignalNotificationsTests */,
 				3C01518D2C2E298E0079E076 /* OneSignalInAppMessagesTests */,
+				5B053FB72CAE07EB002F30C4 /* OneSignalOSCoreTests */,
 			);
 		};
 /* End PBXProject section */
@@ -3880,6 +3974,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B053FB62CAE07EB002F30C4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4050,18 +4151,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */,
+				5BC1DE602C90B83900CA8807 /* OSConsistencyKeyEnum.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
+				5BC1DE5E2C90B80E00CA8807 /* OSCondition.swift in Sources */,
+				5BC1DE5C2C90B7E600CA8807 /* OSConsistencyManager.swift in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
 				3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */,
 				3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */,
+				5B58F09E2CC1B5C700298493 /* OSReadYourWriteData.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
+				5BC1DE642C90BB9000CA8807 /* OSIamFetchReadyCondition.swift in Sources */,
 				3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */,
 				3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */,
 				4710EA532B8FCFB200435356 /* OSDispatchQueue.swift in Sources */,
 				DEFB3E672BB735B500E65DAD /* OSStubLiveActivities.swift in Sources */,
+				5BC1DE622C90B85A00CA8807 /* OSIamFetchOffsetKey.swift in Sources */,
 				3C11518D289AF5E800565C41 /* OSModelChangedHandler.swift in Sources */,
 				3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */,
 			);
@@ -4171,6 +4278,14 @@
 				47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */,
 				475F47462B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift in Sources */,
 				475F47442B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B053FB42CAE07EB002F30C4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4619,6 +4734,16 @@
 			isa = PBXTargetDependency;
 			target = 475F471D2B8E398D00EC05B3 /* OneSignalLiveActivities */;
 			targetProxy = 475F47512B8E3B5400EC05B3 /* PBXContainerItemProxy */;
+		};
+		5B053FBE2CAE07EB002F30C4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
+			targetProxy = 5B053FBD2CAE07EB002F30C4 /* PBXContainerItemProxy */;
+		};
+		5B053FC52CAE08A1002F30C4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF5CCF02539321A0003E9CC /* UnitTestApp */;
+			targetProxy = 5B053FC42CAE08A1002F30C4 /* PBXContainerItemProxy */;
 		};
 		DE12F3F5289B28C4002F63AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6300,6 +6425,152 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Test;
+		};
+		5B053FBF2CAE07EB002F30C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Release;
+		};
+		5B053FC02CAE07EB002F30C4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
+			};
+			name = Debug;
+		};
+		5B053FC12CAE07EB002F30C4 /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
 			};
 			name = Test;
 		};
@@ -8669,6 +8940,16 @@
 				475F47262B8E398E00EC05B3 /* Release */,
 				475F47272B8E398E00EC05B3 /* Debug */,
 				475F47282B8E398E00EC05B3 /* Test */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B053FC22CAE07EB002F30C4 /* Build configuration list for PBXNativeTarget "OneSignalOSCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B053FBF2CAE07EB002F30C4 /* Release */,
+				5B053FC02CAE07EB002F30C4 /* Debug */,
+				5B053FC12CAE07EB002F30C4 /* Test */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
