@@ -25,32 +25,35 @@
  THE SOFTWARE.
  */
 
-@testable import OneSignalOSCore
+@objcMembers
+public class OSReadYourWriteData: NSObject {
+    public let rywToken: String?
+    public let rywDelay: NSNumber?
 
-public class MockNewRecordsState: OSNewRecordsState {
-    public struct MockNewRecord {
-        let key: String
-        let overwrite: Bool
+    public init(rywToken: String?, rywDelay: NSNumber?) {
+        self.rywToken = rywToken
+        self.rywDelay = rywDelay
     }
 
-    public var records: [MockNewRecord] = []
+    // Override `isEqual` for custom equality comparison.
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? OSReadYourWriteData else {
+            return false
+        }
 
-    override public func add(_ key: String, _ overwrite: Bool = false) {
-        let record = MockNewRecord(key: key, overwrite: overwrite)
-        records.append(record)
+        let tokensAreEqual = (self.rywToken == other.rywToken) || (self.rywToken == nil && other.rywToken == nil)
+        let delaysAreEqual = (self.rywDelay?.isEqual(to: other.rywDelay ?? 0) ?? false) || (self.rywDelay == nil && other.rywDelay == nil)
 
-        super.add(key, overwrite)
+        return tokensAreEqual && delaysAreEqual
     }
 
-    public func get(_ key: String?) -> [MockNewRecord] {
-        return records.filter { $0.key == key }
-    }
-
-    public func contains(_ key: String?) -> Bool {
-        return get(key).count > 0
-    }
-
-    public func wasOverwritten(_ key: String?) -> Bool {
-        return records.filter { $0.key == key && $0.overwrite }.count > 0
+    // Override `hash` to maintain hashability.
+    // This is because two equal objects must have the same hash value.
+    // Since we are overriding isEqual we must also override `hash`
+    override public var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(rywToken)
+        hasher.combine(rywDelay)
+        return hasher.finalize()
     }
 }

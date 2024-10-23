@@ -107,7 +107,7 @@ public class OSOperationRepo: NSObject {
      // TODO: We can make this method internal once there is no manual adding of a Delta except through stores.
      This can happen when session data and purchase data use the model / store / listener infrastructure.
      */
-    public func enqueueDelta(_ delta: OSDelta) {
+    public func enqueueDelta(_ delta: OSDelta, flush: Bool = false) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
@@ -115,8 +115,13 @@ public class OSOperationRepo: NSObject {
         self.dispatchQueue.async {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
             self.deltaQueue.append(delta)
+
             // Persist the deltas (including new delta) to storage
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            if flush {
+                self.flushDeltaQueue()
+            }
         }
     }
 

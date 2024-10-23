@@ -25,32 +25,11 @@
  THE SOFTWARE.
  */
 
-@testable import OneSignalOSCore
+import Foundation
 
-public class MockNewRecordsState: OSNewRecordsState {
-    public struct MockNewRecord {
-        let key: String
-        let overwrite: Bool
-    }
-
-    public var records: [MockNewRecord] = []
-
-    override public func add(_ key: String, _ overwrite: Bool = false) {
-        let record = MockNewRecord(key: key, overwrite: overwrite)
-        records.append(record)
-
-        super.add(key, overwrite)
-    }
-
-    public func get(_ key: String?) -> [MockNewRecord] {
-        return records.filter { $0.key == key }
-    }
-
-    public func contains(_ key: String?) -> Bool {
-        return get(key).count > 0
-    }
-
-    public func wasOverwritten(_ key: String?) -> Bool {
-        return records.filter { $0.key == key && $0.overwrite }.count > 0
-    }
+@objc public protocol OSCondition: AnyObject {
+    // Each conforming class will provide its unique ID
+    var conditionId: String { get }
+    func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool
+    func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData?
 }

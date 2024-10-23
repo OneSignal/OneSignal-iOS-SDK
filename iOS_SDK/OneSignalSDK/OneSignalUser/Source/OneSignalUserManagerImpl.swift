@@ -529,7 +529,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
             return
         }
-        jwtExpiredHandler(externalId) { [self] (newToken) -> Void in
+        jwtExpiredHandler(externalId) { [self] (newToken) in
             guard user.identityModel.externalId == externalId else {
                 return
             }
@@ -551,7 +551,7 @@ extension OneSignalUserManagerImpl {
 
         userExecutor!.executePendingRequests()
         OSOperationRepo.sharedInstance.paused = false
-        updatePropertiesDeltas(property: .session_count, value: 1)
+        updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -567,7 +567,7 @@ extension OneSignalUserManagerImpl {
     /// It enqueues an OSDelta to the Operation Repo.
     /// 
     /// - Parameter property:Expected inputs are `.session_time"`, `.session_count"`, and `.purchases"`.
-    func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any) {
+    func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any, flush: Bool = false) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updatePropertiesDeltas") else {
             return
         }
@@ -583,7 +583,7 @@ extension OneSignalUserManagerImpl {
             property: property.rawValue,
             value: value
         )
-        OSOperationRepo.sharedInstance.enqueueDelta(delta)
+        OSOperationRepo.sharedInstance.enqueueDelta(delta, flush: flush)
     }
 
     /// Time processors forward the session time to this method.

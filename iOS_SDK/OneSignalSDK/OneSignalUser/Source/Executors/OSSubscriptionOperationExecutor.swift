@@ -284,19 +284,35 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
-        OneSignalCoreImpl.sharedClient().execute(request) { result in
+        OneSignalCoreImpl.sharedClient().execute(request) { response in
             // On success, remove request from cache (even if not hydrating model), and hydrate model
             self.dispatchQueue.async {
                 self.addRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
-                guard let response = result?["subscription"] as? [String: Any] else {
+                guard let response = response?["subscription"] as? [String: Any] else {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
                     if inBackground {
                         OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                     }
                     return
                 }
+
+                if let onesignalId = request.identityModel.onesignalId {
+                    if let rywToken = response["ryw_token"] as? String
+                    {
+                        let rywDelay = response["ryw_delay"] as? NSNumber
+                        OSConsistencyManager.shared.setRywTokenAndDelay(
+                            id: onesignalId,
+                            key: OSIamFetchOffsetKey.subscriptionUpdate,
+                            value: OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
+                        )
+                    } else {
+                        // handle a potential regression where ryw_token is no longer returned by API
+                        OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+                    }
+                }
+
                 request.subscriptionModel.hydrate(response)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -393,7 +409,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
         }
 
-        OneSignalCoreImpl.sharedClient().execute(request) { _ in
+        OneSignalCoreImpl.sharedClient().execute(request) { response in
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.dispatchQueue.async {
@@ -402,6 +418,21 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
+            }
+
+            if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
+                if let rywToken = response?["ryw_token"] as? String
+                    {
+                        let rywDelay = response?["ryw_delay"] as? NSNumber
+                        OSConsistencyManager.shared.setRywTokenAndDelay(
+                            id: onesignalId,
+                            key: OSIamFetchOffsetKey.subscriptionUpdate,
+                            value: OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
+                        )
+                    } else {
+                        // handle a potential regression where ryw_token is no longer returned by API
+                        OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+                    }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")

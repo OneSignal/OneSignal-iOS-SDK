@@ -25,32 +25,13 @@
  THE SOFTWARE.
  */
 
-@testable import OneSignalOSCore
+import Foundation
 
-public class MockNewRecordsState: OSNewRecordsState {
-    public struct MockNewRecord {
-        let key: String
-        let overwrite: Bool
-    }
-
-    public var records: [MockNewRecord] = []
-
-    override public func add(_ key: String, _ overwrite: Bool = false) {
-        let record = MockNewRecord(key: key, overwrite: overwrite)
-        records.append(record)
-
-        super.add(key, overwrite)
-    }
-
-    public func get(_ key: String?) -> [MockNewRecord] {
-        return records.filter { $0.key == key }
-    }
-
-    public func contains(_ key: String?) -> Bool {
-        return get(key).count > 0
-    }
-
-    public func wasOverwritten(_ key: String?) -> Bool {
-        return records.filter { $0.key == key && $0.overwrite }.count > 0
-    }
+public enum OSIamFetchOffsetKey: Int, OSConsistencyKeyEnum {
+    // We track user create tokens as well because on fresh installs, we don't have a user or subscription
+    // to update, which would lead to a 5 second delay until the subsequent user & subscription update calls
+    // give us RYW tokens
+    case userCreate = 0
+    case userUpdate = 1
+    case subscriptionUpdate = 2
 }

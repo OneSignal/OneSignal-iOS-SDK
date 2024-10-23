@@ -60,6 +60,17 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        // The OSIamFetchReadyCondition needs to know whether there is a subscription update pending
+        // If so, we use this to await (in IAM-fetch) on its respective RYW token to be set. This is necessary
+        // because we always make a user property update call but we DON'T always make a subscription update call.
+        // The user update call increases the session_count while the subscription update would update
+        // something like the app_version. If the app_version hasn't changed since the last session, there
+        // wouldn't be an update needed (among other system-level properties).
+        if let onesignalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId {
+            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
+            condition.setSubscriptionUpdatePending(value: true)
+        }
+
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
