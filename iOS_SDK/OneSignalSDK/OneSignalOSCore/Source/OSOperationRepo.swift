@@ -118,7 +118,7 @@ public class OSOperationRepo: NSObject {
 
             // Persist the deltas (including new delta) to storage
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-            
+
             if flush {
                 self.flushDeltaQueue()
             }

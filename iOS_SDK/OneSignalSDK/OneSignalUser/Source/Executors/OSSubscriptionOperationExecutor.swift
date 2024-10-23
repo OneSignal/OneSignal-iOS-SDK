@@ -297,7 +297,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     }
                     return
                 }
-                
+
                 if let onesignalId = request.identityModel.onesignalId {
                     if let rywToken = response["ryw_token"] as? String
                     {
@@ -312,7 +312,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                         OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
                     }
                 }
-                
+
                 request.subscriptionModel.hydrate(response)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -419,7 +419,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
-            
+
             if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
                 if let rywToken = response?["ryw_token"] as? String
                     {

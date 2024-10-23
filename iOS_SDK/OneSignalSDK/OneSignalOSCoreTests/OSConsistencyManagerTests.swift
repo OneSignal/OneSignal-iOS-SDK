@@ -121,7 +121,7 @@ class OSConsistencyManagerTests: XCTestCase {
            XCTAssertTrue(true) // Simulate some async action completing without hanging
        }
    }
-    
+
     func testSetRywTokenWithoutAnyCondition() {
         // Given
         let id = "test_id"
@@ -138,7 +138,7 @@ class OSConsistencyManagerTests: XCTestCase {
         // There is no condition registered, so we just check that no errors occur
         XCTAssertTrue(true) // If no errors occur, this test will pass
     }
-    
+
     func testMultipleConditionsWithDifferentKeys() {
         let expectation1 = self.expectation(description: "UserUpdate condition met")
         let expectation2 = self.expectation(description: "SubscriptionUpdate condition met")
@@ -215,7 +215,7 @@ class OSConsistencyManagerTests: XCTestCase {
 
         return result
     }
-    
+
     func testConditionMetImmediatelyAfterTokenAlreadySet() {
         let expectation = self.expectation(description: "Condition met immediately")
 
@@ -247,7 +247,7 @@ class OSConsistencyManagerTests: XCTestCase {
 
         waitForExpectations(timeout: 2.0, handler: nil)
     }
-    
+
     func testConcurrentUpdatesToTokens() {
         let expectation = self.expectation(description: "Concurrent updates handled correctly")
 
@@ -294,16 +294,15 @@ class OSConsistencyManagerTests: XCTestCase {
     }
 }
 
-
 // Mock implementation of OSCondition that simulates a condition that isn't met
 class TestUnmetCondition: NSObject, OSCondition {
     // class-level constant for the ID
     public static let CONDITIONID = "TestUnmetCondition"
-    
+
     public var conditionId: String {
             return TestUnmetCondition.CONDITIONID
     }
-    
+
     func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         return false // Always returns false to simulate an unmet condition
     }
@@ -316,49 +315,49 @@ class TestUnmetCondition: NSObject, OSCondition {
 // Mock implementation of OSCondition for cases where the condition is met
 class TestMetCondition: NSObject, OSCondition {
     private let expectedTokens: [String: [NSNumber: OSReadYourWriteData]]
-    
+
     // class-level constant for the ID
     public static let CONDITIONID = "TestMetCondition"
-    
+
     public var conditionId: String {
         return TestMetCondition.CONDITIONID
     }
-    
+
     init(expectedTokens: [String: [NSNumber: OSReadYourWriteData]]) {
         self.expectedTokens = expectedTokens
     }
-    
+
     func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         print("Expected tokens: \(expectedTokens)")
         print("Actual tokens: \(indexedTokens)")
-        
+
         // Check if all the expected tokens are present in the actual tokens
         for (id, expectedTokenMap) in expectedTokens {
             guard let actualTokenMap = indexedTokens[id] else {
                 print("No tokens found for id: \(id)")
                 return false
             }
-            
+
             // Check if all expected keys (e.g., userUpdate, subscriptionUpdate) are present with the correct value
             for (expectedKey, expectedValue) in expectedTokenMap {
                 guard let actualValue = actualTokenMap[expectedKey] else {
                     print("Key \(expectedKey) not found in actual tokens")
                     return false
                 }
-                
+
                 if actualValue != expectedValue {
                     print("Mismatch for key \(expectedKey): expected \(expectedValue.rywToken), found \(actualValue.rywToken)")
                     return false
                 }
             }
         }
-        
+
         print("Condition met for id")
         return true
     }
-    
+
     func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
-        var dataBasedOnNewestRywToken: OSReadYourWriteData? = nil
+        var dataBasedOnNewestRywToken: OSReadYourWriteData?
 
         // Loop through the token maps and compare the values
         for tokenMap in indexedTokens.values {

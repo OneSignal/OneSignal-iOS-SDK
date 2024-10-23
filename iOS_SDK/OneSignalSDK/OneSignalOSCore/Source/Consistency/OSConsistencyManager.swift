@@ -38,7 +38,7 @@ import OneSignalCore
 
     // Private initializer to prevent multiple instances
     private override init() {}
-    
+
     // Used for testing
     public func reset() {
         indexedTokens = [:]
@@ -72,13 +72,13 @@ import OneSignalCore
             return condition.getNewestToken(indexedTokens: self.indexedTokens)
         }
     }
-    
+
     // Method to resolve conditions by condition ID (e.g. OSIamFetchReadyCondition.ID)
     @objc public func resolveConditionsWithID(id: String) {
         guard let conditionList = indexedConditions[id] else { return }
         var completedConditions: [(OSCondition, DispatchSemaphore)] = []
         for (condition, semaphore) in conditionList {
-            if (condition.conditionId == id) {
+            if condition.conditionId == id {
                 semaphore.signal()
                 completedConditions.append((condition, semaphore))
             }

@@ -258,7 +258,7 @@ extension OSUserExecutor {
                 } else {
                     self.executePendingRequests()
                 }
-                
+
                 if let onesignalId = request.identityModel.onesignalId {
                     if let rywToken = response["ryw_token"] as? String
                     {

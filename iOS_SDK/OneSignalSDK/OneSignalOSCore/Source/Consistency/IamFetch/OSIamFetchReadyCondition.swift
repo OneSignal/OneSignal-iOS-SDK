@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-@objc public class OSIamFetchReadyCondition: NSObject, OSCondition {  
+@objc public class OSIamFetchReadyCondition: NSObject, OSCondition {
     // the id used to index the token map (e.g. onesignalId)
     private let id: String
     private var hasSubscriptionUpdatePending: Bool = false
@@ -48,11 +48,11 @@
 
     // Expose the constant to Objective-C
     @objc public static let CONDITIONID: String = "OSIamFetchReadyCondition"
-    
+
     public var conditionId: String {
         return OSIamFetchReadyCondition.CONDITIONID
     }
-    
+
     public func setSubscriptionUpdatePending(value: Bool) {
         hasSubscriptionUpdatePending = value
     }
@@ -63,12 +63,12 @@
         let userCreateTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.userCreate.rawValue)] != nil
         let userUpdateTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue)] != nil
         let subscriptionTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue)] != nil
-        
-        if (userCreateTokenSet) {
-            return true;
+
+        if userCreateTokenSet {
+            return true
         }
 
-        if (hasSubscriptionUpdatePending) {
+        if hasSubscriptionUpdatePending {
             return userUpdateTokenSet && subscriptionTokenSet
         }
         return userUpdateTokenSet

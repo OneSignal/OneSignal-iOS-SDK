@@ -259,7 +259,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 if let rywToken = response?["ryw_token"] as? String
                 {
                     let rywDelay = response?["ryw_delay"] as? NSNumber
-                    
+
                     OSConsistencyManager.shared.setRywTokenAndDelay(
                         id: onesignalId,
                         key: OSIamFetchOffsetKey.userUpdate,

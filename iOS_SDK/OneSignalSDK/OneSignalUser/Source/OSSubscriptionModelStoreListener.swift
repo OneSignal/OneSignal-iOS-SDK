@@ -70,7 +70,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             condition.setSubscriptionUpdatePending(value: true)
         }
-        
+
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,

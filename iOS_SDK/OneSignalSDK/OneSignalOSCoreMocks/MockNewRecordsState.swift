@@ -42,10 +42,6 @@ public class MockNewRecordsState: OSNewRecordsState {
         super.add(key, overwrite)
     }
 
-    override public func canAccess(_ key: String) -> Bool {
-        return super.canAccess(key)
-    }
-
     public func get(_ key: String?) -> [MockNewRecord] {
         return records.filter { $0.key == key }
     }
