@@ -28,6 +28,9 @@
 import Foundation
 
 public enum OSIamFetchOffsetKey: Int, OSConsistencyKeyEnum {
+    // We track user create tokens as well because on fresh installs, we don't have a user or subscription
+    // to update, which would lead to a 5 second delay until the subsequent user & subscription update calls
+    // give us RYW tokens
     case userCreate = 0
     case userUpdate = 1
     case subscriptionUpdate = 2

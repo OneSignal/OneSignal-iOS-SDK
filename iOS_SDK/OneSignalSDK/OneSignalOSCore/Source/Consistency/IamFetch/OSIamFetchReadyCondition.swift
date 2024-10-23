@@ -60,6 +60,9 @@
     public func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
         guard let tokenMap = indexedTokens[id] else { return false }
 
+        // We track user create tokens as well because on fresh installs, we don't have a user or subscription
+        // to update, which would lead to a 5 second delay until the subsequent user & subscription update calls
+        // give us RYW tokens
         let userCreateTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.userCreate.rawValue)] != nil
         let userUpdateTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue)] != nil
         let subscriptionTokenSet = tokenMap[NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue)] != nil
