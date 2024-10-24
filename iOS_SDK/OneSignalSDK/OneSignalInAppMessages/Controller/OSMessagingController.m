@@ -207,8 +207,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.dateGenerator = ^ NSTimeInterval {
             return [[NSDate date] timeIntervalSince1970];
         };
-        self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
-                                                                                          defaultValue:[NSArray<OSInAppMessageInternal *> new]];
+        self.messages = [NSArray<OSInAppMessageInternal *> new];
         [self initializeTriggerController];
         self.messageDisplayQueue = [NSMutableArray new];
         self.clickListeners = [NSMutableArray new];
@@ -242,17 +241,11 @@ static BOOL _isInAppMessagingPaused = false;
                                                   dateFromString:timeSinceLastMessage]];
 }
 
-- (void)updateInAppMessagesFromCache {
-    self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
-    [self evaluateMessages];
-}
-
 - (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
 
         if (!subscriptionId) {
-            [self updateInAppMessagesFromCache];
             return;
         }
 
@@ -328,7 +321,6 @@ static BOOL _isInAppMessagingPaused = false;
         NSDictionary* responseHeaders = errorInfo[@"headers"];
 
         if (!statusCode) {
-            [self updateInAppMessagesFromCache];
             return;
         }
 
@@ -356,9 +348,6 @@ static BOOL _isInAppMessagingPaused = false;
             }
         } else if (code >= 500 && code <= 599) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
-            [self updateInAppMessagesFromCache];
-        } else {
-            [self updateInAppMessagesFromCache];
         }
     }];
 }
@@ -403,23 +392,15 @@ static BOOL _isInAppMessagingPaused = false;
                 [self updateInAppMessagesFromServer:messages];
                 return;
             }
-            [self updateInAppMessagesFromCache];
         });
     } onFailure:^(NSError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
-        [self updateInAppMessagesFromCache];
     }];
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromServer"];
     self.messages = newMessages;
-    
-    // Cache if messages passed in are not null, this method is called from on_session for
-    //  new messages and cached when foregrounding app
-    if (self.messages)
-        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
-
     self.calledLoadTags = NO;
     [self resetRedisplayMessagesBySession];
     [self evaluateMessages];
@@ -440,11 +421,6 @@ static BOOL _isInAppMessagingPaused = false;
     NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
     [newMessagesArray removeObject: message];
     self.messages = newMessagesArray;
-    if (self.messages) {
-        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
-    } else {
-        [OneSignalUserDefaults.initStandard removeValueForKey:OS_IAM_MESSAGES_ARRAY];
-    }
 }
 
 /*
