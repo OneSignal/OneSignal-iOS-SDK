@@ -40,6 +40,10 @@
 
 + (void)resetSharedSessionManager;
 
+- (NSTimeInterval)getTimeFocusedElapsed;
+
+- (void)setLastOpenedTime:(NSTimeInterval)lastOpened;
+
 @property (nonatomic) id<SessionStatusDelegate> _Nullable delegate;
 @property AppEntryAction appEntryState;
 
