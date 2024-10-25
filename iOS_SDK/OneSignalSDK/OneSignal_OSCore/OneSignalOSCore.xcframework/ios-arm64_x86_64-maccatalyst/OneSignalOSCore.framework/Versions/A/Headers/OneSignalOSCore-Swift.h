@@ -322,6 +322,27 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, strong) id <OSBackgroundTaskHa
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
+@class NSNumber;
+@class OSReadYourWriteData;
+
+SWIFT_PROTOCOL("_TtP15OneSignalOSCore11OSCondition_")
+@protocol OSCondition
+@property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
+- (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+- (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore20OSConsistencyManager")
+@interface OSConsistencyManager : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSConsistencyManager * _Nonnull shared;)
++ (OSConsistencyManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+- (OSReadYourWriteData * _Nullable)getRywTokenFromAwaitableCondition:(id <OSCondition> _Nonnull)condition forId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
+- (void)resolveConditionsWithIDWithId:(NSString * _Nonnull)id;
+@end
+
 @class NSCoder;
 
 SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
@@ -329,6 +350,19 @@ SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore24OSIamFetchReadyCondition")
+@interface OSIamFetchReadyCondition : NSObject <OSCondition>
++ (OSIamFetchReadyCondition * _Nonnull)sharedInstanceWithId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull CONDITIONID;)
++ (NSString * _Nonnull)CONDITIONID SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
+- (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+- (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -431,6 +465,18 @@ SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
 - (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore19OSReadYourWriteData")
+@interface OSReadYourWriteData : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nullable rywToken;
+@property (nonatomic, readonly, strong) NSNumber * _Nullable rywDelay;
+- (nonnull instancetype)initWithRywToken:(NSString * _Nullable)rywToken rywDelay:(NSNumber * _Nullable)rywDelay OBJC_DESIGNATED_INITIALIZER;
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) NSUInteger hash;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -776,6 +822,27 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, strong) id <OSBackgroundTaskHa
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
+@class NSNumber;
+@class OSReadYourWriteData;
+
+SWIFT_PROTOCOL("_TtP15OneSignalOSCore11OSCondition_")
+@protocol OSCondition
+@property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
+- (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+- (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore20OSConsistencyManager")
+@interface OSConsistencyManager : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSConsistencyManager * _Nonnull shared;)
++ (OSConsistencyManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+- (OSReadYourWriteData * _Nullable)getRywTokenFromAwaitableCondition:(id <OSCondition> _Nonnull)condition forId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
+- (void)resolveConditionsWithIDWithId:(NSString * _Nonnull)id;
+@end
+
 @class NSCoder;
 
 SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
@@ -783,6 +850,19 @@ SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore24OSIamFetchReadyCondition")
+@interface OSIamFetchReadyCondition : NSObject <OSCondition>
++ (OSIamFetchReadyCondition * _Nonnull)sharedInstanceWithId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull CONDITIONID;)
++ (NSString * _Nonnull)CONDITIONID SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
+- (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+- (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -885,6 +965,18 @@ SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
 - (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC15OneSignalOSCore19OSReadYourWriteData")
+@interface OSReadYourWriteData : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nullable rywToken;
+@property (nonatomic, readonly, strong) NSNumber * _Nullable rywDelay;
+- (nonnull instancetype)initWithRywToken:(NSString * _Nullable)rywToken rywDelay:(NSNumber * _Nullable)rywDelay OBJC_DESIGNATED_INITIALIZER;
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly) NSUInteger hash;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
