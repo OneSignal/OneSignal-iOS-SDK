@@ -303,3 +303,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSPropertyOperationExecutor: OSLoggable {
+    func logSelf() {
+        // TODO: You fill in
+    }
+}
