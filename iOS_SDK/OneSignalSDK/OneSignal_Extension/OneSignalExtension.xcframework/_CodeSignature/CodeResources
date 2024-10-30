@@ -34,7 +34,7 @@
 		</data>
 		<key>ios-arm64/OneSignalExtension.framework/OneSignalExtension</key>
 		<data>
-		nrGAPeKerImFfHNBmsv8wWgqnEE=
+		N4sQ8r7XuDPucmD8NshuTPJYPNo=
 		</data>
 		<key>ios-arm64/OneSignalExtension.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalExtension.framework/Versions/A/OneSignalExtension</key>
 		<data>
-		qSRbvwIBUQ+LbImyhN9ysPiAJ3Y=
+		iYeD2piTz6BuvvBHqzSFITfu7Xg=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalExtension.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -208,11 +208,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			nrGAPeKerImFfHNBmsv8wWgqnEE=
+			N4sQ8r7XuDPucmD8NshuTPJYPNo=
 			</data>
 			<key>hash2</key>
 			<data>
-			Wzl4G7wMmLXHAJN5iDX3nRlFH192DAf/Ab9RFupDQco=
+			tL/D806X8ZMTw82VH2aH0AQE1FE6rleRDekpTkRdjpA=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalExtension.framework/PrivacyInfo.xcprivacy</key>
@@ -327,11 +327,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			qSRbvwIBUQ+LbImyhN9ysPiAJ3Y=
+			iYeD2piTz6BuvvBHqzSFITfu7Xg=
 			</data>
 			<key>hash2</key>
 			<data>
-			88wp2klxFUTgq/5yDen+e33nvSlGQE6j3gFn7/mSK0E=
+			+sC4d8GnAv5MmfEXuUICa8gXPNOI/4uVtyedjB9GGYg=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalExtension.framework/Versions/A/Resources/Info.plist</key>
