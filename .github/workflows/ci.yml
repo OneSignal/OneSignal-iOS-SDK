@@ -40,7 +40,7 @@ jobs:
       - name: Test
         env:
           scheme: ${{ 'UnitTestApp' }}
-          test_plan: ${{ 'UnitTestApp_TestPlan_Reduced' }}
+          test_plan: ${{ 'UnitTestPlan_TestPlan_BadgeOnly' }}
           platform: ${{ 'iOS Simulator' }}
           file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
           filetype_parameter: ${{ 'project' }}
