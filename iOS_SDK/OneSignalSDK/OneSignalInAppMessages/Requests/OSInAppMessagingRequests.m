@@ -43,8 +43,10 @@
         headers[@"OneSignal-Session-Duration" ] = [sessionDuration stringValue];
     }
     headers[@"OneSignal-RYW-Token"] = rywToken;
-    headers[@"OneSignal-Retry-Count"] = [retryCount stringValue];
-    
+    if ([retryCount intValue] > 0) {
+        headers[@"OneSignal-Retry-Count"] = [retryCount stringValue];
+    }
+
     request.additionalHeaders = headers;
 
     NSString *appId = [OneSignalConfigManager getAppId];
