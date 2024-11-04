@@ -38,7 +38,7 @@
 		</data>
 		<key>ios-arm64/OneSignalFramework.framework/OneSignalFramework</key>
 		<data>
-		XyDneok5d80/pxPqIDqoCtogT2A=
+		Ae9u5zxJTfGPo5UAwVdNoQFyE5s=
 		</data>
 		<key>ios-arm64/OneSignalFramework.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalFramework.framework/Versions/A/OneSignalFramework</key>
 		<data>
-		Q/GFtZ0zhVXrF189s9JuvCc2h0Y=
+		S6LJPEkVBnrOxBpzsx/Q0pS8Qx8=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalFramework.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -150,7 +150,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalFramework.framework/OneSignalFramework</key>
 		<data>
-		HKngk1nv/ABp53PBaAx52YyGGOs=
+		7/DRG4Q31kiAaL9LpvUqFl1xZis=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalFramework.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -255,11 +255,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			XyDneok5d80/pxPqIDqoCtogT2A=
+			Ae9u5zxJTfGPo5UAwVdNoQFyE5s=
 			</data>
 			<key>hash2</key>
 			<data>
-			dNSEz0TnkJ6FzzoXGSv/I6Q5BR39lM69CwV1qhlq+gY=
+			1F0Quud98dY0KUzLmtHUMe4o4lg9yVUrBuA+pBfsUyQ=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalFramework.framework/PrivacyInfo.xcprivacy</key>
@@ -418,11 +418,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Q/GFtZ0zhVXrF189s9JuvCc2h0Y=
+			S6LJPEkVBnrOxBpzsx/Q0pS8Qx8=
 			</data>
 			<key>hash2</key>
 			<data>
-			boPzI+sKfDt8rFrsRJ+KNnl1EDLoJctvVnXdRahQWHo=
+			MOdm1PwDaoiTW8JsJ7meOniQ2kdXLyJqx79qlK54dlU=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalFramework.framework/Versions/A/Resources/Info.plist</key>
@@ -588,11 +588,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			HKngk1nv/ABp53PBaAx52YyGGOs=
+			7/DRG4Q31kiAaL9LpvUqFl1xZis=
 			</data>
 			<key>hash2</key>
 			<data>
-			hk9I/VDjf2xccMaPJu+MCvTy7KuyI0wPdYrD7znue4w=
+			6tvL10FBE6f5Uk4GbRCN9N8M06gq7eZ0+PYzwr+zmys=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalFramework.framework/PrivacyInfo.xcprivacy</key>
