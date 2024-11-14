@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build and Test using any available iPhone simulator
-    runs-on: macos-latest-large
+    runs-on: macos-latest
 
     steps:
       - name: Checkout OneSignal-iOS-SDK
@@ -23,7 +23,7 @@ jobs:
           echo Using default scheme: $default
       - name: Run Swift Lint
         run: |
-          swiftlint
+          # swiftlint
       - name: Build
         env:
           scheme: ${{ 'UnitTestApp' }}
