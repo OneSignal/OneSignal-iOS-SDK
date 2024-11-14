@@ -22,9 +22,10 @@ SWIFT_PACKAGE_DIRECTORY="${WORKING_DIR}/../.."
 
 SWIFT_PACKAGE_PATH="${SWIFT_PACKAGE_DIRECTORY}/Package.swift"
 
-#Ask for the new release version number to be placed in the package URL
-echo -e "\033[1mEnter the new SDK release version number\033[0m"
-read VERSION_NUMBER
+# Ask for the new release version number to be placed in the package URL
+# echo -e "\033[1mEnter the new SDK release version number\033[0m"
+# read VERSION_NUMBER
+VERSION_NUMBER=$1
 
 # Remove the old Zipped XCFramework and create a new Zip
 echo "Removing old Zipped XCFramework ${FRAMEWORK_ZIP_PATH}"
