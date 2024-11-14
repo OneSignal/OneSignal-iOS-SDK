@@ -92,11 +92,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
 
 + (NSString*)getOneSignalAppId {
-    NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-    if (userDefinedAppId) {
-        return userDefinedAppId;
-    }
-    return ONESIGNAL_APP_ID_DEFAULT;
+    // Prevent exposing our test app IDs, manually enter your app ID
+    return @"INSERT_YOUR_STAGING_APP_ID";
 }
 
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
