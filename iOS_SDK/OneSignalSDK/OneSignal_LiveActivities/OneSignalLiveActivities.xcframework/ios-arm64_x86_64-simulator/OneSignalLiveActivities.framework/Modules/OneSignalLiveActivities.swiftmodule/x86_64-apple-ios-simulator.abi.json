@@ -1,8 +1,8 @@
 {
   "ABIRoot": {
     "kind": "Root",
-    "name": "TopLevel",
-    "printedName": "TopLevel",
+    "name": "OneSignalLiveActivities",
+    "printedName": "OneSignalLiveActivities",
     "children": [
       {
         "kind": "Import",
@@ -290,6 +290,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -602,7 +616,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Decoder",
-                    "printedName": "Swift.Decoder",
+                    "printedName": "any Swift.Decoder",
                     "usr": "s:s7DecoderP"
                   }
                 ],
@@ -627,7 +641,7 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Encoder",
-                    "printedName": "Swift.Encoder",
+                    "printedName": "any Swift.Encoder",
                     "usr": "s:s7EncoderP"
                   }
                 ],
@@ -744,6 +758,20 @@
               "AccessControl"
             ],
             "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
               {
                 "kind": "Conformance",
                 "name": "OneSignalLiveActivityContentState",
@@ -1007,7 +1035,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Decoder",
-                "printedName": "Swift.Decoder",
+                "printedName": "any Swift.Decoder",
                 "usr": "s:s7DecoderP"
               }
             ],
@@ -1032,7 +1060,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Encoder",
-                "printedName": "Swift.Encoder",
+                "printedName": "any Swift.Encoder",
                 "usr": "s:s7EncoderP"
               }
             ],
@@ -1054,6 +1082,20 @@
           "RawDocComment"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "OneSignalLiveActivityAttributes",
@@ -1242,6 +1284,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "ActivityAttributes",
             "printedName": "ActivityAttributes",
             "usr": "s:11ActivityKit0A10AttributesP",
@@ -1396,7 +1452,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Decoder",
-                "printedName": "Swift.Decoder",
+                "printedName": "any Swift.Decoder",
                 "usr": "s:s7DecoderP"
               }
             ],
@@ -1421,7 +1477,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Encoder",
-                "printedName": "Swift.Encoder",
+                "printedName": "any Swift.Encoder",
                 "usr": "s:s7EncoderP"
               }
             ],
@@ -1443,6 +1499,20 @@
           "RawDocComment"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Decodable",
@@ -1602,6 +1672,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "Hashable",
             "printedName": "Hashable",
             "usr": "s:SH",
@@ -1734,7 +1818,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Decoder",
-                "printedName": "Swift.Decoder",
+                "printedName": "any Swift.Decoder",
                 "usr": "s:s7DecoderP"
               }
             ],
@@ -1759,7 +1843,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Encoder",
-                "printedName": "Swift.Encoder",
+                "printedName": "any Swift.Encoder",
                 "usr": "s:s7EncoderP"
               }
             ],
@@ -1879,6 +1963,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "Decodable",
             "printedName": "Decodable",
             "usr": "s:Se",
@@ -1965,7 +2063,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "ExistentialMetatype",
-                "printedName": "AnyObject.Type",
+                "printedName": "any AnyObject.Type",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -2300,12 +2398,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -2315,12 +2413,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -2411,12 +2509,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -2426,12 +2524,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -2667,6 +2765,20 @@
             "printedName": "OSLiveActivities",
             "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities",
             "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",
@@ -3295,7 +3407,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Decoder",
-                "printedName": "Swift.Decoder",
+                "printedName": "any Swift.Decoder",
                 "usr": "s:s7DecoderP"
               }
             ],
@@ -3322,7 +3434,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "Encoder",
-                "printedName": "Swift.Encoder",
+                "printedName": "any Swift.Encoder",
                 "usr": "s:s7EncoderP"
               }
             ],
@@ -3536,6 +3648,20 @@
           "RawDocComment"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Decodable",
@@ -4091,1446 +4217,251 @@
         "declAttributes": [
           "ObjC"
         ],
-        "isExternal": true
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
       }
     ],
     "json_format_version": 8
   },
   "ConstValues": [
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
       "kind": "BooleanLiteral",
       "offset": 5300,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
       "kind": "BooleanLiteral",
       "offset": 5530,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
       "kind": "BooleanLiteral",
       "offset": 5588,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
       "kind": "BooleanLiteral",
       "offset": 5621,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OSLiveActivitiesExtension.swift",
-      "kind": "StringLiteral",
-      "offset": 5082,
-      "length": 24,
-      "value": "\"OneSignalLiveActivities.LiveActivitySetupOptions\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1418,
       "length": 91,
       "value": "\"(OSRequestSetStartToken) key:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1454,
       "length": 17,
       "value": "\" requestSuccessful:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1493,
       "length": 5,
       "value": "\" token:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1508,
       "length": 3,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "BooleanLiteral",
       "offset": 1630,
       "length": 5,
       "value": "false"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1803,
-      "length": 65,
-      "value": "\"Cannot generate the set start token request due to null app ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1889,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2065,
-      "length": 74,
-      "value": "\"Cannot generate the set start token request due to null subscription ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2160,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2360,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2436,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2473,
-      "length": 87,
-      "value": "\"apps\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2487,
-      "length": 1,
-      "value": "\"\/activities\/tokens\/start\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2527,
-      "length": 1,
-      "value": "\"\/subscriptions\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2559,
-      "length": 1,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2588,
-      "length": 16,
-      "value": "\"activity_token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2618,
-      "length": 13,
-      "value": "\"device_type\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "IntegerLiteral",
-      "offset": 2633,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2678,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2908,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3321,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3428,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3471,
-      "length": 7,
-      "value": "\"token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3528,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3589,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3709,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3779,
-      "length": 7,
-      "value": "\"token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3855,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 4058,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1273,
-      "length": 22,
-      "value": "\"OneSignalLiveActivities.OSRequestSetStartToken\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 2436,
-      "length": 68,
-      "value": "\"OneSignal.LiveActivities initialized token cache \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 2493,
-      "length": 1,
-      "value": "\": \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 2503,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2973,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3402,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3709,
-      "length": 84,
-      "value": "\"OneSignal.LiveActivities remove stale request from token cache \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3780,
-      "length": 1,
-      "value": "\": \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3792,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3917,
-      "length": 63,
-      "value": "\"OneSignal.LiveActivities saving token cache \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3969,
-      "length": 1,
-      "value": "\": \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 3979,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4277,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4282,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4287,
       "length": 2,
       "value": "24"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4292,
       "length": 3,
       "value": "365"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 4103,
-      "length": 18,
-      "value": "\"OneSignalLiveActivities.UpdateRequestCache\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4581,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4586,
       "length": 2,
       "value": "60"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4591,
       "length": 2,
       "value": "24"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 4596,
       "length": 3,
       "value": "365"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 4443,
-      "length": 17,
-      "value": "\"OneSignalLiveActivities.StartRequestCache\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
       "kind": "IntegerLiteral",
       "offset": 5259,
       "length": 2,
       "value": "30"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 5437,
-      "length": 44,
-      "value": "\"OneSignal.LiveActivities starting executor\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 6633,
-      "length": 76,
-      "value": "\"OneSignal.LiveActivities superseded request not saved\/executed: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 6708,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 6839,
-      "length": 46,
-      "value": "\"OneSignal.LiveActivities pollPendingRequests\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 7059,
-      "length": 57,
-      "value": "\"OneSignal.LiveActivities executing outstanding requests\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 7999,
-      "length": 84,
-      "value": "\"Cannot send live activity request when the user has not granted privacy permission\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8284,
-      "length": 56,
-      "value": "\"OneSignal.LiveActivities executing request: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8339,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8545,
-      "length": 56,
-      "value": "\"OneSignal.LiveActivities request succeeded: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8600,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8874,
-      "length": 78,
-      "value": "\"OneSignal.LiveActivities request failed with error \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Executors\/OSLiveActivitiesExecutor.swift",
-      "kind": "StringLiteral",
-      "offset": 8951,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
       "kind": "StringLiteral",
       "offset": 1700,
       "length": 26,
       "value": "\"OneSignal.LiveActivities\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2070,
-      "length": 90,
-      "value": "\"OneSignal.LiveActivities enter called with activityId: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2139,
-      "length": 5,
-      "value": "\" token: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2159,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2372,
-      "length": 70,
-      "value": "\"OneSignal.LiveActivities leave called with activityId: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2441,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2710,
-      "length": 102,
-      "value": "\"OneSignal.LiveActivities setStartToken called with activityType: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2791,
-      "length": 5,
-      "value": "\" token: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 2811,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3002,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3336,
-      "length": 85,
-      "value": "\"OneSignal.LiveActivities removeStartToken called with activityType: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3420,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3611,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3735,
-      "length": 17,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3751,
-      "length": 3,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 3993,
-      "length": 17,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 4009,
-      "length": 24,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 4384,
-      "length": 35,
-      "value": "\"Could not set push to start token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 4656,
-      "length": 17,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 4672,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 5025,
-      "length": 35,
-      "value": "\"Could not set push to start token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 7407,
-      "length": 38,
-      "value": "\"Cannot start default live activity: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 7829,
-      "length": 72,
-      "value": "\"OneSignal.LiveActivities listening for pushToStart on: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 7900,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 8045,
-      "length": 6,
-      "value": "\"%02x\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 8493,
-      "length": 69,
-      "value": "\"OneSignal.LiveActivities listening for activity on: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 8561,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 9873,
-      "length": 132,
-      "value": "\"OneSignal.LiveActivities listening for state update on: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 9945,
-      "length": 1,
-      "value": "\":\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 9989,
-      "length": 1,
-      "value": "\":\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 10004,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 10924,
-      "length": 132,
-      "value": "\"OneSignal.LiveActivities listening for pushToUpdate on: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 10996,
-      "length": 1,
-      "value": "\":\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 11040,
-      "length": 1,
-      "value": "\":\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 11055,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/OneSignalLiveActivitiesManagerImpl.swift",
-      "kind": "StringLiteral",
-      "offset": 11187,
-      "length": 6,
-      "value": "\"%02x\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1423,
       "length": 80,
       "value": "\"(OSRequestRemoveUpdateToken) key:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1463,
       "length": 17,
       "value": "\" requestSuccessful:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1502,
       "length": 3,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
       "kind": "BooleanLiteral",
       "offset": 1602,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1774,
-      "length": 69,
-      "value": "\"Cannot generate the remove update token request due to null app ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1864,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2040,
-      "length": 78,
-      "value": "\"Cannot generate the remove update token request due to null subscription ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2139,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2337,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2413,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2560,
-      "length": 69,
-      "value": "\"apps\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2574,
-      "length": 1,
-      "value": "\"\/live_activities\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2604,
-      "length": 1,
-      "value": "\"\/token\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2628,
-      "length": 1,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2675,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3092,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3199,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3246,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3307,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3435,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3517,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3603,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1273,
-      "length": 26,
-      "value": "\"OneSignalLiveActivities.OSRequestRemoveUpdateToken\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 2872,
-      "length": 36,
-      "value": "\"AnyCodable value cannot be decoded\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5004,
-      "length": 36,
-      "value": "\"AnyCodable value cannot be encoded\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5345,
-      "length": 3,
-      "value": "\"B\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5416,
-      "length": 3,
-      "value": "\"c\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5487,
-      "length": 3,
-      "value": "\"s\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5559,
-      "length": 3,
-      "value": "\"i\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5564,
-      "length": 3,
-      "value": "\"l\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5636,
-      "length": 3,
-      "value": "\"q\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5708,
-      "length": 3,
-      "value": "\"C\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5780,
-      "length": 3,
-      "value": "\"S\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5853,
-      "length": 3,
-      "value": "\"I\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5858,
-      "length": 3,
-      "value": "\"L\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 5931,
-      "length": 3,
-      "value": "\"Q\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 6004,
-      "length": 3,
-      "value": "\"f\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 6076,
-      "length": 3,
-      "value": "\"d\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 6253,
-      "length": 60,
-      "value": "\"NSNumber cannot be encoded because its type is not handled\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "BooleanLiteral",
-      "offset": 6650,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "BooleanLiteral",
-      "offset": 6711,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "BooleanLiteral",
-      "offset": 8299,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "BooleanLiteral",
-      "offset": 8340,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 8908,
-      "length": 39,
-      "value": "\"AnyCodable(\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 8945,
-      "length": 1,
-      "value": "\")\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 8984,
-      "length": 28,
-      "value": "\"AnyCodable(\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/AnyCodable.swift",
-      "kind": "StringLiteral",
-      "offset": 9010,
-      "length": 1,
-      "value": "\")\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1421,
       "length": 79,
       "value": "\"(OSRequestRemoveStartToken) key:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1460,
       "length": 17,
       "value": "\" requestSuccessful:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
       "kind": "StringLiteral",
       "offset": 1499,
       "length": 3,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
       "kind": "BooleanLiteral",
       "offset": 1599,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1771,
-      "length": 68,
-      "value": "\"Cannot generate the remove start token request due to null app ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1860,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2036,
-      "length": 77,
-      "value": "\"Cannot generate the remove start token request due to null subscription ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2134,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2334,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2410,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2447,
-      "length": 87,
-      "value": "\"apps\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2461,
-      "length": 1,
-      "value": "\"\/activities\/tokens\/start\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2501,
-      "length": 1,
-      "value": "\"\/subscriptions\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2533,
-      "length": 1,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2580,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2997,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3104,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3159,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3220,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3340,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3422,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3508,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestRemoveStartToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1273,
-      "length": 25,
-      "value": "\"OneSignalLiveActivities.OSRequestRemoveStartToken\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1420,
       "length": 92,
       "value": "\"(OSRequestSetUpdateToken) key:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1457,
       "length": 17,
       "value": "\" requestSuccessful:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1496,
       "length": 5,
       "value": "\" token:\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
       "kind": "StringLiteral",
       "offset": 1511,
       "length": 3,
       "value": "\"\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
       "kind": "BooleanLiteral",
       "offset": 1633,
       "length": 5,
       "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1806,
-      "length": 66,
-      "value": "\"Cannot generate the set update token request due to null app ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1893,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2069,
-      "length": 75,
-      "value": "\"Cannot generate the set update token request due to null subscription ID.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2165,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2363,
-      "length": 55,
-      "value": "\"Cannot translate activity type to url encoded string.\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2439,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2655,
-      "length": 51,
-      "value": "\"apps\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2669,
-      "length": 1,
-      "value": "\"\/live_activities\/\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2699,
-      "length": 1,
-      "value": "\"\/token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2734,
-      "length": 17,
-      "value": "\"subscription_id\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2769,
-      "length": 12,
-      "value": "\"push_token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 2795,
-      "length": 13,
-      "value": "\"device_type\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "IntegerLiteral",
-      "offset": 2810,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2856,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3087,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3500,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3607,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3650,
-      "length": 7,
-      "value": "\"token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3707,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3768,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3888,
-      "length": 5,
-      "value": "\"key\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 3958,
-      "length": 7,
-      "value": "\"token\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 4034,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 4237,
-      "length": 19,
-      "value": "\"requestSuccessful\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetUpdateToken.swift",
-      "kind": "StringLiteral",
-      "offset": 1273,
-      "length": 23,
-      "value": "\"OneSignalLiveActivities.OSRequestSetUpdateToken\""
     }
   ]
 }
