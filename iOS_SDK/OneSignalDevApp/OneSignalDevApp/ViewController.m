@@ -57,9 +57,13 @@
     self.activityIndicatorView.hidden = !animating;
 }
 
-- (IBAction)updateAppId:(id)sender {
-    // [AppDelegate setOneSignalAppId:self.appIdTextField.text];
-    NSLog(@"Dev App: Not a feature, can't change app id, no op!");
+- (IBAction)updateAppId:(id)sender {    
+    NSLog(@"Dev App Info");
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated"
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"OSID + SubID" message:[NSString stringWithFormat:@"%@, %@", OneSignal.User.onesignalId, OneSignal.User.pushSubscription.id] delegate:self cancelButtonTitle:@"Ok" otherButtonTitles:@"Cool", nil];
+    [alert show];
+    #pragma clang diagnostic pop
 }
 
 - (IBAction)addTriggerAction:(id)sender {
