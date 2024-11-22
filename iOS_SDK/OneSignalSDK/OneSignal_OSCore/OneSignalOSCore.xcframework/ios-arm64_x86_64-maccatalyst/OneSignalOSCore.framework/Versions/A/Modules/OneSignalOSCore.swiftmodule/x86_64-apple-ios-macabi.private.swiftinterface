@@ -1,0 +1,205 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target x86_64-apple-ios13.1-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import Foundation
+import OneSignalCore
+@_exported import OneSignalOSCore
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@objc public protocol OSLiveActivities {
+  @objc static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc @available(*, deprecated)
+  static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc static func exit(_ activityId: Swift.String)
+  @objc @available(*, deprecated)
+  static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+}
+public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValue == Swift.Int {
+}
+@objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
+  public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+  public var paused: Swift.Bool
+  public func start()
+  public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
+  public func enqueueDelta(_ delta: OneSignalOSCore.OSDelta, flush: Swift.Bool = false)
+  @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
+  @objc override dynamic public init()
+  @objc deinit
+}
+@_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
+  public func subscribe(_ handler: THandler)
+  public func unsubscribe(_ handler: THandler)
+  public func fire(callback: (THandler) -> Swift.Void)
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc public protocol OSCondition {
+  @objc var conditionId: Swift.String { get }
+  @objc func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
+  @objc func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OSConsistencyManager : ObjectiveC.NSObject {
+  @objc public static let shared: OneSignalOSCore.OSConsistencyManager
+  public func reset()
+  public func setRywTokenAndDelay(id: Swift.String, key: any OneSignalOSCore.OSConsistencyKeyEnum, value: OneSignalOSCore.OSReadYourWriteData)
+  @objc public func getRywTokenFromAwaitableCondition(_ condition: any OneSignalOSCore.OSCondition, forId id: Swift.String) -> OneSignalOSCore.OSReadYourWriteData?
+  @objc public func resolveConditionsWithID(id: Swift.String)
+  @objc deinit
+}
+open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
+  public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
+  public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
+  @objc deinit
+  public func getModel(key: Swift.String) -> TModel?
+  public func getModel(modelId: Swift.String) -> TModel?
+  public func getModels() -> [Swift.String : TModel]
+  public func add(id: Swift.String, model: TModel, hydrating: Swift.Bool)
+  public func remove(_ id: Swift.String)
+  public func clearModelsFromStore()
+}
+extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
+  public func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+@objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
+  final public let modelId: Swift.String
+  public var changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>
+  public init(changeNotifier: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>)
+  @objc open func encode(with coder: Foundation.NSCoder)
+  @objc required public init?(coder: Foundation.NSCoder)
+  public func set<T>(property: Swift.String, newValue: T)
+  public func hydrate(_ response: [Swift.String : Any])
+  open func hydrateModel(_ response: [Swift.String : Any])
+  @objc deinit
+}
+public class OSNewRecordsState {
+  public init()
+  public func add(_ key: Swift.String, _ overwrite: Swift.Bool = false)
+  public func canAccess(_ key: Swift.String) -> Swift.Bool
+  @objc deinit
+}
+@objc public protocol OSBackgroundTaskHandler {
+  @objc func beginBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc func endBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc func setTaskInvalid(_ taskIdentifier: Swift.String)
+}
+@_inheritsConvenienceInitializers @objc public class OSBackgroundTaskManager : ObjectiveC.NSObject {
+  @objc public static var taskHandler: (any OneSignalOSCore.OSBackgroundTaskHandler)?
+  @objc public static func beginBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc public static func endBackgroundTask(_ taskIdentifier: Swift.String)
+  @objc public static func setTaskInvalid(_ taskIdentifier: Swift.String)
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc @objcMembers public class OSReadYourWriteData : ObjectiveC.NSObject {
+  @objc final public let rywToken: Swift.String?
+  @objc final public let rywDelay: Foundation.NSNumber?
+  @objc public init(rywToken: Swift.String?, rywDelay: Foundation.NSNumber?)
+  @objc override dynamic public func isEqual(_ object: Any?) -> Swift.Bool
+  @objc override dynamic public var hash: Swift.Int {
+    @objc get
+  }
+  @objc deinit
+}
+public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandler {
+  associatedtype TModel : OneSignalOSCore.OSModel
+  var store: OneSignalOSCore.OSModelStore<Self.TModel> { get }
+  init(store: OneSignalOSCore.OSModelStore<Self.TModel>)
+  func getAddModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
+  func getRemoveModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
+  func getUpdateModelDelta(_ args: OneSignalOSCore.OSModelChangedArgs) -> OneSignalOSCore.OSDelta?
+}
+extension OneSignalOSCore.OSModelStoreListener {
+  public func start()
+  public func close()
+  public func onAdded(_ model: OneSignalOSCore.OSModel)
+  public func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
+  public func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+@_hasMissingDesignatedInitializers @objc public class OSIamFetchReadyCondition : ObjectiveC.NSObject, OneSignalOSCore.OSCondition {
+  @objc public static func sharedInstance(withId id: Swift.String) -> OneSignalOSCore.OSIamFetchReadyCondition
+  @objc public static let CONDITIONID: Swift.String
+  @objc public var conditionId: Swift.String {
+    @objc get
+  }
+  public func setSubscriptionUpdatePending(value: Swift.Bool)
+  @objc public func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
+  @objc public func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
+  @objc deinit
+}
+public protocol OSModelStoreChangedHandler {
+  func onAdded(_ model: OneSignalOSCore.OSModel)
+  func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
+  func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+@objc open class OSDelta : ObjectiveC.NSObject, Foundation.NSCoding {
+  final public let name: Swift.String
+  final public let deltaId: Swift.String
+  final public let timestamp: Foundation.Date
+  final public let identityModelId: Swift.String
+  public var model: OneSignalOSCore.OSModel
+  final public let property: Swift.String
+  final public let value: Any
+  @objc override dynamic open var description: Swift.String {
+    @objc get
+  }
+  public init(name: Swift.String, identityModelId: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
+  @objc public func encode(with coder: Foundation.NSCoder)
+  @objc required public init?(coder: Foundation.NSCoder)
+  @objc deinit
+}
+public protocol OSDispatchQueue {
+  func async(execute work: @escaping @convention(block) () -> Swift.Void)
+  #if compiler(>=5.3) && $Sendable
+  func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
+  #endif
+}
+extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
+  public func async(execute work: @escaping @convention(block) () -> Swift.Void)
+  #if compiler(>=5.3) && $Sendable
+  public func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
+  #endif
+}
+@objc @_inheritsConvenienceInitializers public class OSStubLiveActivities : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
+  @objc public static func liveActivities() -> Swift.AnyClass
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
+  @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc public static func exit(_ activityId: Swift.String)
+  @objc public static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc override dynamic public init()
+  @objc deinit
+}
+public enum OSIamFetchOffsetKey : Swift.Int, OneSignalOSCore.OSConsistencyKeyEnum {
+  case userCreate
+  case userUpdate
+  case subscriptionUpdate
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc @_hasMissingDesignatedInitializers public class OSModelChangedArgs : ObjectiveC.NSObject {
+  final public let model: OneSignalOSCore.OSModel
+  final public let property: Swift.String
+  final public let newValue: Any
+  @objc override dynamic public var description: Swift.String {
+    @objc get
+  }
+  @objc deinit
+}
+public protocol OSModelChangedHandler {
+  func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+public protocol OSOperationExecutor {
+  var supportedDeltas: [Swift.String] { get }
+  var deltaQueue: [OneSignalOSCore.OSDelta] { get }
+  func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
+  func cacheDeltaQueue()
+  func processDeltaQueue(inBackground: Swift.Bool)
+  func processRequestQueue(inBackground: Swift.Bool)
+}
+extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Equatable {}
+extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Hashable {}
