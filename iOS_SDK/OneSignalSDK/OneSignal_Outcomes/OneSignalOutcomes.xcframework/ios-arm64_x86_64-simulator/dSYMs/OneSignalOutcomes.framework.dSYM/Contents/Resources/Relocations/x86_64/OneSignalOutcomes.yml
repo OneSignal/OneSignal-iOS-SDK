@@ -1,337 +1,337 @@
 ---
 triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalOutcomes/InstallationBuildProductsLocation/Library/Frameworks/OneSignalOutcomes.framework/OneSignalOutcomes'
+binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalOutcomes/InstallationBuildProductsLocation/Library/Frameworks/OneSignalOutcomes.framework/OneSignalOutcomes'
 relocations:
-  - { offset: 0x5B31F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x11FC, symSize: 0xAA }
-  - { offset: 0x5B33E, size: 0x8, addend: 0x0, symName: _unattributedUniqueOutcomeEventsSentSet, symObjAddr: 0xBCB0, symBinAddr: 0x16E60, symSize: 0x0 }
-  - { offset: 0x5B445, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x11FC, symSize: 0xAA }
-  - { offset: 0x5B501, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initUniqueOutcomeEventsFromCache]', symObjAddr: 0xAA, symBinAddr: 0x12A6, symSize: 0x8B }
-  - { offset: 0x5B594, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController clearOutcomes]', symObjAddr: 0x135, symBinAddr: 0x1331, symSize: 0x6E }
-  - { offset: 0x5B5FE, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController cleanUniqueOutcomeNotifications]', symObjAddr: 0x1A3, symBinAddr: 0x139F, symSize: 0x2C9 }
-  - { offset: 0x5B7E9, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendClickActionOutcomes:appId:deviceType:]', symObjAddr: 0x46C, symBinAddr: 0x1668, symSize: 0x304 }
-  - { offset: 0x5BA0B, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]', symObjAddr: 0x770, symBinAddr: 0x196C, symSize: 0x1D8 }
-  - { offset: 0x5BC65, size: 0x8, addend: 0x0, symName: '___132-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]_block_invoke', symObjAddr: 0x948, symBinAddr: 0x1B44, symSize: 0x52 }
-  - { offset: 0x5BCF8, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0x99A, symBinAddr: 0x1B96, symSize: 0x17 }
-  - { offset: 0x5BD21, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x9B1, symBinAddr: 0x1BAD, symSize: 0xF }
-  - { offset: 0x5BD4C, size: 0x8, addend: 0x0, symName: '___132-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]_block_invoke.82', symObjAddr: 0x9C0, symBinAddr: 0x1BBC, symSize: 0x52 }
-  - { offset: 0x5BDDF, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendUniqueOutcomeEvent:appId:deviceType:successBlock:]', symObjAddr: 0xA12, symBinAddr: 0x1C0E, symSize: 0xD0 }
-  - { offset: 0x5BF48, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendOutcomeEvent:appId:deviceType:successBlock:]', symObjAddr: 0xAE2, symBinAddr: 0x1CDE, symSize: 0x103 }
-  - { offset: 0x5C0BA, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendOutcomeEventWithValue:value:appId:deviceType:successBlock:]', symObjAddr: 0xBE5, symBinAddr: 0x1DE1, symSize: 0xF0 }
-  - { offset: 0x5C245, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendUniqueOutcomeEvent:appId:deviceType:influences:successBlock:]', symObjAddr: 0xCD5, symBinAddr: 0x1ED1, symSize: 0x5DD }
-  - { offset: 0x5C6D2, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController setSourceChannelIdsWithInfluence:sourceBody:]', symObjAddr: 0x12B2, symBinAddr: 0x24AE, symSize: 0xA9 }
-  - { offset: 0x5C7AA, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]', symObjAddr: 0x135B, symBinAddr: 0x2557, symSize: 0x6C9 }
-  - { offset: 0x5CCEE, size: 0x8, addend: 0x0, symName: '___110-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]_block_invoke', symObjAddr: 0x1A24, symBinAddr: 0x2C20, symSize: 0x66 }
-  - { offset: 0x5CD96, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48b, symObjAddr: 0x1A8A, symBinAddr: 0x2C86, symSize: 0x44 }
-  - { offset: 0x5CDD7, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x1ACE, symBinAddr: 0x2CCA, symSize: 0x2C }
-  - { offset: 0x5CE1A, size: 0x8, addend: 0x0, symName: '___110-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]_block_invoke.163', symObjAddr: 0x1AFA, symBinAddr: 0x2CF6, symSize: 0x38 }
-  - { offset: 0x5CE98, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b, symObjAddr: 0x1B32, symBinAddr: 0x2D2E, symSize: 0x30 }
-  - { offset: 0x5CECD, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x1B62, symBinAddr: 0x2D5E, symSize: 0x25 }
-  - { offset: 0x5CF04, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController removeDisabledInfluences:]', symObjAddr: 0x1B87, symBinAddr: 0x2D83, symSize: 0x2E2 }
-  - { offset: 0x5D0D1, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveUniqueOutcome:]', symObjAddr: 0x1E69, symBinAddr: 0x3065, symSize: 0xCD }
-  - { offset: 0x5D1C7, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveAttributedUniqueOutcomeFromParams:]', symObjAddr: 0x1F36, symBinAddr: 0x3132, symSize: 0x6A }
-  - { offset: 0x5D261, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveUnattributedUniqueOutcomeEvents]', symObjAddr: 0x1FA0, symBinAddr: 0x319C, symSize: 0x48 }
-  - { offset: 0x5D2B9, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addOutcome:]', symObjAddr: 0x1FE8, symBinAddr: 0x31E4, symSize: 0xB8 }
-  - { offset: 0x5D39B, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addOutcomeWithValue:value:]', symObjAddr: 0x20A0, symBinAddr: 0x329C, symSize: 0xFA }
-  - { offset: 0x5D4D9, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addUniqueOutcome:]', symObjAddr: 0x219A, symBinAddr: 0x3396, symSize: 0xB8 }
-  - { offset: 0x5D5BB, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController isValidOutcomeEntry:]', symObjAddr: 0x2252, symBinAddr: 0x344E, symSize: 0x64 }
-  - { offset: 0x5D650, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController isValidOutcomeValue:]', symObjAddr: 0x22B6, symBinAddr: 0x34B2, symSize: 0x63 }
-  - { offset: 0x5D6E5, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sessionManager]', symObjAddr: 0x2319, symBinAddr: 0x3515, symSize: 0xA }
-  - { offset: 0x5D71A, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController outcomeEventsFactory]', symObjAddr: 0x2323, symBinAddr: 0x351F, symSize: 0xA }
-  - { offset: 0x5D74F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController .cxx_destruct]', symObjAddr: 0x232D, symBinAddr: 0x3529, symSize: 0x28 }
-  - { offset: 0x5DD44, size: 0x8, addend: 0x0, symName: '+[OSSessionManager sharedSessionManager]', symObjAddr: 0x0, symBinAddr: 0x3551, symSize: 0x8C }
-  - { offset: 0x5DD63, size: 0x8, addend: 0x0, symName: __appEntryState, symObjAddr: 0x1888, symBinAddr: 0x16C78, symSize: 0x0 }
-  - { offset: 0x5DD79, size: 0x8, addend: 0x0, symName: __sessionManager, symObjAddr: 0x8098, symBinAddr: 0x16E80, symSize: 0x0 }
-  - { offset: 0x5DE24, size: 0x8, addend: 0x0, symName: __sessionLaunchTime, symObjAddr: 0x80A8, symBinAddr: 0x16E68, symSize: 0x0 }
-  - { offset: 0x5DE3F, size: 0x8, addend: 0x0, symName: _lastOpenedTime, symObjAddr: 0x80A0, symBinAddr: 0x16E88, symSize: 0x0 }
-  - { offset: 0x5DE95, size: 0x8, addend: 0x0, symName: '+[OSSessionManager sharedSessionManager]', symObjAddr: 0x0, symBinAddr: 0x3551, symSize: 0x8C }
-  - { offset: 0x5DF0E, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setLastOpenedTime:]', symObjAddr: 0x8C, symBinAddr: 0x35DD, symSize: 0xE }
-  - { offset: 0x5DF4B, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getTimeFocusedElapsed]', symObjAddr: 0x9A, symBinAddr: 0x35EB, symSize: 0xC3 }
-  - { offset: 0x5DFCA, size: 0x8, addend: 0x0, symName: '+[OSSessionManager resetSharedSessionManager]', symObjAddr: 0x15D, symBinAddr: 0x36AE, symSize: 0x1D }
-  - { offset: 0x5E005, size: 0x8, addend: 0x0, symName: '-[OSSessionManager appEntryState]', symObjAddr: 0x17A, symBinAddr: 0x36CB, symSize: 0xC }
-  - { offset: 0x5E038, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setAppEntryState:]', symObjAddr: 0x186, symBinAddr: 0x36D7, symSize: 0xC }
-  - { offset: 0x5E075, size: 0x8, addend: 0x0, symName: '-[OSSessionManager init:withTrackerFactory:]', symObjAddr: 0x192, symBinAddr: 0x36E3, symSize: 0xAA }
-  - { offset: 0x5E131, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getInfluences]', symObjAddr: 0x23C, symBinAddr: 0x378D, symSize: 0x16 }
-  - { offset: 0x5E174, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getSessionInfluences]', symObjAddr: 0x252, symBinAddr: 0x37A3, symSize: 0x16 }
-  - { offset: 0x5E1B7, size: 0x8, addend: 0x0, symName: '-[OSSessionManager initSessionFromCache]', symObjAddr: 0x268, symBinAddr: 0x37B9, symSize: 0xDB }
-  - { offset: 0x5E27B, size: 0x8, addend: 0x0, symName: '-[OSSessionManager restartSessionIfNeeded]', symObjAddr: 0x343, symBinAddr: 0x3894, symSize: 0x3A7 }
-  - { offset: 0x5E4ED, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onInAppMessageReceived:]', symObjAddr: 0x6EA, symBinAddr: 0x3C3B, symSize: 0xBD }
-  - { offset: 0x5E5CF, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromIAMClick:]', symObjAddr: 0x7A7, symBinAddr: 0x3CF8, symSize: 0xCB }
-  - { offset: 0x5E6C4, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromIAMClickFinished]', symObjAddr: 0x872, symBinAddr: 0x3DC3, symSize: 0x61 }
-  - { offset: 0x5E73E, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onNotificationReceived:]', symObjAddr: 0x8D3, symBinAddr: 0x3E24, symSize: 0xD4 }
-  - { offset: 0x5E834, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromNotificationOpen:withNotificationId:]', symObjAddr: 0x9A7, symBinAddr: 0x3EF8, symSize: 0xBF }
-  - { offset: 0x5E911, size: 0x8, addend: 0x0, symName: '-[OSSessionManager attemptSessionUpgrade]', symObjAddr: 0xA66, symBinAddr: 0x3FB7, symSize: 0x14 }
-  - { offset: 0x5E95D, size: 0x8, addend: 0x0, symName: '-[OSSessionManager attemptSessionUpgradeWithDirectId:]', symObjAddr: 0xA7A, symBinAddr: 0x3FCB, symSize: 0x6A3 }
-  - { offset: 0x5EE7A, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setSessionForChannel:withInfluenceType:directId:indirectIds:]', symObjAddr: 0x111D, symBinAddr: 0x466E, symSize: 0x3F9 }
-  - { offset: 0x5F1AC, size: 0x8, addend: 0x0, symName: '-[OSSessionManager willChangeSessionForChannel:withInfluenceType:directId:indirectIds:]', symObjAddr: 0x1516, symBinAddr: 0x4A67, symSize: 0x1F1 }
-  - { offset: 0x5F3C0, size: 0x8, addend: 0x0, symName: '-[OSSessionManager sendSessionEndingWithInfluences:]', symObjAddr: 0x1707, symBinAddr: 0x4C58, symSize: 0xF8 }
-  - { offset: 0x5F4C3, size: 0x8, addend: 0x0, symName: '-[OSSessionManager sessionLaunchTime]', symObjAddr: 0x17FF, symBinAddr: 0x4D50, symSize: 0x11 }
-  - { offset: 0x5F4F7, size: 0x8, addend: 0x0, symName: '-[OSSessionManager delegate]', symObjAddr: 0x1810, symBinAddr: 0x4D61, symSize: 0xA }
-  - { offset: 0x5F52C, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setDelegate:]', symObjAddr: 0x181A, symBinAddr: 0x4D6B, symSize: 0x11 }
-  - { offset: 0x5F56D, size: 0x8, addend: 0x0, symName: '-[OSSessionManager trackerFactory]', symObjAddr: 0x182B, symBinAddr: 0x4D7C, symSize: 0xA }
-  - { offset: 0x5F5A2, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setTrackerFactory:]', symObjAddr: 0x1835, symBinAddr: 0x4D86, symSize: 0x11 }
-  - { offset: 0x5F5E3, size: 0x8, addend: 0x0, symName: '-[OSSessionManager .cxx_destruct]', symObjAddr: 0x1846, symBinAddr: 0x4D97, symSize: 0x28 }
-  - { offset: 0x5F761, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x4DBF, symSize: 0x6B }
-  - { offset: 0x5F7EB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x4DBF, symSize: 0x6B }
-  - { offset: 0x5F85B, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory repository]', symObjAddr: 0x6B, symBinAddr: 0x4E2A, symSize: 0x38 }
-  - { offset: 0x5F8A7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory checkVersionChanged]', symObjAddr: 0xA3, symBinAddr: 0x4E62, symSize: 0xB8 }
-  - { offset: 0x5F94E, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory createRepository]', symObjAddr: 0x15B, symBinAddr: 0x4F1A, symSize: 0x5E }
-  - { offset: 0x5F9A5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory cache]', symObjAddr: 0x1B9, symBinAddr: 0x4F78, symSize: 0xA }
-  - { offset: 0x5F9DA, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory setRepository:]', symObjAddr: 0x1C3, symBinAddr: 0x4F82, symSize: 0x11 }
-  - { offset: 0x5FA1B, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory .cxx_destruct]', symObjAddr: 0x1D4, symBinAddr: 0x4F93, symSize: 0x28 }
-  - { offset: 0x5FB0D, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x4FBB, symSize: 0x45 }
-  - { offset: 0x5FB27, size: 0x8, addend: 0x0, symName: __sharedOutcomeEventsCache, symObjAddr: 0x1DE8, symBinAddr: 0x16E90, symSize: 0x0 }
-  - { offset: 0x5FB47, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x4FBB, symSize: 0x45 }
-  - { offset: 0x5FB92, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache isOutcomesV2ServiceEnabled]', symObjAddr: 0x45, symBinAddr: 0x5000, symSize: 0x54 }
-  - { offset: 0x5FBF8, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveOutcomesV2ServiceEnabled:]', symObjAddr: 0x99, symBinAddr: 0x5054, symSize: 0x58 }
-  - { offset: 0x5FC63, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache getUnattributedUniqueOutcomeEventsSent]', symObjAddr: 0xF1, symBinAddr: 0x50AC, symSize: 0x60 }
-  - { offset: 0x5FCC2, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveUnattributedUniqueOutcomeEventsSent:]', symObjAddr: 0x151, symBinAddr: 0x510C, symSize: 0x74 }
-  - { offset: 0x5FD56, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache getAttributedUniqueOutcomeEventSent]', symObjAddr: 0x1C5, symBinAddr: 0x5180, symSize: 0x60 }
-  - { offset: 0x5FDB5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveAttributedUniqueOutcomeEventNotificationIds:]', symObjAddr: 0x225, symBinAddr: 0x51E0, symSize: 0x74 }
-  - { offset: 0x5FEBF, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithParamsInfluenceId:forChannel:timestamp:]', symObjAddr: 0x0, symBinAddr: 0x5254, symSize: 0x7D }
-  - { offset: 0x5FF38, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithParamsInfluenceId:forChannel:timestamp:]', symObjAddr: 0x0, symBinAddr: 0x5254, symSize: 0x7D }
-  - { offset: 0x60010, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instanceWithData:]', symObjAddr: 0x7D, symBinAddr: 0x52D1, symSize: 0x139 }
-  - { offset: 0x6011F, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instanceWithJson:]', symObjAddr: 0x1B6, symBinAddr: 0x540A, symSize: 0x2A4 }
-  - { offset: 0x6036D, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instancePreviewFromNotification:]', symObjAddr: 0x45A, symBinAddr: 0x56AE, symSize: 0x21 }
-  - { offset: 0x603B8, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence jsonRepresentation]', symObjAddr: 0x47B, symBinAddr: 0x56CF, symSize: 0xA6 }
-  - { offset: 0x60475, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence encodeWithCoder:]', symObjAddr: 0x521, symBinAddr: 0x5775, symSize: 0x87 }
-  - { offset: 0x60523, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithCoder:]', symObjAddr: 0x5A8, symBinAddr: 0x57FC, symSize: 0x133 }
-  - { offset: 0x60662, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence description]', symObjAddr: 0x6DB, symBinAddr: 0x592F, symSize: 0x36 }
-  - { offset: 0x606A5, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence channelIdTag]', symObjAddr: 0x711, symBinAddr: 0x5965, symSize: 0xA }
-  - { offset: 0x606DA, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setChannelIdTag:]', symObjAddr: 0x71B, symBinAddr: 0x596F, symSize: 0x11 }
-  - { offset: 0x6071B, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence influenceId]', symObjAddr: 0x72C, symBinAddr: 0x5980, symSize: 0xA }
-  - { offset: 0x60750, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setInfluenceId:]', symObjAddr: 0x736, symBinAddr: 0x598A, symSize: 0x11 }
-  - { offset: 0x60791, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence timestamp]', symObjAddr: 0x747, symBinAddr: 0x599B, symSize: 0xB }
-  - { offset: 0x607C6, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setTimestamp:]', symObjAddr: 0x752, symBinAddr: 0x59A6, symSize: 0xB }
-  - { offset: 0x60803, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence .cxx_destruct]', symObjAddr: 0x75D, symBinAddr: 0x59B1, symSize: 0x28 }
-  - { offset: 0x608EB, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithData:]', symObjAddr: 0x0, symBinAddr: 0x59D9, symSize: 0x139 }
-  - { offset: 0x60977, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithData:]', symObjAddr: 0x0, symBinAddr: 0x59D9, symSize: 0x139 }
-  - { offset: 0x60A86, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithJson:]', symObjAddr: 0x139, symBinAddr: 0x5B12, symSize: 0x245 }
-  - { offset: 0x60C96, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instancePreviewFromNotification:]', symObjAddr: 0x37E, symBinAddr: 0x5D57, symSize: 0x8 }
-  - { offset: 0x60CD5, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome jsonRepresentation]', symObjAddr: 0x386, symBinAddr: 0x5D5F, symSize: 0xFF }
-  - { offset: 0x60DD8, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome description]', symObjAddr: 0x485, symBinAddr: 0x5E5E, symSize: 0x47 }
-  - { offset: 0x60E1B, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome name]', symObjAddr: 0x4CC, symBinAddr: 0x5EA5, symSize: 0xA }
-  - { offset: 0x60E50, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setName:]', symObjAddr: 0x4D6, symBinAddr: 0x5EAF, symSize: 0x11 }
-  - { offset: 0x60E91, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome weight]', symObjAddr: 0x4E7, symBinAddr: 0x5EC0, symSize: 0xA }
-  - { offset: 0x60EC6, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setWeight:]', symObjAddr: 0x4F1, symBinAddr: 0x5ECA, symSize: 0x11 }
-  - { offset: 0x60F07, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome unique]', symObjAddr: 0x502, symBinAddr: 0x5EDB, symSize: 0x9 }
-  - { offset: 0x60F3C, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setUnique:]', symObjAddr: 0x50B, symBinAddr: 0x5EE4, symSize: 0x9 }
-  - { offset: 0x60F79, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome .cxx_destruct]', symObjAddr: 0x514, symBinAddr: 0x5EED, symSize: 0x28 }
-  - { offset: 0x6105C, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initWithRepository:]', symObjAddr: 0x0, symBinAddr: 0x5F15, symSize: 0x6B }
-  - { offset: 0x61160, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initWithRepository:]', symObjAddr: 0x0, symBinAddr: 0x5F15, symSize: 0x6B }
-  - { offset: 0x611D0, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker idTag]', symObjAddr: 0x6B, symBinAddr: 0x5F80, symSize: 0x89 }
-  - { offset: 0x6122F, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker channelType]', symObjAddr: 0xF4, symBinAddr: 0x6009, symSize: 0x89 }
-  - { offset: 0x6128E, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x17D, symBinAddr: 0x6092, symSize: 0x92 }
-  - { offset: 0x61312, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastChannelObjects]', symObjAddr: 0x20F, symBinAddr: 0x6124, symSize: 0x89 }
-  - { offset: 0x61371, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker channelLimit]', symObjAddr: 0x298, symBinAddr: 0x61AD, symSize: 0x89 }
-  - { offset: 0x613D0, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker indirectAttributionWindow]', symObjAddr: 0x321, symBinAddr: 0x6236, symSize: 0x89 }
-  - { offset: 0x6142F, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker saveChannelObjects:]', symObjAddr: 0x3AA, symBinAddr: 0x62BF, symSize: 0x92 }
-  - { offset: 0x614AF, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initInfluencedTypeFromCache]', symObjAddr: 0x43C, symBinAddr: 0x6351, symSize: 0x89 }
-  - { offset: 0x6150A, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker cacheState]', symObjAddr: 0x4C5, symBinAddr: 0x63DA, symSize: 0x89 }
-  - { offset: 0x61565, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isDirectSessionEnabled]', symObjAddr: 0x54E, symBinAddr: 0x6463, symSize: 0x44 }
-  - { offset: 0x615C8, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isIndirectSessionEnabled]', symObjAddr: 0x592, symBinAddr: 0x64A7, symSize: 0x44 }
-  - { offset: 0x6162B, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isUnattributedSessionEnabled]', symObjAddr: 0x5D6, symBinAddr: 0x64EB, symSize: 0x44 }
-  - { offset: 0x6168E, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker resetAndInitInfluence]', symObjAddr: 0x61A, symBinAddr: 0x652F, symSize: 0x1B0 }
-  - { offset: 0x617A2, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastReceivedIds]', symObjAddr: 0x7CA, symBinAddr: 0x66DF, symSize: 0x211 }
-  - { offset: 0x619C1, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker saveLastId:]', symObjAddr: 0x9DB, symBinAddr: 0x68F0, symSize: 0x34E }
-  - { offset: 0x61D46, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker currentSessionInfluence]', symObjAddr: 0xD29, symBinAddr: 0x6C3E, symSize: 0x18C }
-  - { offset: 0x61F1C, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker description]', symObjAddr: 0xEB5, symBinAddr: 0x6DCA, symSize: 0x12D }
-  - { offset: 0x61FBF, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker influenceType]', symObjAddr: 0xFE2, symBinAddr: 0x6EF7, symSize: 0xA }
-  - { offset: 0x61FF4, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setInfluenceType:]', symObjAddr: 0xFEC, symBinAddr: 0x6F01, symSize: 0xA }
-  - { offset: 0x62031, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker directId]', symObjAddr: 0xFF6, symBinAddr: 0x6F0B, symSize: 0xA }
-  - { offset: 0x62066, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setDirectId:]', symObjAddr: 0x1000, symBinAddr: 0x6F15, symSize: 0x11 }
-  - { offset: 0x620A7, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker indirectIds]', symObjAddr: 0x1011, symBinAddr: 0x6F26, symSize: 0xA }
-  - { offset: 0x620DC, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setIndirectIds:]', symObjAddr: 0x101B, symBinAddr: 0x6F30, symSize: 0x11 }
-  - { offset: 0x6211D, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker dataRepository]', symObjAddr: 0x102C, symBinAddr: 0x6F41, symSize: 0xA }
-  - { offset: 0x62152, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker .cxx_destruct]', symObjAddr: 0x1036, symBinAddr: 0x6F4B, symSize: 0x33 }
-  - { offset: 0x62319, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource initWithDirectBody:indirectBody:]', symObjAddr: 0x0, symBinAddr: 0x6F7E, symSize: 0x99 }
-  - { offset: 0x623A0, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource initWithDirectBody:indirectBody:]', symObjAddr: 0x0, symBinAddr: 0x6F7E, symSize: 0x99 }
-  - { offset: 0x62448, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource toDictionaryObject]', symObjAddr: 0x99, symBinAddr: 0x7017, symSize: 0xBF }
-  - { offset: 0x62503, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource description]', symObjAddr: 0x158, symBinAddr: 0x70D6, symSize: 0x2D }
-  - { offset: 0x62546, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource directBody]', symObjAddr: 0x185, symBinAddr: 0x7103, symSize: 0xA }
-  - { offset: 0x6257B, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource setDirectBody:]', symObjAddr: 0x18F, symBinAddr: 0x710D, symSize: 0x11 }
-  - { offset: 0x625BC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource indirectBody]', symObjAddr: 0x1A0, symBinAddr: 0x711E, symSize: 0xA }
-  - { offset: 0x625F1, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource setIndirectBody:]', symObjAddr: 0x1AA, symBinAddr: 0x7128, symSize: 0x11 }
-  - { offset: 0x62632, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource .cxx_destruct]', symObjAddr: 0x1BB, symBinAddr: 0x7139, symSize: 0x28 }
-  - { offset: 0x626E8, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer directWithOutcome:appId:deviceType:]', symObjAddr: 0x0, symBinAddr: 0x7161, symSize: 0x2A0 }
-  - { offset: 0x62702, size: 0x8, addend: 0x0, symName: _APP_ID, symObjAddr: 0xF88, symBinAddr: 0x11160, symSize: 0x0 }
-  - { offset: 0x62722, size: 0x8, addend: 0x0, symName: _DEVICE, symObjAddr: 0xF90, symBinAddr: 0x11168, symSize: 0x0 }
-  - { offset: 0x62738, size: 0x8, addend: 0x0, symName: _OUTCOME_ID, symObjAddr: 0xF98, symBinAddr: 0x11170, symSize: 0x0 }
-  - { offset: 0x6274E, size: 0x8, addend: 0x0, symName: _WEIGHT, symObjAddr: 0xFA0, symBinAddr: 0x11178, symSize: 0x0 }
-  - { offset: 0x62764, size: 0x8, addend: 0x0, symName: _IS_DIRECT, symObjAddr: 0xFA8, symBinAddr: 0x11180, symSize: 0x0 }
-  - { offset: 0x6277A, size: 0x8, addend: 0x0, symName: _NOTIFICATION_IDS, symObjAddr: 0xFB0, symBinAddr: 0x11188, symSize: 0x0 }
-  - { offset: 0x62790, size: 0x8, addend: 0x0, symName: _OUTCOME_SOURCE, symObjAddr: 0xFB8, symBinAddr: 0x11190, symSize: 0x0 }
-  - { offset: 0x627F9, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer directWithOutcome:appId:deviceType:]', symObjAddr: 0x0, symBinAddr: 0x7161, symSize: 0x2A0 }
-  - { offset: 0x62ADB, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer indirectWithOutcome:appId:deviceType:]', symObjAddr: 0x2A0, symBinAddr: 0x7401, symSize: 0x29D }
-  - { offset: 0x62DBD, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer unattributedWithOutcome:appId:deviceType:]', symObjAddr: 0x53D, symBinAddr: 0x769E, symSize: 0x1BC }
-  - { offset: 0x63000, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV2ToServer measureOutcomeEvent:appId:deviceType:]', symObjAddr: 0x6F9, symBinAddr: 0x785A, symSize: 0x156 }
-  - { offset: 0x631E3, size: 0x8, addend: 0x0, symName: '+[OSRequestSendSessionEndOutcomes withActiveTime:appId:pushSubscriptionId:onesignalId:influenceParams:]', symObjAddr: 0x84F, symBinAddr: 0x79B0, symSize: 0x4A3 }
-  - { offset: 0x63843, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder init]', symObjAddr: 0x0, symBinAddr: 0x7E53, symSize: 0x2F }
-  - { offset: 0x6396C, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder init]', symObjAddr: 0x0, symBinAddr: 0x7E53, symSize: 0x2F }
-  - { offset: 0x639A3, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder influenceChannel]', symObjAddr: 0x2F, symBinAddr: 0x7E82, symSize: 0xA }
-  - { offset: 0x639D8, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setInfluenceChannel:]', symObjAddr: 0x39, symBinAddr: 0x7E8C, symSize: 0xA }
-  - { offset: 0x63A15, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder influenceType]', symObjAddr: 0x43, symBinAddr: 0x7E96, symSize: 0xA }
-  - { offset: 0x63A4A, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setInfluenceType:]', symObjAddr: 0x4D, symBinAddr: 0x7EA0, symSize: 0xA }
-  - { offset: 0x63A87, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder ids]', symObjAddr: 0x57, symBinAddr: 0x7EAA, symSize: 0xA }
-  - { offset: 0x63ABC, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setIds:]', symObjAddr: 0x61, symBinAddr: 0x7EB4, symSize: 0xF }
-  - { offset: 0x63AFB, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder .cxx_destruct]', symObjAddr: 0x70, symBinAddr: 0x7EC3, symSize: 0x10 }
-  - { offset: 0x63B2E, size: 0x8, addend: 0x0, symName: '-[OSInfluence initWithInfluenceType:forInfluenceChannel:withIds:]', symObjAddr: 0x80, symBinAddr: 0x7ED3, symSize: 0x81 }
-  - { offset: 0x63BBE, size: 0x8, addend: 0x0, symName: '-[OSInfluence initWithBuilder:]', symObjAddr: 0x101, symBinAddr: 0x7F54, symSize: 0xA5 }
-  - { offset: 0x63C6E, size: 0x8, addend: 0x0, symName: '-[OSInfluence copy]', symObjAddr: 0x1A6, symBinAddr: 0x7FF9, symSize: 0x27 }
-  - { offset: 0x63CC6, size: 0x8, addend: 0x0, symName: '-[OSInfluence isAttributedInfluence]', symObjAddr: 0x1CD, symBinAddr: 0x8020, symSize: 0x39 }
-  - { offset: 0x63D1E, size: 0x8, addend: 0x0, symName: '-[OSInfluence isDirectInfluence]', symObjAddr: 0x206, symBinAddr: 0x8059, symSize: 0xE }
-  - { offset: 0x63D53, size: 0x8, addend: 0x0, symName: '-[OSInfluence isIndirectInfluence]', symObjAddr: 0x214, symBinAddr: 0x8067, symSize: 0xE }
-  - { offset: 0x63D88, size: 0x8, addend: 0x0, symName: '-[OSInfluence isUnattributedInfluence]', symObjAddr: 0x222, symBinAddr: 0x8075, symSize: 0xE }
-  - { offset: 0x63DBD, size: 0x8, addend: 0x0, symName: '-[OSInfluence description]', symObjAddr: 0x230, symBinAddr: 0x8083, symSize: 0x16C }
-  - { offset: 0x63E83, size: 0x8, addend: 0x0, symName: '-[OSInfluence influenceChannel]', symObjAddr: 0x39C, symBinAddr: 0x81EF, symSize: 0xA }
-  - { offset: 0x63EB8, size: 0x8, addend: 0x0, symName: '-[OSInfluence influenceType]', symObjAddr: 0x3A6, symBinAddr: 0x81F9, symSize: 0xA }
-  - { offset: 0x63EED, size: 0x8, addend: 0x0, symName: '-[OSInfluence ids]', symObjAddr: 0x3B0, symBinAddr: 0x8203, symSize: 0xA }
-  - { offset: 0x63F22, size: 0x8, addend: 0x0, symName: '-[OSInfluence setIds:]', symObjAddr: 0x3BA, symBinAddr: 0x820D, symSize: 0x11 }
-  - { offset: 0x63F63, size: 0x8, addend: 0x0, symName: '-[OSInfluence .cxx_destruct]', symObjAddr: 0x3CB, symBinAddr: 0x821E, symSize: 0x10 }
-  - { offset: 0x64027, size: 0x8, addend: 0x0, symName: '+[OSTrackerFactory sharedTrackerFactory]', symObjAddr: 0x0, symBinAddr: 0x822E, symSize: 0x8A }
-  - { offset: 0x64041, size: 0x8, addend: 0x0, symName: __trackers, symObjAddr: 0x3478, symBinAddr: 0x16E78, symSize: 0x0 }
-  - { offset: 0x6405C, size: 0x8, addend: 0x0, symName: __dataRepository, symObjAddr: 0x3470, symBinAddr: 0x16E70, symSize: 0x0 }
-  - { offset: 0x64087, size: 0x8, addend: 0x0, symName: __trackerFactory, symObjAddr: 0x3468, symBinAddr: 0x16E98, symSize: 0x0 }
-  - { offset: 0x640D3, size: 0x8, addend: 0x0, symName: '+[OSTrackerFactory sharedTrackerFactory]', symObjAddr: 0x0, symBinAddr: 0x822E, symSize: 0x8A }
-  - { offset: 0x64146, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory initWithRepository:]', symObjAddr: 0x8A, symBinAddr: 0x82B8, symSize: 0x15B }
-  - { offset: 0x6420E, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory saveInfluenceParams:]', symObjAddr: 0x1E5, symBinAddr: 0x8413, symSize: 0x19 }
-  - { offset: 0x64260, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory initFromCache]', symObjAddr: 0x1FE, symBinAddr: 0x842C, symSize: 0x17B }
-  - { offset: 0x64342, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory influences]', symObjAddr: 0x379, symBinAddr: 0x85A7, symSize: 0x1E7 }
-  - { offset: 0x64476, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory sessionInfluences]', symObjAddr: 0x560, symBinAddr: 0x878E, symSize: 0x229 }
-  - { offset: 0x645BD, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory iamChannelTracker]', symObjAddr: 0x789, symBinAddr: 0x89B7, symSize: 0x20 }
-  - { offset: 0x645FC, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory notificationChannelTracker]', symObjAddr: 0x7A9, symBinAddr: 0x89D7, symSize: 0x20 }
-  - { offset: 0x6463B, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channelByEntryAction:]', symObjAddr: 0x7C9, symBinAddr: 0x89F7, symSize: 0x2D }
-  - { offset: 0x6468E, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channels]', symObjAddr: 0x7F6, symBinAddr: 0x8A24, symSize: 0xA5 }
-  - { offset: 0x64749, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channelsToResetByEntryAction:]', symObjAddr: 0x89B, symBinAddr: 0x8AC9, symSize: 0xC5 }
-  - { offset: 0x64915, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initWithSession:notificationIds:name:timestamp:weight:]', symObjAddr: 0x0, symBinAddr: 0x8B8E, symSize: 0x142 }
-  - { offset: 0x64A01, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initWithSession:notificationIds:name:timestamp:weight:]', symObjAddr: 0x0, symBinAddr: 0x8B8E, symSize: 0x142 }
-  - { offset: 0x64B41, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initFromOutcomeEventParams:]', symObjAddr: 0x142, symBinAddr: 0x8CD0, symSize: 0x3EC }
-  - { offset: 0x64E92, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent jsonRepresentation]', symObjAddr: 0x52E, symBinAddr: 0x90BC, symSize: 0x344 }
-  - { offset: 0x6511F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent session]', symObjAddr: 0x872, symBinAddr: 0x9400, symSize: 0xA }
-  - { offset: 0x65154, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setSession:]', symObjAddr: 0x87C, symBinAddr: 0x940A, symSize: 0xA }
-  - { offset: 0x65191, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent notificationIds]', symObjAddr: 0x886, symBinAddr: 0x9414, symSize: 0xA }
-  - { offset: 0x651C6, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setNotificationIds:]', symObjAddr: 0x890, symBinAddr: 0x941E, symSize: 0x11 }
-  - { offset: 0x65207, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent name]', symObjAddr: 0x8A1, symBinAddr: 0x942F, symSize: 0xA }
-  - { offset: 0x6523C, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setName:]', symObjAddr: 0x8AB, symBinAddr: 0x9439, symSize: 0x11 }
-  - { offset: 0x6527D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent timestamp]', symObjAddr: 0x8BC, symBinAddr: 0x944A, symSize: 0xA }
-  - { offset: 0x652B2, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setTimestamp:]', symObjAddr: 0x8C6, symBinAddr: 0x9454, symSize: 0x11 }
-  - { offset: 0x652F3, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent weight]', symObjAddr: 0x8D7, symBinAddr: 0x9465, symSize: 0xA }
-  - { offset: 0x65328, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setWeight:]', symObjAddr: 0x8E1, symBinAddr: 0x946F, symSize: 0x11 }
-  - { offset: 0x65369, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent .cxx_destruct]', symObjAddr: 0x8F2, symBinAddr: 0x9480, symSize: 0x3E }
-  - { offset: 0x654F3, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV2Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0x94BE, symSize: 0xCE }
-  - { offset: 0x65544, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV2Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0x94BE, symSize: 0xCE }
-  - { offset: 0x657DF, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x958C, symSize: 0x6B }
-  - { offset: 0x65880, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x958C, symSize: 0x6B }
-  - { offset: 0x658F0, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x6B, symBinAddr: 0x95F7, symSize: 0xBE }
-  - { offset: 0x659FF, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getNotCachedUniqueInfluencesForOutcome:influences:]', symObjAddr: 0x129, symBinAddr: 0x96B5, symSize: 0x607 }
-  - { offset: 0x65DFD, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getCachedUniqueOutcomesByChannel:channelIds:outcomeName:]', symObjAddr: 0x730, symBinAddr: 0x9CBC, symSize: 0x286 }
-  - { offset: 0x6603C, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getCachedUniqueOutcomesFromSourceBody:outcomeName:]', symObjAddr: 0x9B6, symBinAddr: 0x9F42, symSize: 0x14C }
-  - { offset: 0x661C7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveUniqueOutcomeEventParams:]', symObjAddr: 0xB02, symBinAddr: 0xA08E, symSize: 0x254 }
-  - { offset: 0x66475, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getUnattributedUniqueOutcomeEventsSent]', symObjAddr: 0xD56, symBinAddr: 0xA2E2, symSize: 0x16 }
-  - { offset: 0x664B8, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveUnattributedUniqueOutcomeEventsSent:]', symObjAddr: 0xD6C, symBinAddr: 0xA2F8, symSize: 0x16 }
-  - { offset: 0x6650E, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getAttributedUniqueOutcomeEventSent]', symObjAddr: 0xD82, symBinAddr: 0xA30E, symSize: 0x16 }
-  - { offset: 0x66551, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveAttributedUniqueOutcomeEventNotificationIds:]', symObjAddr: 0xD98, symBinAddr: 0xA324, symSize: 0x16 }
-  - { offset: 0x665A7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository outcomeEventsCache]', symObjAddr: 0xDAE, symBinAddr: 0xA33A, symSize: 0xA }
-  - { offset: 0x665DC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository .cxx_destruct]', symObjAddr: 0xDB8, symBinAddr: 0xA344, symSize: 0x10 }
-  - { offset: 0x6681F, size: 0x8, addend: 0x0, symName: '+[OSInfluenceDataRepository sharedInfluenceDataRepository]', symObjAddr: 0x0, symBinAddr: 0xA354, symSize: 0x45 }
-  - { offset: 0x6683E, size: 0x8, addend: 0x0, symName: __influenceDataRepository, symObjAddr: 0x5770, symBinAddr: 0x16EA0, symSize: 0x0 }
-  - { offset: 0x66891, size: 0x8, addend: 0x0, symName: '+[OSInfluenceDataRepository sharedInfluenceDataRepository]', symObjAddr: 0x0, symBinAddr: 0xA354, symSize: 0x45 }
-  - { offset: 0x668DC, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheNotificationInfluenceType:]', symObjAddr: 0x45, symBinAddr: 0xA399, symSize: 0x100 }
-  - { offset: 0x6698F, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationCachedInfluenceType]', symObjAddr: 0x145, symBinAddr: 0xA499, symSize: 0x186 }
-  - { offset: 0x66A86, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheIAMInfluenceType:]', symObjAddr: 0x2CB, symBinAddr: 0xA61F, symSize: 0x100 }
-  - { offset: 0x66B39, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamCachedInfluenceType]', symObjAddr: 0x3CB, symBinAddr: 0xA71F, symSize: 0x186 }
-  - { offset: 0x66C30, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheNotificationOpenId:]', symObjAddr: 0x551, symBinAddr: 0xA8A5, symSize: 0x74 }
-  - { offset: 0x66CC4, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cachedNotificationOpenId]', symObjAddr: 0x5C5, symBinAddr: 0xA919, symSize: 0x60 }
-  - { offset: 0x66D23, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheIndirectNotifications:]', symObjAddr: 0x625, symBinAddr: 0xA979, symSize: 0x74 }
-  - { offset: 0x66DB7, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cachedIndirectNotifications]', symObjAddr: 0x699, symBinAddr: 0xA9ED, symSize: 0x60 }
-  - { offset: 0x66E16, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveNotifications:]', symObjAddr: 0x6F9, symBinAddr: 0xAA4D, symSize: 0x74 }
-  - { offset: 0x66EAA, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository lastNotificationsReceivedData]', symObjAddr: 0x76D, symBinAddr: 0xAAC1, symSize: 0x60 }
-  - { offset: 0x66F09, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveIAMs:]', symObjAddr: 0x7CD, symBinAddr: 0xAB21, symSize: 0x74 }
-  - { offset: 0x66F9D, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository lastIAMsReceivedData]', symObjAddr: 0x841, symBinAddr: 0xAB95, symSize: 0x60 }
-  - { offset: 0x66FFC, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationLimit]', symObjAddr: 0x8A1, symBinAddr: 0xABF5, symSize: 0x57 }
-  - { offset: 0x67062, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamLimit]', symObjAddr: 0x8F8, symBinAddr: 0xAC4C, symSize: 0x57 }
-  - { offset: 0x670C8, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationIndirectAttributionWindow]', symObjAddr: 0x94F, symBinAddr: 0xACA3, symSize: 0x57 }
-  - { offset: 0x67130, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamIndirectAttributionWindow]', symObjAddr: 0x9A6, symBinAddr: 0xACFA, symSize: 0x57 }
-  - { offset: 0x67198, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isDirectInfluenceEnabled]', symObjAddr: 0x9FD, symBinAddr: 0xAD51, symSize: 0x54 }
-  - { offset: 0x671FE, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isIndirectInfluenceEnabled]', symObjAddr: 0xA51, symBinAddr: 0xADA5, symSize: 0x54 }
-  - { offset: 0x67264, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isUnattributedInfluenceEnabled]', symObjAddr: 0xAA5, symBinAddr: 0xADF9, symSize: 0x54 }
-  - { offset: 0x672CA, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveInfluenceParams:]', symObjAddr: 0xAF9, symBinAddr: 0xAE4D, symSize: 0x3CF }
-  - { offset: 0x676DC, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveOutcomeEnabledFlag:dictionary:]', symObjAddr: 0xEC8, symBinAddr: 0xB21C, symSize: 0xC5 }
-  - { offset: 0x67879, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xB2E1, symSize: 0xD }
-  - { offset: 0x6794B, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xB2E1, symSize: 0xD }
-  - { offset: 0x6797E, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker channelType]', symObjAddr: 0xD, symBinAddr: 0xB2EE, symSize: 0x8 }
-  - { offset: 0x679B1, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x15, symBinAddr: 0xB2F6, symSize: 0x152 }
-  - { offset: 0x67B29, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker lastChannelObjects]', symObjAddr: 0x167, symBinAddr: 0xB448, symSize: 0x50 }
-  - { offset: 0x67B8C, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker channelLimit]', symObjAddr: 0x1B7, symBinAddr: 0xB498, symSize: 0x44 }
-  - { offset: 0x67BEF, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker indirectAttributionWindow]', symObjAddr: 0x1FB, symBinAddr: 0xB4DC, symSize: 0x44 }
-  - { offset: 0x67C52, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker saveChannelObjects:]', symObjAddr: 0x23F, symBinAddr: 0xB520, symSize: 0x69 }
-  - { offset: 0x67CEA, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker initInfluencedTypeFromCache]', symObjAddr: 0x2A8, symBinAddr: 0xB589, symSize: 0x110 }
-  - { offset: 0x67DF7, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker cacheState]', symObjAddr: 0x3B8, symBinAddr: 0xB699, symSize: 0x76 }
-  - { offset: 0x67F4A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody initWithNotificationIds:inAppMessagesIds:]', symObjAddr: 0x0, symBinAddr: 0xB70F, symSize: 0x99 }
-  - { offset: 0x67FA2, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody initWithNotificationIds:inAppMessagesIds:]', symObjAddr: 0x0, symBinAddr: 0xB70F, symSize: 0x99 }
-  - { offset: 0x6804A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody toDictionaryObject]', symObjAddr: 0x99, symBinAddr: 0xB7A8, symSize: 0x6D }
-  - { offset: 0x680C5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody description]', symObjAddr: 0x106, symBinAddr: 0xB815, symSize: 0x2D }
-  - { offset: 0x68108, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody notificationIds]', symObjAddr: 0x133, symBinAddr: 0xB842, symSize: 0xA }
-  - { offset: 0x6813D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody setNotificationIds:]', symObjAddr: 0x13D, symBinAddr: 0xB84C, symSize: 0x11 }
-  - { offset: 0x6817E, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody inAppMessagesIds]', symObjAddr: 0x14E, symBinAddr: 0xB85D, symSize: 0xA }
-  - { offset: 0x681B3, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody setInAppMessagesIds:]', symObjAddr: 0x158, symBinAddr: 0xB867, symSize: 0x11 }
-  - { offset: 0x681F4, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody .cxx_destruct]', symObjAddr: 0x169, symBinAddr: 0xB878, symSize: 0x28 }
-  - { offset: 0x682AA, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xB8A0, symSize: 0xD }
-  - { offset: 0x6837C, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xB8A0, symSize: 0xD }
-  - { offset: 0x683AF, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker channelType]', symObjAddr: 0xD, symBinAddr: 0xB8AD, symSize: 0xB }
-  - { offset: 0x683E2, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x18, symBinAddr: 0xB8B8, symSize: 0x12 }
-  - { offset: 0x68438, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker lastChannelObjects]', symObjAddr: 0x2A, symBinAddr: 0xB8CA, symSize: 0x50 }
-  - { offset: 0x6849B, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker channelLimit]', symObjAddr: 0x7A, symBinAddr: 0xB91A, symSize: 0x44 }
-  - { offset: 0x684FE, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker indirectAttributionWindow]', symObjAddr: 0xBE, symBinAddr: 0xB95E, symSize: 0x44 }
-  - { offset: 0x68561, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker saveChannelObjects:]', symObjAddr: 0x102, symBinAddr: 0xB9A2, symSize: 0x69 }
-  - { offset: 0x685F9, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker initInfluencedTypeFromCache]', symObjAddr: 0x16B, symBinAddr: 0xBA0B, symSize: 0x14C }
-  - { offset: 0x68729, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker cacheState]', symObjAddr: 0x2B7, symBinAddr: 0xBB57, symSize: 0x103 }
-  - { offset: 0x688AF, size: 0x8, addend: 0x0, symName: '+[OSOutcomes Session]', symObjAddr: 0x0, symBinAddr: 0xBC5A, symSize: 0x9 }
-  - { offset: 0x688C2, size: 0x8, addend: 0x0, symName: '+[OSOutcomes migrateToVersion_02_14_00_AndGreater]', symObjAddr: 0x130, symBinAddr: 0xBD8A, symSize: 0x2FE }
-  - { offset: 0x68BCA, size: 0x8, addend: 0x0, symName: __sharedController, symObjAddr: 0x39D0, symBinAddr: 0x16EA8, symSize: 0x0 }
-  - { offset: 0x68BE9, size: 0x8, addend: 0x0, symName: '+[OSOutcomes Session]', symObjAddr: 0x0, symBinAddr: 0xBC5A, symSize: 0x9 }
-  - { offset: 0x68C20, size: 0x8, addend: 0x0, symName: '+[OSOutcomes sharedController]', symObjAddr: 0x9, symBinAddr: 0xBC63, symSize: 0x11 }
-  - { offset: 0x68C53, size: 0x8, addend: 0x0, symName: '+[OSOutcomes start]', symObjAddr: 0x1A, symBinAddr: 0xBC74, symSize: 0xCB }
-  - { offset: 0x68D09, size: 0x8, addend: 0x0, symName: '+[OSOutcomes clearStatics]', symObjAddr: 0xE5, symBinAddr: 0xBD3F, symSize: 0x1D }
-  - { offset: 0x68D44, size: 0x8, addend: 0x0, symName: '+[OSOutcomes migrate]', symObjAddr: 0x102, symBinAddr: 0xBD5C, symSize: 0x2E }
-  - { offset: 0x68D98, size: 0x8, addend: 0x0, symName: '+[OSOutcomes saveCurrentSDKVersion]', symObjAddr: 0x42E, symBinAddr: 0xC088, symSize: 0x6A }
-  - { offset: 0x68E21, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addOutcome:]', symObjAddr: 0x498, symBinAddr: 0xC0F2, symSize: 0x7E }
-  - { offset: 0x68EB4, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addOutcomeWithValue:value:]', symObjAddr: 0x516, symBinAddr: 0xC170, symSize: 0x9F }
-  - { offset: 0x68F64, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addUniqueOutcome:]', symObjAddr: 0x5B5, symBinAddr: 0xC20F, symSize: 0x7E }
-  - { offset: 0x69119, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:channel:]', symObjAddr: 0x0, symBinAddr: 0xC28D, symSize: 0xCC }
-  - { offset: 0x691D4, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:channel:]', symObjAddr: 0x0, symBinAddr: 0xC28D, symSize: 0xCC }
-  - { offset: 0x692A6, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:timestamp:channel:]', symObjAddr: 0xCC, symBinAddr: 0xC359, symSize: 0xC7 }
-  - { offset: 0x6939A, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome encodeWithCoder:]', symObjAddr: 0x193, symBinAddr: 0xC420, symSize: 0x132 }
-  - { offset: 0x694B7, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithCoder:]', symObjAddr: 0x2C5, symBinAddr: 0xC552, symSize: 0x1F1 }
-  - { offset: 0x69635, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome description]', symObjAddr: 0x4B6, symBinAddr: 0xC743, symSize: 0x10D }
-  - { offset: 0x696B8, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome isEqual:]', symObjAddr: 0x5C3, symBinAddr: 0xC850, symSize: 0x23B }
-  - { offset: 0x6987A, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome hash]', symObjAddr: 0x7FE, symBinAddr: 0xCA8B, symSize: 0x105 }
-  - { offset: 0x6993D, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome name]', symObjAddr: 0x903, symBinAddr: 0xCB90, symSize: 0xA }
-  - { offset: 0x69972, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome uniqueId]', symObjAddr: 0x90D, symBinAddr: 0xCB9A, symSize: 0xA }
-  - { offset: 0x699A7, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome timestamp]', symObjAddr: 0x917, symBinAddr: 0xCBA4, symSize: 0xA }
-  - { offset: 0x699DC, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome channel]', symObjAddr: 0x921, symBinAddr: 0xCBAE, symSize: 0xA }
-  - { offset: 0x69A11, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome .cxx_destruct]', symObjAddr: 0x92B, symBinAddr: 0xCBB8, symSize: 0x33 }
-  - { offset: 0x69AD2, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams initWithOutcomeId:outcomeSource:weight:timestamp:]', symObjAddr: 0x0, symBinAddr: 0xCBEB, symSize: 0xE8 }
-  - { offset: 0x69BC6, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams initWithOutcomeId:outcomeSource:weight:timestamp:]', symObjAddr: 0x0, symBinAddr: 0xCBEB, symSize: 0xE8 }
-  - { offset: 0x69CE7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams toDictionaryObject]', symObjAddr: 0xE8, symBinAddr: 0xCCD3, symSize: 0xE6 }
-  - { offset: 0x69DE7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams description]', symObjAddr: 0x1CE, symBinAddr: 0xCDB9, symSize: 0xA2 }
-  - { offset: 0x69E4A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams outcomeId]', symObjAddr: 0x270, symBinAddr: 0xCE5B, symSize: 0xA }
-  - { offset: 0x69E7F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setOutcomeId:]', symObjAddr: 0x27A, symBinAddr: 0xCE65, symSize: 0x11 }
-  - { offset: 0x69EC0, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams outcomeSource]', symObjAddr: 0x28B, symBinAddr: 0xCE76, symSize: 0xA }
-  - { offset: 0x69EF5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setOutcomeSource:]', symObjAddr: 0x295, symBinAddr: 0xCE80, symSize: 0x11 }
-  - { offset: 0x69F36, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams weight]', symObjAddr: 0x2A6, symBinAddr: 0xCE91, symSize: 0xA }
-  - { offset: 0x69F6B, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setWeight:]', symObjAddr: 0x2B0, symBinAddr: 0xCE9B, symSize: 0x11 }
-  - { offset: 0x69FAC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams timestamp]', symObjAddr: 0x2C1, symBinAddr: 0xCEAC, symSize: 0xA }
-  - { offset: 0x69FE1, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setTimestamp:]', symObjAddr: 0x2CB, symBinAddr: 0xCEB6, symSize: 0x11 }
-  - { offset: 0x6A022, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams .cxx_destruct]', symObjAddr: 0x2DC, symBinAddr: 0xCEC7, symSize: 0x3E }
-  - { offset: 0x6A0D3, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam initWithParamsInfluenceIds:influenceKey:directInfluence:influenceDirectKey:]', symObjAddr: 0x0, symBinAddr: 0xCF05, symSize: 0xC5 }
-  - { offset: 0x6A16A, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam initWithParamsInfluenceIds:influenceKey:directInfluence:influenceDirectKey:]', symObjAddr: 0x0, symBinAddr: 0xCF05, symSize: 0xC5 }
-  - { offset: 0x6A25E, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceKey]', symObjAddr: 0xC5, symBinAddr: 0xCFCA, symSize: 0xA }
-  - { offset: 0x6A293, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceIds]', symObjAddr: 0xCF, symBinAddr: 0xCFD4, symSize: 0xA }
-  - { offset: 0x6A2C8, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceDirectKey]', symObjAddr: 0xD9, symBinAddr: 0xCFDE, symSize: 0xA }
-  - { offset: 0x6A2FD, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam directInfluence]', symObjAddr: 0xE3, symBinAddr: 0xCFE8, symSize: 0x9 }
-  - { offset: 0x6A332, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam .cxx_destruct]', symObjAddr: 0xEC, symBinAddr: 0xCFF1, symSize: 0x33 }
-  - { offset: 0x6A3D9, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV1Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0xD024, symSize: 0x18B }
-  - { offset: 0x6A456, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV1Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0xD024, symSize: 0x18B }
-  - { offset: 0x6A841, size: 0x8, addend: 0x0, symName: _OneSignalOutcomesVersionString, symObjAddr: 0x0, symBinAddr: 0xD290, symSize: 0x0 }
-  - { offset: 0x6A876, size: 0x8, addend: 0x0, symName: _OneSignalOutcomesVersionNumber, symObjAddr: 0x38, symBinAddr: 0xD2C8, symSize: 0x0 }
+  - { offsetInCU: 0x27, offset: 0x5596E, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x4220, symSize: 0xAA }
+  - { offsetInCU: 0x46, offset: 0x5598D, size: 0x8, addend: 0x0, symName: _unattributedUniqueOutcomeEventsSentSet, symObjAddr: 0xC080, symBinAddr: 0x19E60, symSize: 0x0 }
+  - { offsetInCU: 0x236, offset: 0x55B7D, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x4220, symSize: 0xAA }
+  - { offsetInCU: 0x2F2, offset: 0x55C39, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initUniqueOutcomeEventsFromCache]', symObjAddr: 0xAA, symBinAddr: 0x42CA, symSize: 0x8B }
+  - { offsetInCU: 0x389, offset: 0x55CD0, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController clearOutcomes]', symObjAddr: 0x135, symBinAddr: 0x4355, symSize: 0x6E }
+  - { offsetInCU: 0x3FB, offset: 0x55D42, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController cleanUniqueOutcomeNotifications]', symObjAddr: 0x1A3, symBinAddr: 0x43C3, symSize: 0x2C9 }
+  - { offsetInCU: 0x5E2, offset: 0x55F29, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendClickActionOutcomes:appId:deviceType:]', symObjAddr: 0x46C, symBinAddr: 0x468C, symSize: 0x304 }
+  - { offsetInCU: 0x800, offset: 0x56147, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]', symObjAddr: 0x770, symBinAddr: 0x4990, symSize: 0x1D8 }
+  - { offsetInCU: 0xA5A, offset: 0x563A1, size: 0x8, addend: 0x0, symName: '___132-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]_block_invoke', symObjAddr: 0x948, symBinAddr: 0x4B68, symSize: 0x52 }
+  - { offsetInCU: 0xAF5, offset: 0x5643C, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0x99A, symBinAddr: 0x4BBA, symSize: 0x17 }
+  - { offsetInCU: 0xB1E, offset: 0x56465, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x9B1, symBinAddr: 0x4BD1, symSize: 0xF }
+  - { offsetInCU: 0xB49, offset: 0x56490, size: 0x8, addend: 0x0, symName: '___132-[OneSignalOutcomeEventsController sendSessionEndOutcomes:appId:pushSubscriptionId:onesignalId:influenceParams:onSuccess:onFailure:]_block_invoke.82', symObjAddr: 0x9C0, symBinAddr: 0x4BE0, symSize: 0x52 }
+  - { offsetInCU: 0xBE4, offset: 0x5652B, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendUniqueOutcomeEvent:appId:deviceType:successBlock:]', symObjAddr: 0xA12, symBinAddr: 0x4C32, symSize: 0xD0 }
+  - { offsetInCU: 0xD58, offset: 0x5669F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendOutcomeEvent:appId:deviceType:successBlock:]', symObjAddr: 0xAE2, symBinAddr: 0x4D02, symSize: 0x103 }
+  - { offsetInCU: 0xEE5, offset: 0x5682C, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendOutcomeEventWithValue:value:appId:deviceType:successBlock:]', symObjAddr: 0xBE5, symBinAddr: 0x4E05, symSize: 0xF0 }
+  - { offsetInCU: 0x1089, offset: 0x569D0, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendUniqueOutcomeEvent:appId:deviceType:influences:successBlock:]', symObjAddr: 0xCD5, symBinAddr: 0x4EF5, symSize: 0x5DD }
+  - { offsetInCU: 0x1525, offset: 0x56E6C, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController setSourceChannelIdsWithInfluence:sourceBody:]', symObjAddr: 0x12B2, symBinAddr: 0x54D2, symSize: 0xA9 }
+  - { offsetInCU: 0x15FD, offset: 0x56F44, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]', symObjAddr: 0x135B, symBinAddr: 0x557B, symSize: 0x6C9 }
+  - { offsetInCU: 0x1B41, offset: 0x57488, size: 0x8, addend: 0x0, symName: '___110-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]_block_invoke', symObjAddr: 0x1A24, symBinAddr: 0x5C44, symSize: 0x66 }
+  - { offsetInCU: 0x1BF1, offset: 0x57538, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48b, symObjAddr: 0x1A8A, symBinAddr: 0x5CAA, symSize: 0x44 }
+  - { offsetInCU: 0x1C32, offset: 0x57579, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x1ACE, symBinAddr: 0x5CEE, symSize: 0x2C }
+  - { offsetInCU: 0x1C75, offset: 0x575BC, size: 0x8, addend: 0x0, symName: '___110-[OneSignalOutcomeEventsController sendAndCreateOutcomeEvent:weight:appId:deviceType:influences:successBlock:]_block_invoke.163', symObjAddr: 0x1AFA, symBinAddr: 0x5D1A, symSize: 0x38 }
+  - { offsetInCU: 0x1CF3, offset: 0x5763A, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b, symObjAddr: 0x1B32, symBinAddr: 0x5D52, symSize: 0x30 }
+  - { offsetInCU: 0x1D28, offset: 0x5766F, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x1B62, symBinAddr: 0x5D82, symSize: 0x25 }
+  - { offsetInCU: 0x1D5F, offset: 0x576A6, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController removeDisabledInfluences:]', symObjAddr: 0x1B87, symBinAddr: 0x5DA7, symSize: 0x2E2 }
+  - { offsetInCU: 0x1F3C, offset: 0x57883, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveUniqueOutcome:]', symObjAddr: 0x1E69, symBinAddr: 0x6089, symSize: 0xCD }
+  - { offsetInCU: 0x2036, offset: 0x5797D, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveAttributedUniqueOutcomeFromParams:]', symObjAddr: 0x1F36, symBinAddr: 0x6156, symSize: 0x6A }
+  - { offsetInCU: 0x20D8, offset: 0x57A1F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController saveUnattributedUniqueOutcomeEvents]', symObjAddr: 0x1FA0, symBinAddr: 0x61C0, symSize: 0x48 }
+  - { offsetInCU: 0x2138, offset: 0x57A7F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addOutcome:]', symObjAddr: 0x1FE8, symBinAddr: 0x6208, symSize: 0xB8 }
+  - { offsetInCU: 0x2222, offset: 0x57B69, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addOutcomeWithValue:value:]', symObjAddr: 0x20A0, symBinAddr: 0x62C0, symSize: 0xFA }
+  - { offsetInCU: 0x2368, offset: 0x57CAF, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController addUniqueOutcome:]', symObjAddr: 0x219A, symBinAddr: 0x63BA, symSize: 0xB8 }
+  - { offsetInCU: 0x2452, offset: 0x57D99, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController isValidOutcomeEntry:]', symObjAddr: 0x2252, symBinAddr: 0x6472, symSize: 0x64 }
+  - { offsetInCU: 0x24E7, offset: 0x57E2E, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController isValidOutcomeValue:]', symObjAddr: 0x22B6, symBinAddr: 0x64D6, symSize: 0x63 }
+  - { offsetInCU: 0x257C, offset: 0x57EC3, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController sessionManager]', symObjAddr: 0x2319, symBinAddr: 0x6539, symSize: 0xA }
+  - { offsetInCU: 0x25B1, offset: 0x57EF8, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController outcomeEventsFactory]', symObjAddr: 0x2323, symBinAddr: 0x6543, symSize: 0xA }
+  - { offsetInCU: 0x25E6, offset: 0x57F2D, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController .cxx_destruct]', symObjAddr: 0x232D, symBinAddr: 0x654D, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x58452, size: 0x8, addend: 0x0, symName: '+[OSSessionManager sharedSessionManager]', symObjAddr: 0x0, symBinAddr: 0x6575, symSize: 0x8C }
+  - { offsetInCU: 0x46, offset: 0x58471, size: 0x8, addend: 0x0, symName: __appEntryState, symObjAddr: 0x1888, symBinAddr: 0x19C78, symSize: 0x0 }
+  - { offsetInCU: 0x5C, offset: 0x58487, size: 0x8, addend: 0x0, symName: __sessionManager, symObjAddr: 0x8310, symBinAddr: 0x19E80, symSize: 0x0 }
+  - { offsetInCU: 0x108, offset: 0x58533, size: 0x8, addend: 0x0, symName: __sessionLaunchTime, symObjAddr: 0x8320, symBinAddr: 0x19E68, symSize: 0x0 }
+  - { offsetInCU: 0x123, offset: 0x5854E, size: 0x8, addend: 0x0, symName: _lastOpenedTime, symObjAddr: 0x8318, symBinAddr: 0x19E88, symSize: 0x0 }
+  - { offsetInCU: 0x1AA, offset: 0x585D5, size: 0x8, addend: 0x0, symName: '+[OSSessionManager sharedSessionManager]', symObjAddr: 0x0, symBinAddr: 0x6575, symSize: 0x8C }
+  - { offsetInCU: 0x223, offset: 0x5864E, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setLastOpenedTime:]', symObjAddr: 0x8C, symBinAddr: 0x6601, symSize: 0xE }
+  - { offsetInCU: 0x260, offset: 0x5868B, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getTimeFocusedElapsed]', symObjAddr: 0x9A, symBinAddr: 0x660F, symSize: 0xC3 }
+  - { offsetInCU: 0x2DF, offset: 0x5870A, size: 0x8, addend: 0x0, symName: '+[OSSessionManager resetSharedSessionManager]', symObjAddr: 0x15D, symBinAddr: 0x66D2, symSize: 0x1D }
+  - { offsetInCU: 0x31A, offset: 0x58745, size: 0x8, addend: 0x0, symName: '-[OSSessionManager appEntryState]', symObjAddr: 0x17A, symBinAddr: 0x66EF, symSize: 0xC }
+  - { offsetInCU: 0x34D, offset: 0x58778, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setAppEntryState:]', symObjAddr: 0x186, symBinAddr: 0x66FB, symSize: 0xC }
+  - { offsetInCU: 0x38A, offset: 0x587B5, size: 0x8, addend: 0x0, symName: '-[OSSessionManager init:withTrackerFactory:]', symObjAddr: 0x192, symBinAddr: 0x6707, symSize: 0xAA }
+  - { offsetInCU: 0x446, offset: 0x58871, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getInfluences]', symObjAddr: 0x23C, symBinAddr: 0x67B1, symSize: 0x16 }
+  - { offsetInCU: 0x489, offset: 0x588B4, size: 0x8, addend: 0x0, symName: '-[OSSessionManager getSessionInfluences]', symObjAddr: 0x252, symBinAddr: 0x67C7, symSize: 0x16 }
+  - { offsetInCU: 0x4CC, offset: 0x588F7, size: 0x8, addend: 0x0, symName: '-[OSSessionManager initSessionFromCache]', symObjAddr: 0x268, symBinAddr: 0x67DD, symSize: 0xDB }
+  - { offsetInCU: 0x598, offset: 0x589C3, size: 0x8, addend: 0x0, symName: '-[OSSessionManager restartSessionIfNeeded]', symObjAddr: 0x343, symBinAddr: 0x68B8, symSize: 0x3A7 }
+  - { offsetInCU: 0x805, offset: 0x58C30, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onInAppMessageReceived:]', symObjAddr: 0x6EA, symBinAddr: 0x6C5F, symSize: 0xBD }
+  - { offsetInCU: 0x8EB, offset: 0x58D16, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromIAMClick:]', symObjAddr: 0x7A7, symBinAddr: 0x6D1C, symSize: 0xCB }
+  - { offsetInCU: 0x9E4, offset: 0x58E0F, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromIAMClickFinished]', symObjAddr: 0x872, symBinAddr: 0x6DE7, symSize: 0x61 }
+  - { offsetInCU: 0xA62, offset: 0x58E8D, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onNotificationReceived:]', symObjAddr: 0x8D3, symBinAddr: 0x6E48, symSize: 0xD4 }
+  - { offsetInCU: 0xB5C, offset: 0x58F87, size: 0x8, addend: 0x0, symName: '-[OSSessionManager onDirectInfluenceFromNotificationOpen:withNotificationId:]', symObjAddr: 0x9A7, symBinAddr: 0x6F1C, symSize: 0xBF }
+  - { offsetInCU: 0xC41, offset: 0x5906C, size: 0x8, addend: 0x0, symName: '-[OSSessionManager attemptSessionUpgrade]', symObjAddr: 0xA66, symBinAddr: 0x6FDB, symSize: 0x14 }
+  - { offsetInCU: 0xC8D, offset: 0x590B8, size: 0x8, addend: 0x0, symName: '-[OSSessionManager attemptSessionUpgradeWithDirectId:]', symObjAddr: 0xA7A, symBinAddr: 0x6FEF, symSize: 0x6A3 }
+  - { offsetInCU: 0x11A1, offset: 0x595CC, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setSessionForChannel:withInfluenceType:directId:indirectIds:]', symObjAddr: 0x111D, symBinAddr: 0x7692, symSize: 0x3F9 }
+  - { offsetInCU: 0x14F8, offset: 0x59923, size: 0x8, addend: 0x0, symName: '-[OSSessionManager willChangeSessionForChannel:withInfluenceType:directId:indirectIds:]', symObjAddr: 0x1516, symBinAddr: 0x7A8B, symSize: 0x1F1 }
+  - { offsetInCU: 0x1714, offset: 0x59B3F, size: 0x8, addend: 0x0, symName: '-[OSSessionManager sendSessionEndingWithInfluences:]', symObjAddr: 0x1707, symBinAddr: 0x7C7C, symSize: 0xF8 }
+  - { offsetInCU: 0x181F, offset: 0x59C4A, size: 0x8, addend: 0x0, symName: '-[OSSessionManager sessionLaunchTime]', symObjAddr: 0x17FF, symBinAddr: 0x7D74, symSize: 0x11 }
+  - { offsetInCU: 0x1853, offset: 0x59C7E, size: 0x8, addend: 0x0, symName: '-[OSSessionManager delegate]', symObjAddr: 0x1810, symBinAddr: 0x7D85, symSize: 0xA }
+  - { offsetInCU: 0x1888, offset: 0x59CB3, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setDelegate:]', symObjAddr: 0x181A, symBinAddr: 0x7D8F, symSize: 0x11 }
+  - { offsetInCU: 0x18C7, offset: 0x59CF2, size: 0x8, addend: 0x0, symName: '-[OSSessionManager trackerFactory]', symObjAddr: 0x182B, symBinAddr: 0x7DA0, symSize: 0xA }
+  - { offsetInCU: 0x18FC, offset: 0x59D27, size: 0x8, addend: 0x0, symName: '-[OSSessionManager setTrackerFactory:]', symObjAddr: 0x1835, symBinAddr: 0x7DAA, symSize: 0x11 }
+  - { offsetInCU: 0x193B, offset: 0x59D66, size: 0x8, addend: 0x0, symName: '-[OSSessionManager .cxx_destruct]', symObjAddr: 0x1846, symBinAddr: 0x7DBB, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x59EB5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x7DE3, symSize: 0x6B }
+  - { offsetInCU: 0xFA, offset: 0x59F88, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory initWithCache:]', symObjAddr: 0x0, symBinAddr: 0x7DE3, symSize: 0x6B }
+  - { offsetInCU: 0x16A, offset: 0x59FF8, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory repository]', symObjAddr: 0x6B, symBinAddr: 0x7E4E, symSize: 0x38 }
+  - { offsetInCU: 0x1B6, offset: 0x5A044, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory checkVersionChanged]', symObjAddr: 0xA3, symBinAddr: 0x7E86, symSize: 0xB8 }
+  - { offsetInCU: 0x265, offset: 0x5A0F3, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory createRepository]', symObjAddr: 0x15B, symBinAddr: 0x7F3E, symSize: 0x5B }
+  - { offsetInCU: 0x2BC, offset: 0x5A14A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory cache]', symObjAddr: 0x1B6, symBinAddr: 0x7F99, symSize: 0xA }
+  - { offsetInCU: 0x2F1, offset: 0x5A17F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory setRepository:]', symObjAddr: 0x1C0, symBinAddr: 0x7FA3, symSize: 0x11 }
+  - { offsetInCU: 0x330, offset: 0x5A1BE, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory .cxx_destruct]', symObjAddr: 0x1D1, symBinAddr: 0x7FB4, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x5A267, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x7FDC, symSize: 0x45 }
+  - { offsetInCU: 0x41, offset: 0x5A281, size: 0x8, addend: 0x0, symName: __sharedOutcomeEventsCache, symObjAddr: 0x1E30, symBinAddr: 0x19E90, symSize: 0x0 }
+  - { offsetInCU: 0x6F, offset: 0x5A2AF, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x7FDC, symSize: 0x45 }
+  - { offsetInCU: 0xBA, offset: 0x5A2FA, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache isOutcomesV2ServiceEnabled]', symObjAddr: 0x45, symBinAddr: 0x8021, symSize: 0x54 }
+  - { offsetInCU: 0x120, offset: 0x5A360, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveOutcomesV2ServiceEnabled:]', symObjAddr: 0x99, symBinAddr: 0x8075, symSize: 0x58 }
+  - { offsetInCU: 0x193, offset: 0x5A3D3, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache getUnattributedUniqueOutcomeEventsSent]', symObjAddr: 0xF1, symBinAddr: 0x80CD, symSize: 0x60 }
+  - { offsetInCU: 0x1F2, offset: 0x5A432, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveUnattributedUniqueOutcomeEventsSent:]', symObjAddr: 0x151, symBinAddr: 0x812D, symSize: 0x74 }
+  - { offsetInCU: 0x28E, offset: 0x5A4CE, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache getAttributedUniqueOutcomeEventSent]', symObjAddr: 0x1C5, symBinAddr: 0x81A1, symSize: 0x60 }
+  - { offsetInCU: 0x2ED, offset: 0x5A52D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveAttributedUniqueOutcomeEventNotificationIds:]', symObjAddr: 0x225, symBinAddr: 0x8201, symSize: 0x74 }
+  - { offsetInCU: 0x27, offset: 0x5A631, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithParamsInfluenceId:forChannel:timestamp:]', symObjAddr: 0x0, symBinAddr: 0x8275, symSize: 0x7D }
+  - { offsetInCU: 0xAE, offset: 0x5A6B8, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithParamsInfluenceId:forChannel:timestamp:]', symObjAddr: 0x0, symBinAddr: 0x8275, symSize: 0x7D }
+  - { offsetInCU: 0x186, offset: 0x5A790, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instanceWithData:]', symObjAddr: 0x7D, symBinAddr: 0x82F2, symSize: 0x139 }
+  - { offsetInCU: 0x291, offset: 0x5A89B, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instanceWithJson:]', symObjAddr: 0x1B6, symBinAddr: 0x842B, symSize: 0x2A4 }
+  - { offsetInCU: 0x4E7, offset: 0x5AAF1, size: 0x8, addend: 0x0, symName: '+[OSIndirectInfluence instancePreviewFromNotification:]', symObjAddr: 0x45A, symBinAddr: 0x86CF, symSize: 0x21 }
+  - { offsetInCU: 0x532, offset: 0x5AB3C, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence jsonRepresentation]', symObjAddr: 0x47B, symBinAddr: 0x86F0, symSize: 0xA6 }
+  - { offsetInCU: 0x5EF, offset: 0x5ABF9, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence encodeWithCoder:]', symObjAddr: 0x521, symBinAddr: 0x8796, symSize: 0x87 }
+  - { offsetInCU: 0x6A5, offset: 0x5ACAF, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence initWithCoder:]', symObjAddr: 0x5A8, symBinAddr: 0x881D, symSize: 0x133 }
+  - { offsetInCU: 0x7DC, offset: 0x5ADE6, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence description]', symObjAddr: 0x6DB, symBinAddr: 0x8950, symSize: 0x36 }
+  - { offsetInCU: 0x81F, offset: 0x5AE29, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence channelIdTag]', symObjAddr: 0x711, symBinAddr: 0x8986, symSize: 0xA }
+  - { offsetInCU: 0x854, offset: 0x5AE5E, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setChannelIdTag:]', symObjAddr: 0x71B, symBinAddr: 0x8990, symSize: 0x11 }
+  - { offsetInCU: 0x893, offset: 0x5AE9D, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence influenceId]', symObjAddr: 0x72C, symBinAddr: 0x89A1, symSize: 0xA }
+  - { offsetInCU: 0x8C8, offset: 0x5AED2, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setInfluenceId:]', symObjAddr: 0x736, symBinAddr: 0x89AB, symSize: 0x11 }
+  - { offsetInCU: 0x907, offset: 0x5AF11, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence timestamp]', symObjAddr: 0x747, symBinAddr: 0x89BC, symSize: 0xB }
+  - { offsetInCU: 0x93C, offset: 0x5AF46, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence setTimestamp:]', symObjAddr: 0x752, symBinAddr: 0x89C7, symSize: 0xB }
+  - { offsetInCU: 0x979, offset: 0x5AF83, size: 0x8, addend: 0x0, symName: '-[OSIndirectInfluence .cxx_destruct]', symObjAddr: 0x75D, symBinAddr: 0x89D2, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x5B05D, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithData:]', symObjAddr: 0x0, symBinAddr: 0x89FA, symSize: 0x139 }
+  - { offsetInCU: 0xC3, offset: 0x5B0F9, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithData:]', symObjAddr: 0x0, symBinAddr: 0x89FA, symSize: 0x139 }
+  - { offsetInCU: 0x1CE, offset: 0x5B204, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instanceWithJson:]', symObjAddr: 0x139, symBinAddr: 0x8B33, symSize: 0x245 }
+  - { offsetInCU: 0x3DE, offset: 0x5B414, size: 0x8, addend: 0x0, symName: '+[OSInAppMessageOutcome instancePreviewFromNotification:]', symObjAddr: 0x37E, symBinAddr: 0x8D78, symSize: 0x8 }
+  - { offsetInCU: 0x41D, offset: 0x5B453, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome jsonRepresentation]', symObjAddr: 0x386, symBinAddr: 0x8D80, symSize: 0xFF }
+  - { offsetInCU: 0x520, offset: 0x5B556, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome description]', symObjAddr: 0x485, symBinAddr: 0x8E7F, symSize: 0x47 }
+  - { offsetInCU: 0x563, offset: 0x5B599, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome name]', symObjAddr: 0x4CC, symBinAddr: 0x8EC6, symSize: 0xA }
+  - { offsetInCU: 0x598, offset: 0x5B5CE, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setName:]', symObjAddr: 0x4D6, symBinAddr: 0x8ED0, symSize: 0x11 }
+  - { offsetInCU: 0x5D7, offset: 0x5B60D, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome weight]', symObjAddr: 0x4E7, symBinAddr: 0x8EE1, symSize: 0xA }
+  - { offsetInCU: 0x60C, offset: 0x5B642, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setWeight:]', symObjAddr: 0x4F1, symBinAddr: 0x8EEB, symSize: 0x11 }
+  - { offsetInCU: 0x64B, offset: 0x5B681, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome unique]', symObjAddr: 0x502, symBinAddr: 0x8EFC, symSize: 0x9 }
+  - { offsetInCU: 0x680, offset: 0x5B6B6, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome setUnique:]', symObjAddr: 0x50B, symBinAddr: 0x8F05, symSize: 0x9 }
+  - { offsetInCU: 0x6BD, offset: 0x5B6F3, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageOutcome .cxx_destruct]', symObjAddr: 0x514, symBinAddr: 0x8F0E, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x5B7C8, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initWithRepository:]', symObjAddr: 0x0, symBinAddr: 0x8F36, symSize: 0x6B }
+  - { offsetInCU: 0x15F, offset: 0x5B900, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initWithRepository:]', symObjAddr: 0x0, symBinAddr: 0x8F36, symSize: 0x6B }
+  - { offsetInCU: 0x1CF, offset: 0x5B970, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker idTag]', symObjAddr: 0x6B, symBinAddr: 0x8FA1, symSize: 0x89 }
+  - { offsetInCU: 0x22E, offset: 0x5B9CF, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker channelType]', symObjAddr: 0xF4, symBinAddr: 0x902A, symSize: 0x89 }
+  - { offsetInCU: 0x28D, offset: 0x5BA2E, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x17D, symBinAddr: 0x90B3, symSize: 0x92 }
+  - { offsetInCU: 0x311, offset: 0x5BAB2, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastChannelObjects]', symObjAddr: 0x20F, symBinAddr: 0x9145, symSize: 0x89 }
+  - { offsetInCU: 0x370, offset: 0x5BB11, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker channelLimit]', symObjAddr: 0x298, symBinAddr: 0x91CE, symSize: 0x89 }
+  - { offsetInCU: 0x3CF, offset: 0x5BB70, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker indirectAttributionWindow]', symObjAddr: 0x321, symBinAddr: 0x9257, symSize: 0x89 }
+  - { offsetInCU: 0x42E, offset: 0x5BBCF, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker saveChannelObjects:]', symObjAddr: 0x3AA, symBinAddr: 0x92E0, symSize: 0x92 }
+  - { offsetInCU: 0x4AE, offset: 0x5BC4F, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker initInfluencedTypeFromCache]', symObjAddr: 0x43C, symBinAddr: 0x9372, symSize: 0x89 }
+  - { offsetInCU: 0x509, offset: 0x5BCAA, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker cacheState]', symObjAddr: 0x4C5, symBinAddr: 0x93FB, symSize: 0x89 }
+  - { offsetInCU: 0x564, offset: 0x5BD05, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isDirectSessionEnabled]', symObjAddr: 0x54E, symBinAddr: 0x9484, symSize: 0x44 }
+  - { offsetInCU: 0x5C7, offset: 0x5BD68, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isIndirectSessionEnabled]', symObjAddr: 0x592, symBinAddr: 0x94C8, symSize: 0x44 }
+  - { offsetInCU: 0x62A, offset: 0x5BDCB, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker isUnattributedSessionEnabled]', symObjAddr: 0x5D6, symBinAddr: 0x950C, symSize: 0x44 }
+  - { offsetInCU: 0x68D, offset: 0x5BE2E, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker resetAndInitInfluence]', symObjAddr: 0x61A, symBinAddr: 0x9550, symSize: 0x1B0 }
+  - { offsetInCU: 0x7A1, offset: 0x5BF42, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker lastReceivedIds]', symObjAddr: 0x7CA, symBinAddr: 0x9700, symSize: 0x211 }
+  - { offsetInCU: 0x9C0, offset: 0x5C161, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker saveLastId:]', symObjAddr: 0x9DB, symBinAddr: 0x9911, symSize: 0x34E }
+  - { offsetInCU: 0xD54, offset: 0x5C4F5, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker currentSessionInfluence]', symObjAddr: 0xD29, symBinAddr: 0x9C5F, symSize: 0x18C }
+  - { offsetInCU: 0xF26, offset: 0x5C6C7, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker description]', symObjAddr: 0xEB5, symBinAddr: 0x9DEB, symSize: 0x12D }
+  - { offsetInCU: 0xFC9, offset: 0x5C76A, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker influenceType]', symObjAddr: 0xFE2, symBinAddr: 0x9F18, symSize: 0xA }
+  - { offsetInCU: 0xFFE, offset: 0x5C79F, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setInfluenceType:]', symObjAddr: 0xFEC, symBinAddr: 0x9F22, symSize: 0xA }
+  - { offsetInCU: 0x103B, offset: 0x5C7DC, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker directId]', symObjAddr: 0xFF6, symBinAddr: 0x9F2C, symSize: 0xA }
+  - { offsetInCU: 0x1070, offset: 0x5C811, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setDirectId:]', symObjAddr: 0x1000, symBinAddr: 0x9F36, symSize: 0x11 }
+  - { offsetInCU: 0x10AF, offset: 0x5C850, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker indirectIds]', symObjAddr: 0x1011, symBinAddr: 0x9F47, symSize: 0xA }
+  - { offsetInCU: 0x10E4, offset: 0x5C885, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker setIndirectIds:]', symObjAddr: 0x101B, symBinAddr: 0x9F51, symSize: 0x11 }
+  - { offsetInCU: 0x1123, offset: 0x5C8C4, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker dataRepository]', symObjAddr: 0x102C, symBinAddr: 0x9F62, symSize: 0xA }
+  - { offsetInCU: 0x1158, offset: 0x5C8F9, size: 0x8, addend: 0x0, symName: '-[OSChannelTracker .cxx_destruct]', symObjAddr: 0x1036, symBinAddr: 0x9F6C, symSize: 0x33 }
+  - { offsetInCU: 0x27, offset: 0x5CA92, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource initWithDirectBody:indirectBody:]', symObjAddr: 0x0, symBinAddr: 0x9F9F, symSize: 0x99 }
+  - { offsetInCU: 0xB5, offset: 0x5CB20, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource initWithDirectBody:indirectBody:]', symObjAddr: 0x0, symBinAddr: 0x9F9F, symSize: 0x99 }
+  - { offsetInCU: 0x15D, offset: 0x5CBC8, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource toDictionaryObject]', symObjAddr: 0x99, symBinAddr: 0xA038, symSize: 0xBF }
+  - { offsetInCU: 0x218, offset: 0x5CC83, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource description]', symObjAddr: 0x158, symBinAddr: 0xA0F7, symSize: 0x2D }
+  - { offsetInCU: 0x25B, offset: 0x5CCC6, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource directBody]', symObjAddr: 0x185, symBinAddr: 0xA124, symSize: 0xA }
+  - { offsetInCU: 0x290, offset: 0x5CCFB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource setDirectBody:]', symObjAddr: 0x18F, symBinAddr: 0xA12E, symSize: 0x11 }
+  - { offsetInCU: 0x2CF, offset: 0x5CD3A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource indirectBody]', symObjAddr: 0x1A0, symBinAddr: 0xA13F, symSize: 0xA }
+  - { offsetInCU: 0x304, offset: 0x5CD6F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource setIndirectBody:]', symObjAddr: 0x1AA, symBinAddr: 0xA149, symSize: 0x11 }
+  - { offsetInCU: 0x343, offset: 0x5CDAE, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSource .cxx_destruct]', symObjAddr: 0x1BB, symBinAddr: 0xA15A, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x5CE5D, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer directWithOutcome:appId:deviceType:]', symObjAddr: 0x0, symBinAddr: 0xA182, symSize: 0x2A0 }
+  - { offsetInCU: 0x41, offset: 0x5CE77, size: 0x8, addend: 0x0, symName: _APP_ID, symObjAddr: 0xF88, symBinAddr: 0x14160, symSize: 0x0 }
+  - { offsetInCU: 0x61, offset: 0x5CE97, size: 0x8, addend: 0x0, symName: _DEVICE, symObjAddr: 0xF90, symBinAddr: 0x14168, symSize: 0x0 }
+  - { offsetInCU: 0x77, offset: 0x5CEAD, size: 0x8, addend: 0x0, symName: _OUTCOME_ID, symObjAddr: 0xF98, symBinAddr: 0x14170, symSize: 0x0 }
+  - { offsetInCU: 0x8D, offset: 0x5CEC3, size: 0x8, addend: 0x0, symName: _WEIGHT, symObjAddr: 0xFA0, symBinAddr: 0x14178, symSize: 0x0 }
+  - { offsetInCU: 0xA3, offset: 0x5CED9, size: 0x8, addend: 0x0, symName: _IS_DIRECT, symObjAddr: 0xFA8, symBinAddr: 0x14180, symSize: 0x0 }
+  - { offsetInCU: 0xB9, offset: 0x5CEEF, size: 0x8, addend: 0x0, symName: _NOTIFICATION_IDS, symObjAddr: 0xFB0, symBinAddr: 0x14188, symSize: 0x0 }
+  - { offsetInCU: 0xCF, offset: 0x5CF05, size: 0x8, addend: 0x0, symName: _OUTCOME_SOURCE, symObjAddr: 0xFB8, symBinAddr: 0x14190, symSize: 0x0 }
+  - { offsetInCU: 0x170, offset: 0x5CFA6, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer directWithOutcome:appId:deviceType:]', symObjAddr: 0x0, symBinAddr: 0xA182, symSize: 0x2A0 }
+  - { offsetInCU: 0x462, offset: 0x5D298, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer indirectWithOutcome:appId:deviceType:]', symObjAddr: 0x2A0, symBinAddr: 0xA422, symSize: 0x29D }
+  - { offsetInCU: 0x754, offset: 0x5D58A, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV1ToServer unattributedWithOutcome:appId:deviceType:]', symObjAddr: 0x53D, symBinAddr: 0xA6BF, symSize: 0x1BC }
+  - { offsetInCU: 0x997, offset: 0x5D7CD, size: 0x8, addend: 0x0, symName: '+[OSRequestSendOutcomesV2ToServer measureOutcomeEvent:appId:deviceType:]', symObjAddr: 0x6F9, symBinAddr: 0xA87B, symSize: 0x156 }
+  - { offsetInCU: 0xB7A, offset: 0x5D9B0, size: 0x8, addend: 0x0, symName: '+[OSRequestSendSessionEndOutcomes withActiveTime:appId:pushSubscriptionId:onesignalId:influenceParams:]', symObjAddr: 0x84F, symBinAddr: 0xA9D1, symSize: 0x4A3 }
+  - { offsetInCU: 0x27, offset: 0x5E002, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder init]', symObjAddr: 0x0, symBinAddr: 0xAE74, symSize: 0x2F }
+  - { offsetInCU: 0x161, offset: 0x5E13C, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder init]', symObjAddr: 0x0, symBinAddr: 0xAE74, symSize: 0x2F }
+  - { offsetInCU: 0x198, offset: 0x5E173, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder influenceChannel]', symObjAddr: 0x2F, symBinAddr: 0xAEA3, symSize: 0xA }
+  - { offsetInCU: 0x1CD, offset: 0x5E1A8, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setInfluenceChannel:]', symObjAddr: 0x39, symBinAddr: 0xAEAD, symSize: 0xA }
+  - { offsetInCU: 0x20A, offset: 0x5E1E5, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder influenceType]', symObjAddr: 0x43, symBinAddr: 0xAEB7, symSize: 0xA }
+  - { offsetInCU: 0x23F, offset: 0x5E21A, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setInfluenceType:]', symObjAddr: 0x4D, symBinAddr: 0xAEC1, symSize: 0xA }
+  - { offsetInCU: 0x27C, offset: 0x5E257, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder ids]', symObjAddr: 0x57, symBinAddr: 0xAECB, symSize: 0xA }
+  - { offsetInCU: 0x2B1, offset: 0x5E28C, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder setIds:]', symObjAddr: 0x61, symBinAddr: 0xAED5, symSize: 0xF }
+  - { offsetInCU: 0x2F0, offset: 0x5E2CB, size: 0x8, addend: 0x0, symName: '-[OSInfluenceBuilder .cxx_destruct]', symObjAddr: 0x70, symBinAddr: 0xAEE4, symSize: 0x10 }
+  - { offsetInCU: 0x323, offset: 0x5E2FE, size: 0x8, addend: 0x0, symName: '-[OSInfluence initWithInfluenceType:forInfluenceChannel:withIds:]', symObjAddr: 0x80, symBinAddr: 0xAEF4, symSize: 0x81 }
+  - { offsetInCU: 0x3B3, offset: 0x5E38E, size: 0x8, addend: 0x0, symName: '-[OSInfluence initWithBuilder:]', symObjAddr: 0x101, symBinAddr: 0xAF75, symSize: 0xA5 }
+  - { offsetInCU: 0x463, offset: 0x5E43E, size: 0x8, addend: 0x0, symName: '-[OSInfluence copy]', symObjAddr: 0x1A6, symBinAddr: 0xB01A, symSize: 0x27 }
+  - { offsetInCU: 0x4BB, offset: 0x5E496, size: 0x8, addend: 0x0, symName: '-[OSInfluence isAttributedInfluence]', symObjAddr: 0x1CD, symBinAddr: 0xB041, symSize: 0x39 }
+  - { offsetInCU: 0x51B, offset: 0x5E4F6, size: 0x8, addend: 0x0, symName: '-[OSInfluence isDirectInfluence]', symObjAddr: 0x206, symBinAddr: 0xB07A, symSize: 0xE }
+  - { offsetInCU: 0x550, offset: 0x5E52B, size: 0x8, addend: 0x0, symName: '-[OSInfluence isIndirectInfluence]', symObjAddr: 0x214, symBinAddr: 0xB088, symSize: 0xE }
+  - { offsetInCU: 0x585, offset: 0x5E560, size: 0x8, addend: 0x0, symName: '-[OSInfluence isUnattributedInfluence]', symObjAddr: 0x222, symBinAddr: 0xB096, symSize: 0xE }
+  - { offsetInCU: 0x5BA, offset: 0x5E595, size: 0x8, addend: 0x0, symName: '-[OSInfluence description]', symObjAddr: 0x230, symBinAddr: 0xB0A4, symSize: 0x16C }
+  - { offsetInCU: 0x680, offset: 0x5E65B, size: 0x8, addend: 0x0, symName: '-[OSInfluence influenceChannel]', symObjAddr: 0x39C, symBinAddr: 0xB210, symSize: 0xA }
+  - { offsetInCU: 0x6B5, offset: 0x5E690, size: 0x8, addend: 0x0, symName: '-[OSInfluence influenceType]', symObjAddr: 0x3A6, symBinAddr: 0xB21A, symSize: 0xA }
+  - { offsetInCU: 0x6EA, offset: 0x5E6C5, size: 0x8, addend: 0x0, symName: '-[OSInfluence ids]', symObjAddr: 0x3B0, symBinAddr: 0xB224, symSize: 0xA }
+  - { offsetInCU: 0x71F, offset: 0x5E6FA, size: 0x8, addend: 0x0, symName: '-[OSInfluence setIds:]', symObjAddr: 0x3BA, symBinAddr: 0xB22E, symSize: 0x11 }
+  - { offsetInCU: 0x75E, offset: 0x5E739, size: 0x8, addend: 0x0, symName: '-[OSInfluence .cxx_destruct]', symObjAddr: 0x3CB, symBinAddr: 0xB23F, symSize: 0x10 }
+  - { offsetInCU: 0x27, offset: 0x5E7EF, size: 0x8, addend: 0x0, symName: '+[OSTrackerFactory sharedTrackerFactory]', symObjAddr: 0x0, symBinAddr: 0xB24F, symSize: 0x8A }
+  - { offsetInCU: 0x41, offset: 0x5E809, size: 0x8, addend: 0x0, symName: __trackers, symObjAddr: 0x3548, symBinAddr: 0x19E78, symSize: 0x0 }
+  - { offsetInCU: 0x5C, offset: 0x5E824, size: 0x8, addend: 0x0, symName: __dataRepository, symObjAddr: 0x3540, symBinAddr: 0x19E70, symSize: 0x0 }
+  - { offsetInCU: 0x87, offset: 0x5E84F, size: 0x8, addend: 0x0, symName: __trackerFactory, symObjAddr: 0x3538, symBinAddr: 0x19E98, symSize: 0x0 }
+  - { offsetInCU: 0xE8, offset: 0x5E8B0, size: 0x8, addend: 0x0, symName: '+[OSTrackerFactory sharedTrackerFactory]', symObjAddr: 0x0, symBinAddr: 0xB24F, symSize: 0x8A }
+  - { offsetInCU: 0x15B, offset: 0x5E923, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory initWithRepository:]', symObjAddr: 0x8A, symBinAddr: 0xB2D9, symSize: 0x15B }
+  - { offsetInCU: 0x223, offset: 0x5E9EB, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory saveInfluenceParams:]', symObjAddr: 0x1E5, symBinAddr: 0xB434, symSize: 0x19 }
+  - { offsetInCU: 0x275, offset: 0x5EA3D, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory initFromCache]', symObjAddr: 0x1FE, symBinAddr: 0xB44D, symSize: 0x17B }
+  - { offsetInCU: 0x353, offset: 0x5EB1B, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory influences]', symObjAddr: 0x379, symBinAddr: 0xB5C8, symSize: 0x1E7 }
+  - { offsetInCU: 0x483, offset: 0x5EC4B, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory sessionInfluences]', symObjAddr: 0x560, symBinAddr: 0xB7AF, symSize: 0x229 }
+  - { offsetInCU: 0x5CE, offset: 0x5ED96, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory iamChannelTracker]', symObjAddr: 0x789, symBinAddr: 0xB9D8, symSize: 0x20 }
+  - { offsetInCU: 0x60D, offset: 0x5EDD5, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory notificationChannelTracker]', symObjAddr: 0x7A9, symBinAddr: 0xB9F8, symSize: 0x20 }
+  - { offsetInCU: 0x64C, offset: 0x5EE14, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channelByEntryAction:]', symObjAddr: 0x7C9, symBinAddr: 0xBA18, symSize: 0x2D }
+  - { offsetInCU: 0x69F, offset: 0x5EE67, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channels]', symObjAddr: 0x7F6, symBinAddr: 0xBA45, symSize: 0xA5 }
+  - { offsetInCU: 0x75A, offset: 0x5EF22, size: 0x8, addend: 0x0, symName: '-[OSTrackerFactory channelsToResetByEntryAction:]', symObjAddr: 0x89B, symBinAddr: 0xBAEA, symSize: 0xC5 }
+  - { offsetInCU: 0x27, offset: 0x5F0D9, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initWithSession:notificationIds:name:timestamp:weight:]', symObjAddr: 0x0, symBinAddr: 0xBBAF, symSize: 0x142 }
+  - { offsetInCU: 0x13D, offset: 0x5F1EF, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initWithSession:notificationIds:name:timestamp:weight:]', symObjAddr: 0x0, symBinAddr: 0xBBAF, symSize: 0x142 }
+  - { offsetInCU: 0x27D, offset: 0x5F32F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent initFromOutcomeEventParams:]', symObjAddr: 0x142, symBinAddr: 0xBCF1, symSize: 0x3EC }
+  - { offsetInCU: 0x5D2, offset: 0x5F684, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent jsonRepresentation]', symObjAddr: 0x52E, symBinAddr: 0xC0DD, symSize: 0x344 }
+  - { offsetInCU: 0x87B, offset: 0x5F92D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent session]', symObjAddr: 0x872, symBinAddr: 0xC421, symSize: 0xA }
+  - { offsetInCU: 0x8B0, offset: 0x5F962, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setSession:]', symObjAddr: 0x87C, symBinAddr: 0xC42B, symSize: 0xA }
+  - { offsetInCU: 0x8ED, offset: 0x5F99F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent notificationIds]', symObjAddr: 0x886, symBinAddr: 0xC435, symSize: 0xA }
+  - { offsetInCU: 0x922, offset: 0x5F9D4, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setNotificationIds:]', symObjAddr: 0x890, symBinAddr: 0xC43F, symSize: 0x11 }
+  - { offsetInCU: 0x961, offset: 0x5FA13, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent name]', symObjAddr: 0x8A1, symBinAddr: 0xC450, symSize: 0xA }
+  - { offsetInCU: 0x996, offset: 0x5FA48, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setName:]', symObjAddr: 0x8AB, symBinAddr: 0xC45A, symSize: 0x11 }
+  - { offsetInCU: 0x9D5, offset: 0x5FA87, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent timestamp]', symObjAddr: 0x8BC, symBinAddr: 0xC46B, symSize: 0xA }
+  - { offsetInCU: 0xA0A, offset: 0x5FABC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setTimestamp:]', symObjAddr: 0x8C6, symBinAddr: 0xC475, symSize: 0x11 }
+  - { offsetInCU: 0xA49, offset: 0x5FAFB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent weight]', symObjAddr: 0x8D7, symBinAddr: 0xC486, symSize: 0xA }
+  - { offsetInCU: 0xA7E, offset: 0x5FB30, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent setWeight:]', symObjAddr: 0x8E1, symBinAddr: 0xC490, symSize: 0x11 }
+  - { offsetInCU: 0xABD, offset: 0x5FB6F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEvent .cxx_destruct]', symObjAddr: 0x8F2, symBinAddr: 0xC4A1, symSize: 0x3E }
+  - { offsetInCU: 0x27, offset: 0x5FCCF, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV2Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0xC4DF, symSize: 0xCE }
+  - { offsetInCU: 0xD7, offset: 0x5FD7F, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV2Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0xC4DF, symSize: 0xCE }
+  - { offsetInCU: 0x27, offset: 0x5FFC0, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository initWithCache:]', symObjAddr: 0x0, symBinAddr: 0xC5AD, symSize: 0x6B }
+  - { offsetInCU: 0xF9, offset: 0x60092, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository initWithCache:]', symObjAddr: 0x0, symBinAddr: 0xC5AD, symSize: 0x6B }
+  - { offsetInCU: 0x169, offset: 0x60102, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x6B, symBinAddr: 0xC618, symSize: 0xBE }
+  - { offsetInCU: 0x278, offset: 0x60211, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getNotCachedUniqueInfluencesForOutcome:influences:]', symObjAddr: 0x129, symBinAddr: 0xC6D6, symSize: 0x607 }
+  - { offsetInCU: 0x684, offset: 0x6061D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getCachedUniqueOutcomesByChannel:channelIds:outcomeName:]', symObjAddr: 0x730, symBinAddr: 0xCCDD, symSize: 0x286 }
+  - { offsetInCU: 0x8BF, offset: 0x60858, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getCachedUniqueOutcomesFromSourceBody:outcomeName:]', symObjAddr: 0x9B6, symBinAddr: 0xCF63, symSize: 0x14C }
+  - { offsetInCU: 0xA42, offset: 0x609DB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveUniqueOutcomeEventParams:]', symObjAddr: 0xB02, symBinAddr: 0xD0AF, symSize: 0x254 }
+  - { offsetInCU: 0xCE0, offset: 0x60C79, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getUnattributedUniqueOutcomeEventsSent]', symObjAddr: 0xD56, symBinAddr: 0xD303, symSize: 0x16 }
+  - { offsetInCU: 0xD23, offset: 0x60CBC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveUnattributedUniqueOutcomeEventsSent:]', symObjAddr: 0xD6C, symBinAddr: 0xD319, symSize: 0x16 }
+  - { offsetInCU: 0xD79, offset: 0x60D12, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository getAttributedUniqueOutcomeEventSent]', symObjAddr: 0xD82, symBinAddr: 0xD32F, symSize: 0x16 }
+  - { offsetInCU: 0xDBC, offset: 0x60D55, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository saveAttributedUniqueOutcomeEventNotificationIds:]', symObjAddr: 0xD98, symBinAddr: 0xD345, symSize: 0x16 }
+  - { offsetInCU: 0xE12, offset: 0x60DAB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository outcomeEventsCache]', symObjAddr: 0xDAE, symBinAddr: 0xD35B, symSize: 0xA }
+  - { offsetInCU: 0xE47, offset: 0x60DE0, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsRepository .cxx_destruct]', symObjAddr: 0xDB8, symBinAddr: 0xD365, symSize: 0x10 }
+  - { offsetInCU: 0x27, offset: 0x60FF8, size: 0x8, addend: 0x0, symName: '+[OSInfluenceDataRepository sharedInfluenceDataRepository]', symObjAddr: 0x0, symBinAddr: 0xD375, symSize: 0x45 }
+  - { offsetInCU: 0x46, offset: 0x61017, size: 0x8, addend: 0x0, symName: __influenceDataRepository, symObjAddr: 0x5620, symBinAddr: 0x19EA0, symSize: 0x0 }
+  - { offsetInCU: 0xAE, offset: 0x6107F, size: 0x8, addend: 0x0, symName: '+[OSInfluenceDataRepository sharedInfluenceDataRepository]', symObjAddr: 0x0, symBinAddr: 0xD375, symSize: 0x45 }
+  - { offsetInCU: 0xF9, offset: 0x610CA, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheNotificationInfluenceType:]', symObjAddr: 0x45, symBinAddr: 0xD3BA, symSize: 0x100 }
+  - { offsetInCU: 0x1AC, offset: 0x6117D, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationCachedInfluenceType]', symObjAddr: 0x145, symBinAddr: 0xD4BA, symSize: 0x186 }
+  - { offsetInCU: 0x29F, offset: 0x61270, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheIAMInfluenceType:]', symObjAddr: 0x2CB, symBinAddr: 0xD640, symSize: 0x100 }
+  - { offsetInCU: 0x352, offset: 0x61323, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamCachedInfluenceType]', symObjAddr: 0x3CB, symBinAddr: 0xD740, symSize: 0x186 }
+  - { offsetInCU: 0x445, offset: 0x61416, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheNotificationOpenId:]', symObjAddr: 0x551, symBinAddr: 0xD8C6, symSize: 0x74 }
+  - { offsetInCU: 0x4E1, offset: 0x614B2, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cachedNotificationOpenId]', symObjAddr: 0x5C5, symBinAddr: 0xD93A, symSize: 0x60 }
+  - { offsetInCU: 0x540, offset: 0x61511, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cacheIndirectNotifications:]', symObjAddr: 0x625, symBinAddr: 0xD99A, symSize: 0x74 }
+  - { offsetInCU: 0x5DC, offset: 0x615AD, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository cachedIndirectNotifications]', symObjAddr: 0x699, symBinAddr: 0xDA0E, symSize: 0x60 }
+  - { offsetInCU: 0x63B, offset: 0x6160C, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveNotifications:]', symObjAddr: 0x6F9, symBinAddr: 0xDA6E, symSize: 0x74 }
+  - { offsetInCU: 0x6D7, offset: 0x616A8, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository lastNotificationsReceivedData]', symObjAddr: 0x76D, symBinAddr: 0xDAE2, symSize: 0x60 }
+  - { offsetInCU: 0x736, offset: 0x61707, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveIAMs:]', symObjAddr: 0x7CD, symBinAddr: 0xDB42, symSize: 0x74 }
+  - { offsetInCU: 0x7D2, offset: 0x617A3, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository lastIAMsReceivedData]', symObjAddr: 0x841, symBinAddr: 0xDBB6, symSize: 0x60 }
+  - { offsetInCU: 0x831, offset: 0x61802, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationLimit]', symObjAddr: 0x8A1, symBinAddr: 0xDC16, symSize: 0x57 }
+  - { offsetInCU: 0x897, offset: 0x61868, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamLimit]', symObjAddr: 0x8F8, symBinAddr: 0xDC6D, symSize: 0x57 }
+  - { offsetInCU: 0x8FD, offset: 0x618CE, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository notificationIndirectAttributionWindow]', symObjAddr: 0x94F, symBinAddr: 0xDCC4, symSize: 0x57 }
+  - { offsetInCU: 0x965, offset: 0x61936, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository iamIndirectAttributionWindow]', symObjAddr: 0x9A6, symBinAddr: 0xDD1B, symSize: 0x57 }
+  - { offsetInCU: 0x9CD, offset: 0x6199E, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isDirectInfluenceEnabled]', symObjAddr: 0x9FD, symBinAddr: 0xDD72, symSize: 0x54 }
+  - { offsetInCU: 0xA33, offset: 0x61A04, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isIndirectInfluenceEnabled]', symObjAddr: 0xA51, symBinAddr: 0xDDC6, symSize: 0x54 }
+  - { offsetInCU: 0xA99, offset: 0x61A6A, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository isUnattributedInfluenceEnabled]', symObjAddr: 0xAA5, symBinAddr: 0xDE1A, symSize: 0x54 }
+  - { offsetInCU: 0xAFF, offset: 0x61AD0, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveInfluenceParams:]', symObjAddr: 0xAF9, symBinAddr: 0xDE6E, symSize: 0x3CF }
+  - { offsetInCU: 0xEE8, offset: 0x61EB9, size: 0x8, addend: 0x0, symName: '-[OSInfluenceDataRepository saveOutcomeEnabledFlag:dictionary:]', symObjAddr: 0xEC8, symBinAddr: 0xE23D, symSize: 0xC5 }
+  - { offsetInCU: 0x27, offset: 0x62045, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xE302, symSize: 0xD }
+  - { offsetInCU: 0x116, offset: 0x62134, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xE302, symSize: 0xD }
+  - { offsetInCU: 0x149, offset: 0x62167, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker channelType]', symObjAddr: 0xD, symBinAddr: 0xE30F, symSize: 0x8 }
+  - { offsetInCU: 0x17C, offset: 0x6219A, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x15, symBinAddr: 0xE317, symSize: 0x152 }
+  - { offsetInCU: 0x2EC, offset: 0x6230A, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker lastChannelObjects]', symObjAddr: 0x167, symBinAddr: 0xE469, symSize: 0x50 }
+  - { offsetInCU: 0x34F, offset: 0x6236D, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker channelLimit]', symObjAddr: 0x1B7, symBinAddr: 0xE4B9, symSize: 0x44 }
+  - { offsetInCU: 0x3B2, offset: 0x623D0, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker indirectAttributionWindow]', symObjAddr: 0x1FB, symBinAddr: 0xE4FD, symSize: 0x44 }
+  - { offsetInCU: 0x415, offset: 0x62433, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker saveChannelObjects:]', symObjAddr: 0x23F, symBinAddr: 0xE541, symSize: 0x69 }
+  - { offsetInCU: 0x4B5, offset: 0x624D3, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker initInfluencedTypeFromCache]', symObjAddr: 0x2A8, symBinAddr: 0xE5AA, symSize: 0x110 }
+  - { offsetInCU: 0x5CA, offset: 0x625E8, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageTracker cacheState]', symObjAddr: 0x3B8, symBinAddr: 0xE6BA, symSize: 0x76 }
+  - { offsetInCU: 0x27, offset: 0x6272A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody initWithNotificationIds:inAppMessagesIds:]', symObjAddr: 0x0, symBinAddr: 0xE730, symSize: 0x99 }
+  - { offsetInCU: 0x86, offset: 0x62789, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody initWithNotificationIds:inAppMessagesIds:]', symObjAddr: 0x0, symBinAddr: 0xE730, symSize: 0x99 }
+  - { offsetInCU: 0x12E, offset: 0x62831, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody toDictionaryObject]', symObjAddr: 0x99, symBinAddr: 0xE7C9, symSize: 0x6D }
+  - { offsetInCU: 0x1A9, offset: 0x628AC, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody description]', symObjAddr: 0x106, symBinAddr: 0xE836, symSize: 0x2D }
+  - { offsetInCU: 0x1EC, offset: 0x628EF, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody notificationIds]', symObjAddr: 0x133, symBinAddr: 0xE863, symSize: 0xA }
+  - { offsetInCU: 0x221, offset: 0x62924, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody setNotificationIds:]', symObjAddr: 0x13D, symBinAddr: 0xE86D, symSize: 0x11 }
+  - { offsetInCU: 0x260, offset: 0x62963, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody inAppMessagesIds]', symObjAddr: 0x14E, symBinAddr: 0xE87E, symSize: 0xA }
+  - { offsetInCU: 0x295, offset: 0x62998, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody setInAppMessagesIds:]', symObjAddr: 0x158, symBinAddr: 0xE888, symSize: 0x11 }
+  - { offsetInCU: 0x2D4, offset: 0x629D7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeSourceBody .cxx_destruct]', symObjAddr: 0x169, symBinAddr: 0xE899, symSize: 0x28 }
+  - { offsetInCU: 0x27, offset: 0x62A86, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xE8C1, symSize: 0xD }
+  - { offsetInCU: 0x10F, offset: 0x62B6E, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker idTag]', symObjAddr: 0x0, symBinAddr: 0xE8C1, symSize: 0xD }
+  - { offsetInCU: 0x142, offset: 0x62BA1, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker channelType]', symObjAddr: 0xD, symBinAddr: 0xE8CE, symSize: 0xB }
+  - { offsetInCU: 0x175, offset: 0x62BD4, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker lastChannelObjectsReceivedByNewId:]', symObjAddr: 0x18, symBinAddr: 0xE8D9, symSize: 0x12 }
+  - { offsetInCU: 0x1CB, offset: 0x62C2A, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker lastChannelObjects]', symObjAddr: 0x2A, symBinAddr: 0xE8EB, symSize: 0x50 }
+  - { offsetInCU: 0x22E, offset: 0x62C8D, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker channelLimit]', symObjAddr: 0x7A, symBinAddr: 0xE93B, symSize: 0x44 }
+  - { offsetInCU: 0x291, offset: 0x62CF0, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker indirectAttributionWindow]', symObjAddr: 0xBE, symBinAddr: 0xE97F, symSize: 0x44 }
+  - { offsetInCU: 0x2F4, offset: 0x62D53, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker saveChannelObjects:]', symObjAddr: 0x102, symBinAddr: 0xE9C3, symSize: 0x69 }
+  - { offsetInCU: 0x394, offset: 0x62DF3, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker initInfluencedTypeFromCache]', symObjAddr: 0x16B, symBinAddr: 0xEA2C, symSize: 0x14C }
+  - { offsetInCU: 0x4CC, offset: 0x62F2B, size: 0x8, addend: 0x0, symName: '-[OSNotificationTracker cacheState]', symObjAddr: 0x2B7, symBinAddr: 0xEB78, symSize: 0x103 }
+  - { offsetInCU: 0x27, offset: 0x630A4, size: 0x8, addend: 0x0, symName: '+[OSOutcomes Session]', symObjAddr: 0x0, symBinAddr: 0xEC7B, symSize: 0x9 }
+  - { offsetInCU: 0x3A, offset: 0x630B7, size: 0x8, addend: 0x0, symName: '+[OSOutcomes migrateToVersion_02_14_00_AndGreater]', symObjAddr: 0x130, symBinAddr: 0xEDAB, symSize: 0x2FE }
+  - { offsetInCU: 0x342, offset: 0x633BF, size: 0x8, addend: 0x0, symName: __sharedController, symObjAddr: 0x3A58, symBinAddr: 0x19EA8, symSize: 0x0 }
+  - { offsetInCU: 0x420, offset: 0x6349D, size: 0x8, addend: 0x0, symName: '+[OSOutcomes Session]', symObjAddr: 0x0, symBinAddr: 0xEC7B, symSize: 0x9 }
+  - { offsetInCU: 0x455, offset: 0x634D2, size: 0x8, addend: 0x0, symName: '+[OSOutcomes sharedController]', symObjAddr: 0x9, symBinAddr: 0xEC84, symSize: 0x11 }
+  - { offsetInCU: 0x488, offset: 0x63505, size: 0x8, addend: 0x0, symName: '+[OSOutcomes start]', symObjAddr: 0x1A, symBinAddr: 0xEC95, symSize: 0xCB }
+  - { offsetInCU: 0x546, offset: 0x635C3, size: 0x8, addend: 0x0, symName: '+[OSOutcomes clearStatics]', symObjAddr: 0xE5, symBinAddr: 0xED60, symSize: 0x1D }
+  - { offsetInCU: 0x581, offset: 0x635FE, size: 0x8, addend: 0x0, symName: '+[OSOutcomes migrate]', symObjAddr: 0x102, symBinAddr: 0xED7D, symSize: 0x2E }
+  - { offsetInCU: 0x5DD, offset: 0x6365A, size: 0x8, addend: 0x0, symName: '+[OSOutcomes saveCurrentSDKVersion]', symObjAddr: 0x42E, symBinAddr: 0xF0A9, symSize: 0x6A }
+  - { offsetInCU: 0x66E, offset: 0x636EB, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addOutcome:]', symObjAddr: 0x498, symBinAddr: 0xF113, symSize: 0x7E }
+  - { offsetInCU: 0x709, offset: 0x63786, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addOutcomeWithValue:value:]', symObjAddr: 0x516, symBinAddr: 0xF191, symSize: 0x9F }
+  - { offsetInCU: 0x7C1, offset: 0x6383E, size: 0x8, addend: 0x0, symName: '+[OSOutcomes addUniqueOutcome:]', symObjAddr: 0x5B5, symBinAddr: 0xF230, symSize: 0x7E }
+  - { offsetInCU: 0x27, offset: 0x6393C, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:channel:]', symObjAddr: 0x0, symBinAddr: 0xF2AE, symSize: 0xCC }
+  - { offsetInCU: 0xF8, offset: 0x63A0D, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:channel:]', symObjAddr: 0x0, symBinAddr: 0xF2AE, symSize: 0xCC }
+  - { offsetInCU: 0x1CA, offset: 0x63ADF, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithParamsName:uniqueId:timestamp:channel:]', symObjAddr: 0xCC, symBinAddr: 0xF37A, symSize: 0xC7 }
+  - { offsetInCU: 0x2BE, offset: 0x63BD3, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome encodeWithCoder:]', symObjAddr: 0x193, symBinAddr: 0xF441, symSize: 0x132 }
+  - { offsetInCU: 0x3DB, offset: 0x63CF0, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome initWithCoder:]', symObjAddr: 0x2C5, symBinAddr: 0xF573, symSize: 0x1F1 }
+  - { offsetInCU: 0x551, offset: 0x63E66, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome description]', symObjAddr: 0x4B6, symBinAddr: 0xF764, symSize: 0x10D }
+  - { offsetInCU: 0x5D4, offset: 0x63EE9, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome isEqual:]', symObjAddr: 0x5C3, symBinAddr: 0xF871, symSize: 0x23B }
+  - { offsetInCU: 0x78E, offset: 0x640A3, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome hash]', symObjAddr: 0x7FE, symBinAddr: 0xFAAC, symSize: 0x105 }
+  - { offsetInCU: 0x851, offset: 0x64166, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome name]', symObjAddr: 0x903, symBinAddr: 0xFBB1, symSize: 0xA }
+  - { offsetInCU: 0x886, offset: 0x6419B, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome uniqueId]', symObjAddr: 0x90D, symBinAddr: 0xFBBB, symSize: 0xA }
+  - { offsetInCU: 0x8BB, offset: 0x641D0, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome timestamp]', symObjAddr: 0x917, symBinAddr: 0xFBC5, symSize: 0xA }
+  - { offsetInCU: 0x8F0, offset: 0x64205, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome channel]', symObjAddr: 0x921, symBinAddr: 0xFBCF, symSize: 0xA }
+  - { offsetInCU: 0x925, offset: 0x6423A, size: 0x8, addend: 0x0, symName: '-[OSCachedUniqueOutcome .cxx_destruct]', symObjAddr: 0x92B, symBinAddr: 0xFBD9, symSize: 0x33 }
+  - { offsetInCU: 0x27, offset: 0x642E6, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams initWithOutcomeId:outcomeSource:weight:timestamp:]', symObjAddr: 0x0, symBinAddr: 0xFC0C, symSize: 0xE8 }
+  - { offsetInCU: 0x122, offset: 0x643E1, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams initWithOutcomeId:outcomeSource:weight:timestamp:]', symObjAddr: 0x0, symBinAddr: 0xFC0C, symSize: 0xE8 }
+  - { offsetInCU: 0x243, offset: 0x64502, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams toDictionaryObject]', symObjAddr: 0xE8, symBinAddr: 0xFCF4, symSize: 0xE6 }
+  - { offsetInCU: 0x343, offset: 0x64602, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams description]', symObjAddr: 0x1CE, symBinAddr: 0xFDDA, symSize: 0xA2 }
+  - { offsetInCU: 0x3A6, offset: 0x64665, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams outcomeId]', symObjAddr: 0x270, symBinAddr: 0xFE7C, symSize: 0xA }
+  - { offsetInCU: 0x3DB, offset: 0x6469A, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setOutcomeId:]', symObjAddr: 0x27A, symBinAddr: 0xFE86, symSize: 0x11 }
+  - { offsetInCU: 0x41A, offset: 0x646D9, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams outcomeSource]', symObjAddr: 0x28B, symBinAddr: 0xFE97, symSize: 0xA }
+  - { offsetInCU: 0x44F, offset: 0x6470E, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setOutcomeSource:]', symObjAddr: 0x295, symBinAddr: 0xFEA1, symSize: 0x11 }
+  - { offsetInCU: 0x48E, offset: 0x6474D, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams weight]', symObjAddr: 0x2A6, symBinAddr: 0xFEB2, symSize: 0xA }
+  - { offsetInCU: 0x4C3, offset: 0x64782, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setWeight:]', symObjAddr: 0x2B0, symBinAddr: 0xFEBC, symSize: 0x11 }
+  - { offsetInCU: 0x502, offset: 0x647C1, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams timestamp]', symObjAddr: 0x2C1, symBinAddr: 0xFECD, symSize: 0xA }
+  - { offsetInCU: 0x537, offset: 0x647F6, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams setTimestamp:]', symObjAddr: 0x2CB, symBinAddr: 0xFED7, symSize: 0x11 }
+  - { offsetInCU: 0x576, offset: 0x64835, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventParams .cxx_destruct]', symObjAddr: 0x2DC, symBinAddr: 0xFEE8, symSize: 0x3E }
+  - { offsetInCU: 0x27, offset: 0x648DF, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam initWithParamsInfluenceIds:influenceKey:directInfluence:influenceDirectKey:]', symObjAddr: 0x0, symBinAddr: 0xFF26, symSize: 0xC5 }
+  - { offsetInCU: 0xC7, offset: 0x6497F, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam initWithParamsInfluenceIds:influenceKey:directInfluence:influenceDirectKey:]', symObjAddr: 0x0, symBinAddr: 0xFF26, symSize: 0xC5 }
+  - { offsetInCU: 0x1BB, offset: 0x64A73, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceKey]', symObjAddr: 0xC5, symBinAddr: 0xFFEB, symSize: 0xA }
+  - { offsetInCU: 0x1F0, offset: 0x64AA8, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceIds]', symObjAddr: 0xCF, symBinAddr: 0xFFF5, symSize: 0xA }
+  - { offsetInCU: 0x225, offset: 0x64ADD, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam influenceDirectKey]', symObjAddr: 0xD9, symBinAddr: 0xFFFF, symSize: 0xA }
+  - { offsetInCU: 0x25A, offset: 0x64B12, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam directInfluence]', symObjAddr: 0xE3, symBinAddr: 0x10009, symSize: 0x9 }
+  - { offsetInCU: 0x28F, offset: 0x64B47, size: 0x8, addend: 0x0, symName: '-[OSFocusInfluenceParam .cxx_destruct]', symObjAddr: 0xEC, symBinAddr: 0x10012, symSize: 0x33 }
+  - { offsetInCU: 0x27, offset: 0x64BE7, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV1Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0x10045, symSize: 0x18B }
+  - { offsetInCU: 0xEB, offset: 0x64CAB, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsV1Repository requestMeasureOutcomeEventWithAppId:deviceType:event:onSuccess:onFailure:]', symObjAddr: 0x0, symBinAddr: 0x10045, symSize: 0x18B }
+  - { offsetInCU: 0x34, offset: 0x6505A, size: 0x8, addend: 0x0, symName: _OneSignalOutcomesVersionString, symObjAddr: 0x0, symBinAddr: 0x102B0, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0x6508F, size: 0x8, addend: 0x0, symName: _OneSignalOutcomesVersionNumber, symObjAddr: 0x38, symBinAddr: 0x102E8, symSize: 0x0 }
 ...
