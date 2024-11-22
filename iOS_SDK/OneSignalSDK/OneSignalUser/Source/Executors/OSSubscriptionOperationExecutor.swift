@@ -452,3 +452,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSSubscriptionOperationExecutor: OSLoggable {
+    func logSelf() {
+        // TODO: You fill in
+    }
+}

@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2024 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,6 @@
  THE SOFTWARE.
  */
 
-import OneSignalCore
-
-/**
- Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
- */
-public protocol OSOperationExecutor: OSLoggable {
-    var supportedDeltas: [String] { get }
-    var deltaQueue: [OSDelta] { get }
-
-    func enqueueDelta(_ delta: OSDelta)
-    func cacheDeltaQueue()
-    func processDeltaQueue(inBackground: Bool)
-
-    func processRequestQueue(inBackground: Bool)
+public protocol OSLoggable {
+    func logSelf()
 }
