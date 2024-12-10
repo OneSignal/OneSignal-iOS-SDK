@@ -73,6 +73,8 @@
 		3C1F32E62D08BF290007EBF2 /* OneSignalInAppMessagesMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C1F32DF2D08BF290007EBF2 /* OneSignalInAppMessagesMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C1F32EC2D08BF6F0007EBF2 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
 		3C1F32ED2D08BF6F0007EBF2 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C1F32FD2D08D7AE0007EBF2 /* InAppIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C1F32FC2D08D7AE0007EBF2 /* InAppIntegrationTests.swift */; };
+		3C1F32FE2D08D8240007EBF2 /* OneSignalInAppMessagesMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C1F32DF2D08BF290007EBF2 /* OneSignalInAppMessagesMocks.framework */; };
 		3C24B0EC2BD09D7A0052E771 /* OneSignalCoreObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */; };
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
@@ -652,6 +654,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DEBAAE272A4211D900BF2C1C;
 			remoteInfo = OneSignalInAppMessages;
+		};
+		3C1F33002D08D8240007EBF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C1F32DE2D08BF290007EBF2;
+			remoteInfo = OneSignalInAppMessagesMocks;
 		};
 		3C7A39C32B7BED900082665E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1274,6 +1283,7 @@
 		3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C1F32DF2D08BF290007EBF2 /* OneSignalInAppMessagesMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalInAppMessagesMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C1F32FC2D08D7AE0007EBF2 /* InAppIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppIntegrationTests.swift; sourceTree = "<group>"; };
 		3C24B0EA2BD09D790052E771 /* OneSignalCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCoreObjCTests.m; sourceTree = "<group>"; };
 		3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelRepo.swift; sourceTree = "<group>"; };
@@ -1755,6 +1765,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C1F32FE2D08D8240007EBF2 /* OneSignalInAppMessagesMocks.framework in Frameworks */,
 				3C0151922C2E298F0079E076 /* OneSignalInAppMessages.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2132,6 +2143,7 @@
 			isa = PBXGroup;
 			children = (
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
+				3C1F32FC2D08D7AE0007EBF2 /* InAppIntegrationTests.swift */,
 			);
 			path = OneSignalInAppMessagesTests;
 			sourceTree = "<group>";
@@ -3347,6 +3359,7 @@
 			dependencies = (
 				3C0151942C2E298F0079E076 /* PBXTargetDependency */,
 				3C01519A2C2E29AC0079E076 /* PBXTargetDependency */,
+				3C1F33012D08D8240007EBF2 /* PBXTargetDependency */,
 			);
 			name = OneSignalInAppMessagesTests;
 			productName = OneSignalInAppMessagesTests;
@@ -3821,7 +3834,7 @@
 					};
 					3C01518D2C2E298E0079E076 = {
 						CreatedOnToolsVersion = 15.2;
-						LastSwiftMigration = 1520;
+						LastSwiftMigration = 1610;
 						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					3C115160289A259500565C41 = {
@@ -4244,6 +4257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
+				3C1F32FD2D08D7AE0007EBF2 /* InAppIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4696,6 +4710,11 @@
 			isa = PBXTargetDependency;
 			target = DEBAAE272A4211D900BF2C1C /* OneSignalInAppMessages */;
 			targetProxy = 3C1F32EE2D08BF6F0007EBF2 /* PBXContainerItemProxy */;
+		};
+		3C1F33012D08D8240007EBF2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C1F32DE2D08BF290007EBF2 /* OneSignalInAppMessagesMocks */;
+			targetProxy = 3C1F33002D08D8240007EBF2 /* PBXContainerItemProxy */;
 		};
 		3C7A39C42B7BED900082665E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
