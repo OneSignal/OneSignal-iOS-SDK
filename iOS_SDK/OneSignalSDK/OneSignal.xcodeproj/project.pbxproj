@@ -553,7 +553,7 @@
 		DEBAAE912A42176800BF2C1C /* OSInAppMessagePushPrompt.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE7C2A42176800BF2C1C /* OSInAppMessagePushPrompt.h */; };
 		DEBAAE942A42177B00BF2C1C /* OSInAppMessagingRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE922A42177B00BF2C1C /* OSInAppMessagingRequests.h */; };
 		DEBAAE952A42177B00BF2C1C /* OSInAppMessagingRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE932A42177B00BF2C1C /* OSInAppMessagingRequests.m */; };
-		DEBAAE972A42178800BF2C1C /* OSInAppMessagingDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE962A42178800BF2C1C /* OSInAppMessagingDefines.h */; };
+		DEBAAE972A42178800BF2C1C /* OSInAppMessagingDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE962A42178800BF2C1C /* OSInAppMessagingDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEBAAE992A42179A00BF2C1C /* OneSignalInAppMessages.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE982A42179A00BF2C1C /* OneSignalInAppMessages.m */; };
 		DEBAAE9B2A4222B000BF2C1C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE9A2A4222B000BF2C1C /* CoreGraphics.framework */; };
 		DEBAAEB02A435B4D00BF2C1C /* OSLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAEAE2A435AC800BF2C1C /* OSLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -3274,12 +3274,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEBAAE972A42178800BF2C1C /* OSInAppMessagingDefines.h in Headers */,
 				DEBAAE802A42176800BF2C1C /* OSInAppMessageInternal.h in Headers */,
 				DEBAAE942A42177B00BF2C1C /* OSInAppMessagingRequests.h in Headers */,
 				DEBAAE8F2A42176800BF2C1C /* OSInAppMessageLocationPrompt.h in Headers */,
 				DEBAAE862A42176800BF2C1C /* OSTrigger.h in Headers */,
 				DEBAAE552A42174A00BF2C1C /* OSInAppMessageView.h in Headers */,
-				DEBAAE972A42178800BF2C1C /* OSInAppMessagingDefines.h in Headers */,
 				DEBAAE822A42176800BF2C1C /* OSInAppMessagePrompt.h in Headers */,
 				DEBAAE612A42175A00BF2C1C /* OSMessagingController.h in Headers */,
 				DEBAAE852A42176800BF2C1C /* OSInAppMessageTag.h in Headers */,

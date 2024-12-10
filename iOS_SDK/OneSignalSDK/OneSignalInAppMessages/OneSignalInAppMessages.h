@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import <OneSignalCore/OSInAppMessages.h>
+#import <OneSignalInAppMessages/OSInAppMessagingDefines.h>
 
 @interface OneSignalInAppMessages : NSObject <OSInAppMessages>
 
