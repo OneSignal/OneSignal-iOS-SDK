@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2024 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,25 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <OneSignalCore/OneSignalRequest.h>
-#import <OneSignalCore/OneSignalClientError.h>
+#import "OneSignalClientError.h"
 
-#ifndef OneSignalClient_h
-#define OneSignalClient_h
+@implementation OneSignalClientError
 
-@protocol IOneSignalClient <NSObject>
-- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock;
+- (instancetype)initWithCode:(NSInteger)code message:(NSString* _Nonnull)message responseHeaders:(NSDictionary* _Nullable)headers response:(NSDictionary* _Nullable)response underlyingError:(NSError* _Nullable)error {
+    _code = code;
+    _message = message;
+    _underlyingError = error;
+    _response = response;
+    _responseHeaders = headers;
+
+    if (!error) {
+        NSMutableDictionary *json = [NSMutableDictionary new];
+        json[@"message"] = message;
+        json[@"response"] = response;
+        json[@"responseHeaders"] = headers;
+        _underlyingError = [NSError errorWithDomain:@"OneSignalClientError" code:code userInfo:json];
+    }
+    return self;
+}
+
 @end
-
-@interface OneSignalClient : NSObject <IOneSignalClient>
-+ (OneSignalClient *)sharedClient;
-@end
-
-#endif

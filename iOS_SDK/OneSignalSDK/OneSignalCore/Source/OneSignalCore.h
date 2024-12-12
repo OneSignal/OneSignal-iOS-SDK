@@ -57,6 +57,8 @@
 #import <OneSignalCore/OSInAppMessages.h>
 #import <OneSignalCore/OSLocation.h>
 #import <OneSignalCore/OSBundleUtils.h>
+#import <OneSignalCore/OneSignalClientError.h>
+
 // TODO: Testing: Should this class be defined in this file?
 @interface OneSignalCoreImpl : NSObject
 
