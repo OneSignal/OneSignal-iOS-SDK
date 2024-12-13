@@ -315,19 +315,12 @@ static BOOL _isInAppMessagingPaused = false;
             }
         });
     }
-    onFailure:^(NSError *error) {
-        NSDictionary *errorInfo = error.userInfo[@"returned"];
-        NSNumber *statusCode = errorInfo[@"httpStatusCode"];
-        NSDictionary* responseHeaders = errorInfo[@"headers"];
-
-        if (!statusCode) {
-            return;
-        }
-
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
+    onFailure:^(OneSignalClientError *error) {
+        NSDictionary* responseHeaders = error.responseHeaders;
         
-        NSInteger code = [statusCode integerValue];
-        if (code == 425 || code == 429) { // 425 Too Early or 429 Too Many Requests
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
+        
+        if (error.code == 425 || error.code == 429) { // 425 Too Early or 429 Too Many Requests
             NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
             
             // Dynamically set the retry limit from the header, if not already set
@@ -346,7 +339,7 @@ static BOOL _isInAppMessagingPaused = false;
                 // Final attempt without rywToken
                 [self fetchInAppMessagesWithoutToken:subscriptionId];
             }
-        } else if (code >= 500 && code <= 599) {
+        } else if (error.code >= 500 && error.code <= 599) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
         }
     }];
