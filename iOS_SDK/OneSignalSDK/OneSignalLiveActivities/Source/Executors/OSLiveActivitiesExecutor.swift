@@ -212,15 +212,13 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         } onFailure: { error in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request failed with error \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    self.requestDispatch.async {
-                        // Failed, no retry. Remove the key from the cache entirely so we don't try again.
-                        cache.remove(request)
-                    }
-                    return
+            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType != .retryable {
+                self.requestDispatch.async {
+                    // Failed, no retry. Remove the key from the cache entirely so we don't try again.
+                    cache.remove(request)
                 }
+                return
             }
             // retryable failures will stay in the cache, and will retry the next time the app starts
         }

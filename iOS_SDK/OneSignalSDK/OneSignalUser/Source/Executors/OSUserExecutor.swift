@@ -277,17 +277,13 @@ extension OSUserExecutor {
             OSOperationRepo.sharedInstance.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // A failed create user request would leave the SDK in a bad state
-                    // Don't remove the request from cache and pause the operation repo
-                    // We will retry this request on a new session
-                    OSOperationRepo.sharedInstance.paused = true
-                    request.sentToClient = false
-                }
-            } else {
-                self.executePendingRequests()
+            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType != .retryable {
+                // A failed create user request would leave the SDK in a bad state
+                // Don't remove the request from cache and pause the operation repo
+                // We will retry this request on a new session
+                OSOperationRepo.sharedInstance.paused = true
+                request.sentToClient = false
             }
         }
     }
@@ -333,13 +329,11 @@ extension OSUserExecutor {
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType != .retryable {
-                    // Fail, no retry, remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                    self.removeFromQueue(request)
-                }
+            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType != .retryable {
+                // Fail, no retry, remove the subscription_id but keep the same push subscription model
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                self.removeFromQueue(request)
             }
             self.executePendingRequests()
         }
@@ -395,39 +389,35 @@ extension OSUserExecutor {
                 self.executePendingRequests()
             }
         } onFailure: { error in
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType == .conflict {
-                    // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
-                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
+            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType == .conflict {
+                // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "executeIdentifyUserRequest returned error code user-2. Now handling user-2 error response... switch to this user.")
 
-                    self.removeFromQueue(request)
+                self.removeFromQueue(request)
 
-                    if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
-                        // Generate a Create User request, if it's still the current user
-                        self.createUser(OneSignalUserManagerImpl.sharedInstance.user)
-                    } else {
-                        // This will hydrate the OneSignal ID for any pending requests
-                        self.createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-                    }
-                } else if responseType == .invalid || responseType == .unauthorized {
-                    // Failed, no retry
-                    self.removeFromQueue(request)
-                    self.executePendingRequests()
-                } else if responseType == .missing {
-                    self.removeFromQueue(request)
-                    self.executePendingRequests()
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate)
-                    else {
-                        return
-                    }
-                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                    OneSignalUserManagerImpl.sharedInstance._logout()
+                if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
+                    // Generate a Create User request, if it's still the current user
+                    self.createUser(OneSignalUserManagerImpl.sharedInstance.user)
+                } else {
+                    // This will hydrate the OneSignal ID for any pending requests
+                    self.createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
                 }
-            } else {
+            } else if responseType == .invalid || responseType == .unauthorized {
+                // Failed, no retry
+                self.removeFromQueue(request)
                 self.executePendingRequests()
+            } else if responseType == .missing {
+                self.removeFromQueue(request)
+                self.executePendingRequests()
+                // Logout if the user in the SDK is the same
+                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate)
+                else {
+                    return
+                }
+                // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                OneSignalUserManagerImpl.sharedInstance._logout()
             }
         }
     }
@@ -485,22 +475,20 @@ extension OSUserExecutor {
             self.executePendingRequests()
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
-            if let nsError = error as? NSError {
-                let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                if responseType == .missing {
-                    self.removeFromQueue(request)
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                    else {
-                        return
-                    }
-                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                    OneSignalUserManagerImpl.sharedInstance._logout()
-                } else if responseType != .retryable {
-                    // If the error is not retryable, remove from cache and queue
-                    self.removeFromQueue(request)
+            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+            if responseType == .missing {
+                self.removeFromQueue(request)
+                // Logout if the user in the SDK is the same
+                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                else {
+                    return
                 }
+                // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                OneSignalUserManagerImpl.sharedInstance._logout()
+            } else if responseType != .retryable {
+                // If the error is not retryable, remove from cache and queue
+                self.removeFromQueue(request)
             }
             self.executePendingRequests()
         }
