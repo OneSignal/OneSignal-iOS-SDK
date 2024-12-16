@@ -183,7 +183,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.reset()
 
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
-        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 500))
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: OneSignalClientError(code: 500, message: "not-important", responseHeaders: nil, response: nil, underlyingError: nil))
 
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
@@ -210,7 +210,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.reset()
 
         let request = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
-        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: NSError(domain: "not-important", code: 401))
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: OneSignalClientError(code: 401, message: "not-important", responseHeaders: nil, response: nil, underlyingError: nil))
 
         /* When */
         let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
