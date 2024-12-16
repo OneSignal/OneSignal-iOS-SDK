@@ -683,6 +683,10 @@ static BOOL _isInAppMessagingPaused = false;
  Checks to see if any messages should be shown now
  */
 - (void)evaluateMessages {
+    if (_isInAppMessagingPaused) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Not evaluating in app messages while paused"];
+        return;
+    }
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Evaluating in app messages"];
     for (OSInAppMessageInternal *message in self.messages) {
         if ([self.triggerController messageMatchesTriggers:message]) {
