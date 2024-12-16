@@ -655,7 +655,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
         _downloadedParameters = true;
 
-    } onFailure:^(NSError *error) {
+    } onFailure:^(OneSignalClientError *error) {
         _didCallDownloadParameters = false;
     }];
 }

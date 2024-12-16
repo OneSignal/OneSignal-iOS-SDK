@@ -121,10 +121,10 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
         if (successBlock) {
             successBlock(result);
         }
-    } onFailure:^(NSError *error) {
+    } onFailure:^(OneSignalClientError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed failed"];
         if (failureBlock) {
-            failureBlock(error);
+            failureBlock(error.underlyingError);
         }
     }];
 }

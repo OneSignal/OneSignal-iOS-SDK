@@ -29,7 +29,7 @@
 
 @implementation OSReattemptRequest
 
-+(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSFailureBlock)failure {
++(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSClientFailureBlock)failure {
     OSReattemptRequest *reattempt = [OSReattemptRequest new];
     
     reattempt.request = request;
