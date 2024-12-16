@@ -197,7 +197,7 @@
     
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
-    NSDictionary *headers = [HTTPResponse allHeaderFields] ?: @{};
+    NSDictionary *headers = [HTTPResponse allHeaderFields]; // can be null
     NSError* jsonError = nil;
     NSMutableDictionary* innerJson;
     
