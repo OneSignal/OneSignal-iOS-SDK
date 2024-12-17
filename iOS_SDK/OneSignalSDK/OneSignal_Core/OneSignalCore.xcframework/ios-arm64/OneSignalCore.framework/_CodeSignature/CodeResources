@@ -78,11 +78,15 @@
 		</data>
 		<key>Headers/OneSignalClient.h</key>
 		<data>
-		2U/hJ9DbKlsx3Cvrnb2gD3aEgL4=
+		bBy68H+SOkk0c4GRArzIjP5A60M=
+		</data>
+		<key>Headers/OneSignalClientError.h</key>
+		<data>
+		Ln1c2o4jwJxKe4cCr37xiDxVmsE=
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		uSQd38/MMAQTshrSg6TvPvfd7DI=
+		r0uEHXsN+5UCndftQ1ik7SRwQjU=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -90,7 +94,7 @@
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		q5VJJvQC6h92TYA+7bvLJZNOS2s=
+		9kVGd63e6wGKDKahtIkncN1tVV0=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -130,7 +134,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		cNUzyF78er29k1gRj+NV6FoaJbQ=
+		fnQEsbHdvIcsbtswVSq49eKDl8s=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -273,14 +277,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			bZZ7bNHZy8Mym+UeVjwRL9HtlIxmmTNomVrGmmHcw2A=
+			bg16G8iXmo6DyBHRd1TLI2mgB5qwBoQU8pT4+UHoGXc=
+			</data>
+		</dict>
+		<key>Headers/OneSignalClientError.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/s2teFkWNsHgBhV6KkT1NG+kqsfS2NZ7cqHEOHi3yOg=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			iBtv/JIjYo9eo7yBlJpjMZLl+sgx4xf+xoNXKnkszgc=
+			/jB/did+xJIeYPYz9w4twMqVVT62cxmxn36wSFdmu4c=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -294,7 +305,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			20S2Oh1SwfMtiT7LPUzwHwsDF3y7dYYPdCzAfHqTVJ8=
+			pQJpHFcKMpwT9d7ZdhyBlTQlDOkIhTvyBqiLJ1aRUiY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>

@@ -2,251 +2,251 @@
 triple:          'arm64-apple-darwin'
 binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalNotifications/InstallationBuildProductsLocation/Library/Frameworks/OneSignalNotifications.framework/Versions/A/OneSignalNotifications'
 relocations:
-  - { offsetInCU: 0x27, offset: 0xD5BAC, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal observable]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x44 }
-  - { offsetInCU: 0x35, offset: 0xD5BBA, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal description]', symObjAddr: 0x594, symBinAddr: 0x4594, symSize: 0x70 }
-  - { offsetInCU: 0x7D, offset: 0xD5C02, size: 0x8, addend: 0x0, symName: '-[OSPermissionState description]', symObjAddr: 0x65C, symBinAddr: 0x465C, symSize: 0x44 }
-  - { offsetInCU: 0x2DE, offset: 0xD5E63, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal observable]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x44 }
-  - { offsetInCU: 0x315, offset: 0xD5E9A, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal initAsTo]', symObjAddr: 0x44, symBinAddr: 0x4044, symSize: 0x4C }
-  - { offsetInCU: 0x34C, offset: 0xD5ED1, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal initAsFrom]', symObjAddr: 0x90, symBinAddr: 0x4090, symSize: 0xCC }
-  - { offsetInCU: 0x393, offset: 0xD5F18, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal persistAsFrom]', symObjAddr: 0x15C, symBinAddr: 0x415C, symSize: 0xAC }
-  - { offsetInCU: 0x3D6, offset: 0xD5F5B, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal copyWithZone:]', symObjAddr: 0x208, symBinAddr: 0x4208, symSize: 0x58 }
-  - { offsetInCU: 0x429, offset: 0xD5FAE, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setHasPrompted:]', symObjAddr: 0x260, symBinAddr: 0x4260, symSize: 0x74 }
-  - { offsetInCU: 0x478, offset: 0xD5FFD, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal hasPrompted]', symObjAddr: 0x2D4, symBinAddr: 0x42D4, symSize: 0x38 }
-  - { offsetInCU: 0x4AF, offset: 0xD6034, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal reachable]', symObjAddr: 0x30C, symBinAddr: 0x430C, symSize: 0x44 }
-  - { offsetInCU: 0x4E6, offset: 0xD606B, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setProvisional:]', symObjAddr: 0x350, symBinAddr: 0x4350, symSize: 0x54 }
-  - { offsetInCU: 0x535, offset: 0xD60BA, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal isProvisional]', symObjAddr: 0x3A4, symBinAddr: 0x43A4, symSize: 0x8 }
-  - { offsetInCU: 0x56C, offset: 0xD60F1, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setAnsweredPrompt:]', symObjAddr: 0x3AC, symBinAddr: 0x43AC, symSize: 0x74 }
-  - { offsetInCU: 0x5BB, offset: 0xD6140, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal answeredPrompt]', symObjAddr: 0x420, symBinAddr: 0x4420, symSize: 0x20 }
-  - { offsetInCU: 0x5F2, offset: 0xD6177, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setAccepted:]', symObjAddr: 0x440, symBinAddr: 0x4440, symSize: 0x54 }
-  - { offsetInCU: 0x641, offset: 0xD61C6, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setEphemeral:]', symObjAddr: 0x494, symBinAddr: 0x4494, symSize: 0x54 }
-  - { offsetInCU: 0x690, offset: 0xD6215, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setProvidesAppNotificationSettings:]', symObjAddr: 0x4E8, symBinAddr: 0x44E8, symSize: 0x8 }
-  - { offsetInCU: 0x6CD, offset: 0xD6252, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal status]', symObjAddr: 0x4F0, symBinAddr: 0x44F0, symSize: 0x64 }
-  - { offsetInCU: 0x704, offset: 0xD6289, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal getExternalState]', symObjAddr: 0x554, symBinAddr: 0x4554, symSize: 0x40 }
-  - { offsetInCU: 0x73B, offset: 0xD62C0, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal providesAppNotificationSettings]', symObjAddr: 0x604, symBinAddr: 0x4604, symSize: 0x8 }
-  - { offsetInCU: 0x772, offset: 0xD62F7, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal accepted]', symObjAddr: 0x60C, symBinAddr: 0x460C, symSize: 0x8 }
-  - { offsetInCU: 0x7A9, offset: 0xD632E, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal provisional]', symObjAddr: 0x614, symBinAddr: 0x4614, symSize: 0x8 }
-  - { offsetInCU: 0x7E0, offset: 0xD6365, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal ephemeral]', symObjAddr: 0x61C, symBinAddr: 0x461C, symSize: 0x8 }
-  - { offsetInCU: 0x817, offset: 0xD639C, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setReachable:]', symObjAddr: 0x624, symBinAddr: 0x4624, symSize: 0x8 }
-  - { offsetInCU: 0x852, offset: 0xD63D7, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal notificationTypes]', symObjAddr: 0x62C, symBinAddr: 0x462C, symSize: 0x8 }
-  - { offsetInCU: 0x889, offset: 0xD640E, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setNotificationTypes:]', symObjAddr: 0x634, symBinAddr: 0x4634, symSize: 0x8 }
-  - { offsetInCU: 0x8C6, offset: 0xD644B, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setObservable:]', symObjAddr: 0x63C, symBinAddr: 0x463C, symSize: 0xC }
-  - { offsetInCU: 0x907, offset: 0xD648C, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal .cxx_destruct]', symObjAddr: 0x648, symBinAddr: 0x4648, symSize: 0xC }
-  - { offsetInCU: 0x93A, offset: 0xD64BF, size: 0x8, addend: 0x0, symName: '-[OSPermissionState initWithPermission:]', symObjAddr: 0x654, symBinAddr: 0x4654, symSize: 0x8 }
-  - { offsetInCU: 0x97B, offset: 0xD6500, size: 0x8, addend: 0x0, symName: '-[OSPermissionState jsonRepresentation]', symObjAddr: 0x6A0, symBinAddr: 0x46A0, symSize: 0xB0 }
-  - { offsetInCU: 0x9B2, offset: 0xD6537, size: 0x8, addend: 0x0, symName: '-[OSPermissionState permission]', symObjAddr: 0x750, symBinAddr: 0x4750, symSize: 0x8 }
-  - { offsetInCU: 0x9E9, offset: 0xD656E, size: 0x8, addend: 0x0, symName: '-[OSPermissionChangedInternalObserver onChanged:]', symObjAddr: 0x758, symBinAddr: 0x4758, symSize: 0xC }
-  - { offsetInCU: 0xA26, offset: 0xD65AB, size: 0x8, addend: 0x0, symName: '+[OSPermissionChangedInternalObserver fireChangesObserver:]', symObjAddr: 0x764, symBinAddr: 0x4764, symSize: 0xE8 }
-  - { offsetInCU: 0x27, offset: 0xD669E, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x484C, symSize: 0x60 }
-  - { offsetInCU: 0x41, offset: 0xD66B8, size: 0x8, addend: 0x0, symName: __wantsToDisplay, symObjAddr: 0x35C, symBinAddr: 0x1A298, symSize: 0x0 }
-  - { offsetInCU: 0x5E, offset: 0xD66D5, size: 0x8, addend: 0x0, symName: __completion, symObjAddr: 0x2480, symBinAddr: 0x1A318, symSize: 0x0 }
-  - { offsetInCU: 0x82, offset: 0xD66F9, size: 0x8, addend: 0x0, symName: __timeoutTimer, symObjAddr: 0x2478, symBinAddr: 0x1A310, symSize: 0x0 }
-  - { offsetInCU: 0xBF, offset: 0xD6736, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x484C, symSize: 0x60 }
-  - { offsetInCU: 0x112, offset: 0xD6789, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setTimeoutTimer]', symObjAddr: 0x60, symBinAddr: 0x48AC, symSize: 0x80 }
-  - { offsetInCU: 0x145, offset: 0xD67BC, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification startTimeoutTimer]', symObjAddr: 0xE0, symBinAddr: 0x492C, symSize: 0x4C }
-  - { offsetInCU: 0x174, offset: 0xD67EB, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setCompletionBlock:]', symObjAddr: 0x12C, symBinAddr: 0x4978, symSize: 0x28 }
-  - { offsetInCU: 0x1B3, offset: 0xD682A, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification display]', symObjAddr: 0x154, symBinAddr: 0x49A0, symSize: 0x48 }
-  - { offsetInCU: 0x1E6, offset: 0xD685D, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification complete:]', symObjAddr: 0x19C, symBinAddr: 0x49E8, symSize: 0xBC }
-  - { offsetInCU: 0x258, offset: 0xD68CF, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification wantsToDisplay]', symObjAddr: 0x258, symBinAddr: 0x4AA4, symSize: 0xC }
-  - { offsetInCU: 0x28B, offset: 0xD6902, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setWantsToDisplay:]', symObjAddr: 0x264, symBinAddr: 0x4AB0, symSize: 0xC }
-  - { offsetInCU: 0x2C6, offset: 0xD693D, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification timeoutTimerFired:]', symObjAddr: 0x270, symBinAddr: 0x4ABC, symSize: 0x8C }
-  - { offsetInCU: 0x305, offset: 0xD697C, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification dealloc]', symObjAddr: 0x2FC, symBinAddr: 0x4B48, symSize: 0x60 }
-  - { offsetInCU: 0x27, offset: 0xD6A40, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent initWithNotification:result:]', symObjAddr: 0x0, symBinAddr: 0x4BA8, symSize: 0xA4 }
-  - { offsetInCU: 0x41, offset: 0xD6A5A, size: 0x8, addend: 0x0, symName: _requestedProvisionalAuthorization, symObjAddr: 0x14C00, symBinAddr: 0x1A320, symSize: 0x0 }
-  - { offsetInCU: 0x63, offset: 0xD6A7C, size: 0x8, addend: 0x0, symName: __delegate, symObjAddr: 0x14B78, symBinAddr: 0x1A328, symSize: 0x0 }
-  - { offsetInCU: 0xA3, offset: 0xD6ABC, size: 0x8, addend: 0x0, symName: __lifecycleListeners, symObjAddr: 0x14B80, symBinAddr: 0x1A330, symSize: 0x0 }
-  - { offsetInCU: 0xBE, offset: 0xD6AD7, size: 0x8, addend: 0x0, symName: __unprocessedClickEvents, symObjAddr: 0x14BD8, symBinAddr: 0x1A388, symSize: 0x0 }
-  - { offsetInCU: 0xD4, offset: 0xD6AED, size: 0x8, addend: 0x0, symName: __clickListeners, symObjAddr: 0x14B88, symBinAddr: 0x1A338, symSize: 0x0 }
-  - { offsetInCU: 0xEA, offset: 0xD6B03, size: 0x8, addend: 0x0, symName: __lastMessageReceived, symObjAddr: 0x14BC8, symBinAddr: 0x1A378, symSize: 0x0 }
-  - { offsetInCU: 0x105, offset: 0xD6B1E, size: 0x8, addend: 0x0, symName: __lastMessageIdFromAction, symObjAddr: 0x14BD0, symBinAddr: 0x1A380, symSize: 0x0 }
-  - { offsetInCU: 0x11B, offset: 0xD6B34, size: 0x8, addend: 0x0, symName: __mediaBackgroundTask, symObjAddr: 0x14BF8, symBinAddr: 0x1A3A8, symSize: 0x0 }
-  - { offsetInCU: 0x138, offset: 0xD6B51, size: 0x8, addend: 0x0, symName: __osNotificationSettings, symObjAddr: 0x14B98, symBinAddr: 0x1A348, symSize: 0x0 }
-  - { offsetInCU: 0x165, offset: 0xD6B7E, size: 0x8, addend: 0x0, symName: __permissionStateChangesObserver, symObjAddr: 0x14BA0, symBinAddr: 0x1A350, symSize: 0x0 }
-  - { offsetInCU: 0x18B, offset: 0xD6BA4, size: 0x8, addend: 0x0, symName: __currentPermissionState, symObjAddr: 0x14BA8, symBinAddr: 0x1A358, symSize: 0x0 }
-  - { offsetInCU: 0x2B3, offset: 0xD6CCC, size: 0x8, addend: 0x0, symName: __lastPermissionState, symObjAddr: 0x14BB0, symBinAddr: 0x1A360, symSize: 0x0 }
-  - { offsetInCU: 0x2C9, offset: 0xD6CE2, size: 0x8, addend: 0x0, symName: __pushToken, symObjAddr: 0x14BB8, symBinAddr: 0x1A368, symSize: 0x0 }
-  - { offsetInCU: 0x2DF, offset: 0xD6CF8, size: 0x8, addend: 0x0, symName: __pushSubscriptionId, symObjAddr: 0x14BC0, symBinAddr: 0x1A370, symSize: 0x0 }
-  - { offsetInCU: 0x2F6, offset: 0xD6D0F, size: 0x8, addend: 0x0, symName: __lastAppActiveMessageId, symObjAddr: 0x14BE8, symBinAddr: 0x1A398, symSize: 0x0 }
-  - { offsetInCU: 0x30D, offset: 0xD6D26, size: 0x8, addend: 0x0, symName: __lastnonActiveMessageId, symObjAddr: 0x14BF0, symBinAddr: 0x1A3A0, symSize: 0x0 }
-  - { offsetInCU: 0x323, offset: 0xD6D3C, size: 0x8, addend: 0x0, symName: __coldStartFromTapOnNotification, symObjAddr: 0x14B90, symBinAddr: 0x1A340, symSize: 0x0 }
-  - { offsetInCU: 0x339, offset: 0xD6D52, size: 0x8, addend: 0x0, symName: _mSubscriptionStatus, symObjAddr: 0x70D0, symBinAddr: 0x1A2A0, symSize: 0x0 }
-  - { offsetInCU: 0x34F, offset: 0xD6D68, size: 0x8, addend: 0x0, symName: __providesAppNotificationSettings, symObjAddr: 0x14BE0, symBinAddr: 0x1A390, symSize: 0x0 }
-  - { offsetInCU: 0x365, offset: 0xD6D7E, size: 0x8, addend: 0x0, symName: __waitingForApnsResponse, symObjAddr: 0x14BE1, symBinAddr: 0x1A391, symSize: 0x0 }
-  - { offsetInCU: 0x472, offset: 0xD6E8B, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent initWithNotification:result:]', symObjAddr: 0x0, symBinAddr: 0x4BA8, symSize: 0xA4 }
-  - { offsetInCU: 0x4C9, offset: 0xD6EE2, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent stringify]', symObjAddr: 0xA4, symBinAddr: 0x4C4C, symSize: 0x90 }
-  - { offsetInCU: 0x530, offset: 0xD6F49, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent jsonRepresentation]', symObjAddr: 0x134, symBinAddr: 0x4CDC, symSize: 0x198 }
-  - { offsetInCU: 0x5B7, offset: 0xD6FD0, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent notification]', symObjAddr: 0x2CC, symBinAddr: 0x4E74, symSize: 0xC }
-  - { offsetInCU: 0x5EE, offset: 0xD7007, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent result]', symObjAddr: 0x2D8, symBinAddr: 0x4E80, symSize: 0xC }
-  - { offsetInCU: 0x625, offset: 0xD703E, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent .cxx_destruct]', symObjAddr: 0x2E4, symBinAddr: 0x4E8C, symSize: 0x30 }
-  - { offsetInCU: 0x658, offset: 0xD7071, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult initWithUrl::]', symObjAddr: 0x314, symBinAddr: 0x4EBC, symSize: 0xA4 }
-  - { offsetInCU: 0x6AF, offset: 0xD70C8, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult url]', symObjAddr: 0x3B8, symBinAddr: 0x4F60, symSize: 0xC }
-  - { offsetInCU: 0x6E6, offset: 0xD70FF, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult actionId]', symObjAddr: 0x3C4, symBinAddr: 0x4F6C, symSize: 0xC }
-  - { offsetInCU: 0x71D, offset: 0xD7136, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult .cxx_destruct]', symObjAddr: 0x3D0, symBinAddr: 0x4F78, symSize: 0x30 }
-  - { offsetInCU: 0x750, offset: 0xD7169, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent initWithDisplayableNotification:]', symObjAddr: 0x400, symBinAddr: 0x4FA8, symSize: 0x78 }
-  - { offsetInCU: 0x797, offset: 0xD71B0, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent isPreventDefault]', symObjAddr: 0x478, symBinAddr: 0x5020, symSize: 0x1C }
-  - { offsetInCU: 0x7CE, offset: 0xD71E7, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent preventDefault]', symObjAddr: 0x494, symBinAddr: 0x503C, symSize: 0x6C }
-  - { offsetInCU: 0x801, offset: 0xD721A, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent notification]', symObjAddr: 0x500, symBinAddr: 0x50A8, symSize: 0x8 }
-  - { offsetInCU: 0x838, offset: 0xD7251, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent .cxx_destruct]', symObjAddr: 0x508, symBinAddr: 0x50B0, symSize: 0xC }
-  - { offsetInCU: 0x86B, offset: 0xD7284, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager Notifications]', symObjAddr: 0x514, symBinAddr: 0x50BC, symSize: 0x4 }
-  - { offsetInCU: 0x8A0, offset: 0xD72B9, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager delegate]', symObjAddr: 0x518, symBinAddr: 0x50C0, symSize: 0xC }
-  - { offsetInCU: 0x8D3, offset: 0xD72EC, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setDelegate:]', symObjAddr: 0x524, symBinAddr: 0x50CC, symSize: 0x10 }
-  - { offsetInCU: 0x912, offset: 0xD732B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lifecycleListeners]', symObjAddr: 0x534, symBinAddr: 0x50DC, symSize: 0x44 }
-  - { offsetInCU: 0x945, offset: 0xD735E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clickListeners]', symObjAddr: 0x578, symBinAddr: 0x5120, symSize: 0x44 }
-  - { offsetInCU: 0x978, offset: 0xD7391, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getColdStartFromTapOnNotification]', symObjAddr: 0x5BC, symBinAddr: 0x5164, symSize: 0x10 }
-  - { offsetInCU: 0x9B7, offset: 0xD73D0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setColdStartFromTapOnNotification:]', symObjAddr: 0x5CC, symBinAddr: 0x5174, symSize: 0xC }
-  - { offsetInCU: 0x9F2, offset: 0xD740B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setMSubscriptionStatus:]', symObjAddr: 0x5D8, symBinAddr: 0x5180, symSize: 0x20 }
-  - { offsetInCU: 0xA31, offset: 0xD744A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager osNotificationSettings]', symObjAddr: 0x5F8, symBinAddr: 0x51A0, symSize: 0x44 }
-  - { offsetInCU: 0xA64, offset: 0xD747D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permissionStateChangesObserver]', symObjAddr: 0x63C, symBinAddr: 0x51E4, symSize: 0x50 }
-  - { offsetInCU: 0xA97, offset: 0xD74B0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager currentPermissionState]', symObjAddr: 0x68C, symBinAddr: 0x5234, symSize: 0xBC }
-  - { offsetInCU: 0xACE, offset: 0xD74E7, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lastPermissionState]', symObjAddr: 0x748, symBinAddr: 0x52F0, symSize: 0x48 }
-  - { offsetInCU: 0xB01, offset: 0xD751A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager pushToken]', symObjAddr: 0x790, symBinAddr: 0x5338, symSize: 0x70 }
-  - { offsetInCU: 0xB34, offset: 0xD754D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager pushSubscriptionId]', symObjAddr: 0x800, symBinAddr: 0x53A8, symSize: 0x70 }
-  - { offsetInCU: 0xB67, offset: 0xD7580, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setPushSubscriptionId:]', symObjAddr: 0x870, symBinAddr: 0x5418, symSize: 0x10 }
-  - { offsetInCU: 0xBA6, offset: 0xD75BF, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager start]', symObjAddr: 0x880, symBinAddr: 0x5428, symSize: 0xAC }
-  - { offsetInCU: 0xC50, offset: 0xD7669, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserver]', symObjAddr: 0x92C, symBinAddr: 0x54D4, symSize: 0x40 }
-  - { offsetInCU: 0xC84, offset: 0xD769D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserverAsUIScene]', symObjAddr: 0x96C, symBinAddr: 0x5514, symSize: 0x6C }
-  - { offsetInCU: 0xCB8, offset: 0xD76D1, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserverAsUIApplication]', symObjAddr: 0x9D8, symBinAddr: 0x5580, symSize: 0x70 }
-  - { offsetInCU: 0xCEC, offset: 0xD7705, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager willEnterForeground]', symObjAddr: 0xA48, symBinAddr: 0x55F0, symSize: 0x30 }
-  - { offsetInCU: 0xD1C, offset: 0xD7735, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager resetLocals]', symObjAddr: 0xA78, symBinAddr: 0x5620, symSize: 0x3C }
-  - { offsetInCU: 0xD4C, offset: 0xD7765, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastPermissionState:]', symObjAddr: 0xAB4, symBinAddr: 0x565C, symSize: 0x10 }
-  - { offsetInCU: 0xD8D, offset: 0xD77A6, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permission]', symObjAddr: 0xAC4, symBinAddr: 0x566C, symSize: 0x3C }
-  - { offsetInCU: 0xDC5, offset: 0xD77DE, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager canRequestPermission]', symObjAddr: 0xB00, symBinAddr: 0x56A8, symSize: 0x3C }
-  - { offsetInCU: 0xDFD, offset: 0xD7816, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permissionNative]', symObjAddr: 0xB3C, symBinAddr: 0x56E4, symSize: 0x3C }
-  - { offsetInCU: 0xE35, offset: 0xD784E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager requestPermission:]', symObjAddr: 0xB78, symBinAddr: 0x5720, symSize: 0xD4 }
-  - { offsetInCU: 0xE7A, offset: 0xD7893, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager requestPermission:fallbackToSettings:]', symObjAddr: 0xC4C, symBinAddr: 0x57F4, symSize: 0x2E8 }
-  - { offsetInCU: 0xF23, offset: 0xD793C, size: 0x8, addend: 0x0, symName: '___63+[OSNotificationsManager requestPermission:fallbackToSettings:]_block_invoke', symObjAddr: 0xF34, symBinAddr: 0x5ADC, symSize: 0x48 }
-  - { offsetInCU: 0xF9A, offset: 0xD79B3, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0xF7C, symBinAddr: 0x5B24, symSize: 0x10 }
-  - { offsetInCU: 0xFC3, offset: 0xD79DC, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0xF8C, symBinAddr: 0x5B34, symSize: 0x8 }
-  - { offsetInCU: 0xFE2, offset: 0xD79FB, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerForProvisionalAuthorization:]', symObjAddr: 0xF94, symBinAddr: 0x5B3C, symSize: 0x84 }
-  - { offsetInCU: 0x1027, offset: 0xD7A40, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager checkProvisionalAuthorizationStatus]', symObjAddr: 0x1018, symBinAddr: 0x5BC0, symSize: 0xB8 }
-  - { offsetInCU: 0x1068, offset: 0xD7A81, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager providesAppNotificationSettings]', symObjAddr: 0x10D0, symBinAddr: 0x5C78, symSize: 0xC }
-  - { offsetInCU: 0x109C, offset: 0xD7AB5, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setProvidesNotificationSettingsView:]', symObjAddr: 0x10DC, symBinAddr: 0x5C84, symSize: 0xC }
-  - { offsetInCU: 0x10D9, offset: 0xD7AF2, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager presentAppSettings]', symObjAddr: 0x10E8, symBinAddr: 0x5C90, symSize: 0xF4 }
-  - { offsetInCU: 0x111A, offset: 0xD7B33, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearAll]', symObjAddr: 0x11DC, symBinAddr: 0x5D84, symSize: 0x4C }
-  - { offsetInCU: 0x114E, offset: 0xD7B67, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerForAPNsToken]', symObjAddr: 0x1228, symBinAddr: 0x5DD0, symSize: 0x130 }
-  - { offsetInCU: 0x11A4, offset: 0xD7BBD, size: 0x8, addend: 0x0, symName: '___46+[OSNotificationsManager registerForAPNsToken]_block_invoke', symObjAddr: 0x1358, symBinAddr: 0x5F00, symSize: 0x38 }
-  - { offsetInCU: 0x11CD, offset: 0xD7BE6, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager didRegisterForRemoteNotifications:deviceToken:]', symObjAddr: 0x1390, symBinAddr: 0x5F38, symSize: 0x108 }
-  - { offsetInCU: 0x1230, offset: 0xD7C49, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleDidFailRegisterForRemoteNotification:]', symObjAddr: 0x1498, symBinAddr: 0x6040, symSize: 0x110 }
-  - { offsetInCU: 0x1275, offset: 0xD7C8E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager sendPushTokenToDelegate]', symObjAddr: 0x15A8, symBinAddr: 0x6150, symSize: 0xB8 }
-  - { offsetInCU: 0x12A9, offset: 0xD7CC2, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setSubscriptionErrorStatus:]', symObjAddr: 0x1660, symBinAddr: 0x6208, symSize: 0x80 }
-  - { offsetInCU: 0x12EE, offset: 0xD7D07, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addPermissionObserver:]', symObjAddr: 0x16E0, symBinAddr: 0x6288, symSize: 0xF4 }
-  - { offsetInCU: 0x1333, offset: 0xD7D4C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removePermissionObserver:]', symObjAddr: 0x17D4, symBinAddr: 0x637C, symSize: 0x50 }
-  - { offsetInCU: 0x1378, offset: 0xD7D91, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager updateNotificationTypes:]', symObjAddr: 0x1824, symBinAddr: 0x63CC, symSize: 0x13C }
-  - { offsetInCU: 0x13CA, offset: 0xD7DE3, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager sendNotificationTypesUpdateToDelegate]', symObjAddr: 0x1960, symBinAddr: 0x6508, symSize: 0xAC }
-  - { offsetInCU: 0x13FE, offset: 0xD7E17, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getNotificationTypes:]', symObjAddr: 0x1A0C, symBinAddr: 0x65B4, symSize: 0x10 }
-  - { offsetInCU: 0x144A, offset: 0xD7E63, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getNotificationTypes]', symObjAddr: 0x1A1C, symBinAddr: 0x65C4, symSize: 0x13C }
-  - { offsetInCU: 0x1493, offset: 0xD7EAC, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager waitingForApnsResponse]', symObjAddr: 0x1B58, symBinAddr: 0x6700, symSize: 0xC }
-  - { offsetInCU: 0x14C7, offset: 0xD7EE0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setWaitingForApnsResponse:]', symObjAddr: 0x1B64, symBinAddr: 0x670C, symSize: 0xC }
-  - { offsetInCU: 0x1504, offset: 0xD7F1D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearStatics]', symObjAddr: 0x1B70, symBinAddr: 0x6718, symSize: 0x40 }
-  - { offsetInCU: 0x1534, offset: 0xD7F4D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastAppActiveMessageId:]', symObjAddr: 0x1BB0, symBinAddr: 0x6758, symSize: 0x10 }
-  - { offsetInCU: 0x1575, offset: 0xD7F8E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastnonActiveMessageId:]', symObjAddr: 0x1BC0, symBinAddr: 0x6768, symSize: 0x10 }
-  - { offsetInCU: 0x15B6, offset: 0xD7FCF, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager notificationReceived:wasOpened:]', symObjAddr: 0x1BD0, symBinAddr: 0x6778, symSize: 0x318 }
-  - { offsetInCU: 0x1673, offset: 0xD808C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager checkForProcessedDups:lastMessageId:]', symObjAddr: 0x1EE8, symBinAddr: 0x6A90, symSize: 0xD8 }
-  - { offsetInCU: 0x16E9, offset: 0xD8102, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleWillPresentNotificationInForegroundWithPayload:withCompletion:]', symObjAddr: 0x1FC0, symBinAddr: 0x6B68, symSize: 0x138 }
-  - { offsetInCU: 0x175C, offset: 0xD8175, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleWillShowInForegroundForNotification:completion:]', symObjAddr: 0x20F8, symBinAddr: 0x6CA0, symSize: 0x240 }
-  - { offsetInCU: 0x17F6, offset: 0xD820F, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleNotificationOpened:actionType:]', symObjAddr: 0x2338, symBinAddr: 0x6EE0, symSize: 0x314 }
-  - { offsetInCU: 0x189D, offset: 0xD82B6, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager submitNotificationOpened:]', symObjAddr: 0x264C, symBinAddr: 0x71F4, symSize: 0x194 }
-  - { offsetInCU: 0x1904, offset: 0xD831D, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager launchWebURL:]', symObjAddr: 0x27E0, symBinAddr: 0x7388, symSize: 0x90 }
-  - { offsetInCU: 0x197A, offset: 0xD8393, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager displayWebView:]', symObjAddr: 0x2870, symBinAddr: 0x7418, symSize: 0x90 }
-  - { offsetInCU: 0x19DF, offset: 0xD83F8, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke', symObjAddr: 0x2900, symBinAddr: 0x74A8, symSize: 0x78 }
-  - { offsetInCU: 0x1A2E, offset: 0xD8447, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke_2', symObjAddr: 0x2978, symBinAddr: 0x7520, symSize: 0x8C }
-  - { offsetInCU: 0x1AE0, offset: 0xD84F9, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke_3', symObjAddr: 0x2A04, symBinAddr: 0x75AC, symSize: 0x50 }
-  - { offsetInCU: 0x1B1E, offset: 0xD8537, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0x2A54, symBinAddr: 0x75FC, symSize: 0x8 }
-  - { offsetInCU: 0x1B45, offset: 0xD855E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearBadgeCount:fromClearAll:]', symObjAddr: 0x2A5C, symBinAddr: 0x7604, symSize: 0x13C }
-  - { offsetInCU: 0x1BBD, offset: 0xD85D6, size: 0x8, addend: 0x0, symName: '___55+[OSNotificationsManager clearBadgeCount:fromClearAll:]_block_invoke', symObjAddr: 0x2B98, symBinAddr: 0x7740, symSize: 0x3C }
-  - { offsetInCU: 0x1BE6, offset: 0xD85FF, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleIAMPreview:]', symObjAddr: 0x2BD4, symBinAddr: 0x777C, symSize: 0xF4 }
-  - { offsetInCU: 0x1C5C, offset: 0xD8675, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleNotificationActionWithUrl:actionID:]', symObjAddr: 0x2CC8, symBinAddr: 0x7870, symSize: 0x184 }
-  - { offsetInCU: 0x1CE5, offset: 0xD86FE, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager fireClickListenersForEvent:]', symObjAddr: 0x2E4C, symBinAddr: 0x79F4, symSize: 0x13C }
-  - { offsetInCU: 0x1D42, offset: 0xD875B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lastMessageReceived:]', symObjAddr: 0x2F88, symBinAddr: 0x7B30, symSize: 0x10 }
-  - { offsetInCU: 0x1D83, offset: 0xD879C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager shouldSuppressURL]', symObjAddr: 0x2F98, symBinAddr: 0x7B40, symSize: 0x88 }
-  - { offsetInCU: 0x1DD5, offset: 0xD87EE, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addClickListener:]', symObjAddr: 0x3020, symBinAddr: 0x7BC8, symSize: 0x78 }
-  - { offsetInCU: 0x1E1A, offset: 0xD8833, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removeClickListener:]', symObjAddr: 0x3098, symBinAddr: 0x7C40, symSize: 0x68 }
-  - { offsetInCU: 0x1E5F, offset: 0xD8878, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addForegroundLifecycleListener:]', symObjAddr: 0x3100, symBinAddr: 0x7CA8, symSize: 0x68 }
-  - { offsetInCU: 0x1EA4, offset: 0xD88BD, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removeForegroundLifecycleListener:]', symObjAddr: 0x3168, symBinAddr: 0x7D10, symSize: 0x68 }
-  - { offsetInCU: 0x1EE9, offset: 0xD8902, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getUnprocessedClickEvents]', symObjAddr: 0x31D0, symBinAddr: 0x7D78, symSize: 0x44 }
-  - { offsetInCU: 0x1F1D, offset: 0xD8936, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addUnprocessedClickEvent:]', symObjAddr: 0x3214, symBinAddr: 0x7DBC, symSize: 0x50 }
-  - { offsetInCU: 0x1F62, offset: 0xD897B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager fireClickListenersForUnprocessedEvents]', symObjAddr: 0x3264, symBinAddr: 0x7E0C, symSize: 0x140 }
-  - { offsetInCU: 0x1FAE, offset: 0xD89C7, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager receiveRemoteNotification:UserInfo:completionHandler:]', symObjAddr: 0x33A4, symBinAddr: 0x7F4C, symSize: 0x280 }
-  - { offsetInCU: 0x205B, offset: 0xD8A74, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addNotificationRequest:completionHandler:]', symObjAddr: 0x3624, symBinAddr: 0x81CC, symSize: 0xE0 }
-  - { offsetInCU: 0x2114, offset: 0xD8B2D, size: 0x8, addend: 0x0, symName: '___67+[OSNotificationsManager addNotificationRequest:completionHandler:]_block_invoke', symObjAddr: 0x3704, symBinAddr: 0x82AC, symSize: 0x94 }
-  - { offsetInCU: 0x21AB, offset: 0xD8BC4, size: 0x8, addend: 0x0, symName: '___67+[OSNotificationsManager addNotificationRequest:completionHandler:]_block_invoke_2', symObjAddr: 0x3798, symBinAddr: 0x8340, symSize: 0x4 }
-  - { offsetInCU: 0x21E1, offset: 0xD8BFA, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b, symObjAddr: 0x379C, symBinAddr: 0x8344, symSize: 0x34 }
-  - { offsetInCU: 0x220A, offset: 0xD8C23, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x37D0, symBinAddr: 0x8378, symSize: 0x28 }
-  - { offsetInCU: 0x2229, offset: 0xD8C42, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager beginBackgroundMediaTask]', symObjAddr: 0x37F8, symBinAddr: 0x83A0, symSize: 0x84 }
-  - { offsetInCU: 0x225D, offset: 0xD8C76, size: 0x8, addend: 0x0, symName: '___50+[OSNotificationsManager beginBackgroundMediaTask]_block_invoke', symObjAddr: 0x387C, symBinAddr: 0x8424, symSize: 0x8 }
-  - { offsetInCU: 0x229F, offset: 0xD8CB8, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager endBackgroundMediaTask]', symObjAddr: 0x3884, symBinAddr: 0x842C, symSize: 0x54 }
-  - { offsetInCU: 0x22CF, offset: 0xD8CE8, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager prepareUNNotificationRequest:]', symObjAddr: 0x38D8, symBinAddr: 0x8480, symSize: 0x264 }
-  - { offsetInCU: 0x2347, offset: 0xD8D60, size: 0x8, addend: 0x0, symName: '-[OSNotificationsManager dealloc]', symObjAddr: 0x3B3C, symBinAddr: 0x86E4, symSize: 0x80 }
-  - { offsetInCU: 0x27, offset: 0xD933B, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x4 }
-  - { offsetInCU: 0x41, offset: 0xD9355, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x38F0, symBinAddr: 0x1A3B0, symSize: 0x0 }
-  - { offsetInCU: 0xE4, offset: 0xD93F8, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x4 }
-  - { offsetInCU: 0x113, offset: 0xD9427, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate setOneSignalDelegate:]', symObjAddr: 0x4, symBinAddr: 0x8768, symSize: 0x15C }
-  - { offsetInCU: 0x21B, offset: 0xD952F, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate swizzledClassInHeirarchy:]', symObjAddr: 0x160, symBinAddr: 0x88C4, symSize: 0x14C }
-  - { offsetInCU: 0x307, offset: 0xD961B, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalDidRegisterForRemoteNotifications:deviceToken:]', symObjAddr: 0x2AC, symBinAddr: 0x8A10, symSize: 0x118 }
-  - { offsetInCU: 0x36A, offset: 0xD967E, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalDidFailRegisterForRemoteNotification:error:]', symObjAddr: 0x3C4, symBinAddr: 0x8B28, symSize: 0x130 }
-  - { offsetInCU: 0x3CD, offset: 0xD96E1, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:]', symObjAddr: 0x4F4, symBinAddr: 0x8C58, symSize: 0x280 }
-  - { offsetInCU: 0x495, offset: 0xD97A9, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate forwardToDepercatedApplication:didReceiveRemoteNotification:]', symObjAddr: 0x774, symBinAddr: 0x8ED8, symSize: 0xB4 }
-  - { offsetInCU: 0x4F4, offset: 0xD9808, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate traceCall:]', symObjAddr: 0x828, symBinAddr: 0x8F8C, symSize: 0x14 }
-  - { offsetInCU: 0x27, offset: 0xD9935, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x8FA0, symSize: 0xC }
-  - { offsetInCU: 0x43, offset: 0xD9951, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings registerForProvisionalAuthorization:]', symObjAddr: 0xA74, symBinAddr: 0x99A0, symSize: 0x124 }
-  - { offsetInCU: 0x105, offset: 0xD9A13, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x68A0, symBinAddr: 0x1A3B8, symSize: 0x0 }
-  - { offsetInCU: 0x1E0, offset: 0xD9AEE, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x8FA0, symSize: 0xC }
-  - { offsetInCU: 0x213, offset: 0xD9B21, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings init]', symObjAddr: 0xC, symBinAddr: 0x8FAC, symSize: 0x64 }
-  - { offsetInCU: 0x281, offset: 0xD9B8F, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState:]', symObjAddr: 0x70, symBinAddr: 0x9010, symSize: 0xD4 }
-  - { offsetInCU: 0x31C, offset: 0xD9C2A, size: 0x8, addend: 0x0, symName: '___64-[OneSignalNotificationSettings getNotificationPermissionState:]_block_invoke', symObjAddr: 0x144, symBinAddr: 0x90E4, symSize: 0x94 }
-  - { offsetInCU: 0x36B, offset: 0xD9C79, size: 0x8, addend: 0x0, symName: '___64-[OneSignalNotificationSettings getNotificationPermissionState:]_block_invoke_2', symObjAddr: 0x1D8, symBinAddr: 0x9178, symSize: 0x220 }
-  - { offsetInCU: 0x40D, offset: 0xD9D1B, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings defaultPermissionState]', symObjAddr: 0x454, symBinAddr: 0x9398, symSize: 0x6C }
-  - { offsetInCU: 0x450, offset: 0xD9D5E, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState]', symObjAddr: 0x4C0, symBinAddr: 0x9404, symSize: 0x170 }
-  - { offsetInCU: 0x564, offset: 0xD9E72, size: 0x8, addend: 0x0, symName: ___Block_byref_object_copy_, symObjAddr: 0x630, symBinAddr: 0x9574, symSize: 0x10 }
-  - { offsetInCU: 0x589, offset: 0xD9E97, size: 0x8, addend: 0x0, symName: ___Block_byref_object_dispose_, symObjAddr: 0x640, symBinAddr: 0x9584, symSize: 0x8 }
-  - { offsetInCU: 0x5A8, offset: 0xD9EB6, size: 0x8, addend: 0x0, symName: '___63-[OneSignalNotificationSettings getNotificationPermissionState]_block_invoke', symObjAddr: 0x648, symBinAddr: 0x958C, symSize: 0x74 }
-  - { offsetInCU: 0x607, offset: 0xD9F15, size: 0x8, addend: 0x0, symName: '___63-[OneSignalNotificationSettings getNotificationPermissionState]_block_invoke_2', symObjAddr: 0x6BC, symBinAddr: 0x9600, symSize: 0x48 }
-  - { offsetInCU: 0x682, offset: 0xD9F90, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40r, symObjAddr: 0x704, symBinAddr: 0x9648, symSize: 0x34 }
-  - { offsetInCU: 0x6AB, offset: 0xD9FB9, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40r, symObjAddr: 0x738, symBinAddr: 0x967C, symSize: 0x2C }
-  - { offsetInCU: 0x6CA, offset: 0xD9FD8, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48r, symObjAddr: 0x764, symBinAddr: 0x96A8, symSize: 0x3C }
-  - { offsetInCU: 0x6F3, offset: 0xDA001, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48r, symObjAddr: 0x7A0, symBinAddr: 0x96E4, symSize: 0x34 }
-  - { offsetInCU: 0x712, offset: 0xDA020, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationTypes]', symObjAddr: 0x7D4, symBinAddr: 0x9718, symSize: 0x3C }
-  - { offsetInCU: 0x749, offset: 0xDA057, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings promptForNotifications:]', symObjAddr: 0x810, symBinAddr: 0x9754, symSize: 0x104 }
-  - { offsetInCU: 0x7B8, offset: 0xDA0C6, size: 0x8, addend: 0x0, symName: '___56-[OneSignalNotificationSettings promptForNotifications:]_block_invoke', symObjAddr: 0x914, symBinAddr: 0x9858, symSize: 0x78 }
-  - { offsetInCU: 0x80B, offset: 0xDA119, size: 0x8, addend: 0x0, symName: '___56-[OneSignalNotificationSettings promptForNotifications:]_block_invoke_2', symObjAddr: 0x98C, symBinAddr: 0x98D0, symSize: 0xD0 }
-  - { offsetInCU: 0x862, offset: 0xDA170, size: 0x8, addend: 0x0, symName: '___69-[OneSignalNotificationSettings registerForProvisionalAuthorization:]_block_invoke', symObjAddr: 0xB98, symBinAddr: 0x9AC4, symSize: 0x7C }
-  - { offsetInCU: 0x8C2, offset: 0xDA1D0, size: 0x8, addend: 0x0, symName: '___69-[OneSignalNotificationSettings registerForProvisionalAuthorization:]_block_invoke_2', symObjAddr: 0xC14, symBinAddr: 0x9B40, symSize: 0x78 }
-  - { offsetInCU: 0x926, offset: 0xDA234, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings onNotificationPromptResponse:]', symObjAddr: 0xC8C, symBinAddr: 0x9BB8, symSize: 0x4 }
-  - { offsetInCU: 0x961, offset: 0xDA26F, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings useCachedStatus]', symObjAddr: 0xC90, symBinAddr: 0x9BBC, symSize: 0xC }
-  - { offsetInCU: 0x998, offset: 0xDA2A6, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings setUseCachedStatus:]', symObjAddr: 0xC9C, symBinAddr: 0x9BC8, symSize: 0x8 }
-  - { offsetInCU: 0x27, offset: 0xDA922, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x9BD0, symSize: 0x78 }
-  - { offsetInCU: 0x41, offset: 0xDA93C, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x8CF0, symBinAddr: 0x1A3C0, symSize: 0x0 }
-  - { offsetInCU: 0x6E, offset: 0xDA969, size: 0x8, addend: 0x0, symName: _useCachedUNNotificationSettings, symObjAddr: 0x8CF8, symBinAddr: 0x1A3C8, symSize: 0x0 }
-  - { offsetInCU: 0x92, offset: 0xDA98D, size: 0x8, addend: 0x0, symName: _cachedUNNotificationSettings, symObjAddr: 0x8D00, symBinAddr: 0x1A3D0, symSize: 0x0 }
-  - { offsetInCU: 0xAD, offset: 0xDA9A8, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x8D08, symBinAddr: 0x1A3D8, symSize: 0x0 }
-  - { offsetInCU: 0xC8, offset: 0xDA9C3, size: 0x8, addend: 0x0, symName: _useiOS10_2_workaround, symObjAddr: 0x2318, symBinAddr: 0x1A308, symSize: 0x0 }
-  - { offsetInCU: 0x163, offset: 0xDAA5E, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x9BD0, symSize: 0x78 }
-  - { offsetInCU: 0x196, offset: 0xDAA91, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter setup]', symObjAddr: 0x78, symBinAddr: 0x9C48, symSize: 0x28 }
-  - { offsetInCU: 0x1C5, offset: 0xDAAC0, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzleSelectors]', symObjAddr: 0xA0, symBinAddr: 0x9C70, symSize: 0xC0 }
-  - { offsetInCU: 0x288, offset: 0xDAB83, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter registerDelegate]', symObjAddr: 0x160, symBinAddr: 0x9D30, symSize: 0x8C }
-  - { offsetInCU: 0x2C7, offset: 0xDABC2, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter setUseiOS10_2_workaround:]', symObjAddr: 0x1EC, symBinAddr: 0x9DBC, symSize: 0xC }
-  - { offsetInCU: 0x302, offset: 0xDABFD, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalRequestAuthorizationWithOptions:completionHandler:]', symObjAddr: 0x1F8, symBinAddr: 0x9DC8, symSize: 0xFC }
-  - { offsetInCU: 0x375, offset: 0xDAC70, size: 0x8, addend: 0x0, symName: '___109-[OneSignalNotificationsUNUserNotificationCenter onesignalRequestAuthorizationWithOptions:completionHandler:]_block_invoke', symObjAddr: 0x2F4, symBinAddr: 0x9EC4, symSize: 0xB0 }
-  - { offsetInCU: 0x3FB, offset: 0xDACF6, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalGetNotificationSettingsWithCompletionHandler:]', symObjAddr: 0x3BC, symBinAddr: 0x9F74, symSize: 0xD8 }
-  - { offsetInCU: 0x462, offset: 0xDAD5D, size: 0x8, addend: 0x0, symName: '___104-[OneSignalNotificationsUNUserNotificationCenter onesignalGetNotificationSettingsWithCompletionHandler:]_block_invoke', symObjAddr: 0x494, symBinAddr: 0xA04C, symSize: 0x4C }
-  - { offsetInCU: 0x4C1, offset: 0xDADBC, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter setOneSignalUNDelegate:]', symObjAddr: 0x4E0, symBinAddr: 0xA098, symSize: 0xC4 }
-  - { offsetInCU: 0x514, offset: 0xDAE0F, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzledClassInHeirarchy:]', symObjAddr: 0x5A4, symBinAddr: 0xA15C, symSize: 0x14C }
-  - { offsetInCU: 0x600, offset: 0xDAEFB, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzleSelectorsOnDelegate:]', symObjAddr: 0x6F0, symBinAddr: 0xA2A8, symSize: 0x7C }
-  - { offsetInCU: 0x689, offset: 0xDAF84, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:notification:OneSignalCenter:completionHandler:]', symObjAddr: 0x76C, symBinAddr: 0xA324, symSize: 0x184 }
-  - { offsetInCU: 0x70C, offset: 0xDB007, size: 0x8, addend: 0x0, symName: '___127+[OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:notification:OneSignalCenter:completionHandler:]_block_invoke', symObjAddr: 0x8F0, symBinAddr: 0xA4A8, symSize: 0x4 }
-  - { offsetInCU: 0x733, offset: 0xDB02E, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:]', symObjAddr: 0x8F4, symBinAddr: 0xA4AC, symSize: 0x2A8 }
-  - { offsetInCU: 0x7D4, offset: 0xDB0CF, size: 0x8, addend: 0x0, symName: '___128-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:]_block_invoke', symObjAddr: 0xB9C, symBinAddr: 0xA754, symSize: 0x1C }
-  - { offsetInCU: 0x888, offset: 0xDB183, size: 0x8, addend: 0x0, symName: _finishProcessingNotification, symObjAddr: 0xBB8, symBinAddr: 0xA770, symSize: 0x1E4 }
-  - { offsetInCU: 0x921, offset: 0xDB21C, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s56b, symObjAddr: 0xD9C, symBinAddr: 0xA954, symSize: 0x44 }
-  - { offsetInCU: 0x94A, offset: 0xDB245, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s56s, symObjAddr: 0xDE0, symBinAddr: 0xA998, symSize: 0x38 }
-  - { offsetInCU: 0x969, offset: 0xDB264, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter forwardReceivedNotificationResponseWithCenter:didReceiveNotificationResponse:OneSignalCenter:withCompletionHandler:]', symObjAddr: 0xE18, symBinAddr: 0xA9D0, symSize: 0x21C }
-  - { offsetInCU: 0xA54, offset: 0xDB34F, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:]', symObjAddr: 0x1034, symBinAddr: 0xABEC, symSize: 0x160 }
-  - { offsetInCU: 0xABB, offset: 0xDB3B6, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter isDismissEvent:]', symObjAddr: 0x1194, symBinAddr: 0xAD4C, symSize: 0x4C }
-  - { offsetInCU: 0xB00, offset: 0xDB3FB, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter processiOS10Open:]', symObjAddr: 0x11E0, symBinAddr: 0xAD98, symSize: 0x1B0 }
-  - { offsetInCU: 0xB52, offset: 0xDB44D, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]', symObjAddr: 0x1390, symBinAddr: 0xAF48, symSize: 0x4AC }
-  - { offsetInCU: 0xC89, offset: 0xDB584, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke', symObjAddr: 0x183C, symBinAddr: 0xB3F4, symSize: 0xC }
-  - { offsetInCU: 0xCD3, offset: 0xDB5CE, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke.71', symObjAddr: 0x1848, symBinAddr: 0xB400, symSize: 0xC }
-  - { offsetInCU: 0xD1D, offset: 0xDB618, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke_2', symObjAddr: 0x1854, symBinAddr: 0xB40C, symSize: 0xC }
-  - { offsetInCU: 0xD74, offset: 0xDB66F, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter traceCall:]', symObjAddr: 0x1860, symBinAddr: 0xB418, symSize: 0x14 }
-  - { offsetInCU: 0x34, offset: 0xDBBF2, size: 0x8, addend: 0x0, symName: _OneSignalNotificationsVersionString, symObjAddr: 0x0, symBinAddr: 0xE560, symSize: 0x0 }
-  - { offsetInCU: 0x69, offset: 0xDBC27, size: 0x8, addend: 0x0, symName: _OneSignalNotificationsVersionNumber, symObjAddr: 0x40, symBinAddr: 0xE5A0, symSize: 0x0 }
+  - { offsetInCU: 0x27, offset: 0xD5C9A, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal observable]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x44 }
+  - { offsetInCU: 0x35, offset: 0xD5CA8, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal description]', symObjAddr: 0x594, symBinAddr: 0x4594, symSize: 0x70 }
+  - { offsetInCU: 0x7D, offset: 0xD5CF0, size: 0x8, addend: 0x0, symName: '-[OSPermissionState description]', symObjAddr: 0x65C, symBinAddr: 0x465C, symSize: 0x44 }
+  - { offsetInCU: 0x2DE, offset: 0xD5F51, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal observable]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x44 }
+  - { offsetInCU: 0x315, offset: 0xD5F88, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal initAsTo]', symObjAddr: 0x44, symBinAddr: 0x4044, symSize: 0x4C }
+  - { offsetInCU: 0x34C, offset: 0xD5FBF, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal initAsFrom]', symObjAddr: 0x90, symBinAddr: 0x4090, symSize: 0xCC }
+  - { offsetInCU: 0x393, offset: 0xD6006, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal persistAsFrom]', symObjAddr: 0x15C, symBinAddr: 0x415C, symSize: 0xAC }
+  - { offsetInCU: 0x3D6, offset: 0xD6049, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal copyWithZone:]', symObjAddr: 0x208, symBinAddr: 0x4208, symSize: 0x58 }
+  - { offsetInCU: 0x429, offset: 0xD609C, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setHasPrompted:]', symObjAddr: 0x260, symBinAddr: 0x4260, symSize: 0x74 }
+  - { offsetInCU: 0x478, offset: 0xD60EB, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal hasPrompted]', symObjAddr: 0x2D4, symBinAddr: 0x42D4, symSize: 0x38 }
+  - { offsetInCU: 0x4AF, offset: 0xD6122, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal reachable]', symObjAddr: 0x30C, symBinAddr: 0x430C, symSize: 0x44 }
+  - { offsetInCU: 0x4E6, offset: 0xD6159, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setProvisional:]', symObjAddr: 0x350, symBinAddr: 0x4350, symSize: 0x54 }
+  - { offsetInCU: 0x535, offset: 0xD61A8, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal isProvisional]', symObjAddr: 0x3A4, symBinAddr: 0x43A4, symSize: 0x8 }
+  - { offsetInCU: 0x56C, offset: 0xD61DF, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setAnsweredPrompt:]', symObjAddr: 0x3AC, symBinAddr: 0x43AC, symSize: 0x74 }
+  - { offsetInCU: 0x5BB, offset: 0xD622E, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal answeredPrompt]', symObjAddr: 0x420, symBinAddr: 0x4420, symSize: 0x20 }
+  - { offsetInCU: 0x5F2, offset: 0xD6265, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setAccepted:]', symObjAddr: 0x440, symBinAddr: 0x4440, symSize: 0x54 }
+  - { offsetInCU: 0x641, offset: 0xD62B4, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setEphemeral:]', symObjAddr: 0x494, symBinAddr: 0x4494, symSize: 0x54 }
+  - { offsetInCU: 0x690, offset: 0xD6303, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setProvidesAppNotificationSettings:]', symObjAddr: 0x4E8, symBinAddr: 0x44E8, symSize: 0x8 }
+  - { offsetInCU: 0x6CD, offset: 0xD6340, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal status]', symObjAddr: 0x4F0, symBinAddr: 0x44F0, symSize: 0x64 }
+  - { offsetInCU: 0x704, offset: 0xD6377, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal getExternalState]', symObjAddr: 0x554, symBinAddr: 0x4554, symSize: 0x40 }
+  - { offsetInCU: 0x73B, offset: 0xD63AE, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal providesAppNotificationSettings]', symObjAddr: 0x604, symBinAddr: 0x4604, symSize: 0x8 }
+  - { offsetInCU: 0x772, offset: 0xD63E5, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal accepted]', symObjAddr: 0x60C, symBinAddr: 0x460C, symSize: 0x8 }
+  - { offsetInCU: 0x7A9, offset: 0xD641C, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal provisional]', symObjAddr: 0x614, symBinAddr: 0x4614, symSize: 0x8 }
+  - { offsetInCU: 0x7E0, offset: 0xD6453, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal ephemeral]', symObjAddr: 0x61C, symBinAddr: 0x461C, symSize: 0x8 }
+  - { offsetInCU: 0x817, offset: 0xD648A, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setReachable:]', symObjAddr: 0x624, symBinAddr: 0x4624, symSize: 0x8 }
+  - { offsetInCU: 0x852, offset: 0xD64C5, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal notificationTypes]', symObjAddr: 0x62C, symBinAddr: 0x462C, symSize: 0x8 }
+  - { offsetInCU: 0x889, offset: 0xD64FC, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setNotificationTypes:]', symObjAddr: 0x634, symBinAddr: 0x4634, symSize: 0x8 }
+  - { offsetInCU: 0x8C6, offset: 0xD6539, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal setObservable:]', symObjAddr: 0x63C, symBinAddr: 0x463C, symSize: 0xC }
+  - { offsetInCU: 0x907, offset: 0xD657A, size: 0x8, addend: 0x0, symName: '-[OSPermissionStateInternal .cxx_destruct]', symObjAddr: 0x648, symBinAddr: 0x4648, symSize: 0xC }
+  - { offsetInCU: 0x93A, offset: 0xD65AD, size: 0x8, addend: 0x0, symName: '-[OSPermissionState initWithPermission:]', symObjAddr: 0x654, symBinAddr: 0x4654, symSize: 0x8 }
+  - { offsetInCU: 0x97B, offset: 0xD65EE, size: 0x8, addend: 0x0, symName: '-[OSPermissionState jsonRepresentation]', symObjAddr: 0x6A0, symBinAddr: 0x46A0, symSize: 0xB0 }
+  - { offsetInCU: 0x9B2, offset: 0xD6625, size: 0x8, addend: 0x0, symName: '-[OSPermissionState permission]', symObjAddr: 0x750, symBinAddr: 0x4750, symSize: 0x8 }
+  - { offsetInCU: 0x9E9, offset: 0xD665C, size: 0x8, addend: 0x0, symName: '-[OSPermissionChangedInternalObserver onChanged:]', symObjAddr: 0x758, symBinAddr: 0x4758, symSize: 0xC }
+  - { offsetInCU: 0xA26, offset: 0xD6699, size: 0x8, addend: 0x0, symName: '+[OSPermissionChangedInternalObserver fireChangesObserver:]', symObjAddr: 0x764, symBinAddr: 0x4764, symSize: 0xE8 }
+  - { offsetInCU: 0x27, offset: 0xD678C, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x484C, symSize: 0x60 }
+  - { offsetInCU: 0x41, offset: 0xD67A6, size: 0x8, addend: 0x0, symName: __wantsToDisplay, symObjAddr: 0x35C, symBinAddr: 0x1A298, symSize: 0x0 }
+  - { offsetInCU: 0x5E, offset: 0xD67C3, size: 0x8, addend: 0x0, symName: __completion, symObjAddr: 0x2480, symBinAddr: 0x1A318, symSize: 0x0 }
+  - { offsetInCU: 0x82, offset: 0xD67E7, size: 0x8, addend: 0x0, symName: __timeoutTimer, symObjAddr: 0x2478, symBinAddr: 0x1A310, symSize: 0x0 }
+  - { offsetInCU: 0xBF, offset: 0xD6824, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x484C, symSize: 0x60 }
+  - { offsetInCU: 0x112, offset: 0xD6877, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setTimeoutTimer]', symObjAddr: 0x60, symBinAddr: 0x48AC, symSize: 0x80 }
+  - { offsetInCU: 0x145, offset: 0xD68AA, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification startTimeoutTimer]', symObjAddr: 0xE0, symBinAddr: 0x492C, symSize: 0x4C }
+  - { offsetInCU: 0x174, offset: 0xD68D9, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setCompletionBlock:]', symObjAddr: 0x12C, symBinAddr: 0x4978, symSize: 0x28 }
+  - { offsetInCU: 0x1B3, offset: 0xD6918, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification display]', symObjAddr: 0x154, symBinAddr: 0x49A0, symSize: 0x48 }
+  - { offsetInCU: 0x1E6, offset: 0xD694B, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification complete:]', symObjAddr: 0x19C, symBinAddr: 0x49E8, symSize: 0xBC }
+  - { offsetInCU: 0x258, offset: 0xD69BD, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification wantsToDisplay]', symObjAddr: 0x258, symBinAddr: 0x4AA4, symSize: 0xC }
+  - { offsetInCU: 0x28B, offset: 0xD69F0, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setWantsToDisplay:]', symObjAddr: 0x264, symBinAddr: 0x4AB0, symSize: 0xC }
+  - { offsetInCU: 0x2C6, offset: 0xD6A2B, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification timeoutTimerFired:]', symObjAddr: 0x270, symBinAddr: 0x4ABC, symSize: 0x8C }
+  - { offsetInCU: 0x305, offset: 0xD6A6A, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification dealloc]', symObjAddr: 0x2FC, symBinAddr: 0x4B48, symSize: 0x60 }
+  - { offsetInCU: 0x27, offset: 0xD6B2E, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent initWithNotification:result:]', symObjAddr: 0x0, symBinAddr: 0x4BA8, symSize: 0xA4 }
+  - { offsetInCU: 0x41, offset: 0xD6B48, size: 0x8, addend: 0x0, symName: _requestedProvisionalAuthorization, symObjAddr: 0x14C00, symBinAddr: 0x1A320, symSize: 0x0 }
+  - { offsetInCU: 0x63, offset: 0xD6B6A, size: 0x8, addend: 0x0, symName: __delegate, symObjAddr: 0x14B78, symBinAddr: 0x1A328, symSize: 0x0 }
+  - { offsetInCU: 0xA3, offset: 0xD6BAA, size: 0x8, addend: 0x0, symName: __lifecycleListeners, symObjAddr: 0x14B80, symBinAddr: 0x1A330, symSize: 0x0 }
+  - { offsetInCU: 0xBE, offset: 0xD6BC5, size: 0x8, addend: 0x0, symName: __unprocessedClickEvents, symObjAddr: 0x14BD8, symBinAddr: 0x1A388, symSize: 0x0 }
+  - { offsetInCU: 0xD4, offset: 0xD6BDB, size: 0x8, addend: 0x0, symName: __clickListeners, symObjAddr: 0x14B88, symBinAddr: 0x1A338, symSize: 0x0 }
+  - { offsetInCU: 0xEA, offset: 0xD6BF1, size: 0x8, addend: 0x0, symName: __lastMessageReceived, symObjAddr: 0x14BC8, symBinAddr: 0x1A378, symSize: 0x0 }
+  - { offsetInCU: 0x105, offset: 0xD6C0C, size: 0x8, addend: 0x0, symName: __lastMessageIdFromAction, symObjAddr: 0x14BD0, symBinAddr: 0x1A380, symSize: 0x0 }
+  - { offsetInCU: 0x11B, offset: 0xD6C22, size: 0x8, addend: 0x0, symName: __mediaBackgroundTask, symObjAddr: 0x14BF8, symBinAddr: 0x1A3A8, symSize: 0x0 }
+  - { offsetInCU: 0x138, offset: 0xD6C3F, size: 0x8, addend: 0x0, symName: __osNotificationSettings, symObjAddr: 0x14B98, symBinAddr: 0x1A348, symSize: 0x0 }
+  - { offsetInCU: 0x165, offset: 0xD6C6C, size: 0x8, addend: 0x0, symName: __permissionStateChangesObserver, symObjAddr: 0x14BA0, symBinAddr: 0x1A350, symSize: 0x0 }
+  - { offsetInCU: 0x18B, offset: 0xD6C92, size: 0x8, addend: 0x0, symName: __currentPermissionState, symObjAddr: 0x14BA8, symBinAddr: 0x1A358, symSize: 0x0 }
+  - { offsetInCU: 0x2B3, offset: 0xD6DBA, size: 0x8, addend: 0x0, symName: __lastPermissionState, symObjAddr: 0x14BB0, symBinAddr: 0x1A360, symSize: 0x0 }
+  - { offsetInCU: 0x2C9, offset: 0xD6DD0, size: 0x8, addend: 0x0, symName: __pushToken, symObjAddr: 0x14BB8, symBinAddr: 0x1A368, symSize: 0x0 }
+  - { offsetInCU: 0x2DF, offset: 0xD6DE6, size: 0x8, addend: 0x0, symName: __pushSubscriptionId, symObjAddr: 0x14BC0, symBinAddr: 0x1A370, symSize: 0x0 }
+  - { offsetInCU: 0x2F6, offset: 0xD6DFD, size: 0x8, addend: 0x0, symName: __lastAppActiveMessageId, symObjAddr: 0x14BE8, symBinAddr: 0x1A398, symSize: 0x0 }
+  - { offsetInCU: 0x30D, offset: 0xD6E14, size: 0x8, addend: 0x0, symName: __lastnonActiveMessageId, symObjAddr: 0x14BF0, symBinAddr: 0x1A3A0, symSize: 0x0 }
+  - { offsetInCU: 0x323, offset: 0xD6E2A, size: 0x8, addend: 0x0, symName: __coldStartFromTapOnNotification, symObjAddr: 0x14B90, symBinAddr: 0x1A340, symSize: 0x0 }
+  - { offsetInCU: 0x339, offset: 0xD6E40, size: 0x8, addend: 0x0, symName: _mSubscriptionStatus, symObjAddr: 0x70D0, symBinAddr: 0x1A2A0, symSize: 0x0 }
+  - { offsetInCU: 0x34F, offset: 0xD6E56, size: 0x8, addend: 0x0, symName: __providesAppNotificationSettings, symObjAddr: 0x14BE0, symBinAddr: 0x1A390, symSize: 0x0 }
+  - { offsetInCU: 0x365, offset: 0xD6E6C, size: 0x8, addend: 0x0, symName: __waitingForApnsResponse, symObjAddr: 0x14BE1, symBinAddr: 0x1A391, symSize: 0x0 }
+  - { offsetInCU: 0x472, offset: 0xD6F79, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent initWithNotification:result:]', symObjAddr: 0x0, symBinAddr: 0x4BA8, symSize: 0xA4 }
+  - { offsetInCU: 0x4C9, offset: 0xD6FD0, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent stringify]', symObjAddr: 0xA4, symBinAddr: 0x4C4C, symSize: 0x90 }
+  - { offsetInCU: 0x530, offset: 0xD7037, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent jsonRepresentation]', symObjAddr: 0x134, symBinAddr: 0x4CDC, symSize: 0x198 }
+  - { offsetInCU: 0x5B7, offset: 0xD70BE, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent notification]', symObjAddr: 0x2CC, symBinAddr: 0x4E74, symSize: 0xC }
+  - { offsetInCU: 0x5EE, offset: 0xD70F5, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent result]', symObjAddr: 0x2D8, symBinAddr: 0x4E80, symSize: 0xC }
+  - { offsetInCU: 0x625, offset: 0xD712C, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickEvent .cxx_destruct]', symObjAddr: 0x2E4, symBinAddr: 0x4E8C, symSize: 0x30 }
+  - { offsetInCU: 0x658, offset: 0xD715F, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult initWithUrl::]', symObjAddr: 0x314, symBinAddr: 0x4EBC, symSize: 0xA4 }
+  - { offsetInCU: 0x6AF, offset: 0xD71B6, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult url]', symObjAddr: 0x3B8, symBinAddr: 0x4F60, symSize: 0xC }
+  - { offsetInCU: 0x6E6, offset: 0xD71ED, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult actionId]', symObjAddr: 0x3C4, symBinAddr: 0x4F6C, symSize: 0xC }
+  - { offsetInCU: 0x71D, offset: 0xD7224, size: 0x8, addend: 0x0, symName: '-[OSNotificationClickResult .cxx_destruct]', symObjAddr: 0x3D0, symBinAddr: 0x4F78, symSize: 0x30 }
+  - { offsetInCU: 0x750, offset: 0xD7257, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent initWithDisplayableNotification:]', symObjAddr: 0x400, symBinAddr: 0x4FA8, symSize: 0x78 }
+  - { offsetInCU: 0x797, offset: 0xD729E, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent isPreventDefault]', symObjAddr: 0x478, symBinAddr: 0x5020, symSize: 0x1C }
+  - { offsetInCU: 0x7CE, offset: 0xD72D5, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent preventDefault]', symObjAddr: 0x494, symBinAddr: 0x503C, symSize: 0x6C }
+  - { offsetInCU: 0x801, offset: 0xD7308, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent notification]', symObjAddr: 0x500, symBinAddr: 0x50A8, symSize: 0x8 }
+  - { offsetInCU: 0x838, offset: 0xD733F, size: 0x8, addend: 0x0, symName: '-[OSNotificationWillDisplayEvent .cxx_destruct]', symObjAddr: 0x508, symBinAddr: 0x50B0, symSize: 0xC }
+  - { offsetInCU: 0x86B, offset: 0xD7372, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager Notifications]', symObjAddr: 0x514, symBinAddr: 0x50BC, symSize: 0x4 }
+  - { offsetInCU: 0x8A0, offset: 0xD73A7, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager delegate]', symObjAddr: 0x518, symBinAddr: 0x50C0, symSize: 0xC }
+  - { offsetInCU: 0x8D3, offset: 0xD73DA, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setDelegate:]', symObjAddr: 0x524, symBinAddr: 0x50CC, symSize: 0x10 }
+  - { offsetInCU: 0x912, offset: 0xD7419, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lifecycleListeners]', symObjAddr: 0x534, symBinAddr: 0x50DC, symSize: 0x44 }
+  - { offsetInCU: 0x945, offset: 0xD744C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clickListeners]', symObjAddr: 0x578, symBinAddr: 0x5120, symSize: 0x44 }
+  - { offsetInCU: 0x978, offset: 0xD747F, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getColdStartFromTapOnNotification]', symObjAddr: 0x5BC, symBinAddr: 0x5164, symSize: 0x10 }
+  - { offsetInCU: 0x9B7, offset: 0xD74BE, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setColdStartFromTapOnNotification:]', symObjAddr: 0x5CC, symBinAddr: 0x5174, symSize: 0xC }
+  - { offsetInCU: 0x9F2, offset: 0xD74F9, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setMSubscriptionStatus:]', symObjAddr: 0x5D8, symBinAddr: 0x5180, symSize: 0x20 }
+  - { offsetInCU: 0xA31, offset: 0xD7538, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager osNotificationSettings]', symObjAddr: 0x5F8, symBinAddr: 0x51A0, symSize: 0x44 }
+  - { offsetInCU: 0xA64, offset: 0xD756B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permissionStateChangesObserver]', symObjAddr: 0x63C, symBinAddr: 0x51E4, symSize: 0x50 }
+  - { offsetInCU: 0xA97, offset: 0xD759E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager currentPermissionState]', symObjAddr: 0x68C, symBinAddr: 0x5234, symSize: 0xBC }
+  - { offsetInCU: 0xACE, offset: 0xD75D5, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lastPermissionState]', symObjAddr: 0x748, symBinAddr: 0x52F0, symSize: 0x48 }
+  - { offsetInCU: 0xB01, offset: 0xD7608, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager pushToken]', symObjAddr: 0x790, symBinAddr: 0x5338, symSize: 0x70 }
+  - { offsetInCU: 0xB34, offset: 0xD763B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager pushSubscriptionId]', symObjAddr: 0x800, symBinAddr: 0x53A8, symSize: 0x70 }
+  - { offsetInCU: 0xB67, offset: 0xD766E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setPushSubscriptionId:]', symObjAddr: 0x870, symBinAddr: 0x5418, symSize: 0x10 }
+  - { offsetInCU: 0xBA6, offset: 0xD76AD, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager start]', symObjAddr: 0x880, symBinAddr: 0x5428, symSize: 0xAC }
+  - { offsetInCU: 0xC50, offset: 0xD7757, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserver]', symObjAddr: 0x92C, symBinAddr: 0x54D4, symSize: 0x40 }
+  - { offsetInCU: 0xC84, offset: 0xD778B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserverAsUIScene]', symObjAddr: 0x96C, symBinAddr: 0x5514, symSize: 0x6C }
+  - { offsetInCU: 0xCB8, offset: 0xD77BF, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerLifecycleObserverAsUIApplication]', symObjAddr: 0x9D8, symBinAddr: 0x5580, symSize: 0x70 }
+  - { offsetInCU: 0xCEC, offset: 0xD77F3, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager willEnterForeground]', symObjAddr: 0xA48, symBinAddr: 0x55F0, symSize: 0x30 }
+  - { offsetInCU: 0xD1C, offset: 0xD7823, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager resetLocals]', symObjAddr: 0xA78, symBinAddr: 0x5620, symSize: 0x3C }
+  - { offsetInCU: 0xD4C, offset: 0xD7853, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastPermissionState:]', symObjAddr: 0xAB4, symBinAddr: 0x565C, symSize: 0x10 }
+  - { offsetInCU: 0xD8D, offset: 0xD7894, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permission]', symObjAddr: 0xAC4, symBinAddr: 0x566C, symSize: 0x3C }
+  - { offsetInCU: 0xDC5, offset: 0xD78CC, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager canRequestPermission]', symObjAddr: 0xB00, symBinAddr: 0x56A8, symSize: 0x3C }
+  - { offsetInCU: 0xDFD, offset: 0xD7904, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager permissionNative]', symObjAddr: 0xB3C, symBinAddr: 0x56E4, symSize: 0x3C }
+  - { offsetInCU: 0xE35, offset: 0xD793C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager requestPermission:]', symObjAddr: 0xB78, symBinAddr: 0x5720, symSize: 0xD4 }
+  - { offsetInCU: 0xE7A, offset: 0xD7981, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager requestPermission:fallbackToSettings:]', symObjAddr: 0xC4C, symBinAddr: 0x57F4, symSize: 0x2E8 }
+  - { offsetInCU: 0xF23, offset: 0xD7A2A, size: 0x8, addend: 0x0, symName: '___63+[OSNotificationsManager requestPermission:fallbackToSettings:]_block_invoke', symObjAddr: 0xF34, symBinAddr: 0x5ADC, symSize: 0x48 }
+  - { offsetInCU: 0xF9A, offset: 0xD7AA1, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0xF7C, symBinAddr: 0x5B24, symSize: 0x10 }
+  - { offsetInCU: 0xFC3, offset: 0xD7ACA, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0xF8C, symBinAddr: 0x5B34, symSize: 0x8 }
+  - { offsetInCU: 0xFE2, offset: 0xD7AE9, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerForProvisionalAuthorization:]', symObjAddr: 0xF94, symBinAddr: 0x5B3C, symSize: 0x84 }
+  - { offsetInCU: 0x1027, offset: 0xD7B2E, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager checkProvisionalAuthorizationStatus]', symObjAddr: 0x1018, symBinAddr: 0x5BC0, symSize: 0xB8 }
+  - { offsetInCU: 0x1068, offset: 0xD7B6F, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager providesAppNotificationSettings]', symObjAddr: 0x10D0, symBinAddr: 0x5C78, symSize: 0xC }
+  - { offsetInCU: 0x109C, offset: 0xD7BA3, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setProvidesNotificationSettingsView:]', symObjAddr: 0x10DC, symBinAddr: 0x5C84, symSize: 0xC }
+  - { offsetInCU: 0x10D9, offset: 0xD7BE0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager presentAppSettings]', symObjAddr: 0x10E8, symBinAddr: 0x5C90, symSize: 0xF4 }
+  - { offsetInCU: 0x111A, offset: 0xD7C21, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearAll]', symObjAddr: 0x11DC, symBinAddr: 0x5D84, symSize: 0x4C }
+  - { offsetInCU: 0x114E, offset: 0xD7C55, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager registerForAPNsToken]', symObjAddr: 0x1228, symBinAddr: 0x5DD0, symSize: 0x130 }
+  - { offsetInCU: 0x11A4, offset: 0xD7CAB, size: 0x8, addend: 0x0, symName: '___46+[OSNotificationsManager registerForAPNsToken]_block_invoke', symObjAddr: 0x1358, symBinAddr: 0x5F00, symSize: 0x38 }
+  - { offsetInCU: 0x11CD, offset: 0xD7CD4, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager didRegisterForRemoteNotifications:deviceToken:]', symObjAddr: 0x1390, symBinAddr: 0x5F38, symSize: 0x108 }
+  - { offsetInCU: 0x1230, offset: 0xD7D37, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleDidFailRegisterForRemoteNotification:]', symObjAddr: 0x1498, symBinAddr: 0x6040, symSize: 0x110 }
+  - { offsetInCU: 0x1275, offset: 0xD7D7C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager sendPushTokenToDelegate]', symObjAddr: 0x15A8, symBinAddr: 0x6150, symSize: 0xB8 }
+  - { offsetInCU: 0x12A9, offset: 0xD7DB0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setSubscriptionErrorStatus:]', symObjAddr: 0x1660, symBinAddr: 0x6208, symSize: 0x80 }
+  - { offsetInCU: 0x12EE, offset: 0xD7DF5, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addPermissionObserver:]', symObjAddr: 0x16E0, symBinAddr: 0x6288, symSize: 0xF4 }
+  - { offsetInCU: 0x1333, offset: 0xD7E3A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removePermissionObserver:]', symObjAddr: 0x17D4, symBinAddr: 0x637C, symSize: 0x50 }
+  - { offsetInCU: 0x1378, offset: 0xD7E7F, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager updateNotificationTypes:]', symObjAddr: 0x1824, symBinAddr: 0x63CC, symSize: 0x13C }
+  - { offsetInCU: 0x13CA, offset: 0xD7ED1, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager sendNotificationTypesUpdateToDelegate]', symObjAddr: 0x1960, symBinAddr: 0x6508, symSize: 0xAC }
+  - { offsetInCU: 0x13FE, offset: 0xD7F05, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getNotificationTypes:]', symObjAddr: 0x1A0C, symBinAddr: 0x65B4, symSize: 0x10 }
+  - { offsetInCU: 0x144A, offset: 0xD7F51, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getNotificationTypes]', symObjAddr: 0x1A1C, symBinAddr: 0x65C4, symSize: 0x13C }
+  - { offsetInCU: 0x1493, offset: 0xD7F9A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager waitingForApnsResponse]', symObjAddr: 0x1B58, symBinAddr: 0x6700, symSize: 0xC }
+  - { offsetInCU: 0x14C7, offset: 0xD7FCE, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setWaitingForApnsResponse:]', symObjAddr: 0x1B64, symBinAddr: 0x670C, symSize: 0xC }
+  - { offsetInCU: 0x1504, offset: 0xD800B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearStatics]', symObjAddr: 0x1B70, symBinAddr: 0x6718, symSize: 0x40 }
+  - { offsetInCU: 0x1534, offset: 0xD803B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastAppActiveMessageId:]', symObjAddr: 0x1BB0, symBinAddr: 0x6758, symSize: 0x10 }
+  - { offsetInCU: 0x1575, offset: 0xD807C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager setLastnonActiveMessageId:]', symObjAddr: 0x1BC0, symBinAddr: 0x6768, symSize: 0x10 }
+  - { offsetInCU: 0x15B6, offset: 0xD80BD, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager notificationReceived:wasOpened:]', symObjAddr: 0x1BD0, symBinAddr: 0x6778, symSize: 0x318 }
+  - { offsetInCU: 0x1673, offset: 0xD817A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager checkForProcessedDups:lastMessageId:]', symObjAddr: 0x1EE8, symBinAddr: 0x6A90, symSize: 0xD8 }
+  - { offsetInCU: 0x16E9, offset: 0xD81F0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleWillPresentNotificationInForegroundWithPayload:withCompletion:]', symObjAddr: 0x1FC0, symBinAddr: 0x6B68, symSize: 0x138 }
+  - { offsetInCU: 0x175C, offset: 0xD8263, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleWillShowInForegroundForNotification:completion:]', symObjAddr: 0x20F8, symBinAddr: 0x6CA0, symSize: 0x240 }
+  - { offsetInCU: 0x17F6, offset: 0xD82FD, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleNotificationOpened:actionType:]', symObjAddr: 0x2338, symBinAddr: 0x6EE0, symSize: 0x314 }
+  - { offsetInCU: 0x189D, offset: 0xD83A4, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager submitNotificationOpened:]', symObjAddr: 0x264C, symBinAddr: 0x71F4, symSize: 0x194 }
+  - { offsetInCU: 0x1904, offset: 0xD840B, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager launchWebURL:]', symObjAddr: 0x27E0, symBinAddr: 0x7388, symSize: 0x90 }
+  - { offsetInCU: 0x197A, offset: 0xD8481, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager displayWebView:]', symObjAddr: 0x2870, symBinAddr: 0x7418, symSize: 0x90 }
+  - { offsetInCU: 0x19DF, offset: 0xD84E6, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke', symObjAddr: 0x2900, symBinAddr: 0x74A8, symSize: 0x78 }
+  - { offsetInCU: 0x1A2E, offset: 0xD8535, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke_2', symObjAddr: 0x2978, symBinAddr: 0x7520, symSize: 0x8C }
+  - { offsetInCU: 0x1AE0, offset: 0xD85E7, size: 0x8, addend: 0x0, symName: '___41+[OSNotificationsManager displayWebView:]_block_invoke_3', symObjAddr: 0x2A04, symBinAddr: 0x75AC, symSize: 0x50 }
+  - { offsetInCU: 0x1B1E, offset: 0xD8625, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0x2A54, symBinAddr: 0x75FC, symSize: 0x8 }
+  - { offsetInCU: 0x1B45, offset: 0xD864C, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager clearBadgeCount:fromClearAll:]', symObjAddr: 0x2A5C, symBinAddr: 0x7604, symSize: 0x13C }
+  - { offsetInCU: 0x1BBD, offset: 0xD86C4, size: 0x8, addend: 0x0, symName: '___55+[OSNotificationsManager clearBadgeCount:fromClearAll:]_block_invoke', symObjAddr: 0x2B98, symBinAddr: 0x7740, symSize: 0x3C }
+  - { offsetInCU: 0x1BE6, offset: 0xD86ED, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleIAMPreview:]', symObjAddr: 0x2BD4, symBinAddr: 0x777C, symSize: 0xF4 }
+  - { offsetInCU: 0x1C5C, offset: 0xD8763, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager handleNotificationActionWithUrl:actionID:]', symObjAddr: 0x2CC8, symBinAddr: 0x7870, symSize: 0x184 }
+  - { offsetInCU: 0x1CE5, offset: 0xD87EC, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager fireClickListenersForEvent:]', symObjAddr: 0x2E4C, symBinAddr: 0x79F4, symSize: 0x13C }
+  - { offsetInCU: 0x1D42, offset: 0xD8849, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager lastMessageReceived:]', symObjAddr: 0x2F88, symBinAddr: 0x7B30, symSize: 0x10 }
+  - { offsetInCU: 0x1D83, offset: 0xD888A, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager shouldSuppressURL]', symObjAddr: 0x2F98, symBinAddr: 0x7B40, symSize: 0x88 }
+  - { offsetInCU: 0x1DD5, offset: 0xD88DC, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addClickListener:]', symObjAddr: 0x3020, symBinAddr: 0x7BC8, symSize: 0x78 }
+  - { offsetInCU: 0x1E1A, offset: 0xD8921, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removeClickListener:]', symObjAddr: 0x3098, symBinAddr: 0x7C40, symSize: 0x68 }
+  - { offsetInCU: 0x1E5F, offset: 0xD8966, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addForegroundLifecycleListener:]', symObjAddr: 0x3100, symBinAddr: 0x7CA8, symSize: 0x68 }
+  - { offsetInCU: 0x1EA4, offset: 0xD89AB, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager removeForegroundLifecycleListener:]', symObjAddr: 0x3168, symBinAddr: 0x7D10, symSize: 0x68 }
+  - { offsetInCU: 0x1EE9, offset: 0xD89F0, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager getUnprocessedClickEvents]', symObjAddr: 0x31D0, symBinAddr: 0x7D78, symSize: 0x44 }
+  - { offsetInCU: 0x1F1D, offset: 0xD8A24, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addUnprocessedClickEvent:]', symObjAddr: 0x3214, symBinAddr: 0x7DBC, symSize: 0x50 }
+  - { offsetInCU: 0x1F62, offset: 0xD8A69, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager fireClickListenersForUnprocessedEvents]', symObjAddr: 0x3264, symBinAddr: 0x7E0C, symSize: 0x140 }
+  - { offsetInCU: 0x1FAE, offset: 0xD8AB5, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager receiveRemoteNotification:UserInfo:completionHandler:]', symObjAddr: 0x33A4, symBinAddr: 0x7F4C, symSize: 0x280 }
+  - { offsetInCU: 0x205B, offset: 0xD8B62, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager addNotificationRequest:completionHandler:]', symObjAddr: 0x3624, symBinAddr: 0x81CC, symSize: 0xE0 }
+  - { offsetInCU: 0x2114, offset: 0xD8C1B, size: 0x8, addend: 0x0, symName: '___67+[OSNotificationsManager addNotificationRequest:completionHandler:]_block_invoke', symObjAddr: 0x3704, symBinAddr: 0x82AC, symSize: 0x94 }
+  - { offsetInCU: 0x21AB, offset: 0xD8CB2, size: 0x8, addend: 0x0, symName: '___67+[OSNotificationsManager addNotificationRequest:completionHandler:]_block_invoke_2', symObjAddr: 0x3798, symBinAddr: 0x8340, symSize: 0x4 }
+  - { offsetInCU: 0x21E1, offset: 0xD8CE8, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b, symObjAddr: 0x379C, symBinAddr: 0x8344, symSize: 0x34 }
+  - { offsetInCU: 0x220A, offset: 0xD8D11, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x37D0, symBinAddr: 0x8378, symSize: 0x28 }
+  - { offsetInCU: 0x2229, offset: 0xD8D30, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager beginBackgroundMediaTask]', symObjAddr: 0x37F8, symBinAddr: 0x83A0, symSize: 0x84 }
+  - { offsetInCU: 0x225D, offset: 0xD8D64, size: 0x8, addend: 0x0, symName: '___50+[OSNotificationsManager beginBackgroundMediaTask]_block_invoke', symObjAddr: 0x387C, symBinAddr: 0x8424, symSize: 0x8 }
+  - { offsetInCU: 0x229F, offset: 0xD8DA6, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager endBackgroundMediaTask]', symObjAddr: 0x3884, symBinAddr: 0x842C, symSize: 0x54 }
+  - { offsetInCU: 0x22CF, offset: 0xD8DD6, size: 0x8, addend: 0x0, symName: '+[OSNotificationsManager prepareUNNotificationRequest:]', symObjAddr: 0x38D8, symBinAddr: 0x8480, symSize: 0x264 }
+  - { offsetInCU: 0x2347, offset: 0xD8E4E, size: 0x8, addend: 0x0, symName: '-[OSNotificationsManager dealloc]', symObjAddr: 0x3B3C, symBinAddr: 0x86E4, symSize: 0x80 }
+  - { offsetInCU: 0x27, offset: 0xD9429, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x4 }
+  - { offsetInCU: 0x41, offset: 0xD9443, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x38F0, symBinAddr: 0x1A3B0, symSize: 0x0 }
+  - { offsetInCU: 0xE4, offset: 0xD94E6, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x4 }
+  - { offsetInCU: 0x113, offset: 0xD9515, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate setOneSignalDelegate:]', symObjAddr: 0x4, symBinAddr: 0x8768, symSize: 0x15C }
+  - { offsetInCU: 0x21B, offset: 0xD961D, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate swizzledClassInHeirarchy:]', symObjAddr: 0x160, symBinAddr: 0x88C4, symSize: 0x14C }
+  - { offsetInCU: 0x307, offset: 0xD9709, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalDidRegisterForRemoteNotifications:deviceToken:]', symObjAddr: 0x2AC, symBinAddr: 0x8A10, symSize: 0x118 }
+  - { offsetInCU: 0x36A, offset: 0xD976C, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalDidFailRegisterForRemoteNotification:error:]', symObjAddr: 0x3C4, symBinAddr: 0x8B28, symSize: 0x130 }
+  - { offsetInCU: 0x3CD, offset: 0xD97CF, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsAppDelegate oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:]', symObjAddr: 0x4F4, symBinAddr: 0x8C58, symSize: 0x280 }
+  - { offsetInCU: 0x495, offset: 0xD9897, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate forwardToDepercatedApplication:didReceiveRemoteNotification:]', symObjAddr: 0x774, symBinAddr: 0x8ED8, symSize: 0xB4 }
+  - { offsetInCU: 0x4F4, offset: 0xD98F6, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate traceCall:]', symObjAddr: 0x828, symBinAddr: 0x8F8C, symSize: 0x14 }
+  - { offsetInCU: 0x27, offset: 0xD9A23, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x8FA0, symSize: 0xC }
+  - { offsetInCU: 0x43, offset: 0xD9A3F, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings registerForProvisionalAuthorization:]', symObjAddr: 0xA74, symBinAddr: 0x99A0, symSize: 0x124 }
+  - { offsetInCU: 0x105, offset: 0xD9B01, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x68A0, symBinAddr: 0x1A3B8, symSize: 0x0 }
+  - { offsetInCU: 0x1E0, offset: 0xD9BDC, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x8FA0, symSize: 0xC }
+  - { offsetInCU: 0x213, offset: 0xD9C0F, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings init]', symObjAddr: 0xC, symBinAddr: 0x8FAC, symSize: 0x64 }
+  - { offsetInCU: 0x281, offset: 0xD9C7D, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState:]', symObjAddr: 0x70, symBinAddr: 0x9010, symSize: 0xD4 }
+  - { offsetInCU: 0x31C, offset: 0xD9D18, size: 0x8, addend: 0x0, symName: '___64-[OneSignalNotificationSettings getNotificationPermissionState:]_block_invoke', symObjAddr: 0x144, symBinAddr: 0x90E4, symSize: 0x94 }
+  - { offsetInCU: 0x36B, offset: 0xD9D67, size: 0x8, addend: 0x0, symName: '___64-[OneSignalNotificationSettings getNotificationPermissionState:]_block_invoke_2', symObjAddr: 0x1D8, symBinAddr: 0x9178, symSize: 0x220 }
+  - { offsetInCU: 0x40D, offset: 0xD9E09, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings defaultPermissionState]', symObjAddr: 0x454, symBinAddr: 0x9398, symSize: 0x6C }
+  - { offsetInCU: 0x450, offset: 0xD9E4C, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState]', symObjAddr: 0x4C0, symBinAddr: 0x9404, symSize: 0x170 }
+  - { offsetInCU: 0x564, offset: 0xD9F60, size: 0x8, addend: 0x0, symName: ___Block_byref_object_copy_, symObjAddr: 0x630, symBinAddr: 0x9574, symSize: 0x10 }
+  - { offsetInCU: 0x589, offset: 0xD9F85, size: 0x8, addend: 0x0, symName: ___Block_byref_object_dispose_, symObjAddr: 0x640, symBinAddr: 0x9584, symSize: 0x8 }
+  - { offsetInCU: 0x5A8, offset: 0xD9FA4, size: 0x8, addend: 0x0, symName: '___63-[OneSignalNotificationSettings getNotificationPermissionState]_block_invoke', symObjAddr: 0x648, symBinAddr: 0x958C, symSize: 0x74 }
+  - { offsetInCU: 0x607, offset: 0xDA003, size: 0x8, addend: 0x0, symName: '___63-[OneSignalNotificationSettings getNotificationPermissionState]_block_invoke_2', symObjAddr: 0x6BC, symBinAddr: 0x9600, symSize: 0x48 }
+  - { offsetInCU: 0x682, offset: 0xDA07E, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40r, symObjAddr: 0x704, symBinAddr: 0x9648, symSize: 0x34 }
+  - { offsetInCU: 0x6AB, offset: 0xDA0A7, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40r, symObjAddr: 0x738, symBinAddr: 0x967C, symSize: 0x2C }
+  - { offsetInCU: 0x6CA, offset: 0xDA0C6, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48r, symObjAddr: 0x764, symBinAddr: 0x96A8, symSize: 0x3C }
+  - { offsetInCU: 0x6F3, offset: 0xDA0EF, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48r, symObjAddr: 0x7A0, symBinAddr: 0x96E4, symSize: 0x34 }
+  - { offsetInCU: 0x712, offset: 0xDA10E, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationTypes]', symObjAddr: 0x7D4, symBinAddr: 0x9718, symSize: 0x3C }
+  - { offsetInCU: 0x749, offset: 0xDA145, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings promptForNotifications:]', symObjAddr: 0x810, symBinAddr: 0x9754, symSize: 0x104 }
+  - { offsetInCU: 0x7B8, offset: 0xDA1B4, size: 0x8, addend: 0x0, symName: '___56-[OneSignalNotificationSettings promptForNotifications:]_block_invoke', symObjAddr: 0x914, symBinAddr: 0x9858, symSize: 0x78 }
+  - { offsetInCU: 0x80B, offset: 0xDA207, size: 0x8, addend: 0x0, symName: '___56-[OneSignalNotificationSettings promptForNotifications:]_block_invoke_2', symObjAddr: 0x98C, symBinAddr: 0x98D0, symSize: 0xD0 }
+  - { offsetInCU: 0x862, offset: 0xDA25E, size: 0x8, addend: 0x0, symName: '___69-[OneSignalNotificationSettings registerForProvisionalAuthorization:]_block_invoke', symObjAddr: 0xB98, symBinAddr: 0x9AC4, symSize: 0x7C }
+  - { offsetInCU: 0x8C2, offset: 0xDA2BE, size: 0x8, addend: 0x0, symName: '___69-[OneSignalNotificationSettings registerForProvisionalAuthorization:]_block_invoke_2', symObjAddr: 0xC14, symBinAddr: 0x9B40, symSize: 0x78 }
+  - { offsetInCU: 0x926, offset: 0xDA322, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings onNotificationPromptResponse:]', symObjAddr: 0xC8C, symBinAddr: 0x9BB8, symSize: 0x4 }
+  - { offsetInCU: 0x961, offset: 0xDA35D, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings useCachedStatus]', symObjAddr: 0xC90, symBinAddr: 0x9BBC, symSize: 0xC }
+  - { offsetInCU: 0x998, offset: 0xDA394, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings setUseCachedStatus:]', symObjAddr: 0xC9C, symBinAddr: 0x9BC8, symSize: 0x8 }
+  - { offsetInCU: 0x27, offset: 0xDAA10, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x9BD0, symSize: 0x78 }
+  - { offsetInCU: 0x41, offset: 0xDAA2A, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x8CF0, symBinAddr: 0x1A3C0, symSize: 0x0 }
+  - { offsetInCU: 0x6E, offset: 0xDAA57, size: 0x8, addend: 0x0, symName: _useCachedUNNotificationSettings, symObjAddr: 0x8CF8, symBinAddr: 0x1A3C8, symSize: 0x0 }
+  - { offsetInCU: 0x92, offset: 0xDAA7B, size: 0x8, addend: 0x0, symName: _cachedUNNotificationSettings, symObjAddr: 0x8D00, symBinAddr: 0x1A3D0, symSize: 0x0 }
+  - { offsetInCU: 0xAD, offset: 0xDAA96, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x8D08, symBinAddr: 0x1A3D8, symSize: 0x0 }
+  - { offsetInCU: 0xC8, offset: 0xDAAB1, size: 0x8, addend: 0x0, symName: _useiOS10_2_workaround, symObjAddr: 0x2318, symBinAddr: 0x1A308, symSize: 0x0 }
+  - { offsetInCU: 0x163, offset: 0xDAB4C, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x9BD0, symSize: 0x78 }
+  - { offsetInCU: 0x196, offset: 0xDAB7F, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter setup]', symObjAddr: 0x78, symBinAddr: 0x9C48, symSize: 0x28 }
+  - { offsetInCU: 0x1C5, offset: 0xDABAE, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzleSelectors]', symObjAddr: 0xA0, symBinAddr: 0x9C70, symSize: 0xC0 }
+  - { offsetInCU: 0x288, offset: 0xDAC71, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter registerDelegate]', symObjAddr: 0x160, symBinAddr: 0x9D30, symSize: 0x8C }
+  - { offsetInCU: 0x2C7, offset: 0xDACB0, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter setUseiOS10_2_workaround:]', symObjAddr: 0x1EC, symBinAddr: 0x9DBC, symSize: 0xC }
+  - { offsetInCU: 0x302, offset: 0xDACEB, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalRequestAuthorizationWithOptions:completionHandler:]', symObjAddr: 0x1F8, symBinAddr: 0x9DC8, symSize: 0xFC }
+  - { offsetInCU: 0x375, offset: 0xDAD5E, size: 0x8, addend: 0x0, symName: '___109-[OneSignalNotificationsUNUserNotificationCenter onesignalRequestAuthorizationWithOptions:completionHandler:]_block_invoke', symObjAddr: 0x2F4, symBinAddr: 0x9EC4, symSize: 0xB0 }
+  - { offsetInCU: 0x3FB, offset: 0xDADE4, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalGetNotificationSettingsWithCompletionHandler:]', symObjAddr: 0x3BC, symBinAddr: 0x9F74, symSize: 0xD8 }
+  - { offsetInCU: 0x462, offset: 0xDAE4B, size: 0x8, addend: 0x0, symName: '___104-[OneSignalNotificationsUNUserNotificationCenter onesignalGetNotificationSettingsWithCompletionHandler:]_block_invoke', symObjAddr: 0x494, symBinAddr: 0xA04C, symSize: 0x4C }
+  - { offsetInCU: 0x4C1, offset: 0xDAEAA, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter setOneSignalUNDelegate:]', symObjAddr: 0x4E0, symBinAddr: 0xA098, symSize: 0xC4 }
+  - { offsetInCU: 0x514, offset: 0xDAEFD, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzledClassInHeirarchy:]', symObjAddr: 0x5A4, symBinAddr: 0xA15C, symSize: 0x14C }
+  - { offsetInCU: 0x600, offset: 0xDAFE9, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter swizzleSelectorsOnDelegate:]', symObjAddr: 0x6F0, symBinAddr: 0xA2A8, symSize: 0x7C }
+  - { offsetInCU: 0x689, offset: 0xDB072, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:notification:OneSignalCenter:completionHandler:]', symObjAddr: 0x76C, symBinAddr: 0xA324, symSize: 0x184 }
+  - { offsetInCU: 0x70C, offset: 0xDB0F5, size: 0x8, addend: 0x0, symName: '___127+[OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:notification:OneSignalCenter:completionHandler:]_block_invoke', symObjAddr: 0x8F0, symBinAddr: 0xA4A8, symSize: 0x4 }
+  - { offsetInCU: 0x733, offset: 0xDB11C, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:]', symObjAddr: 0x8F4, symBinAddr: 0xA4AC, symSize: 0x2A8 }
+  - { offsetInCU: 0x7D4, offset: 0xDB1BD, size: 0x8, addend: 0x0, symName: '___128-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:]_block_invoke', symObjAddr: 0xB9C, symBinAddr: 0xA754, symSize: 0x1C }
+  - { offsetInCU: 0x888, offset: 0xDB271, size: 0x8, addend: 0x0, symName: _finishProcessingNotification, symObjAddr: 0xBB8, symBinAddr: 0xA770, symSize: 0x1E4 }
+  - { offsetInCU: 0x921, offset: 0xDB30A, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s56b, symObjAddr: 0xD9C, symBinAddr: 0xA954, symSize: 0x44 }
+  - { offsetInCU: 0x94A, offset: 0xDB333, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s56s, symObjAddr: 0xDE0, symBinAddr: 0xA998, symSize: 0x38 }
+  - { offsetInCU: 0x969, offset: 0xDB352, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter forwardReceivedNotificationResponseWithCenter:didReceiveNotificationResponse:OneSignalCenter:withCompletionHandler:]', symObjAddr: 0xE18, symBinAddr: 0xA9D0, symSize: 0x21C }
+  - { offsetInCU: 0xA54, offset: 0xDB43D, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationsUNUserNotificationCenter onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:]', symObjAddr: 0x1034, symBinAddr: 0xABEC, symSize: 0x160 }
+  - { offsetInCU: 0xABB, offset: 0xDB4A4, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter isDismissEvent:]', symObjAddr: 0x1194, symBinAddr: 0xAD4C, symSize: 0x4C }
+  - { offsetInCU: 0xB00, offset: 0xDB4E9, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter processiOS10Open:]', symObjAddr: 0x11E0, symBinAddr: 0xAD98, symSize: 0x1B0 }
+  - { offsetInCU: 0xB52, offset: 0xDB53B, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]', symObjAddr: 0x1390, symBinAddr: 0xAF48, symSize: 0x4AC }
+  - { offsetInCU: 0xC89, offset: 0xDB672, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke', symObjAddr: 0x183C, symBinAddr: 0xB3F4, symSize: 0xC }
+  - { offsetInCU: 0xCD3, offset: 0xDB6BC, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke.71', symObjAddr: 0x1848, symBinAddr: 0xB400, symSize: 0xC }
+  - { offsetInCU: 0xD1D, offset: 0xDB706, size: 0x8, addend: 0x0, symName: '___166+[OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:isTextReply:actionIdentifier:userText:fromPresentNotification:withCompletionHandler:]_block_invoke_2', symObjAddr: 0x1854, symBinAddr: 0xB40C, symSize: 0xC }
+  - { offsetInCU: 0xD74, offset: 0xDB75D, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter traceCall:]', symObjAddr: 0x1860, symBinAddr: 0xB418, symSize: 0x14 }
+  - { offsetInCU: 0x34, offset: 0xDBCE0, size: 0x8, addend: 0x0, symName: _OneSignalNotificationsVersionString, symObjAddr: 0x0, symBinAddr: 0xE560, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0xDBD15, size: 0x8, addend: 0x0, symName: _OneSignalNotificationsVersionNumber, symObjAddr: 0x40, symBinAddr: 0xE5A0, symSize: 0x0 }
 ...
