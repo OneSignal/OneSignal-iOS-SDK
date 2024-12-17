@@ -27,12 +27,13 @@
 
 #import <Foundation/Foundation.h>
 #import <OneSignalCore/OneSignalRequest.h>
+#import <OneSignalCore/OneSignalClientError.h>
 
 #ifndef OneSignalClient_h
 #define OneSignalClient_h
 
 @protocol IOneSignalClient <NSObject>
-- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
+- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock;
 @end
 
 @interface OneSignalClient : NSObject <IOneSignalClient>
