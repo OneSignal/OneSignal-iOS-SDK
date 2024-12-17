@@ -55,7 +55,7 @@ public class InAppTestHelpers: NSObject {
     }
     
     @objc
-    public static func testMessageJson() -> [AnyHashable : Any] {
+    public static func testMessageJson() -> [String : Any] {
         return [
             "type": "centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
             "id": String(format: "%@_%i", OS_TEST_MESSAGE_ID, UUID().uuidString),
@@ -73,7 +73,7 @@ public class InAppTestHelpers: NSObject {
     }
 
     @objc
-    public static func testMessageJsonWithTrigger(property: String, triggerId: String, type: OSTriggerOperatorType, value: Any) -> [AnyHashable: Any] {
+    public static func testMessageJsonWithTrigger(property: String, triggerId: String, type: OSTriggerOperatorType, value: Any) -> [String: Any] {
         var testMessage = self.testMessageJson()
             
         testMessage["triggers"] = [
@@ -91,7 +91,13 @@ public class InAppTestHelpers: NSObject {
     }
 
     @objc
-    public static func testRegistrationJsonWithMessages() {
-
+    public static func testRegistrationJsonWithMessages(_ messages: [[String: Any]]) -> [String: Any] {
+        
+        return [
+            "id" : "1234",
+            "success" : 1,
+            "in_app_messages" : messages
+        ]
+        
     }
 }
