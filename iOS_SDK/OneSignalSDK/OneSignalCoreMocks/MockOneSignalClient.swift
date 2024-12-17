@@ -32,7 +32,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     let lock = NSLock()
 
     var mockResponses: [String: [String: Any]] = [:]
-    var mockFailureResponses: [String: NSError] = [:]
+    var mockFailureResponses: [String: OneSignalClientError] = [:]
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
@@ -90,7 +90,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         remoteParamsOutcomes = [:]
     }
 
-    public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSFailureBlock) {
+    public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSClientFailureBlock) {
         print("🧪 MockOneSignalClient execute called")
 
         if executeInstantaneously {
@@ -117,7 +117,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         return stringified
     }
 
-    func finishExecutingRequest(_ request: OneSignalRequest, onSuccess successBlock: OSResultSuccessBlock, onFailure failureBlock: OSFailureBlock) {
+    func finishExecutingRequest(_ request: OneSignalRequest, onSuccess successBlock: OSResultSuccessBlock, onFailure failureBlock: OSClientFailureBlock) {
 
         // TODO: This entire method needs to contained within the equivalent of @synchronized ❗️
         print("🧪 completing HTTP request: \(request)")
@@ -137,8 +137,8 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         }
         if (mockResponses[stringifiedRequest]) != nil {
             successBlock(mockResponses[stringifiedRequest])
-        } else if (mockFailureResponses[stringifiedRequest]) != nil {
-            failureBlock(mockFailureResponses[stringifiedRequest])
+        } else if let response = mockFailureResponses[stringifiedRequest] {
+            failureBlock(response)
         } else if fireSuccessForAllRequests {
             allRequestsHandled = false
             successBlock([:])
@@ -166,7 +166,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         mockResponses[request] = response
     }
 
-    public func setMockFailureResponseForRequest(request: String, error: NSError) {
+    public func setMockFailureResponseForRequest(request: String, error: OneSignalClientError) {
         mockFailureResponses[request] = error
     }
 }

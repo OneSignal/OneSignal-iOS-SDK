@@ -108,7 +108,7 @@ extension MockUserRequests {
             fetchResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)
             client.setMockFailureResponseForRequest(
                 request: "<OSRequestIdentifyUser with external_id: \(externalId)>",
-                error: NSError(domain: "not-important", code: 409)
+                error: OneSignalClientError(code: 409, message: "not-important", responseHeaders: nil, response: nil, underlyingError: nil)
             )
             // 2. Set the response for the subsequent Create User request
             let userResponse = MockUserRequests.testIdentityPayload(onesignalId: osid, externalId: externalId)

@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2024 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OneSignalCore/OneSignalRequest.h>
-#import <OneSignalCore/OneSignalClientError.h>
 
-#ifndef OneSignalClient_h
-#define OneSignalClient_h
-
-@protocol IOneSignalClient <NSObject>
-- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock;
+@interface OneSignalClientError : NSObject
+@property (readonly) NSInteger code;
+@property (strong, nonatomic, readonly, nonnull) NSString *message;
+@property (strong, nonatomic, readonly, nonnull) NSError *underlyingError;
+@property (strong, nonatomic, readonly, nullable) NSDictionary *responseHeaders;
+@property (strong, nonatomic, readonly, nullable) NSDictionary *response;
+- (instancetype)initWithCode:(NSInteger)code message:(NSString* _Nonnull)message responseHeaders:(NSDictionary* _Nullable)headers response:(NSDictionary* _Nullable)response underlyingError:(NSError* _Nullable)error;
 @end
 
-@interface OneSignalClient : NSObject <IOneSignalClient>
-+ (OneSignalClient *)sharedClient;
-@end
-
-#endif
+typedef void (^OSClientFailureBlock)(OneSignalClientError* _Nonnull error);

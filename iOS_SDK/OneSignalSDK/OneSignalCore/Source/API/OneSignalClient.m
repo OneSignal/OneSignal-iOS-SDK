@@ -69,11 +69,11 @@
     return configuration;
 }
 
-- (NSError *)privacyConsentErrorWithRequestType:(NSString *)type {
-    return [NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat: @"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", type]}];
+- (OneSignalClientError *)privacyConsentErrorWithRequestType:(NSString *)type {
+    return [[OneSignalClientError alloc] initWithCode:0 message:[NSString stringWithFormat: @"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", type] responseHeaders:nil response:nil underlyingError:nil];
 }
 
-- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock {
     // If privacy consent is required but not yet given, any non-GET request should be blocked.
     if (request.method != GET && [OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent."];
@@ -86,7 +86,7 @@
     
     if (request.dataRequest) {
         if (failureBlock) {
-            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to execute a data-only API request (%@) using OneSignalClient's executeRequest: method, which only accepts JSON-based API requests", NSStringFromClass(request.class)]}]);
+            failureBlock([[OneSignalClientError alloc] initWithCode:0 message:[NSString stringWithFormat:@"Attempted to execute a data-only API request (%@) using OneSignalClient's executeRequest: method, which only accepts JSON-based API requests", NSStringFromClass(request.class)] responseHeaders:nil response:nil underlyingError:nil]);
         }
         
         return;
@@ -112,13 +112,13 @@
     [task resume];
 }
 
-- (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
+- (void)handleMissingAppIdError:(OSClientFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
     NSString *errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must contain app_id parameter", NSStringFromClass([request class])];
     
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorDescription];
     
     if (failureBlock)
-        failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
+        failureBlock([[OneSignalClientError alloc] initWithCode:-1 message:errorDescription responseHeaders:nil response:nil underlyingError:nil]);
 }
 
 - (BOOL)validRequest:(OneSignalRequest *)request {
@@ -147,7 +147,7 @@
     [self executeRequest:reattempt.request onSuccess:reattempt.successBlock onFailure:reattempt.failureBlock];
 }
 
-- (BOOL)willReattemptRequest:(int)statusCode withRequest:(OneSignalRequest *)request success:(OSResultSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock asyncRequest:(BOOL)async {
+- (BOOL)willReattemptRequest:(int)statusCode withRequest:(OneSignalRequest *)request success:(OSResultSuccessBlock)successBlock failure:(OSClientFailureBlock)failureBlock asyncRequest:(BOOL)async {
     // in the event that there is no network connection, NSURLSession will return status code 0
     if ((statusCode >= 500 || statusCode == 0) && request.reattemptCount < MAX_ATTEMPT_COUNT - 1) {
         OSReattemptRequest *reattempt = [OSReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
@@ -193,11 +193,11 @@
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString, request.additionalHeaders]];
 }
 
-- (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+- (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock {
     
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
-    NSDictionary *headers = [HTTPResponse allHeaderFields] ?: @{};
+    NSDictionary *headers = [HTTPResponse allHeaderFields]; // can be null
     NSError* jsonError = nil;
     NSMutableDictionary* innerJson;
     
@@ -211,7 +211,7 @@
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
         if (jsonError) {
             if (failureBlock != nil)
-                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError, @"headers": headers}]); // Add headers to error block
+                failureBlock([[OneSignalClientError alloc] initWithCode:statusCode message:@"Error parsing JSON" responseHeaders:headers response:nil underlyingError:jsonError]);
             return;
         }
     }
@@ -228,14 +228,7 @@
         }
     } else if (failureBlock != nil) {
         // Make sure to send all the infomation available to the client
-        if (innerJson != nil && error != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"error": error, @"headers": headers}]);
-        else if (innerJson != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"headers": headers}]);
-        else if (error != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"error" : error, @"headers": headers}]);
-        else
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"headers": headers}]);
+        failureBlock([[OneSignalClientError alloc] initWithCode:statusCode message:@"Error encountered making request" responseHeaders:headers response:innerJson underlyingError:error]);
     }
 }
 

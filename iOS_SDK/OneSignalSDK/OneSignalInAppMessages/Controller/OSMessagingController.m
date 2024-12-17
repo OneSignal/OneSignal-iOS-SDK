@@ -315,19 +315,12 @@ static BOOL _isInAppMessagingPaused = false;
             }
         });
     }
-    onFailure:^(NSError *error) {
-        NSDictionary *errorInfo = error.userInfo[@"returned"];
-        NSNumber *statusCode = errorInfo[@"httpStatusCode"];
-        NSDictionary* responseHeaders = errorInfo[@"headers"];
-
-        if (!statusCode) {
-            return;
-        }
-
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
+    onFailure:^(OneSignalClientError *error) {
+        NSDictionary* responseHeaders = error.responseHeaders;
         
-        NSInteger code = [statusCode integerValue];
-        if (code == 425 || code == 429) { // 425 Too Early or 429 Too Many Requests
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
+        
+        if (error.code == 425 || error.code == 429) { // 425 Too Early or 429 Too Many Requests
             NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
             
             // Dynamically set the retry limit from the header, if not already set
@@ -346,7 +339,7 @@ static BOOL _isInAppMessagingPaused = false;
                 // Final attempt without rywToken
                 [self fetchInAppMessagesWithoutToken:subscriptionId];
             }
-        } else if (code >= 500 && code <= 599) {
+        } else if (error.code >= 500 && error.code <= 599) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
         }
     }];
@@ -393,8 +386,8 @@ static BOOL _isInAppMessagingPaused = false;
                 return;
             }
         });
-    } onFailure:^(NSError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
+    } onFailure:^(OneSignalClientError *error) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
     }];
 }
 
@@ -630,8 +623,8 @@ static BOOL _isInAppMessagingPaused = false;
                                             // If the post was successful, save the updated viewedPageIds set
                                             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
                                        }
-                                       onFailure:^(NSError *error) {
-        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
+                                       onFailure:^(OneSignalClientError *error) {
+        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error.message];
                                             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
                                             if (message) {
                                                 [self.viewedPageIDs removeObject:messagePrefixedPageId];
@@ -670,8 +663,8 @@ static BOOL _isInAppMessagingPaused = false;
                                            // If the post was successful, save the updated impressionedInAppMessages set
                                            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_IMPRESSIONED_SET_KEY withValue:self.impressionedInAppMessages];
                                        }
-                                       onFailure:^(NSError *error) {
-                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error];
+                                       onFailure:^(OneSignalClientError *error) {
+                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error.message];
                                            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
                                            
                                            // If the post failed, remove the messageId from the impressionedInAppMessages set
@@ -1079,8 +1072,8 @@ static BOOL _isInAppMessagingPaused = false;
                                           // Save the updated clickedClickIds since click was tracked successfully
                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
                                       }
-                                      onFailure:^(NSError *error) {
-                                          NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];
+                                      onFailure:^(OneSignalClientError *error) {
+                                          NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error.message];
                                           [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
 
                                           // Remove clickId from local clickedClickIds since click was not tracked

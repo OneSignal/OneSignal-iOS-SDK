@@ -27,13 +27,14 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
+#import "OneSignalClientError.h"
 
 @interface OSReattemptRequest : NSObject
 
 @property (strong, nonatomic) OneSignalRequest *request;
 @property (nonatomic) OSResultSuccessBlock successBlock;
-@property (nonatomic) OSFailureBlock failureBlock;
+@property (nonatomic) OSClientFailureBlock failureBlock;
 
-+(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSFailureBlock)failure;
++(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSClientFailureBlock)failure;
 
 @end

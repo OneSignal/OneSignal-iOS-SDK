@@ -273,28 +273,26 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
-                if let nsError = error as? NSError {
-                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType == .missing {
-                        // remove from cache and queue
-                        self.updateRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-                        // Logout if the user in the SDK is the same
-                        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                        else {
-                            if inBackground {
-                                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                            }
-                            return
+                let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+                if responseType == .missing {
+                    // remove from cache and queue
+                    self.updateRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                    // Logout if the user in the SDK is the same
+                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    else {
+                        if inBackground {
+                            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
-                        // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                        OneSignalUserManagerImpl.sharedInstance._logout()
-                    } else if responseType != .retryable {
-                        // Fail, no retry, remove from cache and queue
-                        self.updateRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                        return
                     }
+                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    self.updateRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)

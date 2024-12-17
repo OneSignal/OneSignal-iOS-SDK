@@ -218,28 +218,26 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
-                if let nsError = error as? NSError {
-                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType == .missing {
-                        // Remove from cache and queue
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
-                        // Logout if the user in the SDK is the same
-                        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
-                        else {
-                            if inBackground {
-                                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                            }
-                            return
+                let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+                if responseType == .missing {
+                    // Remove from cache and queue
+                    self.addRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                    // Logout if the user in the SDK is the same
+                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    else {
+                        if inBackground {
+                            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
-                        // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
-                        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
-                        OneSignalUserManagerImpl.sharedInstance._logout()
-                    } else if responseType != .retryable {
-                        // Fail, no retry, remove from cache and queue
-                        self.addRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                        return
                     }
+                    // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
+                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
+                    OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    self.addRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -277,14 +275,12 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
-                if let nsError = error as? NSError {
-                    let responseType = OSNetworkingUtils.getResponseStatusType(nsError.code)
-                    if responseType != .retryable {
-                        // Fail, no retry, remove from cache and queue
-                        // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
-                        self.removeRequestQueue.removeAll(where: { $0 == request})
-                        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
-                    }
+                let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
+                if responseType != .retryable {
+                    // Fail, no retry, remove from cache and queue
+                    // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
+                    self.removeRequestQueue.removeAll(where: { $0 == request})
+                    OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)

@@ -101,9 +101,9 @@
             if (success) {
                 success(result);
             }
-        } onFailure:^(NSError *error) {
+        } onFailure:^(OneSignalClientError *error) {
             if (failure) {
-                failure(error);
+                failure(error.underlyingError);
             }
         }];
     });
