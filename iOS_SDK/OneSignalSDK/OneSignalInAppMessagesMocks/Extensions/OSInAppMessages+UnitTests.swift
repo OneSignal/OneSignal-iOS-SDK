@@ -31,7 +31,7 @@ import OneSignalInAppMessages
 /// Therefore, this internal extension is needed for tests written in Swift to access the API,
 /// without relying on the OneSignal framework.
 public extension OSInAppMessages {
-    static var paused: Bool {
+    static var isPaused: Bool {
         get {
             return __paused()
         }

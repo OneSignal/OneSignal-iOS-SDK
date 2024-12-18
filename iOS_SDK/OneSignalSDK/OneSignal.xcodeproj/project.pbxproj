@@ -79,6 +79,8 @@
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C3470F32D110CCF00FE0772 /* OSMessagingController.h in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE592A42175900BF2C1C /* OSMessagingController.h */; };
+		3C3470FB2D112C6300FE0772 /* OSMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE5D2A42175900BF2C1C /* OSMessagingController.m */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -4293,6 +4295,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C3470FB2D112C6300FE0772 /* OSMessagingController.m in Sources */,
+				3C3470F32D110CCF00FE0772 /* OSMessagingController.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5383,6 +5387,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-no-verify-emitted-module-interface";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesMocks;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -5453,6 +5458,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-no-verify-emitted-module-interface";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesMocks;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -5517,6 +5523,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-no-verify-emitted-module-interface";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessagesMocks;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

@@ -92,7 +92,7 @@ public class InAppTestHelpers: NSObject {
 
     @objc
     public static func testRegistrationJsonWithMessages(_ messages: [[String: Any]]) -> [String: Any] {
-        
+        OSMessagingController.sharedInstance().getInAppMessages(fromServer: "subscription_id")
         return [
             "id" : "1234",
             "success" : 1,

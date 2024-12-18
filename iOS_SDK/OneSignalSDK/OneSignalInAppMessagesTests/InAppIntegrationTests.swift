@@ -1,5 +1,6 @@
 @testable import OneSignalInAppMessages
-import OneSignalInAppMessagesMocks
+@_implementationOnly import OneSignalInAppMessagesMocks
+import OneSignalCoreMocks
 import XCTest
 
 /**
@@ -16,12 +17,33 @@ final class IAMIntegrationTests: XCTestCase {
     }
 
     func testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay() throws {
-        // OSTriggerOperatorTypeLessThan
+        // Temp. logging to help debug during testing
+        OneSignalLog.setLogLevel(.LL_VERBOSE)
+        print("💛 hello world")
         let message = InAppTestHelpers.testMessageJsonWithTrigger(property: OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, triggerId: "test_id1", type: .lessThan, value: 10.0)
         // let registrationResponse = InAppMessagingHelpers.testRegistrationJson(withMessages: [message])
 
+        let fetchIamResponse = InAppTestHelpers.testRegistrationJsonWithMessages([message])
+        
+        
         // this should prevent message from being shown
-        OneSignalInAppMessages.addTriggers(<#T##triggers: [String : String]##[String : String]#>)
+     OneSignalInAppMessages.isPaused = true
+        
+        // the trigger should immediately evaluate to true and should
+        // be shown once the SDK is fully initialized.
+        let client = MockOneSignalClient()
+        client.setMockResponseForRequest(
+            request: "<OSRequestGetInAppMessages>",
+            response: [String: Any]()
+        )
+        
+        
+        
+//    OSMessagingController.sharedInstance().getInAppMessages(fromServer: "subscription_id")
+        
+        // [UnitTestCommonMethods initOneSignal_andThreadWait];
+
+
     }
 
     /*

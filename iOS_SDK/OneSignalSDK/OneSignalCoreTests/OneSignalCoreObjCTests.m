@@ -50,6 +50,7 @@
     
     NSString *stringResult = [OneSignalCoreHelper trimURLSpacing:@"  test  "];
     XCTAssertEqualObjects(@"test", stringResult);
+    
 }
 
 @end

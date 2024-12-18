@@ -180,6 +180,7 @@ static BOOL _isInAppMessagingPaused = false;
     return _isInAppMessagingPaused;
 }
 - (void)setInAppMessagingPaused:(BOOL)pause {
+    NSLog(@"💛 setInAppMessagingPaused");
     _isInAppMessagingPaused = pause;
     
     // If IAM are not paused, try to evaluate and show IAMs
