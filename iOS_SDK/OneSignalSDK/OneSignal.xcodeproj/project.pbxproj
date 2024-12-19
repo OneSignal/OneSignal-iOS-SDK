@@ -1983,7 +1983,6 @@
 		37747F8A19147D6400558FAD = {
 			isa = PBXGroup;
 			children = (
-				DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				3E2400391D4FFC31008BDE70 /* OneSignalFramework */,
 				DEBAAE212A42119100BF2C1C /* OneSignalInAppMessagesFramework */,
@@ -1996,8 +1995,6 @@
 				DE97175A275597D100FC409E /* OneSignalCoreFramework */,
 				475F47472B8E3A1C00EC05B3 /* OneSignalLiveActivitiesFramework */,
 				912411EE1E73342200E41FD7 /* Source */,
-				911E2CBB1E398AB3003112A4 /* UnitTests */,
-				DEF5CCF22539321A0003E9CC /* UnitTestApp */,
 				DE7D17E727026B95002D3A5D /* OneSignalCore */,
 				DE7D17FA27026BA3002D3A5D /* OneSignalExtension */,
 				DE7D188127037F43002D3A5D /* OneSignalOutcomes */,
@@ -2007,14 +2004,7 @@
 				DEBAADFA2A420A3900BF2C1C /* OneSignalLocation */,
 				DEBAAE292A4211DA00BF2C1C /* OneSignalInAppMessages */,
 				475F471F2B8E398E00EC05B3 /* OneSignalLiveActivities */,
-				3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */,
-				3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */,
-				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
-				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
-				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
-				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
-				5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */,
-				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
+				3CB07D8C2D148E390044D349 /* Tests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -2164,6 +2154,24 @@
 				3C9AD6C42B228A7300BC1540 /* OSRequestDeleteSubscription.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		3CB07D8C2D148E390044D349 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				DEF5CCF22539321A0003E9CC /* UnitTestApp */,
+				911E2CBB1E398AB3003112A4 /* UnitTests */,
+				3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */,
+				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
+				3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */,
+				5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */,
+				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
+				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
+				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
+				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
+				DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */ = {
