@@ -2004,6 +2004,7 @@
 				DEBAADFA2A420A3900BF2C1C /* OneSignalLocation */,
 				DEBAAE292A4211DA00BF2C1C /* OneSignalInAppMessages */,
 				475F471F2B8E398E00EC05B3 /* OneSignalLiveActivities */,
+				DEF5CCF22539321A0003E9CC /* UnitTestApp */,
 				3CB07D8C2D148E390044D349 /* Tests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
@@ -2159,7 +2160,6 @@
 		3CB07D8C2D148E390044D349 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				DEF5CCF22539321A0003E9CC /* UnitTestApp */,
 				911E2CBB1E398AB3003112A4 /* UnitTests */,
 				3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */,
 				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
@@ -3864,7 +3864,6 @@
 					};
 					DEF5CCF02539321A0003E9CC = {
 						CreatedOnToolsVersion = 12.0.1;
-						DevelopmentTeam = 99SW8E36CT;
 						LastSwiftMigration = 1320;
 						ProvisioningStyle = Automatic;
 					};
