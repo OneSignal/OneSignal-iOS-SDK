@@ -1983,7 +1983,6 @@
 		37747F8A19147D6400558FAD = {
 			isa = PBXGroup;
 			children = (
-				DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				3E2400391D4FFC31008BDE70 /* OneSignalFramework */,
 				DEBAAE212A42119100BF2C1C /* OneSignalInAppMessagesFramework */,
@@ -2012,9 +2011,7 @@
 				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
 				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
 				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
-				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
-				5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */,
-				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
+				3CB07D8F2D149F6F0044D349 /* Tests */,
 				37747F9419147D6500558FAD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -2164,6 +2161,17 @@
 				3C9AD6C42B228A7300BC1540 /* OSRequestDeleteSubscription.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		3CB07D8F2D149F6F0044D349 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */,
+				3C01518F2C2E298F0079E076 /* OneSignalInAppMessagesTests */,
+				4735424B2B8F93340016DB4C /* OneSignalLiveActivitiesTests */,
+				DEBA2A1B2C20E35E00E234DB /* OneSignalNotificationsTests */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */ = {

@@ -143,7 +143,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     }));
 }
 
-- (void)testInAppMessageClicked {
+- (void)testInAppMessageClicked { // sdfsfdsfsfdsfdsfsdf
     OSRequestInAppMessageClicked *request = [OSRequestInAppMessageClicked
                    withAppId:testAppId
                    withPlayerId:testSubscriptionId

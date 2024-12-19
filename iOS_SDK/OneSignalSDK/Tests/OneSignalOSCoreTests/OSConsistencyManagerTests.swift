@@ -25,7 +25,7 @@ class OSConsistencyManagerTests: XCTestCase {
     }
 
     // Test: setRywToken updates the token correctly
-    func testSetRywTokenUpdatesTokenCorrectly() {
+    func testSetRywTokenUpdatesTokenCorrectly() { //////////
         let expectation = self.expectation(description: "Condition met")
 
         // Given
