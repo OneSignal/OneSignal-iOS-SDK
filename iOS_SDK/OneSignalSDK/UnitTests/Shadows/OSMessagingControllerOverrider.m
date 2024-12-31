@@ -112,7 +112,8 @@
 
 - (void)overrideWebViewContentFinishedLoading:(OSInAppMessageInternal *)message {
     if (message) {
-        [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
+        // This method was removed from OSMessagingController public interface
+        // [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
     }
 }
 

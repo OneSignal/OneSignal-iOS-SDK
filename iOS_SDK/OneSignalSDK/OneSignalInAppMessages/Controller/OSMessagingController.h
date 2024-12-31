@@ -26,7 +26,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessageInternal.h"
 #import "OSInAppMessageViewController.h"
 #import "OSTriggerController.h"
 #import <OneSignalUser/OneSignalUser.h>
@@ -50,10 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (OSMessagingController *)sharedInstance;
 + (void)start;
 + (void)removeInstance;
-- (void)presentInAppMessage:(OSInAppMessageInternal *)message;
 - (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
-- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
-- (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 
 - (BOOL)isInAppMessagingPaused;
 - (void)setInAppMessagingPaused:(BOOL)pause;
