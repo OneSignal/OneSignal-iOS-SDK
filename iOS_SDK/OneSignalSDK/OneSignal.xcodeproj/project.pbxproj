@@ -522,7 +522,7 @@
 		DEBAAE562A42174A00BF2C1C /* OSInAppMessageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE522A42174A00BF2C1C /* OSInAppMessageViewController.h */; };
 		DEBAAE572A42174A00BF2C1C /* OSInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE532A42174A00BF2C1C /* OSInAppMessageView.m */; };
 		DEBAAE602A42175A00BF2C1C /* OSDynamicTriggerController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE582A42175900BF2C1C /* OSDynamicTriggerController.m */; };
-		DEBAAE612A42175A00BF2C1C /* OSMessagingController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE592A42175900BF2C1C /* OSMessagingController.h */; };
+		DEBAAE612A42175A00BF2C1C /* OSMessagingController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE592A42175900BF2C1C /* OSMessagingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEBAAE622A42175A00BF2C1C /* OSInAppMessageController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE5A2A42175900BF2C1C /* OSInAppMessageController.h */; };
 		DEBAAE632A42175A00BF2C1C /* OSInAppMessageController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEBAAE5B2A42175900BF2C1C /* OSInAppMessageController.m */; };
 		DEBAAE642A42175A00BF2C1C /* OSTriggerController.h in Headers */ = {isa = PBXBuildFile; fileRef = DEBAAE5C2A42175900BF2C1C /* OSTriggerController.h */; };
