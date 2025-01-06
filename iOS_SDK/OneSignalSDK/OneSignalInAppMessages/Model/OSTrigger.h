@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessagingDefines.h"
+#import <OneSignalInAppMessages/OSInAppMessagingDefines.h>
 #import <OneSignalCore/OneSignalCore.h>
 
 NS_ASSUME_NONNULL_BEGIN

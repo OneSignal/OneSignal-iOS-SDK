@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSTrigger.h"
+#import <OneSignalInAppMessages/OSTrigger.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

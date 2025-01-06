@@ -27,9 +27,9 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "OSInAppMessageInternal.h"
-#import "OSInAppMessageView.h"
-#import "OSInAppMessageClickResult.h"
+#import <OneSignalInAppMessages/OSInAppMessageInternal.h>
+#import <OneSignalInAppMessages/OSInAppMessageView.h>
+#import <OneSignalInAppMessages/OSInAppMessageClickResult.h>
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN

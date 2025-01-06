@@ -26,8 +26,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessageInternal.h"
-#import "OSDynamicTriggerController.h"
+#import <OneSignalInAppMessages/OSInAppMessageInternal.h>
+#import <OneSignalInAppMessages/OSDynamicTriggerController.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

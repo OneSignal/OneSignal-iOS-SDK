@@ -26,7 +26,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "OSInAppMessageInternal.h"
+#import <OneSignalInAppMessages/OSInAppMessageInternal.h>
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN

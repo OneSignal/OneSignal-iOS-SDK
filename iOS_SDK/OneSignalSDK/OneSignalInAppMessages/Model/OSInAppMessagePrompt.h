@@ -29,8 +29,6 @@
 #define OSInAppMessagingPrompt_h
 
 #import <OneSignalCore/OneSignalCore.h>
-#import "OneSignalCommonDefines.h"
-
 #import <Foundation/Foundation.h>
 
 @protocol OSInAppMessagePrompt <NSObject>

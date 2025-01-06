@@ -26,11 +26,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessageOutcome.h"
-#import "OSInAppMessageTag.h"
+#import <OneSignalOutcomes/OSInAppMessageOutcome.h>
+#import <OneSignalInAppMessages/OSInAppMessageTag.h>
 #import <OneSignalCore/OneSignalCore.h>
-#import "OSInAppMessagePrompt.h"
-#import "OneSignalInAppMessages.h"
+#import <OneSignalInAppMessages/OSInAppMessagePrompt.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
