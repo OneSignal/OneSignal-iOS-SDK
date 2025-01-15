@@ -73,6 +73,7 @@
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C4398302D38771800EFBD2C /* IAMIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C43982F2D38771800EFBD2C /* IAMIntegrationTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -1251,6 +1252,8 @@
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
+		3C43982E2D38771800EFBD2C /* OneSignalInAppMessagesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalInAppMessagesTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C43982F2D38771800EFBD2C /* IAMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMIntegrationTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -2080,6 +2083,8 @@
 			isa = PBXGroup;
 			children = (
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
+				3C43982F2D38771800EFBD2C /* IAMIntegrationTests.swift */,
+				3C43982E2D38771800EFBD2C /* OneSignalInAppMessagesTests-Bridging-Header.h */,
 			);
 			path = OneSignalInAppMessagesTests;
 			sourceTree = "<group>";
@@ -3739,7 +3744,7 @@
 					};
 					3C01518D2C2E298E0079E076 = {
 						CreatedOnToolsVersion = 15.2;
-						LastSwiftMigration = 1520;
+						LastSwiftMigration = 1610;
 						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					3C115160289A259500565C41 = {
@@ -4149,6 +4154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C4398302D38771800EFBD2C /* IAMIntegrationTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4970,6 +4976,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
@@ -5023,6 +5030,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5070,6 +5078,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
