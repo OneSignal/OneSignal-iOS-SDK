@@ -253,12 +253,17 @@ static BOOL _isInAppMessagingPaused = false;
         NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
 
         if (!onesignalId) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"💛 Failed to get in app messages due to no OneSignal ID"];
             return;
         }
+        
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"💛 1. About to check RYW stuff"];
 
         OSIamFetchReadyCondition *condition = [OSIamFetchReadyCondition sharedInstanceWithId:onesignalId];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"💛 2. After creating condition"];
+
         OSReadYourWriteData *rywData = [consistencyManager getRywTokenFromAwaitableCondition:condition forId:onesignalId];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"💛 3. After all RYW stuff"];
         
         // We need to delay the first request by however long the backend is telling us (`ryw_delay`)
         // This will help avoid unnecessary retries & can be easily adjusted from the backend
@@ -268,6 +273,9 @@ static BOOL _isInAppMessagingPaused = false;
         } else {
             rywDelayInSeconds = IAM_FETCH_DELAY_BUFFER;
         }
+        
+        NSLog(@"💛 4. rywDelayInSeconds %f", rywDelayInSeconds);
+
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(rywDelayInSeconds * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
             // Initial request
@@ -392,10 +400,14 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromServer"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@" 🥑 1. updateInAppMessagesFromServer"];
     self.messages = newMessages;
     self.calledLoadTags = NO;
+    NSLog(@"🥑 2. resetRedisplayMessagesBySession");
+
     [self resetRedisplayMessagesBySession];
+    NSLog(@"🥑 3. evaluateMessages");
+
     [self evaluateMessages];
     [self deleteOldRedisplayedInAppMessages];
 }
@@ -499,6 +511,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {
+    NSLog(@"💛 presentInAppMessage called");
     if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", OneSignalUserManagerImpl.sharedInstance.language, message.variants];
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
@@ -676,11 +689,21 @@ static BOOL _isInAppMessagingPaused = false;
  Checks to see if any messages should be shown now
  */
 - (void)evaluateMessages {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"🥑 TOP OF Evaluating in app messages"];
+
+    
+    
+    
     if (_isInAppMessagingPaused) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Not evaluating in app messages while paused"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"🥑 Not evaluating in app messages while paused"];
         return;
     }
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Evaluating in app messages"];
+    
+    
+    
+    
+    
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"🥑 Evaluating in app messages"];
     for (OSInAppMessageInternal *message in self.messages) {
         if ([self.triggerController messageMatchesTriggers:message]) {
             // Make changes to IAM if redisplay available
@@ -1154,6 +1177,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)makeRedisplayMessagesAvailableWithTriggers:(NSArray<NSString *> *)triggerIds {
+    NSLog(@"💛 self.messages %@", self.messages);
     for (OSInAppMessageInternal *message in self.messages) {
         if ([self.redisplayedInAppMessages objectForKey:message.messageId]
             && [_triggerController hasSharedTriggers:message newTriggersKeys:triggerIds]) {

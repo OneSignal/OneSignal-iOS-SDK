@@ -27,20 +27,150 @@ with services provided by OneSignal.
 
 import XCTest
 @testable import OneSignalInAppMessages
+import OneSignalOSCore
+import OneSignalUser
+import OneSignalUserMocks
+import OneSignalCoreMocks
+import OneSignalInAppMessagesMocks
 
+/**
+ These tests include InAppMessagingIntegrationTests migrations.
+ */
 final class IAMIntegrationTests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OSConsistencyManager.shared.reset()
+
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+    override func tearDownWithError() throws { }
 
     func testExample() throws {
+        // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
-        OneSignalInAppMessages.getFromServer("foobar")
-        OSMessagingController.sharedInstance()
+        
+        // App ID is set because there are guards against nil App ID
+        OneSignalConfigManager.setAppId("test-app-id")
+
+        
+        /* Setup */
+        let client = MockOneSignalClient()
+        
+        // 1. Set up mock responses for the anonymous user, as the user needs an OSID
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        
+        // 2. Set up mock responses for fetch IAMs
+        let message = IAMTestHelpers.testMessageJsonWithTrigger(property: OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, triggerId: "test_id1", type: 1, value: 10.0)
+        let response = IAMTestHelpers.testRegistrationJsonWithMessages([message])
+        
+        client.setMockResponseForRequest(
+            request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/foobar/iams>",
+            response: response)
+       
+        OneSignalCoreImpl.setSharedClient(client)
+        
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2.0)
+
+//        OSMessagingController.sharedInstance().setInAppMessagingPaused(false)
+//
+        
+        // Unblock the Consistency Manager to allow fetching of IAMs
+        let id = "test_anon_user_onesignal_id"
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken = "123"
+        let rywDelay: NSNumber = 0
+        let rywData = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
+        OSConsistencyManager.shared.setRywTokenAndDelay(id: id, key: key, value: rywData)
+        
+        
+        print("🥑 calling get")
+        OSMessagingController.sharedInstance().getInAppMessages(fromServer: "foobar")
+        
+        
+        
+        
+        
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+
+    }
+    
+    /*
+    
+    func testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay() throws {
+        // 1. Make a test message with OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, id of "test_id1", and OSTriggerOperatorTypeLessThan 10.0
+        
+        // 2. Make a get IAM response
+        
+        // OSTriggerOperatorTypeLessThan
+        let message = InAppTestHelpers.testMessageJsonWithTrigger(property: OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, triggerId: "test_id1", type: .lessThan, value: 10.0)
+        // let registrationResponse = InAppMessagingHelpers.testRegistrationJson(withMessages: [message])
+
+        // x. this should prevent message from being shown
+        OSMessagingController.sharedInstance().setInAppMessagingPaused(true)
+        
+        // the trigger should immediately evaluate to true and should
+        // be shown once the SDK is fully initialized.
+        [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    }
+     */
+    
+    func testDisablingIAMs_doesNotCreateMessageQueue() throws {
+        // Temp. logging to help debug during testing
+        OneSignalLog.setLogLevel(.LL_VERBOSE)
+        
+        // App ID is set because there are guards against nil App ID
+        OneSignalConfigManager.setAppId("test-app-id")
+        let client = MockOneSignalClient()
+
+        // 1. Set up mock responses for the anonymous user, as the user needs an OSID
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        
+        let message = IAMTestHelpers.testMessageJsonWithTrigger(property: OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, triggerId: "test_id1", type: 1, value: 10.0)
+        let response = IAMTestHelpers.testRegistrationJsonWithMessages([message])
+        // this should prevent message from being shown
+        OSMessagingController.sharedInstance().setInAppMessagingPaused(true)
+        
+
+        // the trigger should immediately evaluate to true and should
+        // be shown once the SDK is fully initialized.
+        client.setMockResponseForRequest(
+            request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/foobar/iams>",
+            response: response)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+
+        
+        // Unblock the Consistency Manager to allow fetching of IAMs
+        let id = "test_anon_user_onesignal_id"
+        let key = OSIamFetchOffsetKey.userUpdate
+        let rywToken = "123"
+        let rywDelay: NSNumber = 0
+        let rywData = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
+        OSConsistencyManager.shared.setRywTokenAndDelay(id: id, key: key, value: rywData)
+        
+        OneSignalCoreImpl.setSharedClient(client)
+        
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+        print("🥑 calling get")
+
+        OSMessagingController.sharedInstance().getInAppMessages(fromServer: "foobar")
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+
+
+        print("💛 message queue is \(IAMObjcTestHelpers.messageDisplayQueue())")
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+
+        // Make sure no IAM is showing, but the queue has any IAMs
+        XCTAssertFalse(OSMessagingController.sharedInstance().isInAppMessageShowing)
+        //XCTAssertEqual(OSMessagingController.sharedInstance().messageDisplayQueue.count, 1)
+        XCTAssertEqual(IAMObjcTestHelpers.messageDisplayQueue().count, 0);
+
     }
 }
+
+
+
+

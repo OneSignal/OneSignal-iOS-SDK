@@ -48,3 +48,12 @@ extension OSOperationRepo {
         paused = false
     }
 }
+
+extension OSConsistencyManager {
+    /**
+     Unblock the Consistency Manager to allow fetching of IAMs.
+     */
+    func setMockRywToken(id: String, key: any OSConsistencyKeyEnum, rywToken: String?, rywDelay: NSNumber?)  {
+        
+    }
+}

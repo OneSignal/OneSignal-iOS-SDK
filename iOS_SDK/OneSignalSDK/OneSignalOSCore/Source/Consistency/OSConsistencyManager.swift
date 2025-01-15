@@ -59,6 +59,8 @@ import OneSignalCore
 
     // Register a condition and block the caller until the condition is met
     @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
+        OneSignalLog.onesignalLog(.LL_INFO, message: "❌ 1. Calling getRywTokenFromAwaitableCondition")
+
         let semaphore = DispatchSemaphore(value: 0)
         queue.sync {
             if self.indexedConditions[id] == nil {
@@ -67,7 +69,11 @@ import OneSignalCore
             self.indexedConditions[id]?.append((condition, semaphore))
             self.checkConditionsAndComplete(forId: id)
         }
+        OneSignalLog.onesignalLog(.LL_INFO, message: "❌ 2. After checkConditionsAndComplete, gonna wait")
+
         semaphore.wait() // Block until the condition is met
+        OneSignalLog.onesignalLog(.LL_INFO, message: "❌ 3. After wait")
+
         return queue.sync {
             return condition.getNewestToken(indexedTokens: self.indexedTokens)
         }

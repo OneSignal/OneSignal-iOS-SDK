@@ -203,6 +203,7 @@
     
     if (data != nil && [data length] > 0) {
         innerJson = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
+        NSLog(@"💛 innerJson %@", innerJson);
         innerJson[@"httpStatusCode"] = [NSNumber numberWithLong:statusCode];
         innerJson[@"headers"] = headers;
         

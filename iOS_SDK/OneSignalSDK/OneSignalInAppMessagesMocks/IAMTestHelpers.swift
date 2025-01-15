@@ -99,3 +99,9 @@ public class IAMTestHelpers: NSObject {
         
     }
 }
+
+//extension OSMessagingController {
+//    public func getDisplayQueue() -> [OSInAppMessageInternal] {
+//        return self.messageDisplayQueue()
+//    }
+//}

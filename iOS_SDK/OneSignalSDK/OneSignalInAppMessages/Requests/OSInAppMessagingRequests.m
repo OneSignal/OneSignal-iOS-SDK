@@ -53,6 +53,11 @@
     request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
     return request;
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<OSRequestGetInAppMessages from %@>", self.path];
+}
+
 @end
 
 @implementation OSRequestInAppMessageViewed

@@ -1422,6 +1422,7 @@
 //     XCTAssertTrue(action.promptActions[1].hasPrompted);
 // }
 
+/// This test is no longer true as of 5.2.9
 // - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {
 //     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
 //     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];

@@ -36,3 +36,4 @@ FOUNDATION_EXPORT const unsigned char OneSignalInAppMessagesMocksVersionString[]
 // In this header, you should import all the public headers of your framework using statements like #import <OneSignalInAppMessagesMocks/PublicHeader.h>
 
 
+#import <OneSignalInAppMessagesMocks/IAMObjcTestHelpers.h>

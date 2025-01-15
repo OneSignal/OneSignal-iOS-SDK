@@ -631,6 +631,9 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "onesignalId") else {
             return nil
         }
+        let u = _user
+        print("💛 \(_user)")
+        let i = _user?.identityModel
         return _user?.identityModel.onesignalId
     }
 
