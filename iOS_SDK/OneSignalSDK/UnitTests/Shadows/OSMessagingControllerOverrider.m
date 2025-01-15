@@ -112,7 +112,7 @@
 
 - (void)overrideWebViewContentFinishedLoading:(OSInAppMessageInternal *)message {
     if (message) {
-        [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
+        // [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
     }
 }
 
