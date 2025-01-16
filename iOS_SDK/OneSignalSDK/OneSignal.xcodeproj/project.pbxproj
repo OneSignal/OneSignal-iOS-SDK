@@ -1748,6 +1748,7 @@
 		3C43986C2D38C70400EFBD2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			publicHeaders = (
+				MockMessagingController.h,
 				OneSignalInAppMessagesMocks.h,
 			);
 			target = 3C4398602D38C70400EFBD2C /* OneSignalInAppMessagesMocks */;

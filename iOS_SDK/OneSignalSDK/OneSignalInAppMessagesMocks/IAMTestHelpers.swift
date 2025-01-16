@@ -94,6 +94,5 @@ public class IAMTestHelpers: NSObject {
         return [
             "in_app_messages" : messages
         ]
-        
     }
 }

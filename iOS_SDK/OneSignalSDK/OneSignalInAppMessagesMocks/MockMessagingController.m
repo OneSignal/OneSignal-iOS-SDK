@@ -25,14 +25,24 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
+#import "MockMessagingController.h"
+#import "OSMessagingController.h"
 
-//! Project version number for OneSignalInAppMessagesMocks.
-FOUNDATION_EXPORT double OneSignalInAppMessagesMocksVersionNumber;
+@interface OSMessagingController ()
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageInternal *> *messageDisplayQueue;
+@end
 
-//! Project version string for OneSignalInAppMessagesMocks.
-FOUNDATION_EXPORT const unsigned char OneSignalInAppMessagesMocksVersionString[];
+@implementation MockMessagingController
++ (void)resetState {
+    // TODO: reseting OSMessagingController state between tests
+}
 
-// In this header, you should import all the public headers of your framework using statements like #import <OneSignalInAppMessagesMocks/PublicHeader.h>
++ (NSArray *)messageDisplayQueue {
+    return OSMessagingController.sharedInstance.messageDisplayQueue;
+}
 
-#import <OneSignalInAppMessagesMocks/MockMessagingController.h>
++ (BOOL)isInAppMessageShowing {
+    return OSMessagingController.sharedInstance.isInAppMessageShowing;
+}
+
+@end
