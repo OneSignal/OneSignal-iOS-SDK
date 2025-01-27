@@ -27,17 +27,65 @@ with services provided by OneSignal.
 
 import XCTest
 @testable import OneSignalInAppMessages
+import OneSignalOSCore
+import OneSignalUser
+import OneSignalCoreMocks
+import OneSignalOSCoreMocks
+import OneSignalUserMocks
+import OneSignalInAppMessagesMocks
 
+/**
+ These tests can include some Obj-C InAppMessagingIntegrationTests migrations.
+ */
 final class IAMIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-    func testExample() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OSConsistencyManager.shared.reset()
+        // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
-        OneSignalInAppMessages.getFromServer("foobar")
-        OSMessagingController.sharedInstance()
+    }
+
+    override func tearDownWithError() throws { }
+    
+    /**
+     Pausing IAMs will not evaluate messages.
+     */
+    func testPausingIAMs_doesNotCreateMessageQueue() throws {
+        /* Setup */
+        
+        let client = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(client)
+        
+        // 1. App ID is set because there are guards against nil App ID
+        OneSignalConfigManager.setAppId("test-app-id")
+
+        // 2. Set up mock responses for the anonymous user, as the user needs an OSID
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        
+        // 3. Set up mock responses for fetching IAMs
+        let message = IAMTestHelpers.testMessageJsonWithTrigger(property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
+        let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message])
+        client.setMockResponseForRequest(
+            request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/\(testPushSubId)/iams>",
+            response: response)
+
+        // 4. Unblock the Consistency Manager to allow fetching of IAMs
+        ConsistencyManagerHelpers.setDefaultRywToken(id: anonUserOSID)
+        
+        // 5. Pausing should prevent messages from being evaluated and shown
+        OneSignalInAppMessages.__paused(true)
+        
+        // 6. Start the user manager to generate a user instance
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        
+        // 7. Fetch IAMs
+        OneSignalInAppMessages.getFromServer(testPushSubId)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        // Make sure no IAM is showing, and the queue has no IAMs
+        XCTAssertFalse(MockMessagingController.isInAppMessageShowing())
+        XCTAssertEqual(MockMessagingController.messageDisplayQueue().count, 0);
     }
 }
