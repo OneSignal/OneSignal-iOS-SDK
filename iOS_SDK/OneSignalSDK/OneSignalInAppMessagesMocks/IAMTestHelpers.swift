@@ -53,9 +53,9 @@ public class IAMTestHelpers: NSObject {
 
         return OS_OPERATOR_STRINGS[Int(type)]
     }
-    
+
     @objc
-    public static func testDefaultMessageJson() -> [String : Any] {
+    public static func testDefaultMessageJson() -> [String: Any] {
         return [
             "id": String(format: "%@_%i", OS_TEST_MESSAGE_ID, UUID().uuidString),
             "variants": [
@@ -67,22 +67,22 @@ public class IAMTestHelpers: NSObject {
                     "default": "should_never_be_used_by_any_test"
                 ]
             ],
-            "triggers": [],
+            "triggers": []
         ]
     }
 
     @objc
     public static func testMessageJsonWithTrigger(property: String, triggerId: String, type: Int32, value: Any) -> [String: Any] {
         var testMessage = self.testDefaultMessageJson()
-            
+
         testMessage["triggers"] = [
             [
                 [
-                    "kind" : property,
-                    "property" : property,
-                    "operator" : OS_OPERATOR_TO_STRING(type),
-                    "value" : value,
-                    "id" : triggerId
+                    "kind": property,
+                    "property": property,
+                    "operator": OS_OPERATOR_TO_STRING(type),
+                    "value": value,
+                    "id": triggerId
                 ]
             ]
         ]
@@ -92,7 +92,7 @@ public class IAMTestHelpers: NSObject {
     @objc
     public static func testFetchMessagesResponse(messages: [[String: Any]]) -> [String: Any] {
         return [
-            "in_app_messages" : messages
+            "in_app_messages": messages
         ]
     }
 }
