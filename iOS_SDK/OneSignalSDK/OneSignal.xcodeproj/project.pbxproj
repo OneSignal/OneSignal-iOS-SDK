@@ -73,6 +73,11 @@
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C3FAC0A2D489B5400B7090D /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 3C3FAC042D489B5400B7090D /* .swiftlint.yml */; };
+		3C3FAC0B2D489B5400B7090D /* IAMTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3FAC052D489B5400B7090D /* IAMTestHelpers.swift */; };
+		3C3FAC0C2D489B5400B7090D /* MockMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C3FAC072D489B5400B7090D /* MockMessagingController.m */; };
+		3C3FAC0D2D489B5400B7090D /* MockMessagingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C3FAC062D489B5400B7090D /* MockMessagingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C3FAC0E2D489B5400B7090D /* OneSignalInAppMessagesMocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C3FAC082D489B5400B7090D /* OneSignalInAppMessagesMocks.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C4398302D38771800EFBD2C /* IAMIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C43982F2D38771800EFBD2C /* IAMIntegrationTests.swift */; };
 		3C4398672D38C70400EFBD2C /* OneSignalInAppMessagesMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C4398612D38C70400EFBD2C /* OneSignalInAppMessagesMocks.framework */; };
 		3C4398682D38C70400EFBD2C /* OneSignalInAppMessagesMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C4398612D38C70400EFBD2C /* OneSignalInAppMessagesMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1289,6 +1294,11 @@
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
+		3C3FAC042D489B5400B7090D /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		3C3FAC052D489B5400B7090D /* IAMTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMTestHelpers.swift; sourceTree = "<group>"; };
+		3C3FAC062D489B5400B7090D /* MockMessagingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MockMessagingController.h; sourceTree = "<group>"; };
+		3C3FAC072D489B5400B7090D /* MockMessagingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MockMessagingController.m; sourceTree = "<group>"; };
+		3C3FAC082D489B5400B7090D /* OneSignalInAppMessagesMocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalInAppMessagesMocks.h; sourceTree = "<group>"; };
 		3C43982E2D38771800EFBD2C /* OneSignalInAppMessagesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalInAppMessagesTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C43982F2D38771800EFBD2C /* IAMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMIntegrationTests.swift; sourceTree = "<group>"; };
 		3C4398612D38C70400EFBD2C /* OneSignalInAppMessagesMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalInAppMessagesMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1740,20 +1750,8 @@
 		DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSStubLiveActivities.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3C43986C2D38C70400EFBD2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			publicHeaders = (
-				MockMessagingController.h,
-				OneSignalInAppMessagesMocks.h,
-			);
-			target = 3C4398602D38C70400EFBD2C /* OneSignalInAppMessagesMocks */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3C1300472D46D59100CD690D /* Categories */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Categories; sourceTree = "<group>"; };
-		3C4398622D38C70400EFBD2C /* OneSignalInAppMessagesMocks */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (3C43986C2D38C70400EFBD2C /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = OneSignalInAppMessagesMocks; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2075,7 +2073,7 @@
 				475F471F2B8E398E00EC05B3 /* OneSignalLiveActivities */,
 				3CC0639B2B6D7A8D002BB07F /* OneSignalCoreMocks */,
 				3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */,
-				3C4398622D38C70400EFBD2C /* OneSignalInAppMessagesMocks */,
+				3C3FAC092D489B5400B7090D /* OneSignalInAppMessagesMocks */,
 				3CC063DE2B6D7F2A002BB07F /* OneSignalUserMocks */,
 				3CC063A52B6D7A8E002BB07F /* OneSignalCoreTests */,
 				3CC063EC2B6D7FE8002BB07F /* OneSignalUserTests */,
@@ -2185,6 +2183,18 @@
 				DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		3C3FAC092D489B5400B7090D /* OneSignalInAppMessagesMocks */ = {
+			isa = PBXGroup;
+			children = (
+				3C3FAC042D489B5400B7090D /* .swiftlint.yml */,
+				3C3FAC052D489B5400B7090D /* IAMTestHelpers.swift */,
+				3C3FAC062D489B5400B7090D /* MockMessagingController.h */,
+				3C3FAC072D489B5400B7090D /* MockMessagingController.m */,
+				3C3FAC082D489B5400B7090D /* OneSignalInAppMessagesMocks.h */,
+			);
+			path = OneSignalInAppMessagesMocks;
 			sourceTree = "<group>";
 		};
 		3C8544B72C5AEFF700F542A9 /* OneSignalOSCoreMocks */ = {
@@ -3128,6 +3138,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C3FAC0D2D489B5400B7090D /* MockMessagingController.h in Headers */,
+				3C3FAC0E2D489B5400B7090D /* OneSignalInAppMessagesMocks.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3407,9 +3419,6 @@
 			dependencies = (
 				3C88C0292D39693C0087B461 /* PBXTargetDependency */,
 				3C88C0362D396EDA0087B461 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				3C4398622D38C70400EFBD2C /* OneSignalInAppMessagesMocks */,
 			);
 			name = OneSignalInAppMessagesMocks;
 			packageProductDependencies = (
@@ -4041,6 +4050,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C3FAC0A2D489B5400B7090D /* .swiftlint.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4303,6 +4313,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C3FAC0B2D489B5400B7090D /* IAMTestHelpers.swift in Sources */,
+				3C3FAC0C2D489B5400B7090D /* MockMessagingController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5928,7 +5940,6 @@
 		3CC063AC2B6D7A8E002BB07F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -5977,7 +5988,6 @@
 		3CC063AD2B6D7A8E002BB07F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -6033,7 +6043,6 @@
 		3CC063AE2B6D7A8E002BB07F /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -7481,7 +7490,6 @@
 		DE3D8F3F28C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -8890,7 +8898,6 @@
 		DEF5CD082539321D0003E9CC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -8942,7 +8949,6 @@
 		DEF5CD092539321D0003E9CC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
