@@ -58,6 +58,10 @@
 		3C0C67172D493E5A00F80448 /* IAMTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0C67162D493E5A00F80448 /* IAMTestHelpers.swift */; };
 		3C0C671C2D49449C00F80448 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
 		3C0C671D2D49449C00F80448 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C0C67232D49469200F80448 /* MockMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C0C67222D49469200F80448 /* MockMessagingController.m */; };
+		3C0C67242D49469200F80448 /* MockMessagingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C0C67212D49469200F80448 /* MockMessagingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C0C67252D4946BD00F80448 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		3C0C67262D4946BD00F80448 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */; };
 		3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = 3C115164289A259500565C41 /* OneSignalOSCore.docc */; };
 		3C115171289A259500565C41 /* OneSignalOSCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C115163289A259500565C41 /* OneSignalOSCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -637,6 +641,13 @@
 			remoteGlobalIDString = DEBAAE272A4211D900BF2C1C;
 			remoteInfo = OneSignalInAppMessages;
 		};
+		3C0C67272D4946BD00F80448 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D17E527026B95002D3A5D;
+			remoteInfo = OneSignalCore;
+		};
 		3C115194289AF85400565C41 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -1125,6 +1136,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				3C0C67262D4946BD00F80448 /* OneSignalCore.framework in Embed Frameworks */,
 				3C0C671D2D49449C00F80448 /* OneSignalInAppMessages.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -1268,6 +1280,8 @@
 		3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalInAppMessagesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C01519B2C2E29F90079E076 /* IAMRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IAMRequestTests.m; sourceTree = "<group>"; };
 		3C0C67162D493E5A00F80448 /* IAMTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMTestHelpers.swift; sourceTree = "<group>"; };
+		3C0C67212D49469200F80448 /* MockMessagingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MockMessagingController.h; sourceTree = "<group>"; };
+		3C0C67222D49469200F80448 /* MockMessagingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MockMessagingController.m; sourceTree = "<group>"; };
 		3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUserInternalImpl.swift; sourceTree = "<group>"; };
 		3C115161289A259500565C41 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C115163289A259500565C41 /* OneSignalOSCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalOSCore.h; sourceTree = "<group>"; };
@@ -1767,6 +1781,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C0C67252D4946BD00F80448 /* OneSignalCore.framework in Frameworks */,
 				3C0C671C2D49449C00F80448 /* OneSignalInAppMessages.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2171,6 +2186,8 @@
 			children = (
 				3C3FABD72D4898E500B7090D /* OneSignalInAppMessagesMocks.h */,
 				3C0C67162D493E5A00F80448 /* IAMTestHelpers.swift */,
+				3C0C67212D49469200F80448 /* MockMessagingController.h */,
+				3C0C67222D49469200F80448 /* MockMessagingController.m */,
 			);
 			path = OneSignalInAppMessagesMocks;
 			sourceTree = "<group>";
@@ -3117,6 +3134,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C3FABD92D4898E500B7090D /* OneSignalInAppMessagesMocks.h in Headers */,
+				3C0C67242D49469200F80448 /* MockMessagingController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3396,6 +3414,7 @@
 			);
 			dependencies = (
 				3C0C671F2D49449C00F80448 /* PBXTargetDependency */,
+				3C0C67282D4946BD00F80448 /* PBXTargetDependency */,
 			);
 			name = OneSignalInAppMessagesMocks;
 			packageProductDependencies = (
@@ -4287,6 +4306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C0C67232D49469200F80448 /* MockMessagingController.m in Sources */,
 				3C0C67172D493E5A00F80448 /* IAMTestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4691,6 +4711,11 @@
 			isa = PBXTargetDependency;
 			target = DEBAAE272A4211D900BF2C1C /* OneSignalInAppMessages */;
 			targetProxy = 3C0C671E2D49449C00F80448 /* PBXContainerItemProxy */;
+		};
+		3C0C67282D4946BD00F80448 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
+			targetProxy = 3C0C67272D4946BD00F80448 /* PBXContainerItemProxy */;
 		};
 		3C115195289AF85400565C41 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
