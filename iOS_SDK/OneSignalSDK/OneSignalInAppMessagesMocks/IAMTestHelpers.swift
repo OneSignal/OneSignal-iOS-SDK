@@ -36,6 +36,9 @@ let OS_DUMMY_HTML = "<html><h1>Hello World</h1></html>"
 
 @objc
 public class IAMTestHelpers: NSObject {
+
+    nonisolated(unsafe) static var messageIdIncrementer = 0
+
     /// Convert OSTriggerOperatorType enum to string
     private static func OS_OPERATOR_TO_STRING(_ type: Int32) -> String {
         // Trigger operator strings
@@ -54,10 +57,12 @@ public class IAMTestHelpers: NSObject {
         return OS_OPERATOR_STRINGS[Int(type)]
     }
 
+    /// Returns the JSON of a minimal in-app message that can be used as a building block.
     @objc
     public static func testDefaultMessageJson() -> [String: Any] {
+        messageIdIncrementer += 1
         return [
-            "id": String(format: "%@_%i", OS_TEST_MESSAGE_ID, UUID().uuidString),
+            "id": String(format: "%@_%i", OS_TEST_MESSAGE_ID, messageIdIncrementer),
             "variants": [
                 "ios": [
                     "default": OS_TEST_MESSAGE_VARIANT_ID,
@@ -71,6 +76,7 @@ public class IAMTestHelpers: NSObject {
         ]
     }
 
+    /// Returns the JSON of an in-app message with trigger.
     @objc
     public static func testMessageJsonWithTrigger(property: String, triggerId: String, type: Int32, value: Any) -> [String: Any] {
         var testMessage = self.testDefaultMessageJson()
@@ -94,5 +100,13 @@ public class IAMTestHelpers: NSObject {
         return [
             "in_app_messages": messages
         ]
+    }
+
+    /// Returns the JSON of a preview or test in-app message.
+    @objc
+    public static func testMessagePreviewJson() -> [String: Any] {
+        var message = self.testDefaultMessageJson()
+        message["is_preview"] = true
+        return message
     }
 }
