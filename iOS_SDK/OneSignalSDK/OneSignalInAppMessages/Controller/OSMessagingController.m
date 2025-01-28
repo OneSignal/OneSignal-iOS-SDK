@@ -815,10 +815,6 @@ static BOOL _isInAppMessagingPaused = false;
     return self.triggerController.getTriggers;
 }
 
-- (id)getTriggerValueForKey:(NSString *)key {
-    return [self.triggerController getTriggerValueForKey:key];
-}
-
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerDidDisplay:(OSInAppMessageInternal *)message {
     [self onDidDisplayInAppMessage:message];
@@ -1227,7 +1223,6 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
 - (void)clearTriggers {}
 - (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
-- (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
 - (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {}
