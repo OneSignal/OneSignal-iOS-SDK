@@ -61,7 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (void)clearTriggers;
 - (NSDictionary<NSString *, id> *)getTriggers;
-- (id)getTriggerValueForKey:(NSString *)key;
 
 - (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
 - (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
