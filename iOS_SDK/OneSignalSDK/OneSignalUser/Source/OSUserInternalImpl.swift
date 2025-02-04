@@ -37,6 +37,7 @@ protocol OSUserInternal {
     var pushSubscriptionModel: OSSubscriptionModel { get }
     var identityModel: OSIdentityModel { get }
     var propertiesModel: OSPropertiesModel { get }
+    func update()
     // Aliases
     func addAliases(_ aliases: [String: String])
     func removeAliases(_ labels: [String])
@@ -70,6 +71,11 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
         self.pushSubscriptionModel = pushSubscriptionModel
+    }
+
+    func update() {
+        self.pushSubscriptionModel.update()
+        self.propertiesModel.update()
     }
 
     // MARK: - Aliases

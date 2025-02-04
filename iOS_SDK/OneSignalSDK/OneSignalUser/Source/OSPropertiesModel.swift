@@ -63,7 +63,14 @@ class OSPropertiesModel: OSModel {
         }
     }
 
-    var timezoneId = TimeZone.current.identifier
+    var timezoneId: String? = TimeZone.current.identifier {
+        didSet {
+            guard timezoneId != oldValue else {
+                return
+            }
+            self.set(property: "timezone_id", newValue: timezoneId)
+        }
+    }
 
     var tags: [String: String] = [:]
     private let tagsLock = NSRecursiveLock()
@@ -90,6 +97,7 @@ class OSPropertiesModel: OSModel {
             super.encode(with: coder)
             coder.encode(language, forKey: "language")
             coder.encode(tags, forKey: "tags")
+            coder.encode(timezoneId, forKey: "timezoneId")
             // ... and more
         }
     }
@@ -97,6 +105,7 @@ class OSPropertiesModel: OSModel {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         language = coder.decodeObject(forKey: "language") as? String
+        timezoneId = coder.decodeObject(forKey: "timezoneId") as? String
         guard let tags = coder.decodeObject(forKey: "tags") as? [String: String] else {
             // log error
             return
@@ -104,6 +113,10 @@ class OSPropertiesModel: OSModel {
         self.tags = tags
 
         // ... and more
+    }
+
+    func update() {
+        timezoneId = TimeZone.current.identifier
     }
 
     /**

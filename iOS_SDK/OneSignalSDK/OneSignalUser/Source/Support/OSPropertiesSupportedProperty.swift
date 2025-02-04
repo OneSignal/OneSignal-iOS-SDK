@@ -36,6 +36,7 @@ enum OSPropertiesSupportedProperty: String {
     case language
     case location
     case tags
+    case timezone_id
     // Created manually by User Manager, not through Models
     case session_count
     case session_time
