@@ -605,10 +605,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     _delayedInitParameters = nil;
 }
 
-+ (BOOL)getPrivacyConsent {
-    return [OSPrivacyConsentController getPrivacyConsent];
-}
-
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
