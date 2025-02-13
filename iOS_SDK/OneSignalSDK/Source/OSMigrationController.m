@@ -40,6 +40,7 @@ THE SOFTWARE.
 @implementation OSMigrationController
 
 - (void)migrate {
+    [OneSignalCoreImpl migrate];
     [OSOutcomes migrate];
     let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(migrate)]) {
