@@ -40,47 +40,11 @@ THE SOFTWARE.
 @implementation OSMigrationController
 
 - (void)migrate {
-    [self migrateToVersion_02_14_00_AndGreater];
+    [OSOutcomes migrate];
     let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(migrate)]) {
         [oneSignalInAppMessages performSelector:@selector(migrate)];
     }
-    [self saveCurrentSDKVersion];
-}
-
-/**
- * Support renaming of decodable classes for cached data
- */
-- (void)migrateToVersion_02_14_00_AndGreater {
-    let influenceVersion = 21400;
-    let uniqueCacheOutcomeVersion = 21403;
-    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    if (sdkVersion < influenceVersion) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
-
-        [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
-        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OSInfluenceDataRepository sharedInfluenceDataRepository] lastNotificationsReceivedData];
-        if (indirectInfluenceData) {
-            [NSKeyedArchiver setClassName:@"OSIndirectInfluence" forClass:[OSIndirectInfluence class]];
-            [[OSInfluenceDataRepository sharedInfluenceDataRepository] saveNotifications:indirectInfluenceData];
-        }
-    }
-    
-    if (sdkVersion < uniqueCacheOutcomeVersion) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
-        
-        [NSKeyedUnarchiver setClass:[OSCachedUniqueOutcome class] forClassName:@"OSUniqueOutcomeNotification"];
-        NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OSOutcomeEventsCache sharedOutcomeEventsCache] getAttributedUniqueOutcomeEventSent];
-        if (attributedCacheUniqueOutcomeEvents) {
-            [NSKeyedArchiver setClassName:@"OSCachedUniqueOutcome" forClass:[OSCachedUniqueOutcome class]];
-            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
-        }
-    }
-}
-
-- (void)saveCurrentSDKVersion {
-    let currentVersion = [[OneSignal sdkVersionRaw] intValue];
-    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION withValue:currentVersion];
 }
 
 @end
