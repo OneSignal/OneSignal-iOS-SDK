@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 
 @interface OSPrivacyConsentController : NSObject
++ (void)migrate;
 + (BOOL)requiresUserPrivacyConsent;
 + (void)consentGranted:(BOOL)granted;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;

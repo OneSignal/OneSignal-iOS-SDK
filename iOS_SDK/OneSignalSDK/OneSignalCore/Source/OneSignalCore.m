@@ -32,6 +32,7 @@
 
 + (void)migrate {
     [self migrateCachedSdkVersion];
+    [OSPrivacyConsentController migrate];
     [self saveCurrentSDKVersion];
 }
 
