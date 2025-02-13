@@ -60,7 +60,7 @@ static OneSignalOutcomeEventsController *_sharedController;
 + (void)migrateToVersion_02_14_00_AndGreater {
     let influenceVersion = 21400;
     let uniqueCacheOutcomeVersion = 21403;
-    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES defaultValue:0];
     if (sdkVersion < influenceVersion) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
 
@@ -85,7 +85,7 @@ static OneSignalOutcomeEventsController *_sharedController;
 }
 + (void)saveCurrentSDKVersion {
     let currentVersion = [ONESIGNAL_VERSION intValue];
-    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION withValue:currentVersion];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES withValue:currentVersion];
 }
 
 #pragma mark Session namespace
