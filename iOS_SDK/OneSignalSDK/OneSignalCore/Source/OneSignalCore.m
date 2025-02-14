@@ -30,6 +30,35 @@
 
 @implementation OneSignalCoreImpl
 
++ (void)migrate {
+    [self migrateCachedSdkVersion];
+    [OSPrivacyConsentController migrate];
+    [self saveCurrentSDKVersion];
+}
+
+/// Every module should be responsible for its own migration, as it is possible for one module
+/// to finish migrating without another undergoing migration yet.
+/// See https://github.com/OneSignal/OneSignal-iOS-SDK/pull/1541
++ (void)migrateCachedSdkVersion {
+    if (![OneSignalUserDefaults.initShared keyExists:OSUD_LEGACY_CACHED_SDK_VERSION_FOR_MIGRATION]) {
+        return;
+    }
+    
+    // The default value should never be used, however the getSavedIntegerForKey method requires it
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_LEGACY_CACHED_SDK_VERSION_FOR_MIGRATION defaultValue:0];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignalCoreImpl migrating cached SDK versions from version: %ld", sdkVersion]];
+
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_CORE withValue:sdkVersion];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES withValue:sdkVersion];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_IAM withValue:sdkVersion];
+    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_LEGACY_CACHED_SDK_VERSION_FOR_MIGRATION];
+}
+
++ (void)saveCurrentSDKVersion {
+    int currentVersion = [ONESIGNAL_VERSION intValue];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_CORE withValue:currentVersion];
+}
+
 static id<IOneSignalClient> _sharedClient;
 + (id<IOneSignalClient>)sharedClient {
     if (!_sharedClient) {

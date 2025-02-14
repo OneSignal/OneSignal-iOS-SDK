@@ -34,6 +34,7 @@
 +(void)migrate {
     [self migrateIAMRedisplayCache];
     [self migrateToOSInAppMessageInternal];
+    [self saveCurrentSDKVersion];
 }
 
 // Devices could potentially have bad data in the OS_IAM_REDISPLAY_DICTIONARY
@@ -41,7 +42,7 @@
 // and save it is as CodeableData instead.
 + (void)migrateIAMRedisplayCache {
     let iamRedisplayCacheFixVersion = 30203;
-    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_IAM defaultValue:0];
     if (sdkVersion >= iamRedisplayCacheFixVersion)
         return;
 
@@ -71,7 +72,7 @@
 // We must set the new class name to the unarchiver to avoid crashing
 + (void)migrateToOSInAppMessageInternal {
     let nameChangeVersion = 30700;
-    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_IAM defaultValue:0];
     [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
     if (sdkVersion < nameChangeVersion) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
@@ -88,5 +89,9 @@
     }
 }
 
++ (void)saveCurrentSDKVersion {
+    int currentVersion = [ONESIGNAL_VERSION intValue];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_IAM withValue:currentVersion];
+}
 
 @end

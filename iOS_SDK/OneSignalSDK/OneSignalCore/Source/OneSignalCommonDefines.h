@@ -96,8 +96,15 @@
 #define OSUD_CACHED_RECEIVED_IAM_IDS                                        @"OSUD_CACHED_RECEIVED_IAM_IDS"
 #define OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT                 @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"                   // * OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT
 #define OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT   @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"     // * OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT
+
 // Migration
-#define OSUD_CACHED_SDK_VERSION                                             @"OSUD_CACHED_SDK_VERSION"
+/// Value used by all modules prior to 5.2.10
+#define OSUD_LEGACY_CACHED_SDK_VERSION_FOR_MIGRATION                @"OSUD_CACHED_SDK_VERSION"
+/// Values added in 5.2.10 for each module to own its own migration
+#define OSUD_CACHED_SDK_VERSION_FOR_CORE                            @"OSUD_CACHED_SDK_VERSION_FOR_CORE"
+#define OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES                        @"OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES"
+#define OSUD_CACHED_SDK_VERSION_FOR_IAM                             @"OSUD_CACHED_SDK_VERSION_FOR_IAM"
+
 // Time Tracking
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME

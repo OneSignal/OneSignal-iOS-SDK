@@ -35,6 +35,29 @@ THE SOFTWARE.
 
 @implementation OSPrivacyConsentController
 
++ (void)migrate {
+    [self migrateConsentGranted];
+}
+
+/// `GDPR_CONSENT_GRANTED` had previously been saved to the standard user defaults.
+/// However, this value is also read from the NSE (for example, to send confirmed deliveries).
+/// Migrate this value to the shared user defaults, if it exists.
++ (void)migrateConsentGranted {
+    long consentGrantedCacheFixVersion = 50210;
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_CORE defaultValue:0];
+
+    if (sdkVersion >= consentGrantedCacheFixVersion) {
+        return;
+    }
+    
+    if ([OneSignalUserDefaults.initStandard keyExists:GDPR_CONSENT_GRANTED]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSPrivacyConsentController migrating consent granted from version: %ld", sdkVersion]];
+        // The default value should never be used, however the getSavedBoolForKey method requires it
+        BOOL granted = [OneSignalUserDefaults.initStandard getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:false];
+        [OneSignalUserDefaults.initShared saveBoolForKey:GDPR_CONSENT_GRANTED withValue:granted];
+    }
+}
+
 + (void)setRequiresPrivacyConsent:(BOOL)required {
     OSRemoteParamController *remoteParamController = [OSRemoteParamController sharedController];
 
@@ -56,19 +79,13 @@ THE SOFTWARE.
     // if required and consent has not been previously granted, return false
     BOOL requiresConsent = [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_REQUIRE_PRIVACY_CONSENT] boolValue] ?: false;
     if (requiresConsent || shouldRequireUserConsent)
-        return ![OneSignalUserDefaults.initStandard getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:false];
+        return ![OneSignalUserDefaults.initShared getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:false];
     
     return false;
 }
 
 + (void)consentGranted:(BOOL)granted {
-    [OneSignalUserDefaults.initStandard saveBoolForKey:GDPR_CONSENT_GRANTED withValue:granted];
-}
-
-+ (BOOL)getPrivacyConsent {
-    // The default is the inverse of privacy consent required
-    BOOL defaultValue = ![OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT defaultValue:NO];
-    return [OneSignalUserDefaults.initStandard getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:defaultValue];
+    [OneSignalUserDefaults.initShared saveBoolForKey:GDPR_CONSENT_GRANTED withValue:granted];
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
