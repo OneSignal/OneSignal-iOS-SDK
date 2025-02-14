@@ -31,6 +31,8 @@ final class OneSignalNotificationsTests: XCTestCase {
     var token: String = ""
 
     override func setUpWithError() throws {
+        // Temp. logging to help debug during testing
+        OneSignalLog.setLogLevel(.LL_VERBOSE)
         // Put setup code here. This method is called before the invocation of each test method in the class.
         self.notifTypes = 0
         self.token = ""
@@ -40,31 +42,93 @@ final class OneSignalNotificationsTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testClearBadgesWhenAppEntersForeground() throws {
+    func testClearBadgesWhenAppEntersForeground() throws { // Fails when running alone
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
         // Set badge count > 0
+        print("💛 testClearBadgesWhenAppEntersForeground setting applicationIconBadgeNumber = 1")
         UIApplication.shared.applicationIconBadgeNumber = 1
+        print("🥑 applicationIconBadgeNumber is \(UIApplication.shared.applicationIconBadgeNumber)")
+
         // Then background the app
         OneSignalCoreMocks.backgroundApp()
         // Foreground the app
         OneSignalCoreMocks.foregroundApp()
         // Ensure that badge count == 0
+        print("🥑 applicationIconBadgeNumber now is \(UIApplication.shared.applicationIconBadgeNumber)")
+
         XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
     }
 
-    func testDontclearBadgesWhenAppBecomesActive() throws {
+    func testDontclearBadgesWhenAppBecomesActive() throws { // Unable to make it fail alone
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
         // Set badge count > 0
+        print("💛 testDontclearBadgesWhenAppBecomesActive setting applicationIconBadgeNumber = 1")
         UIApplication.shared.applicationIconBadgeNumber = 1
+        print("🥑 applicationIconBadgeNumber is \(UIApplication.shared.applicationIconBadgeNumber)")
+
         // Then resign active
         OneSignalCoreMocks.resignActive()
         // App becomes active the app
         OneSignalCoreMocks.becomeActive()
         // Ensure that badge count == 1
+        print("🥑 applicationIconBadgeNumber now is \(UIApplication.shared.applicationIconBadgeNumber)")
+
         XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
     }
+//    
+//    func testClearBadgesWhenAppEntersForeground1() throws {
+//        // NotificationManager Start to register lifecycle listener
+//        OSNotificationsManager.start()
+//        // Set badge count > 0
+//        UIApplication.shared.applicationIconBadgeNumber = 1
+//        // Then background the app
+//        OneSignalCoreMocks.backgroundApp()
+//        // Foreground the app
+//        OneSignalCoreMocks.foregroundApp()
+//        // Ensure that badge count == 0
+//        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
+//    }
+//
+//    func testDontclearBadgesWhenAppBecomesActive2() throws {
+//        // NotificationManager Start to register lifecycle listener
+//        OSNotificationsManager.start()
+//        // Set badge count > 0
+//        UIApplication.shared.applicationIconBadgeNumber = 1
+//        // Then resign active
+//        OneSignalCoreMocks.resignActive()
+//        // App becomes active the app
+//        OneSignalCoreMocks.becomeActive()
+//        // Ensure that badge count == 1
+//        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
+//    }
+//    
+//    func testClearBadgesWhenAppEntersForeground3() throws {
+//        // NotificationManager Start to register lifecycle listener
+//        OSNotificationsManager.start()
+//        // Set badge count > 0
+//        UIApplication.shared.applicationIconBadgeNumber = 1
+//        // Then background the app
+//        OneSignalCoreMocks.backgroundApp()
+//        // Foreground the app
+//        OneSignalCoreMocks.foregroundApp()
+//        // Ensure that badge count == 0
+//        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
+//    }
+//
+//    func testDontclearBadgesWhenAppBecomesActive4() throws {
+//        // NotificationManager Start to register lifecycle listener
+//        OSNotificationsManager.start()
+//        // Set badge count > 0
+//        UIApplication.shared.applicationIconBadgeNumber = 1
+//        // Then resign active
+//        OneSignalCoreMocks.resignActive()
+//        // App becomes active the app
+//        OneSignalCoreMocks.becomeActive()
+//        // Ensure that badge count == 1
+//        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
+//    }
 
     func testUpdateNotificationTypesOnAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
