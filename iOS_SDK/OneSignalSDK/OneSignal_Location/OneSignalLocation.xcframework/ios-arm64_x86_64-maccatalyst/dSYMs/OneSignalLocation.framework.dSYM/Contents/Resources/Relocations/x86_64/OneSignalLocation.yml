@@ -1,21 +1,21 @@
 ---
 triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLocation/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLocation.framework/Versions/A/OneSignalLocation'
+binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLocation/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLocation.framework/Versions/A/OneSignalLocation'
 relocations:
   - { offsetInCU: 0x27, offset: 0xD5719, size: 0x8, addend: 0x0, symName: '+[OneSignalLocationManager locationListeners]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x3D }
   - { offsetInCU: 0x41, offset: 0xD5733, size: 0x8, addend: 0x0, symName: _foregroundSendLocationWaitTime, symObjAddr: 0x1B60, symBinAddr: 0x5C60, symSize: 0x0 }
-  - { offsetInCU: 0x63, offset: 0xD5755, size: 0x8, addend: 0x0, symName: _requestLocationTimer, symObjAddr: 0xB2B0, symBinAddr: 0xCB58, symSize: 0x0 }
-  - { offsetInCU: 0x7E, offset: 0xD5770, size: 0x8, addend: 0x0, symName: _initialLocationSent, symObjAddr: 0xB2B8, symBinAddr: 0xCB60, symSize: 0x0 }
+  - { offsetInCU: 0x63, offset: 0xD5755, size: 0x8, addend: 0x0, symName: _requestLocationTimer, symObjAddr: 0xB278, symBinAddr: 0xCB58, symSize: 0x0 }
+  - { offsetInCU: 0x7E, offset: 0xD5770, size: 0x8, addend: 0x0, symName: _initialLocationSent, symObjAddr: 0xB280, symBinAddr: 0xCB60, symSize: 0x0 }
   - { offsetInCU: 0x9B, offset: 0xD578D, size: 0x8, addend: 0x0, symName: _alertSettingsTag, symObjAddr: 0x1B68, symBinAddr: 0x5C68, symSize: 0x0 }
-  - { offsetInCU: 0xBD, offset: 0xD57AF, size: 0x8, addend: 0x0, symName: _locationManager, symObjAddr: 0xB2E0, symBinAddr: 0xCB88, symSize: 0x0 }
-  - { offsetInCU: 0xFC, offset: 0xD57EE, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0xB2E8, symBinAddr: 0xCB90, symSize: 0x0 }
-  - { offsetInCU: 0x129, offset: 0xD581B, size: 0x8, addend: 0x0, symName: _lastLocation, symObjAddr: 0xB2D0, symBinAddr: 0xCB78, symSize: 0x0 }
-  - { offsetInCU: 0x1A8, offset: 0xD589A, size: 0x8, addend: 0x0, symName: _fcTask, symObjAddr: 0xB2D8, symBinAddr: 0xCB80, symSize: 0x0 }
-  - { offsetInCU: 0x1C5, offset: 0xD58B7, size: 0x8, addend: 0x0, symName: __locationListeners, symObjAddr: 0xB2C0, symBinAddr: 0xCB68, symSize: 0x0 }
-  - { offsetInCU: 0x1E0, offset: 0xD58D2, size: 0x8, addend: 0x0, symName: __mutexObjectForLastLocation, symObjAddr: 0xB2C8, symBinAddr: 0xCB70, symSize: 0x0 }
-  - { offsetInCU: 0x1FB, offset: 0xD58ED, size: 0x8, addend: 0x0, symName: _started, symObjAddr: 0xB2F0, symBinAddr: 0xCB98, symSize: 0x0 }
-  - { offsetInCU: 0x218, offset: 0xD590A, size: 0x8, addend: 0x0, symName: _hasDelayed, symObjAddr: 0xB2F1, symBinAddr: 0xCB99, symSize: 0x0 }
-  - { offsetInCU: 0x235, offset: 0xD5927, size: 0x8, addend: 0x0, symName: _fallbackToSettings, symObjAddr: 0xB2F2, symBinAddr: 0xCB9A, symSize: 0x0 }
+  - { offsetInCU: 0xBD, offset: 0xD57AF, size: 0x8, addend: 0x0, symName: _locationManager, symObjAddr: 0xB2A8, symBinAddr: 0xCB88, symSize: 0x0 }
+  - { offsetInCU: 0xFC, offset: 0xD57EE, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0xB2B0, symBinAddr: 0xCB90, symSize: 0x0 }
+  - { offsetInCU: 0x129, offset: 0xD581B, size: 0x8, addend: 0x0, symName: _lastLocation, symObjAddr: 0xB298, symBinAddr: 0xCB78, symSize: 0x0 }
+  - { offsetInCU: 0x1A8, offset: 0xD589A, size: 0x8, addend: 0x0, symName: _fcTask, symObjAddr: 0xB2A0, symBinAddr: 0xCB80, symSize: 0x0 }
+  - { offsetInCU: 0x1C5, offset: 0xD58B7, size: 0x8, addend: 0x0, symName: __locationListeners, symObjAddr: 0xB288, symBinAddr: 0xCB68, symSize: 0x0 }
+  - { offsetInCU: 0x1E0, offset: 0xD58D2, size: 0x8, addend: 0x0, symName: __mutexObjectForLastLocation, symObjAddr: 0xB290, symBinAddr: 0xCB70, symSize: 0x0 }
+  - { offsetInCU: 0x1FB, offset: 0xD58ED, size: 0x8, addend: 0x0, symName: _started, symObjAddr: 0xB2B8, symBinAddr: 0xCB98, symSize: 0x0 }
+  - { offsetInCU: 0x218, offset: 0xD590A, size: 0x8, addend: 0x0, symName: _hasDelayed, symObjAddr: 0xB2B9, symBinAddr: 0xCB99, symSize: 0x0 }
+  - { offsetInCU: 0x235, offset: 0xD5927, size: 0x8, addend: 0x0, symName: _fallbackToSettings, symObjAddr: 0xB2BA, symBinAddr: 0xCB9A, symSize: 0x0 }
   - { offsetInCU: 0x2D8, offset: 0xD59CA, size: 0x8, addend: 0x0, symName: '+[OneSignalLocationManager locationListeners]', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x3D }
   - { offsetInCU: 0x317, offset: 0xD5A09, size: 0x8, addend: 0x0, symName: '+[OneSignalLocationManager mutexObjectForLastLocation]', symObjAddr: 0x3D, symBinAddr: 0x403D, symSize: 0x3D }
   - { offsetInCU: 0x356, offset: 0xD5A48, size: 0x8, addend: 0x0, symName: '+[OneSignalLocationManager sharedInstance]', symObjAddr: 0x7A, symBinAddr: 0x407A, symSize: 0x7D }

@@ -1,6 +1,6 @@
 ---
 triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLiveActivities/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLiveActivities.framework/Versions/A/OneSignalLiveActivities'
+binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLiveActivities/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLiveActivities.framework/Versions/A/OneSignalLiveActivities'
 relocations:
   - { offsetInCU: 0x27, offset: 0xD1E9C, size: 0x8, addend: 0x0, symName: '_$sSo20OSResponseStatusTypeVSQSCSQ2eeoiySbx_xtFZTW', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x10 }
   - { offsetInCU: 0x62, offset: 0xD1ED7, size: 0x8, addend: 0x0, symName: '_$sSo20OSResponseStatusTypeVSQSCSQ2eeoiySbx_xtFZTW', symObjAddr: 0x0, symBinAddr: 0x4000, symSize: 0x10 }

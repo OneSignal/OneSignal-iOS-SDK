@@ -66,7 +66,7 @@
 		</data>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<data>
-		M+s6N3SgUW271aVJk0EYnL/UIAo=
+		7gxmQ+X0moSsUEqx+qli7yCJ59c=
 		</data>
 		<key>Headers/OSRemoteParamController.h</key>
 		<data>
@@ -86,7 +86,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		r0uEHXsN+5UCndftQ1ik7SRwQjU=
+		UqhL5lV7bctTNDnYo1enOpeu9ZU=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -94,7 +94,7 @@
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		9kVGd63e6wGKDKahtIkncN1tVV0=
+		AXCZVobel/1nqcQjWRI9K74t/9I=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -134,7 +134,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		fnQEsbHdvIcsbtswVSq49eKDl8s=
+		SR4SlhKa0cUE8f7LHNKL6Z2s9AQ=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -256,7 +256,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZbsLBZFACw0H6sd80zOvxaGw6Jq/0Sz1diu28fYUOZY=
+			sp07+DUKscxnVfk2kLriqDDs+ennVReTHPK0Gmt+gv8=
 			</data>
 		</dict>
 		<key>Headers/OSRemoteParamController.h</key>
@@ -291,7 +291,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/jB/did+xJIeYPYz9w4twMqVVT62cxmxn36wSFdmu4c=
+			ybi8MTPPolzinRXp9htNdLXc5r19GvfIJVQ+FOYIDWI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -305,7 +305,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pQJpHFcKMpwT9d7ZdhyBlTQlDOkIhTvyBqiLJ1aRUiY=
+			+UcQ8lAd22vb1KsbaTYm7i3lsygfL5OUiAF9/1lbn6Y=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
