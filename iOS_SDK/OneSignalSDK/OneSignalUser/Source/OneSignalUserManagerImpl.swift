@@ -256,7 +256,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         subscriptionModelStoreListener.start()
         pushSubscriptionModelStoreListener.start()
         if hasCachedUser {
-            _user?.pushSubscriptionModel.update()
+            _user?.update()
         }
     }
 
@@ -294,6 +294,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // 3. Make the request
         userExecutor!.fetchIdentityBySubscription(newUser)
+
+        // 4. Send any updates to sync the local state
+        updateLegacyPlayer(newUser)
+    }
+
+    /**
+     Migrating a legacy player does not result in a Create User call, but certain local data should be sent manually.
+     */
+    private func updateLegacyPlayer(_ user: OSUserInternal) {
+        if let timezoneId = user.propertiesModel.timezoneId {
+            updatePropertiesDeltas(property: .timezone_id, value: timezoneId)
+        }
     }
 
     private func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
@@ -567,6 +579,7 @@ extension OneSignalUserManagerImpl {
     /// It enqueues an OSDelta to the Operation Repo.
     /// 
     /// - Parameter property:Expected inputs are `.session_time"`, `.session_count"`, and `.purchases"`.
+    /// May be `.timezone_id` or others if the SDK is sending an update for a legacy player.
     func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any, flush: Bool = false) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updatePropertiesDeltas") else {
             return
