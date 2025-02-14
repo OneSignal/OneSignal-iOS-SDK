@@ -603,3 +603,9 @@ extension OSUserExecutor {
         return response?["identity"] as? [String: String]
     }
 }
+
+extension OSUserExecutor: OSLoggable {
+    func logSelf() {
+        // TODO: You fill in
+    }
+}
