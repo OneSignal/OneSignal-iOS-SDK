@@ -28,6 +28,10 @@
 #import "OSInAppMessagingRequests.h"
 
 @implementation OSRequestGetInAppMessages
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<OSRequestGetInAppMessages from %@>", self.path];
+}
+
 + (instancetype _Nonnull)   withSubscriptionId:(NSString * _Nonnull)subscriptionId
                             withSessionDuration:(NSNumber * _Nonnull)sessionDuration
                             withRetryCount:(NSNumber *)retryCount
