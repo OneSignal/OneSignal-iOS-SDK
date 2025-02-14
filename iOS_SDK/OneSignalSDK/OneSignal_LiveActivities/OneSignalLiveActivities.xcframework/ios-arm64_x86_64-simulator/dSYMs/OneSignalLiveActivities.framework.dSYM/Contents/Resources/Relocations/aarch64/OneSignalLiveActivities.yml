@@ -1,6 +1,6 @@
 ---
 triple:          'arm64-apple-darwin'
-binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLiveActivities/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLiveActivities.framework/OneSignalLiveActivities'
+binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalLiveActivities/InstallationBuildProductsLocation/Library/Frameworks/OneSignalLiveActivities.framework/OneSignalLiveActivities'
 relocations:
   - { offsetInCU: 0x3F, offset: 0x55EB8, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore16OSLiveActivitiesP0ab4LiveE0E5setup_7optionsyqd__m_AD0F20ActivitySetupOptionsCSgtAD0abfI10AttributesRd__lFZ', symObjAddr: 0x0, symBinAddr: 0x258C, symSize: 0x54 }
   - { offsetInCU: 0xEA, offset: 0x55F63, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities0abcD11ManagerImplC5setup_7optionsyxm_AA0C20ActivitySetupOptionsCSgtAA0abcI10AttributesRzlFZAA07DefaultciL0V_Tg5', symObjAddr: 0x54, symBinAddr: 0x25E0, symSize: 0x1D4 }
@@ -277,8 +277,8 @@ relocations:
   - { offsetInCU: 0xAE5, offset: 0x5AED0, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities0abC24ActivityContentStateDataV10CodingKeys33_D294A5EC73365143069C7BDC4322C0B4LLOs28CustomDebugStringConvertibleAAsAGP16debugDescriptionSSvgTW', symObjAddr: 0x3F4, symBinAddr: 0x9C80, symSize: 0x28 }
   - { offsetInCU: 0xB01, offset: 0x5AEEC, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities0abC24ActivityContentStateDataV10CodingKeys33_D294A5EC73365143069C7BDC4322C0B4LLOs23CustomStringConvertibleAAsAGP11descriptionSSvgTW', symObjAddr: 0x41C, symBinAddr: 0x9CA8, symSize: 0x28 }
   - { offsetInCU: 0xB4A, offset: 0x5AF35, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities0abC24ActivityContentStateDataVSHAASH13_rawHashValue4seedS2i_tFTW', symObjAddr: 0x8FC, symBinAddr: 0xA188, symSize: 0x54 }
-  - { offsetInCU: 0x4F, offset: 0x5B0EC, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities18UpdateRequestCacheC0A12DayInSecondsSdvpZ', symObjAddr: 0xED80, symBinAddr: 0x2C270, symSize: 0x0 }
-  - { offsetInCU: 0x69, offset: 0x5B106, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities17StartRequestCacheC0A13YearInSecondsSdvpZ', symObjAddr: 0xED88, symBinAddr: 0x2C278, symSize: 0x0 }
+  - { offsetInCU: 0x4F, offset: 0x5B0EC, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities18UpdateRequestCacheC0A12DayInSecondsSdvpZ', symObjAddr: 0xED38, symBinAddr: 0x2C270, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0x5B106, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities17StartRequestCacheC0A13YearInSecondsSdvpZ', symObjAddr: 0xED40, symBinAddr: 0x2C278, symSize: 0x0 }
   - { offsetInCU: 0xA4, offset: 0x5B141, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities12RequestCacheC8cacheKey3ttlACSS_Sdtcfc', symObjAddr: 0x0, symBinAddr: 0xA8A0, symSize: 0x270 }
   - { offsetInCU: 0x19B, offset: 0x5B238, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities12RequestCacheC19markAllUnsuccessfulyyF', symObjAddr: 0x270, symBinAddr: 0xAB10, symSize: 0x1A0 }
   - { offsetInCU: 0x24D, offset: 0x5B2EA, size: 0x8, addend: 0x0, symName: '_$s23OneSignalLiveActivities12RequestCacheC4save33_9035E19291092A113A0A0800D9696186LLyyF', symObjAddr: 0x410, symBinAddr: 0xACB0, symSize: 0x6A8 }

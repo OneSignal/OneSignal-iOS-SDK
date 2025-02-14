@@ -1,6 +1,6 @@
 ---
 triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalOSCore/InstallationBuildProductsLocation/Library/Frameworks/OneSignalOSCore.framework/OneSignalOSCore'
+binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalOSCore/InstallationBuildProductsLocation/Library/Frameworks/OneSignalOSCore.framework/OneSignalOSCore'
 relocations:
   - { offsetInCU: 0x4F, offset: 0x55E05, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore15OSOperationRepoC14sharedInstanceACvpZ', symObjAddr: 0x4D70, symBinAddr: 0x1EA38, symSize: 0x0 }
   - { offsetInCU: 0x7A, offset: 0x55E30, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore15OSOperationRepoCACycfC', symObjAddr: 0x30, symBinAddr: 0x50F0, symSize: 0x20 }
