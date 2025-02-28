@@ -36,7 +36,9 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
     var token: String
     var shouldForgetWhenSuccessful: Bool = false
 
+    /// Needs `onesignal_id` without JWT on or `external_id` with valid JWT to send this request
     func prepareForExecution() -> Bool {
+        print("💛 OSRequestSetUpdateToken.prepare() called")
         guard let appId = OneSignalConfigManager.getAppId() else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null app ID.")
             return false
@@ -52,10 +54,27 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
             return false
         }
 
+
+        guard let alias = OneSignalUserManagerImpl.sharedInstance.getAliasForCurrentUser() else {
+            // TODO: Handle
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null alias.")
+            return false
+        }
+        
+        guard let header = OneSignalUserManagerImpl.sharedInstance.getCurrentUserFullHeader() else {
+            // TODO: Handle
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to invalid headers.")
+            return false
+        }
+        
         // self.path = "apps/\(appId)/activities/tokens/update/\(activityId)/subscriptions/\(subscriptionId)"
         // self.parameters = ["token": self.token, "device_type": 0]
-        self.path = "apps/\(appId)/live_activities/\(activityId)/token"
+        // POST /users/by/:alias_label/:alias_id/live_activities/:activity_id/token
+
+        // OLD PATH: self.path = "apps/\(appId)/live_activities/\(activityId)/token"
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/live_activities/\(activityId)/token"
         self.parameters = ["subscription_id": subscriptionId, "push_token": self.token, "device_type": 0]
+        self.additionalHeaders = header
         self.method = POST
 
         return true
