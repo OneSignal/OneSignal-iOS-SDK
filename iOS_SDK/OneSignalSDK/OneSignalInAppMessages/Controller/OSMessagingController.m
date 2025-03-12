@@ -165,7 +165,7 @@ static dispatch_once_t once;
     return sharedInstance;
 }
 
-// TODO: Used by tests only? Come back and see if this is needed.
+/// Note: This method is used in tests only.
 + (void)removeInstance {
     sharedInstance = nil;
     once = 0;

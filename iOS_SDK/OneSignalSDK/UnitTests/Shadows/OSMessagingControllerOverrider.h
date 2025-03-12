@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)resetState;
 - (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action;
+- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
 - (void)persistInAppMessageForRedisplay:(OSInAppMessageInternal *)message;
 - (void)messageViewControllerWasDismissed:(OSInAppMessageInternal *)message displayed:(BOOL)displayed;
 - (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator;

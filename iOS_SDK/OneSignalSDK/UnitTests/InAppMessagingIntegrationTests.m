@@ -117,7 +117,7 @@
 
 //     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
 
-//     [OSMessagingController.sharedInstance resetState];
+//     [OSMessagingController.sharedInstance in];
 
 //     NSTimerOverrider.shouldScheduleTimers = true;
 // }

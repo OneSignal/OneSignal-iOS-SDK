@@ -48,6 +48,27 @@ final class IAMIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws { }
 
+     /*
+      
+          - (void)testPreviewIAMIsDisplayedOnPause {
+         [OneSignal pauseInAppMessages:true];
+        
+         let message = [OSInAppMessageTestHelper testMessageWithPreview];
+        
+         [self initOneSignalWithInAppMessage:message];
+
+         XCTAssertTrue(OSMessagingControllerOverrider.isInAppMessageShowing);
+     }
+      */
+
+    
+    /**
+     Test IAMs should display even when IAMs are paused.
+     */
+    func testPreviewIAMIsDisplayedOnPause() throws {
+        OneSignalInAppMessages.__paused(true)
+    }
+    
     /**
      Pausing IAMs will not evaluate messages.
      */
@@ -64,8 +85,8 @@ final class IAMIntegrationTests: XCTestCase {
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
 
         // 3. Set up mock responses for fetching IAMs
-        let message = IAMTestHelpers.testMessageJsonWithTrigger(property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
-        let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message])
+        let message = IAMTestHelpers.messageWithTriggerJson(property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
+        let response = IAMTestHelpers.fetchMessagesResponse(messages: [message])
         client.setMockResponseForRequest(
             request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/\(testPushSubId)/iams>",
             response: response)
