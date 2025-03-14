@@ -39,8 +39,8 @@ jobs:
         with:
           create-keychain: false # do not create a new keychain for this value
           keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
-          p12-file-base64: ${{ secrets.DEV_CERTIFICATES_P12 }}
-          p12-password: ${{ secrets.DEV_CERTIFICATES_P12_PASSWORD }}
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       # - name: Bump Version Number
       #   run: |
       - name: Build Binaries
