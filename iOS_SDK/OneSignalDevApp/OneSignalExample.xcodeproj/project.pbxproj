@@ -569,7 +569,6 @@
 				TargetAttributes = {
 					9112E8811E724C320022A1CB = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 99SW8E36CT;
 						LastSwiftMigration = 1320;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -586,7 +585,6 @@
 					};
 					9150E7711E73BEDC00C5D46A = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 99SW8E36CT;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -873,7 +871,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				CURRENT_PROJECT_VERSION = 1.4.4;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = J3J28YJX9L;
 				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -887,7 +885,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios";
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -905,7 +903,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				CURRENT_PROJECT_VERSION = 1.4.4;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = J3J28YJX9L;
 				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -919,7 +917,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios";
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -934,7 +932,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1.4.4;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = J3J28YJX9L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -947,7 +945,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios.OneSignalNotificationServiceExtensionA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -961,7 +959,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CURRENT_PROJECT_VERSION = 1.4.4;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = J3J28YJX9L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -975,7 +973,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios.OneSignalNotificationServiceExtensionA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -1115,7 +1113,7 @@
 				MARKETING_VERSION = 1.4.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios.Clip";
 				PRODUCT_NAME = OneSignalExampleClip;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1153,7 +1151,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.test-ios.Clip";
 				PRODUCT_NAME = OneSignalExampleClip;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
