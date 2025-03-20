@@ -66,7 +66,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (NSString* _Nonnull)sdkSemanticVersion;
 
 #pragma mark User
-+ (id<OSUser>)User NS_REFINED_FOR_SWIFT;
+//+ (id<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
@@ -80,7 +80,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Live Activity
-+ (Class<OSLiveActivities>)LiveActivities NS_REFINED_FOR_SWIFT;
+//+ (Class<OSLiveActivities>)LiveActivities NS_REFINED_FOR_SWIFT;
 
 #pragma mark Logging
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
