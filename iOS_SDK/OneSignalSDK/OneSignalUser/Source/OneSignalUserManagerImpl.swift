@@ -75,6 +75,15 @@ import OneSignalNotifications
     func removeSms(_ number: String)
     // Language
     func setLanguage(_ language: String)
+    // Events
+    /**
+     Track an event performed by the current user.
+     - Parameters:
+        - name: Name of the event, e.g., 'Started Free Trial'
+        - properties: Optional properties specific to the event. For example, an event with the name 'Started Free Trial' might have properties like promo code used or expiration date.
+     */
+    func trackEvent(name: String, properties: [String: Any]?)
+    // ^ TODO: After alpha feedback, confirm value type for properties dict
     // JWT Token Expire
     typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
     typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
@@ -183,6 +192,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var propertyExecutor: OSPropertyOperationExecutor?
     var identityExecutor: OSIdentityOperationExecutor?
     var subscriptionExecutor: OSSubscriptionOperationExecutor?
+    var customEventsExecutor: OSCustomEventsExecutor?
 
     private override init() {
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
@@ -231,12 +241,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
         let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
         let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
+        let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
         self.propertyExecutor = propertyExecutor
         self.identityExecutor = identityExecutor
         self.subscriptionExecutor = subscriptionExecutor
+        self.customEventsExecutor = customEventsExecutor
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+        OSOperationRepo.sharedInstance.addExecutor(customEventsExecutor)
 
         // Path 2. There is a legacy player to migrate
         if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
@@ -794,6 +807,32 @@ extension OneSignalUserManagerImpl: OSUser {
         }
 
         user.setLanguage(language)
+    }
+
+    public func trackEvent(name: String, properties: [String: Any]?) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "trackEvent") else {
+            return
+        }
+
+        let processedProperties = properties ?? [:]
+
+        // Make sure the properties are serializable as JSON object
+        guard JSONSerialization.isValidJSONObject(processedProperties) else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "trackEvent called with invalid properties \(processedProperties), dropping this event.")
+            return
+        }
+
+        // Get the identity model of the current user
+        let identityModel = user.identityModel
+
+        let delta = OSDelta(
+            name: OS_CUSTOM_EVENT_DELTA,
+            identityModelId: identityModel.modelId,
+            model: identityModel,
+            property: name,
+            value: processedProperties
+        )
+        OSOperationRepo.sharedInstance.enqueueDelta(delta)
     }
 }
 

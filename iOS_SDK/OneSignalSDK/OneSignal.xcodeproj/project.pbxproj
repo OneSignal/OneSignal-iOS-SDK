@@ -91,6 +91,8 @@
 		3C6299A92BEEA46C00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299AB2BEEA4C000649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */; };
 		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
+		3C68EFE52D93195E00F0896B /* OSCustomEventsExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */; };
+		3C68EFE72D931BA600F0896B /* OSRequestCustomEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */; };
 		3C70FA672D0B68A100031066 /* OneSignalClientError.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C70FA652D0B68A100031066 /* OneSignalClientError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C70FA682D0B68A100031066 /* OneSignalClientError.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C70FA662D0B68A100031066 /* OneSignalClientError.m */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
@@ -1265,6 +1267,8 @@
 		3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
+		3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCustomEventsExecutor.swift; sourceTree = "<group>"; };
+		3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestCustomEvents.swift; sourceTree = "<group>"; };
 		3C70FA652D0B68A100031066 /* OneSignalClientError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientError.h; sourceTree = "<group>"; };
 		3C70FA662D0B68A100031066 /* OneSignalClientError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientError.m; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -2140,6 +2144,7 @@
 			isa = PBXGroup;
 			children = (
 				3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */,
+				3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */,
 				3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */,
 				3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */,
 				3C9AD6BB2B2285FB00BC1540 /* OSUserExecutor.swift */,
@@ -2162,6 +2167,7 @@
 				3C9AD6C62B228A9800BC1540 /* OSRequestTransferSubscription.swift */,
 				3C9AD6C02B22886600BC1540 /* OSRequestUpdateSubscription.swift */,
 				3C9AD6C42B228A7300BC1540 /* OSRequestDeleteSubscription.swift */,
+				3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -4394,8 +4400,10 @@
 				3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */,
 				3CEE90A72BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift in Sources */,
 				3C9AD6C12B22886600BC1540 /* OSRequestUpdateSubscription.swift in Sources */,
+				3C68EFE72D931BA600F0896B /* OSRequestCustomEvents.swift in Sources */,
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
+				3C68EFE52D93195E00F0896B /* OSCustomEventsExecutor.swift in Sources */,
 				3C9AD6CB2B228B5200BC1540 /* OSRequestIdentifyUser.swift in Sources */,
 				3C9AD6BC2B2285FB00BC1540 /* OSUserExecutor.swift in Sources */,
 				3C9AD6C32B22887700BC1540 /* OSRequestCreateUser.swift in Sources */,
