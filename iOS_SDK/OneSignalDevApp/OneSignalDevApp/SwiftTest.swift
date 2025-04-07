@@ -39,4 +39,43 @@ class SwiftTest: NSObject, OSLogListener {
         OneSignal.Debug.addLogListener(self)
         OneSignal.Debug.removeLogListener(self)
     }
+
+    /**
+     Track multiple events with different properties.
+     Properties must pass `JSONSerialization.isValidJSONObject` to be accepted.
+     */
+    @objc
+    static func trackCustomEvents() {
+        print("Dev App: track an event with nil properties")
+        OneSignal.User.trackEvent(name: "null properties", properties: nil)
+
+        print("Dev App: track an event with empty properties")
+        OneSignal.User.trackEvent(name: "empty properties", properties: [:])
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+
+        let mixedTypes = [
+            "string": "somestring",
+            "number": 5,
+            "bool": false,
+            "dateStr": formatter.string(from: Date())
+        ] as [String: Any]
+
+        let nestedDict = [
+            "someDict": mixedTypes,
+            "anotherDict": [
+                "foo": "bar",
+                "booleanVal": true,
+                "float": Float("3.14")!
+            ]
+        ]
+        let invalidProperties = ["date": Date()]
+
+        print("Dev App: track an event with a valid nested dictionary")
+        OneSignal.User.trackEvent(name: "nested dictionary", properties: nestedDict)
+
+        print("Dev App: track an event with invalid dictionary types")
+        OneSignal.User.trackEvent(name: "invalid dictionary", properties: invalidProperties)
+    }
 }
