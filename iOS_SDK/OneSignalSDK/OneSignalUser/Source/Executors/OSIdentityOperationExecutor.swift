@@ -30,11 +30,11 @@ import OneSignalCore
 
 class OSIdentityOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_ADD_ALIAS_DELTA, OS_REMOVE_ALIAS_DELTA]
-    var deltaQueue: [OSDelta] = []
+    private var deltaQueue: [OSDelta] = []
     // To simplify uncaching, we maintain separate request queues for each type
-    var addRequestQueue: [OSRequestAddAliases] = []
-    var removeRequestQueue: [OSRequestRemoveAlias] = []
-    let newRecordsState: OSNewRecordsState
+    private var addRequestQueue: [OSRequestAddAliases] = []
+    private var removeRequestQueue: [OSRequestRemoveAlias] = []
+    private let newRecordsState: OSNewRecordsState
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
@@ -168,7 +168,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
-    func processRequestQueue(inBackground: Bool) {
+    private func processRequestQueue(inBackground: Bool) {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue
 
         if requestQueue.isEmpty {
