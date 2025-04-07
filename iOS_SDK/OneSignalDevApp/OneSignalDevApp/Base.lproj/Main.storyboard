@@ -501,8 +501,8 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xRQ-ep-yvV" userLabel="Clear All Button">
-                                                <rect key="frame" x="140" y="1762" width="148" height="30"/>
+                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xRQ-ep-yvV" userLabel="Clear All Button">
+                                                <rect key="frame" x="115" y="1763" width="148" height="30"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Clear All Notifications"/>
                                                 <connections>
@@ -526,6 +526,15 @@
                                                 <state key="normal" title="Require"/>
                                                 <connections>
                                                     <action selector="requireConsent:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vxn-ST-TBu"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Aea-nN-qtb" userLabel="Custom Events Button">
+                                                <rect key="frame" x="114" y="1808" width="145" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Track Custom Events"/>
+                                                <connections>
+                                                    <action selector="trackCustomEvents:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4Fa-IJ-LJT"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -760,7 +769,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

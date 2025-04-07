@@ -277,4 +277,15 @@
     [OneSignal setConsentRequired:false];
 }
 
+- (IBAction)trackCustomEvents:(id)sender {    
+    NSLog(@"Dev App: adding custom events");
+    [OneSignal.User trackEventWithName:@"simple event" properties:@{@"foobarbaz": @"foobarbaz"}];
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    dict[@"dict"] = @{@"abc" : @"def"};
+    dict[@"false"] = false;
+    dict[@"int"] = @99;
+    [OneSignal.User trackEventWithName:@"complex event" properties:dict];
+    [SwiftTest trackCustomEvents];
+}
+
 @end
