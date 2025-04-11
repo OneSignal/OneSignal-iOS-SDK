@@ -208,7 +208,9 @@
         
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request (%@) with URL %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, request.additionalHeaders]];
 
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
+        if (![@"OSRequestLoadInAppMessageContent"  isEqual:NSStringFromClass([request class])]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
+        }
         if (jsonError) {
             if (failureBlock != nil)
                 failureBlock([[OneSignalClientError alloc] initWithCode:statusCode message:@"Error parsing JSON" responseHeaders:headers response:nil underlyingError:jsonError]);

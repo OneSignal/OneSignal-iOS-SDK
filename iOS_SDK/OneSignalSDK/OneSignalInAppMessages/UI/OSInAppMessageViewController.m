@@ -250,7 +250,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             }
             
             let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"html"]];
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:message];
+            // [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:message];
             
             if (!self.message.isPreview)
                 [[OSSessionManager sharedSessionManager] onInAppMessageReceived:self.message.messageId];

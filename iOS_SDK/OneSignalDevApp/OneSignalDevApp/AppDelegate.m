@@ -62,7 +62,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setProvidesNotificationSettingsView:NO];
     
     [OneSignal.InAppMessages addLifecycleListener:self];
-    [OneSignal.InAppMessages paused:true];
+    [OneSignal.InAppMessages paused:false];
 
     [OneSignal.Notifications addForegroundLifecycleListener:self];
     [OneSignal.Notifications addClickListener:self];

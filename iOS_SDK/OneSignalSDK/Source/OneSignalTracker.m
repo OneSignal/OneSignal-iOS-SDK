@@ -90,7 +90,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationBackgrounded {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"💛 Application Backgrounded started"];
     [self updateLastClosedTime];
     
     let timeElapsed = [OSSessionManager.sharedSessionManager getTimeFocusedElapsed];
@@ -112,7 +112,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 // Note: This is not from app backgrounding
 // The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"💛 onSessionEnded started"];
     let timeElapsed = [OSSessionManager.sharedSessionManager getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
