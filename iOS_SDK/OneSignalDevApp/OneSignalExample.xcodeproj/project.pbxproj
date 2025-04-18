@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		3C448BA429381303002F96BC /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C448BA329381303002F96BC /* OneSignalNotifications.framework */; };
 		3C448BA529381303002F96BC /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C448BA329381303002F96BC /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C79A42C2DB2B3170097BC13 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3C79A42A2DB2B3170097BC13 /* click.wav */; };
+		3C79A42D2DB2B3170097BC13 /* bark.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3C79A4292DB2B3170097BC13 /* bark.wav */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
@@ -182,6 +184,8 @@
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3C448BA329381303002F96BC /* OneSignalNotifications.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalNotifications.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C79A4292DB2B3170097BC13 /* bark.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bark.wav; sourceTree = "<group>"; };
+		3C79A42A2DB2B3170097BC13 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		47AE654F2B7D3DB2006EBAA9 /* OneSignalLiveActivities.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalLiveActivities.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -330,6 +334,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3C79A42B2DB2B3170097BC13 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				3C79A4292DB2B3170097BC13 /* bark.wav */,
+				3C79A42A2DB2B3170097BC13 /* click.wav */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 		9112E8791E724C320022A1CB = {
 			isa = PBXGroup;
 			children = (
@@ -373,6 +386,7 @@
 				DEC08AFC2947CE3000C81DA3 /* SwiftTest.swift */,
 				DEC08AFE2947CED000C81DA3 /* OneSignalExample-Bridging-Header.h */,
 				47AE65562B7D4157006EBAA9 /* ExampleAppWidgetAttributes.swift */,
+				3C79A42B2DB2B3170097BC13 /* Sounds */,
 			);
 			path = OneSignalDevApp;
 			sourceTree = "<group>";
@@ -636,6 +650,8 @@
 				4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */,
 				9112E8921E724C320022A1CB /* Assets.xcassets in Resources */,
 				9112E8901E724C320022A1CB /* Main.storyboard in Resources */,
+				3C79A42C2DB2B3170097BC13 /* click.wav in Resources */,
+				3C79A42D2DB2B3170097BC13 /* bark.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
