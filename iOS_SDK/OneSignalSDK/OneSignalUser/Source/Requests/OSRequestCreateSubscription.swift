@@ -61,7 +61,38 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
-        self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
+        //self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
+        self.parameters = [
+            "events": [
+                [
+                    "external_id": "nan01",
+                    "type": "iOSPush",
+                    "payload": [
+                        "dict": [
+                            "string": "somestring",
+                            "number": 5,
+                            "bool": false,
+                            "dateStr": "07/04/2025"
+                        ],
+                        "os_sdk": [
+                            "type": "iOSPush",
+                            "device_model": "Simulator iPhone",
+                            "device_type": "ios",
+                            "app_version": "1.4.4",
+                            "sdk": "050210",
+                            "device_os": "18.1"
+                        ],
+                        "anotherDict": [
+                            "foo": "bar",
+                            "booleanVal": true,
+                            "float": 3.1400001049041748
+                        ]
+                    ],
+                    "timestamp": "2025-04-07T17:38:14Z",
+                    "name": "event with nested dictionary"
+                ]
+            ]
+        ]
         self.method = POST
     }
 
