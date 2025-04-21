@@ -52,7 +52,8 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
             return false
         }
 
-        self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/subscriptions"
+        // self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/subscriptions"
+        self.path = "apps/\(appId)/integrations/custom_events"
         return true
     }
 
@@ -65,8 +66,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = [
             "events": [
                 [
-                    "external_id": "nan01",
-                    "type": "iOSPush",
+                    "external_id": "adsfasdf",
                     "payload": [
                         "dict": [
                             "string": "somestring",
