@@ -31,6 +31,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     let storeKey: String
     let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
     var models: [String: TModel]
+    let lock = NSLock()
 
     public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>, storeKey: String) {
         self.storeKey = storeKey
@@ -67,67 +68,76 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      Examples:  "person@example.com" for a subscription model or `OS_IDENTITY_MODEL_KEY` for an identity model.
      */
     public func getModel(key: String) -> TModel? {
-        return self.models[key]
+        lock.withLock {
+            return self.models[key]
+        }
     }
 
     /**
      Uses the `modelId` to get the corresponding model in the store's models dictionary.
      */
     public func getModel(modelId: String) -> TModel? {
-        for model in models.values {
-            if model.modelId == modelId {
-                return model
+        lock.withLock {
+            for model in models.values {
+                if model.modelId == modelId {
+                    return model
+                }
             }
+            return nil
         }
-        return nil
     }
 
     public func getModels() -> [String: TModel] {
-        return self.models
+        lock.withLock {
+            return self.models
+        }
     }
 
     public func add(id: String, model: TModel, hydrating: Bool) {
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
             // Check API endpoint for behavior
-        models[id] = model
+        lock.withLock {
+            models[id] = model
 
-        // persist the models (including new model) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+            // persist the models (including new model) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
-        // listen for changes to this model
-        model.changeNotifier.subscribe(self)
+            // listen for changes to this model
+            model.changeNotifier.subscribe(self)
 
-        guard !hydrating else {
-            return
-        }
+            guard !hydrating else {
+                return
+            }
 
-        self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.onAdded(model)
+            self.changeSubscription.fire { modelStoreListener in
+                modelStoreListener.onAdded(model)
+            }
         }
     }
 
     /**
-     Returns false if this model does not exist in the store.
+     Nothing will happen if this model does not exist in the store.
      This can happen if remove email or SMS is called and it doesn't exist in the store.
      */
     public func remove(_ id: String) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
-        // TODO: Nothing will happen if model doesn't exist in the store
-        if let model = models[id] {
-            models.removeValue(forKey: id)
+        lock.withLock {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
+            if let model = models[id] {
+                models.removeValue(forKey: id)
 
-            // persist the models (with removed model) to storage
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+                // persist the models (with removed model) to storage
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
-            // no longer listen for changes to this model
-            model.changeNotifier.unsubscribe(self)
+                // no longer listen for changes to this model
+                model.changeNotifier.unsubscribe(self)
 
-            self.changeSubscription.fire { modelStoreListener in
-                modelStoreListener.onRemoved(model)
+                self.changeSubscription.fire { modelStoreListener in
+                    modelStoreListener.onRemoved(model)
+                }
+            } else {
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
             }
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
         }
     }
 
@@ -146,20 +156,24 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
      */
     public func clearModelsFromStore() {
-        self.models = [:]
+        lock.withLock {
+            self.models = [:]
+        }
     }
 }
 
 extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
         // persist the changed models to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+        lock.withLock {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
-        guard !hydrating else {
-            return
-        }
-        self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.onUpdated(args)
+            guard !hydrating else {
+                return
+            }
+            self.changeSubscription.fire { modelStoreListener in
+                modelStoreListener.onUpdated(args)
+            }
         }
     }
 }
