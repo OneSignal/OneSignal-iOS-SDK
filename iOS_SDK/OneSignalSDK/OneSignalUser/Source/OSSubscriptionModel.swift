@@ -117,13 +117,19 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    // Set via server response
+    /**
+     Typically, the subscription ID is set via server response, so don't trigger a server update call when it changes.
+     It can also be set to null by the SDK when the user or subscription is detected as missing.
+     Setting the subscription ID to null will serve as a "reset" and will later hydrate a value from a user create rquest.
+     */
     var subscriptionId: String? {
         didSet {
             guard subscriptionId != oldValue else {
                 return
             }
-            self.set(property: "subscriptionId", newValue: subscriptionId)
+
+            // If the ID has changed, don't trigger a server call, since it can be set to null
+            self.set(property: "subscriptionId", newValue: subscriptionId, preventServerUpdate: true)
 
             guard self.type == .push else {
                 return

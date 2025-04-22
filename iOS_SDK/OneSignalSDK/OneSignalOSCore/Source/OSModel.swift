@@ -52,11 +52,11 @@ open class OSModel: NSObject, NSCoding {
     }
 
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"
-    public func set<T>(property: String, newValue: T) {
+    public func set<T>(property: String, newValue: T, preventServerUpdate: Bool = false) {
         let changeArgs = OSModelChangedArgs(model: self, property: property, newValue: newValue)
 
         changeNotifier.fire { modelChangeHandler in
-            modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating)
+            modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating || preventServerUpdate)
         }
     }
 
