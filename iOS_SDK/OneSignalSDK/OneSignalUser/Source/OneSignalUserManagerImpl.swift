@@ -122,6 +122,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
+    private let startQueue = DispatchQueue(label: "com.onesignal.user.start")
     var hasCalledStart = false
 
     private var jwtExpiredHandler: OSJwtExpiredHandler?
@@ -192,71 +193,78 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
     }
 
-    // TODO: This method is called A LOT, check if all calls are needed.
     @objc
     public func start() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        guard !hasCalledStart else {
-            return
-        }
 
-        hasCalledStart = true
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
+        // Use a serial queue to make the start process atomic
+        startQueue.sync {
+            guard !hasCalledStart else {
+                return
+            }
 
-        OSNotificationsManager.delegate = self
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
 
-        var hasCachedUser = false
+            OSNotificationsManager.delegate = self
 
-        // Path 1. Load user from cache, if any
-        // Corrupted state if any of these models exist without the others
-        if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
-           let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
-           let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
-            hasCachedUser = true
-            _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
-            addIdentityModelToRepo(identityModel)
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
-        }
+            var hasCachedUser = false
 
-        // TODO: Update the push sub model with any new state from NotificationsManager
+            // Path 1. Load user from cache, if any
+            // Corrupted state if any of these models exist without the others
+            if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
+               let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
+               let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+                hasCachedUser = true
+                _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+                addIdentityModelToRepo(identityModel)
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
+            }
 
-        // Setup the executors
-        // The OSUserExecutor has to run first, before other executors
-        self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
-        OSOperationRepo.sharedInstance.start()
+            // TODO: Update the push sub model with any new state from NotificationsManager
 
-        // Cannot initialize these executors in `init` as they reference the sharedInstance
-        let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
-        let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
-        let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
-        self.propertyExecutor = propertyExecutor
-        self.identityExecutor = identityExecutor
-        self.subscriptionExecutor = subscriptionExecutor
-        OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
-        OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
-        OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+            // Setup the executors
+            // The OSUserExecutor has to run first, before other executors
+            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
+            OSOperationRepo.sharedInstance.start()
 
-        // Path 2. There is a legacy player to migrate
-        if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
-            createUserFromLegacyPlayer(legacyPlayerId)
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
-            OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
-            OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
-        } else {
-            // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
-            createUserIfNil()
-        }
+            // Cannot initialize these executors in `init` as they reference the sharedInstance
+            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
+            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
+            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
+            self.propertyExecutor = propertyExecutor
+            self.identityExecutor = identityExecutor
+            self.subscriptionExecutor = subscriptionExecutor
+            OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
+            OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
+            OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
 
-        // Model store listeners subscribe to their models
-        identityModelStoreListener.start()
-        propertiesModelStoreListener.start()
-        subscriptionModelStoreListener.start()
-        pushSubscriptionModelStoreListener.start()
-        if hasCachedUser {
-            _user?.update()
+            // Path 2. There is a legacy player to migrate
+            if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
+                createUserFromLegacyPlayer(legacyPlayerId)
+                OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
+                OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+                OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+            } else {
+                // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
+                if _user == nil {
+                    // There is no user instance, initialize a "guest user"
+                    let user = createNewUser(externalId: nil, token: nil)
+                    _user = user
+                }
+            }
+
+            // Model store listeners subscribe to their models
+            identityModelStoreListener.start()
+            propertiesModelStoreListener.start()
+            subscriptionModelStoreListener.start()
+            pushSubscriptionModelStoreListener.start()
+            if hasCachedUser {
+                _user?.update()
+            }
+            hasCalledStart = true
         }
     }
 
@@ -303,7 +311,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      Migrating a legacy player does not result in a Create User call, but certain local data should be sent manually.
      */
     private func updateLegacyPlayer(_ user: OSUserInternal) {
-        if let timezoneId = user.propertiesModel.timezoneId {
+        if let timezoneId = _user?.propertiesModel.timezoneId {
             updatePropertiesDeltas(property: .timezone_id, value: timezoneId)
         }
     }
@@ -331,7 +339,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         newUser.identityModel.jwtBearerToken = token
         userExecutor!.createUser(newUser)
-        return self.user
+        return newUser
     }
 
     /**
@@ -478,8 +486,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription, hydrating: false)
         }
 
-        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
-        return self.user
+        let newUser = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        _user = newUser
+        return newUser
     }
 
     /**
@@ -582,6 +591,10 @@ extension OneSignalUserManagerImpl {
     /// May be `.timezone_id` or others if the SDK is sending an update for a legacy player.
     func updatePropertiesDeltas(property: OSPropertiesSupportedProperty, value: Any, flush: Bool = false) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updatePropertiesDeltas") else {
+            return
+        }
+
+        guard let user = _user else {
             return
         }
 
