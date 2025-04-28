@@ -137,9 +137,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         // There is no user instance, initialize a "guest user"
-        let user = _login(externalId: nil, token: nil)
-        _user = user
-        return user
+        return createNewUser(externalId: nil, token: nil)
     }
 
     var _user: OSUserInternal?
@@ -251,8 +249,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
                 if _user == nil {
                     // There is no user instance, initialize a "guest user"
-                    let user = createNewUser(externalId: nil, token: nil)
-                    _user = user
+                    _ = createNewUser(externalId: nil, token: nil)
                 }
             }
 
@@ -287,7 +284,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
-        _ = _login(externalId: externalId, token: token)
+
+        // Logging into an identified user from an anonymous user
+        if let user = _user, user.isAnonymous {
+            user.identityModel.jwtBearerToken = token
+            identifyUser(externalId: externalId, currentUser: user)
+        } else {
+            // Logging into identified -> anon, identified -> identified, or nil -> identified
+            _ = createNewUser(externalId: externalId, token: token)
+        }
+
     }
 
     /**
@@ -395,26 +401,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // Subscription model store should be cleared completely
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
-    }
-
-    private func _login(externalId: String?, token: String?) -> OSUserInternal {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
-            return _mockUser
-        }
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager internal _login called with externalId: \(externalId ?? "nil")")
-
-        // If have token, validate token. Account for this being a requirement.
-        // Logging into an identified user from an anonymous user
-        if let externalId = externalId,
-           let user = _user,
-           user.isAnonymous {
-            user.identityModel.jwtBearerToken = token
-            identifyUser(externalId: externalId, currentUser: user)
-            return self.user
-        }
-
-        // Logging into anon -> anon, identified -> anon, identified -> identified, or nil -> any user
-        return createNewUser(externalId: externalId, token: token)
     }
 
     /**
