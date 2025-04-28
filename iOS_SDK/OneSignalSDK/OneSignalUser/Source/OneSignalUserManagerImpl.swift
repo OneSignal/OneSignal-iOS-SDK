@@ -408,6 +408,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     @objc
     public func logout() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "logout") else {
+            return
+        }
         guard user.identityModel.externalId != nil else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.User logout called, but the user is currently anonymous, so not logging out.")
             return
