@@ -217,7 +217,6 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             for await activityState in activity.activityStateUpdates {
                 switch activityState {
                 case .dismissed:
-                    OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
                 case .active: break
                 case .ended: break
                 case .stale: break
