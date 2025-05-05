@@ -43,7 +43,7 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
            let appId = OneSignalConfigManager.getAppId()
         {
             _ = self.addPushSubscriptionIdToAdditionalHeaders()
-            self.path = "apps/\(appId)/integrations/custom_events"
+            self.path = "apps/\(appId)/integrations/sdk/custom_events"
             return true
         } else {
             return false
