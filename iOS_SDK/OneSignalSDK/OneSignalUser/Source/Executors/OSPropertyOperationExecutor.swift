@@ -62,9 +62,9 @@ private struct OSCombinedProperties {
 
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
-    var deltaQueue: [OSDelta] = []
-    var updateRequestQueue: [OSRequestUpdateProperties] = []
-    let newRecordsState: OSNewRecordsState
+    private var deltaQueue: [OSDelta] = []
+    private var updateRequestQueue: [OSRequestUpdateProperties] = []
+    private let newRecordsState: OSNewRecordsState
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
@@ -221,7 +221,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
-    func processRequestQueue(inBackground: Bool) {
+    private func processRequestQueue(inBackground: Bool) {
         if updateRequestQueue.isEmpty {
             return
         }

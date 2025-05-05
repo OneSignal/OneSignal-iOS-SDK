@@ -78,6 +78,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *activityId;
 
 @property (weak, nonatomic) IBOutlet UITextField *languageTextField;
+@property (weak, nonatomic) IBOutlet UITextField *customEventsTextField;
 
 @end
 
