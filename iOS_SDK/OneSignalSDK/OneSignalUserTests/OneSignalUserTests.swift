@@ -74,6 +74,8 @@ final class OneSignalUserTests: XCTestCase {
     func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
         /* Setup */
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+
         let client = MockOneSignalClient()
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         OneSignalCoreImpl.setSharedClient(client)

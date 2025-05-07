@@ -278,4 +278,13 @@ final class UserConcurrencyTests: XCTestCase {
             identityModel.clearData()
         }
     }
+
+    func testConcurrentStart() throws {
+        DispatchQueue.concurrentPerform(iterations: 5_000) { _ in
+            OneSignalUserManagerImpl.sharedInstance.start()
+        }
+        DispatchQueue.concurrentPerform(iterations: 5_000) { _ in
+            _ = OneSignalUserManagerImpl.sharedInstance.user
+        }
+    }
 }
