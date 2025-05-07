@@ -2,254 +2,255 @@
 triple:          'arm64-apple-darwin'
 binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalFramework/InstallationBuildProductsLocation/Library/Frameworks/OneSignalFramework.framework/OneSignalFramework'
 relocations:
-  - { offsetInCU: 0x27, offset: 0xAF0CE, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x479C, symSize: 0xC }
-  - { offsetInCU: 0x6D, offset: 0xAF114, size: 0x8, addend: 0x0, symName: '+[OneSignal shouldStartNewSession]', symObjAddr: 0x8DC, symBinAddr: 0x5078, symSize: 0x19C }
-  - { offsetInCU: 0x157, offset: 0xAF1FE, size: 0x8, addend: 0x0, symName: __delayedInitParameters, symObjAddr: 0xB1A0, symBinAddr: 0x1AD58, symSize: 0x0 }
-  - { offsetInCU: 0x1A1, offset: 0xAF248, size: 0x8, addend: 0x0, symName: _launchOptions, symObjAddr: 0xB1B8, symBinAddr: 0x1AD80, symSize: 0x0 }
-  - { offsetInCU: 0x1B7, offset: 0xAF25E, size: 0x8, addend: 0x0, symName: _initializationTime, symObjAddr: 0xB1C8, symBinAddr: 0x1AD90, symSize: 0x0 }
-  - { offsetInCU: 0x1D4, offset: 0xAF27B, size: 0x8, addend: 0x0, symName: __receiveReceiptsController, symObjAddr: 0xB1B0, symBinAddr: 0x1AD78, symSize: 0x0 }
-  - { offsetInCU: 0x1EF, offset: 0xAF296, size: 0x8, addend: 0x0, symName: __didCallDownloadParameters, symObjAddr: 0xB1A8, symBinAddr: 0x1AD70, symSize: 0x0 }
-  - { offsetInCU: 0x213, offset: 0xAF2BA, size: 0x8, addend: 0x0, symName: __downloadedParameters, symObjAddr: 0xB1A9, symBinAddr: 0x1AD71, symSize: 0x0 }
-  - { offsetInCU: 0x230, offset: 0xAF2D7, size: 0x8, addend: 0x0, symName: _initDone, symObjAddr: 0xB1C0, symBinAddr: 0x1AD88, symSize: 0x0 }
-  - { offsetInCU: 0x24D, offset: 0xAF2F4, size: 0x8, addend: 0x0, symName: _registeredWithApple, symObjAddr: 0xB1C1, symBinAddr: 0x1AD89, symSize: 0x0 }
-  - { offsetInCU: 0x263, offset: 0xAF30A, size: 0x8, addend: 0x0, symName: _delayedInitializationForPrivacyConsent, symObjAddr: 0xB1D0, symBinAddr: 0x1AD98, symSize: 0x0 }
-  - { offsetInCU: 0x369, offset: 0xAF410, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x479C, symSize: 0xC }
-  - { offsetInCU: 0x39C, offset: 0xAF443, size: 0x8, addend: 0x0, symName: '+[OneSignal didCallDownloadParameters]', symObjAddr: 0xC, symBinAddr: 0x47A8, symSize: 0xC }
-  - { offsetInCU: 0x3CF, offset: 0xAF476, size: 0x8, addend: 0x0, symName: '+[OneSignal downloadedParameters]', symObjAddr: 0x18, symBinAddr: 0x47B4, symSize: 0xC }
-  - { offsetInCU: 0x402, offset: 0xAF4A9, size: 0x8, addend: 0x0, symName: '+[OneSignal receiveReceiptsController]', symObjAddr: 0x24, symBinAddr: 0x47C0, symSize: 0x44 }
-  - { offsetInCU: 0x435, offset: 0xAF4DC, size: 0x8, addend: 0x0, symName: '+[OneSignal sdkVersionRaw]', symObjAddr: 0x68, symBinAddr: 0x4804, symSize: 0xC }
-  - { offsetInCU: 0x468, offset: 0xAF50F, size: 0x8, addend: 0x0, symName: '+[OneSignal sdkSemanticVersion]', symObjAddr: 0x74, symBinAddr: 0x4810, symSize: 0xC }
-  - { offsetInCU: 0x49B, offset: 0xAF542, size: 0x8, addend: 0x0, symName: '+[OneSignal clearStatics]', symObjAddr: 0x80, symBinAddr: 0x481C, symSize: 0x70 }
-  - { offsetInCU: 0x4CA, offset: 0xAF571, size: 0x8, addend: 0x0, symName: '+[OneSignal User]', symObjAddr: 0xF0, symBinAddr: 0x488C, symSize: 0x4C }
-  - { offsetInCU: 0x4FD, offset: 0xAF5A4, size: 0x8, addend: 0x0, symName: '+[OneSignal login:]', symObjAddr: 0x13C, symBinAddr: 0x48D8, symSize: 0x6C }
-  - { offsetInCU: 0x53C, offset: 0xAF5E3, size: 0x8, addend: 0x0, symName: '+[OneSignal login:withToken:]', symObjAddr: 0x1A8, symBinAddr: 0x4944, symSize: 0x8C }
-  - { offsetInCU: 0x58B, offset: 0xAF632, size: 0x8, addend: 0x0, symName: '+[OneSignal logout]', symObjAddr: 0x234, symBinAddr: 0x49D0, symSize: 0x38 }
-  - { offsetInCU: 0x5BA, offset: 0xAF661, size: 0x8, addend: 0x0, symName: '+[OneSignal Notifications]', symObjAddr: 0x26C, symBinAddr: 0x4A08, symSize: 0xC }
-  - { offsetInCU: 0x5ED, offset: 0xAF694, size: 0x8, addend: 0x0, symName: '+[OneSignal Session]', symObjAddr: 0x278, symBinAddr: 0x4A14, symSize: 0xC }
-  - { offsetInCU: 0x620, offset: 0xAF6C7, size: 0x8, addend: 0x0, symName: '+[OneSignal InAppMessages]', symObjAddr: 0x284, symBinAddr: 0x4A20, symSize: 0xA0 }
-  - { offsetInCU: 0x68D, offset: 0xAF734, size: 0x8, addend: 0x0, symName: '+[OneSignal LiveActivities]', symObjAddr: 0x324, symBinAddr: 0x4AC0, symSize: 0xA0 }
-  - { offsetInCU: 0x6DE, offset: 0xAF785, size: 0x8, addend: 0x0, symName: '+[OneSignal Location]', symObjAddr: 0x3C4, symBinAddr: 0x4B60, symSize: 0x88 }
-  - { offsetInCU: 0x72F, offset: 0xAF7D6, size: 0x8, addend: 0x0, symName: '+[OneSignal Debug]', symObjAddr: 0x44C, symBinAddr: 0x4BE8, symSize: 0xC }
-  - { offsetInCU: 0x762, offset: 0xAF809, size: 0x8, addend: 0x0, symName: '+[OneSignal initialize:withLaunchOptions:]', symObjAddr: 0x458, symBinAddr: 0x4BF4, symSize: 0x58 }
-  - { offsetInCU: 0x7B5, offset: 0xAF85C, size: 0x8, addend: 0x0, symName: '+[OneSignal getCachedAppId]', symObjAddr: 0x4B0, symBinAddr: 0x4C4C, symSize: 0xC0 }
-  - { offsetInCU: 0x819, offset: 0xAF8C0, size: 0x8, addend: 0x0, symName: '+[OneSignal setAppId:]', symObjAddr: 0x570, symBinAddr: 0x4D0C, symSize: 0x158 }
-  - { offsetInCU: 0x87E, offset: 0xAF925, size: 0x8, addend: 0x0, symName: '+[OneSignal isValidAppId:]', symObjAddr: 0x6C8, symBinAddr: 0x4E64, symSize: 0xD4 }
-  - { offsetInCU: 0x8C3, offset: 0xAF96A, size: 0x8, addend: 0x0, symName: '+[OneSignal setLaunchOptions:]', symObjAddr: 0x79C, symBinAddr: 0x4F38, symSize: 0x100 }
-  - { offsetInCU: 0x915, offset: 0xAF9BC, size: 0x8, addend: 0x0, symName: '+[OneSignal setProvidesNotificationSettingsView:]', symObjAddr: 0x89C, symBinAddr: 0x5038, symSize: 0x40 }
-  - { offsetInCU: 0x956, offset: 0xAF9FD, size: 0x8, addend: 0x0, symName: '+[OneSignal startNewSession:]', symObjAddr: 0xA78, symBinAddr: 0x5214, symSize: 0x8C }
-  - { offsetInCU: 0x99B, offset: 0xAFA42, size: 0x8, addend: 0x0, symName: '___29+[OneSignal startNewSession:]_block_invoke', symObjAddr: 0xB04, symBinAddr: 0x52A0, symSize: 0x8 }
-  - { offsetInCU: 0x9DD, offset: 0xAFA84, size: 0x8, addend: 0x0, symName: '+[OneSignal startNewSessionInternal]', symObjAddr: 0xB0C, symBinAddr: 0x52A8, symSize: 0x1A8 }
-  - { offsetInCU: 0xA6B, offset: 0xAFB12, size: 0x8, addend: 0x0, symName: '+[OneSignal startInAppMessages]', symObjAddr: 0xCB4, symBinAddr: 0x5450, symSize: 0x5C }
-  - { offsetInCU: 0xABA, offset: 0xAFB61, size: 0x8, addend: 0x0, symName: '+[OneSignal startOutcomes]', symObjAddr: 0xD10, symBinAddr: 0x54AC, symSize: 0x40 }
-  - { offsetInCU: 0xAEA, offset: 0xAFB91, size: 0x8, addend: 0x0, symName: '+[OneSignal startLocation]', symObjAddr: 0xD50, symBinAddr: 0x54EC, symSize: 0x5C }
-  - { offsetInCU: 0xB39, offset: 0xAFBE0, size: 0x8, addend: 0x0, symName: '+[OneSignal startTrackFirebaseAnalytics]', symObjAddr: 0xDAC, symBinAddr: 0x5548, symSize: 0x38 }
-  - { offsetInCU: 0xB69, offset: 0xAFC10, size: 0x8, addend: 0x0, symName: '+[OneSignal startTrackIAP]', symObjAddr: 0xDE4, symBinAddr: 0x5580, symSize: 0x38 }
-  - { offsetInCU: 0xB99, offset: 0xAFC40, size: 0x8, addend: 0x0, symName: '+[OneSignal startLifecycleObserver]', symObjAddr: 0xE1C, symBinAddr: 0x55B8, symSize: 0xC }
-  - { offsetInCU: 0xBC9, offset: 0xAFC70, size: 0x8, addend: 0x0, symName: '+[OneSignal startUserManager]', symObjAddr: 0xE28, symBinAddr: 0x55C4, symSize: 0x44 }
-  - { offsetInCU: 0xBF9, offset: 0xAFCA0, size: 0x8, addend: 0x0, symName: '+[OneSignal startLiveActivitiesManager]', symObjAddr: 0xE6C, symBinAddr: 0x5608, symSize: 0x78 }
-  - { offsetInCU: 0xC48, offset: 0xAFCEF, size: 0x8, addend: 0x0, symName: '+[OneSignal delayInitializationForPrivacyConsent]', symObjAddr: 0xEE4, symBinAddr: 0x5680, symSize: 0xA8 }
-  - { offsetInCU: 0xC78, offset: 0xAFD1F, size: 0x8, addend: 0x0, symName: '+[OneSignal init]', symObjAddr: 0xF8C, symBinAddr: 0x5728, symSize: 0x2A4 }
-  - { offsetInCU: 0xCAC, offset: 0xAFD53, size: 0x8, addend: 0x0, symName: '+[OneSignal appGroupKey]', symObjAddr: 0x1230, symBinAddr: 0x59CC, symSize: 0xC }
-  - { offsetInCU: 0xCE0, offset: 0xAFD87, size: 0x8, addend: 0x0, symName: '+[OneSignal handleAppIdChange:]', symObjAddr: 0x123C, symBinAddr: 0x59D8, symSize: 0x1A8 }
-  - { offsetInCU: 0xD63, offset: 0xAFE0A, size: 0x8, addend: 0x0, symName: '+[OneSignal registerForAPNsToken]', symObjAddr: 0x13E4, symBinAddr: 0x5B80, symSize: 0xA0 }
-  - { offsetInCU: 0xD93, offset: 0xAFE3A, size: 0x8, addend: 0x0, symName: '+[OneSignal setConsentRequired:]', symObjAddr: 0x1484, symBinAddr: 0x5C20, symSize: 0xC }
-  - { offsetInCU: 0xDD7, offset: 0xAFE7E, size: 0x8, addend: 0x0, symName: '+[OneSignal setConsentGiven:]', symObjAddr: 0x1490, symBinAddr: 0x5C2C, symSize: 0xC0 }
-  - { offsetInCU: 0xE1C, offset: 0xAFEC3, size: 0x8, addend: 0x0, symName: '+[OneSignal downloadIOSParamsWithAppId:]', symObjAddr: 0x1550, symBinAddr: 0x5CEC, symSize: 0xBC }
-  - { offsetInCU: 0xE6E, offset: 0xAFF15, size: 0x8, addend: 0x0, symName: '___40+[OneSignal downloadIOSParamsWithAppId:]_block_invoke', symObjAddr: 0x160C, symBinAddr: 0x5DA8, symSize: 0x474 }
-  - { offsetInCU: 0xEFF, offset: 0xAFFA6, size: 0x8, addend: 0x0, symName: '___40+[OneSignal downloadIOSParamsWithAppId:]_block_invoke_2', symObjAddr: 0x1A80, symBinAddr: 0x621C, symSize: 0xC }
-  - { offsetInCU: 0xF35, offset: 0xAFFDC, size: 0x8, addend: 0x0, symName: '+[OneSignal launchWebURL:]', symObjAddr: 0x1A8C, symBinAddr: 0x6228, symSize: 0x88 }
-  - { offsetInCU: 0xFA7, offset: 0xB004E, size: 0x8, addend: 0x0, symName: '+[OneSignal didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x1B14, symBinAddr: 0x62B0, symSize: 0xC }
-  - { offsetInCU: 0xFF9, offset: 0xB00A0, size: 0x8, addend: 0x0, symName: '+[OneSignal didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x1B20, symBinAddr: 0x62BC, symSize: 0xC }
-  - { offsetInCU: 0x105A, offset: 0xB0101, size: 0x8, addend: 0x0, symName: '+[OneSignal serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x1B2C, symBinAddr: 0x62C8, symSize: 0xC }
-  - { offsetInCU: 0x10AC, offset: 0xB0153, size: 0x8, addend: 0x0, symName: '+[OneSignal sendSessionEndOutcomes:params:onSuccess:onFailure:]', symObjAddr: 0x1B38, symBinAddr: 0x62D4, symSize: 0x2F4 }
-  - { offsetInCU: 0x1178, offset: 0xB021F, size: 0x8, addend: 0x0, symName: '+[OneSignal(SessionStatusDelegate) onSessionEnding:]', symObjAddr: 0x1E2C, symBinAddr: 0x65C8, symSize: 0x80 }
-  - { offsetInCU: 0x11B9, offset: 0xB0260, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) load]', symObjAddr: 0x1EAC, symBinAddr: 0x6648, symSize: 0x1D4 }
-  - { offsetInCU: 0x1285, offset: 0xB032C, size: 0x8, addend: 0x0, symName: '-[UIApplication(OneSignal) onesignalSetApplicationIconBadgeNumber:]', symObjAddr: 0x2080, symBinAddr: 0x681C, symSize: 0x34 }
-  - { offsetInCU: 0x12CA, offset: 0xB0371, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) shouldDisableBasedOnProcessArguments]', symObjAddr: 0x20B4, symBinAddr: 0x6850, symSize: 0x6C }
-  - { offsetInCU: 0x27, offset: 0xB06C7, size: 0x8, addend: 0x0, symName: '+[OneSignalJailbreakDetection isJailbroken]', symObjAddr: 0x0, symBinAddr: 0x68BC, symSize: 0x8 }
-  - { offsetInCU: 0x43, offset: 0xB06E3, size: 0x8, addend: 0x0, symName: '+[OneSignalJailbreakDetection isJailbroken]', symObjAddr: 0x0, symBinAddr: 0x68BC, symSize: 0x8 }
-  - { offsetInCU: 0x27, offset: 0xB076F, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper getAppName]', symObjAddr: 0x0, symBinAddr: 0x68C4, symSize: 0x78 }
-  - { offsetInCU: 0x46, offset: 0xB078E, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x53A0, symBinAddr: 0x1ADA0, symSize: 0x0 }
-  - { offsetInCU: 0x113, offset: 0xB085B, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper getAppName]', symObjAddr: 0x0, symBinAddr: 0x68C4, symSize: 0x78 }
-  - { offsetInCU: 0x146, offset: 0xB088E, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper sharedInstance]', symObjAddr: 0x78, symBinAddr: 0x693C, symSize: 0x78 }
-  - { offsetInCU: 0x179, offset: 0xB08C1, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper displayWebView:]', symObjAddr: 0xF0, symBinAddr: 0x69B4, symSize: 0x90 }
-  - { offsetInCU: 0x1DB, offset: 0xB0923, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke', symObjAddr: 0x180, symBinAddr: 0x6A44, symSize: 0x78 }
-  - { offsetInCU: 0x226, offset: 0xB096E, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke_2', symObjAddr: 0x1F8, symBinAddr: 0x6ABC, symSize: 0x8C }
-  - { offsetInCU: 0x2DF, offset: 0xB0A27, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke_3', symObjAddr: 0x284, symBinAddr: 0x6B48, symSize: 0x40 }
-  - { offsetInCU: 0x31A, offset: 0xB0A62, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0x2C4, symBinAddr: 0x6B88, symSize: 0x8 }
-  - { offsetInCU: 0x341, offset: 0xB0A89, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x2CC, symBinAddr: 0x6B90, symSize: 0x8 }
-  - { offsetInCU: 0x360, offset: 0xB0AA8, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper runOnMainThread:]', symObjAddr: 0x2D4, symBinAddr: 0x6B98, symSize: 0x5C }
-  - { offsetInCU: 0x3DD, offset: 0xB0B25, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper dispatch_async_on_main_queue:]', symObjAddr: 0x330, symBinAddr: 0x6BF4, symSize: 0x10 }
-  - { offsetInCU: 0x446, offset: 0xB0B8E, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper performSelector:onMainThreadOnObject:withObject:afterDelay:]', symObjAddr: 0x340, symBinAddr: 0x6C04, symSize: 0xCC }
-  - { offsetInCU: 0x4B9, offset: 0xB0C01, size: 0x8, addend: 0x0, symName: '___78+[OneSignalHelper performSelector:onMainThreadOnObject:withObject:afterDelay:]_block_invoke', symObjAddr: 0x40C, symBinAddr: 0x6CD0, symSize: 0x14 }
-  - { offsetInCU: 0x524, offset: 0xB0C6C, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s, symObjAddr: 0x420, symBinAddr: 0x6CE4, symSize: 0x28 }
-  - { offsetInCU: 0x54D, offset: 0xB0C95, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x448, symBinAddr: 0x6D0C, symSize: 0x28 }
-  - { offsetInCU: 0x56C, offset: 0xB0CB4, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper isValidEmail:]', symObjAddr: 0x470, symBinAddr: 0x6D34, symSize: 0xA4 }
-  - { offsetInCU: 0x5DF, offset: 0xB0D27, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper hashUsingSha1:]', symObjAddr: 0x514, symBinAddr: 0x6DD8, symSize: 0xC8 }
-  - { offsetInCU: 0x6B9, offset: 0xB0E01, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper hashUsingMD5:]', symObjAddr: 0x5DC, symBinAddr: 0x6EA0, symSize: 0xC8 }
-  - { offsetInCU: 0x781, offset: 0xB0EC9, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper isTablet]', symObjAddr: 0x6A4, symBinAddr: 0x6F68, symSize: 0x48 }
-  - { offsetInCU: 0x27, offset: 0xB121F, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0x6FB0, symSize: 0x34 }
-  - { offsetInCU: 0xB5, offset: 0xB12AD, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0x6FB0, symSize: 0x34 }
-  - { offsetInCU: 0xEC, offset: 0xB12E4, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x34, symBinAddr: 0x6FE4, symSize: 0x8 }
-  - { offsetInCU: 0x11F, offset: 0xB1317, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x3C, symBinAddr: 0x6FEC, symSize: 0xC }
-  - { offsetInCU: 0x152, offset: 0xB134A, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x48, symBinAddr: 0x6FF8, symSize: 0x154 }
-  - { offsetInCU: 0x1B5, offset: 0xB13AD, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x19C, symBinAddr: 0x714C, symSize: 0xC0 }
-  - { offsetInCU: 0x208, offset: 0xB1400, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendOnFocusCallWithParams:totalTimeActive:]', symObjAddr: 0x25C, symBinAddr: 0x720C, symSize: 0x114 }
-  - { offsetInCU: 0x257, offset: 0xB144F, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x370, symBinAddr: 0x7320, symSize: 0x4 }
-  - { offsetInCU: 0x27, offset: 0xB1521, size: 0x8, addend: 0x0, symName: '+[OSRequestOnFocus withUserId:appId:activeTime:netType:deviceType:influenceParams:]', symObjAddr: 0x0, symBinAddr: 0x7324, symSize: 0x360 }
-  - { offsetInCU: 0x5B, offset: 0xB1555, size: 0x8, addend: 0x0, symName: '+[OSRequestOnFocus withUserId:appId:activeTime:netType:deviceType:influenceParams:]', symObjAddr: 0x0, symBinAddr: 0x7324, symSize: 0x360 }
-  - { offsetInCU: 0x27, offset: 0xB16CE, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x7684, symSize: 0x74 }
-  - { offsetInCU: 0x9F, offset: 0xB1746, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x7684, symSize: 0x74 }
-  - { offsetInCU: 0x27, offset: 0xB1802, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x76F8, symSize: 0x7C }
-  - { offsetInCU: 0x46, offset: 0xB1821, size: 0x8, addend: 0x0, symName: __instance, symObjAddr: 0x30D8, symBinAddr: 0x1ADA8, symSize: 0x0 }
-  - { offsetInCU: 0xCF, offset: 0xB18AA, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x76F8, symSize: 0x7C }
-  - { offsetInCU: 0x102, offset: 0xB18DD, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserver]', symObjAddr: 0x7C, symBinAddr: 0x7774, symSize: 0x40 }
-  - { offsetInCU: 0x135, offset: 0xB1910, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserverAsUIScene]', symObjAddr: 0xBC, symBinAddr: 0x77B4, symSize: 0x16C }
-  - { offsetInCU: 0x164, offset: 0xB193F, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserverAsUIApplication]', symObjAddr: 0x228, symBinAddr: 0x7920, symSize: 0x150 }
-  - { offsetInCU: 0x193, offset: 0xB196E, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver removeObserver]', symObjAddr: 0x378, symBinAddr: 0x7A70, symSize: 0x60 }
-  - { offsetInCU: 0x1C2, offset: 0xB199D, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver didBecomeActive]', symObjAddr: 0x3D8, symBinAddr: 0x7AD0, symSize: 0x110 }
-  - { offsetInCU: 0x262, offset: 0xB1A3D, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver willResignActive]', symObjAddr: 0x4E8, symBinAddr: 0x7BE0, symSize: 0x68 }
-  - { offsetInCU: 0x291, offset: 0xB1A6C, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver didEnterBackground]', symObjAddr: 0x550, symBinAddr: 0x7C48, symSize: 0xAC }
-  - { offsetInCU: 0x2ED, offset: 0xB1AC8, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver dealloc]', symObjAddr: 0x5FC, symBinAddr: 0x7CF4, symSize: 0x80 }
-  - { offsetInCU: 0x27, offset: 0xB1B3F, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters initWithLaunchOptions:withAppId:]', symObjAddr: 0x0, symBinAddr: 0x7D74, symSize: 0x58 }
-  - { offsetInCU: 0x8B, offset: 0xB1BA3, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters initWithLaunchOptions:withAppId:]', symObjAddr: 0x0, symBinAddr: 0x7D74, symSize: 0x58 }
-  - { offsetInCU: 0xE2, offset: 0xB1BFA, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters launchOptions]', symObjAddr: 0x58, symBinAddr: 0x7DCC, symSize: 0x8 }
-  - { offsetInCU: 0x119, offset: 0xB1C31, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters setLaunchOptions:]', symObjAddr: 0x60, symBinAddr: 0x7DD4, symSize: 0xC }
-  - { offsetInCU: 0x15A, offset: 0xB1C72, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters appId]', symObjAddr: 0x6C, symBinAddr: 0x7DE0, symSize: 0x8 }
-  - { offsetInCU: 0x191, offset: 0xB1CA9, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters setAppId:]', symObjAddr: 0x74, symBinAddr: 0x7DE8, symSize: 0xC }
-  - { offsetInCU: 0x1D2, offset: 0xB1CEA, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters .cxx_destruct]', symObjAddr: 0x80, symBinAddr: 0x7DF4, symSize: 0x30 }
-  - { offsetInCU: 0x27, offset: 0xB1D93, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x7E24, symSize: 0x4 }
-  - { offsetInCU: 0x46, offset: 0xB1DB2, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x2C10, symBinAddr: 0x1ADB0, symSize: 0x0 }
-  - { offsetInCU: 0xC8, offset: 0xB1E34, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x7E24, symSize: 0x4 }
-  - { offsetInCU: 0xF7, offset: 0xB1E63, size: 0x8, addend: 0x0, symName: '-[OneSignalAppDelegate setOneSignalDelegate:]', symObjAddr: 0x4, symBinAddr: 0x7E28, symSize: 0x120 }
-  - { offsetInCU: 0x1BE, offset: 0xB1F2A, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate swizzledClassInHeirarchy:]', symObjAddr: 0x124, symBinAddr: 0x7F48, symSize: 0x14C }
-  - { offsetInCU: 0x2A5, offset: 0xB2011, size: 0x8, addend: 0x0, symName: '-[OneSignalAppDelegate oneSignalApplicationWillTerminate:]', symObjAddr: 0x270, symBinAddr: 0x8094, symSize: 0x118 }
-  - { offsetInCU: 0x2F8, offset: 0xB2064, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate traceCall:]', symObjAddr: 0x388, symBinAddr: 0x81AC, symSize: 0x14 }
-  - { offsetInCU: 0x27, offset: 0xB2102, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory focusTimeProcessors]', symObjAddr: 0x0, symBinAddr: 0x81C0, symSize: 0x44 }
-  - { offsetInCU: 0x4B, offset: 0xB2126, size: 0x8, addend: 0x0, symName: __focusTimeProcessors, symObjAddr: 0x2C00, symBinAddr: 0x1ADB8, symSize: 0x0 }
-  - { offsetInCU: 0xBC, offset: 0xB2197, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory focusTimeProcessors]', symObjAddr: 0x0, symBinAddr: 0x81C0, symSize: 0x44 }
-  - { offsetInCU: 0xEF, offset: 0xB21CA, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory cancelFocusCall]', symObjAddr: 0x44, symBinAddr: 0x8204, symSize: 0x19C }
-  - { offsetInCU: 0x150, offset: 0xB222B, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory resetUnsentActiveTime]', symObjAddr: 0x1E0, symBinAddr: 0x83A0, symSize: 0x19C }
-  - { offsetInCU: 0x1B1, offset: 0xB228C, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:focusEventType:]', symObjAddr: 0x37C, symBinAddr: 0x853C, symSize: 0x250 }
-  - { offsetInCU: 0x27, offset: 0xB23DD, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitle:withCancelTitle:withCompletion:]', symObjAddr: 0x0, symBinAddr: 0x878C, symSize: 0x16C }
-  - { offsetInCU: 0xF7, offset: 0xB24AD, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitle:withCancelTitle:withCompletion:]', symObjAddr: 0x0, symBinAddr: 0x878C, symSize: 0x16C }
-  - { offsetInCU: 0x17E, offset: 0xB2534, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitles:withCancelTitle:withCompletion:]', symObjAddr: 0x16C, symBinAddr: 0x88F8, symSize: 0x114 }
-  - { offsetInCU: 0x205, offset: 0xB25BB, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest title]', symObjAddr: 0x280, symBinAddr: 0x8A0C, symSize: 0x8 }
-  - { offsetInCU: 0x23C, offset: 0xB25F2, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setTitle:]', symObjAddr: 0x288, symBinAddr: 0x8A14, symSize: 0xC }
-  - { offsetInCU: 0x27D, offset: 0xB2633, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest message]', symObjAddr: 0x294, symBinAddr: 0x8A20, symSize: 0x8 }
-  - { offsetInCU: 0x2B4, offset: 0xB266A, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setMessage:]', symObjAddr: 0x29C, symBinAddr: 0x8A28, symSize: 0xC }
-  - { offsetInCU: 0x2F5, offset: 0xB26AB, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest actionTitles]', symObjAddr: 0x2A8, symBinAddr: 0x8A34, symSize: 0x8 }
-  - { offsetInCU: 0x32C, offset: 0xB26E2, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setActionTitles:]', symObjAddr: 0x2B0, symBinAddr: 0x8A3C, symSize: 0xC }
-  - { offsetInCU: 0x36D, offset: 0xB2723, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest cancelTitle]', symObjAddr: 0x2BC, symBinAddr: 0x8A48, symSize: 0x8 }
-  - { offsetInCU: 0x3A4, offset: 0xB275A, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setCancelTitle:]', symObjAddr: 0x2C4, symBinAddr: 0x8A50, symSize: 0xC }
-  - { offsetInCU: 0x3E5, offset: 0xB279B, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest completion]', symObjAddr: 0x2D0, symBinAddr: 0x8A5C, symSize: 0x8 }
-  - { offsetInCU: 0x41C, offset: 0xB27D2, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setCompletion:]', symObjAddr: 0x2D8, symBinAddr: 0x8A64, symSize: 0x8 }
-  - { offsetInCU: 0x45B, offset: 0xB2811, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest .cxx_destruct]', symObjAddr: 0x2E0, symBinAddr: 0x8A6C, symSize: 0x54 }
-  - { offsetInCU: 0x27, offset: 0xB28BA, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onFocus:]', symObjAddr: 0x0, symBinAddr: 0x8AC0, symSize: 0x64 }
-  - { offsetInCU: 0x46, offset: 0xB28D9, size: 0x8, addend: 0x0, symName: _lastOnFocusWasToBackground, symObjAddr: 0x9A0, symBinAddr: 0x1A988, symSize: 0x0 }
-  - { offsetInCU: 0xC7, offset: 0xB295A, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onFocus:]', symObjAddr: 0x0, symBinAddr: 0x8AC0, symSize: 0x64 }
-  - { offsetInCU: 0x106, offset: 0xB2999, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker applicationBecameActive]', symObjAddr: 0x64, symBinAddr: 0x8B24, symSize: 0x120 }
-  - { offsetInCU: 0x135, offset: 0xB29C8, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker applicationBackgrounded]', symObjAddr: 0x184, symBinAddr: 0x8C44, symSize: 0x168 }
-  - { offsetInCU: 0x1A8, offset: 0xB2A3B, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onSessionEnded:]', symObjAddr: 0x2EC, symBinAddr: 0x8DAC, symSize: 0x108 }
-  - { offsetInCU: 0x21B, offset: 0xB2AAE, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker createFocusCallParams:onSessionEnded:]', symObjAddr: 0x3F4, symBinAddr: 0x8EB4, symSize: 0x2CC }
-  - { offsetInCU: 0x2D4, offset: 0xB2B67, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker updateLastClosedTime]', symObjAddr: 0x6C0, symBinAddr: 0x9180, symSize: 0x74 }
-  - { offsetInCU: 0x27, offset: 0xB2C97, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x0, symBinAddr: 0x91F4, symSize: 0xA0 }
-  - { offsetInCU: 0xDA, offset: 0xB2D4A, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x0, symBinAddr: 0x91F4, symSize: 0xA0 }
-  - { offsetInCU: 0x14E, offset: 0xB2DBE, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor hasMinSyncTime:]', symObjAddr: 0xA0, symBinAddr: 0x9294, symSize: 0x9C }
-  - { offsetInCU: 0x195, offset: 0xB2E05, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor resetUnsentActiveTime]', symObjAddr: 0x13C, symBinAddr: 0x9330, symSize: 0x10 }
-  - { offsetInCU: 0x1C8, offset: 0xB2E38, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x14C, symBinAddr: 0x9340, symSize: 0xA0 }
-  - { offsetInCU: 0x216, offset: 0xB2E86, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor saveUnsentActiveTime:]', symObjAddr: 0x1EC, symBinAddr: 0x93E0, symSize: 0x90 }
-  - { offsetInCU: 0x259, offset: 0xB2EC9, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x27C, symBinAddr: 0x9470, symSize: 0xAC }
-  - { offsetInCU: 0x2B2, offset: 0xB2F22, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x328, symBinAddr: 0x951C, symSize: 0xAC }
-  - { offsetInCU: 0x30B, offset: 0xB2F7B, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x3D4, symBinAddr: 0x95C8, symSize: 0xA0 }
-  - { offsetInCU: 0x355, offset: 0xB2FC5, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getUnsentActiveTime]', symObjAddr: 0x474, symBinAddr: 0x9668, symSize: 0xB8 }
-  - { offsetInCU: 0x38C, offset: 0xB2FFC, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor onFocusCallEnabled]', symObjAddr: 0x52C, symBinAddr: 0x9720, symSize: 0x8 }
-  - { offsetInCU: 0x3C3, offset: 0xB3033, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor .cxx_destruct]', symObjAddr: 0x534, symBinAddr: 0x9728, symSize: 0xC }
-  - { offsetInCU: 0x27, offset: 0xB30F3, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams initWithParamsAppId:timeElapsed:influenceParams:onSessionEnded:]', symObjAddr: 0x0, symBinAddr: 0x9734, symSize: 0x94 }
-  - { offsetInCU: 0xD6, offset: 0xB31A2, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams initWithParamsAppId:timeElapsed:influenceParams:onSessionEnded:]', symObjAddr: 0x0, symBinAddr: 0x9734, symSize: 0x94 }
-  - { offsetInCU: 0x149, offset: 0xB3215, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams description]', symObjAddr: 0x94, symBinAddr: 0x97C8, symSize: 0xA4 }
-  - { offsetInCU: 0x180, offset: 0xB324C, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams appId]', symObjAddr: 0x138, symBinAddr: 0x986C, symSize: 0x8 }
-  - { offsetInCU: 0x1B7, offset: 0xB3283, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams influenceParams]', symObjAddr: 0x140, symBinAddr: 0x9874, symSize: 0x8 }
-  - { offsetInCU: 0x1EE, offset: 0xB32BA, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams timeElapsed]', symObjAddr: 0x148, symBinAddr: 0x987C, symSize: 0x8 }
-  - { offsetInCU: 0x223, offset: 0xB32EF, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams onSessionEnded]', symObjAddr: 0x150, symBinAddr: 0x9884, symSize: 0x8 }
-  - { offsetInCU: 0x25A, offset: 0xB3326, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams .cxx_destruct]', symObjAddr: 0x158, symBinAddr: 0x988C, symSize: 0x30 }
-  - { offsetInCU: 0x27, offset: 0xB33C6, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks successBlock]', symObjAddr: 0x0, symBinAddr: 0x98BC, symSize: 0xC }
-  - { offsetInCU: 0x18F, offset: 0xB352E, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks successBlock]', symObjAddr: 0x0, symBinAddr: 0x98BC, symSize: 0xC }
-  - { offsetInCU: 0x1C6, offset: 0xB3565, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks setSuccessBlock:]', symObjAddr: 0xC, symBinAddr: 0x98C8, symSize: 0x8 }
-  - { offsetInCU: 0x205, offset: 0xB35A4, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks failureBlock]', symObjAddr: 0x14, symBinAddr: 0x98D0, symSize: 0xC }
-  - { offsetInCU: 0x23C, offset: 0xB35DB, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks setFailureBlock:]', symObjAddr: 0x20, symBinAddr: 0x98DC, symSize: 0x8 }
-  - { offsetInCU: 0x27B, offset: 0xB361A, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks .cxx_destruct]', symObjAddr: 0x28, symBinAddr: 0x98E4, symSize: 0x30 }
-  - { offsetInCU: 0x27, offset: 0xB3691, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) applicationIsActive]', symObjAddr: 0x0, symBinAddr: 0x9914, symSize: 0x13C }
-  - { offsetInCU: 0x51, offset: 0xB36BB, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) applicationIsActive]', symObjAddr: 0x0, symBinAddr: 0x9914, symSize: 0x13C }
-  - { offsetInCU: 0x27, offset: 0xB37BA, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl init]', symObjAddr: 0x0, symBinAddr: 0x9A50, symSize: 0x64 }
-  - { offsetInCU: 0x41, offset: 0xB37D4, size: 0x8, addend: 0x0, symName: _tasks, symObjAddr: 0x2590, symBinAddr: 0x1AD60, symSize: 0x0 }
-  - { offsetInCU: 0x84, offset: 0xB3817, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl init]', symObjAddr: 0x0, symBinAddr: 0x9A50, symSize: 0x64 }
-  - { offsetInCU: 0xBB, offset: 0xB384E, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl beginBackgroundTask:]', symObjAddr: 0x64, symBinAddr: 0x9AB4, symSize: 0x16C }
-  - { offsetInCU: 0x10E, offset: 0xB38A1, size: 0x8, addend: 0x0, symName: '___51-[OSBackgroundTaskHandlerImpl beginBackgroundTask:]_block_invoke', symObjAddr: 0x1D0, symBinAddr: 0x9C20, symSize: 0x78 }
-  - { offsetInCU: 0x15D, offset: 0xB38F0, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl endBackgroundTask:]', symObjAddr: 0x298, symBinAddr: 0x9C98, symSize: 0x11C }
-  - { offsetInCU: 0x1B7, offset: 0xB394A, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl setTaskInvalid:]', symObjAddr: 0x3B4, symBinAddr: 0x9DB4, symSize: 0xA4 }
-  - { offsetInCU: 0x27, offset: 0xB3A8F, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP canTrack]', symObjAddr: 0x0, symBinAddr: 0x9E58, symSize: 0x58 }
-  - { offsetInCU: 0x41, offset: 0xB3AA9, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x2D18, symBinAddr: 0x1ADC8, symSize: 0x0 }
-  - { offsetInCU: 0x6D, offset: 0xB3AD5, size: 0x8, addend: 0x0, symName: _skPaymentQueue, symObjAddr: 0x2D10, symBinAddr: 0x1ADC0, symSize: 0x0 }
-  - { offsetInCU: 0x96, offset: 0xB3AFE, size: 0x8, addend: 0x0, symName: _sKProductsRequestClass, symObjAddr: 0x2D28, symBinAddr: 0x1ADD8, symSize: 0x0 }
-  - { offsetInCU: 0xAC, offset: 0xB3B14, size: 0x8, addend: 0x0, symName: _productsRequest, symObjAddr: 0x2D20, symBinAddr: 0x1ADD0, symSize: 0x0 }
-  - { offsetInCU: 0xE1, offset: 0xB3B49, size: 0x8, addend: 0x0, symName: _skusToTrack, symObjAddr: 0x2D30, symBinAddr: 0x1AD68, symSize: 0x0 }
-  - { offsetInCU: 0x126, offset: 0xB3B8E, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP canTrack]', symObjAddr: 0x0, symBinAddr: 0x9E58, symSize: 0x58 }
-  - { offsetInCU: 0x17F, offset: 0xB3BE7, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP sharedInstance]', symObjAddr: 0x58, symBinAddr: 0x9EB0, symSize: 0x78 }
-  - { offsetInCU: 0x1B2, offset: 0xB3C1A, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP init]', symObjAddr: 0xD0, symBinAddr: 0x9F28, symSize: 0x6C }
-  - { offsetInCU: 0x1E9, offset: 0xB3C51, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP dealloc]', symObjAddr: 0x13C, symBinAddr: 0x9F94, symSize: 0xBC }
-  - { offsetInCU: 0x270, offset: 0xB3CD8, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP paymentQueue:updatedTransactions:]', symObjAddr: 0x1F8, symBinAddr: 0xA050, symSize: 0x35C }
-  - { offsetInCU: 0x340, offset: 0xB3DA8, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP getProductInfo:]', symObjAddr: 0x554, symBinAddr: 0xA3AC, symSize: 0xF0 }
-  - { offsetInCU: 0x3C3, offset: 0xB3E2B, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP productsRequest:didReceiveResponse:]', symObjAddr: 0x644, symBinAddr: 0xA49C, symSize: 0x2F0 }
-  - { offsetInCU: 0x27, offset: 0xB3F3F, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0xA78C, symSize: 0x58 }
-  - { offsetInCU: 0xF5, offset: 0xB400D, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0xA78C, symSize: 0x58 }
-  - { offsetInCU: 0x12C, offset: 0xB4044, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x58, symBinAddr: 0xA7E4, symSize: 0x8 }
-  - { offsetInCU: 0x15F, offset: 0xB4077, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x60, symBinAddr: 0xA7EC, symSize: 0xC }
-  - { offsetInCU: 0x192, offset: 0xB40AA, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x6C, symBinAddr: 0xA7F8, symSize: 0x1B8 }
-  - { offsetInCU: 0x1F5, offset: 0xB410D, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x224, symBinAddr: 0xA9B0, symSize: 0xC0 }
-  - { offsetInCU: 0x248, offset: 0xB4160, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendOnFocusCallWithParams:totalTimeActive:]', symObjAddr: 0x2E4, symBinAddr: 0xAA70, symSize: 0x1D8 }
-  - { offsetInCU: 0x29B, offset: 0xB41B3, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithNSTimer:]', symObjAddr: 0x4BC, symBinAddr: 0xAC48, symSize: 0x90 }
-  - { offsetInCU: 0x30E, offset: 0xB4226, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]', symObjAddr: 0x54C, symBinAddr: 0xACD8, symSize: 0xF8 }
-  - { offsetInCU: 0x3D9, offset: 0xB42F1, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke', symObjAddr: 0x644, symBinAddr: 0xADD0, symSize: 0x6C }
-  - { offsetInCU: 0x438, offset: 0xB4350, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke_2', symObjAddr: 0x6B0, symBinAddr: 0xAE3C, symSize: 0x74 }
-  - { offsetInCU: 0x483, offset: 0xB439B, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke.51', symObjAddr: 0x734, symBinAddr: 0xAEB0, symSize: 0x38 }
-  - { offsetInCU: 0x4B6, offset: 0xB43CE, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s, symObjAddr: 0x76C, symBinAddr: 0xAEE8, symSize: 0x30 }
-  - { offsetInCU: 0x4DF, offset: 0xB43F7, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x79C, symBinAddr: 0xAF18, symSize: 0x30 }
-  - { offsetInCU: 0x4FE, offset: 0xB4416, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x7CC, symBinAddr: 0xAF48, symSize: 0x58 }
-  - { offsetInCU: 0x531, offset: 0xB4449, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor .cxx_destruct]', symObjAddr: 0x824, symBinAddr: 0xAFA0, symSize: 0x14 }
-  - { offsetInCU: 0x27, offset: 0xB46DB, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0xAFB4, symSize: 0x40 }
-  - { offsetInCU: 0x3A, offset: 0xB46EE, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0xAFB4, symSize: 0x40 }
-  - { offsetInCU: 0x64, offset: 0xB4718, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedInstance, symObjAddr: 0x6728, symBinAddr: 0x1ADE0, symSize: 0x0 }
-  - { offsetInCU: 0x7A, offset: 0xB472E, size: 0x8, addend: 0x0, symName: _sharedInstance.onceToken, symObjAddr: 0x6730, symBinAddr: 0x1ADE8, symSize: 0x0 }
-  - { offsetInCU: 0x1A1, offset: 0xB4855, size: 0x8, addend: 0x0, symName: '___43+[OneSignalDialogController sharedInstance]_block_invoke', symObjAddr: 0x40, symBinAddr: 0xAFF4, symSize: 0x5C }
-  - { offsetInCU: 0x1C8, offset: 0xB487C, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController presentDialogWithTitle:withMessage:withActions:cancelTitle:withActionCompletion:]', symObjAddr: 0x9C, symBinAddr: 0xB050, symSize: 0x14C }
-  - { offsetInCU: 0x274, offset: 0xB4928, size: 0x8, addend: 0x0, symName: '___109-[OneSignalDialogController presentDialogWithTitle:withMessage:withActions:cancelTitle:withActionCompletion:]_block_invoke', symObjAddr: 0x1E8, symBinAddr: 0xB19C, symSize: 0xE8 }
-  - { offsetInCU: 0x31A, offset: 0xB49CE, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s56s64s72b, symObjAddr: 0x2D0, symBinAddr: 0xB284, symSize: 0x54 }
-  - { offsetInCU: 0x343, offset: 0xB49F7, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s56s64s72s, symObjAddr: 0x324, symBinAddr: 0xB2D8, symSize: 0x48 }
-  - { offsetInCU: 0x362, offset: 0xB4A16, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController displayDialog:]', symObjAddr: 0x36C, symBinAddr: 0xB320, symSize: 0x290 }
-  - { offsetInCU: 0x403, offset: 0xB4AB7, size: 0x8, addend: 0x0, symName: '___43-[OneSignalDialogController displayDialog:]_block_invoke', symObjAddr: 0x5FC, symBinAddr: 0xB5B0, symSize: 0xC }
-  - { offsetInCU: 0x44E, offset: 0xB4B02, size: 0x8, addend: 0x0, symName: '___43-[OneSignalDialogController displayDialog:]_block_invoke.23', symObjAddr: 0x618, symBinAddr: 0xB5BC, symSize: 0x10 }
-  - { offsetInCU: 0x4A9, offset: 0xB4B5D, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController alertView:clickedButtonAtIndex:]', symObjAddr: 0x628, symBinAddr: 0xB5CC, symSize: 0x8 }
-  - { offsetInCU: 0x4F4, offset: 0xB4BA8, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController delayResult:]', symObjAddr: 0x630, symBinAddr: 0xB5D4, symSize: 0x7C }
-  - { offsetInCU: 0x599, offset: 0xB4C4D, size: 0x8, addend: 0x0, symName: '___41-[OneSignalDialogController delayResult:]_block_invoke', symObjAddr: 0x6AC, symBinAddr: 0xB650, symSize: 0x1A4 }
-  - { offsetInCU: 0x62A, offset: 0xB4CDE, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController clearQueue]', symObjAddr: 0x850, symBinAddr: 0xB7F4, symSize: 0x3C }
-  - { offsetInCU: 0x65D, offset: 0xB4D11, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController visibleViewController]', symObjAddr: 0x88C, symBinAddr: 0xB830, symSize: 0x90 }
-  - { offsetInCU: 0x6A0, offset: 0xB4D54, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController getVisibleViewControllerFrom:]', symObjAddr: 0x91C, symBinAddr: 0xB8C0, symSize: 0x110 }
-  - { offsetInCU: 0x6E3, offset: 0xB4D97, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController queue]', symObjAddr: 0xA2C, symBinAddr: 0xB9D0, symSize: 0x8 }
-  - { offsetInCU: 0x71A, offset: 0xB4DCE, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController setQueue:]', symObjAddr: 0xA34, symBinAddr: 0xB9D8, symSize: 0xC }
-  - { offsetInCU: 0x75B, offset: 0xB4E0F, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController .cxx_destruct]', symObjAddr: 0xA40, symBinAddr: 0xB9E4, symSize: 0xC }
-  - { offsetInCU: 0x3F, offset: 0xB51E9, size: 0x8, addend: 0x0, symName: '_$sSo9OneSignalC0aB9FrameworkE4User0abD06OSUser_pvgZ', symObjAddr: 0x0, symBinAddr: 0xB9F0, symSize: 0x34 }
-  - { offsetInCU: 0x83, offset: 0xB522D, size: 0x8, addend: 0x0, symName: '_$sSo7OSDebugP18OneSignalFrameworkE13setAlertLevelyySo15ONE_S_LOG_LEVELVFZ', symObjAddr: 0xB0, symBinAddr: 0xBAA0, symSize: 0x30 }
-  - { offsetInCU: 0xF4, offset: 0xB529E, size: 0x8, addend: 0x0, symName: '_$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ', symObjAddr: 0xF8, symBinAddr: 0xBAE8, symSize: 0x44 }
-  - { offsetInCU: 0x14A, offset: 0xB52F4, size: 0x8, addend: 0x0, symName: '_$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ.resume.0', symObjAddr: 0x13C, symBinAddr: 0xBB2C, symSize: 0x18 }
-  - { offsetInCU: 0x17F, offset: 0xB5329, size: 0x8, addend: 0x0, symName: '_$sSo9OSSessionP18OneSignalFrameworkE10addOutcomeyySS_So8NSNumberCtFZ', symObjAddr: 0x184, symBinAddr: 0xBB74, symSize: 0x64 }
-  - { offsetInCU: 0x1D8, offset: 0xB5382, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvgZ', symObjAddr: 0x200, symBinAddr: 0xBBF0, symSize: 0x20 }
-  - { offsetInCU: 0x211, offset: 0xB53BB, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE35registerForProvisionalAuthorizationyyySbcSgFZ', symObjAddr: 0x220, symBinAddr: 0xBC10, symSize: 0xA8 }
-  - { offsetInCU: 0x25A, offset: 0xB5404, size: 0x8, addend: 0x0, symName: '_$sSbIegy_SbIeyBy_TR', symObjAddr: 0x2C8, symBinAddr: 0xBCB8, symSize: 0x3C }
-  - { offsetInCU: 0x272, offset: 0xB541C, size: 0x8, addend: 0x0, symName: _block_copy_helper, symObjAddr: 0x304, symBinAddr: 0xBCF4, symSize: 0x10 }
-  - { offsetInCU: 0x286, offset: 0xB5430, size: 0x8, addend: 0x0, symName: _block_destroy_helper, symObjAddr: 0x314, symBinAddr: 0xBD04, symSize: 0x8 }
-  - { offsetInCU: 0x2C2, offset: 0xB546C, size: 0x8, addend: 0x0, symName: '_$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvMZ', symObjAddr: 0x400, symBinAddr: 0xBDF0, symSize: 0x44 }
-  - { offsetInCU: 0x318, offset: 0xB54C2, size: 0x8, addend: 0x0, symName: '_$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvMZ.resume.0', symObjAddr: 0x444, symBinAddr: 0xBE34, symSize: 0x18 }
-  - { offsetInCU: 0x34, offset: 0xB56C9, size: 0x8, addend: 0x0, symName: _OneSignalFrameworkVersionString, symObjAddr: 0x0, symBinAddr: 0x10100, symSize: 0x0 }
-  - { offsetInCU: 0x69, offset: 0xB56FE, size: 0x8, addend: 0x0, symName: _OneSignalFrameworkVersionNumber, symObjAddr: 0x38, symBinAddr: 0x10138, symSize: 0x0 }
+  - { offset: 0xBA34A, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x4774, symSize: 0xC }
+  - { offset: 0xBA390, size: 0x8, addend: 0x0, symName: '+[OneSignal shouldStartNewSession]', symObjAddr: 0x8DC, symBinAddr: 0x5050, symSize: 0x19C }
+  - { offset: 0xBA47A, size: 0x8, addend: 0x0, symName: __delayedInitParameters, symObjAddr: 0xBBF0, symBinAddr: 0x1AD58, symSize: 0x0 }
+  - { offset: 0xBA4C4, size: 0x8, addend: 0x0, symName: _launchOptions, symObjAddr: 0xBC08, symBinAddr: 0x1AD80, symSize: 0x0 }
+  - { offset: 0xBA4DA, size: 0x8, addend: 0x0, symName: _initializationTime, symObjAddr: 0xBC18, symBinAddr: 0x1AD90, symSize: 0x0 }
+  - { offset: 0xBA4F7, size: 0x8, addend: 0x0, symName: __receiveReceiptsController, symObjAddr: 0xBC00, symBinAddr: 0x1AD78, symSize: 0x0 }
+  - { offset: 0xBA512, size: 0x8, addend: 0x0, symName: __didCallDownloadParameters, symObjAddr: 0xBBF8, symBinAddr: 0x1AD70, symSize: 0x0 }
+  - { offset: 0xBA536, size: 0x8, addend: 0x0, symName: __downloadedParameters, symObjAddr: 0xBBF9, symBinAddr: 0x1AD71, symSize: 0x0 }
+  - { offset: 0xBA553, size: 0x8, addend: 0x0, symName: _initDone, symObjAddr: 0xBC10, symBinAddr: 0x1AD88, symSize: 0x0 }
+  - { offset: 0xBA570, size: 0x8, addend: 0x0, symName: _registeredWithApple, symObjAddr: 0xBC11, symBinAddr: 0x1AD89, symSize: 0x0 }
+  - { offset: 0xBA586, size: 0x8, addend: 0x0, symName: _delayedInitializationForPrivacyConsent, symObjAddr: 0xBC20, symBinAddr: 0x1AD98, symSize: 0x0 }
+  - { offset: 0xBA5C1, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x4774, symSize: 0xC }
+  - { offset: 0xBA5F4, size: 0x8, addend: 0x0, symName: '+[OneSignal didCallDownloadParameters]', symObjAddr: 0xC, symBinAddr: 0x4780, symSize: 0xC }
+  - { offset: 0xBA627, size: 0x8, addend: 0x0, symName: '+[OneSignal downloadedParameters]', symObjAddr: 0x18, symBinAddr: 0x478C, symSize: 0xC }
+  - { offset: 0xBA65A, size: 0x8, addend: 0x0, symName: '+[OneSignal receiveReceiptsController]', symObjAddr: 0x24, symBinAddr: 0x4798, symSize: 0x44 }
+  - { offset: 0xBA68D, size: 0x8, addend: 0x0, symName: '+[OneSignal sdkVersionRaw]', symObjAddr: 0x68, symBinAddr: 0x47DC, symSize: 0xC }
+  - { offset: 0xBA6C0, size: 0x8, addend: 0x0, symName: '+[OneSignal sdkSemanticVersion]', symObjAddr: 0x74, symBinAddr: 0x47E8, symSize: 0xC }
+  - { offset: 0xBA6F3, size: 0x8, addend: 0x0, symName: '+[OneSignal clearStatics]', symObjAddr: 0x80, symBinAddr: 0x47F4, symSize: 0x70 }
+  - { offset: 0xBA722, size: 0x8, addend: 0x0, symName: '+[OneSignal User]', symObjAddr: 0xF0, symBinAddr: 0x4864, symSize: 0x4C }
+  - { offset: 0xBA755, size: 0x8, addend: 0x0, symName: '+[OneSignal login:]', symObjAddr: 0x13C, symBinAddr: 0x48B0, symSize: 0x6C }
+  - { offset: 0xBA794, size: 0x8, addend: 0x0, symName: '+[OneSignal login:withToken:]', symObjAddr: 0x1A8, symBinAddr: 0x491C, symSize: 0x8C }
+  - { offset: 0xBA7E3, size: 0x8, addend: 0x0, symName: '+[OneSignal logout]', symObjAddr: 0x234, symBinAddr: 0x49A8, symSize: 0x38 }
+  - { offset: 0xBA812, size: 0x8, addend: 0x0, symName: '+[OneSignal Notifications]', symObjAddr: 0x26C, symBinAddr: 0x49E0, symSize: 0xC }
+  - { offset: 0xBA845, size: 0x8, addend: 0x0, symName: '+[OneSignal Session]', symObjAddr: 0x278, symBinAddr: 0x49EC, symSize: 0xC }
+  - { offset: 0xBA878, size: 0x8, addend: 0x0, symName: '+[OneSignal InAppMessages]', symObjAddr: 0x284, symBinAddr: 0x49F8, symSize: 0xA0 }
+  - { offset: 0xBA8E5, size: 0x8, addend: 0x0, symName: '+[OneSignal LiveActivities]', symObjAddr: 0x324, symBinAddr: 0x4A98, symSize: 0xA0 }
+  - { offset: 0xBA936, size: 0x8, addend: 0x0, symName: '+[OneSignal Location]', symObjAddr: 0x3C4, symBinAddr: 0x4B38, symSize: 0x88 }
+  - { offset: 0xBA987, size: 0x8, addend: 0x0, symName: '+[OneSignal Debug]', symObjAddr: 0x44C, symBinAddr: 0x4BC0, symSize: 0xC }
+  - { offset: 0xBA9BA, size: 0x8, addend: 0x0, symName: '+[OneSignal initialize:withLaunchOptions:]', symObjAddr: 0x458, symBinAddr: 0x4BCC, symSize: 0x58 }
+  - { offset: 0xBAA0D, size: 0x8, addend: 0x0, symName: '+[OneSignal getCachedAppId]', symObjAddr: 0x4B0, symBinAddr: 0x4C24, symSize: 0xC0 }
+  - { offset: 0xBAA71, size: 0x8, addend: 0x0, symName: '+[OneSignal setAppId:]', symObjAddr: 0x570, symBinAddr: 0x4CE4, symSize: 0x158 }
+  - { offset: 0xBAAD6, size: 0x8, addend: 0x0, symName: '+[OneSignal isValidAppId:]', symObjAddr: 0x6C8, symBinAddr: 0x4E3C, symSize: 0xD4 }
+  - { offset: 0xBAB1B, size: 0x8, addend: 0x0, symName: '+[OneSignal setLaunchOptions:]', symObjAddr: 0x79C, symBinAddr: 0x4F10, symSize: 0x100 }
+  - { offset: 0xBAB6D, size: 0x8, addend: 0x0, symName: '+[OneSignal setProvidesNotificationSettingsView:]', symObjAddr: 0x89C, symBinAddr: 0x5010, symSize: 0x40 }
+  - { offset: 0xBABAE, size: 0x8, addend: 0x0, symName: '+[OneSignal startNewSession:]', symObjAddr: 0xA78, symBinAddr: 0x51EC, symSize: 0x8C }
+  - { offset: 0xBABF3, size: 0x8, addend: 0x0, symName: '___29+[OneSignal startNewSession:]_block_invoke', symObjAddr: 0xB04, symBinAddr: 0x5278, symSize: 0x8 }
+  - { offset: 0xBAC35, size: 0x8, addend: 0x0, symName: '+[OneSignal startNewSessionInternal]', symObjAddr: 0xB0C, symBinAddr: 0x5280, symSize: 0x1A8 }
+  - { offset: 0xBACC3, size: 0x8, addend: 0x0, symName: '+[OneSignal startInAppMessages]', symObjAddr: 0xCB4, symBinAddr: 0x5428, symSize: 0x5C }
+  - { offset: 0xBAD12, size: 0x8, addend: 0x0, symName: '+[OneSignal startOutcomes]', symObjAddr: 0xD10, symBinAddr: 0x5484, symSize: 0x40 }
+  - { offset: 0xBAD42, size: 0x8, addend: 0x0, symName: '+[OneSignal startLocation]', symObjAddr: 0xD50, symBinAddr: 0x54C4, symSize: 0x5C }
+  - { offset: 0xBAD91, size: 0x8, addend: 0x0, symName: '+[OneSignal startTrackFirebaseAnalytics]', symObjAddr: 0xDAC, symBinAddr: 0x5520, symSize: 0x38 }
+  - { offset: 0xBADC1, size: 0x8, addend: 0x0, symName: '+[OneSignal startTrackIAP]', symObjAddr: 0xDE4, symBinAddr: 0x5558, symSize: 0x38 }
+  - { offset: 0xBADF1, size: 0x8, addend: 0x0, symName: '+[OneSignal startLifecycleObserver]', symObjAddr: 0xE1C, symBinAddr: 0x5590, symSize: 0xC }
+  - { offset: 0xBAE21, size: 0x8, addend: 0x0, symName: '+[OneSignal startUserManager]', symObjAddr: 0xE28, symBinAddr: 0x559C, symSize: 0x44 }
+  - { offset: 0xBAE51, size: 0x8, addend: 0x0, symName: '+[OneSignal startLiveActivitiesManager]', symObjAddr: 0xE6C, symBinAddr: 0x55E0, symSize: 0x78 }
+  - { offset: 0xBAEA0, size: 0x8, addend: 0x0, symName: '+[OneSignal delayInitializationForPrivacyConsent]', symObjAddr: 0xEE4, symBinAddr: 0x5658, symSize: 0xA8 }
+  - { offset: 0xBAED0, size: 0x8, addend: 0x0, symName: '+[OneSignal init]', symObjAddr: 0xF8C, symBinAddr: 0x5700, symSize: 0x2A4 }
+  - { offset: 0xBAF04, size: 0x8, addend: 0x0, symName: '+[OneSignal appGroupKey]', symObjAddr: 0x1230, symBinAddr: 0x59A4, symSize: 0xC }
+  - { offset: 0xBAF38, size: 0x8, addend: 0x0, symName: '+[OneSignal handleAppIdChange:]', symObjAddr: 0x123C, symBinAddr: 0x59B0, symSize: 0x1A8 }
+  - { offset: 0xBAFBB, size: 0x8, addend: 0x0, symName: '+[OneSignal registerForAPNsToken]', symObjAddr: 0x13E4, symBinAddr: 0x5B58, symSize: 0xA0 }
+  - { offset: 0xBAFEB, size: 0x8, addend: 0x0, symName: '+[OneSignal setConsentRequired:]', symObjAddr: 0x1484, symBinAddr: 0x5BF8, symSize: 0xC }
+  - { offset: 0xBB02F, size: 0x8, addend: 0x0, symName: '+[OneSignal setConsentGiven:]', symObjAddr: 0x1490, symBinAddr: 0x5C04, symSize: 0xC0 }
+  - { offset: 0xBB074, size: 0x8, addend: 0x0, symName: '+[OneSignal downloadIOSParamsWithAppId:]', symObjAddr: 0x1550, symBinAddr: 0x5CC4, symSize: 0xBC }
+  - { offset: 0xBB0C6, size: 0x8, addend: 0x0, symName: '___40+[OneSignal downloadIOSParamsWithAppId:]_block_invoke', symObjAddr: 0x160C, symBinAddr: 0x5D80, symSize: 0x474 }
+  - { offset: 0xBB157, size: 0x8, addend: 0x0, symName: '___40+[OneSignal downloadIOSParamsWithAppId:]_block_invoke_2', symObjAddr: 0x1A80, symBinAddr: 0x61F4, symSize: 0xC }
+  - { offset: 0xBB18D, size: 0x8, addend: 0x0, symName: '+[OneSignal launchWebURL:]', symObjAddr: 0x1A8C, symBinAddr: 0x6200, symSize: 0x88 }
+  - { offset: 0xBB1FF, size: 0x8, addend: 0x0, symName: '+[OneSignal didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x1B14, symBinAddr: 0x6288, symSize: 0xC }
+  - { offset: 0xBB251, size: 0x8, addend: 0x0, symName: '+[OneSignal didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x1B20, symBinAddr: 0x6294, symSize: 0xC }
+  - { offset: 0xBB2B2, size: 0x8, addend: 0x0, symName: '+[OneSignal serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x1B2C, symBinAddr: 0x62A0, symSize: 0xC }
+  - { offset: 0xBB304, size: 0x8, addend: 0x0, symName: '+[OneSignal sendSessionEndOutcomes:params:onSuccess:onFailure:]', symObjAddr: 0x1B38, symBinAddr: 0x62AC, symSize: 0x2F4 }
+  - { offset: 0xBB3D0, size: 0x8, addend: 0x0, symName: '+[OneSignal(SessionStatusDelegate) onSessionEnding:]', symObjAddr: 0x1E2C, symBinAddr: 0x65A0, symSize: 0x80 }
+  - { offset: 0xBB411, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) load]', symObjAddr: 0x1EAC, symBinAddr: 0x6620, symSize: 0x1D4 }
+  - { offset: 0xBB4DD, size: 0x8, addend: 0x0, symName: '-[UIApplication(OneSignal) onesignalSetApplicationIconBadgeNumber:]', symObjAddr: 0x2080, symBinAddr: 0x67F4, symSize: 0x34 }
+  - { offset: 0xBB522, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) shouldDisableBasedOnProcessArguments]', symObjAddr: 0x20B4, symBinAddr: 0x6828, symSize: 0x6C }
+  - { offset: 0xBB92F, size: 0x8, addend: 0x0, symName: '+[OneSignalJailbreakDetection isJailbroken]', symObjAddr: 0x0, symBinAddr: 0x6894, symSize: 0x8 }
+  - { offset: 0xBB93D, size: 0x8, addend: 0x0, symName: '+[OneSignalJailbreakDetection isJailbroken]', symObjAddr: 0x0, symBinAddr: 0x6894, symSize: 0x8 }
+  - { offset: 0xBB9D7, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper getAppName]', symObjAddr: 0x0, symBinAddr: 0x689C, symSize: 0x78 }
+  - { offset: 0xBB9F6, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x5BD0, symBinAddr: 0x1ADA0, symSize: 0x0 }
+  - { offset: 0xBBA4C, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper getAppName]', symObjAddr: 0x0, symBinAddr: 0x689C, symSize: 0x78 }
+  - { offset: 0xBBA7F, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper sharedInstance]', symObjAddr: 0x78, symBinAddr: 0x6914, symSize: 0x78 }
+  - { offset: 0xBBAB2, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper displayWebView:]', symObjAddr: 0xF0, symBinAddr: 0x698C, symSize: 0x90 }
+  - { offset: 0xBBB14, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke', symObjAddr: 0x180, symBinAddr: 0x6A1C, symSize: 0x78 }
+  - { offset: 0xBBB5F, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke_2', symObjAddr: 0x1F8, symBinAddr: 0x6A94, symSize: 0x8C }
+  - { offset: 0xBBC18, size: 0x8, addend: 0x0, symName: '___34+[OneSignalHelper displayWebView:]_block_invoke_3', symObjAddr: 0x284, symBinAddr: 0x6B20, symSize: 0x40 }
+  - { offset: 0xBBC53, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s, symObjAddr: 0x2C4, symBinAddr: 0x6B60, symSize: 0x8 }
+  - { offset: 0xBBC7A, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x2CC, symBinAddr: 0x6B68, symSize: 0x8 }
+  - { offset: 0xBBC99, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper runOnMainThread:]', symObjAddr: 0x2D4, symBinAddr: 0x6B70, symSize: 0x5C }
+  - { offset: 0xBBD16, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper dispatch_async_on_main_queue:]', symObjAddr: 0x330, symBinAddr: 0x6BCC, symSize: 0x10 }
+  - { offset: 0xBBD7F, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper performSelector:onMainThreadOnObject:withObject:afterDelay:]', symObjAddr: 0x340, symBinAddr: 0x6BDC, symSize: 0xCC }
+  - { offset: 0xBBDF2, size: 0x8, addend: 0x0, symName: '___78+[OneSignalHelper performSelector:onMainThreadOnObject:withObject:afterDelay:]_block_invoke', symObjAddr: 0x40C, symBinAddr: 0x6CA8, symSize: 0x14 }
+  - { offset: 0xBBE5D, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s, symObjAddr: 0x420, symBinAddr: 0x6CBC, symSize: 0x28 }
+  - { offset: 0xBBE86, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0x448, symBinAddr: 0x6CE4, symSize: 0x28 }
+  - { offset: 0xBBEA5, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper isValidEmail:]', symObjAddr: 0x470, symBinAddr: 0x6D0C, symSize: 0xA4 }
+  - { offset: 0xBBF18, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper hashUsingSha1:]', symObjAddr: 0x514, symBinAddr: 0x6DB0, symSize: 0xC8 }
+  - { offset: 0xBC023, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper hashUsingMD5:]', symObjAddr: 0x5DC, symBinAddr: 0x6E78, symSize: 0xC8 }
+  - { offset: 0xBC0F9, size: 0x8, addend: 0x0, symName: '+[OneSignalHelper isTablet]', symObjAddr: 0x6A4, symBinAddr: 0x6F40, symSize: 0x48 }
+  - { offset: 0xBC4B4, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0x6F88, symSize: 0x34 }
+  - { offset: 0xBC50F, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0x6F88, symSize: 0x34 }
+  - { offset: 0xBC546, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x34, symBinAddr: 0x6FBC, symSize: 0x8 }
+  - { offset: 0xBC579, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x3C, symBinAddr: 0x6FC4, symSize: 0xC }
+  - { offset: 0xBC5AC, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x48, symBinAddr: 0x6FD0, symSize: 0x154 }
+  - { offset: 0xBC60F, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x19C, symBinAddr: 0x7124, symSize: 0xC0 }
+  - { offset: 0xBC662, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor sendOnFocusCallWithParams:totalTimeActive:]', symObjAddr: 0x25C, symBinAddr: 0x71E4, symSize: 0x114 }
+  - { offset: 0xBC6B1, size: 0x8, addend: 0x0, symName: '-[OSUnattributedFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x370, symBinAddr: 0x72F8, symSize: 0x4 }
+  - { offset: 0xBC7B0, size: 0x8, addend: 0x0, symName: '+[OSRequestOnFocus withUserId:appId:activeTime:netType:deviceType:influenceParams:]', symObjAddr: 0x0, symBinAddr: 0x72FC, symSize: 0x360 }
+  - { offset: 0xBC7CF, size: 0x8, addend: 0x0, symName: '+[OSRequestOnFocus withUserId:appId:activeTime:netType:deviceType:influenceParams:]', symObjAddr: 0x0, symBinAddr: 0x72FC, symSize: 0x360 }
+  - { offset: 0xBC95D, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x765C, symSize: 0x74 }
+  - { offset: 0xBC981, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x765C, symSize: 0x74 }
+  - { offset: 0xBCA91, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x76D0, symSize: 0x7C }
+  - { offset: 0xBCAB0, size: 0x8, addend: 0x0, symName: __instance, symObjAddr: 0x3528, symBinAddr: 0x1ADA8, symSize: 0x0 }
+  - { offset: 0xBCAD0, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x76D0, symSize: 0x7C }
+  - { offset: 0xBCB03, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserver]', symObjAddr: 0x7C, symBinAddr: 0x774C, symSize: 0x40 }
+  - { offset: 0xBCB36, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserverAsUIScene]', symObjAddr: 0xBC, symBinAddr: 0x778C, symSize: 0x16C }
+  - { offset: 0xBCB65, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserverAsUIApplication]', symObjAddr: 0x228, symBinAddr: 0x78F8, symSize: 0x150 }
+  - { offset: 0xBCB94, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver removeObserver]', symObjAddr: 0x378, symBinAddr: 0x7A48, symSize: 0x60 }
+  - { offset: 0xBCBC3, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver didBecomeActive]', symObjAddr: 0x3D8, symBinAddr: 0x7AA8, symSize: 0x110 }
+  - { offset: 0xBCC63, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver willResignActive]', symObjAddr: 0x4E8, symBinAddr: 0x7BB8, symSize: 0x68 }
+  - { offset: 0xBCC92, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver didEnterBackground]', symObjAddr: 0x550, symBinAddr: 0x7C20, symSize: 0xAC }
+  - { offset: 0xBCCEE, size: 0x8, addend: 0x0, symName: '-[OneSignalLifecycleObserver dealloc]', symObjAddr: 0x5FC, symBinAddr: 0x7CCC, symSize: 0x80 }
+  - { offset: 0xBCDCE, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters initWithLaunchOptions:withAppId:]', symObjAddr: 0x0, symBinAddr: 0x7D4C, symSize: 0x58 }
+  - { offset: 0xBCE2B, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters initWithLaunchOptions:withAppId:]', symObjAddr: 0x0, symBinAddr: 0x7D4C, symSize: 0x58 }
+  - { offset: 0xBCE82, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters launchOptions]', symObjAddr: 0x58, symBinAddr: 0x7DA4, symSize: 0x8 }
+  - { offset: 0xBCEB9, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters setLaunchOptions:]', symObjAddr: 0x60, symBinAddr: 0x7DAC, symSize: 0xC }
+  - { offset: 0xBCEFA, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters appId]', symObjAddr: 0x6C, symBinAddr: 0x7DB8, symSize: 0x8 }
+  - { offset: 0xBCF31, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters setAppId:]', symObjAddr: 0x74, symBinAddr: 0x7DC0, symSize: 0xC }
+  - { offset: 0xBCF72, size: 0x8, addend: 0x0, symName: '-[DelayedConsentInitializationParameters .cxx_destruct]', symObjAddr: 0x80, symBinAddr: 0x7DCC, symSize: 0x30 }
+  - { offset: 0xBD022, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x7DFC, symSize: 0x4 }
+  - { offset: 0xBD041, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0x30D0, symBinAddr: 0x1ADB0, symSize: 0x0 }
+  - { offset: 0xBD061, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate oneSignalLoadedTagSelector]', symObjAddr: 0x0, symBinAddr: 0x7DFC, symSize: 0x4 }
+  - { offset: 0xBD090, size: 0x8, addend: 0x0, symName: '-[OneSignalAppDelegate setOneSignalDelegate:]', symObjAddr: 0x4, symBinAddr: 0x7E00, symSize: 0x120 }
+  - { offset: 0xBD157, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate swizzledClassInHeirarchy:]', symObjAddr: 0x124, symBinAddr: 0x7F20, symSize: 0x14C }
+  - { offset: 0xBD23E, size: 0x8, addend: 0x0, symName: '-[OneSignalAppDelegate oneSignalApplicationWillTerminate:]', symObjAddr: 0x270, symBinAddr: 0x806C, symSize: 0x118 }
+  - { offset: 0xBD291, size: 0x8, addend: 0x0, symName: '+[OneSignalAppDelegate traceCall:]', symObjAddr: 0x388, symBinAddr: 0x8184, symSize: 0x14 }
+  - { offset: 0xBD391, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory focusTimeProcessors]', symObjAddr: 0x0, symBinAddr: 0x8198, symSize: 0x44 }
+  - { offset: 0xBD3B5, size: 0x8, addend: 0x0, symName: __focusTimeProcessors, symObjAddr: 0x2FC0, symBinAddr: 0x1ADB8, symSize: 0x0 }
+  - { offset: 0xBD3C4, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory focusTimeProcessors]', symObjAddr: 0x0, symBinAddr: 0x8198, symSize: 0x44 }
+  - { offset: 0xBD3F7, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory cancelFocusCall]', symObjAddr: 0x44, symBinAddr: 0x81DC, symSize: 0x19C }
+  - { offset: 0xBD458, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory resetUnsentActiveTime]', symObjAddr: 0x1E0, symBinAddr: 0x8378, symSize: 0x19C }
+  - { offset: 0xBD4B9, size: 0x8, addend: 0x0, symName: '+[OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:focusEventType:]', symObjAddr: 0x37C, symBinAddr: 0x8514, symSize: 0x250 }
+  - { offset: 0xBD66B, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitle:withCancelTitle:withCompletion:]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x16C }
+  - { offset: 0xBD724, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitle:withCancelTitle:withCompletion:]', symObjAddr: 0x0, symBinAddr: 0x8764, symSize: 0x16C }
+  - { offset: 0xBD7AB, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest initWithTitle:withMessage:withActionTitles:withCancelTitle:withCompletion:]', symObjAddr: 0x16C, symBinAddr: 0x88D0, symSize: 0x114 }
+  - { offset: 0xBD832, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest title]', symObjAddr: 0x280, symBinAddr: 0x89E4, symSize: 0x8 }
+  - { offset: 0xBD869, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setTitle:]', symObjAddr: 0x288, symBinAddr: 0x89EC, symSize: 0xC }
+  - { offset: 0xBD8AA, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest message]', symObjAddr: 0x294, symBinAddr: 0x89F8, symSize: 0x8 }
+  - { offset: 0xBD8E1, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setMessage:]', symObjAddr: 0x29C, symBinAddr: 0x8A00, symSize: 0xC }
+  - { offset: 0xBD922, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest actionTitles]', symObjAddr: 0x2A8, symBinAddr: 0x8A0C, symSize: 0x8 }
+  - { offset: 0xBD959, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setActionTitles:]', symObjAddr: 0x2B0, symBinAddr: 0x8A14, symSize: 0xC }
+  - { offset: 0xBD99A, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest cancelTitle]', symObjAddr: 0x2BC, symBinAddr: 0x8A20, symSize: 0x8 }
+  - { offset: 0xBD9D1, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setCancelTitle:]', symObjAddr: 0x2C4, symBinAddr: 0x8A28, symSize: 0xC }
+  - { offset: 0xBDA12, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest completion]', symObjAddr: 0x2D0, symBinAddr: 0x8A34, symSize: 0x8 }
+  - { offset: 0xBDA49, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest setCompletion:]', symObjAddr: 0x2D8, symBinAddr: 0x8A3C, symSize: 0x8 }
+  - { offset: 0xBDA88, size: 0x8, addend: 0x0, symName: '-[OSDialogRequest .cxx_destruct]', symObjAddr: 0x2E0, symBinAddr: 0x8A44, symSize: 0x54 }
+  - { offset: 0xBDB46, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onFocus:]', symObjAddr: 0x0, symBinAddr: 0x8A98, symSize: 0x64 }
+  - { offset: 0xBDB65, size: 0x8, addend: 0x0, symName: _lastOnFocusWasToBackground, symObjAddr: 0x9A0, symBinAddr: 0x1A988, symSize: 0x0 }
+  - { offset: 0xBDB76, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onFocus:]', symObjAddr: 0x0, symBinAddr: 0x8A98, symSize: 0x64 }
+  - { offset: 0xBDBB5, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker applicationBecameActive]', symObjAddr: 0x64, symBinAddr: 0x8AFC, symSize: 0x120 }
+  - { offset: 0xBDBE4, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker applicationBackgrounded]', symObjAddr: 0x184, symBinAddr: 0x8C1C, symSize: 0x168 }
+  - { offset: 0xBDC57, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker onSessionEnded:]', symObjAddr: 0x2EC, symBinAddr: 0x8D84, symSize: 0x108 }
+  - { offset: 0xBDCCA, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker createFocusCallParams:onSessionEnded:]', symObjAddr: 0x3F4, symBinAddr: 0x8E8C, symSize: 0x2CC }
+  - { offset: 0xBDD83, size: 0x8, addend: 0x0, symName: '+[OneSignalTracker updateLastClosedTime]', symObjAddr: 0x6C0, symBinAddr: 0x9158, symSize: 0x74 }
+  - { offset: 0xBDF1E, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x0, symBinAddr: 0x91CC, symSize: 0xA0 }
+  - { offset: 0xBDF74, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x0, symBinAddr: 0x91CC, symSize: 0xA0 }
+  - { offset: 0xBDFE8, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor hasMinSyncTime:]', symObjAddr: 0xA0, symBinAddr: 0x926C, symSize: 0x9C }
+  - { offset: 0xBE02F, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor resetUnsentActiveTime]', symObjAddr: 0x13C, symBinAddr: 0x9308, symSize: 0x10 }
+  - { offset: 0xBE062, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x14C, symBinAddr: 0x9318, symSize: 0xA0 }
+  - { offset: 0xBE0B0, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor saveUnsentActiveTime:]', symObjAddr: 0x1EC, symBinAddr: 0x93B8, symSize: 0x90 }
+  - { offset: 0xBE0F3, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x27C, symBinAddr: 0x9448, symSize: 0xAC }
+  - { offset: 0xBE14C, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x328, symBinAddr: 0x94F4, symSize: 0xAC }
+  - { offset: 0xBE1A5, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x3D4, symBinAddr: 0x95A0, symSize: 0xA0 }
+  - { offset: 0xBE1EF, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor getUnsentActiveTime]', symObjAddr: 0x474, symBinAddr: 0x9640, symSize: 0xB8 }
+  - { offset: 0xBE226, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor onFocusCallEnabled]', symObjAddr: 0x52C, symBinAddr: 0x96F8, symSize: 0x8 }
+  - { offset: 0xBE25D, size: 0x8, addend: 0x0, symName: '-[OSBaseFocusTimeProcessor .cxx_destruct]', symObjAddr: 0x534, symBinAddr: 0x9700, symSize: 0xC }
+  - { offset: 0xBE374, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams initWithParamsAppId:timeElapsed:influenceParams:onSessionEnded:]', symObjAddr: 0x0, symBinAddr: 0x970C, symSize: 0x94 }
+  - { offset: 0xBE411, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams initWithParamsAppId:timeElapsed:influenceParams:onSessionEnded:]', symObjAddr: 0x0, symBinAddr: 0x970C, symSize: 0x94 }
+  - { offset: 0xBE484, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams description]', symObjAddr: 0x94, symBinAddr: 0x97A0, symSize: 0xA4 }
+  - { offset: 0xBE4BB, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams appId]', symObjAddr: 0x138, symBinAddr: 0x9844, symSize: 0x8 }
+  - { offset: 0xBE4F2, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams influenceParams]', symObjAddr: 0x140, symBinAddr: 0x984C, symSize: 0x8 }
+  - { offset: 0xBE529, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams timeElapsed]', symObjAddr: 0x148, symBinAddr: 0x9854, symSize: 0x8 }
+  - { offset: 0xBE55E, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams onSessionEnded]', symObjAddr: 0x150, symBinAddr: 0x985C, symSize: 0x8 }
+  - { offset: 0xBE595, size: 0x8, addend: 0x0, symName: '-[OSFocusCallParams .cxx_destruct]', symObjAddr: 0x158, symBinAddr: 0x9864, symSize: 0x30 }
+  - { offset: 0xBE643, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks successBlock]', symObjAddr: 0x0, symBinAddr: 0x9894, symSize: 0xC }
+  - { offset: 0xBE773, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks successBlock]', symObjAddr: 0x0, symBinAddr: 0x9894, symSize: 0xC }
+  - { offset: 0xBE7AA, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks setSuccessBlock:]', symObjAddr: 0xC, symBinAddr: 0x98A0, symSize: 0x8 }
+  - { offset: 0xBE7E9, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks failureBlock]', symObjAddr: 0x14, symBinAddr: 0x98A8, symSize: 0xC }
+  - { offset: 0xBE820, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks setFailureBlock:]', symObjAddr: 0x20, symBinAddr: 0x98B4, symSize: 0x8 }
+  - { offset: 0xBE85F, size: 0x8, addend: 0x0, symName: '-[OSPendingCallbacks .cxx_destruct]', symObjAddr: 0x28, symBinAddr: 0x98BC, symSize: 0x30 }
+  - { offset: 0xBE90E, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) applicationIsActive]', symObjAddr: 0x0, symBinAddr: 0x98EC, symSize: 0x13C }
+  - { offset: 0xBE91C, size: 0x8, addend: 0x0, symName: '+[UIApplication(OneSignal) applicationIsActive]', symObjAddr: 0x0, symBinAddr: 0x98EC, symSize: 0x13C }
+  - { offset: 0xBEA37, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl init]', symObjAddr: 0x0, symBinAddr: 0x9A28, symSize: 0x64 }
+  - { offset: 0xBEA51, size: 0x8, addend: 0x0, symName: _tasks, symObjAddr: 0x2788, symBinAddr: 0x1AD60, symSize: 0x0 }
+  - { offset: 0xBEA78, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl init]', symObjAddr: 0x0, symBinAddr: 0x9A28, symSize: 0x64 }
+  - { offset: 0xBEAAF, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl beginBackgroundTask:]', symObjAddr: 0x64, symBinAddr: 0x9A8C, symSize: 0x16C }
+  - { offset: 0xBEB02, size: 0x8, addend: 0x0, symName: '___51-[OSBackgroundTaskHandlerImpl beginBackgroundTask:]_block_invoke', symObjAddr: 0x1D0, symBinAddr: 0x9BF8, symSize: 0x78 }
+  - { offset: 0xBEB51, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl endBackgroundTask:]', symObjAddr: 0x298, symBinAddr: 0x9C70, symSize: 0x11C }
+  - { offset: 0xBEBAB, size: 0x8, addend: 0x0, symName: '-[OSBackgroundTaskHandlerImpl setTaskInvalid:]', symObjAddr: 0x3B4, symBinAddr: 0x9D8C, symSize: 0xA4 }
+  - { offset: 0xBED0C, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP canTrack]', symObjAddr: 0x0, symBinAddr: 0x9E30, symSize: 0x58 }
+  - { offset: 0xBED26, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0x2F20, symBinAddr: 0x1ADC8, symSize: 0x0 }
+  - { offset: 0xBED52, size: 0x8, addend: 0x0, symName: _skPaymentQueue, symObjAddr: 0x2F18, symBinAddr: 0x1ADC0, symSize: 0x0 }
+  - { offset: 0xBED7B, size: 0x8, addend: 0x0, symName: _sKProductsRequestClass, symObjAddr: 0x2F30, symBinAddr: 0x1ADD8, symSize: 0x0 }
+  - { offset: 0xBED91, size: 0x8, addend: 0x0, symName: _productsRequest, symObjAddr: 0x2F28, symBinAddr: 0x1ADD0, symSize: 0x0 }
+  - { offset: 0xBEDC6, size: 0x8, addend: 0x0, symName: _skusToTrack, symObjAddr: 0x2F38, symBinAddr: 0x1AD68, symSize: 0x0 }
+  - { offset: 0xBEDF6, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP canTrack]', symObjAddr: 0x0, symBinAddr: 0x9E30, symSize: 0x58 }
+  - { offset: 0xBEE4F, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackIAP sharedInstance]', symObjAddr: 0x58, symBinAddr: 0x9E88, symSize: 0x78 }
+  - { offset: 0xBEE82, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP init]', symObjAddr: 0xD0, symBinAddr: 0x9F00, symSize: 0x6C }
+  - { offset: 0xBEEB9, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP dealloc]', symObjAddr: 0x13C, symBinAddr: 0x9F6C, symSize: 0xBC }
+  - { offset: 0xBEF40, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP paymentQueue:updatedTransactions:]', symObjAddr: 0x1F8, symBinAddr: 0xA028, symSize: 0x35C }
+  - { offset: 0xBF010, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP getProductInfo:]', symObjAddr: 0x554, symBinAddr: 0xA384, symSize: 0xF0 }
+  - { offset: 0xBF08B, size: 0x8, addend: 0x0, symName: '-[OneSignalTrackIAP productsRequest:didReceiveResponse:]', symObjAddr: 0x644, symBinAddr: 0xA474, symSize: 0x2F0 }
+  - { offset: 0xBF1B4, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0xA764, symSize: 0x58 }
+  - { offset: 0xBF233, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor init]', symObjAddr: 0x0, symBinAddr: 0xA764, symSize: 0x58 }
+  - { offset: 0xBF26A, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor getMinSessionTime]', symObjAddr: 0x58, symBinAddr: 0xA7BC, symSize: 0x8 }
+  - { offset: 0xBF29D, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor unsentActiveTimeUserDefaultsKey]', symObjAddr: 0x60, symBinAddr: 0xA7C4, symSize: 0xC }
+  - { offset: 0xBF2D0, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendOnFocusCall:]', symObjAddr: 0x6C, symBinAddr: 0xA7D0, symSize: 0x1B8 }
+  - { offset: 0xBF333, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendUnsentActiveTime:]', symObjAddr: 0x224, symBinAddr: 0xA988, symSize: 0xC0 }
+  - { offset: 0xBF386, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendOnFocusCallWithParams:totalTimeActive:]', symObjAddr: 0x2E4, symBinAddr: 0xAA48, symSize: 0x1D8 }
+  - { offset: 0xBF3D9, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithNSTimer:]', symObjAddr: 0x4BC, symBinAddr: 0xAC20, symSize: 0x90 }
+  - { offset: 0xBF44C, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]', symObjAddr: 0x54C, symBinAddr: 0xACB0, symSize: 0xF8 }
+  - { offset: 0xBF517, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke', symObjAddr: 0x644, symBinAddr: 0xADA8, symSize: 0x6C }
+  - { offset: 0xBF576, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke_2', symObjAddr: 0x6B0, symBinAddr: 0xAE14, symSize: 0x74 }
+  - { offset: 0xBF5C1, size: 0x8, addend: 0x0, symName: '___100-[OSAttributedFocusTimeProcessor sendBackgroundAttributedSessionTimeWithParams:withTotalTimeActive:]_block_invoke.51', symObjAddr: 0x734, symBinAddr: 0xAE88, symSize: 0x38 }
+  - { offset: 0xBF5F4, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s, symObjAddr: 0x76C, symBinAddr: 0xAEC0, symSize: 0x30 }
+  - { offset: 0xBF61D, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x79C, symBinAddr: 0xAEF0, symSize: 0x30 }
+  - { offset: 0xBF63C, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor cancelDelayedJob]', symObjAddr: 0x7CC, symBinAddr: 0xAF20, symSize: 0x58 }
+  - { offset: 0xBF66F, size: 0x8, addend: 0x0, symName: '-[OSAttributedFocusTimeProcessor .cxx_destruct]', symObjAddr: 0x824, symBinAddr: 0xAF78, symSize: 0x14 }
+  - { offset: 0xBF94A, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0xAF8C, symSize: 0x40 }
+  - { offset: 0xBF95D, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0xAF8C, symSize: 0x40 }
+  - { offset: 0xBF987, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedInstance, symObjAddr: 0x6AE0, symBinAddr: 0x1ADE0, symSize: 0x0 }
+  - { offset: 0xBF99D, size: 0x8, addend: 0x0, symName: _sharedInstance.onceToken, symObjAddr: 0x6AE8, symBinAddr: 0x1ADE8, symSize: 0x0 }
+  - { offset: 0xBFA69, size: 0x8, addend: 0x0, symName: '___43+[OneSignalDialogController sharedInstance]_block_invoke', symObjAddr: 0x40, symBinAddr: 0xAFCC, symSize: 0x5C }
+  - { offset: 0xBFA90, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController presentDialogWithTitle:withMessage:withActions:cancelTitle:withActionCompletion:]', symObjAddr: 0x9C, symBinAddr: 0xB028, symSize: 0x14C }
+  - { offset: 0xBFB3C, size: 0x8, addend: 0x0, symName: '___109-[OneSignalDialogController presentDialogWithTitle:withMessage:withActions:cancelTitle:withActionCompletion:]_block_invoke', symObjAddr: 0x1E8, symBinAddr: 0xB174, symSize: 0xE8 }
+  - { offset: 0xBFBE2, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s48s56s64s72b, symObjAddr: 0x2D0, symBinAddr: 0xB25C, symSize: 0x54 }
+  - { offset: 0xBFC0B, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s56s64s72s, symObjAddr: 0x324, symBinAddr: 0xB2B0, symSize: 0x48 }
+  - { offset: 0xBFC2A, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController displayDialog:]', symObjAddr: 0x36C, symBinAddr: 0xB2F8, symSize: 0x290 }
+  - { offset: 0xBFCCB, size: 0x8, addend: 0x0, symName: '___43-[OneSignalDialogController displayDialog:]_block_invoke', symObjAddr: 0x5FC, symBinAddr: 0xB588, symSize: 0xC }
+  - { offset: 0xBFD16, size: 0x8, addend: 0x0, symName: '___43-[OneSignalDialogController displayDialog:]_block_invoke.23', symObjAddr: 0x618, symBinAddr: 0xB594, symSize: 0x10 }
+  - { offset: 0xBFD71, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController alertView:clickedButtonAtIndex:]', symObjAddr: 0x628, symBinAddr: 0xB5A4, symSize: 0x8 }
+  - { offset: 0xBFDBC, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController delayResult:]', symObjAddr: 0x630, symBinAddr: 0xB5AC, symSize: 0x7C }
+  - { offset: 0xBFE61, size: 0x8, addend: 0x0, symName: '___41-[OneSignalDialogController delayResult:]_block_invoke', symObjAddr: 0x6AC, symBinAddr: 0xB628, symSize: 0x1A4 }
+  - { offset: 0xBFEF2, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController clearQueue]', symObjAddr: 0x850, symBinAddr: 0xB7CC, symSize: 0x3C }
+  - { offset: 0xBFF25, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController visibleViewController]', symObjAddr: 0x88C, symBinAddr: 0xB808, symSize: 0x90 }
+  - { offset: 0xBFF68, size: 0x8, addend: 0x0, symName: '+[OneSignalDialogController getVisibleViewControllerFrom:]', symObjAddr: 0x91C, symBinAddr: 0xB898, symSize: 0x110 }
+  - { offset: 0xBFFAB, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController queue]', symObjAddr: 0xA2C, symBinAddr: 0xB9A8, symSize: 0x8 }
+  - { offset: 0xBFFE2, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController setQueue:]', symObjAddr: 0xA34, symBinAddr: 0xB9B0, symSize: 0xC }
+  - { offset: 0xC0023, size: 0x8, addend: 0x0, symName: '-[OneSignalDialogController .cxx_destruct]', symObjAddr: 0xA40, symBinAddr: 0xB9BC, symSize: 0xC }
+  - { offset: 0xC045D, size: 0x8, addend: 0x0, symName: '_$sSo9OneSignalC0aB9FrameworkE4User0abD06OSUser_pvgZ', symObjAddr: 0x0, symBinAddr: 0xB9C8, symSize: 0x34 }
+  - { offset: 0xC04A1, size: 0x8, addend: 0x0, symName: '_$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvgZ', symObjAddr: 0xBC, symBinAddr: 0xBA84, symSize: 0x24 }
+  - { offset: 0xC04EE, size: 0x8, addend: 0x0, symName: '_$sSo15OSInAppMessagesP18OneSignalFrameworkE6pausedSbvMZ', symObjAddr: 0xEC, symBinAddr: 0xBAB4, symSize: 0x44 }
+  - { offset: 0xC0544, size: 0x8, addend: 0x0, symName: '_$sSo9OSSessionP18OneSignalFrameworkE10addOutcomeyySS_So8NSNumberCtFZ', symObjAddr: 0x16C, symBinAddr: 0xBB34, symSize: 0x64 }
+  - { offset: 0xC059D, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE10permissionSbvgZ', symObjAddr: 0x1D0, symBinAddr: 0xBB98, symSize: 0x24 }
+  - { offset: 0xC05D6, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE20canRequestPermissionSbvgZ', symObjAddr: 0x1F4, symBinAddr: 0xBBBC, symSize: 0x24 }
+  - { offset: 0xC060F, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE16permissionNativeSo24OSNotificationPermissionVvgZ', symObjAddr: 0x218, symBinAddr: 0xBBE0, symSize: 0x20 }
+  - { offset: 0xC0648, size: 0x8, addend: 0x0, symName: '_$sSo15OSNotificationsP18OneSignalFrameworkE35registerForProvisionalAuthorizationyyySbcSgFZ', symObjAddr: 0x238, symBinAddr: 0xBC00, symSize: 0xA8 }
+  - { offset: 0xC0691, size: 0x8, addend: 0x0, symName: '_$sSbIegy_SbIeyBy_TR', symObjAddr: 0x2E0, symBinAddr: 0xBCA8, symSize: 0x3C }
+  - { offset: 0xC06A9, size: 0x8, addend: 0x0, symName: _block_copy_helper, symObjAddr: 0x31C, symBinAddr: 0xBCE4, symSize: 0x10 }
+  - { offset: 0xC06BD, size: 0x8, addend: 0x0, symName: _block_destroy_helper, symObjAddr: 0x32C, symBinAddr: 0xBCF4, symSize: 0x8 }
+  - { offset: 0xC06D1, size: 0x8, addend: 0x0, symName: '_$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvgZ', symObjAddr: 0x384, symBinAddr: 0xBD4C, symSize: 0x24 }
+  - { offset: 0xC071E, size: 0x8, addend: 0x0, symName: '_$sSo10OSLocationP18OneSignalFrameworkE8isSharedSbvMZ', symObjAddr: 0x3EC, symBinAddr: 0xBDB4, symSize: 0x44 }
+  - { offset: 0xC091C, size: 0x8, addend: 0x0, symName: _OneSignalFrameworkVersionString, symObjAddr: 0x0, symBinAddr: 0x100E0, symSize: 0x0 }
+  - { offset: 0xC0951, size: 0x8, addend: 0x0, symName: _OneSignalFrameworkVersionNumber, symObjAddr: 0x38, symBinAddr: 0x10118, symSize: 0x0 }
 ...
