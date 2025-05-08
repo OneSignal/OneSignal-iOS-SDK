@@ -69,12 +69,6 @@
     }
 }
 
-- (id)getTriggerValueForKey:(NSString *)key {
-    @synchronized (self.triggers) {
-        return self.triggers[key];
-    }
-}
-
 /*
  * Part of redisplay logic
  *
