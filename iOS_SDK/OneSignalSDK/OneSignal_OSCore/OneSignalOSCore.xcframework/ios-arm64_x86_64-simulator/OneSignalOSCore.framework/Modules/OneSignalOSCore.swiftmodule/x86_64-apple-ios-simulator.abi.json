@@ -1,8 +1,8 @@
 {
   "ABIRoot": {
     "kind": "Root",
-    "name": "TopLevel",
-    "printedName": "TopLevel",
+    "name": "OneSignalOSCore",
+    "printedName": "OneSignalOSCore",
     "children": [
       {
         "kind": "Import",
@@ -129,12 +129,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -144,12 +144,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -276,12 +276,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -291,12 +291,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -336,6 +336,22 @@
           "AccessControl",
           "ObjC",
           "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -363,6 +379,20 @@
           "RawDocComment"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
           {
             "kind": "Conformance",
             "name": "RawRepresentable",
@@ -565,7 +595,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSOperationExecutor",
-                "printedName": "OneSignalOSCore.OSOperationExecutor",
+                "printedName": "any OneSignalOSCore.OSOperationExecutor",
                 "usr": "s:15OneSignalOSCore19OSOperationExecutorP"
               }
             ],
@@ -684,6 +714,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -904,6 +948,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -1155,6 +1213,22 @@
         "declAttributes": [
           "AccessControl",
           "ObjC"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -1273,7 +1347,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSConsistencyKeyEnum",
-                "printedName": "OneSignalOSCore.OSConsistencyKeyEnum",
+                "printedName": "any OneSignalOSCore.OSConsistencyKeyEnum",
                 "usr": "s:15OneSignalOSCore20OSConsistencyKeyEnumP"
               },
               {
@@ -1315,7 +1389,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSCondition",
-                "printedName": "OneSignalOSCore.OSCondition",
+                "printedName": "any OneSignalOSCore.OSCondition",
                 "usr": "c:@M@OneSignalOSCore@objc(pl)OSCondition"
               },
               {
@@ -1381,6 +1455,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -1468,12 +1556,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSEventProducer",
-                "printedName": "OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelStoreChangedHandler>",
+                "printedName": "OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSModelStoreChangedHandler",
-                    "printedName": "OneSignalOSCore.OSModelStoreChangedHandler",
+                    "printedName": "any OneSignalOSCore.OSModelStoreChangedHandler",
                     "usr": "s:15OneSignalOSCore26OSModelStoreChangedHandlerP"
                   }
                 ],
@@ -1816,10 +1904,17 @@
         "conformances": [
           {
             "kind": "Conformance",
-            "name": "OSModelChangedHandler",
-            "printedName": "OSModelChangedHandler",
-            "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP",
-            "mangledName": "$s15OneSignalOSCore21OSModelChangedHandlerP"
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",
@@ -1869,6 +1964,13 @@
             "printedName": "CustomDebugStringConvertible",
             "usr": "s:s28CustomDebugStringConvertibleP",
             "mangledName": "$ss28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "OSModelChangedHandler",
+            "printedName": "OSModelChangedHandler",
+            "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP",
+            "mangledName": "$s15OneSignalOSCore21OSModelChangedHandlerP"
           }
         ]
       },
@@ -1943,12 +2045,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSEventProducer",
-                "printedName": "OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>",
+                "printedName": "OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSModelChangedHandler",
-                    "printedName": "OneSignalOSCore.OSModelChangedHandler",
+                    "printedName": "any OneSignalOSCore.OSModelChangedHandler",
                     "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP"
                   }
                 ],
@@ -1973,12 +2075,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "OSEventProducer",
-                    "printedName": "OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>",
+                    "printedName": "OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSModelChangedHandler",
-                        "printedName": "OneSignalOSCore.OSModelChangedHandler",
+                        "printedName": "any OneSignalOSCore.OSModelChangedHandler",
                         "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP"
                       }
                     ],
@@ -2005,12 +2107,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "OSEventProducer",
-                    "printedName": "OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>",
+                    "printedName": "OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSModelChangedHandler",
-                        "printedName": "OneSignalOSCore.OSModelChangedHandler",
+                        "printedName": "any OneSignalOSCore.OSModelChangedHandler",
                         "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP"
                       }
                     ],
@@ -2058,12 +2160,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSEventProducer",
-                "printedName": "OneSignalOSCore.OSEventProducer<OneSignalOSCore.OSModelChangedHandler>",
+                "printedName": "OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelChangedHandler>",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSModelChangedHandler",
-                    "printedName": "OneSignalOSCore.OSModelChangedHandler",
+                    "printedName": "any OneSignalOSCore.OSModelChangedHandler",
                     "usr": "s:15OneSignalOSCore21OSModelChangedHandlerP"
                   }
                 ],
@@ -2150,7 +2252,7 @@
           {
             "kind": "Function",
             "name": "set",
-            "printedName": "set(property:newValue:)",
+            "printedName": "set(property:newValue:preventServerUpdate:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -2167,11 +2269,18 @@
                 "kind": "TypeNominal",
                 "name": "GenericTypeParam",
                 "printedName": "τ_0_0"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
               }
             ],
             "declKind": "Func",
-            "usr": "s:15OneSignalOSCore7OSModelC3set8property8newValueySS_xtlF",
-            "mangledName": "$s15OneSignalOSCore7OSModelC3set8property8newValueySS_xtlF",
+            "usr": "s:15OneSignalOSCore7OSModelC3set8property8newValue19preventServerUpdateySS_xSbtlF",
+            "mangledName": "$s15OneSignalOSCore7OSModelC3set8property8newValue19preventServerUpdateySS_xSbtlF",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0>",
             "sugared_genericSig": "<T>",
@@ -2302,6 +2411,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -2458,6 +2581,22 @@
         "declAttributes": [
           "AccessControl",
           "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
         ]
       },
       {
@@ -2582,6 +2721,22 @@
         "declAttributes": [
           "AccessControl",
           "ObjC"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -2597,12 +2752,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
+                "printedName": "(any OneSignalOSCore.OSBackgroundTaskHandler)?",
                 "children": [
                   {
                     "kind": "TypeNominal",
                     "name": "OSBackgroundTaskHandler",
-                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                    "printedName": "any OneSignalOSCore.OSBackgroundTaskHandler",
                     "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
                   }
                 ],
@@ -2631,12 +2786,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
+                    "printedName": "(any OneSignalOSCore.OSBackgroundTaskHandler)?",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSBackgroundTaskHandler",
-                        "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                        "printedName": "any OneSignalOSCore.OSBackgroundTaskHandler",
                         "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
                       }
                     ],
@@ -2668,12 +2823,12 @@
                   {
                     "kind": "TypeNominal",
                     "name": "Optional",
-                    "printedName": "OneSignalOSCore.OSBackgroundTaskHandler?",
+                    "printedName": "(any OneSignalOSCore.OSBackgroundTaskHandler)?",
                     "children": [
                       {
                         "kind": "TypeNominal",
                         "name": "OSBackgroundTaskHandler",
-                        "printedName": "OneSignalOSCore.OSBackgroundTaskHandler",
+                        "printedName": "any OneSignalOSCore.OSBackgroundTaskHandler",
                         "usr": "c:@M@OneSignalOSCore@objc(pl)OSBackgroundTaskHandler"
                       }
                     ],
@@ -2845,6 +3000,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -3217,6 +3386,20 @@
           "ObjectiveC.NSObject"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -3642,6 +3825,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "OSModelStoreChangedHandler",
             "printedName": "OSModelStoreChangedHandler",
             "usr": "s:15OneSignalOSCore26OSModelStoreChangedHandlerP",
@@ -3985,6 +4182,20 @@
           },
           {
             "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "Equatable",
             "printedName": "Equatable",
             "usr": "s:SQ",
@@ -4147,6 +4358,22 @@
         "declAttributes": [
           "AccessControl",
           "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -4755,6 +4982,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "Equatable",
             "printedName": "Equatable",
             "usr": "s:SQ",
@@ -4899,6 +5140,22 @@
         "declAttributes": [
           "AccessControl",
           "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -4924,7 +5181,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "ExistentialMetatype",
-                "printedName": "AnyObject.Type",
+                "printedName": "any AnyObject.Type",
                 "children": [
                   {
                     "kind": "TypeNominal",
@@ -5054,12 +5311,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -5069,12 +5326,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -5195,12 +5452,12 @@
               {
                 "kind": "TypeNominal",
                 "name": "Optional",
-                "printedName": "((Swift.Error?) -> ())?",
+                "printedName": "(((any Swift.Error)?) -> ())?",
                 "children": [
                   {
                     "kind": "TypeFunc",
                     "name": "Function",
-                    "printedName": "(Swift.Error?) -> ()",
+                    "printedName": "((any Swift.Error)?) -> ()",
                     "children": [
                       {
                         "kind": "TypeNominal",
@@ -5210,12 +5467,12 @@
                       {
                         "kind": "TypeNominal",
                         "name": "Optional",
-                        "printedName": "Swift.Error?",
+                        "printedName": "(any Swift.Error)?",
                         "children": [
                           {
                             "kind": "TypeNominal",
                             "name": "Error",
-                            "printedName": "Swift.Error",
+                            "printedName": "any Swift.Error",
                             "usr": "s:s5ErrorP"
                           }
                         ],
@@ -5287,6 +5544,20 @@
             "printedName": "OSLiveActivities",
             "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities",
             "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",
@@ -5469,6 +5740,39 @@
             "moduleName": "OneSignalOSCore"
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "OneSignalOSCore.OSIamFetchOffsetKey?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSIamFetchOffsetKey",
+                    "printedName": "OneSignalOSCore.OSIamFetchOffsetKey",
+                    "usr": "s:15OneSignalOSCore19OSIamFetchOffsetKeyO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore19OSIamFetchOffsetKeyO8rawValueACSgSi_tcfc",
+            "mangledName": "$s15OneSignalOSCore19OSIamFetchOffsetKeyO8rawValueACSgSi_tcfc",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Var",
             "name": "rawValue",
             "printedName": "rawValue",
@@ -5506,39 +5810,6 @@
                 "accessorKind": "get"
               }
             ]
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(rawValue:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "OneSignalOSCore.OSIamFetchOffsetKey?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OSIamFetchOffsetKey",
-                    "printedName": "OneSignalOSCore.OSIamFetchOffsetKey",
-                    "usr": "s:15OneSignalOSCore19OSIamFetchOffsetKeyO"
-                  }
-                ],
-                "usr": "s:Sq"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Int",
-                "printedName": "Swift.Int",
-                "usr": "s:Si"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:15OneSignalOSCore19OSIamFetchOffsetKeyO8rawValueACSgSi_tcfc",
-            "mangledName": "$s15OneSignalOSCore19OSIamFetchOffsetKeyO8rawValueACSgSi_tcfc",
-            "moduleName": "OneSignalOSCore",
-            "implicit": true,
-            "init_kind": "Designated"
           }
         ],
         "declKind": "Enum",
@@ -5550,6 +5821,20 @@
         ],
         "enumRawTypeName": "Int",
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
           {
             "kind": "Conformance",
             "name": "Equatable",
@@ -5849,6 +6134,20 @@
         "conformances": [
           {
             "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
             "name": "Equatable",
             "printedName": "Equatable",
             "usr": "s:SQ",
@@ -5943,6 +6242,22 @@
         "moduleName": "OneSignalOSCore",
         "declAttributes": [
           "AccessControl"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -6186,6 +6501,22 @@
         "declAttributes": [
           "AccessControl",
           "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
         ]
       },
       {
@@ -6304,6 +6635,20 @@
             "printedName": "Sendable",
             "usr": "s:s8SendableP",
             "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
           },
           {
             "kind": "Conformance",
@@ -6447,65 +6792,9 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 2754,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 2816,
-      "length": 33,
-      "value": "\"OSOperationRepo calling start()\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "Array",
-      "offset": 3395,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3516,
-      "length": 56,
-      "value": "\"OSOperationRepo.start() with deltaQueue: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3571,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3649,
-      "length": 65,
-      "value": "\"OSOperationRepo.start() is unable to uncache the OSDelta queue.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "BooleanLiteral",
       "offset": 4852,
       "length": 5,
       "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 5106,
-      "length": 40,
-      "value": "\"OSOperationRepo enqueueDelta: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 5145,
-      "length": 2,
-      "value": "\"\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
@@ -6520,62 +6809,6 @@
       "offset": 5740,
       "length": 5,
       "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 5836,
-      "length": 56,
-      "value": "\"OSOperationRepo not flushing queue due to being paused\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 6304,
-      "length": 95,
-      "value": "\"OSOperationRepo flushDeltaQueue in background: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 6367,
-      "length": 4,
-      "value": "\" with queue: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 6398,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "IntegerLiteral",
-      "offset": 6432,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "IntegerLiteral",
-      "offset": 6783,
-      "length": 1,
-      "value": "1"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSEventProducer.swift",
-      "kind": "StringLiteral",
-      "offset": 1724,
-      "length": 63,
-      "value": "\"OSEventProducer.unsubscribe() called with handler: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSEventProducer.swift",
-      "kind": "StringLiteral",
-      "offset": 1786,
-      "length": 2,
-      "value": "\"\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
@@ -6599,139 +6832,6 @@
       "value": "[]"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Dictionary",
-      "offset": 1845,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Dictionary",
-      "offset": 1877,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Dictionary",
-      "offset": 2217,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "IntegerLiteral",
-      "offset": 2655,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Array",
-      "offset": 2775,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Array",
-      "offset": 3402,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Array",
-      "offset": 4102,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 4283,
-      "length": 29,
-      "value": "\"Condition met for id: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 4311,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 4498,
-      "length": 33,
-      "value": "\"Condition not met for id: \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 4530,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "Dictionary",
-      "offset": 1777,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "Dictionary",
-      "offset": 1906,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "StringLiteral",
-      "offset": 4382,
-      "length": 47,
-      "value": "\"OSModelStore remove() called with model \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "StringLiteral",
-      "offset": 4428,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "StringLiteral",
-      "offset": 5078,
-      "length": 73,
-      "value": "\"OSModelStore cannot remove \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "StringLiteral",
-      "offset": 5111,
-      "length": 7,
-      "value": "\" because it doesn't exist in the store.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "Dictionary",
-      "offset": 5891,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStore.swift",
-      "kind": "StringLiteral",
-      "offset": 1257,
-      "length": 12,
-      "value": "\"OneSignalOSCore.OSModelStore\""
-    },
-    {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "BooleanLiteral",
       "offset": 1419,
@@ -6740,45 +6840,10 @@
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
-      "kind": "StringLiteral",
-      "offset": 1702,
-      "length": 9,
-      "value": "\"modelId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
-      "kind": "StringLiteral",
-      "offset": 1819,
-      "length": 9,
-      "value": "\"modelId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
       "kind": "BooleanLiteral",
-      "offset": 2657,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2758,
+      "offset": 2166,
       "length": 5,
       "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
-      "kind": "StringLiteral",
-      "offset": 2846,
-      "length": 50,
-      "value": "\"hydrateModel(response:) has not been implemented\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModel.swift",
-      "kind": "StringLiteral",
-      "offset": 1260,
-      "length": 7,
-      "value": "\"OneSignalOSCore.OSModel\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSNewRecordsState.swift",
@@ -6795,97 +6860,6 @@
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSNewRecordsState.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2239,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 1894,
-      "length": 106,
-      "value": "\"OSBackgroundTaskManager:beginBackgroundTask \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 1956,
-      "length": 6,
-      "value": "\" cannot be executed due to no task handler.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 2276,
-      "length": 104,
-      "value": "\"OSBackgroundTaskManager:endBackgroundTask \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 2336,
-      "length": 6,
-      "value": "\" cannot be executed due to no task handler.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 2651,
-      "length": 101,
-      "value": "\"OSBackgroundTaskManager:setTaskInvalid \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSBackgroundTaskManager.swift",
-      "kind": "StringLiteral",
-      "offset": 2708,
-      "length": 6,
-      "value": "\" cannot be executed due to no task handler.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSReadYourWriteData.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1682,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSReadYourWriteData.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1888,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSReadYourWriteData.swift",
-      "kind": "BooleanLiteral",
-      "offset": 1894,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSReadYourWriteData.swift",
-      "kind": "StringLiteral",
-      "offset": 1250,
-      "length": 19,
-      "value": "\"OneSignalOSCore.OSReadYourWriteData\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStoreListener.swift",
-      "kind": "StringLiteral",
-      "offset": 2418,
-      "length": 61,
-      "value": "\"OSModelStoreListener.onRemoved() called with model \""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStoreListener.swift",
-      "kind": "StringLiteral",
-      "offset": 2478,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "BooleanLiteral",
       "offset": 1434,
@@ -6898,41 +6872,6 @@
       "offset": 2055,
       "length": 26,
       "value": "\"OSIamFetchReadyCondition\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
-      "kind": "BooleanLiteral",
-      "offset": 2442,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
-      "kind": "BooleanLiteral",
-      "offset": 3088,
-      "length": 4,
-      "value": "true"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
-      "kind": "StringLiteral",
-      "offset": 3773,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
-      "kind": "StringLiteral",
-      "offset": 3795,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
-      "kind": "StringLiteral",
-      "offset": 1243,
-      "length": 24,
-      "value": "\"OneSignalOSCore.OSIamFetchReadyCondition\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
@@ -6961,195 +6900,6 @@
       "offset": 1843,
       "length": 1,
       "value": "\">\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2276,
-      "length": 6,
-      "value": "\"name\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2322,
-      "length": 9,
-      "value": "\"deltaId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2373,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2432,
-      "length": 17,
-      "value": "\"identityModelId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2487,
-      "length": 7,
-      "value": "\"model\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2535,
-      "length": 10,
-      "value": "\"property\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2583,
-      "length": 7,
-      "value": "\"value\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2695,
-      "length": 6,
-      "value": "\"name\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2770,
-      "length": 9,
-      "value": "\"deltaId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2850,
-      "length": 11,
-      "value": "\"timestamp\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 2936,
-      "length": 17,
-      "value": "\"identityModelId\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 3020,
-      "length": 7,
-      "value": "\"model\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 3098,
-      "length": 10,
-      "value": "\"property\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 3175,
-      "length": 7,
-      "value": "\"value\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 3257,
-      "length": 35,
-      "value": "\"Unable to init OSDelta from cache\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
-      "kind": "StringLiteral",
-      "offset": 1476,
-      "length": 7,
-      "value": "\"OneSignalOSCore.OSDelta\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDispatchQueue.swift",
-      "kind": "Array",
-      "offset": 1618,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
-      "kind": "StringLiteral",
-      "offset": 477,
-      "length": 138,
-      "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
-      "kind": "StringLiteral",
-      "offset": 816,
-      "length": 138,
-      "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
-      "kind": "StringLiteral",
-      "offset": 1069,
-      "length": 138,
-      "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
-      "kind": "StringLiteral",
-      "offset": 1388,
-      "length": 138,
-      "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1568,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1592,
-      "length": 1,
-      "value": "1"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1624,
-      "length": 1,
-      "value": "2"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1568,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1592,
-      "length": 1,
-      "value": "1"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
-      "kind": "IntegerLiteral",
-      "offset": 1624,
-      "length": 1,
-      "value": "2"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchOffsetKey.swift",
@@ -7199,13 +6949,6 @@
       "offset": 1716,
       "length": 1,
       "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelChangedHandler.swift",
-      "kind": "StringLiteral",
-      "offset": 1256,
-      "length": 18,
-      "value": "\"OneSignalOSCore.OSModelChangedArgs\""
     }
   ]
 }
