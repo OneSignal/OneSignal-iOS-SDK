@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "0F56CD0B-5904-415C-B328-24EE0394B75B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:OneSignal.xcodeproj",
+        "identifier" : "DEBA2A192C20E35E00E234DB",
+        "name" : "OneSignalNotificationsTests"
+      }
+    }
+  ],
+  "version" : 1
+}
