@@ -119,8 +119,9 @@ class OSUserExecutor {
 
             // Translate the last request into a Create User request, if the current user is the same
             if let request = transferSubscriptionRequestQueue.last,
+               let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
                OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.aliasId) {
-                createUser(OneSignalUserManagerImpl.sharedInstance.user)
+                createUser(userInstance)
             }
         }
     }
@@ -396,9 +397,10 @@ extension OSUserExecutor {
 
                 self.removeFromQueue(request)
 
-                if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
+                if let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
+                    OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
                     // Generate a Create User request, if it's still the current user
-                    self.createUser(OneSignalUserManagerImpl.sharedInstance.user)
+                    self.createUser(userInstance)
                 } else {
                     // This will hydrate the OneSignal ID for any pending requests
                     self.createUser(aliasLabel: request.aliasLabel, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
@@ -544,7 +546,7 @@ extension OSUserExecutor {
         }
 
         if let propertiesObject = parsePropertiesObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
+            OneSignalUserManagerImpl.sharedInstance._user?.propertiesModel.hydrate(propertiesObject)
         }
 
         // Now parse email and sms subscriptions

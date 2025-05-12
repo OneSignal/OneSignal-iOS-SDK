@@ -384,12 +384,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     func isCurrentUser(_ externalId: String) -> Bool {
-        guard !externalId.isEmpty else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "isCurrentUser called with empty externalId")
+        guard let userInstance = _user, !externalId.isEmpty else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "isCurrentUser called with empty externalId or no user instance")
             return false
         }
 
-        return user.identityModel.externalId == externalId
+        return userInstance.identityModel.externalId == externalId
     }
     /**
      Clears the existing user's data in preparation for hydration via a fetch user call.
