@@ -26,8 +26,8 @@
  */
 
 #import "OSMessagingController.h"
-#import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
-#import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
+#import "UIApplication+OneSignal.h"
+#import "NSDateFormatter+OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSInAppMessageClickResult.h"
 #import "OSInAppMessageClickEvent.h"
@@ -165,6 +165,7 @@ static dispatch_once_t once;
     return sharedInstance;
 }
 
+/// Note: This method is used in tests only.
 + (void)removeInstance {
     sharedInstance = nil;
     once = 0;
@@ -815,10 +816,6 @@ static BOOL _isInAppMessagingPaused = false;
     return self.triggerController.getTriggers;
 }
 
-- (id)getTriggerValueForKey:(NSString *)key {
-    return [self.triggerController getTriggerValueForKey:key];
-}
-
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerDidDisplay:(OSInAppMessageInternal *)message {
     [self onDidDisplayInAppMessage:message];
@@ -1227,7 +1224,6 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
 - (void)clearTriggers {}
 - (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
-- (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
 - (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {}
