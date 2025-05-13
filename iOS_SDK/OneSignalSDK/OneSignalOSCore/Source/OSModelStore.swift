@@ -105,14 +105,12 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
             // listen for changes to this model
             model.changeNotifier.subscribe(self)
-
-            guard !hydrating else {
-                return
-            }
-
-            self.changeSubscription.fire { modelStoreListener in
-                modelStoreListener.onAdded(model)
-            }
+        }
+        guard !hydrating else {
+            return
+        }
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.onAdded(model)
         }
     }
 
@@ -121,23 +119,27 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      This can happen if remove email or SMS is called and it doesn't exist in the store.
      */
     public func remove(_ id: String) {
+        var model: TModel?
         lock.withLock {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
-            if let model = models[id] {
+            if let foundModel = models[id] {
+                model = foundModel
                 models.removeValue(forKey: id)
 
                 // persist the models (with removed model) to storage
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
-
-                // no longer listen for changes to this model
-                model.changeNotifier.unsubscribe(self)
-
-                self.changeSubscription.fire { modelStoreListener in
-                    modelStoreListener.onRemoved(model)
-                }
             } else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
+                return
             }
+        }
+        guard let model = model else {
+            return
+        }
+        // no longer listen for changes to this model
+        model.changeNotifier.unsubscribe(self)
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.onRemoved(model)
         }
     }
 
@@ -167,13 +169,12 @@ extension OSModelStore: OSModelChangedHandler {
         // persist the changed models to storage
         lock.withLock {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
-
-            guard !hydrating else {
-                return
-            }
-            self.changeSubscription.fire { modelStoreListener in
-                modelStoreListener.onUpdated(args)
-            }
+        }
+        guard !hydrating else {
+            return
+        }
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.onUpdated(args)
         }
     }
 }

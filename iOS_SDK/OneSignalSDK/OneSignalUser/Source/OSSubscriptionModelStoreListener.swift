@@ -37,9 +37,13 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getAddModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
+        guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance")
+            return nil
+        }
         return OSDelta(
             name: OS_ADD_SUBSCRIPTION_DELTA,
-            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
+            identityModelId: userInstance.identityModel.modelId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -50,9 +54,13 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
      The `property` and `value` is not needed for a remove operation, so just pass in some model data as placeholders.
      */
     func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
+        guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getRemoveModelDelta has no user instance")
+            return nil
+        }
         return OSDelta(
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
-            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
+            identityModelId: userInstance.identityModel.modelId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -66,14 +74,18 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
         // The user update call increases the session_count while the subscription update would update
         // something like the app_version. If the app_version hasn't changed since the last session, there
         // wouldn't be an update needed (among other system-level properties).
-        if let onesignalId = OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId {
+        guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getUpdateModelDelta has no user instance")
+            return nil
+        }
+        if let onesignalId = userInstance.identityModel.onesignalId {
             let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             condition.setSubscriptionUpdatePending(value: true)
         }
 
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
-            identityModelId: OneSignalUserManagerImpl.sharedInstance.user.identityModel.modelId,
+            identityModelId: userInstance.identityModel.modelId,
             model: args.model,
             property: args.property,
             value: args.newValue
