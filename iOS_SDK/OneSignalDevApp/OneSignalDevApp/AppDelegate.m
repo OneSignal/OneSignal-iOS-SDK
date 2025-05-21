@@ -50,7 +50,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
 //    [FIRApp configure];
     
-    NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
+    NSLog(@"    Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     
