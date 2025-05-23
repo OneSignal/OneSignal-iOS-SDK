@@ -59,6 +59,7 @@
 @property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
+@property(readonly)BOOL hasBadge;
 @property(readonly)NSInteger badge;
 @property(readonly)NSInteger badgeIncrement;
 

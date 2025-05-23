@@ -124,7 +124,7 @@
 
 - (void)parseApnsFields {
     [self parseAlertField:_rawPayload[@"aps"][@"alert"]];
-    _badge = [_rawPayload[@"aps"][@"badge"] intValue];
+    _badge = _rawPayload[@"aps"][@"badge"];
     _sound = _rawPayload[@"aps"][@"sound"];
 }
 
@@ -145,7 +145,7 @@
 // May also be used if OneSignal server hasn't received the SDK version 2.4.0+ update event
 - (void)parseRemoteSlient:(NSDictionary*)payload {
     [self parseAlertField:payload[@"m"]];
-    _badge = [payload[@"b"] intValue];
+    _badge = payload[@"b"];
     _sound = payload[@"s"];
     _attachments = payload[@"at"];
     [self parseActionButtons:payload[@"o"]];
@@ -258,7 +258,7 @@
         [obj setObject:self.templateId forKeyedSubscript: @"templateId"];
     
     if (self.badge)
-        [obj setObject:@(self.badge) forKeyedSubscript: @"badge"];
+        [obj setObject:self.badge forKeyedSubscript: @"badge"];
     
     if (self.badgeIncrement)
         [obj setObject:@(self.badgeIncrement) forKeyedSubscript: @"badgeIncrement"];
