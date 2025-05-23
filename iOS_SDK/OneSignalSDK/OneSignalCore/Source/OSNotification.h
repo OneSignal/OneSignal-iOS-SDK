@@ -59,7 +59,8 @@
 @property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
-@property(readonly, nullable)NSNumber* badge;
+@property(readonly)BOOL hasBadge;
+@property(readonly)NSInteger badge;
 @property(readonly)NSInteger badgeIncrement;
 
 /* The sound parameter passed to the notification
