@@ -784,7 +784,7 @@ static NSString *_lastnonActiveMessageId;
     openUrlBlock(true);
 }
 
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll {
++ (void)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll {
     
     NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
     
@@ -796,7 +796,7 @@ static NSString *_lastnonActiveMessageId;
     if (_disableBadgeClearing && !fromClearAll) {
         // The customer could have manually changed the badge value. We must ensure our cached value will match the current state.
         [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:[UIApplication sharedApplication].applicationIconBadgeNumber];
-        return false;
+        return;
     }
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
@@ -806,8 +806,6 @@ static NSString *_lastnonActiveMessageId;
             [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
         }];
     }
-
-    return wasBadgeSet;
 }
 
 + (BOOL)handleIAMPreview:(OSNotification *)notification {
