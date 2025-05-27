@@ -802,9 +802,17 @@ static NSString *_lastnonActiveMessageId;
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
     if (fromNotifOpened || wasBadgeSet) {
-        [OneSignalCoreHelper runOnMainThread:^{
-            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-        }];
+        if (@available(iOS 16.0, *)) {
+            [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:0 withCompletionHandler:^(NSError * _Nullable error) {
+                if (error) {
+                    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"clearBadgeCount encountered error setting badge count: %@", error]];
+                }
+            }];
+        } else {
+            [OneSignalCoreHelper runOnMainThread:^{
+                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+            }];
+        }
     }
 }
 

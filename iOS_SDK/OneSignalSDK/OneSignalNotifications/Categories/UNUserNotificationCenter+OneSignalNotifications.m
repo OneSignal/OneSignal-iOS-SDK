@@ -97,6 +97,12 @@ static OSUNUserNotificationCenterDelegate* singleInstance = nil;
         [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(onesignalGetNotificationSettingsWithCompletionHandler:)
    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(setBadgeCount:withCompletionHandler:),
+        [OneSignalNotificationsUNUserNotificationCenter class],
+        @selector(onesignalSetBadgeCount:withCompletionHandler:)
+    );
 }
 
 + (void)registerDelegate {
@@ -167,6 +173,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
 }
 
+/**
+ In order for the badge count to be consistent even in situations where the developer manually sets the badge number,
+ we swizzle the 'setBadgeCount()' method for ios 16+ to intercept these calls so we always know the latest count. This is especially
+ necessary as there is no equivalent "getBadgeCount" method available.
+ */
+- (void)onesignalSetBadgeCount:(NSInteger)badge withCompletionHandler:(void(^)(NSError *error))completionHandler {
+    [OneSignalBadgeHelpers updateCachedBadgeValue:badge];
+    [self onesignalSetBadgeCount:badge withCompletionHandler:completionHandler];
+}
 
 // A Set to keep track of which classes we have already swizzled so we only
 // swizzle each one once. If we swizzled more than once then this will create
