@@ -34,7 +34,7 @@
     //if the user is setting the badge directly instead of incrementing/decrementing,
     //make sure the OneSignal cached value is updated to this value
     if (!notification.badgeIncrement) {
-        if (notification.badge)
+        if (notification.hasBadge)
             [OneSignalExtensionBadgeHandler updateCachedBadgeValue:notification.badge];
         
         return;

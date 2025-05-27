@@ -985,7 +985,7 @@ static NSString *_lastnonActiveMessageId;
     else
         content.sound = UNNotificationSound.defaultSound;
     
-    if (notification.badge != 0)
+    if (notification.hasBadge)
         content.badge = [NSNumber numberWithInteger:notification.badge];
     
     // Check if media attached
