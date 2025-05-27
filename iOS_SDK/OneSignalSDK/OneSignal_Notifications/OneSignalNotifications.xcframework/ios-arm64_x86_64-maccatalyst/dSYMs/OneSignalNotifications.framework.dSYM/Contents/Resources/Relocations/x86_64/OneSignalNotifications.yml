@@ -188,7 +188,7 @@ relocations:
   - { offset: 0xE5602, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate traceCall:]', symObjAddr: 0x969, symBinAddr: 0x70F1, symSize: 0x21 }
   - { offset: 0xE57CA, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x7112, symSize: 0x11 }
   - { offset: 0xE57E6, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings registerForProvisionalAuthorization:]', symObjAddr: 0xBD0, symBinAddr: 0x7C67, symSize: 0x157 }
-  - { offset: 0xE598C, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x7C18, symBinAddr: 0x134E8, symSize: 0x0 }
+  - { offset: 0xE598C, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x7C20, symBinAddr: 0x134E8, symSize: 0x0 }
   - { offset: 0xE5A04, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x7112, symSize: 0x11 }
   - { offset: 0xE5A37, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings init]', symObjAddr: 0x11, symBinAddr: 0x7123, symSize: 0x53 }
   - { offset: 0xE5AB1, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState:]', symObjAddr: 0x64, symBinAddr: 0x7176, symSize: 0xD6 }
@@ -214,10 +214,10 @@ relocations:
   - { offset: 0xE68A6, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings useCachedStatus]', symObjAddr: 0xE33, symBinAddr: 0x7ECA, symSize: 0xA }
   - { offset: 0xE68DB, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings setUseCachedStatus:]', symObjAddr: 0xE3D, symBinAddr: 0x7ED4, symSize: 0x9 }
   - { offset: 0xE6F84, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x7EDD, symSize: 0x7D }
-  - { offset: 0xE6F9E, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0xAE88, symBinAddr: 0x134F0, symSize: 0x0 }
-  - { offset: 0xE6FCA, size: 0x8, addend: 0x0, symName: _useCachedUNNotificationSettings, symObjAddr: 0xAE90, symBinAddr: 0x134F8, symSize: 0x0 }
-  - { offset: 0xE6FEE, size: 0x8, addend: 0x0, symName: _cachedUNNotificationSettings, symObjAddr: 0xAE98, symBinAddr: 0x13500, symSize: 0x0 }
-  - { offset: 0xE7009, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0xAEA0, symBinAddr: 0x13508, symSize: 0x0 }
+  - { offset: 0xE6F9E, size: 0x8, addend: 0x0, symName: _singleInstance, symObjAddr: 0xAE90, symBinAddr: 0x134F0, symSize: 0x0 }
+  - { offset: 0xE6FCA, size: 0x8, addend: 0x0, symName: _useCachedUNNotificationSettings, symObjAddr: 0xAE98, symBinAddr: 0x134F8, symSize: 0x0 }
+  - { offset: 0xE6FEE, size: 0x8, addend: 0x0, symName: _cachedUNNotificationSettings, symObjAddr: 0xAEA0, symBinAddr: 0x13500, symSize: 0x0 }
+  - { offset: 0xE7009, size: 0x8, addend: 0x0, symName: _swizzledClasses, symObjAddr: 0xAEA8, symBinAddr: 0x13508, symSize: 0x0 }
   - { offset: 0xE7024, size: 0x8, addend: 0x0, symName: _useiOS10_2_workaround, symObjAddr: 0x2A50, symBinAddr: 0x13438, symSize: 0x0 }
   - { offset: 0xE7070, size: 0x8, addend: 0x0, symName: '+[OSUNUserNotificationCenterDelegate sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x7EDD, symSize: 0x7D }
   - { offset: 0xE70CF, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsUNUserNotificationCenter setup]', symObjAddr: 0x7D, symBinAddr: 0x7F5A, symSize: 0x36 }

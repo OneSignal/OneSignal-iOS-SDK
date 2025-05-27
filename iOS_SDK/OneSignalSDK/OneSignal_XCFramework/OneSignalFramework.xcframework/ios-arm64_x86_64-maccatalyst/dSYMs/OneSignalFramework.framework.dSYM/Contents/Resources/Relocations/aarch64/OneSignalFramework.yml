@@ -4,15 +4,15 @@ binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqd
 relocations:
   - { offset: 0x1AEFA8, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x428C, symSize: 0xC }
   - { offset: 0x1AEFEE, size: 0x8, addend: 0x0, symName: '+[OneSignal shouldStartNewSession]', symObjAddr: 0x8DC, symBinAddr: 0x4B68, symSize: 0x19C }
-  - { offset: 0x1AF0D8, size: 0x8, addend: 0x0, symName: __delayedInitParameters, symObjAddr: 0xBB38, symBinAddr: 0x1AB38, symSize: 0x0 }
-  - { offset: 0x1AF122, size: 0x8, addend: 0x0, symName: _launchOptions, symObjAddr: 0xBB50, symBinAddr: 0x1AB68, symSize: 0x0 }
-  - { offset: 0x1AF138, size: 0x8, addend: 0x0, symName: _initializationTime, symObjAddr: 0xBB60, symBinAddr: 0x1AB78, symSize: 0x0 }
-  - { offset: 0x1AF155, size: 0x8, addend: 0x0, symName: __receiveReceiptsController, symObjAddr: 0xBB48, symBinAddr: 0x1AB60, symSize: 0x0 }
-  - { offset: 0x1AF170, size: 0x8, addend: 0x0, symName: __didCallDownloadParameters, symObjAddr: 0xBB40, symBinAddr: 0x1AB58, symSize: 0x0 }
-  - { offset: 0x1AF194, size: 0x8, addend: 0x0, symName: __downloadedParameters, symObjAddr: 0xBB41, symBinAddr: 0x1AB59, symSize: 0x0 }
-  - { offset: 0x1AF1B1, size: 0x8, addend: 0x0, symName: _initDone, symObjAddr: 0xBB58, symBinAddr: 0x1AB70, symSize: 0x0 }
-  - { offset: 0x1AF1CE, size: 0x8, addend: 0x0, symName: _registeredWithApple, symObjAddr: 0xBB59, symBinAddr: 0x1AB71, symSize: 0x0 }
-  - { offset: 0x1AF1E4, size: 0x8, addend: 0x0, symName: _delayedInitializationForPrivacyConsent, symObjAddr: 0xBB68, symBinAddr: 0x1AB80, symSize: 0x0 }
+  - { offset: 0x1AF0D8, size: 0x8, addend: 0x0, symName: __delayedInitParameters, symObjAddr: 0xBB40, symBinAddr: 0x1AB38, symSize: 0x0 }
+  - { offset: 0x1AF122, size: 0x8, addend: 0x0, symName: _launchOptions, symObjAddr: 0xBB58, symBinAddr: 0x1AB68, symSize: 0x0 }
+  - { offset: 0x1AF138, size: 0x8, addend: 0x0, symName: _initializationTime, symObjAddr: 0xBB68, symBinAddr: 0x1AB78, symSize: 0x0 }
+  - { offset: 0x1AF155, size: 0x8, addend: 0x0, symName: __receiveReceiptsController, symObjAddr: 0xBB50, symBinAddr: 0x1AB60, symSize: 0x0 }
+  - { offset: 0x1AF170, size: 0x8, addend: 0x0, symName: __didCallDownloadParameters, symObjAddr: 0xBB48, symBinAddr: 0x1AB58, symSize: 0x0 }
+  - { offset: 0x1AF194, size: 0x8, addend: 0x0, symName: __downloadedParameters, symObjAddr: 0xBB49, symBinAddr: 0x1AB59, symSize: 0x0 }
+  - { offset: 0x1AF1B1, size: 0x8, addend: 0x0, symName: _initDone, symObjAddr: 0xBB60, symBinAddr: 0x1AB70, symSize: 0x0 }
+  - { offset: 0x1AF1CE, size: 0x8, addend: 0x0, symName: _registeredWithApple, symObjAddr: 0xBB61, symBinAddr: 0x1AB71, symSize: 0x0 }
+  - { offset: 0x1AF1E4, size: 0x8, addend: 0x0, symName: _delayedInitializationForPrivacyConsent, symObjAddr: 0xBB70, symBinAddr: 0x1AB80, symSize: 0x0 }
   - { offset: 0x1AF21F, size: 0x8, addend: 0x0, symName: '+[OneSignal delayedInitParameters]', symObjAddr: 0x0, symBinAddr: 0x428C, symSize: 0xC }
   - { offset: 0x1AF252, size: 0x8, addend: 0x0, symName: '+[OneSignal didCallDownloadParameters]', symObjAddr: 0xC, symBinAddr: 0x4298, symSize: 0xC }
   - { offset: 0x1AF285, size: 0x8, addend: 0x0, symName: '+[OneSignal downloadedParameters]', symObjAddr: 0x18, symBinAddr: 0x42A4, symSize: 0xC }
