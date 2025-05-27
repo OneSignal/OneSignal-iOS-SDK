@@ -79,7 +79,7 @@ relocations:
   - { offset: 0xD8515, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory setRepository:]', symObjAddr: 0x198, symBinAddr: 0x66DC, symSize: 0xC }
   - { offset: 0xD8556, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsFactory .cxx_destruct]', symObjAddr: 0x1A4, symBinAddr: 0x66E8, symSize: 0x30 }
   - { offset: 0xD8648, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x6718, symSize: 0x44 }
-  - { offset: 0xD8662, size: 0x8, addend: 0x0, symName: __sharedOutcomeEventsCache, symObjAddr: 0x1A90, symBinAddr: 0x1B270, symSize: 0x0 }
+  - { offset: 0xD8662, size: 0x8, addend: 0x0, symName: __sharedOutcomeEventsCache, symObjAddr: 0x1A98, symBinAddr: 0x1B270, symSize: 0x0 }
   - { offset: 0xD8682, size: 0x8, addend: 0x0, symName: '+[OSOutcomeEventsCache sharedOutcomeEventsCache]', symObjAddr: 0x0, symBinAddr: 0x6718, symSize: 0x44 }
   - { offset: 0xD86B5, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache isOutcomesV2ServiceEnabled]', symObjAddr: 0x44, symBinAddr: 0x675C, symSize: 0x50 }
   - { offset: 0xD86E8, size: 0x8, addend: 0x0, symName: '-[OSOutcomeEventsCache saveOutcomesV2ServiceEnabled:]', symObjAddr: 0x94, symBinAddr: 0x67AC, symSize: 0x48 }
