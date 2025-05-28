@@ -31,5 +31,4 @@
 
 @interface OneSignalExtensionBadgeHandler : NSObject
 + (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotification:(OSNotification *)notification withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent;
-+ (NSInteger)currentCachedBadgeValue;
 @end
