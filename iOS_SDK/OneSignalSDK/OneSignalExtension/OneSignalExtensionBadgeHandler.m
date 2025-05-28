@@ -35,7 +35,7 @@
     //make sure the OneSignal cached value is updated to this value
     if (!notification.badgeIncrement) {
         if (notification.hasBadge)
-            [OneSignalBadgeHelpers updateCachedBadgeValue:notification.badge];
+            [OneSignalBadgeHelpers updateCachedBadgeValue:notification.badge usePreviousBadgeCount:false];
         
         return;
     }
@@ -50,7 +50,7 @@
     
     replacementContent.badge = @(currentValue);
     
-    [OneSignalBadgeHelpers updateCachedBadgeValue:currentValue];
+    [OneSignalBadgeHelpers updateCachedBadgeValue:currentValue usePreviousBadgeCount:false];
 }
 
 + (NSInteger)currentCachedBadgeValue {

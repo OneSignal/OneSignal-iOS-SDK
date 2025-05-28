@@ -30,9 +30,23 @@
 #import "OneSignalCommonDefines.h"
 
 @implementation OneSignalBadgeHelpers
-+ (void)updateCachedBadgeValue:(NSInteger)value {
+
+/**
+ Store a previous badge count so that we can revert to this cached value when a notification display is cancelled.
+ When `usePreviousBadgeCount` is `true`, the `value` passed to this method will be unused.
+ */
++ (void)updateCachedBadgeValue:(NSInteger)value usePreviousBadgeCount:(BOOL)usePrevious {
     // Since badge logic can be executed in an extension, we need to use app groups to get
     // a shared NSUserDefaults from the app group suite name
-    [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
+    if (usePrevious) {
+        // Keep the PREVIOUS_ONESIGNAL_BADGE_KEY value unchanged
+        NSInteger previousBadgeCount = [OneSignalUserDefaults.initShared getSavedIntegerForKey:PREVIOUS_ONESIGNAL_BADGE_KEY defaultValue:0];
+        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+    } else {
+        NSInteger previousBadgeCount = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_BADGE_KEY defaultValue:0];
+        [OneSignalUserDefaults.initShared saveIntegerForKey:PREVIOUS_ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
+    }
 }
+
 @end

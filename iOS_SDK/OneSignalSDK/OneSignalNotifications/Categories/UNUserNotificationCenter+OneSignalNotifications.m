@@ -179,7 +179,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
  necessary as there is no equivalent "getBadgeCount" method available.
  */
 - (void)onesignalSetBadgeCount:(NSInteger)badge withCompletionHandler:(void(^)(NSError *error))completionHandler {
-    [OneSignalBadgeHelpers updateCachedBadgeValue:badge];
+    [OneSignalBadgeHelpers updateCachedBadgeValue:badge usePreviousBadgeCount:false];
     [self onesignalSetBadgeCount:badge withCompletionHandler:completionHandler];
 }
 

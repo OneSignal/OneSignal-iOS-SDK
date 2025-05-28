@@ -28,5 +28,5 @@
 #import <Foundation/Foundation.h>
 
 @interface OneSignalBadgeHelpers : NSObject
-+ (void)updateCachedBadgeValue:(NSInteger)value;
++ (void)updateCachedBadgeValue:(NSInteger)value usePreviousBadgeCount:(BOOL)usePrevious;
 @end
