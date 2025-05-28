@@ -794,25 +794,22 @@ static NSString *_lastnonActiveMessageId;
         _disableBadgeClearing = NO;
     
     if (_disableBadgeClearing && !fromClearAll) {
-        // The customer could have manually changed the badge value. We must ensure our cached value will match the current state.
-        [OneSignalBadgeHelpers updateCachedBadgeValue:[UIApplication sharedApplication].applicationIconBadgeNumber];
+        // The developer could have manually changed the badge value but we cannot read the current state.
+        // We swizzle badge count setters, which should be sufficient to ensure the cached value matches the current state.
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"clearBadgeCount called but badge clearing is disabled, not updating cached badge count"];
         return;
     }
     
-    bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
-    
-    if (fromNotifOpened || wasBadgeSet) {
-        if (@available(iOS 16.0, *)) {
-            [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:0 withCompletionHandler:^(NSError * _Nullable error) {
-                if (error) {
-                    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"clearBadgeCount encountered error setting badge count: %@", error]];
-                }
-            }];
-        } else {
-            [OneSignalCoreHelper runOnMainThread:^{
-                [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-            }];
-        }
+    if (@available(iOS 16.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:0 withCompletionHandler:^(NSError * _Nullable error) {
+            if (error) {
+                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"clearBadgeCount encountered error setting badge count: %@", error]];
+            }
+        }];
+    } else {
+        [OneSignalCoreHelper runOnMainThread:^{
+            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+        }];
     }
 }
 
