@@ -35,7 +35,7 @@
     //make sure the OneSignal cached value is updated to this value
     if (!notification.badgeIncrement) {
         if (notification.hasBadge)
-            [OneSignalExtensionBadgeHandler updateCachedBadgeValue:notification.badge];
+            [OneSignalBadgeHelpers updateCachedBadgeValue:notification.badge];
         
         return;
     }
@@ -50,17 +50,11 @@
     
     replacementContent.badge = @(currentValue);
     
-    [OneSignalExtensionBadgeHandler updateCachedBadgeValue:currentValue];
+    [OneSignalBadgeHelpers updateCachedBadgeValue:currentValue];
 }
 
 + (NSInteger)currentCachedBadgeValue {
     return [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_BADGE_KEY defaultValue:0];
-}
-
-+ (void)updateCachedBadgeValue:(NSInteger)value {
-    // Since badge logic can be executed in an extension, we need to use app groups to get
-    //  a shared NSUserDefaults from the app group suite name
-    [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
 }
 
 @end

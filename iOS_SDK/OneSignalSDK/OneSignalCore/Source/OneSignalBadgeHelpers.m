@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2025 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,14 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UserNotifications/UserNotifications.h>
-#import <OneSignalCore/OneSignalCore.h>
+#import "OneSignalBadgeHelpers.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
 
-@interface OneSignalExtensionBadgeHandler : NSObject
-+ (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotification:(OSNotification *)notification withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent;
-+ (NSInteger)currentCachedBadgeValue;
+@implementation OneSignalBadgeHelpers
++ (void)updateCachedBadgeValue:(NSInteger)value {
+    // Since badge logic can be executed in an extension, we need to use app groups to get
+    // a shared NSUserDefaults from the app group suite name
+    [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
+}
 @end

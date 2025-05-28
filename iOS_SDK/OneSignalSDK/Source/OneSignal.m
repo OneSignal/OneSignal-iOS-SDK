@@ -809,7 +809,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     We swizzle the 'setApplicationIconBadgeNumber()' to intercept these calls so we always know the latest count
 */
 - (void)onesignalSetApplicationIconBadgeNumber:(NSInteger)badge {
-    [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
+    [OneSignalBadgeHelpers updateCachedBadgeValue:badge];
     [self onesignalSetApplicationIconBadgeNumber:badge];
 }
 

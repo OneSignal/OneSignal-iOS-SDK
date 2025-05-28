@@ -77,7 +77,7 @@ BOOL _wantsToDisplay = true;
      */
     if (!notification) {
         NSInteger previousBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
-        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+        [OneSignalBadgeHelpers updateCachedBadgeValue:previousBadgeCount];
     }
     if (_completion) {
         _completion(notification);
