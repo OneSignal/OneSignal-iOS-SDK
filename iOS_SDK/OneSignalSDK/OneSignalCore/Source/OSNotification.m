@@ -124,6 +124,7 @@
 
 - (void)parseApnsFields {
     [self parseAlertField:_rawPayload[@"aps"][@"alert"]];
+    _hasBadge = _rawPayload[@"aps"][@"badge"] ? true : false;
     _badge = [_rawPayload[@"aps"][@"badge"] intValue];
     _sound = _rawPayload[@"aps"][@"sound"];
 }
@@ -257,7 +258,9 @@
     if (self.templateId)
         [obj setObject:self.templateId forKeyedSubscript: @"templateId"];
     
-    if (self.badge)
+    [obj setObject:@(self.hasBadge) forKeyedSubscript: @"hasBadge"];
+
+    if (self.hasBadge)
         [obj setObject:@(self.badge) forKeyedSubscript: @"badge"];
     
     if (self.badgeIncrement)
