@@ -59,6 +59,9 @@
 @property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
+/// Indicates if badge count is set on this notification; this flag is needed as the `badge` property is an
+/// integer primitive and cannot be used to differentiate between null badge vs badge count of 0.
+@property(readonly)BOOL hasBadge;
 @property(readonly)NSInteger badge;
 @property(readonly)NSInteger badgeIncrement;
 

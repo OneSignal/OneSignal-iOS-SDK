@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050212"
+#define ONESIGNAL_VERSION                                                   @"050213"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -159,6 +159,8 @@
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
 #define ONESIGNAL_APP_GROUP_NAME_KEY @"OneSignal_app_groups_key"
 #define ONESIGNAL_BADGE_KEY @"onesignalBadgeCount"
+/// Store the previous badge count to read for a cancelled notification display event
+#define PREVIOUS_ONESIGNAL_BADGE_KEY @"previousOnesignalBadgeCount"
 
 // Firebase
 #define ONESIGNAL_FB_ENABLE_FIREBASE @"OS_ENABLE_FIREBASE_ANALYTICS"
