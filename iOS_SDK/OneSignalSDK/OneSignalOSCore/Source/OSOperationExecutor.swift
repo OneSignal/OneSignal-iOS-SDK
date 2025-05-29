@@ -32,11 +32,8 @@ import OneSignalCore
  */
 public protocol OSOperationExecutor {
     var supportedDeltas: [String] { get }
-    var deltaQueue: [OSDelta] { get }
 
     func enqueueDelta(_ delta: OSDelta)
     func cacheDeltaQueue()
     func processDeltaQueue(inBackground: Bool)
-
-    func processRequestQueue(inBackground: Bool)
 }

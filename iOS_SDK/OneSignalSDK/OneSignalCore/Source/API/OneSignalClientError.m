@@ -46,4 +46,8 @@
     return self;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<OneSignalClientError code: %ld, message: %@, response: %@, underlyingError: %@ >", (long)_code, _message, _response, _underlyingError];
+}
+
 @end
