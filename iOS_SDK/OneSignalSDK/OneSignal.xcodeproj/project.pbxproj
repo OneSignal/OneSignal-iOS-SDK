@@ -73,6 +73,8 @@
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C2DB2F12DE6CB5E0006B905 /* OneSignalBadgeHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C2DB2EF2DE6CB5E0006B905 /* OneSignalBadgeHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C2DB2F22DE6CB5E0006B905 /* OneSignalBadgeHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DB2F02DE6CB5E0006B905 /* OneSignalBadgeHelpers.m */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -1251,6 +1253,8 @@
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
+		3C2DB2EF2DE6CB5E0006B905 /* OneSignalBadgeHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalBadgeHelpers.h; sourceTree = "<group>"; };
+		3C2DB2F02DE6CB5E0006B905 /* OneSignalBadgeHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalBadgeHelpers.m; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -2596,6 +2600,8 @@
 				DE7D182C270273B0002D3A5D /* OSNotification.h */,
 				454F94F41FAD2E5A00D74CCF /* OSNotification.m */,
 				454F94F61FAD2EC300D74CCF /* OSNotification+Internal.h */,
+				3C2DB2EF2DE6CB5E0006B905 /* OneSignalBadgeHelpers.h */,
+				3C2DB2F02DE6CB5E0006B905 /* OneSignalBadgeHelpers.m */,
 				3CE8CC4C2911ADD1000DB0D3 /* OSDeviceUtils.h */,
 				3C47A972292642B100312125 /* OneSignalConfigManager.h */,
 				3C47A973292642B100312125 /* OneSignalConfigManager.m */,
@@ -3138,6 +3144,7 @@
 				DE7D182F270275FF002D3A5D /* OneSignalTrackFirebaseAnalytics.h in Headers */,
 				DEF7845C2912E89200A1F3A5 /* OSObservable.h in Headers */,
 				DE7D1875270375FF002D3A5D /* OSReattemptRequest.h in Headers */,
+				3C2DB2F12DE6CB5E0006B905 /* OneSignalBadgeHelpers.h in Headers */,
 				DEF784652912FB2200A1F3A5 /* OSDialogInstanceManager.h in Headers */,
 				DEF78493291479B200A1F3A5 /* OneSignalSelectorHelpers.h in Headers */,
 				DE7D1862270374EE002D3A5D /* OSJSONHandling.h in Headers */,
@@ -4427,6 +4434,7 @@
 				DEF784642912FA5100A1F3A5 /* OSDialogInstanceManager.m in Sources */,
 				DE7D183B27027EFC002D3A5D /* NSURL+OneSignal.m in Sources */,
 				DE7D186B270374EE002D3A5D /* OneSignalRequest.m in Sources */,
+				3C2DB2F22DE6CB5E0006B905 /* OneSignalBadgeHelpers.m in Sources */,
 				3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */,
 				3CCF44BF299B17290021964D /* OneSignalWrapper.m in Sources */,
 				DEF78492291479B200A1F3A5 /* OneSignalSelectorHelpers.m in Sources */,

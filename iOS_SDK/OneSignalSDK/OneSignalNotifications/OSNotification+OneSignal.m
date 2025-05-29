@@ -76,8 +76,8 @@ BOOL _wantsToDisplay = true;
      reset the badge count to the value prior to receipt of this notif
      */
     if (!notification) {
-        NSInteger previousBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
-        [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+        // The badge count value of -99 will not be used, the previous badge count will be set
+        [OneSignalBadgeHelpers updateCachedBadgeValue:-99 usePreviousBadgeCount:true];
     }
     if (_completion) {
         _completion(notification);

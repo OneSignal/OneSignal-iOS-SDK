@@ -159,6 +159,8 @@
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
 #define ONESIGNAL_APP_GROUP_NAME_KEY @"OneSignal_app_groups_key"
 #define ONESIGNAL_BADGE_KEY @"onesignalBadgeCount"
+/// Store the previous badge count to read for a cancelled notification display event
+#define PREVIOUS_ONESIGNAL_BADGE_KEY @"previousOnesignalBadgeCount"
 
 // Firebase
 #define ONESIGNAL_FB_ENABLE_FIREBASE @"OS_ENABLE_FIREBASE_ANALYTICS"
