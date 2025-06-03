@@ -139,6 +139,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         if #available(iOS 17.2, *) {
             listenForPushToStart(activityType, options: options)
         }
+        registerPushTokensForActiveActivities(activityType)
         listenForActivity(activityType, options: options)
     }
 
@@ -172,6 +173,15 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     pushType: .token)
         } catch let error {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: " + error.localizedDescription)
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func registerPushTokensForActiveActivities<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type) {
+        for activity in Activity<Attributes>.activities {
+            guard let pushToken = activity.pushToken else { continue }
+            let token = pushToken.map {String(format: "%02x", $0)}.joined()
+            OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
         }
     }
 
