@@ -190,6 +190,21 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
     @available(iOS 16.1, *)
     private static func listenForActivity<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
+
+        /*
+         Apple has confirmed that when using push-to-start, it is best to check both `Activity<...>.activities` in addition
+         `Activity<...>.activityUpdates` --- because your app may need to launch in the background and the launch time may end
+         up being slower than the new values come in. In those cases, your task on the update sequence may start listening after
+         the initial values were already provided.
+         */
+
+        // Establish listeners for activity (if any exist)
+        for activity in Activity<Attributes>.activities {
+            listenForActivityStateUpdates(activityType, activity: activity, options: options)
+            listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+        }
+
+        // Establish listeners for activity updates
         Task {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for activity on: \(activityType)")
             for await activity in Activity<Attributes>.activityUpdates {
@@ -198,6 +213,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     // listening for the new activity's events.
                     for otherActivity in Activity<Attributes>.activities {
                         if activity.id != otherActivity.id && otherActivity.attributes.onesignal.activityId == activity.attributes.onesignal.activityId {
+                            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities dismissing other activity: \(activityType):\(otherActivity.attributes.onesignal.activityId):\(otherActivity.id)")
                             await otherActivity.end(nil, dismissalPolicy: ActivityUIDismissalPolicy.immediate)
                         }
                     }
@@ -230,10 +246,26 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     @available(iOS 16.1, *)
     private static func listenForActivityPushToUpdate<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
         if options == nil || options!.enablePushToUpdate {
+
+            /*
+             Apple has confirmed that when using push-to-start, it is best to check both `Activity<...>.pushToken` in addition
+             `Activity<...>.pushTokenUpdates` --- because your app may need to launch in the background and the launch time may end
+             up being slower than the new values come in. In those cases, your task on the update sequence may start listening after
+             the initial values were already provided.
+             */
+
+            // Set the initial pushToken (if one exists)
+            if let pushToken = activity.pushToken {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities enter with existing pushToken for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
+                let token = pushToken.map {String(format: "%02x", $0)}.joined()
+                OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
+            }
+
             // listen for activity update token updates so we can tell OneSignal how to update the activity
             Task {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for pushToUpdate on: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
                 for await pushToken in activity.pushTokenUpdates {
+                    OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pushTokenUpdates observed for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
                     let token = pushToken.map {String(format: "%02x", $0)}.joined()
                     OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
                 }
