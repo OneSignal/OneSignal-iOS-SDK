@@ -139,7 +139,11 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         if #available(iOS 17.2, *) {
             listenForPushToStart(activityType, options: options)
         }
-        registerPushTokensForActiveActivities(activityType)
+//      Apple has confirmed that when using push-to-start, it is best to check both `Activity<...>.pushToken` in addition to
+//      `Activity<...>.pushTokenUpdates --- as well as checking `Activity<...>.activities` in addition to `Activity<...>.activityUpdates` ---
+//      because your app may need to launch in the background and the launch time may end up being slower than the new values come in.
+//      In those cases, your task on the update sequence may start listening after the initial values were already provided.
+        enterInitialPushTokenForCurrentActivities(activityType)
         listenForActivity(activityType, options: options)
     }
 
@@ -177,7 +181,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
 
     @available(iOS 16.1, *)
-    private static func registerPushTokensForActiveActivities<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type) {
+    private static func enterInitialPushTokenForCurrentActivities<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type) {
         for activity in Activity<Attributes>.activities {
             guard let pushToken = activity.pushToken else { continue }
             let token = pushToken.map {String(format: "%02x", $0)}.joined()
