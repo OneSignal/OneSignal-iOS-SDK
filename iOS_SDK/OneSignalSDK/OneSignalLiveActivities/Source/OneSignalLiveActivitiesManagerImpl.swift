@@ -143,7 +143,6 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 //      `Activity<...>.pushTokenUpdates --- as well as checking `Activity<...>.activities` in addition to `Activity<...>.activityUpdates` ---
 //      because your app may need to launch in the background and the launch time may end up being slower than the new values come in.
 //      In those cases, your task on the update sequence may start listening after the initial values were already provided.
-        enterInitialPushTokenForCurrentActivities(activityType)
         listenForActivity(activityType, options: options)
     }
 
@@ -180,15 +179,6 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         }
     }
 
-    @available(iOS 16.1, *)
-    private static func enterInitialPushTokenForCurrentActivities<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type) {
-        for activity in Activity<Attributes>.activities {
-            guard let pushToken = activity.pushToken else { continue }
-            let token = pushToken.map {String(format: "%02x", $0)}.joined()
-            OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
-        }
-    }
-
     @available(iOS 17.2, *)
     private static func listenForPushToStart<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
         if options == nil || options!.enablePushToStart {
@@ -204,6 +194,14 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
     @available(iOS 16.1, *)
     private static func listenForActivity<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
+
+        // Establish listeners for activity (if any exist)
+        for activity in Activity<Attributes>.activities {
+          listenForActivityStateUpdates(activityType, activity: activity, options: options)
+          listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+        }
+
+        // Establish listeners for activity updates
         Task {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for activity on: \(activityType)")
             for await activity in Activity<Attributes>.activityUpdates {
@@ -244,6 +242,12 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     @available(iOS 16.1, *)
     private static func listenForActivityPushToUpdate<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
         if options == nil || options!.enablePushToUpdate {
+
+            // Set the initial pushToken (if one exists)
+            if let pushToken = activity.pushToken {
+              OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: pushToken)
+            }
+
             // listen for activity update token updates so we can tell OneSignal how to update the activity
             Task {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for pushToUpdate on: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
