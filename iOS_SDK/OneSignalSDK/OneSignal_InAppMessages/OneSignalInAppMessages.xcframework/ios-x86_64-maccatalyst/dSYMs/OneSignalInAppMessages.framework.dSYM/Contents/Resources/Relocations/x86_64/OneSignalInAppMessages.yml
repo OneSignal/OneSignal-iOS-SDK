@@ -51,9 +51,9 @@ relocations:
   - { offset: 0xE19C0, size: 0x8, addend: 0x0, symName: '___106-[OSInAppMessageInternal(OSInAppMessageController) loadPreviewMessageHTMLContentWithUUID:success:failure:]_block_invoke', symObjAddr: 0x4A2, symBinAddr: 0x4C24, symSize: 0x3F }
   - { offset: 0xE1A37, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageInternal(OSInAppMessageController) variantId]', symObjAddr: 0x4E1, symBinAddr: 0x4C63, symSize: 0x40A }
   - { offset: 0xE1FBC, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageWillDisplayEvent initWithInAppMessage:]', symObjAddr: 0x0, symBinAddr: 0x506D, symSize: 0x1F }
-  - { offset: 0xE1FE0, size: 0x8, addend: 0x0, symName: _sharedInstance, symObjAddr: 0x2C8F8, symBinAddr: 0x34680, symSize: 0x0 }
-  - { offset: 0xE24D3, size: 0x8, addend: 0x0, symName: _once, symObjAddr: 0x2C900, symBinAddr: 0x34688, symSize: 0x0 }
-  - { offset: 0xE24E9, size: 0x8, addend: 0x0, symName: __isInAppMessagingPaused, symObjAddr: 0x2C908, symBinAddr: 0x34690, symSize: 0x0 }
+  - { offset: 0xE1FE0, size: 0x8, addend: 0x0, symName: _sharedInstance, symObjAddr: 0x2C8F0, symBinAddr: 0x34680, symSize: 0x0 }
+  - { offset: 0xE24D3, size: 0x8, addend: 0x0, symName: _once, symObjAddr: 0x2C8F8, symBinAddr: 0x34688, symSize: 0x0 }
+  - { offset: 0xE24E9, size: 0x8, addend: 0x0, symName: __isInAppMessagingPaused, symObjAddr: 0x2C900, symBinAddr: 0x34690, symSize: 0x0 }
   - { offset: 0xE2510, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageWillDisplayEvent initWithInAppMessage:]', symObjAddr: 0x0, symBinAddr: 0x506D, symSize: 0x1F }
   - { offset: 0xE2557, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageWillDisplayEvent jsonRepresentation]', symObjAddr: 0x1F, symBinAddr: 0x508C, symSize: 0x8E }
   - { offset: 0xE25F2, size: 0x8, addend: 0x0, symName: '-[OSInAppMessageWillDisplayEvent message]', symObjAddr: 0xAD, symBinAddr: 0x511A, symSize: 0xA }

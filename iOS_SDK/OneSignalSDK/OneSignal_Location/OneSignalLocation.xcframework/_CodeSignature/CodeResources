@@ -14,7 +14,7 @@
 		</data>
 		<key>ios-arm64/OneSignalLocation.framework/OneSignalLocation</key>
 		<data>
-		l2dY3AbP0+TKyvoJvQ1L1+1BUGs=
+		9HARi/K/XVVblq8iksdhOwobvIY=
 		</data>
 		<key>ios-arm64/OneSignalLocation.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalLocation.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalLocation.yml</key>
 		<data>
-		0MVVNi81ed1uiVxWvGtonqp0rbs=
+		GKIIs86SF5tOZRTOakKChIngcms=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalLocation.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalLocation.yml</key>
 		<data>
@@ -78,7 +78,7 @@
 		</data>
 		<key>ios-x86_64-maccatalyst/OneSignalLocation.framework/Versions/A/OneSignalLocation</key>
 		<data>
-		SMLBuTW/L1cpktsJ3DJA8Y3GaN8=
+		NdYUv63Nt01NeZ/ydqtweR2+N8M=
 		</data>
 		<key>ios-x86_64-maccatalyst/OneSignalLocation.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -133,11 +133,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			l2dY3AbP0+TKyvoJvQ1L1+1BUGs=
+			9HARi/K/XVVblq8iksdhOwobvIY=
 			</data>
 			<key>hash2</key>
 			<data>
-			C+T2VF2Q9qGAAFTSBGFL3wDTje3CdlUa9cYA81835ak=
+			nONXgsmQxTqRAa/e+ihwte7MmBcMRAteUeocTPV64N4=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalLocation.framework/PrivacyInfo.xcprivacy</key>
@@ -276,11 +276,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			0MVVNi81ed1uiVxWvGtonqp0rbs=
+			GKIIs86SF5tOZRTOakKChIngcms=
 			</data>
 			<key>hash2</key>
 			<data>
-			jlWgdKOSGgAvYXiXjl9LbdHgwuX3CnwQEQGgR9Zr7+8=
+			LrPdz+tez0G2/O/V/TSN33lgoHzYmK1a4JpceInb6Ao=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalLocation.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalLocation.yml</key>
@@ -324,11 +324,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			SMLBuTW/L1cpktsJ3DJA8Y3GaN8=
+			NdYUv63Nt01NeZ/ydqtweR2+N8M=
 			</data>
 			<key>hash2</key>
 			<data>
-			Tf4MyED2J8zCh8mzx1KMnGOQ/7CmxjXCNiZ/k59GM7I=
+			03bRHrCWoU6pOwKOLPAJz6WAeBmLRsfjLs9DU9Q9v30=
 			</data>
 		</dict>
 		<key>ios-x86_64-maccatalyst/OneSignalLocation.framework/Versions/A/Resources/Info.plist</key>

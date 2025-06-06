@@ -38,8 +38,8 @@ relocations:
   - { offset: 0x6006C, size: 0x8, addend: 0x0, symName: '+[OSPermissionChangedInternalObserver fireChangesObserver:]', symObjAddr: 0x80D, symBinAddr: 0x1C8D, symSize: 0x139 }
   - { offset: 0x602DA, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x1DC6, symSize: 0x77 }
   - { offset: 0x602F4, size: 0x8, addend: 0x0, symName: __wantsToDisplay, symObjAddr: 0x360, symBinAddr: 0x12258, symSize: 0x0 }
-  - { offset: 0x60311, size: 0x8, addend: 0x0, symName: __completion, symObjAddr: 0x2800, symBinAddr: 0x122D8, symSize: 0x0 }
-  - { offset: 0x60335, size: 0x8, addend: 0x0, symName: __timeoutTimer, symObjAddr: 0x27F8, symBinAddr: 0x122D0, symSize: 0x0 }
+  - { offset: 0x60311, size: 0x8, addend: 0x0, symName: __completion, symObjAddr: 0x27F8, symBinAddr: 0x122D8, symSize: 0x0 }
+  - { offset: 0x60335, size: 0x8, addend: 0x0, symName: __timeoutTimer, symObjAddr: 0x27F0, symBinAddr: 0x122D0, symSize: 0x0 }
   - { offset: 0x60355, size: 0x8, addend: 0x0, symName: '+[OSDisplayableNotification parseWithApns:]', symObjAddr: 0x0, symBinAddr: 0x1DC6, symSize: 0x77 }
   - { offset: 0x6040B, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification setTimeoutTimer]', symObjAddr: 0x77, symBinAddr: 0x1E3D, symSize: 0x91 }
   - { offset: 0x6046E, size: 0x8, addend: 0x0, symName: '-[OSDisplayableNotification startTimeoutTimer]', symObjAddr: 0x108, symBinAddr: 0x1ECE, symSize: 0x55 }
