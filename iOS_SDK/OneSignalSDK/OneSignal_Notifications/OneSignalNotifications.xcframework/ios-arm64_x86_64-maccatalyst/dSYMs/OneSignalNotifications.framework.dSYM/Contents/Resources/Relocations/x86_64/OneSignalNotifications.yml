@@ -189,7 +189,7 @@ relocations:
   - { offset: 0xE5623, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationsAppDelegate traceCall:]', symObjAddr: 0x969, symBinAddr: 0x6F75, symSize: 0x21 }
   - { offset: 0xE57EB, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x6F96, symSize: 0x11 }
   - { offset: 0xE5807, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings registerForProvisionalAuthorization:]', symObjAddr: 0xBD0, symBinAddr: 0x7AEB, symSize: 0x157 }
-  - { offset: 0xE59AD, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x7C18, symBinAddr: 0x13518, symSize: 0x0 }
+  - { offset: 0xE59AD, size: 0x8, addend: 0x0, symName: _serialQueue, symObjAddr: 0x7C20, symBinAddr: 0x13518, symSize: 0x0 }
   - { offset: 0xE5A25, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationSettings getQueue]', symObjAddr: 0x0, symBinAddr: 0x6F96, symSize: 0x11 }
   - { offset: 0xE5A58, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings init]', symObjAddr: 0x11, symBinAddr: 0x6FA7, symSize: 0x53 }
   - { offset: 0xE5AD2, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationSettings getNotificationPermissionState:]', symObjAddr: 0x64, symBinAddr: 0x6FFA, symSize: 0xD6 }

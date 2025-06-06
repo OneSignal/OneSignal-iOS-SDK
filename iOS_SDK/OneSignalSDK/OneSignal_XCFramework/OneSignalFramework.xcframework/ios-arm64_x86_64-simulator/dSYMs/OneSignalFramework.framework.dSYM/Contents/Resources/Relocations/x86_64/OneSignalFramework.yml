@@ -101,7 +101,7 @@ relocations:
   - { offset: 0xC1C76, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x50E5, symSize: 0x8B }
   - { offset: 0xC1C9A, size: 0x8, addend: 0x0, symName: '-[OSMigrationController migrate]', symObjAddr: 0x0, symBinAddr: 0x50E5, symSize: 0x8B }
   - { offset: 0xC1E14, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x5170, symSize: 0x8D }
-  - { offset: 0xC1E33, size: 0x8, addend: 0x0, symName: __instance, symObjAddr: 0x3B90, symBinAddr: 0x163C0, symSize: 0x0 }
+  - { offset: 0xC1E33, size: 0x8, addend: 0x0, symName: __instance, symObjAddr: 0x3B88, symBinAddr: 0x163C0, symSize: 0x0 }
   - { offset: 0xC1E53, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x5170, symSize: 0x8D }
   - { offset: 0xC1EBE, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserver]', symObjAddr: 0x8D, symBinAddr: 0x51FD, symSize: 0x45 }
   - { offset: 0xC1F09, size: 0x8, addend: 0x0, symName: '+[OneSignalLifecycleObserver registerLifecycleObserverAsUIScene]', symObjAddr: 0xD2, symBinAddr: 0x5242, symSize: 0x1A8 }
