@@ -288,12 +288,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
-        // Logging into an identified user from an anonymous user
-        if let user = _user, user.isAnonymous {
+        // Logging into an identified user from an anonymous user, if JWT is not ON
+        if let user = _user, user.isAnonymous, jwtConfig.isRequired != true {
             user.identityModel.jwtBearerToken = token
             identifyUser(externalId: externalId, currentUser: user)
         } else {
-            // Logging into identified -> anon, identified -> identified, or nil -> identified
+            // JWT Off: Logging into identified -> anon, identified -> identified, or nil -> identified
+            // JWT On: All
             _ = createNewUser(externalId: externalId, token: token)
         }
 
@@ -334,6 +335,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.createNewUser: not creating new user due to logging into the same user.)")
+                if externalId != nil, token != nil {
+                    // save the jwtToken, it can be updated
+                    user.identityModel.jwtBearerToken = token
+                }
                 return user
             }
         }
