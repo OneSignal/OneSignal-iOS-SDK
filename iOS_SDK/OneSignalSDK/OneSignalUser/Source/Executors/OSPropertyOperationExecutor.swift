@@ -63,7 +63,7 @@ private struct OSCombinedProperties {
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
-    var pendingAuthRequests: [String: [OSRequestUpdateProperties]] = [String:[OSRequestUpdateProperties]]()
+    var pendingAuthRequests: [String: [OSRequestUpdateProperties]] = [String: [OSRequestUpdateProperties]]()
     var updateRequestQueue: [OSRequestUpdateProperties] = []
     let newRecordsState: OSNewRecordsState
     let jwtConfig: OSUserJwtConfig
@@ -268,14 +268,14 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             executeUpdatePropertiesRequest(request, inBackground: inBackground)
         }
     }
-    
+
     func handleUnauthorizedError(externalId: String, error: NSError, request: OSRequestUpdateProperties) {
-        if (jwtConfig.isRequired ?? false) {
-            self.pendRequestUntilAuthUpdated(request, externalId:   externalId)
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
             OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
         }
     }
-    
+
     func pendRequestUntilAuthUpdated(_ request: OSRequestUpdateProperties, externalId: String?) {
         self.dispatchQueue.async {
             self.updateRequestQueue.removeAll(where: { $0 == request})
@@ -296,16 +296,16 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        
+
         guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
-            pendRequestUntilAuthUpdated(request, externalId:request.identityModel.externalId)
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
             return
         }
-        
+
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
-        
+
         print("ECM executing properties request: %@", request.identityModel.externalId)
         request.sentToClient = true
 
@@ -388,7 +388,7 @@ extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
         print("❌ OSPropertyOperationExecutor onJwtUpdated for \(externalId) to \(String(describing: token))")
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
-    
+
     private func reQueuePendingRequestsForExternalId(externalId: String) {
         self.dispatchQueue.async {
             guard let requests = self.pendingAuthRequests[externalId] else {

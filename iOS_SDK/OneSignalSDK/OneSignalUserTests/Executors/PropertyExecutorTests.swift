@@ -54,162 +54,160 @@ final class PropertyExecutorTests: XCTestCase {
     }
 
     override func tearDownWithError() throws { }
-    
+
     func testUpdateTagsSendsWhenProcessed() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(false)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        let tags = ["testUserA" : "true"]
+        let tags = ["testUserA": "true"]
         MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
-        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
+        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
         /* When */
         mocks.propertyExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
     }
-    
+
     func testUpdateTags_IdentityVerificationRequired_butNoToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
-        let tags = ["testUserA" : "true"]
+        let tags = ["testUserA": "true"]
         MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
-        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
+        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
         /* When */
         mocks.propertyExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
     }
-    
+
     func testUpdateTags_IdentityVerificationRequired_withToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
-        let tags = ["testUserA" : "true"]
+        let tags = ["testUserA": "true"]
         MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
-        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
+        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
         /* When */
         mocks.propertyExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
     }
-    
+
     func testUpdateProperty_IdentityVerificationRequired_withInvalidToken() {
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
-        
-        
-        
-        let tags = ["testUserA" : "true"]
+
+        let tags = ["testUserA": "true"]
         MockUserRequests.setUnauthorizedUpdatePropertiesFailureResponses(with: mocks.client, tags: tags)
-        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
+        mocks.propertyExecutor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
         }
-        
+
         /* When */
         mocks.propertyExecutor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
         XCTAssertTrue(invalidatedCallbackWasCalled)
     }
-    
+
     func testUpdateRequests_Retry_OnTokenUpdate() {
-        
+
         /* Setup */
         let mocks = Mocks()
         mocks.setAuthRequired(true)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-        
+
         let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         user.identityModel.jwtBearerToken = userA_InvalidJwtToken
-        
+
         // We need to use the user manager's executor because the onJWTUpdated callback won't fire on the mock executor
         let executor = OneSignalUserManagerImpl.sharedInstance.propertyExecutor!
-        
-        let tags = ["testUserA" : "true"]
+
+        let tags = ["testUserA": "true"]
         MockUserRequests.setUnauthorizedUpdatePropertiesFailureResponses(with: mocks.client, tags: tags)
-        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
+        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: user.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
 
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
             MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
             OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: userA_ValidJwtToken)
         }
-        
+
         /* When */
         executor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))
         XCTAssertTrue(invalidatedCallbackWasCalled)
         XCTAssertEqual(mocks.client.networkRequestCount, 2)
     }
-    
+
     func testUpdateRequests_RetryRequests_OnTokenUpdate_ForOnlyUpdatedUser() {
         /* Setup */
         let mocks = Mocks()
-        
+
         mocks.setAuthRequired(true)
-        
+
         let userA = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
         userA.identityModel.jwtBearerToken = userA_InvalidJwtToken
-        
+
         let userB = mocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
         userB.identityModel.jwtBearerToken = userA_InvalidJwtToken
         // We need to use the user manager's executor because the onJWTUpdated callback won't fire on the mock executor
         let executor = OneSignalUserManagerImpl.sharedInstance.propertyExecutor!
-        
-        let tags = ["testUserA" : "true"]
+
+        let tags = ["testUserA": "true"]
         MockUserRequests.setUnauthorizedUpdatePropertiesFailureResponses(with: mocks.client, tags: tags)
-        
-        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userA.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
-        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userB.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value:tags))
-        
+
+        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userA.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
+        executor.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: userB.identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "tags", value: tags))
+
         var invalidatedCallbackWasCalled = false
-        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { event in
+        OneSignalUserManagerImpl.sharedInstance.User.onJwtInvalidated { _ in
             invalidatedCallbackWasCalled = true
         }
-        
+
         /* When */
         executor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         MockUserRequests.setAddTagsResponse(with: mocks.client, tags: tags)
         OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userB_EUID, token: userB_ValidJwtToken)
 
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-        
+
         /* Then */
         // The executor should execute this request since identity verification is required and the token was set
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self))

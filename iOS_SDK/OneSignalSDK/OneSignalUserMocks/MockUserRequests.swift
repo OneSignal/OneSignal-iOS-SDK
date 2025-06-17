@@ -59,11 +59,11 @@ public class MockUserRequests: NSObject {
             "properties": properties
         ]
     }
-    
+
     public static func testUnauthorizedailureError() -> NSError {
         let userInfo = ["returned": [
-            "errors": [["title":"token has invalid claims: token is expired", "code":"auth-0"]],
-            "httpStatusCode": 401,
+            "errors": [["title": "token has invalid claims: token is expired", "code": "auth-0"]],
+            "httpStatusCode": 401
         ]]
         return NSError(domain: "not-important", code: 401, userInfo: userInfo)
     }
@@ -105,53 +105,53 @@ extension MockUserRequests {
             response: userResponse
         )
     }
-    
+
     public static func setUnauthorizedCreateUserFailureResponses(with client: MockOneSignalClient, externalId: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"<OSRequestCreateUser with external_id: \(externalId)>", error: error)
+        client.setMockFailureResponseForRequest(request: "<OSRequestCreateUser with external_id: \(externalId)>", error: error)
     }
-    
+
     public static func setUnauthorizedFetchUserFailureResponses(with client: MockOneSignalClient, onesignalId: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"<OSRequestFetchUser with onesignal_id: \(onesignalId)>", error: error)
+        client.setMockFailureResponseForRequest(request: "<OSRequestFetchUser with onesignal_id: \(onesignalId)>", error: error)
     }
-    
+
     public static func setUnauthorizedUpdatePropertiesFailureResponses(with client: MockOneSignalClient, tags: [String: String]) {
         let error = testUnauthorizedailureError()
-        
+
         let params: NSDictionary = [
             "properties": [
                 "tags": tags
             ],
             "refresh_device_metadata": false
         ]
-            
-        client.setMockFailureResponseForRequest(request:"<OSRequestUpdateProperties with parameters: \(params.toSortedString())>", error: error)
+
+        client.setMockFailureResponseForRequest(request: "<OSRequestUpdateProperties with parameters: \(params.toSortedString())>", error: error)
     }
-    
+
     public static func setUnauthorizedAddEmailFailureResponse(with client: MockOneSignalClient, email: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"<OSRequestCreateSubscription with token: \(email)>", error: error)
+        client.setMockFailureResponseForRequest(request: "<OSRequestCreateSubscription with token: \(email)>", error: error)
     }
-    
+
     public static func setUnauthorizedRemoveEmailFailureResponse(with client: MockOneSignalClient, email: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"<OSRequestDeleteSubscription with subscriptionModel: \(email)>", error: error)
+        client.setMockFailureResponseForRequest(request: "<OSRequestDeleteSubscription with subscriptionModel: \(email)>", error: error)
     }
-    
+
     public static func setUnauthorizedUpdateSubscriptionFailureResponse(with client: MockOneSignalClient, token: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"OSRequestUpdateSubscription with subscriptionObject: [\"token\": \"\(token)\"]", error: error)
+        client.setMockFailureResponseForRequest(request: "OSRequestUpdateSubscription with subscriptionObject: [\"token\": \"\(token)\"]", error: error)
     }
-    
+
     public static func setUnauthorizedAddAliasFailureResponse(with client: MockOneSignalClient, aliases: [String: String]) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"<OSRequestAddAliases with aliases: \(aliases)>", error: error)
+        client.setMockFailureResponseForRequest(request: "<OSRequestAddAliases with aliases: \(aliases)>", error: error)
     }
-    
+
     public static func setUnauthorizedRemoveAliasFailureResponse(with client: MockOneSignalClient, aliasLabel: String) {
         let error = testUnauthorizedailureError()
-        client.setMockFailureResponseForRequest(request:"OSRequestRemoveAlias with aliasLabel: \(aliasLabel)", error: error)
+        client.setMockFailureResponseForRequest(request: "OSRequestRemoveAlias with aliasLabel: \(aliasLabel)", error: error)
     }
 
     public static func setDefaultIdentifyUserResponses(with client: MockOneSignalClient, externalId: String, conflicted: Bool = false) {
