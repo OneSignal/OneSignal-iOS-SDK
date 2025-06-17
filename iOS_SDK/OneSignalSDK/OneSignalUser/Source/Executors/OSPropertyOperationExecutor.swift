@@ -271,10 +271,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
-    func handleUnauthorizedError(externalId: String, error: NSError, request: OSRequestUpdateProperties) {
+    func handleUnauthorizedError(externalId: String, request: OSRequestUpdateProperties) {
         if jwtConfig.isRequired ?? false {
             self.pendRequestUntilAuthUpdated(request, externalId: externalId)
-            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId)
         }
     }
 
@@ -362,7 +362,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        self.handleUnauthorizedError(externalId: externalId, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {

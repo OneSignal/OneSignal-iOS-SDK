@@ -461,13 +461,13 @@ static BOOL _isInAppMessagingPaused = false;
         OSResponseStatusType responseType = [OSNetworkingUtils getResponseStatusType:error.code];
         if (responseType == OSResponseStatusUnauthorized) {
             shouldRetryGetInAppMessagesOnJwtUpdated = true;
-            [self handleUnauthroizedError:error externalId:alias.id];
+            [self handleUnauthorizedErrorWithExternalId:alias.id];
         }
     }];
 }
 
-- (void)handleUnauthroizedError:(NSError*)error externalId:(NSString *)externalId {
-    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:externalId error:error];
+- (void)handleUnauthorizedErrorWithExternalId:(NSString *)externalId {
+    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:externalId];
 }
 
 - (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {

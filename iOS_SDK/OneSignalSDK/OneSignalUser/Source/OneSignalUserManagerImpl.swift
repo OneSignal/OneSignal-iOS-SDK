@@ -247,7 +247,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
         pushSubscriptionModel?._isDisabledInternally = false
-        
+
         /*
          Logging in to a "new-to-the-sdk" externalId from an anonymous user, if JWT is OFF or UNKNOWN.
          
@@ -700,7 +700,7 @@ extension OneSignalUserManagerImpl {
     }
 
     @objc
-    public func invalidateJwtForExternalId(externalId: String, error: NSError) {
+    public func invalidateJwtForExternalId(externalId: String) {
         guard jwtConfig.isRequired == true else {
             return
         }
@@ -722,15 +722,6 @@ extension OneSignalUserManagerImpl {
     private func fireJwtExpired(externalId: String) {
         let event = OSUserJwtInvalidatedEvent(externalId: externalId)
         userJwtInvalidatedObserver.notifyChange(event)
-    }
-
-    private func getMessageFromJwtError(_ error: NSError) -> String {
-        if let returnedObject = error.userInfo["returned"] as? [String: AnyObject] {
-            if let errors = returnedObject["errors"] as? [[String: AnyObject]] {
-                return errors[0]["title"] as? String ?? error.localizedDescription
-            }
-        }
-        return error.localizedDescription
     }
 }
 

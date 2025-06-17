@@ -410,14 +410,14 @@ extension OSSubscriptionOperationExecutor {
                         if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                         }
-                        return // TODO: 💛 check where these early returns came from
+                        return
                     }
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        self.handleUnauthorizedError(externalId: externalId, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -467,7 +467,7 @@ extension OSSubscriptionOperationExecutor {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                     if let externalId = request.identityModel.externalId {
-                        self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                        self.handleUnauthorizedError(externalId: externalId, request: request)
                     }
                     request.sentToClient = false
                 } else if responseType != .retryable {
@@ -527,7 +527,7 @@ extension OSSubscriptionOperationExecutor {
                     // TODO: Jwt, do we need to handle this case, as this request does not use user JWT
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
-                    self.removeFromRequestQueueAndPersist(request)Add commentMore actions
+                    self.removeFromRequestQueueAndPersist(request)
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -548,10 +548,10 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
         reQueuePendingRequestsForExternalId(externalId: externalId)
     }
 
-    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
+    func handleUnauthorizedError(externalId: String, request: OSUserRequest) {
         if jwtConfig.isRequired ?? false {
             self.pendRequestUntilAuthUpdated(request, externalId: externalId)
-            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId)
         }
     }
 

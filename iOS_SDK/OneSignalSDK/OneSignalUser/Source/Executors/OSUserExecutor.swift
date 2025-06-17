@@ -417,7 +417,7 @@ extension OSUserExecutor {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor no externalId for unauthorized request.")
                     return
                 }
-                self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                self.handleUnauthorizedError(externalId: externalId, request: request)
                 request.sentToClient = false
             } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
@@ -430,10 +430,10 @@ extension OSUserExecutor {
         }
     }
 
-    func handleUnauthorizedError(externalId: String, error: NSError, request: OSUserRequest) {
+    func handleUnauthorizedError(externalId: String, request: OSUserRequest) {
         if jwtConfig.isRequired ?? false {
             self.pendRequestUntilAuthUpdated(request, externalId: externalId)
-            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId, error: error)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId)
         }
     }
 
@@ -644,7 +644,7 @@ extension OSUserExecutor {
                 OneSignalUserManagerImpl.sharedInstance._logout()
             } else if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
                 if let externalId = request.identityModel.externalId {
-                    self.handleUnauthorizedError(externalId: externalId, error: nsError, request: request)
+                    self.handleUnauthorizedError(externalId: externalId, request: request)
                 }
                 request.sentToClient = false
             } else if responseType != .retryable {

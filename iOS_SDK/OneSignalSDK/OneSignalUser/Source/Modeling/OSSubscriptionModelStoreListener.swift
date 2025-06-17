@@ -89,7 +89,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             return nil
         }
         if let onesignalId = userInstance.identityModel.onesignalId {
-            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId) // TODO: 💛 figure out id for condition with JWT / alias / osid
+            let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             condition.setSubscriptionUpdatePending(value: true)
         }
 
