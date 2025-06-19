@@ -55,6 +55,8 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
+    // Uncomment to test LogListener
+    // [OneSignal.Debug addLogListener:self];
     [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
     [OneSignal.Debug setAlertLevel:ONE_S_LL_NONE];
     
@@ -201,6 +203,10 @@ fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandl
     
     NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
     completionHandler(UIBackgroundFetchResultNoData);
+}
+
+- (void)onLogEvent:(OneSignalLogEvent * _Nonnull)event {
+    NSLog(@"Dev App onLogEvent: %@", event.entry);
 }
 
 @end
