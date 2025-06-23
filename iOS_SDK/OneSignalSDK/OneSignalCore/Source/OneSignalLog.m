@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalLog.h"
 #import "OSDialogInstanceManager.h"
+#import "OSCopyOnWriteSet.h"
 
 @implementation OneSignalLogEvent
 - (instancetype)initWithLevel:(ONE_S_LOG_LEVEL)level entry:(NSString*)entry {
@@ -50,11 +51,11 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
     return self;
 }
 
-+ (NSMutableArray<NSObject<OSLogListener> *>*)logListeners {
-    static NSMutableArray<NSObject<OSLogListener> *> *_logListeners;
++ (OSCopyOnWriteSet<NSObject<OSLogListener> *>*)logListeners {
+    static OSCopyOnWriteSet<NSObject<OSLogListener> *> *_logListeners;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _logListeners = [NSMutableArray new];
+        _logListeners = [OSCopyOnWriteSet new];
     });
     return _logListeners;
 }
@@ -68,15 +69,11 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
 }
 
 + (void)addLogListener:(NSObject<OSLogListener>*_Nonnull)listener {
-    @synchronized(self.logListeners) {
-        [self.logListeners addObject:listener];
-    }
+    [self.logListeners addObject:listener];
 }
 
 + (void)removeLogListener:(NSObject<OSLogListener>*_Nonnull)listener {
-    @synchronized(self.logListeners) {
-        [self.logListeners removeObject:listener];
-    }
+    [self.logListeners removeObject:listener];
 }
 
 + (void)_dump {}
@@ -122,12 +119,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
 
-    @synchronized(OneSignalLog.logListeners) {
-        for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners) {
-            if ([listener respondsToSelector:@selector(onLogEvent:)]) {
-                OneSignalLogEvent *event = [[OneSignalLogEvent alloc] initWithLevel:logLevel entry:[levelString stringByAppendingString:message]];
-                [listener onLogEvent:event];
-            }
+    for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners.allObjects) {
+        if ([listener respondsToSelector:@selector(onLogEvent:)]) {
+            OneSignalLogEvent *event = [[OneSignalLogEvent alloc] initWithLevel:logLevel entry:[levelString stringByAppendingString:message]];
+            [listener onLogEvent:event];
         }
     }
 }
