@@ -71,8 +71,28 @@ public extension OneSignal {
 }
 
 public extension OSDebug {
+    /**
+     The log level the OneSignal SDK should be showing as a modal. Defaults to [LogLevel.NONE].
+     
+     WARNING: This should not be used in a production setting.
+     */
     static func setAlertLevel(_ logLevel: ONE_S_LOG_LEVEL) {
         __setAlert(logLevel)
+    }
+    /**
+     Add a listener to receive all logging messages the SDK produces.
+     Useful to capture and send logs to your server.
+     
+     NOTE: All log messages are always passed, LogLevel has no effect on this.
+     */
+    static func addLogListener(_ listener: OSLogListener) {
+        __add(listener)
+    }
+    /**
+     Removes a listener added by addLogListener
+     */
+    static func removeLogListener(_ listener: OSLogListener) {
+        __remove(listener)
     }
 }
 

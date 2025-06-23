@@ -60,12 +60,14 @@ public class MockUserRequests: NSObject {
         ]
     }
 
-    public static func testUnauthorizedailureError() -> NSError {
+    public static func testUnauthorizedailureError() -> OneSignalClientError {
         let userInfo = ["returned": [
             "errors": [["title": "token has invalid claims: token is expired", "code": "auth-0"]],
             "httpStatusCode": 401
         ]]
-        return NSError(domain: "not-important", code: 401, userInfo: userInfo)
+        let nsError = NSError(domain: "not-important", code: 401, userInfo: userInfo)
+        let error = OneSignalClientError(code: 401, message: "not-important", responseHeaders: nil, response: nil, underlyingError: nsError)
+        return error!
     }
 }
 

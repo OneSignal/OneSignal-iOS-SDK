@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2022 OneSignal
+ * Copyright 2025 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,28 +25,47 @@
  * THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalFramework
+#import "OSCopyOnWriteSet.h"
 
-class SwiftTest: NSObject, OSUserJwtInvalidatedListener, OSLogListener {
-    func onLogEvent(_ event: OneSignalLogEvent) {
-        print("Dev App onLogEvent: \(event.level) - \(event.entry)")
-    }
+@implementation OSCopyOnWriteSet
 
-    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
-        print("event: \(event.jsonRepresentation())")
-        print("externalId: \(event.externalId)")
+- (instancetype)init {
+    if (self = [super init]) {
+        _set = [[NSMutableSet alloc] init];
+        _lock = [[NSLock alloc] init];
     }
-
-    func testSwiftUserModel() {
-        let token1 = OneSignal.User.pushSubscription.token
-        let token = OneSignal.User.pushSubscription.token
-        OneSignal.Debug._dump()
-        OneSignal.login(externalId: "euid", token: "token")
-        OneSignal.updateUserJwt(externalId: "euid", token: "token")
-        OneSignal.addUserJwtInvalidatedListener(self)
-        OneSignal.removeUserJwtInvalidatedListener(self)
-        OneSignal.Debug.addLogListener(self)
-        OneSignal.Debug.removeLogListener(self)
-    }
+    return self;
 }
+
+- (void)addObject:(id)object {
+    [_lock lock];
+    
+    // Create a new copy and modify it
+    NSMutableSet *newSet = [_set mutableCopy];
+    [newSet addObject:object];
+    
+    // Update the internal set
+    _set = newSet;
+    
+    [_lock unlock];
+}
+
+- (void)removeObject:(id)object {
+    [_lock lock];
+
+    // Create a new copy and modify it
+    NSMutableSet *newSet = [_set mutableCopy];
+    [newSet removeObject:object];
+    
+    // Update the internal set
+    _set = newSet;
+    
+    [_lock unlock];
+}
+
+- (NSSet *)allObjects {
+    // Read operation - no lock needed
+    return _set;
+}
+
+@end
