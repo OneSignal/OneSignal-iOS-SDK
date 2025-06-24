@@ -495,7 +495,6 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 @end
 
 @protocol OSUserJwtConfigListener;
-@class NSError;
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
 - (void)addUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
@@ -507,7 +506,7 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 - (void)remoteParamsReturnedUnknownRequiresUserAuth;
 - (void)subscribeToJwtConfig:(id <OSUserJwtConfigListener> _Nonnull)listener key:(NSString * _Nonnull)key;
 - (void)updateUserJwtWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nonnull)token;
-- (void)invalidateJwtForExternalIdWithExternalId:(NSString * _Nonnull)externalId error:(NSError * _Nonnull)error;
+- (void)invalidateJwtForExternalIdWithExternalId:(NSString * _Nonnull)externalId;
 @end
 
 
@@ -1045,7 +1044,6 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 @end
 
 @protocol OSUserJwtConfigListener;
-@class NSError;
 
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
 - (void)addUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
@@ -1057,7 +1055,7 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 - (void)remoteParamsReturnedUnknownRequiresUserAuth;
 - (void)subscribeToJwtConfig:(id <OSUserJwtConfigListener> _Nonnull)listener key:(NSString * _Nonnull)key;
 - (void)updateUserJwtWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nonnull)token;
-- (void)invalidateJwtForExternalIdWithExternalId:(NSString * _Nonnull)externalId error:(NSError * _Nonnull)error;
+- (void)invalidateJwtForExternalIdWithExternalId:(NSString * _Nonnull)externalId;
 @end
 
 

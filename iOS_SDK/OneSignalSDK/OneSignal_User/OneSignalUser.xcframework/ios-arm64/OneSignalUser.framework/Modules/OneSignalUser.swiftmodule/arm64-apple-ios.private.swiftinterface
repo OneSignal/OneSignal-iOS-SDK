@@ -44,7 +44,7 @@ extension OneSignalUser.OneSignalUserManagerImpl {
   @objc dynamic public func remoteParamsReturnedUnknownRequiresUserAuth()
   @objc dynamic public func subscribeToJwtConfig(_ listener: any OneSignalOSCore.OSUserJwtConfigListener, key: Swift.String)
   @objc dynamic public func updateUserJwt(externalId: Swift.String, token: Swift.String)
-  @objc dynamic public func invalidateJwtForExternalId(externalId: Swift.String, error: Foundation.NSError)
+  @objc dynamic public func invalidateJwtForExternalId(externalId: Swift.String)
 }
 extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public var User: any OneSignalUser.OSUser {

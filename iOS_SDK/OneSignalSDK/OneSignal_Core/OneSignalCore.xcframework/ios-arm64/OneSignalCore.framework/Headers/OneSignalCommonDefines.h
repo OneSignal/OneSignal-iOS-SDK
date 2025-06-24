@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050300-beta-01"
+#define ONESIGNAL_VERSION                                                   @"050300-beta-02"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -102,8 +102,15 @@
 #define OSUD_CACHED_RECEIVED_IAM_IDS                                        @"OSUD_CACHED_RECEIVED_IAM_IDS"
 #define OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT                 @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"                   // * OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT
 #define OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT   @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"     // * OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT
+
 // Migration
-#define OSUD_CACHED_SDK_VERSION                                             @"OSUD_CACHED_SDK_VERSION"
+/// Value used by all modules prior to 5.2.10
+#define OSUD_LEGACY_CACHED_SDK_VERSION_FOR_MIGRATION                @"OSUD_CACHED_SDK_VERSION"
+/// Values added in 5.2.10 for each module to own its own migration
+#define OSUD_CACHED_SDK_VERSION_FOR_CORE                            @"OSUD_CACHED_SDK_VERSION_FOR_CORE"
+#define OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES                        @"OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES"
+#define OSUD_CACHED_SDK_VERSION_FOR_IAM                             @"OSUD_CACHED_SDK_VERSION_FOR_IAM"
+
 // Time Tracking
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
@@ -158,6 +165,8 @@
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
 #define ONESIGNAL_APP_GROUP_NAME_KEY @"OneSignal_app_groups_key"
 #define ONESIGNAL_BADGE_KEY @"onesignalBadgeCount"
+/// Store the previous badge count to read for a cancelled notification display event
+#define PREVIOUS_ONESIGNAL_BADGE_KEY @"previousOnesignalBadgeCount"
 
 // Firebase
 #define ONESIGNAL_FB_ENABLE_FIREBASE @"OS_ENABLE_FIREBASE_ANALYTICS"
