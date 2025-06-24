@@ -1177,35 +1177,35 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
-      "offset": 1418,
+      "offset": 1465,
       "length": 91,
       "value": "\"(OSRequestSetStartToken) key:\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
-      "offset": 1454,
+      "offset": 1501,
       "length": 17,
       "value": "\" requestSuccessful:\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
-      "offset": 1493,
+      "offset": 1540,
       "length": 5,
       "value": "\" token:\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "StringLiteral",
-      "offset": 1508,
+      "offset": 1555,
       "length": 3,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalLiveActivities\/Source\/Requests\/OSRequestSetStartToken.swift",
       "kind": "BooleanLiteral",
-      "offset": 1630,
+      "offset": 1677,
       "length": 5,
       "value": "false"
     },

@@ -60,7 +60,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSUserJwtInvalidatedListener",
-                "printedName": "OneSignalUser.OSUserJwtInvalidatedListener",
+                "printedName": "any OneSignalUser.OSUserJwtInvalidatedListener",
                 "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
               }
             ],
@@ -88,7 +88,7 @@
               {
                 "kind": "TypeNominal",
                 "name": "OSUserJwtInvalidatedListener",
-                "printedName": "OneSignalUser.OSUserJwtInvalidatedListener",
+                "printedName": "any OneSignalUser.OSUserJwtInvalidatedListener",
                 "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
               }
             ],
@@ -627,6 +627,69 @@
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSDebug>",
             "sugared_genericSig": "<Self where Self : OneSignalCore.OSDebug>",
             "static": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addLogListener",
+            "printedName": "addLogListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSLogListener",
+                "printedName": "any OneSignalCore.OSLogListener",
+                "usr": "c:objc(pl)OSLogListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So7OSDebugP18OneSignalFrameworkE14addLogListeneryySo05OSLogG0_pFZ",
+            "mangledName": "$sSo7OSDebugP18OneSignalFrameworkE14addLogListeneryySo05OSLogG0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSDebug>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSDebug>",
+            "static": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeLogListener",
+            "printedName": "removeLogListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSLogListener",
+                "printedName": "any OneSignalCore.OSLogListener",
+                "usr": "c:objc(pl)OSLogListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:So7OSDebugP18OneSignalFrameworkE17removeLogListeneryySo05OSLogG0_pFZ",
+            "mangledName": "$sSo7OSDebugP18OneSignalFrameworkE17removeLogListeneryySo05OSLogG0_pFZ",
+            "moduleName": "OneSignalFramework",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalCore.OSDebug>",
+            "sugared_genericSig": "<Self where Self : OneSignalCore.OSDebug>",
+            "static": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
           }

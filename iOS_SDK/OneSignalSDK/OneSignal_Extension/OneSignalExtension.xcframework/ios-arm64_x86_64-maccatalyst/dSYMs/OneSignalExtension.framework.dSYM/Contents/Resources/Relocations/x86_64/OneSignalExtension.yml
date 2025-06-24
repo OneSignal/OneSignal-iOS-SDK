@@ -2,72 +2,72 @@
 triple:          'x86_64-apple-darwin'
 binary-path:     '/Users/nanli/Library/Developer/Xcode/DerivedData/OneSignal-bqdzwuabiarxwabiimalocfhqhsw/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalExtension/InstallationBuildProductsLocation/Library/Frameworks/OneSignalExtension.framework/Versions/A/OneSignalExtension'
 relocations:
-  - { offset: 0xDA9ED, size: 0x8, addend: 0x0, symName: '+[OSRequestReceiveReceipts withPlayerId:notificationId:appId:]', symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x1D6 }
-  - { offset: 0xDAA0C, size: 0x8, addend: 0x0, symName: '+[OSRequestReceiveReceipts withPlayerId:notificationId:appId:]', symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x1D6 }
-  - { offset: 0xDAC61, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x12A6, symSize: 0x1C }
-  - { offset: 0xDAC7A, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x12A6, symSize: 0x1C }
-  - { offset: 0xDACEC, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x1C, symBinAddr: 0x12C2, symSize: 0x2B2 }
-  - { offset: 0xDB08E, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler userInfoWithCollapseId:identifier:]', symObjAddr: 0x2CE, symBinAddr: 0x1574, symSize: 0x1BB }
-  - { offset: 0xDB28C, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x489, symBinAddr: 0x172F, symSize: 0x11D }
-  - { offset: 0xDB3E7, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler addActionButtonsToExtentionRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x5A6, symBinAddr: 0x184C, symSize: 0x148 }
-  - { offset: 0xDB572, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]', symObjAddr: 0x6EE, symBinAddr: 0x1994, symSize: 0x326 }
-  - { offset: 0xDB87B, size: 0x8, addend: 0x0, symName: '___88+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]_block_invoke', symObjAddr: 0xA14, symBinAddr: 0x1CBA, symSize: 0x85 }
-  - { offset: 0xDB930, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s, symObjAddr: 0xA99, symBinAddr: 0x1D3F, symSize: 0x25 }
-  - { offset: 0xDB971, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0xABE, symBinAddr: 0x1D64, symSize: 0x25 }
-  - { offset: 0xDB9A8, size: 0x8, addend: 0x0, symName: '___88+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]_block_invoke.102', symObjAddr: 0xAE3, symBinAddr: 0x1D89, symSize: 0x85 }
-  - { offset: 0xDBCA2, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationCategoryController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x1E0E, symSize: 0x30 }
-  - { offset: 0xDBCB0, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationCategoryController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x1E0E, symSize: 0x30 }
-  - { offset: 0xDBCDA, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedInstance, symObjAddr: 0x4198, symBinAddr: 0xAAD8, symSize: 0x0 }
-  - { offset: 0xDBCF0, size: 0x8, addend: 0x0, symName: _sharedInstance.once, symObjAddr: 0x41A0, symBinAddr: 0xAAE0, symSize: 0x0 }
-  - { offset: 0xDBD96, size: 0x8, addend: 0x0, symName: '___57+[OneSignalNotificationCategoryController sharedInstance]_block_invoke', symObjAddr: 0x30, symBinAddr: 0x1E3E, symSize: 0x25 }
-  - { offset: 0xDBDC9, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController saveCategoryId:]', symObjAddr: 0x55, symBinAddr: 0x1E63, symSize: 0x115 }
-  - { offset: 0xDBF39, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController existingRegisteredCategoryIds]', symObjAddr: 0x16A, symBinAddr: 0x1F78, symSize: 0x82 }
-  - { offset: 0xDBFAC, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController pruneCategories:]', symObjAddr: 0x1EC, symBinAddr: 0x1FFA, symSize: 0x2F9 }
-  - { offset: 0xDC1DC, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController registerNotificationCategoryForNotificationId:]', symObjAddr: 0x4E5, symBinAddr: 0x22F3, symSize: 0xDA }
-  - { offset: 0xDC2C5, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController existingCategories]', symObjAddr: 0x5BF, symBinAddr: 0x23CD, symSize: 0x14D }
-  - { offset: 0xDC416, size: 0x8, addend: 0x0, symName: ___Block_byref_object_copy_, symObjAddr: 0x70C, symBinAddr: 0x251A, symSize: 0x16 }
-  - { offset: 0xDC43B, size: 0x8, addend: 0x0, symName: ___Block_byref_object_dispose_, symObjAddr: 0x722, symBinAddr: 0x2530, symSize: 0xF }
-  - { offset: 0xDC466, size: 0x8, addend: 0x0, symName: '___61-[OneSignalNotificationCategoryController existingCategories]_block_invoke', symObjAddr: 0x731, symBinAddr: 0x253F, symSize: 0x41 }
-  - { offset: 0xDC502, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40r, symObjAddr: 0x772, symBinAddr: 0x2580, symSize: 0x30 }
-  - { offset: 0xDC537, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40r, symObjAddr: 0x7A2, symBinAddr: 0x25B0, symSize: 0x27 }
-  - { offset: 0xDC76F, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveData:]', symObjAddr: 0x0, symBinAddr: 0x25D7, symSize: 0x16D }
-  - { offset: 0xDC77D, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler randomStringWithLength:]', symObjAddr: 0x1D81, symBinAddr: 0x4358, symSize: 0xA7 }
-  - { offset: 0xDC948, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveData:]', symObjAddr: 0x0, symBinAddr: 0x25D7, symSize: 0x16D }
-  - { offset: 0xDCB54, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveResponse:completionHandler:]', symObjAddr: 0x16D, symBinAddr: 0x2744, symSize: 0x85 }
-  - { offset: 0xDCC38, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:didBecomeInvalidWithError:]', symObjAddr: 0x1F2, symBinAddr: 0x27C9, symSize: 0x48 }
-  - { offset: 0xDCCB3, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:task:didCompleteWithError:]', symObjAddr: 0x23A, symBinAddr: 0x2811, symSize: 0x47 }
-  - { offset: 0xDCD3A, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate initWithFilePath:]', symObjAddr: 0x281, symBinAddr: 0x2858, symSize: 0x147 }
-  - { offset: 0xDCE70, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate error]', symObjAddr: 0x3C8, symBinAddr: 0x299F, symSize: 0x14 }
-  - { offset: 0xDCEA7, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate response]', symObjAddr: 0x3DC, symBinAddr: 0x29B3, symSize: 0x14 }
-  - { offset: 0xDCEDE, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate isDone]', symObjAddr: 0x3F0, symBinAddr: 0x29C7, symSize: 0xA }
-  - { offset: 0xDCF13, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate .cxx_destruct]', symObjAddr: 0x3FA, symBinAddr: 0x29D1, symSize: 0x33 }
-  - { offset: 0xDCF46, size: 0x8, addend: 0x0, symName: '+[NSURLSession(DirectDownload) downloadItemAtURL:toFile:error:]', symObjAddr: 0x42D, symBinAddr: 0x2A04, symSize: 0x26A }
-  - { offset: 0xDD1F3, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler addActionButtons:toNotificationContent:]', symObjAddr: 0x697, symBinAddr: 0x2C6E, symSize: 0x6CF }
-  - { offset: 0xDD6D5, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler addAttachments:toNotificationContent:]', symObjAddr: 0xD66, symBinAddr: 0x333D, symSize: 0x745 }
-  - { offset: 0xDDC2C, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler createActionForButton:]', symObjAddr: 0x14AB, symBinAddr: 0x3A82, symSize: 0x2EA }
-  - { offset: 0xDDF77, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler downloadMediaAndSaveInBundle:]', symObjAddr: 0x1795, symBinAddr: 0x3D6C, symSize: 0x553 }
-  - { offset: 0xDE441, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler isWWWScheme:]', symObjAddr: 0x1CE8, symBinAddr: 0x42BF, symSize: 0x99 }
-  - { offset: 0xDE520, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler getSupportedFileExtensionFromURL:mimeType:]', symObjAddr: 0x1E28, symBinAddr: 0x43FF, symSize: 0x568 }
-  - { offset: 0xDE8EC, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController isReceiveReceiptsEnabled]', symObjAddr: 0x0, symBinAddr: 0x4967, symSize: 0x55 }
-  - { offset: 0xDE90B, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController isReceiveReceiptsEnabled]', symObjAddr: 0x0, symBinAddr: 0x4967, symSize: 0x55 }
-  - { offset: 0xDE971, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithNotificationId:]', symObjAddr: 0x55, symBinAddr: 0x49BC, symSize: 0xCE }
-  - { offset: 0xDEA89, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:]', symObjAddr: 0x123, symBinAddr: 0x4A8A, symSize: 0x26 }
-  - { offset: 0xDEB1F, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:successBlock:failureBlock:]', symObjAddr: 0x149, symBinAddr: 0x4AB0, symSize: 0x25 }
-  - { offset: 0xDEBCD, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]', symObjAddr: 0x16E, symBinAddr: 0x4AD5, symSize: 0x23E }
-  - { offset: 0xDEEDD, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke', symObjAddr: 0x3AC, symBinAddr: 0x4D13, symSize: 0x143 }
-  - { offset: 0xDEFFD, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke_2', symObjAddr: 0x4EF, symBinAddr: 0x4E56, symSize: 0x16 }
-  - { offset: 0xDF052, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0x505, symBinAddr: 0x4E6C, symSize: 0x17 }
-  - { offset: 0xDF07B, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x51C, symBinAddr: 0x4E83, symSize: 0xF }
-  - { offset: 0xDF0A6, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke.38', symObjAddr: 0x52B, symBinAddr: 0x4E92, symSize: 0x49 }
-  - { offset: 0xDF11D, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b48b, symObjAddr: 0x574, symBinAddr: 0x4EDB, symSize: 0x42 }
-  - { offset: 0xDF152, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x5B6, symBinAddr: 0x4F1D, symSize: 0x2C }
-  - { offset: 0xDF3BE, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x4F49, symSize: 0x12A }
-  - { offset: 0xDF3D3, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x4F49, symSize: 0x12A }
-  - { offset: 0xDF559, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler currentCachedBadgeValue]', symObjAddr: 0x12A, symBinAddr: 0x5073, symSize: 0x54 }
-  - { offset: 0xDF63C, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x50C7, symSize: 0x19 }
-  - { offset: 0xDF64A, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x50C7, symSize: 0x19 }
-  - { offset: 0xDF6B6, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x19, symBinAddr: 0x50E0, symSize: 0x19 }
-  - { offset: 0xDF738, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x32, symBinAddr: 0x50F9, symSize: 0x19 }
-  - { offset: 0xDF8F6, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionString, symObjAddr: 0x0, symBinAddr: 0x5AB0, symSize: 0x0 }
-  - { offset: 0xDF92B, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionNumber, symObjAddr: 0x38, symBinAddr: 0x5AE8, symSize: 0x0 }
+  - { offset: 0xDAA19, size: 0x8, addend: 0x0, symName: '+[OSRequestReceiveReceipts withPlayerId:notificationId:appId:]', symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x1D6 }
+  - { offset: 0xDAA38, size: 0x8, addend: 0x0, symName: '+[OSRequestReceiveReceipts withPlayerId:notificationId:appId:]', symObjAddr: 0x0, symBinAddr: 0x10D0, symSize: 0x1D6 }
+  - { offset: 0xDAC8D, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x12A6, symSize: 0x1C }
+  - { offset: 0xDACA6, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x12A6, symSize: 0x1C }
+  - { offset: 0xDAD18, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x1C, symBinAddr: 0x12C2, symSize: 0x2B2 }
+  - { offset: 0xDB0BA, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler userInfoWithCollapseId:identifier:]', symObjAddr: 0x2CE, symBinAddr: 0x1574, symSize: 0x1BB }
+  - { offset: 0xDB2B8, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x489, symBinAddr: 0x172F, symSize: 0x11D }
+  - { offset: 0xDB413, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler addActionButtonsToExtentionRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x5A6, symBinAddr: 0x184C, symSize: 0x148 }
+  - { offset: 0xDB59E, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]', symObjAddr: 0x6EE, symBinAddr: 0x1994, symSize: 0x326 }
+  - { offset: 0xDB8A7, size: 0x8, addend: 0x0, symName: '___88+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]_block_invoke', symObjAddr: 0xA14, symBinAddr: 0x1CBA, symSize: 0x85 }
+  - { offset: 0xDB95C, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40s, symObjAddr: 0xA99, symBinAddr: 0x1D3F, symSize: 0x25 }
+  - { offset: 0xDB99D, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s, symObjAddr: 0xABE, symBinAddr: 0x1D64, symSize: 0x25 }
+  - { offset: 0xDB9D4, size: 0x8, addend: 0x0, symName: '___88+[OneSignalNotificationServiceExtensionHandler onNotificationReceived:withBlockingTask:]_block_invoke.102', symObjAddr: 0xAE3, symBinAddr: 0x1D89, symSize: 0x85 }
+  - { offset: 0xDBCCE, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationCategoryController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x1E0E, symSize: 0x30 }
+  - { offset: 0xDBCDC, size: 0x8, addend: 0x0, symName: '+[OneSignalNotificationCategoryController sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x1E0E, symSize: 0x30 }
+  - { offset: 0xDBD06, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedInstance, symObjAddr: 0x4198, symBinAddr: 0xAAD8, symSize: 0x0 }
+  - { offset: 0xDBD1C, size: 0x8, addend: 0x0, symName: _sharedInstance.once, symObjAddr: 0x41A0, symBinAddr: 0xAAE0, symSize: 0x0 }
+  - { offset: 0xDBDC2, size: 0x8, addend: 0x0, symName: '___57+[OneSignalNotificationCategoryController sharedInstance]_block_invoke', symObjAddr: 0x30, symBinAddr: 0x1E3E, symSize: 0x25 }
+  - { offset: 0xDBDF5, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController saveCategoryId:]', symObjAddr: 0x55, symBinAddr: 0x1E63, symSize: 0x115 }
+  - { offset: 0xDBF65, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController existingRegisteredCategoryIds]', symObjAddr: 0x16A, symBinAddr: 0x1F78, symSize: 0x82 }
+  - { offset: 0xDBFD8, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController pruneCategories:]', symObjAddr: 0x1EC, symBinAddr: 0x1FFA, symSize: 0x2F9 }
+  - { offset: 0xDC208, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController registerNotificationCategoryForNotificationId:]', symObjAddr: 0x4E5, symBinAddr: 0x22F3, symSize: 0xDA }
+  - { offset: 0xDC2F1, size: 0x8, addend: 0x0, symName: '-[OneSignalNotificationCategoryController existingCategories]', symObjAddr: 0x5BF, symBinAddr: 0x23CD, symSize: 0x14D }
+  - { offset: 0xDC442, size: 0x8, addend: 0x0, symName: ___Block_byref_object_copy_, symObjAddr: 0x70C, symBinAddr: 0x251A, symSize: 0x16 }
+  - { offset: 0xDC467, size: 0x8, addend: 0x0, symName: ___Block_byref_object_dispose_, symObjAddr: 0x722, symBinAddr: 0x2530, symSize: 0xF }
+  - { offset: 0xDC492, size: 0x8, addend: 0x0, symName: '___61-[OneSignalNotificationCategoryController existingCategories]_block_invoke', symObjAddr: 0x731, symBinAddr: 0x253F, symSize: 0x41 }
+  - { offset: 0xDC52E, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40r, symObjAddr: 0x772, symBinAddr: 0x2580, symSize: 0x30 }
+  - { offset: 0xDC563, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40r, symObjAddr: 0x7A2, symBinAddr: 0x25B0, symSize: 0x27 }
+  - { offset: 0xDC79B, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveData:]', symObjAddr: 0x0, symBinAddr: 0x25D7, symSize: 0x16D }
+  - { offset: 0xDC7A9, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler randomStringWithLength:]', symObjAddr: 0x1D81, symBinAddr: 0x4358, symSize: 0xA7 }
+  - { offset: 0xDC974, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveData:]', symObjAddr: 0x0, symBinAddr: 0x25D7, symSize: 0x16D }
+  - { offset: 0xDCB80, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:dataTask:didReceiveResponse:completionHandler:]', symObjAddr: 0x16D, symBinAddr: 0x2744, symSize: 0x85 }
+  - { offset: 0xDCC64, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:didBecomeInvalidWithError:]', symObjAddr: 0x1F2, symBinAddr: 0x27C9, symSize: 0x48 }
+  - { offset: 0xDCCDF, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate URLSession:task:didCompleteWithError:]', symObjAddr: 0x23A, symBinAddr: 0x2811, symSize: 0x47 }
+  - { offset: 0xDCD66, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate initWithFilePath:]', symObjAddr: 0x281, symBinAddr: 0x2858, symSize: 0x147 }
+  - { offset: 0xDCE9C, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate error]', symObjAddr: 0x3C8, symBinAddr: 0x299F, symSize: 0x14 }
+  - { offset: 0xDCED3, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate response]', symObjAddr: 0x3DC, symBinAddr: 0x29B3, symSize: 0x14 }
+  - { offset: 0xDCF0A, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate isDone]', symObjAddr: 0x3F0, symBinAddr: 0x29C7, symSize: 0xA }
+  - { offset: 0xDCF3F, size: 0x8, addend: 0x0, symName: '-[DirectDownloadDelegate .cxx_destruct]', symObjAddr: 0x3FA, symBinAddr: 0x29D1, symSize: 0x33 }
+  - { offset: 0xDCF72, size: 0x8, addend: 0x0, symName: '+[NSURLSession(DirectDownload) downloadItemAtURL:toFile:error:]', symObjAddr: 0x42D, symBinAddr: 0x2A04, symSize: 0x26A }
+  - { offset: 0xDD21F, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler addActionButtons:toNotificationContent:]', symObjAddr: 0x697, symBinAddr: 0x2C6E, symSize: 0x6CF }
+  - { offset: 0xDD701, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler addAttachments:toNotificationContent:]', symObjAddr: 0xD66, symBinAddr: 0x333D, symSize: 0x745 }
+  - { offset: 0xDDC58, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler createActionForButton:]', symObjAddr: 0x14AB, symBinAddr: 0x3A82, symSize: 0x2EA }
+  - { offset: 0xDDFA3, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler downloadMediaAndSaveInBundle:]', symObjAddr: 0x1795, symBinAddr: 0x3D6C, symSize: 0x553 }
+  - { offset: 0xDE46D, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler isWWWScheme:]', symObjAddr: 0x1CE8, symBinAddr: 0x42BF, symSize: 0x99 }
+  - { offset: 0xDE54C, size: 0x8, addend: 0x0, symName: '+[OneSignalAttachmentHandler getSupportedFileExtensionFromURL:mimeType:]', symObjAddr: 0x1E28, symBinAddr: 0x43FF, symSize: 0x568 }
+  - { offset: 0xDE918, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController isReceiveReceiptsEnabled]', symObjAddr: 0x0, symBinAddr: 0x4967, symSize: 0x55 }
+  - { offset: 0xDE937, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController isReceiveReceiptsEnabled]', symObjAddr: 0x0, symBinAddr: 0x4967, symSize: 0x55 }
+  - { offset: 0xDE99D, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithNotificationId:]', symObjAddr: 0x55, symBinAddr: 0x49BC, symSize: 0xCE }
+  - { offset: 0xDEAB5, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:]', symObjAddr: 0x123, symBinAddr: 0x4A8A, symSize: 0x26 }
+  - { offset: 0xDEB4B, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:successBlock:failureBlock:]', symObjAddr: 0x149, symBinAddr: 0x4AB0, symSize: 0x25 }
+  - { offset: 0xDEBF9, size: 0x8, addend: 0x0, symName: '-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]', symObjAddr: 0x16E, symBinAddr: 0x4AD5, symSize: 0x23E }
+  - { offset: 0xDEF09, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke', symObjAddr: 0x3AC, symBinAddr: 0x4D13, symSize: 0x143 }
+  - { offset: 0xDF029, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke_2', symObjAddr: 0x4EF, symBinAddr: 0x4E56, symSize: 0x16 }
+  - { offset: 0xDF07E, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32b, symObjAddr: 0x505, symBinAddr: 0x4E6C, symSize: 0x17 }
+  - { offset: 0xDF0A7, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s, symObjAddr: 0x51C, symBinAddr: 0x4E83, symSize: 0xF }
+  - { offset: 0xDF0D2, size: 0x8, addend: 0x0, symName: '___122-[OneSignalReceiveReceiptsController sendReceiveReceiptWithPlayerId:notificationId:appId:delay:successBlock:failureBlock:]_block_invoke.38', symObjAddr: 0x52B, symBinAddr: 0x4E92, symSize: 0x49 }
+  - { offset: 0xDF149, size: 0x8, addend: 0x0, symName: ___copy_helper_block_e8_32s40b48b, symObjAddr: 0x574, symBinAddr: 0x4EDB, symSize: 0x42 }
+  - { offset: 0xDF17E, size: 0x8, addend: 0x0, symName: ___destroy_helper_block_e8_32s40s48s, symObjAddr: 0x5B6, symBinAddr: 0x4F1D, symSize: 0x2C }
+  - { offset: 0xDF3EA, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x4F49, symSize: 0x12A }
+  - { offset: 0xDF3FF, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x4F49, symSize: 0x12A }
+  - { offset: 0xDF585, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler currentCachedBadgeValue]', symObjAddr: 0x12A, symBinAddr: 0x5073, symSize: 0x54 }
+  - { offset: 0xDF668, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x50C7, symSize: 0x19 }
+  - { offset: 0xDF676, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x50C7, symSize: 0x19 }
+  - { offset: 0xDF6E2, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x19, symBinAddr: 0x50E0, symSize: 0x19 }
+  - { offset: 0xDF764, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x32, symBinAddr: 0x50F9, symSize: 0x19 }
+  - { offset: 0xDF922, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionString, symObjAddr: 0x0, symBinAddr: 0x5AB0, symSize: 0x0 }
+  - { offset: 0xDF957, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionNumber, symObjAddr: 0x38, symBinAddr: 0x5AE8, symSize: 0x0 }
 ...

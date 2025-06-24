@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		uNN3W3qjErrn8js+AjDNuqWNibo=
+		FJbqOGV18IP0Ks1X54u3KZAX7d8=
 		</data>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -103,7 +103,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			JOArzkdx1cCGHN5R6ITF+D2e8x/s5HVzQNEl26Gxdfg=
+			E5x7O9DsPCSzd6c+vUPfd5suBOaorLFejKubR/fvKpw=
 			</data>
 		</dict>
 		<key>Headers/OSNotificationClasses.h</key>
@@ -124,7 +124,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZbsLBZFACw0H6sd80zOvxaGw6Jq/0Sz1diu28fYUOZY=
+			sp07+DUKscxnVfk2kLriqDDs+ennVReTHPK0Gmt+gv8=
 			</data>
 		</dict>
 		<key>Headers/OSRemoteParamController.h</key>
@@ -141,18 +141,32 @@
 			zcPzshIWiNjURGAjtzmwJgFSHy4BeDwZu9d2K0H0kkY=
 			</data>
 		</dict>
+		<key>Headers/OneSignalBadgeHelpers.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			jvkx2GOU9HL+g8DtxGBAAAn+nAn8feR2dltzBh8HIDg=
+			</data>
+		</dict>
 		<key>Headers/OneSignalClient.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bZZ7bNHZy8Mym+UeVjwRL9HtlIxmmTNomVrGmmHcw2A=
+			bg16G8iXmo6DyBHRd1TLI2mgB5qwBoQU8pT4+UHoGXc=
+			</data>
+		</dict>
+		<key>Headers/OneSignalClientError.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/s2teFkWNsHgBhV6KkT1NG+kqsfS2NZ7cqHEOHi3yOg=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ng3o6KLvWToPcw0FbLlVr8Fp7ymK9+YnmPWWXQK8aOM=
+			I9pPukUG9mWdmxkx7dPhjO/r4Xh6yJeSTyIdV3uyXE8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -166,7 +180,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			20S2Oh1SwfMtiT7LPUzwHwsDF3y7dYYPdCzAfHqTVJ8=
+			ER95AFBvVYKvhKW7rvHbHhjDqfeAdUQfk6AqmctiCzY=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -180,7 +194,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			dxA7cLDNWcU1hbnKhX2IHVFqV7VyXiyL6XhOhEx9vGc=
+			ExVUQJ1raLgNNVqIt6XfoDTqayd/SOkZbYs3mXIR85s=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>
@@ -243,7 +257,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			BYP4kP+pKgTt3i1SJxhpuj5i5nhtAWF2XdrKeJ8qM0s=
+			QbCN0Ac5cq+cDIng8OE4uKAyTHyjW6FV4SNU6XbbwL8=
 			</data>
 		</dict>
 		<key>Resources/PrivacyInfo.xcprivacy</key>

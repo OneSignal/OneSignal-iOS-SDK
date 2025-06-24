@@ -54,1155 +54,6 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "OSUser",
-        "printedName": "OSUser",
-        "children": [
-          {
-            "kind": "Var",
-            "name": "pushSubscription",
-            "printedName": "pushSubscription",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "OSPushSubscription",
-                "printedName": "any OneSignalUser.OSPushSubscription",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)pushSubscription",
-            "mangledName": "$s13OneSignalUser6OSUserP16pushSubscriptionAA06OSPushF0_pvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OSPushSubscription",
-                    "printedName": "any OneSignalUser.OSPushSubscription",
-                    "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)pushSubscription",
-                "mangledName": "$s13OneSignalUser6OSUserP16pushSubscriptionAA06OSPushF0_pvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "onesignalId",
-            "printedName": "onesignalId",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)onesignalId",
-            "mangledName": "$s13OneSignalUser6OSUserP11onesignalIdSSSgvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)onesignalId",
-                "mangledName": "$s13OneSignalUser6OSUserP11onesignalIdSSSgvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "externalId",
-            "printedName": "externalId",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)externalId",
-            "mangledName": "$s13OneSignalUser6OSUserP10externalIdSSSgvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)externalId",
-                "mangledName": "$s13OneSignalUser6OSUserP10externalIdSSSgvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Function",
-            "name": "addObserver",
-            "printedName": "addObserver(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "OSUserStateObserver",
-                "printedName": "any OneSignalUser.OSUserStateObserver",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSUserStateObserver"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addObserver:",
-            "mangledName": "$s13OneSignalUser6OSUserP11addObserveryyAA0d5StateF0_pF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeObserver",
-            "printedName": "removeObserver(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "OSUserStateObserver",
-                "printedName": "any OneSignalUser.OSUserStateObserver",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSUserStateObserver"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeObserver:",
-            "mangledName": "$s13OneSignalUser6OSUserP14removeObserveryyAA0d5StateF0_pF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addAlias",
-            "printedName": "addAlias(label:id:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addAliasWithLabel:id:",
-            "mangledName": "$s13OneSignalUser6OSUserP8addAlias5label2idySS_SStF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addAliases",
-            "printedName": "addAliases(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:SD"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addAliases:",
-            "mangledName": "$s13OneSignalUser6OSUserP10addAliasesyySDyS2SGF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeAlias",
-            "printedName": "removeAlias(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeAlias:",
-            "mangledName": "$s13OneSignalUser6OSUserP11removeAliasyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeAliases",
-            "printedName": "removeAliases(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeAliases:",
-            "mangledName": "$s13OneSignalUser6OSUserP13removeAliasesyySaySSGF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addTag",
-            "printedName": "addTag(key:value:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addTagWithKey:value:",
-            "mangledName": "$s13OneSignalUser6OSUserP6addTag3key5valueySS_SStF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addTags",
-            "printedName": "addTags(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:SD"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addTags:",
-            "mangledName": "$s13OneSignalUser6OSUserP7addTagsyySDyS2SGF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeTag",
-            "printedName": "removeTag(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeTag:",
-            "mangledName": "$s13OneSignalUser6OSUserP9removeTagyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeTags",
-            "printedName": "removeTags(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeTags:",
-            "mangledName": "$s13OneSignalUser6OSUserP10removeTagsyySaySSGF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "getTags",
-            "printedName": "getTags()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Dictionary",
-                "printedName": "[Swift.String : Swift.String]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:SD"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)getTags",
-            "mangledName": "$s13OneSignalUser6OSUserP7getTagsSDyS2SGyF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addEmail",
-            "printedName": "addEmail(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addEmail:",
-            "mangledName": "$s13OneSignalUser6OSUserP8addEmailyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeEmail",
-            "printedName": "removeEmail(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeEmail:",
-            "mangledName": "$s13OneSignalUser6OSUserP11removeEmailyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addSms",
-            "printedName": "addSms(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addSms:",
-            "mangledName": "$s13OneSignalUser6OSUserP6addSmsyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeSms",
-            "printedName": "removeSms(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeSms:",
-            "mangledName": "$s13OneSignalUser6OSUserP9removeSmsyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "setLanguage",
-            "printedName": "setLanguage(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)setLanguage:",
-            "mangledName": "$s13OneSignalUser6OSUserP11setLanguageyySSF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "RawDocComment",
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "onJwtExpired",
-            "printedName": "onJwtExpired(expiredHandler:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Swift.String, (Swift.String) -> ()) -> ()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Tuple",
-                    "printedName": "(Swift.String, (Swift.String) -> ())",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      },
-                      {
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Swift.String) -> ()",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Void",
-                            "printedName": "()"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ],
-                        "typeAttributes": [
-                          "noescape"
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)onJwtExpiredWithExpiredHandler:",
-            "mangledName": "$s13OneSignalUser6OSUserP12onJwtExpired14expiredHandleryySS_ySSXEtc_tF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Protocol",
-        "usr": "c:@M@OneSignalUser@objc(pl)OSUser",
-        "mangledName": "$s13OneSignalUser6OSUserP",
-        "moduleName": "OneSignalUser",
-        "genericSig": "<τ_0_0 : AnyObject>",
-        "sugared_genericSig": "<Self : AnyObject>",
-        "declAttributes": [
-          "AccessControl",
-          "ObjC",
-          "RawDocComment"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
-        "name": "OSPushSubscription",
-        "printedName": "OSPushSubscription",
-        "children": [
-          {
-            "kind": "Var",
-            "name": "id",
-            "printedName": "id",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)id",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP2idSSSgvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)id",
-                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP2idSSSgvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "token",
-            "printedName": "token",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Optional",
-                "printedName": "Swift.String?",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "String",
-                    "printedName": "Swift.String",
-                    "usr": "s:SS"
-                  }
-                ],
-                "usr": "s:Sq"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)token",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5tokenSSSgvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Optional",
-                    "printedName": "Swift.String?",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      }
-                    ],
-                    "usr": "s:Sq"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)token",
-                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5tokenSSSgvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Var",
-            "name": "optedIn",
-            "printedName": "optedIn",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)optedIn",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP7optedInSbvp",
-            "moduleName": "OneSignalUser",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optedIn",
-                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP7optedInSbvg",
-                "moduleName": "OneSignalUser",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-                "protocolReq": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
-            "kind": "Function",
-            "name": "optIn",
-            "printedName": "optIn()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optIn",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5optInyyF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "optOut",
-            "printedName": "optOut()",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optOut",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP6optOutyyF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "addObserver",
-            "printedName": "addObserver(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "OSPushSubscriptionObserver",
-                "printedName": "any OneSignalUser.OSPushSubscriptionObserver",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscriptionObserver"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)addObserver:",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP11addObserveryyAA0deG0_pF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "removeObserver",
-            "printedName": "removeObserver(_:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "OSPushSubscriptionObserver",
-                "printedName": "any OneSignalUser.OSPushSubscriptionObserver",
-                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscriptionObserver"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)removeObserver:",
-            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP14removeObserveryyAA0deG0_pF",
-            "moduleName": "OneSignalUser",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
-            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
-            "protocolReq": true,
-            "declAttributes": [
-              "ObjC"
-            ],
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          }
-        ],
-        "declKind": "Protocol",
-        "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription",
-        "mangledName": "$s13OneSignalUser18OSPushSubscriptionP",
-        "moduleName": "OneSignalUser",
-        "genericSig": "<τ_0_0 : AnyObject>",
-        "sugared_genericSig": "<Self : AnyObject>",
-        "declAttributes": [
-          "AccessControl",
-          "ObjC",
-          "RawDocComment"
-        ],
-        "conformances": [
-          {
-            "kind": "Conformance",
-            "name": "Escapable",
-            "printedName": "Escapable",
-            "usr": "s:s9EscapableP",
-            "mangledName": "$ss9EscapableP"
-          },
-          {
-            "kind": "Conformance",
-            "name": "Copyable",
-            "printedName": "Copyable",
-            "usr": "s:s8CopyableP",
-            "mangledName": "$ss8CopyableP"
-          }
-        ]
-      },
-      {
-        "kind": "TypeDecl",
         "name": "OneSignalUserManagerImpl",
         "printedName": "OneSignalUserManagerImpl",
         "children": [
@@ -1430,99 +281,6 @@
             ]
           },
           {
-            "kind": "Var",
-            "name": "requiresUserAuth",
-            "printedName": "requiresUserAuth",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(py)requiresUserAuth",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC08requiresC4AuthSbvp",
-            "moduleName": "OneSignalUser",
-            "declAttributes": [
-              "HasInitialValue",
-              "HasStorage",
-              "AccessControl",
-              "ObjC"
-            ],
-            "hasStorage": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)requiresUserAuth",
-                "mangledName": "$s13OneSignalUser0abC11ManagerImplC08requiresC4AuthSbvg",
-                "moduleName": "OneSignalUser",
-                "implicit": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "accessorKind": "get"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Set",
-                "printedName": "Set()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Bool",
-                    "printedName": "Swift.Bool",
-                    "usr": "s:Sb"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)setRequiresUserAuth:",
-                "mangledName": "$s13OneSignalUser0abC11ManagerImplC08requiresC4AuthSbvs",
-                "moduleName": "OneSignalUser",
-                "implicit": true,
-                "declAttributes": [
-                  "ObjC"
-                ],
-                "accessorKind": "set"
-              },
-              {
-                "kind": "Accessor",
-                "name": "Modify",
-                "printedName": "Modify()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:13OneSignalUser0abC11ManagerImplC08requiresC4AuthSbvM",
-                "mangledName": "$s13OneSignalUser0abC11ManagerImplC08requiresC4AuthSbvM",
-                "moduleName": "OneSignalUser",
-                "implicit": true,
-                "accessorKind": "_modify"
-              }
-            ]
-          },
-          {
             "kind": "Function",
             "name": "start",
             "printedName": "start()",
@@ -1582,6 +340,81 @@
             "declAttributes": [
               "ObjC",
               "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getAliasForCurrentUser",
+            "printedName": "getAliasForCurrentUser()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "OneSignalOSCore.OSAliasPair?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSAliasPair",
+                    "printedName": "OneSignalOSCore.OSAliasPair",
+                    "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)getAliasForCurrentUser",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC018getAliasForCurrentC00aB6OSCore11OSAliasPairCSgyF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getCurrentUserFullHeader",
+            "printedName": "getCurrentUserFullHeader()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Swift.String]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)getCurrentUserFullHeader",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC010getCurrentC10FullHeaderSDyS2SGSgyF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -1777,6 +610,32 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OneSignalUserManagerImpl",
+                "printedName": "OneSignalUser.OneSignalUserManagerImpl",
+                "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)init",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplCACycfc",
+            "moduleName": "OneSignalUser",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Function",
             "name": "startNewSession",
             "printedName": "startNewSession()",
@@ -1855,8 +714,8 @@
           },
           {
             "kind": "Function",
-            "name": "onJwtExpired",
-            "printedName": "onJwtExpired(expiredHandler:)",
+            "name": "addUserJwtInvalidatedListener",
+            "printedName": "addUserJwtInvalidatedListener(_:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -1864,61 +723,203 @@
                 "printedName": "()"
               },
               {
-                "kind": "TypeFunc",
-                "name": "Function",
-                "printedName": "(Swift.String, (Swift.String) -> ()) -> ()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Void",
-                    "printedName": "()"
-                  },
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Tuple",
-                    "printedName": "(Swift.String, (Swift.String) -> ())",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "String",
-                        "printedName": "Swift.String",
-                        "usr": "s:SS"
-                      },
-                      {
-                        "kind": "TypeFunc",
-                        "name": "Function",
-                        "printedName": "(Swift.String) -> ()",
-                        "children": [
-                          {
-                            "kind": "TypeNominal",
-                            "name": "Void",
-                            "printedName": "()"
-                          },
-                          {
-                            "kind": "TypeNominal",
-                            "name": "String",
-                            "printedName": "Swift.String",
-                            "usr": "s:SS"
-                          }
-                        ],
-                        "typeAttributes": [
-                          "noescape"
-                        ]
-                      }
-                    ]
-                  }
-                ]
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedListener",
+                "printedName": "any OneSignalUser.OSUserJwtInvalidatedListener",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
               }
             ],
             "declKind": "Func",
-            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)onJwtExpiredWithExpiredHandler:",
-            "mangledName": "$s13OneSignalUser0abC11ManagerImplC12onJwtExpired14expiredHandleryySS_ySSXEtc_tF",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)addUserJwtInvalidatedListener:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC03addC22JwtInvalidatedListeneryyAA06OSUserghI0_pF",
             "moduleName": "OneSignalUser",
-            "objc_name": "onJwtExpiredWithExpiredHandler:",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeUserJwtInvalidatedListener",
+            "printedName": "removeUserJwtInvalidatedListener(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedListener",
+                "printedName": "any OneSignalUser.OSUserJwtInvalidatedListener",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)removeUserJwtInvalidatedListener:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC06removeC22JwtInvalidatedListeneryyAA06OSUserghI0_pF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setRequiresUserAuth",
+            "printedName": "setRequiresUserAuth(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)setRequiresUserAuth:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC011setRequiresC4AuthyySbF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "remoteParamsReturnedUnknownRequiresUserAuth",
+            "printedName": "remoteParamsReturnedUnknownRequiresUserAuth()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)remoteParamsReturnedUnknownRequiresUserAuth",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC035remoteParamsReturnedUnknownRequiresC4AuthyyF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "subscribeToJwtConfig",
+            "printedName": "subscribeToJwtConfig(_:key:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtConfigListener",
+                "printedName": "any OneSignalOSCore.OSUserJwtConfigListener",
+                "usr": "c:@M@OneSignalOSCore@objc(pl)OSUserJwtConfigListener"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)subscribeToJwtConfig:key:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC20subscribeToJwtConfig_3keyy0aB6OSCore06OSUserhI8Listener_p_SStF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "updateUserJwt",
+            "printedName": "updateUserJwt(externalId:token:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)updateUserJwtWithExternalId:token:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC06updateC3Jwt10externalId5tokenySS_SStF",
+            "moduleName": "OneSignalUser",
+            "objc_name": "updateUserJwtWithExternalId:token:",
             "declAttributes": [
               "Dynamic",
               "ObjC",
               "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "invalidateJwtForExternalId",
+            "printedName": "invalidateJwtForExternalId(externalId:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)invalidateJwtForExternalIdWithExternalId:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC26invalidateJwtForExternalId08externalJ0ySS_tF",
+            "moduleName": "OneSignalUser",
+            "objc_name": "invalidateJwtForExternalIdWithExternalId:",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
             ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
@@ -3152,6 +2153,29 @@
             ],
             "isFromExtension": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "logSelf",
+            "printedName": "logSelf()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)logSelf",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC7logSelfyyF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Dynamic",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Class",
@@ -3164,7 +2188,6 @@
         ],
         "superclassUsr": "c:objc(cs)NSObject",
         "hasMissingDesignatedInitializers": true,
-        "inheritsConvenienceInitializers": true,
         "superclassNames": [
           "ObjectiveC.NSObject"
         ],
@@ -3238,6 +2261,261 @@
             "printedName": "OSUser",
             "usr": "c:@M@OneSignalUser@objc(pl)OSUser",
             "mangledName": "$s13OneSignalUser6OSUserP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "OSLoggable",
+            "printedName": "OSLoggable",
+            "usr": "s:15OneSignalOSCore10OSLoggableP",
+            "mangledName": "$s15OneSignalOSCore10OSLoggableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSUserJwtInvalidatedEvent",
+        "printedName": "OSUserJwtInvalidatedEvent",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "externalId",
+            "printedName": "externalId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent(py)externalId",
+            "mangledName": "$s13OneSignalUser25OSUserJwtInvalidatedEventC10externalIdSSvp",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent(im)externalId",
+                "mangledName": "$s13OneSignalUser25OSUserJwtInvalidatedEventC10externalIdSSvg",
+                "moduleName": "OneSignalUser",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "jsonRepresentation",
+            "printedName": "jsonRepresentation()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NSDictionary",
+                "printedName": "Foundation.NSDictionary",
+                "usr": "c:objc(cs)NSDictionary"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent(im)jsonRepresentation",
+            "mangledName": "$s13OneSignalUser25OSUserJwtInvalidatedEventC18jsonRepresentationSo12NSDictionaryCyF",
+            "moduleName": "OneSignalUser",
+            "declAttributes": [
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedEvent",
+                "printedName": "OneSignalUser.OSUserJwtInvalidatedEvent",
+                "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent(im)init",
+            "mangledName": "$s13OneSignalUser25OSUserJwtInvalidatedEventCACycfc",
+            "moduleName": "OneSignalUser",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent",
+        "mangledName": "$s13OneSignalUser25OSUserJwtInvalidatedEventC",
+        "moduleName": "OneSignalUser",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "hasMissingDesignatedInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSUserJwtInvalidatedListener",
+        "printedName": "OSUserJwtInvalidatedListener",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "onUserJwtInvalidated",
+            "printedName": "onUserJwtInvalidated(event:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtInvalidatedEvent",
+                "printedName": "OneSignalUser.OSUserJwtInvalidatedEvent",
+                "usr": "c:@M@OneSignalUser@objc(cs)OSUserJwtInvalidatedEvent"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener(im)onUserJwtInvalidatedWithEvent:",
+            "mangledName": "$s13OneSignalUser28OSUserJwtInvalidatedListenerP02onceF05eventyAA0deF5EventC_tF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUserJwtInvalidatedListener>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUserJwtInvalidatedListener>",
+            "protocolReq": true,
+            "objc_name": "onUserJwtInvalidatedWithEvent:",
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "c:@M@OneSignalUser@objc(pl)OSUserJwtInvalidatedListener",
+        "mangledName": "$s13OneSignalUser28OSUserJwtInvalidatedListenerP",
+        "moduleName": "OneSignalUser",
+        "genericSig": "<τ_0_0 : AnyObject>",
+        "sugared_genericSig": "<Self : AnyObject>",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
           }
         ]
       },
@@ -3294,6 +2572,23 @@
       },
       {
         "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
         "name": "Foundation",
         "printedName": "Foundation",
         "declKind": "Import",
@@ -3372,6 +2667,20 @@
         "name": "OneSignalCore",
         "printedName": "OneSignalCore",
         "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
         "moduleName": "OneSignalUser",
         "declAttributes": [
           "RawDocComment"
@@ -3383,6 +2692,767 @@
         "printedName": "OneSignalOSCore",
         "declKind": "Import",
         "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSUser",
+        "printedName": "OSUser",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "pushSubscription",
+            "printedName": "pushSubscription",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSPushSubscription",
+                "printedName": "any OneSignalUser.OSPushSubscription",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)pushSubscription",
+            "mangledName": "$s13OneSignalUser6OSUserP16pushSubscriptionAA06OSPushF0_pvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSPushSubscription",
+                    "printedName": "any OneSignalUser.OSPushSubscription",
+                    "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)pushSubscription",
+                "mangledName": "$s13OneSignalUser6OSUserP16pushSubscriptionAA06OSPushF0_pvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "onesignalId",
+            "printedName": "onesignalId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)onesignalId",
+            "mangledName": "$s13OneSignalUser6OSUserP11onesignalIdSSSgvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)onesignalId",
+                "mangledName": "$s13OneSignalUser6OSUserP11onesignalIdSSSgvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "externalId",
+            "printedName": "externalId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(py)externalId",
+            "mangledName": "$s13OneSignalUser6OSUserP10externalIdSSSgvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)externalId",
+                "mangledName": "$s13OneSignalUser6OSUserP10externalIdSSSgvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "addObserver",
+            "printedName": "addObserver(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserStateObserver",
+                "printedName": "any OneSignalUser.OSUserStateObserver",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserStateObserver"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addObserver:",
+            "mangledName": "$s13OneSignalUser6OSUserP11addObserveryyAA0d5StateF0_pF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeObserver",
+            "printedName": "removeObserver(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserStateObserver",
+                "printedName": "any OneSignalUser.OSUserStateObserver",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSUserStateObserver"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeObserver:",
+            "mangledName": "$s13OneSignalUser6OSUserP14removeObserveryyAA0d5StateF0_pF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addAlias",
+            "printedName": "addAlias(label:id:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addAliasWithLabel:id:",
+            "mangledName": "$s13OneSignalUser6OSUserP8addAlias5label2idySS_SStF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addAliases",
+            "printedName": "addAliases(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addAliases:",
+            "mangledName": "$s13OneSignalUser6OSUserP10addAliasesyySDyS2SGF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeAlias",
+            "printedName": "removeAlias(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeAlias:",
+            "mangledName": "$s13OneSignalUser6OSUserP11removeAliasyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeAliases",
+            "printedName": "removeAliases(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeAliases:",
+            "mangledName": "$s13OneSignalUser6OSUserP13removeAliasesyySaySSGF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addTag",
+            "printedName": "addTag(key:value:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addTagWithKey:value:",
+            "mangledName": "$s13OneSignalUser6OSUserP6addTag3key5valueySS_SStF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addTags",
+            "printedName": "addTags(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addTags:",
+            "mangledName": "$s13OneSignalUser6OSUserP7addTagsyySDyS2SGF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeTag",
+            "printedName": "removeTag(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeTag:",
+            "mangledName": "$s13OneSignalUser6OSUserP9removeTagyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeTags",
+            "printedName": "removeTags(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeTags:",
+            "mangledName": "$s13OneSignalUser6OSUserP10removeTagsyySaySSGF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "getTags",
+            "printedName": "getTags()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)getTags",
+            "mangledName": "$s13OneSignalUser6OSUserP7getTagsSDyS2SGyF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addEmail",
+            "printedName": "addEmail(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addEmail:",
+            "mangledName": "$s13OneSignalUser6OSUserP8addEmailyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeEmail",
+            "printedName": "removeEmail(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeEmail:",
+            "mangledName": "$s13OneSignalUser6OSUserP11removeEmailyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addSms",
+            "printedName": "addSms(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)addSms:",
+            "mangledName": "$s13OneSignalUser6OSUserP6addSmsyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeSms",
+            "printedName": "removeSms(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)removeSms:",
+            "mangledName": "$s13OneSignalUser6OSUserP9removeSmsyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "setLanguage",
+            "printedName": "setLanguage(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)setLanguage:",
+            "mangledName": "$s13OneSignalUser6OSUserP11setLanguageyySSF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "c:@M@OneSignalUser@objc(pl)OSUser",
+        "mangledName": "$s13OneSignalUser6OSUserP",
+        "moduleName": "OneSignalUser",
+        "genericSig": "<τ_0_0 : AnyObject>",
+        "sugared_genericSig": "<Self : AnyObject>",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
       },
       {
         "kind": "Import",
@@ -3415,6 +3485,23 @@
         "kind": "Import",
         "name": "OneSignalCore",
         "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
         "declKind": "Import",
         "moduleName": "OneSignalUser"
       },
@@ -4334,6 +4421,324 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "OSPushSubscription",
+        "printedName": "OSPushSubscription",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)id",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP2idSSSgvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)id",
+                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP2idSSSgvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "token",
+            "printedName": "token",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)token",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5tokenSSSgvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)token",
+                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5tokenSSSgvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "optedIn",
+            "printedName": "optedIn",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(py)optedIn",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP7optedInSbvp",
+            "moduleName": "OneSignalUser",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optedIn",
+                "mangledName": "$s13OneSignalUser18OSPushSubscriptionP7optedInSbvg",
+                "moduleName": "OneSignalUser",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+                "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+                "protocolReq": true,
+                "declAttributes": [
+                  "ObjC"
+                ],
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "optIn",
+            "printedName": "optIn()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optIn",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP5optInyyF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "optOut",
+            "printedName": "optOut()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)optOut",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP6optOutyyF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addObserver",
+            "printedName": "addObserver(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSPushSubscriptionObserver",
+                "printedName": "any OneSignalUser.OSPushSubscriptionObserver",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscriptionObserver"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)addObserver:",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP11addObserveryyAA0deG0_pF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeObserver",
+            "printedName": "removeObserver(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSPushSubscriptionObserver",
+                "printedName": "any OneSignalUser.OSPushSubscriptionObserver",
+                "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscriptionObserver"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription(im)removeObserver:",
+            "mangledName": "$s13OneSignalUser18OSPushSubscriptionP14removeObserveryyAA0deG0_pF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSPushSubscription>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSPushSubscription>",
+            "protocolReq": true,
+            "declAttributes": [
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "c:@M@OneSignalUser@objc(pl)OSPushSubscription",
+        "mangledName": "$s13OneSignalUser18OSPushSubscriptionP",
+        "moduleName": "OneSignalUser",
+        "genericSig": "<τ_0_0 : AnyObject>",
+        "sugared_genericSig": "<Self : AnyObject>",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "OSUserState",
         "printedName": "OSUserState",
         "children": [
@@ -5012,91 +5417,84 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 4640,
+      "offset": 2842,
       "length": 26,
       "value": "\"com.onesignal.user.start\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4693,
+      "offset": 2895,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5669,
+      "offset": 4472,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5688,
+      "offset": 4491,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5771,
-      "length": 5,
-      "value": "false"
-    },
-    {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
-      "kind": "BooleanLiteral",
-      "offset": 26142,
+      "offset": 27874,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 28077,
+      "offset": 32195,
       "length": 12,
       "value": "\"externalId\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 28316,
+      "offset": 32434,
       "length": 13,
       "value": "\"onesignalId\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35289,
+      "offset": 39407,
       "length": 21,
       "value": "\"pushSubscription.id\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35612,
+      "offset": 39730,
       "length": 24,
       "value": "\"pushSubscription.token\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35930,
+      "offset": 40048,
       "length": 26,
       "value": "\"pushSubscription.optedIn\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 35988,
+      "offset": 40106,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 36112,
+      "offset": 40230,
       "length": 5,
       "value": "false"
     },
@@ -5122,28 +5520,28 @@
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
       "offset": 1930,
       "length": 10,
       "value": "\"language\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
       "offset": 2064,
       "length": 10,
       "value": "\"location\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
       "offset": 2306,
       "length": 13,
       "value": "\"timezone_id\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSPropertiesModel.swift",
       "kind": "Dictionary",
       "offset": 2393,
       "length": 3,
@@ -5173,14 +5571,14 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSIdentityOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 1837,
+      "offset": 1957,
       "length": 39,
       "value": "\"OneSignal.OSIdentityOperationExecutor\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSIdentityModelRepo.swift",
       "kind": "Dictionary",
-      "offset": 1813,
+      "offset": 1857,
       "length": 3,
       "value": "[]"
     },
@@ -5243,14 +5641,14 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "Array",
-      "offset": 2656,
+      "offset": 2765,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 2876,
+      "offset": 3020,
       "length": 39,
       "value": "\"OneSignal.OSPropertyOperationExecutor\""
     },
@@ -5271,42 +5669,42 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "IntegerLiteral",
-      "offset": 1800,
+      "offset": 1921,
       "length": 5,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "IntegerLiteral",
-      "offset": 1808,
+      "offset": 1929,
       "length": 3,
       "value": "200"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 2034,
+      "offset": 2155,
       "length": 26,
       "value": "\"OneSignal.OSUserExecutor\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "BooleanLiteral",
-      "offset": 8566,
+      "offset": 12671,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "BooleanLiteral",
-      "offset": 21890,
+      "offset": 29264,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSUserExecutor.swift",
       "kind": "BooleanLiteral",
-      "offset": 26183,
+      "offset": 34078,
       "length": 5,
       "value": "false"
     },
@@ -5346,203 +5744,217 @@
       "value": "false"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1744,
       "length": 94,
       "value": "\"<OSPushSubscriptionState: id: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1783,
       "length": 5,
       "value": "\"nil\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1789,
       "length": 1,
       "value": "\", token: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1809,
       "length": 5,
       "value": "\"nil\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1815,
       "length": 1,
       "value": "\", optedIn: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 1836,
       "length": 1,
       "value": "\">\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 2637,
       "length": 94,
       "value": "\"<OSPushSubscriptionChangedState:\nprevious: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 2698,
       "length": 1,
       "value": "\",\ncurrent:   \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 2727,
       "length": 1,
       "value": "\"\n>\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 3141,
       "length": 9,
       "value": "\"iOSPush\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 3168,
       "length": 7,
       "value": "\"Email\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
       "offset": 3191,
       "length": 5,
       "value": "\"SMS\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 3520,
+      "offset": 3341,
+      "length": 25,
+      "value": "\"isDisabledInternallyKey\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
+      "kind": "StringLiteral",
+      "offset": 3619,
       "length": 9,
       "value": "\"address\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 4371,
+      "offset": 4470,
       "length": 16,
       "value": "\"subscriptionId\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "BooleanLiteral",
-      "offset": 4436,
+      "offset": 4535,
       "length": 4,
       "value": "true"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 5718,
+      "offset": 5817,
       "length": 2,
       "value": "-2"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 5759,
+      "offset": 5858,
       "length": 2,
       "value": "-2"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 5844,
+      "offset": 5943,
       "length": 1,
       "value": "0"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 5877,
+      "offset": 5976,
       "length": 19,
       "value": "\"notificationTypes\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 5444,
+      "offset": 5543,
       "length": 2,
       "value": "-1"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "IntegerLiteral",
-      "offset": 6874,
+      "offset": 6973,
       "length": 2,
       "value": "-2"
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7497,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 7090,
+      "offset": 7930,
       "length": 10,
       "value": "\"testType\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 7322,
+      "offset": 8162,
       "length": 10,
       "value": "\"deviceOs\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 7531,
+      "offset": 8371,
       "length": 5,
       "value": "\"sdk\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 7770,
+      "offset": 8610,
       "length": 13,
       "value": "\"deviceModel\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 8059,
+      "offset": 8899,
       "length": 12,
       "value": "\"appVersion\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 7883,
+      "offset": 8723,
       "length": 28,
       "value": "\"CFBundleShortVersionString\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSSubscriptionModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSSubscriptionModel.swift",
       "kind": "StringLiteral",
-      "offset": 8307,
+      "offset": 9147,
       "length": 9,
       "value": "\"netType\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSIdentityModel.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Modeling\/OSIdentityModel.swift",
       "kind": "Dictionary",
       "offset": 1603,
       "length": 3,
@@ -5579,61 +5991,61 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Dictionary",
-      "offset": 1815,
+      "offset": 1900,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 2031,
+      "offset": 2151,
       "length": 43,
       "value": "\"OneSignal.OSSubscriptionOperationExecutor\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1418,
       "length": 89,
       "value": "\"<OSUserState: onesignalId: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1463,
       "length": 5,
       "value": "\"nil\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1469,
       "length": 1,
       "value": "\", externalId: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1499,
       "length": 5,
       "value": "\"nil\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1505,
       "length": 1,
       "value": "\">\""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 1998,
       "length": 44,
       "value": "\"<OSUserState:\ncurrent: \""
     },
     {
-      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSUserState.swift",
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Public\/OSUserState.swift",
       "kind": "StringLiteral",
       "offset": 2038,
       "length": 1,
