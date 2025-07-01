@@ -88,6 +88,7 @@
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
 		3C5501402E09CF0100E77DF7 /* OSCopyOnWriteSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */; };
 		3C5501412E09CF0100E77DF7 /* OSCopyOnWriteSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */; };
+		3C5501432E09F3D900E77DF7 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5501422E09F3D900E77DF7 /* LoggingTests.swift */; };
 		3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A12BEEA38100649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */; };
@@ -1266,6 +1267,7 @@
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
 		3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSCopyOnWriteSet.h; sourceTree = "<group>"; };
 		3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSCopyOnWriteSet.m; sourceTree = "<group>"; };
+		3C5501422E09F3D900E77DF7 /* LoggingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -2190,6 +2192,7 @@
 			isa = PBXGroup;
 			children = (
 				3CC063A62B6D7A8E002BB07F /* OneSignalCoreTests.swift */,
+				3C5501422E09F3D900E77DF7 /* LoggingTests.swift */,
 				3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */,
 				3C24B0EA2BD09D790052E771 /* OneSignalCoreTests-Bridging-Header.h */,
 			);
@@ -4222,6 +4225,7 @@
 			files = (
 				3CC063A72B6D7A8E002BB07F /* OneSignalCoreTests.swift in Sources */,
 				3C24B0EC2BD09D7A0052E771 /* OneSignalCoreObjCTests.m in Sources */,
+				3C5501432E09F3D900E77DF7 /* LoggingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
