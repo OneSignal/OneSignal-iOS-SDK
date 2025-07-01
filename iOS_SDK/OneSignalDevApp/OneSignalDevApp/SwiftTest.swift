@@ -28,9 +28,15 @@
 import Foundation
 import OneSignalFramework
 
-class SwiftTest: NSObject {
+class SwiftTest: NSObject, OSLogListener {
+    func onLogEvent(_ event: OneSignalLogEvent) {
+        print("Dev App onLogEvent: \(event.level) - \(event.entry)")
+    }
+
     func testSwiftUserModel() {
         let token1 = OneSignal.User.pushSubscription.token
         let token = OneSignal.User.pushSubscription.token
+        OneSignal.Debug.addLogListener(self)
+        OneSignal.Debug.removeLogListener(self)
     }
 }
