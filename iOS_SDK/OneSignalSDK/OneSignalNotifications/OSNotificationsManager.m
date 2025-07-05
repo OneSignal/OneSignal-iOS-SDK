@@ -260,8 +260,10 @@ static NSString *_pushSubscriptionId;
 + (void)registerLifecycleObserver {
     // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
     if ([OSBundleUtils isAppUsingUIScene]) {
+        NSLog(@"💛 registerLifecycleObserverAs UIScene ");
         [self registerLifecycleObserverAsUIScene];
     } else {
+        NSLog(@"💛 registerLifecycleObserverAs UIApplication ");
         [self registerLifecycleObserverAsUIApplication];
     }
 }
