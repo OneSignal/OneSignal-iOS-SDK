@@ -117,7 +117,8 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     /// The `deltaQueue` can contain events for multiple users. They will remain as Deltas if there is no onesignal ID yet for its user.
-    func processDeltaQueue(inBackground: Bool) {
+    /// This method will be used in an upcoming release that combine multiple events.
+    func processDeltaQueueWithBatching(inBackground: Bool) {
         self.dispatchQueue.async {
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
@@ -166,6 +167,55 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 }
                 let request = OSRequestCustomEvents(
                     events: events,
+                    identityModel: identityModel
+                )
+                self.requestQueue.append(request)
+            }
+
+            // Persist executor's requests (including new request) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            self.processRequestQueue(inBackground: inBackground)
+        }
+    }
+
+    func processDeltaQueue(inBackground: Bool) {
+        self.dispatchQueue.async {
+            if self.deltaQueue.isEmpty {
+                // Delta queue is empty but there may be pending requests
+                self.processRequestQueue(inBackground: inBackground)
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor processDeltaQueue with queue: \(self.deltaQueue)")
+
+            for (index, delta) in self.deltaQueue.enumerated().reversed() {
+                guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId),
+                      let onesignalId = identityModel.onesignalId
+                else {
+                    OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor.processDeltaQueue skipping: \(delta)")
+                    // keep this Delta in the queue, as it is not yet ready to be processed
+                    continue
+                }
+
+                guard let properties = delta.value as? [String: Any] else {
+                    // This should not happen as there are preventative typing measures before this step
+                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSCustomEventsExecutor.processDeltaQueue dropped due to invalid properties: \(delta)")
+                    self.deltaQueue.remove(at: index)
+                    continue
+                }
+
+                let event: [String: Any] = [
+                    EventConstants.name: delta.property,
+                    EventConstants.onesignalId: onesignalId,
+                    EventConstants.timestamp: ISO8601DateFormatter().string(from: delta.timestamp),
+                    EventConstants.payload: self.addSdkMetadata(properties: properties)
+                ]
+
+                self.deltaQueue.remove(at: index)
+
+                let request = OSRequestCustomEvents(
+                    events: [event],
                     identityModel: identityModel
                 )
                 self.requestQueue.append(request)
