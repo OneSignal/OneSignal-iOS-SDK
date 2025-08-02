@@ -6334,64 +6334,6 @@
             ]
           },
           {
-            "kind": "Var",
-            "name": "deltaQueue",
-            "printedName": "deltaQueue",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Array",
-                "printedName": "[OneSignalOSCore.OSDelta]",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "OSDelta",
-                    "printedName": "OneSignalOSCore.OSDelta",
-                    "usr": "c:@M@OneSignalOSCore@objc(cs)OSDelta"
-                  }
-                ],
-                "usr": "s:Sa"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:15OneSignalOSCore19OSOperationExecutorP10deltaQueueSayAA7OSDeltaCGvp",
-            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP10deltaQueueSayAA7OSDeltaCGvp",
-            "moduleName": "OneSignalOSCore",
-            "protocolReq": true,
-            "accessors": [
-              {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
-                "children": [
-                  {
-                    "kind": "TypeNominal",
-                    "name": "Array",
-                    "printedName": "[OneSignalOSCore.OSDelta]",
-                    "children": [
-                      {
-                        "kind": "TypeNominal",
-                        "name": "OSDelta",
-                        "printedName": "OneSignalOSCore.OSDelta",
-                        "usr": "c:@M@OneSignalOSCore@objc(cs)OSDelta"
-                      }
-                    ],
-                    "usr": "s:Sa"
-                  }
-                ],
-                "declKind": "Accessor",
-                "usr": "s:15OneSignalOSCore19OSOperationExecutorP10deltaQueueSayAA7OSDeltaCGvg",
-                "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP10deltaQueueSayAA7OSDeltaCGvg",
-                "moduleName": "OneSignalOSCore",
-                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
-                "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
-                "protocolReq": true,
-                "reqNewWitnessTableEntry": true,
-                "accessorKind": "get"
-              }
-            ]
-          },
-          {
             "kind": "Function",
             "name": "enqueueDelta",
             "printedName": "enqueueDelta(_:)",
@@ -6459,33 +6401,6 @@
             "declKind": "Func",
             "usr": "s:15OneSignalOSCore19OSOperationExecutorP17processDeltaQueue12inBackgroundySb_tF",
             "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP17processDeltaQueue12inBackgroundySb_tF",
-            "moduleName": "OneSignalOSCore",
-            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
-            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
-            "protocolReq": true,
-            "reqNewWitnessTableEntry": true,
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "processRequestQueue",
-            "printedName": "processRequestQueue(inBackground:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Bool",
-                "printedName": "Swift.Bool",
-                "usr": "s:Sb"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "s:15OneSignalOSCore19OSOperationExecutorP19processRequestQueue12inBackgroundySb_tF",
-            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP19processRequestQueue12inBackgroundySb_tF",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
             "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
@@ -6705,6 +6620,20 @@
             "printedName": "OSDispatchQueue",
             "usr": "s:15OneSignalOSCore15OSDispatchQueueP",
             "mangledName": "$s15OneSignalOSCore15OSDispatchQueueP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "TaskExecutor",
+            "printedName": "TaskExecutor",
+            "usr": "s:Sch",
+            "mangledName": "$sSch"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Executor",
+            "printedName": "Executor",
+            "usr": "s:ScF",
+            "mangledName": "$sScF"
           },
           {
             "kind": "Conformance",

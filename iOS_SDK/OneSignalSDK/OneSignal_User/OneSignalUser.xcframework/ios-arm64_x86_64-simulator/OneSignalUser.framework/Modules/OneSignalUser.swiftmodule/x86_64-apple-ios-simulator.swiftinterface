@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
-// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name OneSignalUser
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+// swift-compiler-version: Apple Swift version 6.1.2 effective-5.10 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OneSignalUser
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -interface-compiler-version 6.1.2
 import Foundation
 import OneSignalCore
 import OneSignalNotifications
@@ -31,6 +31,7 @@ import _SwiftConcurrencyShims
   @objc func addSms(_ number: Swift.String)
   @objc func removeSms(_ number: Swift.String)
   @objc func setLanguage(_ language: Swift.String)
+  @objc func trackEvent(name: Swift.String, properties: [Swift.String : Any]?)
   typealias OSJwtCompletionBlock = (_ newJwtToken: Swift.String) -> Swift.Void
   typealias OSJwtExpiredHandler = (_ externalId: Swift.String, _ completion: (_ newJwtToken: Swift.String) -> Swift.Void) -> Swift.Void
   @objc func onJwtExpired(expiredHandler: @escaping Self.OSJwtExpiredHandler)
@@ -99,6 +100,7 @@ extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
   @objc dynamic public func addSms(_ number: Swift.String)
   @objc dynamic public func removeSms(_ number: Swift.String)
   @objc dynamic public func setLanguage(_ language: Swift.String)
+  @objc dynamic public func trackEvent(name: Swift.String, properties: [Swift.String : Any]?)
 }
 extension OneSignalUser.OneSignalUserManagerImpl {
   @_hasMissingDesignatedInitializers @objc public class OSPushSubscriptionImpl : ObjectiveC.NSObject, OneSignalUser.OSPushSubscription {
