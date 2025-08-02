@@ -786,6 +786,64 @@
           },
           {
             "kind": "Function",
+            "name": "trackEvent",
+            "printedName": "trackEvent(name:properties:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalUser@objc(pl)OSUser(im)trackEventWithName:properties:",
+            "mangledName": "$s13OneSignalUser6OSUserP10trackEvent4name10propertiesySS_SDySSypGSgtF",
+            "moduleName": "OneSignalUser",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalUser.OSUser>",
+            "sugared_genericSig": "<Self where Self : OneSignalUser.OSUser>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
             "name": "onJwtExpired",
             "printedName": "onJwtExpired(expiredHandler:)",
             "children": [
@@ -2703,6 +2761,63 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Function",
+            "name": "trackEvent",
+            "printedName": "trackEvent(name:properties:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Any]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Any]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ProtocolComposition",
+                        "printedName": "Any"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@CM@OneSignalUser@objc(cs)OneSignalUserManagerImpl(im)trackEventWithName:properties:",
+            "mangledName": "$s13OneSignalUser0abC11ManagerImplC10trackEvent4name10propertiesySS_SDySSypGSgtF",
+            "moduleName": "OneSignalUser",
+            "objc_name": "trackEventWithName:properties:",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "AccessControl"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "TypeDecl",
             "name": "OSPushSubscriptionImpl",
             "printedName": "OSPushSubscriptionImpl",
@@ -3398,6 +3513,40 @@
         "kind": "Import",
         "name": "OneSignalOSCore",
         "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalUser",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
         "declKind": "Import",
         "moduleName": "OneSignalUser"
       },
@@ -5012,91 +5161,91 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 4640,
+      "offset": 5125,
       "length": 26,
       "value": "\"com.onesignal.user.start\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 4693,
+      "offset": 5178,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5669,
+      "offset": 6154,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5688,
+      "offset": 6173,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 5771,
+      "offset": 6256,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 26142,
+      "offset": 26915,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 28077,
+      "offset": 28850,
       "length": 12,
       "value": "\"externalId\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 28316,
+      "offset": 29089,
       "length": 13,
       "value": "\"onesignalId\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35289,
+      "offset": 37055,
       "length": 21,
       "value": "\"pushSubscription.id\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35612,
+      "offset": 37378,
       "length": 24,
       "value": "\"pushSubscription.token\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "StringLiteral",
-      "offset": 35930,
+      "offset": 37696,
       "length": 26,
       "value": "\"pushSubscription.optedIn\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 35988,
+      "offset": 37754,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OneSignalUserManagerImpl.swift",
       "kind": "BooleanLiteral",
-      "offset": 36112,
+      "offset": 37878,
       "length": 5,
       "value": "false"
     },
@@ -5152,28 +5301,28 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSIdentityOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1438,
+      "offset": 1446,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSIdentityOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1570,
+      "offset": 1586,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSIdentityOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1626,
+      "offset": 1650,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSIdentityOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 1837,
+      "offset": 1869,
       "length": 39,
       "value": "\"OneSignal.OSIdentityOperationExecutor\""
     },
@@ -5188,6 +5337,13 @@
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSRequestUpdateSubscription.swift",
       "kind": "BooleanLiteral",
       "offset": 1439,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSRequestCustomEvents.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1355,
       "length": 5,
       "value": "false"
     },
@@ -5236,23 +5392,135 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "Array",
-      "offset": 2595,
+      "offset": 2603,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "Array",
-      "offset": 2656,
+      "offset": 2672,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 2876,
+      "offset": 2900,
       "length": 39,
       "value": "\"OneSignal.OSPropertyOperationExecutor\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1381,
+      "length": 6,
+      "value": "\"name\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1421,
+      "length": 14,
+      "value": "\"onesignal_id\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1467,
+      "length": 11,
+      "value": "\"timestamp\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1508,
+      "length": 9,
+      "value": "\"payload\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1550,
+      "length": 13,
+      "value": "\"device_type\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1589,
+      "length": 5,
+      "value": "\"sdk\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1627,
+      "length": 13,
+      "value": "\"app_version\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1667,
+      "length": 6,
+      "value": "\"type\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1707,
+      "length": 14,
+      "value": "\"device_model\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1752,
+      "length": 11,
+      "value": "\"device_os\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1791,
+      "length": 8,
+      "value": "\"os_sdk\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1825,
+      "length": 5,
+      "value": "\"ios\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 1860,
+      "length": 9,
+      "value": "\"iOSPush\""
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "Array",
+      "offset": 1977,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "Array",
+      "offset": 2036,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSCustomEventsExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 2249,
+      "length": 34,
+      "value": "\"OneSignal.OSCustomEventsExecutor\""
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Requests\/OSRequestIdentifyUser.swift",
@@ -5551,42 +5819,42 @@
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1486,
+      "offset": 1494,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1626,
+      "offset": 1642,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1689,
+      "offset": 1713,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Array",
-      "offset": 1752,
+      "offset": 1784,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "Dictionary",
-      "offset": 1815,
+      "offset": 1855,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/nanli\/Documents\/GitHub\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSSubscriptionOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 2031,
+      "offset": 2079,
       "length": 43,
       "value": "\"OneSignal.OSSubscriptionOperationExecutor\""
     },

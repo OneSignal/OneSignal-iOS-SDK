@@ -6,11 +6,11 @@
 	<array>
 		<dict>
 			<key>BinaryPath</key>
-			<string>OneSignalCore.framework/Versions/A/OneSignalCore</string>
+			<string>OneSignalCore.framework/OneSignalCore</string>
 			<key>DebugSymbolsPath</key>
 			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
-			<string>ios-arm64_x86_64-maccatalyst</string>
+			<string>ios-arm64_x86_64-simulator</string>
 			<key>LibraryPath</key>
 			<string>OneSignalCore.framework</string>
 			<key>SupportedArchitectures</key>
@@ -21,7 +21,7 @@
 			<key>SupportedPlatform</key>
 			<string>ios</string>
 			<key>SupportedPlatformVariant</key>
-			<string>maccatalyst</string>
+			<string>simulator</string>
 		</dict>
 		<dict>
 			<key>BinaryPath</key>
@@ -41,11 +41,11 @@
 		</dict>
 		<dict>
 			<key>BinaryPath</key>
-			<string>OneSignalCore.framework/OneSignalCore</string>
+			<string>OneSignalCore.framework/Versions/A/OneSignalCore</string>
 			<key>DebugSymbolsPath</key>
 			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
-			<string>ios-arm64_x86_64-simulator</string>
+			<string>ios-arm64_x86_64-maccatalyst</string>
 			<key>LibraryPath</key>
 			<string>OneSignalCore.framework</string>
 			<key>SupportedArchitectures</key>
@@ -56,7 +56,7 @@
 			<key>SupportedPlatform</key>
 			<string>ios</string>
 			<key>SupportedPlatformVariant</key>
-			<string>simulator</string>
+			<string>maccatalyst</string>
 		</dict>
 	</array>
 	<key>CFBundlePackageType</key>

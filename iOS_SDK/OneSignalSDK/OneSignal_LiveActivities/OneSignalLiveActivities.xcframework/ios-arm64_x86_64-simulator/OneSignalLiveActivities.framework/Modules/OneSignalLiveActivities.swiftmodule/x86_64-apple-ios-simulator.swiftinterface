@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
-// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name OneSignalLiveActivities
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+// swift-compiler-version: Apple Swift version 6.1.2 effective-5.10 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OneSignalLiveActivities
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -interface-compiler-version 6.1.2
 import ActivityKit
 import Foundation
 import OneSignalCore
@@ -34,9 +34,9 @@ public struct DefaultLiveActivityAttributes : OneSignalLiveActivities.OneSignalL
   public struct ContentState : OneSignalLiveActivities.OneSignalLiveActivityContentState {
     public var data: [Swift.String : OneSignalLiveActivities.AnyCodable]
     public var onesignal: OneSignalLiveActivities.OneSignalLiveActivityContentStateData?
-    public func hash(into hasher: inout Swift.Hasher)
     public static func == (a: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState, b: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState) -> Swift.Bool
     public func encode(to encoder: any Swift.Encoder) throws
+    public func hash(into hasher: inout Swift.Hasher)
     public var hashValue: Swift.Int {
       get
     }
@@ -63,9 +63,9 @@ public protocol OneSignalLiveActivityContentState : Swift.Decodable, Swift.Encod
 }
 public struct OneSignalLiveActivityContentStateData : Swift.Decodable, Swift.Encodable, Swift.Hashable {
   public var notificationId: Swift.String
-  public func hash(into hasher: inout Swift.Hasher)
   public static func == (a: OneSignalLiveActivities.OneSignalLiveActivityContentStateData, b: OneSignalLiveActivities.OneSignalLiveActivityContentStateData) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
+  public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
   }

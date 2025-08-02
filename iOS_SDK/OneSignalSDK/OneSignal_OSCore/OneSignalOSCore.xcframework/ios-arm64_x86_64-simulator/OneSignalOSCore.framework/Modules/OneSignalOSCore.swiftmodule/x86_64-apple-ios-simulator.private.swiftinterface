@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
-// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name OneSignalOSCore
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+// swift-compiler-version: Apple Swift version 6.1.2 effective-5.10 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+// swift-module-flags: -target x86_64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OneSignalOSCore
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -interface-compiler-version 6.1.2
 import Foundation
 import OneSignalCore
 @_exported import OneSignalOSCore
@@ -191,11 +191,9 @@ public protocol OSModelChangedHandler {
 }
 public protocol OSOperationExecutor {
   var supportedDeltas: [Swift.String] { get }
-  var deltaQueue: [OneSignalOSCore.OSDelta] { get }
   func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   func cacheDeltaQueue()
   func processDeltaQueue(inBackground: Swift.Bool)
-  func processRequestQueue(inBackground: Swift.Bool)
 }
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Equatable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Hashable {}
