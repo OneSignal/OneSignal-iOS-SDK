@@ -178,3 +178,9 @@ public class OSOperationRepo: NSObject {
         }
     }
 }
+
+extension OSOperationRepo: OSLoggable {
+    public func logSelf() {
+        // TODO: You fill in
+    }
+}
