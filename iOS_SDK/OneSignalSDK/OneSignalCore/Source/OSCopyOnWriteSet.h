@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2022 OneSignal
+ * Copyright 2025 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,19 @@
  * THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalFramework
+#import <Foundation/Foundation.h>
 
-class SwiftTest: NSObject, OSLogListener {
-    func onLogEvent(_ event: OneSignalLogEvent) {
-        print("Dev App onLogEvent: \(event.level) - \(event.entry)")
-    }
-
-    func testSwiftUserModel() {
-        let token1 = OneSignal.User.pushSubscription.token
-        let token = OneSignal.User.pushSubscription.token
-        OneSignal.Debug.addLogListener(self)
-        OneSignal.Debug.removeLogListener(self)
-    }
+/**
+ Usage of this class should be limited to cases where modification is rare but reads are frequent.
+ */
+@interface OSCopyOnWriteSet<__covariant ObjectType> : NSObject {
+    NSMutableSet *_set;
+    NSLock *_lock;
 }
+
+- (instancetype)init;
+- (void)addObject:(ObjectType)object;
+- (void)removeObject:(ObjectType)object;
+- (NSSet *)allObjects;
+
+@end

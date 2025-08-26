@@ -28,6 +28,15 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalLog.h"
 #import "OSDialogInstanceManager.h"
+#import "OSCopyOnWriteSet.h"
+
+@implementation OneSignalLogEvent
+- (instancetype)initWithLevel:(ONE_S_LOG_LEVEL)level entry:(NSString*)entry {
+    _level = level;
+    _entry = entry;
+    return self;
+}
+@end
 
 @implementation OneSignalLog
 
@@ -38,12 +47,29 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
     return self;
 }
 
++ (OSCopyOnWriteSet<NSObject<OSLogListener> *>*)logListeners {
+    static OSCopyOnWriteSet<NSObject<OSLogListener> *> *_logListeners;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _logListeners = [OSCopyOnWriteSet new];
+    });
+    return _logListeners;
+}
+
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel {
     _nsLogLevel = nsLogLevel;
 }
 
 + (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel {
     _alertLogLevel = logLevel;
+}
+
++ (void)addLogListener:(NSObject<OSLogListener>*_Nonnull)listener {
+    [self.logListeners addObject:listener];
+}
+
++ (void)removeLogListener:(NSObject<OSLogListener>*_Nonnull)listener {
+    [self.logListeners removeObject:listener];
 }
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
@@ -85,6 +111,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (logLevel <= _alertLogLevel) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+    }
+
+    for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners.allObjects) {
+        if ([listener respondsToSelector:@selector(onLogEvent:)]) {
+            OneSignalLogEvent *event = [[OneSignalLogEvent alloc] initWithLevel:logLevel entry:[levelString stringByAppendingString:message]];
+            [listener onLogEvent:event];
+        }
     }
 }
 

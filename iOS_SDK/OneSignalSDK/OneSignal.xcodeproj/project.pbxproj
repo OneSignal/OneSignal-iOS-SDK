@@ -86,6 +86,9 @@
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C5117172B15C31E00563465 /* OSUserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5117162B15C31E00563465 /* OSUserState.swift */; };
+		3C5501402E09CF0100E77DF7 /* OSCopyOnWriteSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */; };
+		3C5501412E09CF0100E77DF7 /* OSCopyOnWriteSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */; };
+		3C5501432E09F3D900E77DF7 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5501422E09F3D900E77DF7 /* LoggingTests.swift */; };
 		3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A12BEEA38100649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A32BEEA3CC00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */; };
@@ -1262,6 +1265,9 @@
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C5117162B15C31E00563465 /* OSUserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserState.swift; sourceTree = "<group>"; };
+		3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSCopyOnWriteSet.h; sourceTree = "<group>"; };
+		3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSCopyOnWriteSet.m; sourceTree = "<group>"; };
+		3C5501422E09F3D900E77DF7 /* LoggingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -2186,6 +2192,7 @@
 			isa = PBXGroup;
 			children = (
 				3CC063A62B6D7A8E002BB07F /* OneSignalCoreTests.swift */,
+				3C5501422E09F3D900E77DF7 /* LoggingTests.swift */,
 				3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */,
 				3C24B0EA2BD09D790052E771 /* OneSignalCoreTests-Bridging-Header.h */,
 			);
@@ -2615,9 +2622,9 @@
 				4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */,
 				DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */,
 				DE7D183527027AA0002D3A5D /* OneSignalLog.h */,
+				DE7D183327027A73002D3A5D /* OneSignalLog.m */,
 				3CCF44BC299B17290021964D /* OneSignalWrapper.h */,
 				3CCF44BD299B17290021964D /* OneSignalWrapper.m */,
-				DE7D183327027A73002D3A5D /* OneSignalLog.m */,
 				DE7D187627037A16002D3A5D /* OneSignalCoreHelper.h */,
 				DE7D187827037A26002D3A5D /* OneSignalCoreHelper.m */,
 				7AE28B8725B8ADF400529100 /* OSMacros.h */,
@@ -2632,6 +2639,8 @@
 				DEBAAEB42A436D5D00BF2C1C /* OSStubLocation.m */,
 				DEBA2A272C24D0ED00E234DB /* OSBundleUtils.h */,
 				DEBA2A252C20E9AA00E234DB /* OSBundleUtils.m */,
+				3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */,
+				3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -3157,6 +3166,7 @@
 				DE7D182A270271A9002D3A5D /* OneSignalCommonDefines.h in Headers */,
 				3CE8CC522911AE90000DB0D3 /* OSNetworkingUtils.h in Headers */,
 				DEBAAEB02A435B4D00BF2C1C /* OSLocation.h in Headers */,
+				3C5501402E09CF0100E77DF7 /* OSCopyOnWriteSet.h in Headers */,
 				DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */,
 				3CE8CC4E2911ADD1000DB0D3 /* OSDeviceUtils.h in Headers */,
 				3C47A974292642B100312125 /* OneSignalConfigManager.h in Headers */,
@@ -4215,6 +4225,7 @@
 			files = (
 				3CC063A72B6D7A8E002BB07F /* OneSignalCoreTests.swift in Sources */,
 				3C24B0EC2BD09D7A0052E771 /* OneSignalCoreObjCTests.m in Sources */,
+				3C5501432E09F3D900E77DF7 /* LoggingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4455,6 +4466,7 @@
 				DE7D182E270275FA002D3A5D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				DE51DDE5294262AB0073D5C4 /* OSRemoteParamController.m in Sources */,
 				DE7D182827026F86002D3A5D /* OneSignalUserDefaults.m in Sources */,
+				3C5501412E09CF0100E77DF7 /* OSCopyOnWriteSet.m in Sources */,
 				3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
