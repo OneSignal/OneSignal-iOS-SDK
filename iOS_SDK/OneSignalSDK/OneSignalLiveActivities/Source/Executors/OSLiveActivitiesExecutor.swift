@@ -48,8 +48,9 @@ class RequestCache {
     init(cacheKey: String, ttl: TimeInterval) {
         self.cacheKey = cacheKey
         self.ttl = ttl
-        self.items = OneSignalUserDefaults.initShared()
-            .getSavedCodeableData(forKey: cacheKey, defaultValue: nil) as? [String: OSLiveActivityRequest] ?? [String: OSLiveActivityRequest]()
+        let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: cacheKey, defaultValue: nil)
+        // for safe-casting to the protocol, the intermediary cast to AnyObject is necessary
+        self.items = cached as? [String: AnyObject] as? [String: OSLiveActivityRequest] ?? [String: OSLiveActivityRequest]()
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities initialized token cache \(self): \(items)")
     }
 
