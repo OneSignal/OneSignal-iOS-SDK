@@ -223,6 +223,38 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
 
+    func testRequestsUncacheCorrectly() throws {
+        /* Setup */
+        let mockClient = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(mockClient)
+        let mockDispatchQueue = MockDispatchQueue()
+        let executor1 = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
+
+        /* When */
+        let setStartToken = OSRequestSetStartToken(key: "key-setStartToken", token: "my-token")
+        let removeStartToken = OSRequestRemoveStartToken(key: "key-removeStartToken")
+        let setUpdateToken = OSRequestSetUpdateToken(key: "key-setUpdateToken", token: "my-token")
+        let removeUpdateToken = OSRequestRemoveUpdateToken(key: "key-removeUpdateToken")
+
+        executor1.append(setStartToken)
+        executor1.append(removeStartToken)
+        executor1.append(setUpdateToken)
+        executor1.append(removeUpdateToken)
+        mockDispatchQueue.waitForDispatches(4)
+
+        // create a new executor which will uncache requests
+        let executor2 = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+
+        /* Then */
+        XCTAssertEqual(executor2.startTokens.items.count, 2)
+        XCTAssertTrue(executor2.startTokens.items["key-setStartToken"] is OSRequestSetStartToken)
+        XCTAssertTrue(executor2.startTokens.items["key-removeStartToken"] is OSRequestRemoveStartToken)
+
+        XCTAssertEqual(executor2.updateTokens.items.count, 2)
+        XCTAssertTrue(executor2.updateTokens.items["key-setUpdateToken"] is OSRequestSetUpdateToken)
+        XCTAssertTrue(executor2.updateTokens.items["key-removeUpdateToken"] is OSRequestRemoveUpdateToken)
+    }
+
     func testSetStartRequestNotExecutedWithSameActivityTypeAndToken() throws {
         /* Setup */
         let mockDispatchQueue = MockDispatchQueue()
