@@ -96,6 +96,7 @@
 		3C6299A92BEEA46C00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299AB2BEEA4C000649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */; };
 		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
+		3C6D0ECD2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6D0ECC2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift */; };
 		3C70FA672D0B68A100031066 /* OneSignalClientError.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C70FA652D0B68A100031066 /* OneSignalClientError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C70FA682D0B68A100031066 /* OneSignalClientError.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C70FA662D0B68A100031066 /* OneSignalClientError.m */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
@@ -1275,6 +1276,7 @@
 		3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
+		3C6D0ECC2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestLiveActivityReceiveReceipts.swift; sourceTree = "<group>"; };
 		3C70FA652D0B68A100031066 /* OneSignalClientError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientError.h; sourceTree = "<group>"; };
 		3C70FA662D0B68A100031066 /* OneSignalClientError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientError.m; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -2340,6 +2342,7 @@
 				475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */,
 				475F473F2B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift */,
 				475F473D2B8E3A0900EC05B3 /* OSRequestRemoveUpdateToken.swift */,
+				3C6D0ECC2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift */,
 			);
 			name = Requests;
 			sourceTree = "<group>";
@@ -4303,6 +4306,7 @@
 				47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */,
 				475F47462B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift in Sources */,
 				475F47442B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift in Sources */,
+				3C6D0ECD2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
