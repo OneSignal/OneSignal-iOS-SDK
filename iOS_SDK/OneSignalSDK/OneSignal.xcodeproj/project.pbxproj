@@ -104,6 +104,7 @@
 		3C7A39C12B7BED900082665E /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
 		3C7A39C22B7BED900082665E /* OneSignalCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C7A39DC2B7C1C580082665E /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
+		3C7EE68B2E81D0C100850BA8 /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7EE68A2E81D0C100850BA8 /* OSRequestLiveActivityClicked.swift */; };
 		3C8544B92C5AEFF700F542A9 /* OneSignalOSCoreMocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C8544B82C5AEFF700F542A9 /* OneSignalOSCoreMocks.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C8544BC2C5AEFF700F542A9 /* OneSignalOSCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C8544B62C5AEFF600F542A9 /* OneSignalOSCoreMocks.framework */; };
 		3C8544BD2C5AEFF700F542A9 /* OneSignalOSCoreMocks.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C8544B62C5AEFF600F542A9 /* OneSignalOSCoreMocks.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1280,6 +1281,7 @@
 		3C70FA652D0B68A100031066 /* OneSignalClientError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientError.h; sourceTree = "<group>"; };
 		3C70FA662D0B68A100031066 /* OneSignalClientError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientError.m; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		3C7EE68A2E81D0C100850BA8 /* OSRequestLiveActivityClicked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestLiveActivityClicked.swift; sourceTree = "<group>"; };
 		3C8544B62C5AEFF600F542A9 /* OneSignalOSCoreMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalOSCoreMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C8544B82C5AEFF700F542A9 /* OneSignalOSCoreMocks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalOSCoreMocks.h; sourceTree = "<group>"; };
 		3C8544C22C5AF18B00F542A9 /* OSCoreMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCoreMocks.swift; sourceTree = "<group>"; };
@@ -2343,6 +2345,7 @@
 				475F473F2B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift */,
 				475F473D2B8E3A0900EC05B3 /* OSRequestRemoveUpdateToken.swift */,
 				3C6D0ECC2E5CE8530039BC2C /* OSRequestLiveActivityReceiveReceipts.swift */,
+				3C7EE68A2E81D0C100850BA8 /* OSRequestLiveActivityClicked.swift */,
 			);
 			name = Requests;
 			sourceTree = "<group>";
@@ -4303,6 +4306,7 @@
 				475F473A2B8E39F300EC05B3 /* OneSignalLiveActivitiesManagerImpl.swift in Sources */,
 				475F47422B8E3A0A00EC05B3 /* OSRequestRemoveUpdateToken.swift in Sources */,
 				475F47452B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift in Sources */,
+				3C7EE68B2E81D0C100850BA8 /* OSRequestLiveActivityClicked.swift in Sources */,
 				47A885CD2BB317B300ED91FA /* AnyCodable.swift in Sources */,
 				475F47462B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift in Sources */,
 				475F47442B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift in Sources */,
