@@ -1392,7 +1392,7 @@
 		475F473F2B8E3A0A00EC05B3 /* OSRequestSetUpdateToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSRequestSetUpdateToken.swift; path = Source/Requests/OSRequestSetUpdateToken.swift; sourceTree = "<group>"; };
 		475F47402B8E3A0A00EC05B3 /* OSLiveActivityRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSLiveActivityRequest.swift; path = Source/Requests/OSLiveActivityRequest.swift; sourceTree = "<group>"; };
 		475F47412B8E3A0A00EC05B3 /* OSRequestRemoveStartToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OSRequestRemoveStartToken.swift; path = Source/Requests/OSRequestRemoveStartToken.swift; sourceTree = "<group>"; };
-		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OneSignalLiveActivitiesFramework/Info.plist; sourceTree = "<group>"; };
+		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47A885CC2BB317B300ED91FA /* AnyCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnyCodable.swift; path = Source/AnyCodable.swift; sourceTree = "<group>"; };
 		5B053FB82CAE07EB002F30C4 /* OneSignalOSCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalOSCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIDeviceOverrider.h; sourceTree = "<group>"; };
@@ -2357,7 +2357,7 @@
 			children = (
 				475F47482B8E3A4400EC05B3 /* Info.plist */,
 			);
-			name = OneSignalLiveActivitiesFramework;
+			path = OneSignalLiveActivitiesFramework;
 			sourceTree = "<group>";
 		};
 		5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */ = {
