@@ -114,10 +114,18 @@ class StartRequestCache: RequestCache {
     }
 }
 
+class ReceiveReceiptsRequestCache: RequestCache {
+    init() {
+        // TODO: determine ttl
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: 60 * 60 * 24 * 365)
+    }
+}
+
 class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     // The currently tracked update and start tokens (key) and their associated request (value). THESE ARE NOT THREAD SAFE
     let updateTokens: UpdateRequestCache = UpdateRequestCache()
     let startTokens: StartRequestCache = StartRequestCache()
+    let receiveReceipts: ReceiveReceiptsRequestCache = ReceiveReceiptsRequestCache()
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
@@ -182,14 +190,17 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     private func caches(_ block: (RequestCache) -> Void) {
         block(self.startTokens)
         block(self.updateTokens)
+        block(self.receiveReceipts)
     }
 
     private func getCache(_ request: OSLiveActivityRequest) -> RequestCache {
         if request is OSLiveActivityUpdateTokenRequest {
             return self.updateTokens
+        } else if request is OSLiveActivityStartTokenRequest {
+            return self.startTokens
         }
 
-        return self.startTokens
+        return self.receiveReceipts
     }
 
     private func executeRequest(_ cache: RequestCache, request: OSLiveActivityRequest) {
