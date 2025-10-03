@@ -32,6 +32,31 @@
 #import "ViewController.h"
 #import "OneSignalExample-Swift.h"
 
+
+@interface NanSceneDelegate : UIResponder <UIWindowSceneDelegate>
+@property (strong, nonatomic) UIWindow * window;
+@end
+
+@implementation NanSceneDelegate
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions API_AVAILABLE(ios(13.0)) {
+    NSLog(@"💛 Dev App: scene willConnectToSession %@", connectionOptions);
+}
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *) URLContexts API_AVAILABLE(ios(13.0)) {
+    NSLog(@"💛 Dev App: scene openURLContexts %@", URLContexts);
+    for (UIOpenURLContext *context in URLContexts) {
+        [OneSignal.LiveActivities handleUrl:context.URL];
+    }
+}
+- (void)scene:(UIScene *)scene willContinueUserActivityWithType:(NSString *)userActivityType  API_AVAILABLE(ios(13.0)){
+    NSLog(@"💛 Dev App: scene willContinueUserActivityWithType %@", userActivityType);
+}
+- (void)sceneDidDisconnect:(UIScene *)scene API_AVAILABLE(ios(13.0)) {}
+- (void)sceneDidBecomeActive:(UIScene *)scene API_AVAILABLE(ios(13.0)) {}
+- (void)sceneWillResignActive:(UIScene *)scene API_AVAILABLE(ios(13.0)) {}
+- (void)sceneWillEnterForeground:(UIScene *)scene API_AVAILABLE(ios(13.0)) {}
+- (void)sceneDidEnterBackground:(UIScene *)scene API_AVAILABLE(ios(13.0)) {}
+@end
+
 @interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
 @end
 @implementation OneSignalNotificationCenterDelegate
@@ -45,6 +70,19 @@
 @implementation AppDelegate
 
 OneSignalNotificationCenterDelegate *_notificationDelegate;
+
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options  API_AVAILABLE(ios(13.0)) {
+    NSLog(@"💛 Dev App: configurationForConnectingSceneSession");
+    UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+    config.delegateClass = [NanSceneDelegate class];
+    return config;
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    NSLog(@"💛 Dev App: application openURL %@", url);
+    [OneSignal.LiveActivities handleUrl:url];
+    return YES;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
@@ -83,6 +121,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         [LiveActivityController start];
     }
     #endif
+    [LiveActivityController createOneSignalAwareActivityWithActivityId:@"activityId"];
 
     
     return YES;

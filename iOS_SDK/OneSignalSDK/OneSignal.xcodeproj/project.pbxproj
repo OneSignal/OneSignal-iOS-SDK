@@ -192,6 +192,7 @@
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
+		3CFA8EE02E90551400201FE5 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CFA8EDF2E90551400201FE5 /* OSLiveActivityViewExtensions.swift */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */; };
@@ -1343,6 +1344,7 @@
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
+		3CFA8EDF2E90551400201FE5 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E24003B1D4FFC31008BDE70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2330,6 +2332,7 @@
 				475F47392B8E39F300EC05B3 /* OSLiveActivitiesExtension.swift */,
 				475F47202B8E398E00EC05B3 /* OneSignalLiveActivities.h */,
 				47A885CC2BB317B300ED91FA /* AnyCodable.swift */,
+				3CFA8EDF2E90551400201FE5 /* OSLiveActivityViewExtensions.swift */,
 				47278E442BD7E62B00562820 /* DefaultLiveActivityAttributes.swift */,
 				3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */,
 			);
@@ -4299,6 +4302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				475F473C2B8E39F300EC05B3 /* OSLiveActivitiesExtension.swift in Sources */,
+				3CFA8EE02E90551400201FE5 /* OSLiveActivityViewExtensions.swift in Sources */,
 				47278E452BD7E62B00562820 /* DefaultLiveActivityAttributes.swift in Sources */,
 				475F47432B8E3A0A00EC05B3 /* OSRequestSetStartToken.swift in Sources */,
 				475F473B2B8E39F300EC05B3 /* OneSignalLiveActivityAttributes.swift in Sources */,

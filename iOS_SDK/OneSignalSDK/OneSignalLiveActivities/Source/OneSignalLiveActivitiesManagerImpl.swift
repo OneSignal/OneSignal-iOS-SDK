@@ -86,6 +86,64 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         _executor.append(OSRequestRemoveStartToken(key: "\(activityType)"))
     }
 
+    public static func trackClick(url: URL) {
+        // Parse the OneSignal tracking URL
+        guard url.host == "onesignal-liveactivity",
+              url.path == "/click",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "Invalid OneSignal live activity tracking URL: \(url)")
+            return
+        }
+
+        // Extract metadata
+        guard let clickId = queryItems.first(where: { $0.name == "clickId" })?.value,
+              let activityId = queryItems.first(where: { $0.name == "activityId" })?.value,
+              let activityType = queryItems.first(where: { $0.name == "activityType" })?.value else {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "Missing required parameters in tracking URL")
+            return
+        }
+
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "💛 OneSignal.LiveActivities trackClick called with clickId: \(clickId), activityId: \(activityId), activityType: \(activityType)")
+
+        // Track the click
+        trackClickInternal(key: clickId, activityType: activityType, activityId: activityId)
+
+        // Redirect to original URL if present
+        if let redirectString = queryItems.first(where: { $0.name == "redirect" })?.value,
+           let redirectURL = URL(string: redirectString) {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "💛 Redirecting to original URL: \(redirectURL)")
+
+            #if !targetEnvironment(macCatalyst)
+            DispatchQueue.main.async {
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(redirectURL, options: [:], completionHandler: nil)
+                } else {
+                    UIApplication.shared.openURL(redirectURL)
+                }
+            }
+            #endif
+        }
+    }
+
+    /**
+     - Internal method
+     - key is a UUID string representing the unique click event as it is possible for this click to be tracked multiple times
+     */
+    private static func trackClickInternal(key: String, activityType: String, activityId: String) {
+        let trackedKey = key + "_"  + UUID().uuidString
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "💛 OneSignal.LiveActivities trackClickInternal called with...")
+        let req = OSRequestLiveActivityClicked(key: trackedKey, activityType: activityType, activityId: activityId)
+        _executor.append(req)
+    }
+
+    private static func addReceiveReceipts(notificationId: String, activityType: String, activityId: String) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "💛 OneSignal.LiveActivities addReceiveReceipts called with notificationId: \(notificationId)")
+        // TODO: Some guards?
+        let req = OSRequestLiveActivityReceiveReceipts(key: notificationId, activityType: activityType, activityId: activityId)
+        _executor.append(req)
+    }
+
     @available(iOS 17.2, *)
     public static func setPushToStartToken<T>(_ activityType: T.Type, withToken: String) where T: ActivityAttributes {
         do {
@@ -202,6 +260,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         for activity in Activity<Attributes>.activities {
             listenForActivityStateUpdates(activityType, activity: activity, options: options)
             listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+            if #available(iOS 16.2, *) {
+                listenForContentUpdates(activityType, activity: activity)
+            }
         }
 
         // Establish listeners for activity updates
@@ -209,6 +270,8 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for activity on: \(activityType)")
             for await activity in Activity<Attributes>.activityUpdates {
                 if #available(iOS 16.2, *) {
+                    // Check for notificationId
+                    print("💛 OneSignal.LiveActivities activityUpdates triggered for activity: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id):\(activity.content.state.onesignal?.notificationId ?? "nil")")
                     // if there's already an activity with the same OneSignal activityId, dismiss it before
                     // listening for the new activity's events.
                     for otherActivity in Activity<Attributes>.activities {
@@ -221,6 +284,22 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
                 listenForActivityStateUpdates(activityType, activity: activity, options: options)
                 listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+
+                if #available(iOS 16.2, *) {
+                    listenForContentUpdates(activityType, activity: activity)
+                }
+            }
+        }
+    }
+
+    @available(iOS 16.2, *)
+    private static func listenForContentUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>) {
+        Task {
+            for await content in activity.contentUpdates {
+                print("💛 OneSignal.LiveActivities contentUpdates triggered for activity: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id):\(activity.content.state.onesignal?.notificationId ?? "nil") - \(content)")
+                var notifId: String = activity.content.state.onesignal?.notificationId ?? "no_notificationId"
+                notifId +=  "_"  + UUID().uuidString
+                OneSignalLiveActivitiesManagerImpl.addReceiveReceipts(notificationId: notifId, activityType: "\(activityType)", activityId: activity.attributes.onesignal.activityId)
             }
         }
     }

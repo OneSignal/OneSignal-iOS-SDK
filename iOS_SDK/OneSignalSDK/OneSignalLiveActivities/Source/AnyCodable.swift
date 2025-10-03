@@ -2,6 +2,7 @@
  https://github.com/Flight-School/AnyCodable/blob/master/Sources/AnyCodable/AnyCodable.swift
  */
 import Foundation
+
 /**
  A type-erased `Codable` value.
 

@@ -170,7 +170,7 @@
     if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"])
         bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
     
-    return [bundle bundleIdentifier];
+    return [bundle bundleIdentifier]; // TODO: NL Performing I/O on the main thread can cause slow launches.
     
 }
 

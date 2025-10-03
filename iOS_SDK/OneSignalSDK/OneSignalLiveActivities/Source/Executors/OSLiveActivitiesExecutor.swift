@@ -137,7 +137,7 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
-    private var pollIntervalSeconds = 30
+    private var pollIntervalSeconds = 5
 
     init(requestDispatch: OSDispatchQueue) {
         self.requestDispatch = requestDispatch
@@ -203,13 +203,16 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     }
 
     private func getCache(_ request: OSLiveActivityRequest) -> RequestCache {
-        if request is OSLiveActivityUpdateTokenRequest {
-            return self.updateTokens
-        } else if request is OSLiveActivityStartTokenRequest {
-            return self.startTokens
+        switch request {
+        case is OSLiveActivityUpdateTokenRequest:
+            self.updateTokens
+        case is OSLiveActivityStartTokenRequest:
+            self.startTokens
+        case is OSRequestLiveActivityReceiveReceipts:
+            self.receiveReceipts
+        default:
+             self.clicked
         }
-
-        return self.receiveReceipts
     }
 
     private func executeRequest(_ cache: RequestCache, request: OSLiveActivityRequest) {
@@ -220,6 +223,11 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
 
         if !request.prepareForExecution() {
+            return
+        }
+
+        if request is OSRequestLiveActivityReceiveReceipts {
+            // TODO: Don't execute this yet 
             return
         }
 

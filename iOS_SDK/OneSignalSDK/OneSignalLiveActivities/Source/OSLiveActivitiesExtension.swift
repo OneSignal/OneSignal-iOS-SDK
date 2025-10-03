@@ -93,6 +93,35 @@ public extension OSLiveActivities {
     static func startDefault(_ activityId: String, attributes: [String: Any], content: [String: Any]) {
         OneSignalLiveActivitiesManagerImpl.startDefault(activityId, attributes: attributes, content: content)
     }
+
+    /**
+     Handle a URL opened in the app to track Live Activity clicks. Call this method from your app's URL handling code
+     (e.g., `application(_:open:options:)` in AppDelegate or `onOpenURL` in SwiftUI).
+
+     - Parameters:
+        - url: The URL that was opened
+     - Returns: `true` if this was a OneSignal Live Activity tracking URL, `false` otherwise
+     */
+    @available(iOS 16.1, *)
+    @discardableResult
+    static func handleUrl(_ url: URL) -> Bool {
+        // Check if this is a OneSignal tracking URL
+        // The scheme should be the bundle ID with dots replaced by hyphens
+        guard url.host == "onesignal-liveactivity", url.path == "/click" else {
+            return false
+        }
+
+        // Verify the scheme matches the expected bundle ID format
+        if let bundleId = Bundle.main.bundleIdentifier {
+            let expectedScheme = bundleId.replacingOccurrences(of: ".", with: "-")
+            guard url.scheme == expectedScheme else {
+                return false
+            }
+        }
+
+        OneSignalLiveActivitiesManagerImpl.trackClick(url: url)
+        return true
+    }
 }
 
 /**

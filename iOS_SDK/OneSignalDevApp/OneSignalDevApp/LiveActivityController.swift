@@ -88,7 +88,7 @@ class LiveActivityController: NSObject {
              counter1 += 1
              let oneSignalAttribute = OneSignalLiveActivityAttributeData.create(activityId: activityId)
              let attributes = ExampleAppFirstWidgetAttributes(title: "#" + String(counter1) + " OneSignal Dev App Live Activity", onesignal: oneSignalAttribute)
-             let contentState = ExampleAppFirstWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
+             let contentState = ExampleAppFirstWidgetAttributes.ContentState(message: "First: Update this message through push or with Activity Kit")
              do {
                  _ = try Activity<ExampleAppFirstWidgetAttributes>.request(
                          attributes: attributes,
@@ -124,7 +124,7 @@ class LiveActivityController: NSObject {
         if #available(iOS 16.1, *) {
             counter2 += 1
             let attributes = ExampleAppThirdWidgetAttributes(title: "#" + String(counter2) + " OneSignal Dev App Live Activity", isPushToStart: false)
-            let contentState = ExampleAppThirdWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
+            let contentState = ExampleAppThirdWidgetAttributes.ContentState(message: "Third: Update this message through push or with Activity Kit")
             do {
                 let activity = try Activity<ExampleAppThirdWidgetAttributes>.request(
                         attributes: attributes,
@@ -132,6 +132,8 @@ class LiveActivityController: NSObject {
                         pushType: .token)
                 for await data in activity.pushTokenUpdates {
                     let myToken = data.map {String(format: "%02x", $0)}.joined()
+                    print("💛 ExampleAppThirdWidgetAttributes: createActivity enter \(activityId)")
+
                     OneSignal.LiveActivities.enter(activityId, withToken: myToken)
                 }
             } catch let error {

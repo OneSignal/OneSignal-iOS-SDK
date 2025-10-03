@@ -32,7 +32,10 @@ import OneSignalLiveActivities
 
  struct ExampleAppFirstWidget: Widget {
      var body: some WidgetConfiguration {
+         // Lock screen/banner UI goes here
+
          ActivityConfiguration(for: ExampleAppFirstWidgetAttributes.self) { context in
+             // context is ActivityViewContext<ExampleAppFirstWidgetAttributes>
              // Lock screen/banner UI goes here\VStack(alignment: .leading) {
              VStack {
                  Spacer()
@@ -52,9 +55,10 @@ import OneSignalLiveActivities
                  }
                  Spacer()
              }
+             .onesignalClickWidgetURL(URL(string: "http://www.apple.com"), context: context)
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
-         } dynamicIsland: { _ in
+         } dynamicIsland: { context in
              DynamicIsland {
                  // Expanded UI goes here.  Compose the expanded UI through
                  // various regions, like leading/trailing/center/bottom
@@ -75,7 +79,7 @@ import OneSignalLiveActivities
              } minimal: {
                  Text("Min")
              }
-             .widgetURL(URL(string: "http://www.apple.com"))
+             .onesignalClickWidgetURL(URL(string: "http://www.apple.com"), context: context)
              .keylineTint(Color.red)
          }
      }
@@ -150,7 +154,7 @@ import OneSignalLiveActivities
              // Lock screen/banner UI goes here\VStack(alignment: .leading) {
              VStack {
                  Spacer()
-                 Text("THIRD: " + context.attributes.title).font(.headline)
+                 Text("THIRD: ") // + context.attributes.title).font(.headline)
                  Spacer()
                  HStack {
                      Spacer()
