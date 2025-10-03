@@ -1226,8 +1226,8 @@
 		03866CBF2378A67B0009C1D8 /* RestClientAsserts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RestClientAsserts.h; sourceTree = "<group>"; };
 		03866CC02378A67B0009C1D8 /* RestClientAsserts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RestClientAsserts.m; sourceTree = "<group>"; };
 		03CCCC7D2835D8CC004BF794 /* OneSignalUNUserNotificationCenterSwizzlingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalUNUserNotificationCenterSwizzlingTest.m; sourceTree = "<group>"; };
-		03CCCC812835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OneSignalUNUserNotificationCenterHelper.m; path = UNNotificationCenter/OneSignalUNUserNotificationCenterHelper.m; sourceTree = "<group>"; };
-		03CCCC822835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OneSignalUNUserNotificationCenterHelper.h; path = UNNotificationCenter/OneSignalUNUserNotificationCenterHelper.h; sourceTree = "<group>"; };
+		03CCCC812835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalUNUserNotificationCenterHelper.m; sourceTree = "<group>"; };
+		03CCCC822835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalUNUserNotificationCenterHelper.h; sourceTree = "<group>"; };
 		03CCCC842835F291004BF794 /* UIApplicationDelegateSwizzlingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIApplicationDelegateSwizzlingTests.m; sourceTree = "<group>"; };
 		03E56DD128405F4A006AA1DA /* OneSignalAppDelegateOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalAppDelegateOverrider.h; sourceTree = "<group>"; };
 		03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalAppDelegateOverrider.m; sourceTree = "<group>"; };
@@ -1987,7 +1987,7 @@
 				03CCCC822835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.h */,
 				03CCCC812835D90F004BF794 /* OneSignalUNUserNotificationCenterHelper.m */,
 			);
-			name = UNNotificationCenter;
+			path = UNNotificationCenter;
 			sourceTree = "<group>";
 		};
 		37747F8A19147D6400558FAD = {
