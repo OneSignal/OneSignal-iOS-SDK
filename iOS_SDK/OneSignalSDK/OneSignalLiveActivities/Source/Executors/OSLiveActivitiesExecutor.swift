@@ -123,11 +123,21 @@ class ReceiveReceiptsRequestCache: RequestCache {
     }
 }
 
+class ClickedRequestCache: RequestCache {
+    // Keep click event requests for up to 30 days.
+    static let OneMonthInSeconds = TimeInterval(60 * 60 * 24 * 30)
+
+    init() {
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_CLICKED_KEY, ttl: ClickedRequestCache.OneMonthInSeconds)
+    }
+}
+
 class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     // The currently tracked update and start tokens (key) and their associated request (value). THESE ARE NOT THREAD SAFE
     let updateTokens: UpdateRequestCache = UpdateRequestCache()
     let startTokens: StartRequestCache = StartRequestCache()
     let receiveReceipts: ReceiveReceiptsRequestCache = ReceiveReceiptsRequestCache()
+    let clickEvents: ClickedRequestCache = ClickedRequestCache()
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
@@ -193,6 +203,7 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         block(self.startTokens)
         block(self.updateTokens)
         block(self.receiveReceipts)
+        block(self.clickEvents)
     }
 
     private func getCache(_ request: OSLiveActivityRequest) -> RequestCache {
@@ -200,6 +211,8 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
             return self.updateTokens
         } else if request is OSLiveActivityStartTokenRequest {
             return self.startTokens
+        } else if request is OSRequestLiveActivityClicked {
+            return self.clickEvents
         }
 
         return self.receiveReceipts
