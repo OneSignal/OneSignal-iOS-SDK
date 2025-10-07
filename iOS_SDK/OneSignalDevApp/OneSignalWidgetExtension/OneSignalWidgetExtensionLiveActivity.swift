@@ -52,9 +52,11 @@ import OneSignalLiveActivities
                  }
                  Spacer()
              }
+             .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
+             // .widgetURL(URL(string: "myapp://product/12345"))
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
-         } dynamicIsland: { _ in
+         } dynamicIsland: { context in
              DynamicIsland {
                  // Expanded UI goes here.  Compose the expanded UI through
                  // various regions, like leading/trailing/center/bottom
@@ -75,7 +77,8 @@ import OneSignalLiveActivities
              } minimal: {
                  Text("Min")
              }
-             .widgetURL(URL(string: "http://www.apple.com"))
+             .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
+             // .widgetURL(URL(string: "myapp://product/12345"))
              .keylineTint(Color.red)
          }
      }

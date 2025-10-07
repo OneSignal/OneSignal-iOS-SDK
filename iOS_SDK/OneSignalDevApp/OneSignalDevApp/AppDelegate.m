@@ -46,6 +46,16 @@
 
 OneSignalNotificationCenterDelegate *_notificationDelegate;
 
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    // Log the full tracking URL and the original extracted URL
+    // Also trigger trackClickAndReturnOriginal twice to confirm this click event is only sent once
+    NSLog(@"Dev App: application openURL FULL URL is %@", url);
+    NSURL *originalURL1 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSURL *originalURL2 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSLog(@"Dev App: application openURL processed, original URL is %@", originalURL1);
+    return YES;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [FIRApp configure];
