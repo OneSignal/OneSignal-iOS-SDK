@@ -202,6 +202,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         for activity in Activity<Attributes>.activities {
             listenForActivityStateUpdates(activityType, activity: activity, options: options)
             listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+            if #available(iOS 16.2, *) {
+                listenForContentUpdates(activityType, activity: activity)
+            }
         }
 
         // Establish listeners for activity updates
@@ -221,6 +224,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
                 listenForActivityStateUpdates(activityType, activity: activity, options: options)
                 listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+                if #available(iOS 16.2, *) {
+                    listenForContentUpdates(activityType, activity: activity)
+                }
             }
         }
     }
@@ -271,6 +277,24 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                 }
             }
         }
+    }
+
+    @available(iOS 16.2, *)
+    private static func listenForContentUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>) {
+        Task {
+            for await content in activity.contentUpdates {
+                // Don't track a live activity started / updated "in app" without a notification
+                if let notificationId = activity.content.state.onesignal?.notificationId {
+                    OneSignalLiveActivitiesManagerImpl.addReceiveReceipts(notificationId: notificationId, activityType: "\(activityType)", activityId: activity.attributes.onesignal.activityId)
+                }
+            }
+        }
+    }
+
+    private static func addReceiveReceipts(notificationId: String, activityType: String, activityId: String) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities addReceiveReceipts called with notificationId: \(notificationId), activityType: \(activityType), activityId: \(activityId)")
+        let req = OSRequestLiveActivityReceiveReceipts(key: notificationId, activityType: activityType, activityId: activityId)
+        _executor.append(req)
     }
 }
 #endif
