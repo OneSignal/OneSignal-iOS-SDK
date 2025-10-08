@@ -223,6 +223,13 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         _executor.append(req)
     }
 
+    private static func addReceiveReceipts(notificationId: String, activityType: String, activityId: String) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities addReceiveReceipts called with notificationId: \(notificationId), activityType: \(activityType), activityId: \(activityId)")
+        // TODO: Any guards?
+        let req = OSRequestLiveActivityReceiveReceipts(key: notificationId, activityType: activityType, activityId: activityId)
+        _executor.append(req)
+    }
+
     @available(iOS 17.2, *)
     private static func listenForPushToStart<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, options: LiveActivitySetupOptions? = nil) {
         if options == nil || options!.enablePushToStart {
@@ -250,6 +257,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         for activity in Activity<Attributes>.activities {
             listenForActivityStateUpdates(activityType, activity: activity, options: options)
             listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+            if #available(iOS 16.2, *) {
+                listenForContentUpdates(activityType, activity: activity)
+            }
         }
 
         // Establish listeners for activity updates
@@ -269,6 +279,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
                 listenForActivityStateUpdates(activityType, activity: activity, options: options)
                 listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+                if #available(iOS 16.2, *) {
+                    listenForContentUpdates(activityType, activity: activity)
+                }
             }
         }
     }
@@ -316,6 +329,18 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pushTokenUpdates observed for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id)")
                     let token = pushToken.map {String(format: "%02x", $0)}.joined()
                     OneSignalLiveActivitiesManagerImpl.enter(activity.attributes.onesignal.activityId, withToken: token)
+                }
+            }
+        }
+    }
+
+    @available(iOS 16.2, *)
+    private static func listenForContentUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>) {
+        Task {
+            for await content in activity.contentUpdates {
+                // A live activity can be started / updated "in app" without a notification
+                if let notificationId = activity.content.state.onesignal?.notificationId {
+                    OneSignalLiveActivitiesManagerImpl.addReceiveReceipts(notificationId: notificationId, activityType: "\(activityType)", activityId: activity.attributes.onesignal.activityId)
                 }
             }
         }
