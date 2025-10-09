@@ -138,7 +138,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
         mockClient.reset()
 
-        let request = OSRequestRemoveStartToken(key: "my-activity-id")
+        let request = OSRequestRemoveUpdateToken(key: "my-activity-id")
         mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
 
         /* When */
