@@ -98,7 +98,7 @@ class RequestCache {
 
 class UpdateRequestCache: RequestCache {
     // An update token should not last longer than 8 hours, we keep for 24 hours to be safe.
-    static let OneDayInSeconds = TimeInterval(60 * 60 * 24 * 365)
+    static let OneDayInSeconds = TimeInterval(60 * 60 * 24)
 
     init() {
         super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY, ttl: UpdateRequestCache.OneDayInSeconds)
