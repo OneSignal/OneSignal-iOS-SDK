@@ -54,7 +54,8 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
             "player_id": subscriptionId,
             "device_type": 0,
             "live_activity_id": activityId,
-            "live_activity_type": activityType
+            "live_activity_type": activityType,
+            "timestamp": ISO8601DateFormatter().string(from: timestamp)
         ]
         self.method = PUT
 
