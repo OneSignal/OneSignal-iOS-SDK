@@ -318,7 +318,7 @@ static BOOL _isInAppMessagingPaused = false;
     onFailure:^(OneSignalClientError *error) {
         NSDictionary* responseHeaders = error.responseHeaders;
         
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.description]];
         
         if (error.code == 425 || error.code == 429) { // 425 Too Early or 429 Too Many Requests
             NSInteger retryAfter = [responseHeaders[@"Retry-After"] integerValue] ?: DEFAULT_RETRY_AFTER_SECONDS;
@@ -387,7 +387,7 @@ static BOOL _isInAppMessagingPaused = false;
             }
         });
     } onFailure:^(OneSignalClientError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.underlyingError.localizedDescription]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.description]];
     }];
 }
 
