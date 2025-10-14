@@ -58,7 +58,8 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
             "device_type": 0,
             "live_activity_id": activityId,
             "live_activity_type": activityType,
-            "click_id": key
+            "click_id": key,
+            "timestamp": ISO8601DateFormatter().string(from: timestamp)
         ]
         self.method = POST
 
