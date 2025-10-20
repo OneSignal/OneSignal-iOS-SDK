@@ -171,7 +171,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     contentState: contentState,
                     pushType: .token)
         } catch let error {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: " + error.localizedDescription)
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: \(error)")
         }
     }
 
