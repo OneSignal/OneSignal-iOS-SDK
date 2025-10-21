@@ -28,10 +28,10 @@
 import OneSignalCore
 import OneSignalUser
 
-class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequest {
-    override var description: String { return "(OSRequestLiveActivityReceiveReceipts) key:\(key) requestSuccessful:\(requestSuccessful) activityType:\(activityType) activityId:\(activityId)" }
+class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
+    override var description: String { return "(OSRequestLiveActivityClicked) key:\(key) requestSuccessful:\(requestSuccessful) activityType:\(activityType) activityId:\(activityId)" }
 
-    var key: String // notification Id
+    var key: String // UUID representing this unique click
     var activityType: String
     var activityId: String
     var requestSuccessful: Bool
@@ -39,25 +39,28 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityReceiveReceipts due to null app ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityClicked due to null app ID.")
             return false
         }
 
         guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityReceiveReceipts due to null subscription ID.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityClicked due to null subscription ID.")
             return false
         }
 
-        self.path = "notifications/\(key)/report_received"
+        // TODO: ⚠️ What is the path, method, and parameters
+        // TODO: ⚠️ Need to guard for encoding activity strings if in path
+        // TODO: ⚠️ Timestamp since we are caching? Same for received event.
+        self.path = "foo/bar/\(activityId)/click"
         self.parameters = [
             "app_id": appId,
             "player_id": subscriptionId,
             "device_type": 0,
             "live_activity_id": activityId,
             "live_activity_type": activityType,
-            "timestamp": ISO8601DateFormatter().string(from: timestamp)
+            "click_id": key
         ]
-        self.method = PUT
+        self.method = POST
 
         return true
     }

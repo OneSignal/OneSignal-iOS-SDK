@@ -31,4 +31,8 @@ public class OSStubLiveActivities: NSObject, OSLiveActivities {
         OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.")
     }
 
+    public static func trackClickAndReturnOriginal(_ url: URL) -> URL? {
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.")
+        return url
+    }
 }
