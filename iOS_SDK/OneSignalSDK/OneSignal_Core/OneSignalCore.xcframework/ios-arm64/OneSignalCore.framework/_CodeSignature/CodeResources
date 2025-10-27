@@ -90,7 +90,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		hVJ191W6dJmIhR7TwDAieGC8qp4=
+		vSlR3UIJIGFpJboCdKIhjliBVK8=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -106,7 +106,7 @@
 		</data>
 		<key>Headers/OneSignalLog.h</key>
 		<data>
-		o5RSmHYkpLQOk/hhVawytbfylUg=
+		DbQwmfzvtLutVDIDptYl4pNhf0g=
 		</data>
 		<key>Headers/OneSignalMobileProvision.h</key>
 		<data>
@@ -138,7 +138,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		CJliGbgIrs7plGfzdl1Fb9gCtl4=
+		rCbICT6D6PI3JqxX2exwb1prvEo=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -302,7 +302,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			E/JqmGJV28y40bsGTuWxjmD1o6OwbSaeFxRNhlv1Wj8=
+			PNuenOvyg/nHHK223/XGnm+L7nKoX43wqNQfveVaMNE=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -330,7 +330,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mBG60JTXM7cBDv7D7ZdAWOJbwxvoG7s2bg5IPmg/ZZM=
+			kMtRfO7qidbRMEXsw6rwliOh7oaZmd3pHFmDQX6+dkA=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>

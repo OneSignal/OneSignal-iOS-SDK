@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050214"
+#define ONESIGNAL_VERSION                                                   @"050215"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -364,5 +364,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // Live Activies Executor
 #define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"
 #define OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY                        @"OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY"
+#define OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY                    @"OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY"
 
 #endif /* OneSignalCommonDefines_h */

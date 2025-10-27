@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
-// swift-module-flags: -target arm64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name OneSignalFramework
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
+// swift-module-flags: -target arm64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalFramework
+// swift-module-flags-ignorable: -enable-bare-slash-regex
 import Foundation
 import OneSignalCore
 @_exported import OneSignalFramework
@@ -37,6 +37,8 @@ extension OneSignalFramework.OneSignal {
 }
 extension OneSignalCore.OSDebug {
   public static func setAlertLevel(_ logLevel: OneSignalCore.ONE_S_LOG_LEVEL)
+  public static func addLogListener(_ listener: any OneSignalCore.OSLogListener)
+  public static func removeLogListener(_ listener: any OneSignalCore.OSLogListener)
 }
 extension OneSignalCore.OSInAppMessages {
   public static var paused: Swift.Bool {
