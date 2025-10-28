@@ -36,9 +36,40 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
     ONE_S_LL_VERBOSE
 };
 
+@interface OneSignalLogEvent : NSObject
+@property(readonly)ONE_S_LOG_LEVEL level;
+@property(readonly, nonnull)NSString *entry;
+@end
+
+@protocol OSLogListener <NSObject>
+- (void)onLogEvent:(OneSignalLogEvent *_Nonnull)event;
+@end
+
 @protocol OSDebug <NSObject>
+/**
+ The log level the OneSignal SDK should be writing to the Xcode log. Defaults to [LogLevel.WARN].
+ 
+ WARNING: This should not be set higher than LogLevel.WARN in a production setting.
+ */
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel;
+/**
+ The log level the OneSignal SDK should be showing as a modal. Defaults to [LogLevel.NONE].
+ 
+ WARNING: This should not be used in a production setting.
+ */
 + (void)setAlertLevel:(ONE_S_LOG_LEVEL)logLevel NS_REFINED_FOR_SWIFT;
+/**
+ Add a listener to receive all logging messages the SDK produces.
+ Useful to capture and send logs to your server.
+ 
+ NOTE: All log messages are always passed, LogLevel has no effect on this.
+ */
++ (void)addLogListener:(NSObject<OSLogListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
+/**
+ Removes a listener added by addLogListener
+ */
++ (void)removeLogListener:(NSObject<OSLogListener>*_Nonnull)listener NS_REFINED_FOR_SWIFT;
+
 @end
 
 @interface OneSignalLog : NSObject<OSDebug>
