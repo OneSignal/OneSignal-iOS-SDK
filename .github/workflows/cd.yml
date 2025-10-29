@@ -41,8 +41,12 @@ jobs:
           keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
           p12-file-base64: ${{ secrets.DEV_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.DEV_CERTIFICATES_P12_PASSWORD }}
-      # - name: Bump Version Number
-      #   run: |
+      - name: Update Version in SDK and Podspec Files
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          chmod +x ./update_version.sh
+          ./update_version.sh ${{github.event.inputs.version}}
+        shell: bash
       - name: Build Binaries
         run: |
           cd iOS_SDK/OneSignalSDK
