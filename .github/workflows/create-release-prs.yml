@@ -1,0 +1,236 @@
+name: Create Release PRs
+
+# Note: The "Use workflow from" dropdown selects which version of THIS workflow to run.
+# Always select "main" unless you're testing workflow changes from another branch.
+# The "base_branch" input below determines where the release PR will be targeted.
+
+# This workflow bumps version and creates PRs in the iOS-SDK and XCFramework SDK.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version number of the release (e.g., 5.2.15 or 5.2.3-beta-01)"
+        type: string
+        required: true
+      base_branch:
+        description: 'Target branch for the PR (e.g. main for regular releases, 5.3-main for 5.3.x releases)'
+        type: string
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Step 1: Use reusable workflow to prepare release branch
+  prep:
+    uses: OneSignal/sdk-actions/.github/workflows/prep-release.yml@main
+    with:
+      version: ${{ github.event.inputs.version }}
+
+  # Step 2: Update iOS-specific files and build binaries
+  update-and-build:
+    needs: prep
+    runs-on: macos-13
+
+    outputs:
+      version_from: ${{ steps.extract_version.outputs.current_version }}
+
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: 📋 Display Configuration
+        run: |
+          echo "============================================"
+          echo "📦 Release Version: $VERSION"
+          echo "🎯 Base Branch (PR Target): $BASE_BRANCH"
+          echo "🌿 Release Branch: $RELEASE_BRANCH"
+          echo "============================================"
+
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prep.outputs.release_branch }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Extract Current Version
+        id: extract_version
+        run: |
+          CURRENT_VERSION=$(grep -E "s.version\s*=" OneSignal.podspec | sed -E 's/.*"(.*)".*/\1/')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+
+      - name: Install the Apple distribution certificate and provisioning profile (OneSignal)
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+
+      - name: Install the Apple distribution certificate and provisioning profile (Lilomi)
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          create-keychain: false # do not create a new keychain for this value
+          keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
+          p12-file-base64: ${{ secrets.DEV_CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.DEV_CERTIFICATES_P12_PASSWORD }}
+
+      - name: Update Version in SDK and Podspec Files
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          chmod +x ./update_version.sh
+          ./update_version.sh $VERSION
+        shell: bash
+
+      - name: Commit Version Bump and Push Changes
+        run: |
+          git commit -am "chore: bump version to $VERSION"
+          git push origin $RELEASE_BRANCH
+
+      - name: Build Binaries
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          chmod +x ./build_all_frameworks.sh
+          ./build_all_frameworks.sh
+        shell: bash
+
+      - name: Code Sign
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Core/OneSignalCore.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Extension/OneSignalExtension.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_InAppMessages/OneSignalInAppMessages.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Location/OneSignalLocation.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Notifications/OneSignalNotifications.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_OSCore/OneSignalOSCore.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Outcomes/OneSignalOutcomes.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_User/OneSignalUser.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
+          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_LiveActivities/OneSignalLiveActivities.xcframework
+        shell: bash
+
+      - name: Commit Build and Push Changes
+        run: |
+          git commit -am "chore: build binaries"
+          git push origin $RELEASE_BRANCH
+
+      - name: Update Swift Package
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          chmod +x ./update_swift_package.sh
+          ./update_swift_package.sh $VERSION
+        shell: bash
+
+      - name: Commit Swift Package and Push Changes
+        run: |
+          git commit -am "chore: update Swift package"
+          git push origin $RELEASE_BRANCH
+
+  # Step 3: Use reusable workflow to create iOS SDK PR with release notes
+  create-ios-pr:
+    needs: [prep, update-and-build]
+    uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@main
+    with:
+      release_branch: ${{ needs.prep.outputs.release_branch }}
+      version_from: ${{ needs.update-and-build.outputs.version_from }}
+      version_to: ${{ github.event.inputs.version }}
+
+  # Step 4: Update XCFramework repository
+  update-xcframework:
+    needs: [prep, update-and-build, create-ios-pr]
+    runs-on: macos-13
+
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prep.outputs.release_branch }}
+          path: ios-sdk-repo
+
+      - name: Get iOS SDK PR Body
+        run: |
+          cd ios-sdk-repo
+
+          # Find the PR that was just created for this version
+          PR_NUMBER=$(gh pr list --state open --search "Release $VERSION in:title" --json number --jq '.[0].number // empty')
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            echo "Found iOS SDK PR: #$PR_NUMBER"
+            gh pr view "$PR_NUMBER" --json body --jq '.body' > ../pr_body.md
+          else
+            echo "Warning: Could not find iOS SDK PR, using default body"
+            echo "## Release $VERSION" > ../pr_body.md
+            echo "" >> ../pr_body.md
+            echo "See iOS SDK release: https://github.com/OneSignal/OneSignal-iOS-SDK/releases/tag/$VERSION" >> ../pr_body.md
+          fi
+
+      - name: Checkout OneSignal-XCFramework
+        uses: actions/checkout@v4
+        with:
+          repository: OneSignal/OneSignal-XCFramework
+          ref: ${{ env.BASE_BRANCH }}
+          path: xcframework-repo
+          token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+
+      - name: Update Package.swift in XCFramework Repository
+        run: |
+          # Copy Package.swift from iOS SDK to XCFramework repo
+          cp ios-sdk-repo/Package.swift xcframework-repo/Package.swift
+
+          # Update package name to OneSignalXCFramework
+          sed -i '' 's/name: "OneSignalFramework"/name: "OneSignalXCFramework"/' xcframework-repo/Package.swift
+
+          # Navigate to XCFramework repo
+          cd xcframework-repo
+
+          # Delete remote branch if it exists
+          git push origin --delete $RELEASE_BRANCH || true
+
+          # Create release branch
+          git checkout -b $RELEASE_BRANCH
+
+          # Configure git
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Commit changes
+          git commit -am "Release $VERSION"
+
+          # Push to remote
+          git push origin $RELEASE_BRANCH
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+
+      - name: Create Pull Request for XCFramework Repository
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+        run: |
+          cd xcframework-repo
+
+          gh pr create \
+            --title "Release $VERSION" \
+            --body-file ../pr_body.md \
+            --head "$RELEASE_BRANCH" \
+            --base "$BASE_BRANCH"
