@@ -2,7 +2,7 @@
 set -e
 
 WORKING_DIR=$(pwd)
-
+: '
 create_xcframework() {
     FRAMEWORK_FOLDER_NAME=$1
 
@@ -69,3 +69,4 @@ create_xcframework "OneSignal_InAppMessages" "OneSignalInAppMessages" "OneSignal
 create_xcframework "OneSignal_XCFramework" "OneSignalFramework" "OneSignalFramework"
 
 open "${WORKING_DIR}"
+'
