@@ -84,7 +84,7 @@ static OneSignalOutcomeEventsController *_sharedController;
     }
 }
 + (void)saveCurrentSDKVersion {
-    let currentVersion = [ONESIGNAL_VERSION intValue];
+    let currentVersion = [OneSignalVersion.numeric intValue];
     [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_OUTCOMES withValue:currentVersion];
 }
 

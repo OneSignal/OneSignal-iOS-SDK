@@ -55,7 +55,7 @@
 }
 
 + (void)saveCurrentSDKVersion {
-    int currentVersion = [ONESIGNAL_VERSION intValue];
+    int currentVersion = [OneSignalVersion.numeric intValue];
     [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION_FOR_CORE withValue:currentVersion];
 }
 

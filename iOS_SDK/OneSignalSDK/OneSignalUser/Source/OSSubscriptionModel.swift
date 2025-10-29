@@ -219,7 +219,7 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    var sdk = ONESIGNAL_VERSION {
+    var sdk = OneSignalVersion.numeric() {
         didSet {
             guard sdk != oldValue else {
                 return
@@ -324,7 +324,7 @@ class OSSubscriptionModel: OSModel {
         self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
         self.testType = coder.decodeObject(forKey: "testType") as? Int
         self.deviceOs = coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion
-        self.sdk = coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION
+        self.sdk = coder.decodeObject(forKey: "sdk") as? String ?? OneSignalVersion.numeric()
         self.deviceModel = coder.decodeObject(forKey: "deviceModel") as? String
         self.appVersion = coder.decodeObject(forKey: "appVersion") as? String
         self.netType = coder.decodeObject(forKey: "netType") as? Int
@@ -425,7 +425,7 @@ extension OSSubscriptionModel {
     func update() {
         updateTestType()
         deviceOs = UIDevice.current.systemVersion
-        sdk = ONESIGNAL_VERSION
+        sdk = OneSignalVersion.numeric()
         deviceModel = OSDeviceUtils.getDeviceVariant()
         appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         netType = OSNetworkingUtils.getNetType() as? Int

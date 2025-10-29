@@ -29,6 +29,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalLog.h"
 #import "OneSignalWrapper.h"
+#import "OneSignalVersion.h"
 
 #define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
 #define HTTP_HEADER_KEY_OS_WRAPPER @"SDK-Wrapper"
@@ -70,8 +71,8 @@
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
     [request setValue:OS_API_ACCEPT_HEADER forHTTPHeaderField:@"Accept"];
-    
-    NSString *versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
+
+    NSString *versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, OneSignalVersion.numeric];
     [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
     
     // Set header field if this is used in a wrapper SDK
