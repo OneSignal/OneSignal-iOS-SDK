@@ -133,22 +133,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     return _receiveReceiptsController;
 }
 
-+ (NSString*)sdkVersionRaw {
-	return ONESIGNAL_VERSION;
-}
-
-// TODO: Is this method used by wrappers? It is not used by this SDK. Can we remove?
-+ (NSString*)sdkSemanticVersion {
-	// examples:
-	// ONESIGNAL_VERSION = @"020402" returns 2.4.2
-	// ONESIGNAL_VERSION = @"001000" returns 0.10.0
-	// so that's 6 digits, where the first two are the major version
-	// the second two are the minor version and that last two, the patch.
-	// c.f. http://semver.org/
-
-	return [ONESIGNAL_VERSION one_getSemanticVersion];
-}
-
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     [OneSignalConfigManager setAppId:nil];
