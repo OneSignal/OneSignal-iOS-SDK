@@ -1,4 +1,8 @@
-name: iOS CD
+name: Create Release PRs
+
+# Note: The "Use workflow from" dropdown selects which version of THIS workflow to run.
+# Always select "main" unless you're testing workflow changes from another branch.
+# The "base_branch" input below determines where the release PR will be targeted.
 
 on:
   workflow_dispatch:
@@ -15,20 +19,22 @@ on:
 
 jobs:
   build:
-    name: Build the binaries for the release and create a PR
     runs-on: macos-13
 
     env:
       VERSION: ${{ github.event.inputs.version }}
       BASE_BRANCH: ${{ github.event.inputs.base_branch }}
       RELEASE_BRANCH: rel/${{ github.event.inputs.version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Display Configuration
+      - name: 📋 Display Configuration
         run: |
-          echo "Creating release PR for version $VERSION"
-          echo "Base branch: $BASE_BRANCH"
-          echo "Release branch: $RELEASE_BRANCH"
+          echo "============================================"
+          echo "📦 Release Version: $VERSION"
+          echo "🎯 Base Branch (PR Target): $BASE_BRANCH"
+          echo "🌿 Release Branch (to create): $BRANCH"
+          echo "============================================"
 
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v4
@@ -50,32 +56,44 @@ jobs:
         with:
           xcode-version: '15.2'
 
-      - name: Install the Apple distribution certificate and provisioning profile
+      - name: Install the Apple distribution certificate and provisioning profile (OneSignal)
         uses: apple-actions/import-codesign-certs@v2
         with:
           keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
           p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
 
-      - name: Install the Apple distribution certificate and provisioning profile
+      - name: Install the Apple distribution certificate and provisioning profile (Lilomi)
         uses: apple-actions/import-codesign-certs@v2
         with:
           create-keychain: false # do not create a new keychain for this value
           keychain-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
           p12-file-base64: ${{ secrets.DEV_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.DEV_CERTIFICATES_P12_PASSWORD }}
+
       - name: Update Version in SDK and Podspec Files
         run: |
           cd iOS_SDK/OneSignalSDK
           chmod +x ./update_version.sh
           ./update_version.sh $VERSION
         shell: bash
+
+      # DO a commit here
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "SyncR 🤖"
+
+          git commit -am "chore: bump version to $VERSION"
+          git push origin $RELEASE_BRANCH
+
       - name: Build Binaries
         run: |
           cd iOS_SDK/OneSignalSDK
           chmod +x ./build_all_frameworks.sh
           ./build_all_frameworks.sh
         shell: bash
+
       - name: Code Sign
         run: |
           cd iOS_SDK/OneSignalSDK
@@ -90,6 +108,16 @@ jobs:
           codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
           codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_LiveActivities/OneSignalLiveActivities.xcframework
         shell: bash
+
+      # DO a commit here
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "SyncR 🤖"
+
+          git commit -am "chore: build binaries"
+          git push origin $RELEASE_BRANCH
+
       - name: Update Swift Package
         run: |
           cd iOS_SDK/OneSignalSDK
@@ -101,33 +129,113 @@ jobs:
         run: |
           git config --local user.email "noreply@onesignal.com"
           git config --local user.name "SyncR 🤖"
-          git add .
-          git commit -m "Release $VERSION"
+
+          git commit -am "chore: update Swift package"
           git push origin $RELEASE_BRANCH
 
+
+      # TODO: Does this consider the base branch?
+      - name: Fetch Last GitHub Release Tag
+        id: fetch_last_release
+        run: |
+          echo "Fetching latest GitHub release tag..."
+          LAST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+
+          if [[ -z "$LAST_TAG" ]]; then
+            echo "❌ No previous release tag found. Cannot generate release notes."
+            exit 0
+          fi
+
+          echo "✅ Found last release tag: $LAST_TAG"
+          echo "range=$LAST_TAG..HEAD" >> $GITHUB_OUTPUT
+
+
+      - name: Generate Release Notes from PR Titles
+        run: |
+          echo "## 🔖 Auto-Generated Release Notes" > pr_body.md
+          echo "" >> pr_body.md
+
+          if [[ "$VERSION" == *"alpha"* ]]; then
+            CHANNEL="alpha"
+          elif [[ "$VERSION" == *"beta"* ]]; then
+            CHANNEL="beta"
+          else
+            CHANNEL="current"
+          fi
+
+          echo "**Channels:** $CHANNEL" >> pr_body.md
+          echo "" >> pr_body.md
+
+          RANGE="${{ steps.fetch_last_release.outputs.range }}"
+          echo "📦 Commit range: $RANGE"
+
+          COMMITS=$(git log "$RANGE" --pretty=format:"%H" | sort -u)
+
+          if [[ -z "$COMMITS" ]]; then
+            echo "❌ No commits found. Exiting."
+            exit 0
+          fi
+
+          > raw_titles.txt
+          for SHA in $COMMITS; do
+            PR_INFO=$(gh api "repos/${{ github.repository }}/commits/$SHA/pulls" \
+              -H "Accept: application/vnd.github.groot-preview+json" 2>/dev/null)
+
+            TITLE=$(echo "$PR_INFO" | jq -r '.[0].title // empty')
+            NUMBER=$(echo "$PR_INFO" | jq -r '.[0].number // empty')
+
+            if [[ -n "$TITLE" && -n "$NUMBER" ]]; then
+              echo "$TITLE ([#$NUMBER](https://github.com/${{ github.repository }}/pull/$NUMBER))" >> raw_titles.txt
+              echo "✅ $SHA → $TITLE (#$NUMBER)"
+            else
+              echo "⚠️ $SHA → No PR found"
+            fi
+          done
+
+          sort -fu raw_titles.txt > pr_titles.txt
+
+          if [[ ! -s pr_titles.txt ]]; then
+            echo "❌ No PR titles found from commits. Exiting."
+            exit 0
+          fi
+
+          echo "" >> pr_body.md
+          echo "### 🚀 New Features" >> pr_body.md
+          grep -i '^feat' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
+
+          echo "" >> pr_body.md
+          echo "### 🐛 Bug Fixes" >> pr_body.md
+          grep -i '^bug' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
+
+          echo "" >> pr_body.md
+          echo "### 🔧 Improvements" >> pr_body.md
+          grep -i -E '^(perf|refactor)' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
+
+          echo "" >> pr_body.md
+          echo "### 📝 Uncategorized PRs" >> pr_body.md
+          grep -v -i -E '^(feat|bug|perf|refactor)' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
+
+          echo "" >> pr_body.md
+          echo "### 📦 Version" >> pr_body.md
+          echo "$VERSION" >> pr_body.md
+
+
       - name: Create Pull Request for iOS SDK
-        uses: octokit/request-action@v2.x
-        with:
-          route: POST /repos/{owner}/{repo}/pulls
-          owner: OneSignal
-          repo: OneSignal-iOS-SDK
-          head: ${{ env.RELEASE_BRANCH }}
-          base: ${{ env.BASE_BRANCH }}
-          title: Release ${{ env.VERSION }}
-          body: |
-            ## Release ${{ env.VERSION }}
+        run: |
+          gh pr create \
+            --title "Release SDK v$VERSION" \
+            --body-file pr_body.md \
+            --head "$RELEASE_BRANCH" \
+            --base "$BASE_BRANCH"
 
-            Add Release Notes For Review Here
+    
+    
 
-            🤖 Generated with GitHub Actions
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout OneSignal-XCFramework Repository
+      - name: Checkout OneSignal-XCFramework
         uses: actions/checkout@v4
         with:
           repository: OneSignal/OneSignal-XCFramework
-          ref: main
+          ref: ${{ env.BASE_BRANCH }}
           path: xcframework-repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -150,26 +258,10 @@ jobs:
           git config --local user.name "SyncR 🤖"
 
           # Commit changes
-          git add Package.swift
-          git commit -m "Release $VERSION"
+          git commit -am "Release $VERSION"
 
           # Push to remote
           git push origin $RELEASE_BRANCH
 
       - name: Create Pull Request for XCFramework Repository
-        uses: octokit/request-action@v2.x
-        with:
-          route: POST /repos/{owner}/{repo}/pulls
-          owner: OneSignal
-          repo: OneSignal-XCFramework
-          head: ${{ env.RELEASE_BRANCH }}
-          base: main
-          title: Release ${{ env.VERSION }}
-          body: |
-            ## Release ${{ env.VERSION }}
-
-            Updates Package.swift from OneSignal-iOS-SDK
-
-            🤖 Generated with GitHub Actions
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # TODO: Fill this out
