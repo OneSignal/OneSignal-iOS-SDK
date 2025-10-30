@@ -105,7 +105,7 @@ jobs:
           git commit -m "Release $VERSION"
           git push origin $RELEASE_BRANCH
 
-      - name: Create Pull Request
+      - name: Create Pull Request for iOS SDK
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/{owner}/{repo}/pulls
@@ -118,6 +118,57 @@ jobs:
             ## Release ${{ env.VERSION }}
 
             Add Release Notes For Review Here
+
+            🤖 Generated with GitHub Actions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout OneSignal-XCFramework Repository
+        uses: actions/checkout@v4
+        with:
+          repository: OneSignal/OneSignal-XCFramework
+          ref: main
+          path: xcframework-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Package.swift in XCFramework Repository
+        run: |
+          # Copy Package.swift from iOS SDK to XCFramework repo
+          cp Package.swift xcframework-repo/Package.swift
+
+          # Navigate to XCFramework repo
+          cd xcframework-repo
+
+          # Delete remote branch if it exists
+          git push origin --delete $RELEASE_BRANCH || true
+
+          # Create release branch
+          git checkout -b $RELEASE_BRANCH
+
+          # Configure git
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "SyncR 🤖"
+
+          # Commit changes
+          git add Package.swift
+          git commit -m "Release $VERSION"
+
+          # Push to remote
+          git push origin $RELEASE_BRANCH
+
+      - name: Create Pull Request for XCFramework Repository
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/{owner}/{repo}/pulls
+          owner: OneSignal
+          repo: OneSignal-XCFramework
+          head: ${{ env.RELEASE_BRANCH }}
+          base: main
+          title: Release ${{ env.VERSION }}
+          body: |
+            ## Release ${{ env.VERSION }}
+
+            Updates Package.swift from OneSignal-iOS-SDK
 
             🤖 Generated with GitHub Actions
         env:
