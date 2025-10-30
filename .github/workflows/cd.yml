@@ -17,6 +17,10 @@ on:
         required: false
         default: 'main'
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     runs-on: macos-13
@@ -25,7 +29,7 @@ jobs:
       VERSION: ${{ github.event.inputs.version }}
       BASE_BRANCH: ${{ github.event.inputs.base_branch }}
       RELEASE_BRANCH: rel/${{ github.event.inputs.version }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: 📋 Display Configuration
@@ -266,6 +270,8 @@ jobs:
       - name: Create Pull Request for XCFramework Repository
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+          
         run: |
           cd xcframework-repo
           gh pr create \
