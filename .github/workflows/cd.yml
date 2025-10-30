@@ -114,13 +114,13 @@ jobs:
       #   shell: bash
 
       # DO a commit here
-      - name: Commit and Push Changes
-        run: |
-          git config --local user.email "noreply@onesignal.com"
-          git config --local user.name "SyncR 🤖"
+      # - name: Commit and Push Changes
+      #   run: |
+      #     git config --local user.email "noreply@onesignal.com"
+      #     git config --local user.name "SyncR 🤖"
 
-          git commit -am "chore: build binaries"
-          git push origin $RELEASE_BRANCH
+      #     git commit -am "chore: build binaries"
+      #     git push origin $RELEASE_BRANCH
 
       - name: Update Swift Package
         run: |
