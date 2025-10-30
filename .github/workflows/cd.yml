@@ -223,7 +223,7 @@ jobs:
       - name: Create Pull Request for iOS SDK
         run: |
           gh pr create \
-            --title "Release SDK v$VERSION" \
+            --title "Release $VERSION" \
             --body-file pr_body.md \
             --head "$RELEASE_BRANCH" \
             --base "$BASE_BRANCH"
@@ -237,7 +237,7 @@ jobs:
           repository: OneSignal/OneSignal-XCFramework
           ref: ${{ env.BASE_BRANCH }}
           path: xcframework-repo
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Update Package.swift in XCFramework Repository
         run: |
@@ -264,4 +264,12 @@ jobs:
           git push origin $RELEASE_BRANCH
 
       - name: Create Pull Request for XCFramework Repository
-        # TODO: Fill this out
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          cd xcframework-repo
+          gh pr create \
+            --title "Release $VERSION" \
+            --body-file ../pr_body.md \
+            --head "$RELEASE_BRANCH" \
+            --base "$BASE_BRANCH"
