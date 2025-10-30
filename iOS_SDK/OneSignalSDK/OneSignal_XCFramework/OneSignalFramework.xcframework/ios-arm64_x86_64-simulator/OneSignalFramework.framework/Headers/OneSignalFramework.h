@@ -62,9 +62,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
-+ (NSString* _Nonnull)sdkVersionRaw;
-+ (NSString* _Nonnull)sdkSemanticVersion;
-
 #pragma mark User
 + (id<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;

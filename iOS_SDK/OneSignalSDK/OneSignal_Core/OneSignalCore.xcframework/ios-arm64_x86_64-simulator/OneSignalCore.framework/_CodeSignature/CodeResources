@@ -10,7 +10,7 @@
 		</data>
 		<key>Headers/NSString+OneSignal.h</key>
 		<data>
-		/HTg8wbY+rfIy9/kCShHF2Oev6Y=
+		ZFnpZCU752k4HlB9sLZFypqPM50=
 		</data>
 		<key>Headers/NSURL+OneSignal.h</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		vSlR3UIJIGFpJboCdKIhjliBVK8=
+		HDYeqtvE7naArOEOg27SuGDZqkI=
 		</data>
 		<key>Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -98,7 +98,7 @@
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		PeshYU8MKCr65/vVYaIiXG1Xk5E=
+		G6Ci+XPXFyZhINd7IBTZ730R6lk=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -127,6 +127,10 @@
 		<key>Headers/OneSignalUserDefaults.h</key>
 		<data>
 		ZvwZZD2HkwwG1wOkh8jGhnl2lTY=
+		</data>
+		<key>Headers/OneSignalVersion.h</key>
+		<data>
+		6eBhEva6H11x2NenZxXYc44NwtU=
 		</data>
 		<key>Headers/OneSignalWrapper.h</key>
 		<data>
@@ -162,7 +166,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			qBhBU+sclS17YY3HDiZmbgqnTFtSJWm7tX4ThKcr3cM=
+			deEwVIgrtUzu6Q3NR6IU0Fg1X/MF5bI+QxIDWtXvfYE=
 			</data>
 		</dict>
 		<key>Headers/NSURL+OneSignal.h</key>
@@ -302,7 +306,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PNuenOvyg/nHHK223/XGnm+L7nKoX43wqNQfveVaMNE=
+			226gmdUPEfon2dh3pcYl+ogOBzrnUTX2BMJCmDhyejs=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -316,7 +320,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ER95AFBvVYKvhKW7rvHbHhjDqfeAdUQfk6AqmctiCzY=
+			mAF2cUvoNLk/Pq5V0f9Y87t5Ub8BxAkJzL5QdMpc+j8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -366,6 +370,13 @@
 			<key>hash2</key>
 			<data>
 			QIYtzchiCKQguyJOSY6PEhV0H98JRi2PdXSBmZxxLN4=
+			</data>
+		</dict>
+		<key>Headers/OneSignalVersion.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QRCJ6/98uwDfZrvQ3J+z9aa8VEkOS7XbQqjcnXWM5LM=
 			</data>
 		</dict>
 		<key>Headers/OneSignalWrapper.h</key>

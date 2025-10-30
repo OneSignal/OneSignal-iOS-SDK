@@ -32,8 +32,8 @@
  * SEMANTIC: "5.2.15" or "5.2.3-beta-01"
  * NUMERIC: "050215" or "050203-beta-01" (zero-padded with optional suffix)
  */
-static NSString * const ONESIGNAL_VERSION_SEMANTIC = @"5.2.15";
-static NSString * const ONESIGNAL_VERSION_NUMERIC = @"050215";
+static NSString * const ONESIGNAL_VERSION_SEMANTIC = @"1.1.1-alpha-01";
+static NSString * const ONESIGNAL_VERSION_NUMERIC = @"010101-alpha-01";
 
 @implementation OneSignalVersion
 

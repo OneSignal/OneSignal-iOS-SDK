@@ -26,7 +26,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			qBhBU+sclS17YY3HDiZmbgqnTFtSJWm7tX4ThKcr3cM=
+			deEwVIgrtUzu6Q3NR6IU0Fg1X/MF5bI+QxIDWtXvfYE=
 			</data>
 		</dict>
 		<key>Headers/NSURL+OneSignal.h</key>
@@ -166,7 +166,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PNuenOvyg/nHHK223/XGnm+L7nKoX43wqNQfveVaMNE=
+			226gmdUPEfon2dh3pcYl+ogOBzrnUTX2BMJCmDhyejs=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -180,7 +180,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ER95AFBvVYKvhKW7rvHbHhjDqfeAdUQfk6AqmctiCzY=
+			mAF2cUvoNLk/Pq5V0f9Y87t5Ub8BxAkJzL5QdMpc+j8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -230,6 +230,13 @@
 			<key>hash2</key>
 			<data>
 			QIYtzchiCKQguyJOSY6PEhV0H98JRi2PdXSBmZxxLN4=
+			</data>
+		</dict>
+		<key>Headers/OneSignalVersion.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QRCJ6/98uwDfZrvQ3J+z9aa8VEkOS7XbQqjcnXWM5LM=
 			</data>
 		</dict>
 		<key>Headers/OneSignalWrapper.h</key>
