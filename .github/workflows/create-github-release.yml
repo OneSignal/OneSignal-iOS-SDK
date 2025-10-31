@@ -1,0 +1,140 @@
+name: Create GitHub Release
+
+# This workflow creates a GitHub release in iOS-SDK and attaches the built zip files.
+# Run this AFTER the release PR has been merged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or commit SHA to run on (e.g., main, 5.3-main)'
+        type: string
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: macos-13
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 0
+
+      - name: Detect current branch
+        id: detect_branch
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            BRANCH="${{ github.event.inputs.ref }}"
+          else
+            BRANCH="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "Detected branch: $BRANCH"
+
+      - name: Extract release version from podspec
+        id: extract_version
+        run: |
+          VERSION=$(grep -E "s.version\s*=" OneSignal.podspec | sed -E 's/.*"(.*)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: 📋 Display Configuration
+        run: |
+          echo "============================================"
+          echo "📦 Release Version: ${{ steps.extract_version.outputs.version }}"
+          echo "🌿 Branch: ${{ steps.detect_branch.outputs.branch }}"
+          echo "============================================"
+
+      - name: Get Merged Release PR
+        id: get_release_pr
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          # Try to find the merged release PR for this version
+          PR_NUMBER=$(gh pr list --state merged --search "Release $VERSION in:title" --json number --jq '.[0].number // empty')
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            echo "Found merged release PR: #$PR_NUMBER"
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+            # Get PR body for release notes
+            gh pr view "$PR_NUMBER" --json body --jq '.body' > pr_body.md || echo "" > pr_body.md
+          else
+            echo "No merged release PR found for version $VERSION"
+            echo "pr_number=" >> $GITHUB_OUTPUT
+            echo "" > pr_body.md
+          fi
+
+      - name: Generate Release Notes
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          if [[ -s pr_body.md ]] && [[ -n "${{ steps.get_release_pr.outputs.pr_number }}" ]]; then
+            # Use the PR body from the release PR
+            echo "Using release notes from PR #${{ steps.get_release_pr.outputs.pr_number }}"
+            cp pr_body.md release_notes.md
+          else
+            # Generate release notes from commits
+            echo "## 🔖 Release Notes" > release_notes.md
+          fi
+
+      - name: Create Git Tag
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          # Configure git
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create and push tag
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+          echo "✅ Created and pushed tag: $VERSION"
+
+      - name: Create GitHub Release
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          BRANCH="${{ steps.detect_branch.outputs.branch }}"
+
+          cd iOS_SDK/OneSignalSDK
+
+          # Determine if this is a pre-release
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" == *"alpha"* ]] || [[ "$VERSION" == *"beta"* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+            echo "Marking as pre-release (alpha/beta detected)"
+          fi
+
+          gh release create "$VERSION" \
+            --title "Release $VERSION" \
+            --notes-file ../../release_notes.md \
+            --target "$BRANCH" \
+            $PRERELEASE_FLAG \
+            OneSignalCore.xcframework.zip \
+            OneSignalExtension.xcframework.zip \
+            OneSignalFramework.xcframework.zip \
+            OneSignalInAppMessages.xcframework.zip \
+            OneSignalLiveActivities.xcframework.zip \
+            OneSignalLocation.xcframework.zip \
+            OneSignalNotifications.xcframework.zip \
+            OneSignalOSCore.xcframework.zip \
+            OneSignalOutcomes.xcframework.zip \
+            OneSignalUser.xcframework.zip
+
+          echo "✅ GitHub release created successfully!"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/$VERSION"
