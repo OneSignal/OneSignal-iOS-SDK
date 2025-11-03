@@ -1,0 +1,198 @@
+name: Publish Release to CocoaPods and SPM
+
+# This workflow publishes the OneSignal pods to CocoaPods trunk.
+# And creates the tagged release in the OneSignal-XCFramework repository for SPM.
+# Run this AFTER the release PR has been merged and the GitHub release has been created.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or commit SHA to run on (e.g., main, 5.3-main)'
+        type: string
+        required: false
+        default: 'main'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: macos-13
+
+    env:
+      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 0
+
+      - name: Detect current branch
+        id: detect_branch
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            BRANCH="${{ github.event.inputs.ref }}"
+          else
+            BRANCH="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "Detected branch: $BRANCH"
+
+      - name: Extract release version from podspec
+        id: extract_version
+        run: |
+          VERSION=$(grep -E "s.version\s*=" OneSignal.podspec | sed -E 's/.*"(.*)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: 📋 Display Configuration
+        run: |
+          echo "============================================"
+          echo "📦 Release Version: ${{ steps.extract_version.outputs.version }}"
+          echo "🌿 Branch: ${{ steps.detect_branch.outputs.branch }}"
+          echo "============================================"
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+          pod --version
+
+      - name: Validate OneSignal.podspec
+        run: |
+          echo "Validating OneSignal.podspec..."
+          pod spec lint OneSignal.podspec --allow-warnings
+
+      - name: Validate OneSignalXCFramework.podspec
+        run: |
+          echo "Validating OneSignalXCFramework.podspec..."
+          pod spec lint OneSignalXCFramework.podspec --allow-warnings
+
+      - name: Publish OneSignal.podspec to CocoaPods Trunk
+        run: |
+          echo "Publishing OneSignal.podspec to CocoaPods Trunk..."
+          pod trunk push OneSignal.podspec --allow-warnings
+
+      - name: Publish OneSignalXCFramework.podspec to CocoaPods Trunk
+        run: |
+          echo "Publishing OneSignalXCFramework.podspec to CocoaPods Trunk..."
+          pod trunk push OneSignalXCFramework.podspec --allow-warnings
+
+      - name: ✅ CocoaPods Published
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          echo "============================================"
+          echo "✅ Successfully published version $VERSION to CocoaPods!"
+          echo "============================================"
+          echo "📦 OneSignal: https://cocoapods.org/pods/OneSignal"
+          echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
+
+      - name: Checkout OneSignal-XCFramework
+        uses: actions/checkout@v4
+        with:
+          repository: OneSignal/OneSignal-XCFramework
+          ref: ${{ steps.detect_branch.outputs.branch }}
+          path: xcframework-repo
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+
+      - name: Get XCFramework Release PR
+        id: get_xcframework_pr
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          # Find the merged release PR in OneSignal-XCFramework repo for this version
+          PR_NUMBER=$(gh pr list \
+            --repo OneSignal/OneSignal-XCFramework \
+            --state merged \
+            --search "Release $VERSION in:title" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            echo "Found merged XCFramework release PR: #$PR_NUMBER"
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+            # Get PR body for release notes
+            gh pr view "$PR_NUMBER" \
+              --repo OneSignal/OneSignal-XCFramework \
+              --json body \
+              --jq '.body' > xcframework_pr_body.md || echo "" > xcframework_pr_body.md
+          else
+            echo "No merged release PR found for version $VERSION in OneSignal-XCFramework"
+            echo "pr_number=" >> $GITHUB_OUTPUT
+            echo "" > xcframework_pr_body.md
+          fi
+
+      - name: Create GitHub Release for OneSignal-XCFramework
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          BRANCH="${{ steps.detect_branch.outputs.branch }}"
+
+          cd xcframework-repo
+
+          # Configure git
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create and push tag
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+          echo "✅ Created and pushed tag: $VERSION to OneSignal-XCFramework"
+
+          # Use PR body if available, otherwise create default release notes
+          if [[ -s ../xcframework_pr_body.md ]] && [[ -n "${{ steps.get_xcframework_pr.outputs.pr_number }}" ]]; then
+            echo "Using release notes from XCFramework PR #${{ steps.get_xcframework_pr.outputs.pr_number }}"
+            cp ../xcframework_pr_body.md release_notes.md
+          else
+            echo "No PR body found, generating default release notes"
+            echo "## 🔖 Release $VERSION" > release_notes.md
+            echo "" >> release_notes.md
+            echo "This release corresponds to [OneSignal-iOS-SDK $VERSION](https://github.com/OneSignal/OneSignal-iOS-SDK/releases/tag/$VERSION)" >> release_notes.md
+          fi
+
+          # Determine if this is a pre-release
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" == *"alpha"* ]] || [[ "$VERSION" == *"beta"* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+            echo "Marking as pre-release (alpha/beta detected)"
+          fi
+
+          # Create GitHub release
+          gh release create "$VERSION" \
+            --repo OneSignal/OneSignal-XCFramework \
+            --title "Release $VERSION" \
+            --notes-file release_notes.md \
+            --target "$BRANCH" \
+            $PRERELEASE_FLAG
+
+          echo "✅ GitHub release created successfully for OneSignal-XCFramework!"
+          echo "🔗 https://github.com/OneSignal/OneSignal-XCFramework/releases/tag/$VERSION"
+
+      - name: ✅ All Steps Complete
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          echo "============================================"
+          echo "✅ Successfully completed all release steps for version $VERSION"
+          echo "============================================"
+          echo "📦 CocoaPods OneSignal: https://cocoapods.org/pods/OneSignal"
+          echo "📦 CocoaPods OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
+          echo "🔗 iOS SDK Release: https://github.com/OneSignal/OneSignal-iOS-SDK/releases/tag/$VERSION"
+          echo "🔗 XCFramework Release: https://github.com/OneSignal/OneSignal-XCFramework/releases/tag/$VERSION"
