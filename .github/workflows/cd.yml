@@ -145,11 +145,10 @@ jobs:
   # Step 3: Use reusable workflow to create iOS SDK PR with release notes
   create-ios-pr:
     needs: [prep, update-and-build]
-    uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@main
+    uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@5fa458124ecbf1b94f1e05c392aacf726df19380
     with:
       release_branch: ${{ needs.prep.outputs.release_branch }}
-      version_from: ${{ needs.update-and-build.outputs.version_from }}
-      version_to: ${{ github.event.inputs.version }}
+      target_branch: ${{ github.event.inputs.base_branch }}
 
   # Step 4: Update XCFramework repository
   update-xcframework:
