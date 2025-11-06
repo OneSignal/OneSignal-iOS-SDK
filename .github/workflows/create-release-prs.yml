@@ -103,32 +103,32 @@ jobs:
           git commit -am "chore: bump version to $VERSION"
           git push origin $RELEASE_BRANCH
 
-      - name: Build Binaries
-        run: |
-          cd iOS_SDK/OneSignalSDK
-          chmod +x ./build_all_frameworks.sh
-          ./build_all_frameworks.sh
-        shell: bash
+      # - name: Build Binaries
+      #   run: |
+      #     cd iOS_SDK/OneSignalSDK
+      #     chmod +x ./build_all_frameworks.sh
+      #     ./build_all_frameworks.sh
+      #   shell: bash
 
-      - name: Code Sign
-        run: |
-          cd iOS_SDK/OneSignalSDK
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Core/OneSignalCore.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Extension/OneSignalExtension.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_InAppMessages/OneSignalInAppMessages.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Location/OneSignalLocation.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Notifications/OneSignalNotifications.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_OSCore/OneSignalOSCore.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Outcomes/OneSignalOutcomes.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_User/OneSignalUser.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
-          codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_LiveActivities/OneSignalLiveActivities.xcframework
-        shell: bash
+      # - name: Code Sign
+      #   run: |
+      #     cd iOS_SDK/OneSignalSDK
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Core/OneSignalCore.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Extension/OneSignalExtension.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_InAppMessages/OneSignalInAppMessages.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Location/OneSignalLocation.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Notifications/OneSignalNotifications.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_OSCore/OneSignalOSCore.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_Outcomes/OneSignalOutcomes.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_User/OneSignalUser.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_XCFramework/OneSignalFramework.xcframework
+      #     codesign --timestamp -v --sign "Apple Distribution: OneSignal, Inc. (J3J28YJX9L)" OneSignal_LiveActivities/OneSignalLiveActivities.xcframework
+      #   shell: bash
 
-      - name: Commit Build and Push Changes
-        run: |
-          git commit -am "chore: build binaries"
-          git push origin $RELEASE_BRANCH
+      # - name: Commit Build and Push Changes
+      #   run: |
+      #     git commit -am "chore: build binaries"
+      #     git push origin $RELEASE_BRANCH
 
       - name: Update Swift Package
         run: |
