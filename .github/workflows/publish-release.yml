@@ -80,24 +80,26 @@ jobs:
           echo "Validating OneSignalXCFramework.podspec..."
           pod spec lint OneSignalXCFramework.podspec --allow-warnings
 
-      - name: Publish OneSignal.podspec to CocoaPods Trunk
-        run: |
-          echo "Publishing OneSignal.podspec to CocoaPods Trunk..."
-          pod trunk push OneSignal.podspec --allow-warnings
+      # TODO: Commented out for testing only!
 
-      - name: Publish OneSignalXCFramework.podspec to CocoaPods Trunk
-        run: |
-          echo "Publishing OneSignalXCFramework.podspec to CocoaPods Trunk..."
-          pod trunk push OneSignalXCFramework.podspec --allow-warnings
+      # - name: Publish OneSignal.podspec to CocoaPods Trunk
+      #   run: |
+      #     echo "Publishing OneSignal.podspec to CocoaPods Trunk..."
+      #     pod trunk push OneSignal.podspec --allow-warnings
 
-      - name: ✅ CocoaPods Published
-        run: |
-          VERSION="${{ steps.extract_version.outputs.version }}"
-          echo "============================================"
-          echo "✅ Successfully published version $VERSION to CocoaPods!"
-          echo "============================================"
-          echo "📦 OneSignal: https://cocoapods.org/pods/OneSignal"
-          echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
+      # - name: Publish OneSignalXCFramework.podspec to CocoaPods Trunk
+      #   run: |
+      #     echo "Publishing OneSignalXCFramework.podspec to CocoaPods Trunk..."
+      #     pod trunk push OneSignalXCFramework.podspec --allow-warnings
+
+      # - name: ✅ CocoaPods Published
+      #   run: |
+      #     VERSION="${{ steps.extract_version.outputs.version }}"
+      #     echo "============================================"
+      #     echo "✅ Successfully published version $VERSION to CocoaPods!"
+      #     echo "============================================"
+      #     echo "📦 OneSignal: https://cocoapods.org/pods/OneSignal"
+      #     echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
 
       - name: Checkout OneSignal-XCFramework
         uses: actions/checkout@v4
