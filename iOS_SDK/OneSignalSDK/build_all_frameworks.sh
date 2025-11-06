@@ -2,6 +2,8 @@
 set -e
 
 # 🚧🚧🚧🚧 this is a change
+# 🚧🚧🚧🚧 this is a change
+
 WORKING_DIR=$(pwd)
 
 # create_xcframework() {
