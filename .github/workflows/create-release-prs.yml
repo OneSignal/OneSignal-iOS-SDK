@@ -24,13 +24,24 @@ permissions:
   pull-requests: write
 
 jobs:
-  bump-version:
+  # Step 1: Use reusable workflow to prepare release branch
+  prep:
+    uses: OneSignal/sdk-actions/.github/workflows/prep-release.yml@main
+    with:
+      version: ${{ github.event.inputs.version }}
+
+  # Step 2: Update iOS-specific files and build binaries
+  update-and-build:
+    needs: prep
     runs-on: macos-13
+
+    outputs:
+      version_from: ${{ steps.extract_version.outputs.current_version }}
 
     env:
       VERSION: ${{ github.event.inputs.version }}
       BASE_BRANCH: ${{ github.event.inputs.base_branch }}
-      RELEASE_BRANCH: rel/${{ github.event.inputs.version }}
+      RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -39,27 +50,26 @@ jobs:
           echo "============================================"
           echo "📦 Release Version: $VERSION"
           echo "🎯 Base Branch (PR Target): $BASE_BRANCH"
-          echo "🌿 Release Branch (to create): $RELEASE_BRANCH"
+          echo "🌿 Release Branch: $RELEASE_BRANCH"
           echo "============================================"
 
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.BASE_BRANCH }}
+          ref: ${{ needs.prep.outputs.release_branch }}
           fetch-depth: 0
 
-      - name: Create Release Branch
+      - name: Configure Git
         run: |
-          # Delete remote branch if it exists
-          git push origin --delete $RELEASE_BRANCH || true
-
-          # Create and checkout new release branch
-          git checkout -b $RELEASE_BRANCH
-          echo "Created release branch: $RELEASE_BRANCH"
-
-          # Configure git user (only needed once per repo)
           git config --local user.email "noreply@onesignal.com"
           git config --local user.name "github-actions[bot]"
+
+      - name: Extract Current Version
+        id: extract_version
+        run: |
+          CURRENT_VERSION=$(grep -E "s.version\s*=" OneSignal.podspec | sed -E 's/.*"(.*)".*/\1/')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -133,96 +143,31 @@ jobs:
           git commit -am "chore: update Swift package"
           git push origin $RELEASE_BRANCH
 
-      - name: Fetch Last GitHub Release Tag
-        id: fetch_last_release
-        run: |
-          echo "Fetching latest GitHub release tag..."
-          LAST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+  # Step 3: Use reusable workflow to create iOS SDK PR with release notes
+  create-ios-pr:
+    needs: [prep, update-and-build]
+    uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@main
+    with:
+      release_branch: ${{ needs.prep.outputs.release_branch }}
+      version_from: ${{ needs.update-and-build.outputs.version_from }}
+      version_to: ${{ github.event.inputs.version }}
 
-          if [[ -z "$LAST_TAG" ]]; then
-            echo "❌ No previous release tag found. Cannot generate release notes."
-            exit 0
-          fi
+  # Step 4: Update XCFramework repository
+  update-xcframework:
+    needs: [prep, update-and-build]
+    runs-on: macos-13
 
-          echo "✅ Found last release tag: $LAST_TAG"
-          echo "range=$LAST_TAG..HEAD" >> $GITHUB_OUTPUT
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
 
-      - name: Generate Release Notes from PR Titles
-        run: |
-          echo "## 🔖 Auto-Generated Release Notes" > pr_body.md
-          echo "" >> pr_body.md
-
-          if [[ "$VERSION" == *"alpha"* ]]; then
-            CHANNEL="alpha"
-          elif [[ "$VERSION" == *"beta"* ]]; then
-            CHANNEL="beta"
-          else
-            CHANNEL="current"
-          fi
-
-          echo "**Channels:** $CHANNEL" >> pr_body.md
-          echo "" >> pr_body.md
-
-          RANGE="${{ steps.fetch_last_release.outputs.range }}"
-          echo "📦 Commit range: $RANGE"
-
-          COMMITS=$(git log "$RANGE" --pretty=format:"%H" | sort -u)
-
-          if [[ -z "$COMMITS" ]]; then
-            echo "❌ No commits found. Exiting."
-            exit 0
-          fi
-
-          > raw_titles.txt
-          for SHA in $COMMITS; do
-            PR_INFO=$(gh api "repos/${{ github.repository }}/commits/$SHA/pulls" \
-              -H "Accept: application/vnd.github.groot-preview+json" 2>/dev/null)
-
-            TITLE=$(echo "$PR_INFO" | jq -r '.[0].title // empty')
-            NUMBER=$(echo "$PR_INFO" | jq -r '.[0].number // empty')
-
-            if [[ -n "$TITLE" && -n "$NUMBER" ]]; then
-              echo "$TITLE ([#$NUMBER](https://github.com/${{ github.repository }}/pull/$NUMBER))" >> raw_titles.txt
-              echo "✅ $SHA → $TITLE (#$NUMBER)"
-            else
-              echo "⚠️ $SHA → No PR found"
-            fi
-          done
-
-          sort -fu raw_titles.txt > pr_titles.txt
-
-          if [[ ! -s pr_titles.txt ]]; then
-            echo "❌ No PR titles found from commits. Exiting."
-            exit 0
-          fi
-
-          echo "" >> pr_body.md
-          echo "### 🚀 New Features" >> pr_body.md
-          grep -i '^feat' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
-
-          echo "" >> pr_body.md
-          echo "### 🐛 Bug Fixes" >> pr_body.md
-          grep -i '^bug' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
-
-          echo "" >> pr_body.md
-          echo "### 🔧 Improvements" >> pr_body.md
-          grep -i -E '^(perf|refactor)' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
-
-          echo "" >> pr_body.md
-          echo "### 📝 Uncategorized PRs" >> pr_body.md
-          grep -v -i -E '^(feat|bug|perf|refactor)' pr_titles.txt | sed 's/^/- /' >> pr_body.md || echo "- _None_" >> pr_body.md
-
-          echo "" >> pr_body.md
-          echo "### 📦 Version" >> pr_body.md
-          echo "$VERSION" >> pr_body.md
-
-      - name: Create Pull Request for iOS SDK
-        run: |
-          gh pr create \
-            --title "Release $VERSION" \
-            --body-file pr_body.md \
-            --head "$RELEASE_BRANCH" \
-            --base "$BASE_BRANCH"
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prep.outputs.release_branch }}
+          path: ios-sdk-repo
 
       - name: Checkout OneSignal-XCFramework
         uses: actions/checkout@v4
@@ -235,7 +180,7 @@ jobs:
       - name: Update Package.swift in XCFramework Repository
         run: |
           # Copy Package.swift from iOS SDK to XCFramework repo
-          cp Package.swift xcframework-repo/Package.swift
+          cp ios-sdk-repo/Package.swift xcframework-repo/Package.swift
 
           # Navigate to XCFramework repo
           cd xcframework-repo
@@ -255,15 +200,27 @@ jobs:
 
           # Push to remote
           git push origin $RELEASE_BRANCH
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
 
       - name: Create Pull Request for XCFramework Repository
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
-
         run: |
           cd xcframework-repo
+
+          # Create PR body with link to iOS SDK PR
+          cat > pr_body.md << 'EOF'
+          ## Release ${{ env.VERSION }}
+
+          This PR updates the Package.swift to version ${{ env.VERSION }}.
+
+          See the iOS SDK release PR for detailed release notes:
+          https://github.com/OneSignal/OneSignal-iOS-SDK/pulls?q=is%3Apr+Release+${{ env.VERSION }}
+          EOF
+
           gh pr create \
             --title "Release $VERSION" \
-            --body-file ../pr_body.md \
+            --body-file pr_body.md \
             --head "$RELEASE_BRANCH" \
             --base "$BASE_BRANCH"
