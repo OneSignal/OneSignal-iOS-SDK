@@ -29,6 +29,7 @@ jobs:
     uses: OneSignal/sdk-actions/.github/workflows/prep-release.yml@main
     with:
       version: ${{ github.event.inputs.version }}
+      target_branch: ${{ github.event.inputs.base_branch }}
 
   # Step 2: Update iOS-specific files and build binaries
   update-and-build:
@@ -148,8 +149,7 @@ jobs:
     uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@main
     with:
       release_branch: ${{ needs.prep.outputs.release_branch }}
-      version_from: ${{ needs.update-and-build.outputs.version_from }}
-      version_to: ${{ github.event.inputs.version }}
+      target_branch: ${{ github.event.inputs.base_branch }}
 
   # Step 4: Update XCFramework repository
   update-xcframework:
