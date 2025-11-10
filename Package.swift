@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "OneSignalFramework",
+    name: "OneSignalFramework", // Package name MUST be on line 7 for release automation
     products: [
         .library(
             name: "OneSignalFramework",
