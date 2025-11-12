@@ -35,6 +35,7 @@ enum LiveActivityConstants {
         static let clickId = "clickId"
         static let activityId = "activityId"
         static let activityType = "activityType"
+        static let notificationId = "notificationId"
         static let redirect = "redirect"
     }
 }

@@ -34,6 +34,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
     var key: String // UUID representing this unique click
     var activityType: String
     var activityId: String
+    var notificationId: String?
     var requestSuccessful: Bool
     var shouldForgetWhenSuccessful: Bool = true
 
@@ -69,10 +70,11 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
         return false
     }
 
-    init(key: String, activityType: String, activityId: String) {
+    init(key: String, activityType: String, activityId: String, notificationId: String?) {
         self.key = key
         self.activityType = activityType
         self.activityId = activityId
+        self.notificationId = notificationId
         self.requestSuccessful = false
         super.init()
     }
@@ -81,6 +83,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
         coder.encode(key, forKey: "key")
         coder.encode(activityType, forKey: "activityType")
         coder.encode(activityId, forKey: "activityId")
+        coder.encode(notificationId, forKey: "notificationId")
         coder.encode(requestSuccessful, forKey: "requestSuccessful")
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -97,6 +100,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
         self.key = key
         self.activityType = activityType
         self.activityId = activityId
+        self.notificationId = coder.decodeObject(forKey: "notificationId") as? String
         self.requestSuccessful = coder.decodeBool(forKey: "requestSuccessful")
         super.init()
         self.timestamp = timestamp

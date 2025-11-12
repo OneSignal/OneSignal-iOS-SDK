@@ -207,7 +207,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             return getRedirectURL()
         }
 
-        trackClick(clickId: clickId, activityType: activityType, activityId: activityId)
+        let notificationId = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.notificationId })?.value
+
+        trackClick(clickId: clickId, activityType: activityType, activityId: activityId, notificationId: notificationId)
 
         return getRedirectURL()
     }
@@ -217,9 +219,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
      - Parameters:
         - clickId: UUID representing the unique click event, as it is possible for this click to be tracked multiple times.
      */
-    private static func trackClick(clickId: String, activityType: String, activityId: String) {
+    private static func trackClick(clickId: String, activityType: String, activityId: String, notificationId: String?) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities trackClick called with clickId: \(clickId), activityType: \(activityType), activityId: \(activityId)")
-        let req = OSRequestLiveActivityClicked(key: clickId, activityType: activityType, activityId: activityId)
+        let req = OSRequestLiveActivityClicked(key: clickId, activityType: activityType, activityId: activityId, notificationId: notificationId)
         _executor.append(req)
     }
 
