@@ -89,6 +89,7 @@ private func generateTrackingDeepLink<T: OneSignalLiveActivityAttributes>(origin
     // Get activity metadata
     let activityId = context.attributes.onesignal.activityId
     let activityType = String(describing: T.self)
+    let notificationId = context.state.onesignal?.notificationId
 
     // Build OneSignal tracking URL
     var components = URLComponents()
@@ -99,7 +100,8 @@ private func generateTrackingDeepLink<T: OneSignalLiveActivityAttributes>(origin
     var queryItems = [
         URLQueryItem(name: LiveActivityConstants.Tracking.clickId, value: clickId),
         URLQueryItem(name: LiveActivityConstants.Tracking.activityId, value: activityId),
-        URLQueryItem(name: LiveActivityConstants.Tracking.activityType, value: activityType)
+        URLQueryItem(name: LiveActivityConstants.Tracking.activityType, value: activityType),
+        URLQueryItem(name: LiveActivityConstants.Tracking.notificationId, value: notificationId)
     ]
 
     if let originalURL = originalURL {
