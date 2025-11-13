@@ -49,19 +49,21 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
             return false
         }
 
-        // TODO: ⚠️ What is the path, method, and parameters
-        // TODO: ⚠️ Need to guard for encoding activity strings if in path
-        // TODO: ⚠️ Timestamp since we are caching? Same for received event.
-        self.path = "foo/bar/\(activityId)/click"
-        self.parameters = [
-            "app_id": appId,
-            "player_id": subscriptionId,
+        guard let activityType = self.key.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
+            return false
+        }
+
+        var params: [String: Any] = [
             "device_type": 0,
-            "live_activity_id": activityId,
-            "live_activity_type": activityType,
-            "click_id": key
+            "activity_id": activityId
         ]
-        self.method = POST
+        if let notificationId = notificationId {
+            params["notification_id"] = notificationId
+        }
+        self.parameters = params
+        self.path = "apps/\(appId)/activities/clicks/track/\(activityType)/subscriptions/\(subscriptionId)"
+        self.method = PUT
 
         return true
     }
