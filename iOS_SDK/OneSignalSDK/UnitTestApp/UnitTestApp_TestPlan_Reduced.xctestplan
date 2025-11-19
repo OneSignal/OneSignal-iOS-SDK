@@ -9,7 +9,60 @@
     }
   ],
   "defaultOptions" : {
-
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "3E2400371D4FFC31008BDE70",
+          "name" : "OneSignalFramework"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DE7D17F827026BA3002D3A5D",
+          "name" : "OneSignalExtension"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DE7D17E527026B95002D3A5D",
+          "name" : "OneSignalCore"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DE69E19A282ED8060090BB3D",
+          "name" : "OneSignalUser"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DE7D187F27037F43002D3A5D",
+          "name" : "OneSignalOutcomes"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DEF784282912DEB600A1F3A5",
+          "name" : "OneSignalNotifications"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "475F471D2B8E398D00EC05B3",
+          "name" : "OneSignalLiveActivities"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DEBAAE272A4211D900BF2C1C",
+          "name" : "OneSignalInAppMessages"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DEBAADF82A420A3700BF2C1C",
+          "name" : "OneSignalLocation"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "3C115160289A259500565C41",
+          "name" : "OneSignalOSCore"
+        }
+      ]
+    }
   },
   "testTargets" : [
     {
