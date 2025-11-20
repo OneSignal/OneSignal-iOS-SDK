@@ -98,6 +98,7 @@
 		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
 		3C7021E32ECF0821001768C6 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; };
 		3C7021E42ECF0821001768C6 /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C7021E92ECF0CF4001768C6 /* IAMIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */; };
 		3C70FA672D0B68A100031066 /* OneSignalClientError.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C70FA652D0B68A100031066 /* OneSignalClientError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C70FA682D0B68A100031066 /* OneSignalClientError.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C70FA662D0B68A100031066 /* OneSignalClientError.m */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
@@ -1286,6 +1287,8 @@
 		3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
+		3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalInAppMessagesTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMIntegrationTests.swift; sourceTree = "<group>"; };
 		3C70FA652D0B68A100031066 /* OneSignalClientError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientError.h; sourceTree = "<group>"; };
 		3C70FA662D0B68A100031066 /* OneSignalClientError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientError.m; sourceTree = "<group>"; };
 		3C7A39D42B7C18EE0082665E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -2103,6 +2106,8 @@
 			isa = PBXGroup;
 			children = (
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
+				3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */,
+				3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */,
 			);
 			path = OneSignalInAppMessagesTests;
 			sourceTree = "<group>";
@@ -3779,7 +3784,7 @@
 					};
 					3C01518D2C2E298E0079E076 = {
 						CreatedOnToolsVersion = 15.2;
-						LastSwiftMigration = 1520;
+						LastSwiftMigration = 1640;
 						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
 					3C115160289A259500565C41 = {
@@ -4189,6 +4194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C7021E92ECF0CF4001768C6 /* IAMIntegrationTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5019,6 +5025,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
@@ -5072,6 +5079,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5119,6 +5127,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalInAppMessagesTests/OneSignalInAppMessagesTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
