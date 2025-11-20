@@ -2596,8 +2596,6 @@
 				CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */,
 				CA1A6E6D20DC2E73001C41B9 /* OneSignalDialogRequest.h */,
 				CA1A6E6E20DC2E73001C41B9 /* OneSignalDialogRequest.m */,
-				DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */,
-				DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -2990,6 +2988,8 @@
 				DEBAAE4C2A42157B00BF2C1C /* UI */,
 				DEBAAE2A2A4211DA00BF2C1C /* OneSignalInAppMessages.h */,
 				DEBAAE982A42179A00BF2C1C /* OneSignalInAppMessages.m */,
+				DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */,
+				DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */,
 				DEBAAE962A42178800BF2C1C /* OSInAppMessagingDefines.h */,
 				3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */,
 			);
