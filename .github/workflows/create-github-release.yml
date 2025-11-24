@@ -49,7 +49,7 @@ jobs:
   # Step 3: Upload the 10 xcframework zips to the release
   upload-assets:
     needs: [get-version, create-release]
-    runs-on: macos-13
+    runs-on: ubuntu-latest
 
     env:
       VERSION: ${{ needs.get-version.outputs.version }}
