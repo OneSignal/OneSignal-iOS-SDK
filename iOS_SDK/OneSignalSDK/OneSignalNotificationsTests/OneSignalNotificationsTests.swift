@@ -40,30 +40,75 @@ final class OneSignalNotificationsTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
+    /// Helper to get cached badge count from OneSignalUserDefaults
+    private func getCachedBadgeCount() -> Int {
+        return OneSignalUserDefaults.initShared().getSavedInteger(forKey: "onesignalBadgeCount", defaultValue: 0)
+    }
+
+    /// Helper to set badge count
+    private func setBadgeCount(_ count: Int, completion: @escaping () -> Void = {}) {
+        if #available(iOS 16.0, *) {
+            UNUserNotificationCenter.current().setBadgeCount(count) { error in
+                if let error = error {
+                    XCTFail("Failed to set badge count: \(error)")
+                }
+                completion()
+            }
+        } else {
+            // Fallback for iOS 15 and earlier
+            UIApplication.shared.applicationIconBadgeNumber = count
+            completion()
+        }
+    }
+
     func testClearBadgesWhenAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
         // Set badge count > 0
-        UIApplication.shared.applicationIconBadgeNumber = 1
+        let expectation = self.expectation(description: "Badge set")
+        setBadgeCount(1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 0.5)
+
+        // Verify badge was set
+        XCTAssertEqual(getCachedBadgeCount(), 1)
+
         // Then background the app
         OneSignalCoreMocks.backgroundApp()
         // Foreground the app
         OneSignalCoreMocks.foregroundApp()
+
+        // Wait for async badge clearing on iOS 16+
+        Thread.sleep(forTimeInterval: 0.1)
+
         // Ensure that badge count == 0
-        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 0)
+        XCTAssertEqual(getCachedBadgeCount(), 0)
     }
 
     func testDontclearBadgesWhenAppBecomesActive() throws {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.start()
         // Set badge count > 0
-        UIApplication.shared.applicationIconBadgeNumber = 1
+        let expectation = self.expectation(description: "Badge set")
+        setBadgeCount(1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 0.5)
+
+        // Verify badge was set
+        XCTAssertEqual(getCachedBadgeCount(), 1)
+
         // Then resign active
         OneSignalCoreMocks.resignActive()
         // App becomes active the app
         OneSignalCoreMocks.becomeActive()
+
+        // Wait for async badge clearing on iOS 16+
+        Thread.sleep(forTimeInterval: 0.1)
+
         // Ensure that badge count == 1
-        XCTAssertEqual(UIApplication.shared.applicationIconBadgeNumber, 1)
+        XCTAssertEqual(getCachedBadgeCount(), 1)
     }
 
     func testUpdateNotificationTypesOnAppEntersForeground() throws {
