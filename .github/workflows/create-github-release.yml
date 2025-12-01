@@ -1,0 +1,89 @@
+name: Create GitHub Release
+
+# This workflow creates a GitHub release in iOS-SDK and attaches the built zip files.
+# Runs automatically when a release PR is merged.
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+      - '*-main'  # Matches version branches like 5.3-main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Step 1: Extract version from podspec
+  get-version:
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.title, 'Release')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Extract release version from podspec
+        id: extract_version
+        run: |
+          VERSION=$(grep -E "s.version\s*=" OneSignal.podspec | sed -E 's/.*"(.*)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+  # Step 2: Use reusable workflow to create GitHub release with release notes
+  create-release:
+    needs: get-version
+    uses: OneSignal/sdk-actions/.github/workflows/github-release.yml@main
+    with:
+      version: ${{ needs.get-version.outputs.version }}
+
+  # Step 3: Upload the 10 xcframework zips to the release
+  upload-assets:
+    needs: [get-version, create-release]
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION: ${{ needs.get-version.outputs.version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: 📋 Display Configuration
+        run: |
+          echo "============================================"
+          echo "📦 Uploading assets for version: $VERSION"
+          echo "============================================"
+
+      - name: Upload xcframework zips to release
+        run: |
+          cd iOS_SDK/OneSignalSDK
+
+          gh release upload "$VERSION" \
+            OneSignalCore.xcframework.zip \
+            OneSignalExtension.xcframework.zip \
+            OneSignalFramework.xcframework.zip \
+            OneSignalInAppMessages.xcframework.zip \
+            OneSignalLiveActivities.xcframework.zip \
+            OneSignalLocation.xcframework.zip \
+            OneSignalNotifications.xcframework.zip \
+            OneSignalOSCore.xcframework.zip \
+            OneSignalOutcomes.xcframework.zip \
+            OneSignalUser.xcframework.zip
+
+          echo "✅ All xcframework zips uploaded successfully!"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/$VERSION"
