@@ -1422,39 +1422,6 @@
 //     XCTAssertTrue(action.promptActions[1].hasPrompted);
 // }
 
-/// ✅ Migrated to `testPausingIAMs_doesNotCreateMessageQueue`... This test statement below is no longer true as of `5.2.9`.
-// - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {
-//     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-//     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
-    
-//     // this should prevent message from being shown
-//     [OneSignal pauseInAppMessages:true];
-    
-//     // the trigger should immediately evaluate to true and should
-//     // be shown once the SDK is fully initialized.
-//     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
-
-//     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-//     // Make sure no IAM is showing, but the queue has any IAMs
-//     XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
-//     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
-// }
-
-/// ✅ Migrated to `testPreviewIAMIsDisplayedOnPause`
-// /*
-//  Test IAMs should display even when IAMs are paused
-// */
-// - (void)testPreviewIAMIsDisplayedOnPause {
-//     [OneSignal pauseInAppMessages:true];
-    
-//     let message = [OSInAppMessageTestHelper testMessageWithPreview];
-    
-//     [self initOneSignalWithInAppMessage:message];
-
-//     XCTAssertTrue(OSMessagingControllerOverrider.isInAppMessageShowing);
-// }
-
 // - (void)testInAppMessageIdTracked {
 //     [OneSignal pauseInAppMessages:false];
 
