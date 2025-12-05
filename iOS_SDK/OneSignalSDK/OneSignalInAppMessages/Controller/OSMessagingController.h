@@ -49,19 +49,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (OSMessagingController *)sharedInstance;
 + (void)start;
-+ (void)removeInstance;
-- (void)presentInAppMessage:(OSInAppMessageInternal *)message;
 - (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
-- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
-- (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 
 - (BOOL)isInAppMessagingPaused;
 - (void)setInAppMessagingPaused:(BOOL)pause;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (void)clearTriggers;
-- (NSDictionary<NSString *, id> *)getTriggers;
-- (id)getTriggerValueForKey:(NSString *)key;
 
 - (void)addInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
 - (void)removeInAppMessageClickListener:(NSObject<OSInAppMessageClickListener> *_Nullable)listener;
