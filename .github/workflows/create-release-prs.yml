@@ -14,10 +14,10 @@ on:
         type: string
         required: true
       base_branch:
-        description: 'Target branch for the PR (e.g. main for regular releases, 5.3-main for 5.3.x releases)'
+        description: "Target branch for the PR (e.g. main for regular releases, 5.3-main for 5.3.x releases)"
         type: string
         required: false
-        default: 'main'
+        default: "main"
 
 permissions:
   contents: write
@@ -60,10 +60,8 @@ jobs:
           ref: ${{ needs.prep.outputs.release_branch }}
           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config --local user.email "noreply@onesignal.com"
-          git config --local user.name "github-actions[bot]"
+      - name: Setup Git User
+        uses: OneSignal/sdk-actions/.github/actions/setup-git-user@main
 
       - name: Extract Current Version
         id: extract_version
@@ -75,7 +73,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.2'
+          xcode-version: "15.2"
 
       - name: Install the Apple distribution certificate and provisioning profile (OneSignal)
         uses: apple-actions/import-codesign-certs@v2
@@ -194,6 +192,9 @@ jobs:
           path: xcframework-repo
           token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
 
+      - name: Setup Git User
+        uses: OneSignal/sdk-actions/.github/actions/setup-git-user@main
+
       - name: Update Package.swift in XCFramework Repository
         run: |
           # Copy Package.swift from iOS SDK to XCFramework repo
@@ -210,10 +211,6 @@ jobs:
 
           # Create release branch
           git checkout -b $RELEASE_BRANCH
-
-          # Configure git
-          git config --local user.email "noreply@onesignal.com"
-          git config --local user.name "github-actions[bot]"
 
           # Commit changes
           git commit -am "Release $VERSION"
