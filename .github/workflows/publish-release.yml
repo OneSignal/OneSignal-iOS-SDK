@@ -8,13 +8,14 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Branch or commit SHA to run on (e.g., main, 5.3-main)'
+        description: "Branch or commit SHA to run on (e.g., main, 5.3-main)"
         type: string
         required: false
-        default: 'main'
+        default: "main"
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +23,8 @@ concurrency:
 
 jobs:
   publish:
+    outputs:
+      sdk_version: ${{ steps.extract_version.outputs.version }}
     runs-on: macos-13
 
     env:
@@ -63,7 +66,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0'
+          ruby-version: "3.0"
 
       - name: Install CocoaPods
         run: |
@@ -181,3 +184,11 @@ jobs:
           echo "📦 CocoaPods OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
           echo "🔗 iOS SDK Release: https://github.com/OneSignal/OneSignal-iOS-SDK/releases/tag/$VERSION"
           echo "🔗 XCFramework Release: https://github.com/OneSignal/OneSignal-XCFramework/releases/tag/$VERSION"
+
+  wrapper_prs:
+    needs: publish
+    uses: OneSignal/sdk-actions/.github/workflows/create-wrapper-prs.yml@main
+    secrets:
+      GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
+    with:
+      ios_version: ${{ needs.publish.outputs.sdk_version }}
