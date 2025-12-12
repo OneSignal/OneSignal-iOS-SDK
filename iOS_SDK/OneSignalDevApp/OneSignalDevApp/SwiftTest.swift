@@ -38,5 +38,6 @@ class SwiftTest: NSObject, OSLogListener {
         let token = OneSignal.User.pushSubscription.token
         OneSignal.Debug.addLogListener(self)
         OneSignal.Debug.removeLogListener(self)
+        OneSignal.Debug._dump()
     }
 }
