@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSCachedUniqueOutcome.h"
 #import "OSOutcomeEventsRepository.h"
+#import <OneSignalCore/OSMacros.h>
 
 @implementation OSOutcomeEventsRepository
 

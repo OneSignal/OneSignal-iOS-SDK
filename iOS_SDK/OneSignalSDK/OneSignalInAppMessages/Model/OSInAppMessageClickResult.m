@@ -28,6 +28,7 @@
 #import "OSInAppMessageClickResult.h"
 #import "OSInAppMessagePushPrompt.h"
 #import "OSInAppMessageLocationPrompt.h"
+#import <OneSignalCore/OSMacros.h>
 
 @implementation OSInAppMessageClickResult
 
