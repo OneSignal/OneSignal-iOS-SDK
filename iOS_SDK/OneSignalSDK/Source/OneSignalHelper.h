@@ -43,8 +43,6 @@
 
 // Other
 + (BOOL) isValidEmail:(NSString*)email;
-+ (NSString*)hashUsingSha1:(NSString*)string;
-+ (NSString*)hashUsingMD5:(NSString*)string;
 + (BOOL)isTablet;
 
 #pragma clang diagnostic pop
