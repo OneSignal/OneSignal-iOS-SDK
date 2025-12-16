@@ -49,6 +49,10 @@
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 
+// Forward declarations for Objective-C++ compatibility
+@protocol OSUser;
+@protocol OSLiveActivities;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
