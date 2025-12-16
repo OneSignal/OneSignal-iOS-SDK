@@ -121,7 +121,8 @@ import OneSignalLiveActivities
              .padding([.all], 20)
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
-         } dynamicIsland: { _ in
+             .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
+         } dynamicIsland: { context in
              DynamicIsland {
                  // Expanded UI goes here.  Compose the expanded UI through
                  // various regions, like leading/trailing/center/bottom
@@ -143,6 +144,7 @@ import OneSignalLiveActivities
                  Text("Min")
              }
              .keylineTint(Color.red)
+             .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
          }
      }
  }
@@ -236,7 +238,8 @@ struct DefaultOneSignalLiveActivityWidget: Widget {
             .padding([.all], 20)
             .activitySystemActionForegroundColor(.black)
             .activityBackgroundTint(.white)
-        } dynamicIsland: { _ in
+            .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
+        } dynamicIsland: { context in
             DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
                 // various regions, like leading/trailing/center/bottom
@@ -258,6 +261,7 @@ struct DefaultOneSignalLiveActivityWidget: Widget {
                 Text("Min")
             }
             .keylineTint(Color.red)
+            .onesignalWidgetURL(URL(string: "myapp://product/12345"), context: context)
         }
     }
 }
