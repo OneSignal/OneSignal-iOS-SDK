@@ -29,6 +29,7 @@
 #import "OSInAppMessageLocationPrompt.h"
 #import <OneSignalLocation/OneSignalLocationManager.h>
 #import <OneSignalCore/OneSignalLog.h>
+#import <OneSignalCore/OSMacros.h>
 
 //@interface OneSignalLocation ()
 //

@@ -29,6 +29,7 @@
 #import "UIApplication+OneSignal.h"
 #import "NSDateFormatter+OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSMacros.h>
 #import "OSInAppMessageClickResult.h"
 #import "OSInAppMessageClickEvent.h"
 #import "OSInAppMessageController.h"

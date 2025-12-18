@@ -26,6 +26,7 @@
  */
 #import "OneSignalOutcomes.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSMacros.h>
 
 @implementation OSOutcomes
 

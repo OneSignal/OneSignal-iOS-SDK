@@ -26,6 +26,7 @@
  */
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSMacros.h>
 #import "OneSignalFramework.h"
 #import "OSAttributedFocusTimeProcessor.h"
 #import <OneSignalUser/OneSignalUser.h>

@@ -35,8 +35,6 @@
 + (void)dispatch_async_on_main_queue:(void(^)())block;
 + (void)performSelector:(SEL)aSelector onMainThreadOnObject:(id)targetObj withObject:(id)anArgument afterDelay:(NSTimeInterval)delay;
 
-+ (NSString*)hashUsingSha1:(NSString*)string;
-+ (NSString*)hashUsingMD5:(NSString*)string;
 + (NSString*)trimURLSpacing:(NSString*)url;
 + (NSString*)parseNSErrorAsJsonString:(NSError*)error;
 + (BOOL)isOneSignalPayload:(NSDictionary *)payload;

@@ -28,6 +28,7 @@
 #import "OSInAppMessagePushPrompt.h"
 #import "OneSignalInAppMessages.h"
 #import <OneSignalNotifications/OneSignalNotifications.h>
+#import <OneSignalCore/OSMacros.h>
 
 @implementation OSInAppMessagePushPrompt
 

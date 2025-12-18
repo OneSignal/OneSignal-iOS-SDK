@@ -27,6 +27,7 @@
 
 
 #import "OSInAppMessageClickEvent.h"
+#import <OneSignalCore/OSMacros.h>
 
 @implementation OSInAppMessageClickEvent
 

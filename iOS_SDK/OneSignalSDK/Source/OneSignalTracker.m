@@ -31,6 +31,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSMacros.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSFocusCallParams.h"

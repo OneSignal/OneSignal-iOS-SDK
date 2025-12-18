@@ -29,6 +29,7 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageClickResult.h"
 #import <OneSignalUser/OneSignalUser.h>
+#import <OneSignalCore/OSMacros.h>
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 

@@ -30,6 +30,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OSMessagingController.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import <OneSignalCore/OSMacros.h>
 #import "OSSessionManager.h"
 
 @interface OSDynamicTriggerController ()

@@ -26,6 +26,7 @@
 */
 
 #import "OSInAppMessageDisplayStats.h"
+#import <OneSignalCore/OSMacros.h>
 
 @interface OSInAppMessageDisplayStats ()
 @property (nonatomic, readwrite) BOOL redisplayEnabled;

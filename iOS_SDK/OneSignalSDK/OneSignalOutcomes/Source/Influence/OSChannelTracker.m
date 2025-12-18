@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalCore/OSMacros.h>
 #import "OSChannelTracker.h"
 #import "OSIndirectInfluence.h"
 
