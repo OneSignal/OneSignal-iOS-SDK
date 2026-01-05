@@ -88,7 +88,7 @@ final class IAMIntegrationTests: XCTestCase {
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
 
         // 3. Set up mock responses for fetching IAMs
-        let message = IAMTestHelpers.testMessageJsonWithTrigger(property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
+        let message = IAMTestHelpers.testMessageJsonWithTrigger(kind: OS_DYNAMIC_TRIGGER_KIND_CUSTOM, property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message])
         client.setMockResponseForRequest(
             request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/\(testPushSubId)/iams>",

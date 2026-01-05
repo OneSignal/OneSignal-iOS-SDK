@@ -78,13 +78,13 @@ public class IAMTestHelpers: NSObject {
 
     /// Returns the JSON of an in-app message with trigger.
     @objc
-    public static func testMessageJsonWithTrigger(property: String, triggerId: String, type: Int32, value: Any) -> [String: Any] {
+    public static func testMessageJsonWithTrigger(kind: String, property: String, triggerId: String, type: Int32, value: Any) -> [String: Any] {
         var testMessage = self.testDefaultMessageJson()
 
         testMessage["triggers"] = [
             [
                 [
-                    "kind": property,
+                    "kind": kind,
                     "property": property,
                     "operator": OS_OPERATOR_TO_STRING(type),
                     "value": value,
