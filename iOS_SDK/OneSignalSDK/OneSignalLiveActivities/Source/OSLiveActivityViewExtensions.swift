@@ -53,7 +53,7 @@ extension DynamicIsland {
         _ url: URL?,
         context: ActivityViewContext<T>
     ) -> DynamicIsland {
-        return self.widgetURL(generateTrackingDeepLink(originalURL: url, context: context))
+        return self.widgetURL(LiveActivityTrackingUtils.generateTrackingDeepLink(originalURL: url, context: context))
     }
 }
 
@@ -75,40 +75,71 @@ extension View {
     /// (e.g., `application(_:open:options:)` in AppDelegate or `onOpenURL` in SwiftUI) using the
     /// `OneSignal.LiveActivities.trackClickAndReturnOriginal(url)` method.
     @MainActor @preconcurrency public func onesignalWidgetURL<T: OneSignalLiveActivityAttributes>(_ url: URL?, context: ActivityViewContext<T>) -> some View {
-        return self.widgetURL(generateTrackingDeepLink(originalURL: url, context: context))
+        return self.widgetURL(LiveActivityTrackingUtils.generateTrackingDeepLink(originalURL: url, context: context))
     }
 }
 
-// MARK: - Helper Function
+// MARK: - Tracking Utilities
 
-@available(iOS 16.1, *)
-private func generateTrackingDeepLink<T: OneSignalLiveActivityAttributes>(originalURL: URL?, context: ActivityViewContext<T>) -> URL? {
-    // Generate a unique click ID
-    let clickId = UUID().uuidString
+/// Utilities for building and managing Live Activity tracking URLs
+enum LiveActivityTrackingUtils {
+    /// Generates a tracking deep link from an original URL and activity context
+    /// - Parameters:
+    ///   - originalURL: The original URL to track clicks for
+    ///   - context: The activity view context containing metadata
+    /// - Returns: The tracking URL, or nil if construction failed
+    @available(iOS 16.1, *)
+    static func generateTrackingDeepLink<T: OneSignalLiveActivityAttributes>(originalURL: URL?, context: ActivityViewContext<T>) -> URL? {
+        // Get activity metadata from context
+        let activityId = context.attributes.onesignal.activityId
+        let activityType = String(describing: T.self)
+        let notificationId = context.state.onesignal?.notificationId
 
-    // Get activity metadata
-    let activityId = context.attributes.onesignal.activityId
-    let activityType = String(describing: T.self)
-    let notificationId = context.state.onesignal?.notificationId
-
-    // Build OneSignal tracking URL
-    var components = URLComponents()
-    components.scheme = LiveActivityConstants.Tracking.scheme
-    components.host = LiveActivityConstants.Tracking.host
-    components.path = LiveActivityConstants.Tracking.clickPath
-
-    var queryItems = [
-        URLQueryItem(name: LiveActivityConstants.Tracking.clickId, value: clickId),
-        URLQueryItem(name: LiveActivityConstants.Tracking.activityId, value: activityId),
-        URLQueryItem(name: LiveActivityConstants.Tracking.activityType, value: activityType),
-        URLQueryItem(name: LiveActivityConstants.Tracking.notificationId, value: notificationId)
-    ]
-
-    if let originalURL = originalURL {
-        queryItems.append(URLQueryItem(name: LiveActivityConstants.Tracking.redirect, value: originalURL.absoluteString))
+        return buildTrackingURL(
+            originalURL: originalURL,
+            activityId: activityId,
+            activityType: activityType,
+            notificationId: notificationId
+        )
     }
 
-    components.queryItems = queryItems
+    /// Builds a tracking URL that wraps the original URL with OneSignal tracking parameters
+    /// - Parameters:
+    ///   - originalURL: The original URL to track clicks for
+    ///   - activityId: The activity identifier
+    ///   - activityType: The activity type name
+    ///   - notificationId: Optional notification ID
+    /// - Returns: The tracking URL, or nil if construction failed
+    static func buildTrackingURL(
+        originalURL: URL?,
+        activityId: String,
+        activityType: String,
+        notificationId: String?
+    ) -> URL? {
+        // Generate a unique click ID
+        let clickId = UUID().uuidString
 
-    return components.url
+        // Build OneSignal tracking URL
+        var components = URLComponents()
+        components.scheme = LiveActivityConstants.Tracking.scheme
+        components.host = LiveActivityConstants.Tracking.host
+        components.path = LiveActivityConstants.Tracking.clickPath
+
+        var queryItems = [
+            URLQueryItem(name: LiveActivityConstants.Tracking.clickId, value: clickId),
+            URLQueryItem(name: LiveActivityConstants.Tracking.activityId, value: activityId),
+            URLQueryItem(name: LiveActivityConstants.Tracking.activityType, value: activityType),
+            URLQueryItem(name: LiveActivityConstants.Tracking.notificationId, value: notificationId)
+        ]
+
+        if let originalURL = originalURL {
+            // URLQueryItem automatically percent-encodes the value when URLComponents constructs the URL
+            // This ensures special characters like &, #, ?, etc. in the redirect URL are properly encoded
+            queryItems.append(URLQueryItem(name: LiveActivityConstants.Tracking.redirect, value: originalURL.absoluteString))
+        }
+
+        components.queryItems = queryItems
+
+        return components.url
+    }
 }

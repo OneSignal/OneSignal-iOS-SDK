@@ -100,6 +100,7 @@
 		3C6299A72BEEA41900649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A62BEEA40100649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299A92BEEA46C00649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */; };
 		3C6299AB2BEEA4C000649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */; };
+		3C64C3322F1066D700693230 /* LiveActivitiesManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C64C3312F1066D700693230 /* LiveActivitiesManagerTests.swift */; };
 		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
 		3C7021E32ECF0821001768C6 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; };
 		3C7021E42ECF0821001768C6 /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1326,6 +1327,7 @@
 		3C6299A62BEEA40100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A82BEEA46C00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299AA2BEEA4C000649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		3C64C3312F1066D700693230 /* LiveActivitiesManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitiesManagerTests.swift; sourceTree = "<group>"; };
 		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
 		3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalInAppMessagesTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMIntegrationTests.swift; sourceTree = "<group>"; };
@@ -2434,6 +2436,7 @@
 			isa = PBXGroup;
 			children = (
 				4735424C2B8F93340016DB4C /* OSLiveActivitiesExecutorTests.swift */,
+				3C64C3312F1066D700693230 /* LiveActivitiesManagerTests.swift */,
 				47278E462BD92B4B00562820 /* DefaultLiveActivityAttributesTests.swift */,
 			);
 			path = OneSignalLiveActivitiesTests;
@@ -4436,6 +4439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4735424D2B8F93340016DB4C /* OSLiveActivitiesExecutorTests.swift in Sources */,
+				3C64C3322F1066D700693230 /* LiveActivitiesManagerTests.swift in Sources */,
 				47278E472BD92B4B00562820 /* DefaultLiveActivityAttributesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
