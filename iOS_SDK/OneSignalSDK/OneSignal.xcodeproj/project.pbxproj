@@ -150,6 +150,7 @@
 		3CA8B8822BEC2FCB0010ADA1 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; };
 		3CA8B8832BEC2FCB0010ADA1 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */; };
+		3CB35FCB2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */; };
 		3CBB6C262ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CBB6C252ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift */; };
 		3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063932B6D6B6B002BB07F /* OneSignalCore.m */; };
 		3CC063A22B6D7A8E002BB07F /* OneSignalCoreMocks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */; };
@@ -1354,6 +1355,7 @@
 		3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestUpdateProperties.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequest.swift; sourceTree = "<group>"; };
 		3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTests.swift; sourceTree = "<group>"; };
+		3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSMessagingControllerUserStateTests.swift; sourceTree = "<group>"; };
 		3CBB6C252ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencyManagerTestHelpers.swift; sourceTree = "<group>"; };
 		3CC063932B6D6B6B002BB07F /* OneSignalCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCore.m; sourceTree = "<group>"; };
 		3CC0639A2B6D7A8C002BB07F /* OneSignalCoreMocks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalCoreMocks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2158,6 +2160,7 @@
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
 				3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */,
 				3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */,
+				3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */,
 				3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */,
 			);
 			path = OneSignalInAppMessagesTests;
@@ -4301,6 +4304,7 @@
 				3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */,
 				3C7021E92ECF0CF4001768C6 /* IAMIntegrationTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
+				3CB35FCB2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

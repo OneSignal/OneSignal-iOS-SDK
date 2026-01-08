@@ -76,8 +76,11 @@ extension MockUserRequests {
     }
 
     @objc
-    public static func setDefaultCreateAnonUserResponses(with client: MockOneSignalClient) {
-        let anonCreateResponse = testDefaultFullCreateUserResponse(onesignalId: anonUserOSID, externalId: nil, subscriptionId: testPushSubId)
+    public static func setDefaultCreateAnonUserResponses(with client: MockOneSignalClient, onesignalId: String? = nil, subscriptionId: String? = nil) {
+        let anonCreateResponse = testDefaultFullCreateUserResponse(
+            onesignalId: onesignalId ?? anonUserOSID,
+            externalId: nil,
+            subscriptionId: subscriptionId ?? testPushSubId)
 
         client.setMockResponseForRequest(
             request: "<OSRequestCreateUser with external_id: nil>",
