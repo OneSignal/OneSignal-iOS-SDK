@@ -146,6 +146,9 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
 
 @property (nonatomic) BOOL calledLoadTags;
 
+/// set when we attempt getInAppMessagesFromServer and no onesignal ID is available yet
+@property (strong, nonatomic, nullable) NSString *shouldFetchOnUserChangeWithSubscriptionID;
+
 @end
 
 @implementation OSMessagingController
@@ -175,6 +178,7 @@ static dispatch_once_t once;
 + (void)start {
     OSMessagingController *shared = OSMessagingController.sharedInstance;
     [OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl addObserver:shared];
+    [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -254,8 +258,10 @@ static BOOL _isInAppMessagingPaused = false;
         OSConsistencyManager *consistencyManager = [OSConsistencyManager shared];
         NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
 
+        // NOTE: Check for subscription ID above first, before checking for OneSignal ID next
         if (!onesignalId) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID, will reattempt"];
+            self.shouldFetchOnUserChangeWithSubscriptionID = subscriptionId;
             return;
         }
 
@@ -1196,6 +1202,15 @@ static BOOL _isInAppMessagingPaused = false;
     // Pull new IAMs when the subscription id changes to a new valid subscription id
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onPushSubscriptionDidChange: changed to new valid subscription id"];
     [self getInAppMessagesFromServer:state.current.id];
+}
+
+- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
+    if (state.current.onesignalId != nil && self.shouldFetchOnUserChangeWithSubscriptionID) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onUserStateDidChangeWithState: changed to new valid onesignal id"];
+        NSString *subscriptionID = self.shouldFetchOnUserChangeWithSubscriptionID;
+        self.shouldFetchOnUserChangeWithSubscriptionID = nil;
+        [self getInAppMessagesFromServer:subscriptionID];
+    }
 }
 
 - (void)dealloc {
