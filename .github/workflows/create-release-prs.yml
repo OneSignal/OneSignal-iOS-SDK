@@ -34,7 +34,7 @@ jobs:
   # Step 2: Update iOS-specific files and build binaries
   update-and-build:
     needs: prep
-    runs-on: macos-13
+    runs-on: macos-14
 
     outputs:
       version_from: ${{ steps.extract_version.outputs.current_version }}
@@ -152,7 +152,7 @@ jobs:
   # Step 4: Update XCFramework repository
   update-xcframework:
     needs: [prep, update-and-build, create-ios-pr]
-    runs-on: macos-13
+    runs-on: macos-14
 
     env:
       VERSION: ${{ github.event.inputs.version }}
