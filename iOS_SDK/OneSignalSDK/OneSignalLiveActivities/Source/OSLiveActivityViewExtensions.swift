@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Effectively blanks out this file for Mac Catalyst
+#if targetEnvironment(macCatalyst)
+#else
 import WidgetKit
 import ActivityKit
 import SwiftUI
@@ -143,3 +146,4 @@ enum LiveActivityTrackingUtils {
         return components.url
     }
 }
+#endif
