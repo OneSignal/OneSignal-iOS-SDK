@@ -301,6 +301,16 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @class NSString;
 @class NSCoder;
 
+SWIFT_CLASS("_TtC23OneSignalLiveActivities28OSRequestLiveActivityClicked")
+@interface OSRequestLiveActivityClicked : OneSignalRequest
+@property (nonatomic, readonly, copy) NSString * _Nonnull description;
+- (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
+- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_CLASS("_TtC23OneSignalLiveActivities36OSRequestLiveActivityReceiveReceipts")
 @interface OSRequestLiveActivityReceiveReceipts : OneSignalRequest
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -660,6 +670,16 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #if defined(__OBJC__)
 @class NSString;
 @class NSCoder;
+
+SWIFT_CLASS("_TtC23OneSignalLiveActivities28OSRequestLiveActivityClicked")
+@interface OSRequestLiveActivityClicked : OneSignalRequest
+@property (nonatomic, readonly, copy) NSString * _Nonnull description;
+- (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
+- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 
 SWIFT_CLASS("_TtC23OneSignalLiveActivities36OSRequestLiveActivityReceiveReceipts")
 @interface OSRequestLiveActivityReceiveReceipts : OneSignalRequest

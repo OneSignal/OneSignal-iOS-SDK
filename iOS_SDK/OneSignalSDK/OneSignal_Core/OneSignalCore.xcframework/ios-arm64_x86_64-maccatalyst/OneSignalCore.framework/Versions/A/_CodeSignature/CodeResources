@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		ageHmkIZgpVm9x78int/Qa+bMq0=
+		Oll4XSISjkxiR4/NVqMjzmDhjYg=
 		</data>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -26,7 +26,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			qBhBU+sclS17YY3HDiZmbgqnTFtSJWm7tX4ThKcr3cM=
+			deEwVIgrtUzu6Q3NR6IU0Fg1X/MF5bI+QxIDWtXvfYE=
 			</data>
 		</dict>
 		<key>Headers/NSURL+OneSignal.h</key>
@@ -166,7 +166,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PNuenOvyg/nHHK223/XGnm+L7nKoX43wqNQfveVaMNE=
+			8FxATV1nlfgKarbEtLwvJOLh3AmhqpxMv09pvHqpBpI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -180,14 +180,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ER95AFBvVYKvhKW7rvHbHhjDqfeAdUQfk6AqmctiCzY=
+			5oFRc9Q9LwCeZXMrzyVQRHj+/VIcyxu2/re7ksWvp+w=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OMNqcRy39+beti7vT2rQki8JFnft65SbakA3QVQxHQQ=
+			U3jHGnDSJawe3okfJx8gXRgTAVYyw+nA4P6RF3+dkUE=
 			</data>
 		</dict>
 		<key>Headers/OneSignalLog.h</key>
@@ -257,7 +257,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OTu7BLrLlRWZMNaV7GEGvWa3MxAdJs+3hH7SUbk4YuU=
+			lvPhWuonq39ghamt0igUHo32+z0BlbEpI2RKL7/9KyM=
 			</data>
 		</dict>
 		<key>Resources/PrivacyInfo.xcprivacy</key>

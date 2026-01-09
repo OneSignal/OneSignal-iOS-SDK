@@ -324,6 +324,47 @@
             ],
             "reqNewWitnessTableEntry": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "trackClickAndReturnOriginal",
+            "printedName": "trackClickAndReturnOriginal(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.URL?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URL",
+                    "printedName": "Foundation.URL",
+                    "usr": "s:10Foundation3URLV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSLiveActivities(cm)trackClickAndReturnOriginal:",
+            "mangledName": "$s15OneSignalOSCore16OSLiveActivitiesP27trackClickAndReturnOriginaly10Foundation3URLVSgAGFZ",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSLiveActivities>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSLiveActivities>",
+            "static": true,
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment",
+              "ObjC"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Protocol",
@@ -5248,6 +5289,45 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Function",
+            "name": "trackClickAndReturnOriginal",
+            "printedName": "trackClickAndReturnOriginal(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.URL?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "URL",
+                    "printedName": "Foundation.URL",
+                    "usr": "s:10Foundation3URLV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSStubLiveActivities(cm)trackClickAndReturnOriginal:",
+            "mangledName": "$s15OneSignalOSCore20OSStubLiveActivitiesC27trackClickAndReturnOriginaly10Foundation3URLVSgAGFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "objc_name": "trackClickAndReturnOriginal:",
+            "declAttributes": [
+              "Final",
+              "ObjC",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init()",
@@ -7120,6 +7200,13 @@
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
       "kind": "StringLiteral",
       "offset": 1388,
+      "length": 138,
+      "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSStubLiveActivities.swift",
+      "kind": "StringLiteral",
+      "offset": 1662,
       "length": 138,
       "value": "\"OneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added.\""
     },
