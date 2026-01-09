@@ -74,16 +74,16 @@ jobs:
           cd iOS_SDK/OneSignalSDK
 
           gh release upload "$VERSION" \
-            OneSignalCore.xcframework.zip \
-            OneSignalExtension.xcframework.zip \
-            OneSignalFramework.xcframework.zip \
-            OneSignalInAppMessages.xcframework.zip \
-            OneSignalLiveActivities.xcframework.zip \
-            OneSignalLocation.xcframework.zip \
-            OneSignalNotifications.xcframework.zip \
-            OneSignalOSCore.xcframework.zip \
-            OneSignalOutcomes.xcframework.zip \
-            OneSignalUser.xcframework.zip
+            OneSignal_Core/OneSignalCore.xcframework.zip \
+            OneSignal_Extension/OneSignalExtension.xcframework.zip \
+            OneSignal_XCFramework/OneSignalFramework.xcframework.zip \
+            OneSignal_InAppMessages/OneSignalInAppMessages.xcframework.zip \
+            OneSignal_LiveActivities/OneSignalLiveActivities.xcframework.zip \
+            OneSignal_Location/OneSignalLocation.xcframework.zip \
+            OneSignal_Notifications/OneSignalNotifications.xcframework.zip \
+            OneSignal_OSCore/OneSignalOSCore.xcframework.zip \
+            OneSignal_Outcomes/OneSignalOutcomes.xcframework.zip \
+            OneSignal_User/OneSignalUser.xcframework.zip
 
           echo "✅ All xcframework zips uploaded successfully!"
           echo "🔗 https://github.com/${{ github.repository }}/releases/tag/$VERSION"

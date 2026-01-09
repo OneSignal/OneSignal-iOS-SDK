@@ -138,7 +138,8 @@ jobs:
 
       - name: Commit Swift Package and Push Changes
         run: |
-          git commit -am "chore: update Swift package"
+          git add .
+          git commit -m "chore: update Swift package"
           git push origin $RELEASE_BRANCH
 
   # Step 3: Use reusable workflow to create iOS SDK PR with release notes
