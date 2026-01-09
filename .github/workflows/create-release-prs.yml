@@ -192,9 +192,6 @@ jobs:
           path: xcframework-repo
           token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
 
-      - name: Setup Git User
-        uses: OneSignal/sdk-actions/.github/actions/setup-git-user@main
-
       - name: Update Package.swift in XCFramework Repository
         run: |
           # Copy Package.swift from iOS SDK to XCFramework repo
@@ -211,6 +208,10 @@ jobs:
 
           # Create release branch
           git checkout -b $RELEASE_BRANCH
+
+          # Configure git
+          git config --local user.email "noreply@onesignal.com"
+          git config --local user.name "github-actions[bot]"
 
           # Commit changes
           git commit -am "Release $VERSION"
