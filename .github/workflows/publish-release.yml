@@ -83,15 +83,15 @@ jobs:
           echo "Validating OneSignalXCFramework.podspec..."
           pod spec lint OneSignalXCFramework.podspec --allow-warnings
 
-      - name: Publish OneSignal.podspec to CocoaPods Trunk
-        run: |
-          echo "Publishing OneSignal.podspec to CocoaPods Trunk..."
-          pod trunk push OneSignal.podspec --allow-warnings
+      # - name: Publish OneSignal.podspec to CocoaPods Trunk
+      #   run: |
+      #     echo "Publishing OneSignal.podspec to CocoaPods Trunk..."
+      #     pod trunk push OneSignal.podspec --allow-warnings
 
-      - name: Publish OneSignalXCFramework.podspec to CocoaPods Trunk
-        run: |
-          echo "Publishing OneSignalXCFramework.podspec to CocoaPods Trunk..."
-          pod trunk push OneSignalXCFramework.podspec --allow-warnings
+      # - name: Publish OneSignalXCFramework.podspec to CocoaPods Trunk
+      #   run: |
+      #     echo "Publishing OneSignalXCFramework.podspec to CocoaPods Trunk..."
+      #     pod trunk push OneSignalXCFramework.podspec --allow-warnings
 
       - name: ✅ CocoaPods Published
         run: |
