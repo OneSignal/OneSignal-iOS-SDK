@@ -16,6 +16,7 @@ import _SwiftConcurrencyShims
   @objc static func exit(_ activityId: Swift.String)
   @objc @available(*, deprecated)
   static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc static func trackClickAndReturnOriginal(_ url: Foundation.URL) -> Foundation.URL?
 }
 public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValue == Swift.Int {
 }
@@ -168,6 +169,7 @@ extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
   @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
   @objc public static func exit(_ activityId: Swift.String)
   @objc public static func exit(_ activityId: Swift.String, withSuccess: OneSignalCore.OSResultSuccessBlock?, withFailure: OneSignalCore.OSFailureBlock?)
+  @objc public static func trackClickAndReturnOriginal(_ url: Foundation.URL) -> Foundation.URL?
   @objc override dynamic public init()
   @objc deinit
 }

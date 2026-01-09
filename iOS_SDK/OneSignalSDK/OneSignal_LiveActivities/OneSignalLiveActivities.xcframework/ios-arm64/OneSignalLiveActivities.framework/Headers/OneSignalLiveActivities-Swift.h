@@ -318,6 +318,16 @@ SWIFT_CLASS_NAMED("LiveActivitySetupOptions")
 @class NSString;
 @class NSCoder;
 
+SWIFT_CLASS("_TtC23OneSignalLiveActivities28OSRequestLiveActivityClicked")
+@interface OSRequestLiveActivityClicked : OneSignalRequest
+@property (nonatomic, readonly, copy) NSString * _Nonnull description;
+- (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
+- (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_CLASS("_TtC23OneSignalLiveActivities36OSRequestLiveActivityReceiveReceipts")
 @interface OSRequestLiveActivityReceiveReceipts : OneSignalRequest
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
@@ -367,6 +377,7 @@ SWIFT_CLASS("_TtC23OneSignalLiveActivities23OSRequestSetUpdateToken")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class NSURL;
 
 SWIFT_CLASS_NAMED("OneSignalLiveActivitiesManagerImpl")
 @interface OneSignalLiveActivitiesManagerImpl : NSObject <OSLiveActivities>
@@ -380,6 +391,7 @@ SWIFT_CLASS_NAMED("OneSignalLiveActivitiesManagerImpl")
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
 + (void)setupDefaultWithOptions:(LiveActivitySetupOptions * _Nullable)options SWIFT_AVAILABILITY(ios,introduced=16.1);
 + (void)startDefault:(NSString * _Nonnull)activityId attributes:(NSDictionary<NSString *, id> * _Nonnull)attributes content:(NSDictionary<NSString *, id> * _Nonnull)content SWIFT_AVAILABILITY(ios,introduced=16.1);
++ (NSURL * _Nullable)trackClickAndReturnOriginal:(NSURL * _Nonnull)url SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

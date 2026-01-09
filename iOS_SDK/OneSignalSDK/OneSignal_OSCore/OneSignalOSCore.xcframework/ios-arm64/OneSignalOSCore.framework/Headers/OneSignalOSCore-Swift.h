@@ -367,78 +367,49 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _No
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@class NSURL;
 
 /// Provides access to OneSignal LiveActivities.
 SWIFT_PROTOCOL("_TtP15OneSignalOSCore16OSLiveActivities_")
 @protocol OSLiveActivities
 /// Indicate this device has entered a live activity, identified within OneSignal by the <code>activityId</code>.
-/// <ul>
-///   <li>
-///     Parameters
-///     <ul>
-///       <li>
-///         activityId: The activity identifier the live activity on this device will receive updates for.
-///       </li>
-///       <li>
-///         withToken: The live activity’s update token to receive the updates.
-///       </li>
-///     </ul>
-///   </li>
-/// </ul>
+/// \param activityId The activity identifier the live activity on this device will receive updates for.
+///
+/// \param withToken The live activity’s update token to receive the updates.
+///
 + (void)enter:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)withToken;
 /// Indicate this device has entered a live activity, identified within OneSignal by the <code>activityId</code>. This method is deprecated since
 /// the request to enter a live activity will always succeed.
-/// <ul>
-///   <li>
-///     Parameters
-///     <ul>
-///       <li>
-///         activityId: The activity identifier the live activity on this device will receive updates for.
-///       </li>
-///       <li>
-///         withToken: The live activity’s update token to receive the updates.
-///       </li>
-///       <li>
-///         withSuccess: A success callback that will be called when the live activity enter request has been queued.
-///       </li>
-///       <li>
-///         withFailure: A failure callback that will be called when the live activity enter request was not successfully queued.
-///       </li>
-///     </ul>
-///   </li>
-/// </ul>
+/// \param activityId The activity identifier the live activity on this device will receive updates for.
+///
+/// \param withToken The live activity’s update token to receive the updates.
+///
+/// \param withSuccess A success callback that will be called when the live activity enter request has been queued.
+///
+/// \param withFailure A failure callback that will be called when the live activity enter request was not successfully queued.
+///
 + (void)enter:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)withToken withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure SWIFT_DEPRECATED;
 /// Indicate this device has exited a live activity, identified within OneSignal by the <code>activityId</code>.
-/// <ul>
-///   <li>
-///     Parameters
-///     <ul>
-///       <li>
-///         activityId: The activity identifier the live activity on this device will no longer receive updates for.
-///       </li>
-///     </ul>
-///   </li>
-/// </ul>
+/// \param activityId The activity identifier the live activity on this device will no longer receive updates for.
+///
 + (void)exit:(NSString * _Nonnull)activityId;
 /// Indicate this device has exited a live activity, identified within OneSignal by the <code>activityId</code>. This method is deprecated since
 /// the request to enter a live activity will always succeed.
-/// <ul>
-///   <li>
-///     Parameters
-///     <ul>
-///       <li>
-///         activityId: The activity identifier the live activity on this device will no longer receive updates for.
-///       </li>
-///       <li>
-///         withSuccess: A success callback that will be called when the live activity exit request has been queued.
-///       </li>
-///       <li>
-///         withFailure: A failure callback that will be called when the live activity enter exit was not successfully queued.
-///       </li>
-///     </ul>
-///   </li>
-/// </ul>
+/// \param activityId The activity identifier the live activity on this device will no longer receive updates for.
+///
+/// \param withSuccess A success callback that will be called when the live activity exit request has been queued.
+///
+/// \param withFailure A failure callback that will be called when the live activity enter exit was not successfully queued.
+///
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure SWIFT_DEPRECATED;
+/// Use in conjunction with the <code>onesignalWidgetURL</code> modifier. Handle a URL opened in the app to track Live Activity clicks. Call this method from your app’s URL handling code
+/// (e.g., <code>application(_:open:options:)</code> in AppDelegate or <code>onOpenURL</code> in SwiftUI).
+/// \param url The URL that was opened, which may be a OneSignal Live Activity click tracking URL.
+///
+///
+/// returns:
+/// The intended original nullable URL.
++ (NSURL * _Nullable)trackClickAndReturnOriginal:(NSURL * _Nonnull)url SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -487,6 +458,7 @@ SWIFT_CLASS("_TtC15OneSignalOSCore20OSStubLiveActivities")
 + (void)enter:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)withToken withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
 + (void)exit:(NSString * _Nonnull)activityId;
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
++ (NSURL * _Nullable)trackClickAndReturnOriginal:(NSURL * _Nonnull)url SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
