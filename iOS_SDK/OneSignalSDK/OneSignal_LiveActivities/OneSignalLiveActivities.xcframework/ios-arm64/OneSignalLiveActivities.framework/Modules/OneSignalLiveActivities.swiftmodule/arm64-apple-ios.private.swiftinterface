@@ -9,6 +9,8 @@ import OneSignalCore
 import OneSignalOSCore
 import OneSignalUser
 import Swift
+import SwiftUI
+import WidgetKit
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
@@ -77,6 +79,15 @@ extension OneSignalLiveActivities.AnyCodable : Swift.Hashable {
     get
   }
 }
+@available(iOS 16.1, *)
+extension WidgetKit.DynamicIsland {
+  public func onesignalWidgetURL<T>(_ url: Foundation.URL?, context: WidgetKit.ActivityViewContext<T>) -> WidgetKit.DynamicIsland where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+}
+@available(iOS 16.1, *)
+extension SwiftUI.View {
+  @_Concurrency.MainActor @preconcurrency public func onesignalWidgetURL<T>(_ url: Foundation.URL?, context: WidgetKit.ActivityViewContext<T>) -> some SwiftUI.View where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+  
+}
 public struct DefaultLiveActivityAttributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes {
   public struct ContentState : OneSignalLiveActivities.OneSignalLiveActivityContentState {
     public var data: [Swift.String : OneSignalLiveActivities.AnyCodable]
@@ -133,6 +144,7 @@ extension OneSignalOSCore.OSLiveActivities {
   @objc public static func setupDefault(options: OneSignalLiveActivities.LiveActivitySetupOptions? = nil)
   @available(iOS 16.1, *)
   @objc public static func startDefault(_ activityId: Swift.String, attributes: [Swift.String : Any], content: [Swift.String : Any])
+  @objc public static func trackClickAndReturnOriginal(_ url: Foundation.URL) -> Foundation.URL?
   @objc override dynamic public init()
   @objc deinit
 }
