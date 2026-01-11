@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalOSCore
 
 /**
  This class stores all Identity Models that are being used during an app session.
@@ -51,5 +52,11 @@ class OSIdentityModelRepo {
         lock.withLock {
             return models[modelId]
         }
+    }
+}
+
+extension OSIdentityModelRepo: OSLoggable {
+    func logSelf() {
+        // TODO: You fill in
     }
 }
