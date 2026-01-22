@@ -76,6 +76,7 @@
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C2DB2F12DE6CB5E0006B905 /* OneSignalBadgeHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C2DB2EF2DE6CB5E0006B905 /* OneSignalBadgeHelpers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C2DB2F22DE6CB5E0006B905 /* OneSignalBadgeHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2DB2F02DE6CB5E0006B905 /* OneSignalBadgeHelpers.m */; };
+		3C30FE362F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */; };
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
@@ -1310,6 +1311,7 @@
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C2DB2EF2DE6CB5E0006B905 /* OneSignalBadgeHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalBadgeHelpers.h; sourceTree = "<group>"; };
 		3C2DB2F02DE6CB5E0006B905 /* OneSignalBadgeHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalBadgeHelpers.m; sourceTree = "<group>"; };
+		3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarlyTriggerTrackingTests.swift; sourceTree = "<group>"; };
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
@@ -2168,6 +2170,7 @@
 				3C01519B2C2E29F90079E076 /* IAMRequestTests.m */,
 				3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */,
 				3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */,
+				3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */,
 				3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */,
 				3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */,
 			);
@@ -4313,6 +4316,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C30FE362F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift in Sources */,
 				3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */,
 				3C7021E92ECF0CF4001768C6 /* IAMIntegrationTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
