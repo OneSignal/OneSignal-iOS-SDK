@@ -52,7 +52,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OneSignalUserMocks.reset()
         OSConsistencyManager.shared.reset()
         OSMessagingController.removeInstance()
-        
+
         // Set up basic configuration
         OneSignalConfigManager.setAppId(testAppId)
         OneSignalLog.setLogLevel(.LL_VERBOSE)
