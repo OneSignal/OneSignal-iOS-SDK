@@ -127,6 +127,7 @@ static OneSignalTrackIAP* singleInstance = nil;
             
             // SKProduct.price is an NSDecimalNumber, but the backend expects a String
             NSNumberFormatter *formatter = [NSNumberFormatter new];
+            [formatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
             [formatter setMinimumFractionDigits:2];
             NSString *formattedPrice = [formatter stringFromNumber:[skProduct performSelector:@selector(price)]];
 
