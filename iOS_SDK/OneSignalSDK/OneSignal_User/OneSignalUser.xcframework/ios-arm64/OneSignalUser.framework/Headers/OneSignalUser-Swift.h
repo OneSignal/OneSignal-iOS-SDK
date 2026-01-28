@@ -372,6 +372,12 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 - (void)addSms:(NSString * _Nonnull)number;
 - (void)removeSms:(NSString * _Nonnull)number;
 - (void)setLanguage:(NSString * _Nonnull)language;
+/// Track an event performed by the current user.
+/// \param name Name of the event, e.g., ‘Started Free Trial’
+///
+/// \param properties Optional properties specific to the event. For example, an event with the name ‘Started Free Trial’ might have properties like promo code used or expiration date.
+///
+- (void)trackEventWithName:(NSString * _Nonnull)name properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 - (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @end
 
@@ -491,6 +497,7 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 /// Error handling needs to be implemented in the future.
 - (void)removeSms:(NSString * _Nonnull)number;
 - (void)setLanguage:(NSString * _Nonnull)language;
+- (void)trackEventWithName:(NSString * _Nonnull)name properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 @end
 
 #endif
