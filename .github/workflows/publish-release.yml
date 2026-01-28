@@ -25,7 +25,7 @@ jobs:
   publish:
     outputs:
       sdk_version: ${{ steps.extract_version.outputs.version }}
-    runs-on: macos-13
+    runs-on: macos-14
 
     env:
       COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
