@@ -90,7 +90,7 @@
 		</data>
 		<key>ios-arm64/OneSignalCore.framework/Headers/OneSignalCommonDefines.h</key>
 		<data>
-		kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+		nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 		</data>
 		<key>ios-arm64/OneSignalCore.framework/Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -146,7 +146,7 @@
 		</data>
 		<key>ios-arm64/OneSignalCore.framework/OneSignalCore</key>
 		<data>
-		BZQRD02WWevyNd25vpDsPKaEvbo=
+		HQuiIVNWyInnGCboo6l93w51jHM=
 		</data>
 		<key>ios-arm64/OneSignalCore.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -154,7 +154,7 @@
 		</data>
 		<key>ios-arm64/OneSignalCore.framework/_CodeSignature/CodeResources</key>
 		<data>
-		DwLKRpz4i3fcVADJzQczmYuPklA=
+		rFSPYeMk8nKTBUMM5dWnuSXTSr4=
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalCore.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -162,11 +162,11 @@
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/DWARF/OneSignalCore</key>
 		<data>
-		yuHJQVWaJiHxZSL20yF+7tnQ8y0=
+		dOATb88NfRvRWSTCNsK9mnyE+S4=
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<data>
-		1ueP0p3SeFMHTh3KZaE+aAwswPU=
+		iir6nVnLS3Tg9Efk5Wc5Q+JlAVQ=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Headers/NSDateFormatter+OneSignal.h</key>
 		<data>
@@ -254,7 +254,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Headers/OneSignalCommonDefines.h</key>
 		<data>
-		kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+		nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -306,7 +306,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/OneSignalCore</key>
 		<data>
-		cdRMn+m4iay3jWAlnoIfAO8AHQE=
+		NY6GVsgpifCg8bDtYVd1wBIDT/E=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -318,7 +318,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/_CodeSignature/CodeResources</key>
 		<data>
-		q3MChC3iViKZk0cq5ikbG/HcWC8=
+		vLxkFgi39NMLlMosFK/CyeIk0nE=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -326,15 +326,15 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/DWARF/OneSignalCore</key>
 		<data>
-		q5ir1f5Oq3gN7q/3gb3nupgtg+E=
+		cGae+WDc30i4hUKf2q9VM8UUE/w=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<data>
-		5FSD6d8o8o0uAYs1QUEeHhpypYo=
+		pEiTHuAaSwQFRC6weYxdGppyE+k=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalCore.yml</key>
 		<data>
-		9tXzvmIbYVanq6Wa6eHijA9hawU=
+		2AOhRwVsESfUdWodkzEVpbtwXac=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/Headers/NSDateFormatter+OneSignal.h</key>
 		<data>
@@ -422,7 +422,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/Headers/OneSignalCommonDefines.h</key>
 		<data>
-		kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+		nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/Headers/OneSignalConfigManager.h</key>
 		<data>
@@ -478,7 +478,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/OneSignalCore</key>
 		<data>
-		NCns2dzKO1Lk8dCoqIToZMT0bEs=
+		qLxOQC1ZWnvnXqpox+Y90xyM91Q=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -486,7 +486,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/_CodeSignature/CodeResources</key>
 		<data>
-		d67YgmrLS+eX0Xx+PPjuwGYrc08=
+		XKZ/YMrkbiga5YbRTK8VeFiaUkk=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -494,15 +494,15 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/DWARF/OneSignalCore</key>
 		<data>
-		lywjIffNmkUzYqR+8xx1/CCQdBg=
+		8KeC4mFDbGfn0Pp0XWVOxgjKUMM=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<data>
-		sBKV1VDmoo3NXzk6nNwcmofeC+A=
+		Au22D3js9yU6ha5n3ZtG2Sehqbo=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalCore.yml</key>
 		<data>
-		z56lroZJrnsxUqB8fQvGln4Wo2w=
+		syKNKTXsk6BLLTWNtQx6TzlINRY=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -742,11 +742,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+			nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 			</data>
 			<key>hash2</key>
 			<data>
-			8FxATV1nlfgKarbEtLwvJOLh3AmhqpxMv09pvHqpBpI=
+			Dgw/YV7YR/cL9CamK1/VUJKnm9T9at9JsE/ZUzJ0bdM=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalCore.framework/Headers/OneSignalConfigManager.h</key>
@@ -896,11 +896,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			BZQRD02WWevyNd25vpDsPKaEvbo=
+			HQuiIVNWyInnGCboo6l93w51jHM=
 			</data>
 			<key>hash2</key>
 			<data>
-			6kt7wlEbs7cC4fM6uV2rPw4kvRp4McWlXq1fu0PPC2o=
+			GvVBP6XFl+xs7IjsqAFDLTJqdX82fubfuG2s4HL1Q/U=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalCore.framework/PrivacyInfo.xcprivacy</key>
@@ -918,11 +918,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			DwLKRpz4i3fcVADJzQczmYuPklA=
+			rFSPYeMk8nKTBUMM5dWnuSXTSr4=
 			</data>
 			<key>hash2</key>
 			<data>
-			h7REEEpNTSFc38QTFttdttrPjNNlPeyAVP9r3Ck67dI=
+			5oW5hzkG4DiKw43k256BdYBGNhOiT/Fjz7JL0tzj+Ec=
 			</data>
 		</dict>
 		<key>ios-arm64/dSYMs/OneSignalCore.framework.dSYM/Contents/Info.plist</key>
@@ -940,22 +940,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			yuHJQVWaJiHxZSL20yF+7tnQ8y0=
+			dOATb88NfRvRWSTCNsK9mnyE+S4=
 			</data>
 			<key>hash2</key>
 			<data>
-			72Qb/2+vvekAVISOKIzz+r4ZGBqKLRpakjZ5osELZ0o=
+			Y6zy4lCMaxHGJW+Mhwp+IOvWZiKR7424f6ayFjCXapc=
 			</data>
 		</dict>
 		<key>ios-arm64/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			1ueP0p3SeFMHTh3KZaE+aAwswPU=
+			iir6nVnLS3Tg9Efk5Wc5Q+JlAVQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			XmA5gOofW1EWTzqxI5mZGeNSEZPK/Q3AEOPPT4oPP+0=
+			IWe3zPKW9oI27G4ArrR56ty+7yDOOk5S78vnvwnJSOc=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Headers</key>
@@ -1213,11 +1213,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+			nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 			</data>
 			<key>hash2</key>
 			<data>
-			8FxATV1nlfgKarbEtLwvJOLh3AmhqpxMv09pvHqpBpI=
+			Dgw/YV7YR/cL9CamK1/VUJKnm9T9at9JsE/ZUzJ0bdM=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Headers/OneSignalConfigManager.h</key>
@@ -1356,11 +1356,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			cdRMn+m4iay3jWAlnoIfAO8AHQE=
+			NY6GVsgpifCg8bDtYVd1wBIDT/E=
 			</data>
 			<key>hash2</key>
 			<data>
-			kowWaUW1hAX4FxKWU17t/z3pFpu3idmNOfkGFQb+lo8=
+			AXqcq5X3jL4SlZKJJRuDWBg6OEvXqX30RhFI/A20FMk=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/A/Resources/Info.plist</key>
@@ -1389,11 +1389,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			q3MChC3iViKZk0cq5ikbG/HcWC8=
+			vLxkFgi39NMLlMosFK/CyeIk0nE=
 			</data>
 			<key>hash2</key>
 			<data>
-			ho9UdXXfKcCabG7LkWDAnul7oBde65T4KEmxwBy1bRE=
+			yY+J6/B5/eeF+I6jL2vDaptGzHtBIHDrUIW62PWzH/U=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalCore.framework/Versions/Current</key>
@@ -1416,33 +1416,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			q5ir1f5Oq3gN7q/3gb3nupgtg+E=
+			cGae+WDc30i4hUKf2q9VM8UUE/w=
 			</data>
 			<key>hash2</key>
 			<data>
-			SZacdvNHFxH6IiTGpQNeCgvIjihEpXc47iZVv6wDKuM=
+			tt6W8kDuCYnFj/fb2V0LpE76gtnwc7qtot/iZtTE8tE=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			5FSD6d8o8o0uAYs1QUEeHhpypYo=
+			pEiTHuAaSwQFRC6weYxdGppyE+k=
 			</data>
 			<key>hash2</key>
 			<data>
-			rMypj9QpLRn+Asqp+5V3+wK3ISYw6hqUwOFkHfVXWR0=
+			roj5xChuj0O6LbP3ToBw4595GqpkFQpXfGiFZArM4ew=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalCore.yml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			9tXzvmIbYVanq6Wa6eHijA9hawU=
+			2AOhRwVsESfUdWodkzEVpbtwXac=
 			</data>
 			<key>hash2</key>
 			<data>
-			zcKyQnVPpPS48zWqL9lzD4wIYjkVQA13QM9svbZ77io=
+			e2+mhRpUIyWZaQL6ZhvsZe4jnXlK4zjQfmbdpD8wW6s=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/Headers/NSDateFormatter+OneSignal.h</key>
@@ -1680,11 +1680,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			kAao7xV9ewqZbVEqhJ8yDjYlqHI=
+			nN9Si5gG1Y3P9B6/QLMbSkfAxpo=
 			</data>
 			<key>hash2</key>
 			<data>
-			8FxATV1nlfgKarbEtLwvJOLh3AmhqpxMv09pvHqpBpI=
+			Dgw/YV7YR/cL9CamK1/VUJKnm9T9at9JsE/ZUzJ0bdM=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/Headers/OneSignalConfigManager.h</key>
@@ -1834,11 +1834,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			NCns2dzKO1Lk8dCoqIToZMT0bEs=
+			qLxOQC1ZWnvnXqpox+Y90xyM91Q=
 			</data>
 			<key>hash2</key>
 			<data>
-			J27ZkJXByTqmbcjMonAyi0pzZDoaKh2yyHXRLWn9K8c=
+			tIW4KHDVDRPt3QGl+Y0Xhuqi04dxkCz+7ZS9CFqXfis=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalCore.framework/PrivacyInfo.xcprivacy</key>
@@ -1856,11 +1856,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			d67YgmrLS+eX0Xx+PPjuwGYrc08=
+			XKZ/YMrkbiga5YbRTK8VeFiaUkk=
 			</data>
 			<key>hash2</key>
 			<data>
-			MDbhL5pr75eKx4IuRGMuqfsjyIItjeGhnzg+At4SMtc=
+			IO+ZDjR/j4n+A3AjHLoJW6S1/liDE+N7reEfY22y43k=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Info.plist</key>
@@ -1878,33 +1878,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			lywjIffNmkUzYqR+8xx1/CCQdBg=
+			8KeC4mFDbGfn0Pp0XWVOxgjKUMM=
 			</data>
 			<key>hash2</key>
 			<data>
-			87RGBhQpR3hJSw4xZt+/vQU8VZPysTS7WCPYek+mB6E=
+			WmA9fxr6FI8xFgVVD+jg0r34kz7BP1CX1RE3+JLISTM=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalCore.yml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			sBKV1VDmoo3NXzk6nNwcmofeC+A=
+			Au22D3js9yU6ha5n3ZtG2Sehqbo=
 			</data>
 			<key>hash2</key>
 			<data>
-			4GQsgU647y1AJ7OGiB7povfKy1MdKLSwZemyEKRDumU=
+			qjx3z7kd0RJ+yC1Oauf1sP9i7H6RjX4VQj/UwGrRi/c=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalCore.framework.dSYM/Contents/Resources/Relocations/x86_64/OneSignalCore.yml</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			z56lroZJrnsxUqB8fQvGln4Wo2w=
+			syKNKTXsk6BLLTWNtQx6TzlINRY=
 			</data>
 			<key>hash2</key>
 			<data>
-			328hmnyzLJXGUbz9YjJMgeQeMvF63MOg2NFjnkCgmEg=
+			GhZr3qJTkRV9ZalJYPh+xxFEQWgnTzklEf/U5nMrwQ4=
 			</data>
 		</dict>
 	</dict>

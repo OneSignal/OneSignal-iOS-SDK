@@ -364,6 +364,6 @@ relocations:
   - { offsetInCU: 0x328, offset: 0xDC3A8, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore18OSModelChangedArgsCfD', symObjAddr: 0x310, symBinAddr: 0x191D0, symSize: 0x30 }
   - { offsetInCU: 0x3C4, offset: 0xDC444, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore18OSModelChangedArgsCMa', symObjAddr: 0x340, symBinAddr: 0x19200, symSize: 0x20 }
   - { offsetInCU: 0x3D8, offset: 0xDC458, size: 0x8, addend: 0x0, symName: '_$s15OneSignalOSCore18OSModelChangedArgsCfETo', symObjAddr: 0x360, symBinAddr: 0x19220, symSize: 0x40 }
-  - { offsetInCU: 0x34, offset: 0xDC534, size: 0x8, addend: 0x0, symName: _OneSignalOSCoreVersionString, symObjAddr: 0x0, symBinAddr: 0x1C380, symSize: 0x0 }
-  - { offsetInCU: 0x69, offset: 0xDC569, size: 0x8, addend: 0x0, symName: _OneSignalOSCoreVersionNumber, symObjAddr: 0x38, symBinAddr: 0x1C3B8, symSize: 0x0 }
+  - { offsetInCU: 0x34, offset: 0xDC534, size: 0x8, addend: 0x0, symName: _OneSignalOSCoreVersionString, symObjAddr: 0x0, symBinAddr: 0x1C360, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0xDC569, size: 0x8, addend: 0x0, symName: _OneSignalOSCoreVersionNumber, symObjAddr: 0x38, symBinAddr: 0x1C398, symSize: 0x0 }
 ...
