@@ -14,7 +14,7 @@
  all copies or substantial portions of the Software.
  
  2. All copies of substantial portions of the Software may only be used in connection
-with services provided by OneSignal.
+ with services provided by OneSignal.
  
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -49,13 +49,6 @@ private class Mocks {
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         let pushModel = OSSubscriptionModel(type: .push, address: "", subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
         return OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushModel)
-    }
-
-    func setUserManagerInternalUser(externalId: String) -> OSUserInternal {
-        return OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
-            externalId: externalId,
-            pushSubscriptionModel: OSSubscriptionModel(type: .push, address: "", subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
-        )
     }
 }
 
@@ -156,7 +149,7 @@ final class UserExecutorTests: XCTestCase {
     func testIdentifyUser_withConflict_addsToNewRecords() {
         /* Setup */
         let mocks = Mocks()
-        let user = mocks.setUserManagerInternalUser(externalId: userB_EUID)
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: nil)
 
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
         let newIdentityModel = user.identityModel
@@ -178,7 +171,7 @@ final class UserExecutorTests: XCTestCase {
         /* Setup */
         let mocks = Mocks()
 
-        let user = mocks.setUserManagerInternalUser(externalId: "new-eid")
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: "new-eid", onesignalId: nil)
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
         let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userB_EUID], changeNotifier: OSEventProducer())
 

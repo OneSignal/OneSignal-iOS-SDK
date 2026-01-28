@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 import OneSignalOSCore
 import OneSignalOSCoreMocks
 @testable import OneSignalUser
@@ -38,6 +39,17 @@ public class OneSignalUserMocks: NSObject {
     public static func reset() {
         OSCoreMocks.resetOperationRepo()
         OneSignalUserManagerImpl.sharedInstance.reset()
+    }
+
+    public static func setUserManagerInternalUser(externalId: String = "test-external-id", onesignalId: String?) -> OSUserInternal {
+        let user = OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
+            externalId: externalId,
+            pushSubscriptionModel: OSSubscriptionModel(type: .push, address: "", subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
+        )
+        if let onesignalId = onesignalId {
+            user.identityModel.addAliases([OS_ONESIGNAL_ID: onesignalId])
+        }
+        return user
     }
 }
 
