@@ -26,7 +26,7 @@
  */
 
 #import "OSTrigger.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSTrigger
 

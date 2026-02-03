@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalAttachmentHandler.h"
 #import "OneSignalNotificationCategoryController.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;

@@ -27,7 +27,7 @@
 
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 #import "OSNotification+OneSignal.h"

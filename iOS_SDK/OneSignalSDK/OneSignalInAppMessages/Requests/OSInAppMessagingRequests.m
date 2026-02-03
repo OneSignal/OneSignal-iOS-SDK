@@ -26,7 +26,7 @@
  */
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingRequests.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSRequestGetInAppMessages
 - (NSString *)description {
