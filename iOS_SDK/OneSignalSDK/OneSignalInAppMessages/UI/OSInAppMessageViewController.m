@@ -30,7 +30,7 @@
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 #import "OSSessionManager.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f

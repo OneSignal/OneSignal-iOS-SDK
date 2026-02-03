@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSFocusRequests.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSRequestOnFocus
 

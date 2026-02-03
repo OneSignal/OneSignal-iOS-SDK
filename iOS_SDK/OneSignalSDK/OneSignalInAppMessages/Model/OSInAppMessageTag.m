@@ -26,7 +26,7 @@
 */
 
 #import "OSInAppMessageTag.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSInAppMessageTag
 

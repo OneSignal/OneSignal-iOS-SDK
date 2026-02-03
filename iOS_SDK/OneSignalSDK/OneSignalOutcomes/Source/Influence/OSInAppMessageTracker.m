@@ -30,7 +30,7 @@ THE SOFTWARE.
 #import "OSIndirectInfluence.h"
 #import "OSInAppMessageTracker.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @interface OSChannelTracker ()
 

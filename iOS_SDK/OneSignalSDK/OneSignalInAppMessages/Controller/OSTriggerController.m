@@ -27,7 +27,7 @@
 
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @interface OSTriggerController ()
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, id> *triggers;

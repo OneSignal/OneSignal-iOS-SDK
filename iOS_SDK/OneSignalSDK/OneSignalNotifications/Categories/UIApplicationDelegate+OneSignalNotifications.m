@@ -35,7 +35,7 @@
 #import "SwizzlingForwarder.h"
 #import "OSNotificationsManager.h"
 #import <objc/runtime.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 // This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
 //   - UNUserNotificationCenter is used for iOS 10

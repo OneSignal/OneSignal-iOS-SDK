@@ -26,7 +26,7 @@
  */
 
 #import "OSInAppMessageOutcome.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSInAppMessageOutcome
 
