@@ -78,13 +78,6 @@
 			Ci2MC5dabTrUMJjPeBp9MLhuPzvSeMfGFLHdooZzTbc=
 			</data>
 		</dict>
-		<key>Headers/OSMacros.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			aKanW/TgpNzztpIpYJVbnxfUUFcNJAolzoX8n0+EwJc=
-			</data>
-		</dict>
 		<key>Headers/OSNetworkingUtils.h</key>
 		<dict>
 			<key>hash2</key>
@@ -166,7 +159,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Dgw/YV7YR/cL9CamK1/VUJKnm9T9at9JsE/ZUzJ0bdM=
+			DNU/8hzS5FX7hF8BeAdRPqYz0Cn+w+VxA1A/s7YZVF8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalConfigManager.h</key>
@@ -251,6 +244,13 @@
 			<key>hash2</key>
 			<data>
 			4/vFIL4+9OxlK4ltb28iy5X1WUACo8mN74N7KRzmZMY=
+			</data>
+		</dict>
+		<key>PrivateHeaders/OSMacros.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			aKanW/TgpNzztpIpYJVbnxfUUFcNJAolzoX8n0+EwJc=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
