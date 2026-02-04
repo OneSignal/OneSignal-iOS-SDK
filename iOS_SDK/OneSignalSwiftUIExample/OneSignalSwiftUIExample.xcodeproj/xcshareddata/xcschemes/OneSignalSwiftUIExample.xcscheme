@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1640"
+   LastUpgradeVersion = "1500"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3C25C0422F33E016005E5E9A"
+               BlueprintIdentifier = "F27E45A0AADC4454C26D8C07"
                BuildableName = "OneSignalSwiftUIExample.app"
                BlueprintName = "OneSignalSwiftUIExample"
                ReferencedContainer = "container:OneSignalSwiftUIExample.xcodeproj">
@@ -28,7 +28,18 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "F27E45A0AADC4454C26D8C07"
+            BuildableName = "OneSignalSwiftUIExample.app"
+            BlueprintName = "OneSignalSwiftUIExample"
+            ReferencedContainer = "container:OneSignalSwiftUIExample.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -44,12 +55,14 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3C25C0422F33E016005E5E9A"
+            BlueprintIdentifier = "F27E45A0AADC4454C26D8C07"
             BuildableName = "OneSignalSwiftUIExample.app"
             BlueprintName = "OneSignalSwiftUIExample"
             ReferencedContainer = "container:OneSignalSwiftUIExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -61,12 +74,14 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3C25C0422F33E016005E5E9A"
+            BlueprintIdentifier = "F27E45A0AADC4454C26D8C07"
             BuildableName = "OneSignalSwiftUIExample.app"
             BlueprintName = "OneSignalSwiftUIExample"
             ReferencedContainer = "container:OneSignalSwiftUIExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

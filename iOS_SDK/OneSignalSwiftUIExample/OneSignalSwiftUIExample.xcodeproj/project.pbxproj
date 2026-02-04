@@ -3,69 +3,264 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3C25C0552F33E031005E5E9A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C25C0512F33E031005E5E9A /* Assets.xcassets */; };
-		3C25C0562F33E031005E5E9A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25C0522F33E031005E5E9A /* ContentView.swift */; };
-		3C25C0572F33E031005E5E9A /* OneSignalSwiftUIExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25C0532F33E031005E5E9A /* OneSignalSwiftUIExampleApp.swift */; };
+		104E342C46E0870F7E30FB29 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C25916C718509D05DF03B2 /* CoreLocation.framework */; };
+		12A93EBB7D6C97B82814924A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CD2DA9DC09F1EF7D989C291 /* UserNotifications.framework */; };
+		1D68D16D167B951BD57386ED /* OneSignalSwiftUIExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9826D274F62E747F3A931B /* OneSignalSwiftUIExampleApp.swift */; };
+		228DE2E45BE2EEA72F9436F3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 985DE7F1C6162433D11943B0 /* SystemConfiguration.framework */; };
+		23578DF36320EFEB17E12FFA /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A6BA7282C93D0714AB7AE9D /* OneSignalInAppMessages.framework */; };
+		25D4FC203BE01E9A35ACA465 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */; };
+		2E6D6E17EEE5D42AE3CAB9EA /* AddItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42140C8B10F3D06BDE1C79E /* AddItemSheet.swift */; };
+		2F52BD9F2A3002390A7C8896 /* OneSignalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD249AC2E0DD1F282E33E3BF /* OneSignalViewModel.swift */; };
+		36AD6B646EA553AD54024FAC /* OneSignalLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B39E8FA865B4030F3009B4 /* OneSignalLocation.framework */; };
+		39D261592E207BCB8F453E6E /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 501ED810C4C9B04785D4CCD4 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C25C0592F3409E9005E5E9A /* NotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25C0582F3409E9005E5E9A /* NotificationSender.swift */; };
+		4840204E727B4F405094C542 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B441216A875FE941AED4964E /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		49E74AFBFBE23D06B7D310EC /* SubscriptionSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09DF983228037C1B729C1419 /* SubscriptionSection.swift */; };
+		56FA425BC3C515132CF2098F /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B9F08F02892844599AA8BDD /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		59BF581E9C89F1D09BB5130A /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E815F87FE680572C74E9D51 /* OneSignalOutcomes.framework */; };
+		5EEA4B007D60765502F2A6E5 /* MessagingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962607A12EFC53D2F77E5948 /* MessagingSection.swift */; };
+		644520A37F05E25FD17F5CF9 /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45255F2C6EB0B13E199BDC65 /* AppModels.swift */; };
+		74920778F254B9DA27906AA3 /* AppInfoSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564304E2BA4613FD7649116D /* AppInfoSection.swift */; };
+		861FCEE8AFB371A2FA3BCC93 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 501ED810C4C9B04785D4CCD4 /* OneSignalOSCore.framework */; };
+		8EF4836F9252E9C8180804AB /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4E815F87FE680572C74E9D51 /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8F69162AE31452F3956160BE /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B9F08F02892844599AA8BDD /* OneSignalUser.framework */; };
+		9EF9D8D46AAAD6F93B32FDCB /* OneSignalLocation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B5B39E8FA865B4030F3009B4 /* OneSignalLocation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A8954DAC09761A3125EF37D3 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A084A32F6E0CA6A6354705C0 /* WebKit.framework */; };
+		A92101FA384AC15596D4A659 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0805F3793886C9122DFB6E4 /* OneSignalNotifications.framework */; };
+		AD19D28FDE8DAA7C8BC87939 /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60D373C8C00DE06FC5CD01C5 /* LocationSection.swift */; };
+		B13E9460BDD0553FF05542A0 /* NotificationGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414EE3451468D29D4A9C87AC /* NotificationGrid.swift */; };
+		B5C4A4AC0A2D2AF73C9A7DD3 /* KeyValueRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A4F866BFA1EE429ED1CECC /* KeyValueRow.swift */; };
+		C9884D12CEDE50ACAE38DF0D /* NotificationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E237FD3F84CE3831CAB8A6DA /* NotificationSection.swift */; };
+		C994C923037F602FA48A1490 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB1399100ED5DD83ED6CD889 /* OneSignalFramework.framework */; };
+		CB5F82751F156695A7A03338 /* OneSignalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FF4424D702D8686CC819B8 /* OneSignalService.swift */; };
+		D13A25FE5762A23125227A84 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8029F22CDBDB03B2CBA14212 /* ToastView.swift */; };
+		D9E5ED5BA2BCFF6D9233AC66 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 533347B40563BF22FB6EAC9C /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DAA6DDE0CF432A7BE50481EC /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E0805F3793886C9122DFB6E4 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DB2BA39FE32DB3D52154F48C /* TagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49D0DCDB581563C015CEAFF /* TagsSection.swift */; };
+		DD9942D5EB98C5F70FA8D3D8 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A6BA7282C93D0714AB7AE9D /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E1BEF5E30555F0ADCBF62B7D /* UserSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D22580635AB6E6BE86F1396 /* UserSection.swift */; };
+		E20A2AFD25AD52384A15794A /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FB1399100ED5DD83ED6CD889 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E26208CEB7DC4D217EAAE4E6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BF17A9E51F5A187FFAC1AC /* ContentView.swift */; };
+		EFE6A330EF362418C68B3F6E /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 533347B40563BF22FB6EAC9C /* OneSignalCore.framework */; };
+		F8CF0C2C1A1F8842BCF86784 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B441216A875FE941AED4964E /* OneSignalExtension.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		510E0294CE200E84088E8CC1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E20A2AFD25AD52384A15794A /* OneSignalFramework.framework in Embed Frameworks */,
+				D9E5ED5BA2BCFF6D9233AC66 /* OneSignalCore.framework in Embed Frameworks */,
+				4840204E727B4F405094C542 /* OneSignalExtension.framework in Embed Frameworks */,
+				8EF4836F9252E9C8180804AB /* OneSignalOutcomes.framework in Embed Frameworks */,
+				39D261592E207BCB8F453E6E /* OneSignalOSCore.framework in Embed Frameworks */,
+				56FA425BC3C515132CF2098F /* OneSignalUser.framework in Embed Frameworks */,
+				DAA6DDE0CF432A7BE50481EC /* OneSignalNotifications.framework in Embed Frameworks */,
+				DD9942D5EB98C5F70FA8D3D8 /* OneSignalInAppMessages.framework in Embed Frameworks */,
+				9EF9D8D46AAAD6F93B32FDCB /* OneSignalLocation.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		3C25C0432F33E016005E5E9A /* OneSignalSwiftUIExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalSwiftUIExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3C25C0512F33E031005E5E9A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		3C25C0522F33E031005E5E9A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		3C25C0532F33E031005E5E9A /* OneSignalSwiftUIExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftUIExampleApp.swift; sourceTree = "<group>"; };
+		09DF983228037C1B729C1419 /* SubscriptionSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSection.swift; sourceTree = "<group>"; };
+		3C25C0582F3409E9005E5E9A /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
+		414EE3451468D29D4A9C87AC /* NotificationGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationGrid.swift; sourceTree = "<group>"; };
+		41A4F866BFA1EE429ED1CECC /* KeyValueRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueRow.swift; sourceTree = "<group>"; };
+		45255F2C6EB0B13E199BDC65 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
+		4D22580635AB6E6BE86F1396 /* UserSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSection.swift; sourceTree = "<group>"; };
+		4E815F87FE680572C74E9D51 /* OneSignalOutcomes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalOutcomes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		501ED810C4C9B04785D4CCD4 /* OneSignalOSCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		533347B40563BF22FB6EAC9C /* OneSignalCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		564304E2BA4613FD7649116D /* AppInfoSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfoSection.swift; sourceTree = "<group>"; };
+		56C25916C718509D05DF03B2 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		60D373C8C00DE06FC5CD01C5 /* LocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSection.swift; sourceTree = "<group>"; };
+		6CD2DA9DC09F1EF7D989C291 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		7A6BA7282C93D0714AB7AE9D /* OneSignalInAppMessages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalInAppMessages.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B9F08F02892844599AA8BDD /* OneSignalUser.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8029F22CDBDB03B2CBA14212 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
+		85FF4424D702D8686CC819B8 /* OneSignalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalService.swift; sourceTree = "<group>"; };
+		962607A12EFC53D2F77E5948 /* MessagingSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagingSection.swift; sourceTree = "<group>"; };
+		985DE7F1C6162433D11943B0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		A0506934E0F27B864F3AC273 /* OneSignalSwiftUIExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalSwiftUIExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A084A32F6E0CA6A6354705C0 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		A3BF17A9E51F5A187FFAC1AC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B441216A875FE941AED4964E /* OneSignalExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5B39E8FA865B4030F3009B4 /* OneSignalLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C49D0DCDB581563C015CEAFF /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
+		E0805F3793886C9122DFB6E4 /* OneSignalNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalNotifications.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E237FD3F84CE3831CAB8A6DA /* NotificationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSection.swift; sourceTree = "<group>"; };
+		F42140C8B10F3D06BDE1C79E /* AddItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemSheet.swift; sourceTree = "<group>"; };
+		FB1399100ED5DD83ED6CD889 /* OneSignalFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OneSignalFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD249AC2E0DD1F282E33E3BF /* OneSignalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalViewModel.swift; sourceTree = "<group>"; };
+		FDEE7A98A0EBB6BF767A041D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FE9826D274F62E747F3A931B /* OneSignalSwiftUIExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftUIExampleApp.swift; sourceTree = "<group>"; };
+		FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		3C25C0402F33E016005E5E9A /* Frameworks */ = {
+		D1959F94F086AC39994A96BD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C994C923037F602FA48A1490 /* OneSignalFramework.framework in Frameworks */,
+				EFE6A330EF362418C68B3F6E /* OneSignalCore.framework in Frameworks */,
+				F8CF0C2C1A1F8842BCF86784 /* OneSignalExtension.framework in Frameworks */,
+				59BF581E9C89F1D09BB5130A /* OneSignalOutcomes.framework in Frameworks */,
+				861FCEE8AFB371A2FA3BCC93 /* OneSignalOSCore.framework in Frameworks */,
+				8F69162AE31452F3956160BE /* OneSignalUser.framework in Frameworks */,
+				A92101FA384AC15596D4A659 /* OneSignalNotifications.framework in Frameworks */,
+				23578DF36320EFEB17E12FFA /* OneSignalInAppMessages.framework in Frameworks */,
+				36AD6B646EA553AD54024FAC /* OneSignalLocation.framework in Frameworks */,
+				104E342C46E0870F7E30FB29 /* CoreLocation.framework in Frameworks */,
+				228DE2E45BE2EEA72F9436F3 /* SystemConfiguration.framework in Frameworks */,
+				12A93EBB7D6C97B82814924A /* UserNotifications.framework in Frameworks */,
+				A8954DAC09761A3125EF37D3 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3C25C03A2F33E016005E5E9A = {
+		3D3976C085CF6E7D61D7F075 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3C25C0542F33E031005E5E9A /* OneSignalSwiftUIExample */,
-				3C25C0442F33E016005E5E9A /* Products */,
-			);
-			sourceTree = "<group>";
-		};
-		3C25C0442F33E016005E5E9A /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				3C25C0432F33E016005E5E9A /* OneSignalSwiftUIExample.app */,
+				A0506934E0F27B864F3AC273 /* OneSignalSwiftUIExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3C25C0542F33E031005E5E9A /* OneSignalSwiftUIExample */ = {
+		4320E847C9D875EA2342DB5F /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				3C25C0512F33E031005E5E9A /* Assets.xcassets */,
-				3C25C0522F33E031005E5E9A /* ContentView.swift */,
-				3C25C0532F33E031005E5E9A /* OneSignalSwiftUIExampleApp.swift */,
+				45255F2C6EB0B13E199BDC65 /* AppModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		676D7DC4DABFC37256C328C5 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F42140C8B10F3D06BDE1C79E /* AddItemSheet.swift */,
+				41A4F866BFA1EE429ED1CECC /* KeyValueRow.swift */,
+				414EE3451468D29D4A9C87AC /* NotificationGrid.swift */,
+				8029F22CDBDB03B2CBA14212 /* ToastView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		82619F0C016CC5B46729A454 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				56C25916C718509D05DF03B2 /* CoreLocation.framework */,
+				533347B40563BF22FB6EAC9C /* OneSignalCore.framework */,
+				B441216A875FE941AED4964E /* OneSignalExtension.framework */,
+				FB1399100ED5DD83ED6CD889 /* OneSignalFramework.framework */,
+				7A6BA7282C93D0714AB7AE9D /* OneSignalInAppMessages.framework */,
+				B5B39E8FA865B4030F3009B4 /* OneSignalLocation.framework */,
+				E0805F3793886C9122DFB6E4 /* OneSignalNotifications.framework */,
+				501ED810C4C9B04785D4CCD4 /* OneSignalOSCore.framework */,
+				4E815F87FE680572C74E9D51 /* OneSignalOutcomes.framework */,
+				7B9F08F02892844599AA8BDD /* OneSignalUser.framework */,
+				985DE7F1C6162433D11943B0 /* SystemConfiguration.framework */,
+				6CD2DA9DC09F1EF7D989C291 /* UserNotifications.framework */,
+				A084A32F6E0CA6A6354705C0 /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8DB2942ED773E3D98EEC5396 = {
+			isa = PBXGroup;
+			children = (
+				A21AEF40FA55F829CF1DA4B4 /* OneSignalSwiftUIExample */,
+				82619F0C016CC5B46729A454 /* Frameworks */,
+				3D3976C085CF6E7D61D7F075 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		92778F3DF1B0939012E946A7 /* Sections */ = {
+			isa = PBXGroup;
+			children = (
+				564304E2BA4613FD7649116D /* AppInfoSection.swift */,
+				60D373C8C00DE06FC5CD01C5 /* LocationSection.swift */,
+				962607A12EFC53D2F77E5948 /* MessagingSection.swift */,
+				E237FD3F84CE3831CAB8A6DA /* NotificationSection.swift */,
+				09DF983228037C1B729C1419 /* SubscriptionSection.swift */,
+				C49D0DCDB581563C015CEAFF /* TagsSection.swift */,
+				4D22580635AB6E6BE86F1396 /* UserSection.swift */,
+			);
+			path = Sections;
+			sourceTree = "<group>";
+		};
+		9FC97545EE1DE4A1DD157B26 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				FE9826D274F62E747F3A931B /* OneSignalSwiftUIExampleApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A21AEF40FA55F829CF1DA4B4 /* OneSignalSwiftUIExample */ = {
+			isa = PBXGroup;
+			children = (
+				9FC97545EE1DE4A1DD157B26 /* App */,
+				4320E847C9D875EA2342DB5F /* Models */,
+				E905BAC55971B3066478F04B /* Services */,
+				BAB41B49B9BD40FB4375BA33 /* ViewModels */,
+				DE2A74C6876FFA7E42683810 /* Views */,
+				FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */,
+				FDEE7A98A0EBB6BF767A041D /* Info.plist */,
 			);
 			path = OneSignalSwiftUIExample;
+			sourceTree = "<group>";
+		};
+		BAB41B49B9BD40FB4375BA33 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FD249AC2E0DD1F282E33E3BF /* OneSignalViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		DE2A74C6876FFA7E42683810 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				676D7DC4DABFC37256C328C5 /* Components */,
+				92778F3DF1B0939012E946A7 /* Sections */,
+				A3BF17A9E51F5A187FFAC1AC /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E905BAC55971B3066478F04B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				85FF4424D702D8686CC819B8 /* OneSignalService.swift */,
+				3C25C0582F3409E9005E5E9A /* NotificationSender.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3C25C0422F33E016005E5E9A /* OneSignalSwiftUIExample */ = {
+		F27E45A0AADC4454C26D8C07 /* OneSignalSwiftUIExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3C25C04E2F33E019005E5E9A /* Build configuration list for PBXNativeTarget "OneSignalSwiftUIExample" */;
+			buildConfigurationList = 94A2EFFFED81A4B2280CE916 /* Build configuration list for PBXNativeTarget "OneSignalSwiftUIExample" */;
 			buildPhases = (
-				3C25C03F2F33E016005E5E9A /* Sources */,
-				3C25C0402F33E016005E5E9A /* Frameworks */,
-				3C25C0412F33E016005E5E9A /* Resources */,
+				1916C53ACCF1871776E6A261 /* Sources */,
+				8B945C9AF93265E68BBE57A8 /* Resources */,
+				D1959F94F086AC39994A96BD /* Frameworks */,
+				510E0294CE200E84088E8CC1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -75,75 +270,88 @@
 			packageProductDependencies = (
 			);
 			productName = OneSignalSwiftUIExample;
-			productReference = 3C25C0432F33E016005E5E9A /* OneSignalSwiftUIExample.app */;
+			productReference = A0506934E0F27B864F3AC273 /* OneSignalSwiftUIExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		3C25C03B2F33E016005E5E9A /* Project object */ = {
+		7B7016AA7DF5AB54CD96701C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1300;
 				TargetAttributes = {
-					3C25C0422F33E016005E5E9A = {
-						CreatedOnToolsVersion = 16.4;
+					F27E45A0AADC4454C26D8C07 = {
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 3C25C03E2F33E016005E5E9A /* Build configuration list for PBXProject "OneSignalSwiftUIExample" */;
+			buildConfigurationList = 74CB95FE4C8E95D018B0A01A /* Build configuration list for PBXProject "OneSignalSwiftUIExample" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				en,
 			);
-			mainGroup = 3C25C03A2F33E016005E5E9A;
+			mainGroup = 8DB2942ED773E3D98EEC5396;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
-			productRefGroup = 3C25C0442F33E016005E5E9A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3C25C0422F33E016005E5E9A /* OneSignalSwiftUIExample */,
+				F27E45A0AADC4454C26D8C07 /* OneSignalSwiftUIExample */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		3C25C0412F33E016005E5E9A /* Resources */ = {
+		8B945C9AF93265E68BBE57A8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C25C0552F33E031005E5E9A /* Assets.xcassets in Resources */,
+				25D4FC203BE01E9A35ACA465 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		3C25C03F2F33E016005E5E9A /* Sources */ = {
+		1916C53ACCF1871776E6A261 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C25C0562F33E031005E5E9A /* ContentView.swift in Sources */,
-				3C25C0572F33E031005E5E9A /* OneSignalSwiftUIExampleApp.swift in Sources */,
+				2E6D6E17EEE5D42AE3CAB9EA /* AddItemSheet.swift in Sources */,
+				74920778F254B9DA27906AA3 /* AppInfoSection.swift in Sources */,
+				644520A37F05E25FD17F5CF9 /* AppModels.swift in Sources */,
+				E26208CEB7DC4D217EAAE4E6 /* ContentView.swift in Sources */,
+				B5C4A4AC0A2D2AF73C9A7DD3 /* KeyValueRow.swift in Sources */,
+				AD19D28FDE8DAA7C8BC87939 /* LocationSection.swift in Sources */,
+				5EEA4B007D60765502F2A6E5 /* MessagingSection.swift in Sources */,
+				B13E9460BDD0553FF05542A0 /* NotificationGrid.swift in Sources */,
+				C9884D12CEDE50ACAE38DF0D /* NotificationSection.swift in Sources */,
+				CB5F82751F156695A7A03338 /* OneSignalService.swift in Sources */,
+				1D68D16D167B951BD57386ED /* OneSignalSwiftUIExampleApp.swift in Sources */,
+				2F52BD9F2A3002390A7C8896 /* OneSignalViewModel.swift in Sources */,
+				3C25C0592F3409E9005E5E9A /* NotificationSender.swift in Sources */,
+				49E74AFBFBE23D06B7D310EC /* SubscriptionSection.swift in Sources */,
+				DB2BA39FE32DB3D52154F48C /* TagsSection.swift in Sources */,
+				D13A25FE5762A23125227A84 /* ToastView.swift in Sources */,
+				E1BEF5E30555F0ADCBF62B7D /* UserSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		3C25C04C2F33E019005E5E9A /* Debug */ = {
+		09FF5B5EE6F70E991CEAE373 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -169,19 +377,20 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
+					"DEBUG=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -189,25 +398,49 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		3C25C04D2F33E019005E5E9A /* Release */ = {
+		70CAD4886778AACB94FDDB37 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = OneSignalSwiftUIExample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = OneSignalSwiftUIExample/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		81971FC2118996AD12380AFF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -233,13 +466,14 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -247,94 +481,62 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				VALIDATE_PRODUCT = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		3C25C04F2F33E019005E5E9A /* Debug */ = {
+		8BDA36EF0097197153C97356 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_ENTITLEMENTS = OneSignalSwiftUIExample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = OneSignalSwiftUIExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalSwiftUIExample;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		3C25C0502F33E019005E5E9A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalSwiftUIExample;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3C25C03E2F33E016005E5E9A /* Build configuration list for PBXProject "OneSignalSwiftUIExample" */ = {
+		74CB95FE4C8E95D018B0A01A /* Build configuration list for PBXProject "OneSignalSwiftUIExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3C25C04C2F33E019005E5E9A /* Debug */,
-				3C25C04D2F33E019005E5E9A /* Release */,
+				09FF5B5EE6F70E991CEAE373 /* Debug */,
+				81971FC2118996AD12380AFF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
-		3C25C04E2F33E019005E5E9A /* Build configuration list for PBXNativeTarget "OneSignalSwiftUIExample" */ = {
+		94A2EFFFED81A4B2280CE916 /* Build configuration list for PBXNativeTarget "OneSignalSwiftUIExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3C25C04F2F33E019005E5E9A /* Debug */,
-				3C25C0502F33E019005E5E9A /* Release */,
+				8BDA36EF0097197153C97356 /* Debug */,
+				70CAD4886778AACB94FDDB37 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 3C25C03B2F33E016005E5E9A /* Project object */;
+	rootObject = 7B7016AA7DF5AB54CD96701C /* Project object */;
 }
