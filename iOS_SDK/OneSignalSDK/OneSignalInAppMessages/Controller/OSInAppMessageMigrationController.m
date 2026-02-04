@@ -28,7 +28,7 @@
 #import "OSInAppMessageMigrationController.h"
 #import "OSInAppMessagingDefines.h"
 #import "OSInAppMessageInternal.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSInAppMessageMigrationController
 

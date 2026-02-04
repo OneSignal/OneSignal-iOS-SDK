@@ -27,7 +27,7 @@
 
 #import "OSInAppMessageController.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 #import <OneSignalUser/OneSignalUser.h>
 #import "OSInAppMessagingDefines.h"
 #import "OSInAppMessagingRequests.h"

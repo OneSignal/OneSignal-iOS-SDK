@@ -33,7 +33,7 @@
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 #import <objc/runtime.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"

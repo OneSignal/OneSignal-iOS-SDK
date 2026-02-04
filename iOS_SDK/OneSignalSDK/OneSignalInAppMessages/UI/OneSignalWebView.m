@@ -28,7 +28,7 @@
 #import <UIKit/UIKit.h>
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OneSignalWebView
 

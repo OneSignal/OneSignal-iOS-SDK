@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalExtensionRequests.h"
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 
 @implementation OSRequestReceiveReceipts
 
