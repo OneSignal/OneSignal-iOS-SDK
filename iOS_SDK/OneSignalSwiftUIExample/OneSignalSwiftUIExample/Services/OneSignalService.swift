@@ -69,6 +69,8 @@ final class OneSignalService {
     }
     
     func revokeConsent() {
+        // Must set consent as required first, then revoke it
+        OneSignal.setConsentRequired(true)
         OneSignal.setConsentGiven(false)
     }
     

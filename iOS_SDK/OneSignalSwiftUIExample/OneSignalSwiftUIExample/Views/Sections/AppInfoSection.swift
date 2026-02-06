@@ -37,12 +37,16 @@ struct AppInfoSection: View {
             
             CardContainer {
                 InfoRow(label: "App-Id:", value: viewModel.appId, isMonospaced: true)
+                CardDivider()
+                ToggleRow(
+                    title: "Privacy Consent",
+                    subtitle: "Grant or revoke privacy consent",
+                    isOn: Binding(
+                        get: { viewModel.consentGiven },
+                        set: { _ in viewModel.toggleConsent() }
+                    )
+                )
             }
-            
-            ActionButton(title: "Revoke Consent") {
-                viewModel.revokeConsent()
-            }
-            .padding(.top, 12)
         }
     }
 }

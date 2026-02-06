@@ -60,6 +60,9 @@ final class OneSignalViewModel: ObservableObject {
     // Location
     @Published var isLocationShared: Bool = false
     
+    // Consent
+    @Published var consentGiven: Bool = true
+    
     // UI State
     @Published var showingAddSheet: Bool = false
     @Published var addItemType: AddItemType = .email
@@ -98,9 +101,14 @@ final class OneSignalViewModel: ObservableObject {
     
     // MARK: - Consent
     
-    func revokeConsent() {
-        service.revokeConsent()
-        showToast("Consent revoked")
+    func toggleConsent() {
+        consentGiven.toggle()
+        if consentGiven {
+            service.setConsentGiven(true)
+        } else {
+            service.revokeConsent()
+        }
+        showToast(consentGiven ? "Consent given" : "Consent revoked")
     }
     
     // MARK: - User Management
