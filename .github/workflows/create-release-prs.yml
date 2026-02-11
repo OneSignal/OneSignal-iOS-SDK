@@ -26,7 +26,7 @@ permissions:
 jobs:
   # Step 1: Use reusable workflow to prepare release branch
   prep:
-    uses: OneSignal/sdk-actions/.github/workflows/prep-release.yml@main
+    uses: OneSignal/sdk-shared/.github/workflows/prep-release.yml@main
     with:
       version: ${{ github.event.inputs.version }}
       target_branch: ${{ github.event.inputs.base_branch }}
@@ -61,7 +61,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Git User
-        uses: OneSignal/sdk-actions/.github/actions/setup-git-user@main
+        uses: OneSignal/sdk-shared/.github/actions/setup-git-user@main
 
       - name: Extract Current Version
         id: extract_version
@@ -145,7 +145,7 @@ jobs:
   # Step 3: Use reusable workflow to create iOS SDK PR with release notes
   create-ios-pr:
     needs: [prep, update-and-build]
-    uses: OneSignal/sdk-actions/.github/workflows/create-release.yml@main
+    uses: OneSignal/sdk-shared/.github/workflows/create-release.yml@main
     with:
       release_branch: ${{ needs.prep.outputs.release_branch }}
       target_branch: ${{ github.event.inputs.base_branch }}

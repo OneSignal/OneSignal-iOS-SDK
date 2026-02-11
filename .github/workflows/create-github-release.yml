@@ -44,7 +44,7 @@ jobs:
   # Step 2: Use reusable workflow to create GitHub release with release notes
   create-release:
     needs: get-version
-    uses: OneSignal/sdk-actions/.github/workflows/github-release.yml@main
+    uses: OneSignal/sdk-shared/.github/workflows/github-release.yml@main
     with:
       version: ${{ needs.get-version.outputs.version }}
 
