@@ -39,31 +39,13 @@ struct KeyValueItem: Identifiable, Equatable {
 
 // MARK: - Notification Type
 
-/// Types of test push notifications that can be sent
+/// Types of test push notifications that can be sent (matching Android: Simple, With Image, Custom)
 enum NotificationType: String, CaseIterable, Identifiable {
-    case general = "General"
-    case greetings = "Greetings"
-    case promotions = "Promotions"
-    case breakingNews = "Breaking News"
-    case abandonedCart = "Abandoned Cart"
-    case newPost = "New Post"
-    case reEngagement = "Re-Engagement"
-    case rating = "Rating"
-    
+    case simple = "Simple Notification"
+    case withImage = "Notification With Image"
+    case custom = "Custom Notification"
+
     var id: String { rawValue }
-    
-    var iconName: String {
-        switch self {
-        case .general: return "bell.fill"
-        case .greetings: return "hand.wave.fill"
-        case .promotions: return "tag.fill"
-        case .breakingNews: return "newspaper.fill"
-        case .abandonedCart: return "cart.fill"
-        case .newPost: return "photo.fill"
-        case .reEngagement: return "hand.tap.fill"
-        case .rating: return "star.fill"
-        }
-    }
 }
 
 // MARK: - In-App Message Type
@@ -74,15 +56,15 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
     case bottomBanner = "Bottom Banner"
     case centerModal = "Center Modal"
     case fullScreen = "Full Screen"
-    
+
     var id: String { rawValue }
-    
+
     var iconName: String {
         switch self {
-        case .topBanner: return "rectangle.topthird.inset.filled"
-        case .bottomBanner: return "rectangle.bottomthird.inset.filled"
-        case .centerModal: return "rectangle.center.inset.filled"
-        case .fullScreen: return "rectangle.inset.filled"
+        case .topBanner: return "arrow.up.to.line"
+        case .bottomBanner: return "arrow.down.to.line"
+        case .centerModal: return "square"
+        case .fullScreen: return "arrow.up.left.and.arrow.down.right"
         }
     }
 }
@@ -97,7 +79,9 @@ enum AddItemType {
     case tag
     case trigger
     case externalUserId
-    
+    case customNotification
+    case trackEvent
+
     var title: String {
         switch self {
         case .alias: return "Add Alias"
@@ -106,36 +90,41 @@ enum AddItemType {
         case .tag: return "Add Tag"
         case .trigger: return "Add Trigger"
         case .externalUserId: return "Login User"
+        case .customNotification: return "Custom Notification"
+        case .trackEvent: return "Track Event"
         }
     }
-    
+
     var requiresKeyValue: Bool {
         switch self {
-        case .alias, .tag, .trigger: return true
-        case .email, .sms, .externalUserId: return false
+        case .alias, .tag, .trigger, .customNotification: return true
+        case .email, .sms, .externalUserId, .trackEvent: return false
         }
     }
-    
+
     var keyPlaceholder: String {
         switch self {
-        case .alias: return "Alias Label"
-        case .tag: return "Tag Key"
-        case .trigger: return "Trigger Key"
+        case .alias: return "Label"
+        case .tag: return "Key"
+        case .trigger: return "Key"
+        case .customNotification: return "Title"
         default: return "Key"
         }
     }
-    
+
     var valuePlaceholder: String {
         switch self {
-        case .alias: return "Alias ID"
-        case .email: return "email@example.com"
-        case .sms: return "+1234567890"
-        case .tag: return "Tag Value"
-        case .trigger: return "Trigger Value"
-        case .externalUserId: return "External User ID"
+        case .alias: return "ID"
+        case .email: return "Email"
+        case .sms: return "SMS"
+        case .tag: return "Value"
+        case .trigger: return "Value"
+        case .externalUserId: return "External User Id"
+        case .customNotification: return "Body"
+        case .trackEvent: return "Event Name"
         }
     }
-    
+
     var keyboardType: UIKeyboardType {
         switch self {
         case .email: return .emailAddress
@@ -143,4 +132,48 @@ enum AddItemType {
         default: return .default
         }
     }
+}
+
+// MARK: - Multi-Add Item Type
+
+/// Types for the multi-pair add dialog (Add Aliases, Add Tags, Add Triggers)
+enum MultiAddItemType: String {
+    case aliases = "Add Multiple Aliases"
+    case tags = "Add Multiple Tags"
+    case triggers = "Add Multiple Triggers"
+}
+
+// MARK: - Remove Multi Item Type
+
+/// Types for the remove-multi checkbox dialog
+enum RemoveMultiItemType: String {
+    case aliases = "Remove Aliases"
+    case tags = "Remove Tags"
+    case triggers = "Remove Triggers"
+}
+
+// MARK: - User Data
+
+/// Model for user data fetched from the OneSignal REST API
+struct UserData {
+    let aliases: [String: String]
+    let tags: [String: String]
+    let emails: [String]
+    let smsNumbers: [String]
+    let externalId: String?
+}
+
+// MARK: - Tooltip Models
+
+/// Tooltip content fetched from the shared sdk-shared repo
+struct TooltipData {
+    let title: String
+    let description: String
+    let options: [TooltipOption]?
+}
+
+/// An individual option within a tooltip
+struct TooltipOption {
+    let name: String
+    let description: String
 }

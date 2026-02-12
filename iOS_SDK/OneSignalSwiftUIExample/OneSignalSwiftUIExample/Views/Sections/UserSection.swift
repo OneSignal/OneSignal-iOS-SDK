@@ -27,51 +27,94 @@
 
 import SwiftUI
 
-/// Section for user login/logout
+/// Section displaying user login status, external ID, and login/logout buttons.
+/// Matches the Android demo's USER section layout.
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
-        VStack(spacing: 12) {
-            ActionButton(title: "Login User") {
+        VStack(spacing: 0) {
+            SectionHeader(title: "User")
+
+            // Status / External ID card
+            CardContainer {
+                // Status row
+                HStack {
+                    Text("Status")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(viewModel.isLoggedIn ? "Logged In" : "Anonymous")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(viewModel.isLoggedIn ? Color(red: 0.20, green: 0.66, blue: 0.33) : .secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+
+                CardDivider()
+
+                // External ID row
+                HStack {
+                    Text("External ID")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(viewModel.externalUserId ?? "\u{2014}")
+                        .font(.system(size: 15, weight: .medium))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            }
+
+            // Login / Switch User button (filled)
+            ActionButton(title: viewModel.loginButtonTitle) {
                 viewModel.showAddSheet(for: .externalUserId)
             }
-            
-            ActionButton(title: "Logout User") {
-                viewModel.logout()
+            .padding(.top, 12)
+
+            // Logout button (outlined, only when logged in)
+            if viewModel.isLoggedIn {
+                OutlineActionButton(title: "Logout User") {
+                    viewModel.logout()
+                }
+                .padding(.top, 8)
             }
         }
-        .padding(.top, 12)
     }
 }
 
-/// Section for alias management
+/// Section for alias management with Add and Add Multiple (read-only list, no delete icons)
 struct AliasesSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Aliases")
-            
+            SectionHeader(title: "Aliases", tooltipKey: "aliases")
+
             CardContainer {
                 if viewModel.aliases.isEmpty {
-                    EmptyListRow(message: "No Aliases Added")
+                    EmptyListRow(message: "No aliases added")
                 } else {
                     ForEach(Array(viewModel.aliases.enumerated()), id: \.element.id) { index, alias in
                         if index > 0 {
                             CardDivider()
                         }
-                        KeyValueRow(item: alias) {
-                            viewModel.removeAlias(alias)
-                        }
+                        KeyValueRow(item: alias)
                     }
                 }
             }
-            
-            ActionButton(title: "Add Alias") {
+
+            ActionButton(title: "Add") {
                 viewModel.showAddSheet(for: .alias)
             }
             .padding(.top, 12)
+
+            ActionButton(title: "Add Multiple") {
+                viewModel.showMultiAddSheet(for: .aliases)
+            }
+            .padding(.top, 8)
         }
     }
 }

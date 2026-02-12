@@ -27,55 +27,104 @@
 
 import SwiftUI
 
-/// Main content view composing all sections
+/// Main content view composing all sections in the order matching the Android demo app
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    AppInfoSection()
-                    UserSection()
-                    AliasesSection()
-                    PushSection()
-                    EmailsSection()
-                    SMSSection()
-                    TagsSection()
-                    OutcomeEventsSection()
-                    InAppMessagingSection()
-                    TriggersSection()
-                    LocationSection()
-                    NotificationSection()
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // Collapsible log view at top
+                        LogView(logManager: LogManager.shared)
+
+                        // 1. App (includes consent, guidance banner)
+                        AppInfoSection()
+
+                        // 2. User (status, external ID, login/logout)
+                        UserSection()
+
+                        // 3. Push
+                        PushSection()
+
+                        // 4. Send Push Notification
+                        SendPushSection()
+
+                        // 5. In-App Messaging
+                        InAppMessagingSection()
+
+                        // 6. Send In-App Message
+                        SendInAppSection()
+
+                        // 7. Aliases
+                        AliasesSection()
+
+                        // 8. Emails
+                        EmailsSection()
+
+                        // 9. SMS
+                        SMSSection()
+
+                        // 10. Tags
+                        TagsSection()
+
+                        // 11. Outcome Events
+                        OutcomeEventsSection()
+
+                        // 12. Triggers
+                        TriggersSection()
+
+                        // 13. Track Event
+                        TrackEventSection()
+
+                        // 14. Location
+                        LocationSection()
+
+                        // 15. Next Activity
+                        NextScreenSection()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 32)
+                .background(Color(.systemGroupedBackground))
+
+                // Loading overlay
+                if viewModel.isLoading {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                }
             }
-            .background(Color(.systemGroupedBackground))
             .safeAreaInset(edge: .top) {
                 // Compact header bar
-                HStack {
-                    HStack(spacing: 8) {
-                        Image(systemName: "bell.circle.fill")
-                            .font(.title3)
-                        Text("OneSignal")
-                            .font(.headline)
+                VStack(spacing: 0) {
+                    Color.accentColor
+                        .frame(height: UIApplication.shared.connectedScenes
+                            .compactMap { $0 as? UIWindowScene }
+                            .first?.statusBarManager?.statusBarFrame.height ?? 0)
+                    HStack(spacing: 10) {
+                        Image("OneSignalLogo")
+                            .renderingMode(.template)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 24)
+                        Text("Sample App")
+                            .font(.subheadline)
+                            .opacity(0.9)
+                        Spacer()
                     }
-                    
-                    Spacer()
-                    
-                    Button {
-                        viewModel.refreshState()
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
                 }
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color.accentColor)
+                .ignoresSafeArea(edges: .top)
             }
             .navigationBarHidden(true)
+            // Single add sheet
             .sheet(isPresented: $viewModel.showingAddSheet) {
                 AddItemSheet(
                     itemType: viewModel.addItemType,
@@ -84,6 +133,55 @@ struct ContentView: View {
                     },
                     onCancel: {
                         viewModel.showingAddSheet = false
+                    }
+                )
+            }
+            // Multi-add sheet
+            .sheet(isPresented: $viewModel.showingMultiAddSheet) {
+                AddMultiItemSheet(
+                    type: viewModel.multiAddType,
+                    onAdd: { pairs in
+                        viewModel.handleMultiAdd(pairs: pairs)
+                    },
+                    onCancel: {
+                        viewModel.showingMultiAddSheet = false
+                    }
+                )
+            }
+            // Remove-multi sheet
+            .sheet(isPresented: $viewModel.showingRemoveMultiSheet) {
+                RemoveMultiSheet(
+                    type: viewModel.removeMultiType,
+                    items: viewModel.removeMultiItems,
+                    onRemove: { keys in
+                        viewModel.handleRemoveMulti(keys: keys)
+                    },
+                    onCancel: {
+                        viewModel.showingRemoveMultiSheet = false
+                    }
+                )
+            }
+            // Custom notification sheet
+            .sheet(isPresented: $viewModel.showingCustomNotificationSheet) {
+                CustomNotificationSheet(
+                    onSend: { title, body in
+                        viewModel.sendCustomNotification(title: title, body: body)
+                        viewModel.showingCustomNotificationSheet = false
+                    },
+                    onCancel: {
+                        viewModel.showingCustomNotificationSheet = false
+                    }
+                )
+            }
+            // Track event sheet
+            .sheet(isPresented: $viewModel.showingTrackEventSheet) {
+                TrackEventSheet(
+                    onTrack: { name, properties in
+                        viewModel.trackEvent(name: name, properties: properties)
+                        viewModel.showingTrackEventSheet = false
+                    },
+                    onCancel: {
+                        viewModel.showingTrackEventSheet = false
                     }
                 )
             }

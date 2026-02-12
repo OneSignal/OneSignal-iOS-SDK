@@ -27,33 +27,58 @@
 
 import SwiftUI
 
-/// Section displaying app information and consent management
+/// Section displaying app information, consent, logged-in state, and login/logout.
+/// Merges the previous separate UserSection content.
 struct AppInfoSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
             SectionHeader(title: "App")
-            
+
+            // App ID card
             CardContainer {
-                InfoRow(label: "App-Id:", value: viewModel.appId, isMonospaced: true)
-                CardDivider()
+                InfoRow(label: "App ID", value: viewModel.appId, isMonospaced: true)
+            }
+
+            // Guidance banner
+            GuidanceBanner()
+                .padding(.top, 8)
+
+            // Consent card with up to two toggles
+            CardContainer {
                 ToggleRow(
-                    title: "Privacy Consent",
-                    subtitle: "Grant or revoke privacy consent",
+                    title: "Consent Required",
+                    subtitle: "Require consent before SDK processes data",
                     isOn: Binding(
-                        get: { viewModel.consentGiven },
-                        set: { _ in viewModel.toggleConsent() }
+                        get: { viewModel.consentRequired },
+                        set: { _ in viewModel.toggleConsentRequired() }
                     )
                 )
+
+                // Privacy Consent toggle (only visible when Consent Required is ON)
+                if viewModel.consentRequired {
+                    CardDivider()
+                    ToggleRow(
+                        title: "Privacy Consent",
+                        subtitle: "Consent given for data collection",
+                        isOn: Binding(
+                            get: { viewModel.consentGiven },
+                            set: { _ in viewModel.toggleConsent() }
+                        )
+                    )
+                }
             }
+            .padding(.top, 8)
         }
     }
 }
 
 #Preview {
-    AppInfoSection()
-        .padding()
-        .background(Color(.systemGroupedBackground))
-        .environmentObject(OneSignalViewModel())
+    ScrollView {
+        AppInfoSection()
+            .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .environmentObject(OneSignalViewModel())
 }

@@ -30,22 +30,22 @@ import SwiftUI
 /// Section for location sharing and permissions
 struct LocationSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Location")
-            
+            SectionHeader(title: "Location", tooltipKey: "location")
+
             CardContainer {
                 ToggleRow(
-                    title: "Location Shared:",
-                    subtitle: "Location will be shared from device",
+                    title: "Location Shared",
+                    subtitle: "Share device location with OneSignal",
                     isOn: Binding(
                         get: { viewModel.isLocationShared },
                         set: { _ in viewModel.toggleLocationShared() }
                     )
                 )
             }
-            
+
             ActionButton(title: "Prompt Location") {
                 viewModel.promptLocation()
             }

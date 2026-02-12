@@ -27,52 +27,28 @@
 
 import SwiftUI
 
-/// Section for sending test push notifications (3 full-width buttons)
-struct SendPushSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-
+/// A guidance banner that instructs users to add their own App ID.
+/// Matches the Android demo's cream/yellow info banner.
+struct GuidanceBanner: View {
     var body: some View {
-        VStack(spacing: 0) {
-            SectionHeader(title: "Send Push Notification", tooltipKey: "sendPushNotification")
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Add your own App ID, then rebuild to fully test all functionality.")
+                .font(.system(size: 14))
+                .foregroundColor(.primary)
 
-            SendPushButtons(
-                onSimple: {
-                    viewModel.sendSimpleNotification()
-                },
-                onWithImage: {
-                    viewModel.sendNotificationWithImage()
-                },
-                onCustom: {
-                    viewModel.showingCustomNotificationSheet = true
-                }
-            )
+            Link("Get your keys at onesignal.com", destination: URL(string: "https://onesignal.com")!)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.accentColor)
         }
-    }
-}
-
-/// Section for sending test in-app messages (4 full-width buttons with trailing icons)
-struct SendInAppSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-
-    var body: some View {
-        VStack(spacing: 0) {
-            SectionHeader(title: "Send In-App Message", tooltipKey: "sendInAppMessage")
-
-            SendInAppButtons { type in
-                viewModel.sendTestInAppMessage(type)
-            }
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Color(red: 1.0, green: 0.98, blue: 0.90))
+        .cornerRadius(12)
     }
 }
 
 #Preview {
-    ScrollView {
-        VStack {
-            SendPushSection()
-            SendInAppSection()
-        }
+    GuidanceBanner()
         .padding()
-    }
-    .background(Color(.systemGroupedBackground))
-    .environmentObject(OneSignalViewModel())
+        .background(Color(.systemGroupedBackground))
 }

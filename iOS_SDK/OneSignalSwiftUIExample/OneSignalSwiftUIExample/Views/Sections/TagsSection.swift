@@ -27,17 +27,17 @@
 
 import SwiftUI
 
-/// Section for managing user tags
+/// Section for managing user tags with Add Tag, Add Tags (multi), and Remove Tags
 struct TagsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Tags")
-            
+            SectionHeader(title: "Tags", tooltipKey: "tags")
+
             CardContainer {
                 if viewModel.tags.isEmpty {
-                    EmptyListRow(message: "No Tags Added")
+                    EmptyListRow(message: "No tags added")
                 } else {
                     ForEach(Array(viewModel.tags.enumerated()), id: \.element.id) { index, tag in
                         if index > 0 {
@@ -49,11 +49,24 @@ struct TagsSection: View {
                     }
                 }
             }
-            
-            ActionButton(title: "Add Tag") {
+
+            ActionButton(title: "Add") {
                 viewModel.showAddSheet(for: .tag)
             }
             .padding(.top, 12)
+
+            ActionButton(title: "Add Multiple") {
+                viewModel.showMultiAddSheet(for: .tags)
+            }
+            .padding(.top, 8)
+
+            // Remove Selected - only visible when tags exist
+            if !viewModel.tags.isEmpty {
+                OutlineActionButton(title: "Remove Selected") {
+                    viewModel.showRemoveMultiSheet(for: .tags)
+                }
+                .padding(.top, 8)
+            }
         }
     }
 }

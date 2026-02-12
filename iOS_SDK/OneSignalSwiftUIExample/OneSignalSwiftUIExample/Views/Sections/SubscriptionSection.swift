@@ -27,17 +27,19 @@
 
 import SwiftUI
 
+// MARK: - Push Section
+
 /// Section for push subscription management
 struct PushSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Push")
-            
+            SectionHeader(title: "Push", tooltipKey: "push")
+
             CardContainer {
                 InfoRow(
-                    label: "Push-Id:",
+                    label: "Push ID",
                     value: viewModel.pushSubscriptionId ?? "Not available",
                     isMonospaced: true
                 )
@@ -47,26 +49,40 @@ struct PushSection: View {
                     isOn: Binding(
                         get: { viewModel.isPushEnabled },
                         set: { _ in viewModel.togglePushEnabled() }
-                    )
+                    ),
+                    isEnabled: viewModel.notificationPermissionGranted
                 )
+            }
+
+            // Prompt Push button - only visible when permission not granted
+            if !viewModel.notificationPermissionGranted {
+                ActionButton(title: "Prompt Push") {
+                    viewModel.requestPushPermission()
+                }
+                .padding(.top, 12)
             }
         }
     }
 }
 
-/// Section for email subscription management
+// MARK: - Emails Section
+
+/// Section for email subscription management with collapsible >5 items
 struct EmailsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+    @State private var isExpanded = false
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Emails")
-            
+            SectionHeader(title: "Emails", tooltipKey: "emails")
+
             CardContainer {
                 if viewModel.emails.isEmpty {
-                    EmptyListRow(message: "No Emails Added")
+                    EmptyListRow(message: "No emails added")
                 } else {
-                    ForEach(Array(viewModel.emails.enumerated()), id: \.element) { index, email in
+                    let displayEmails = isExpanded ? viewModel.emails : Array(viewModel.emails.prefix(5))
+
+                    ForEach(Array(displayEmails.enumerated()), id: \.element) { index, email in
                         if index > 0 {
                             CardDivider()
                         }
@@ -74,9 +90,24 @@ struct EmailsSection: View {
                             viewModel.removeEmail(email)
                         }
                     }
+
+                    // "X more available" when collapsed and more than 5
+                    if !isExpanded && viewModel.emails.count > 5 {
+                        CardDivider()
+                        Button {
+                            isExpanded = true
+                        } label: {
+                            Text("\(viewModel.emails.count - 5) more available")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.accentColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
-            
+
             ActionButton(title: "Add Email") {
                 viewModel.showAddSheet(for: .email)
             }
@@ -85,19 +116,24 @@ struct EmailsSection: View {
     }
 }
 
-/// Section for SMS subscription management
+// MARK: - SMS Section
+
+/// Section for SMS subscription management with collapsible >5 items
 struct SMSSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+    @State private var isExpanded = false
+
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "SMSs")
-            
+            SectionHeader(title: "SMS", tooltipKey: "sms")
+
             CardContainer {
                 if viewModel.smsNumbers.isEmpty {
-                    EmptyListRow(message: "No SMSs Added")
+                    EmptyListRow(message: "No SMS added")
                 } else {
-                    ForEach(Array(viewModel.smsNumbers.enumerated()), id: \.element) { index, sms in
+                    let displaySms = isExpanded ? viewModel.smsNumbers : Array(viewModel.smsNumbers.prefix(5))
+
+                    ForEach(Array(displaySms.enumerated()), id: \.element) { index, sms in
                         if index > 0 {
                             CardDivider()
                         }
@@ -105,9 +141,23 @@ struct SMSSection: View {
                             viewModel.removeSms(sms)
                         }
                     }
+
+                    if !isExpanded && viewModel.smsNumbers.count > 5 {
+                        CardDivider()
+                        Button {
+                            isExpanded = true
+                        } label: {
+                            Text("\(viewModel.smsNumbers.count - 5) more available")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.accentColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
-            
+
             ActionButton(title: "Add SMS") {
                 viewModel.showAddSheet(for: .sms)
             }

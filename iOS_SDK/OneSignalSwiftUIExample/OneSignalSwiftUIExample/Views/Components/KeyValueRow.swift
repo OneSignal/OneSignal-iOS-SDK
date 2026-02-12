@@ -32,7 +32,7 @@ import SwiftUI
 /// A full-width red button with white uppercase text
 struct ActionButtonStyle: ButtonStyle {
     var isDestructive: Bool = false
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .semibold))
@@ -49,7 +49,7 @@ struct ActionButtonStyle: ButtonStyle {
 struct ActionButton: View {
     let title: String
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Text(title)
@@ -58,16 +58,74 @@ struct ActionButton: View {
     }
 }
 
+/// Outlined button style: red border, white background, red text (for destructive actions like LOGOUT)
+struct OutlineActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.accentColor)
+            .textCase(.uppercase)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color(.systemBackground).opacity(configuration.isPressed ? 0.8 : 1.0))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.accentColor, lineWidth: 1.5)
+            )
+    }
+}
+
+/// A full-width outlined action button (red border, white background, red text)
+struct OutlineActionButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+        }
+        .buttonStyle(OutlineActionButtonStyle())
+    }
+}
+
+/// A full-width action button with a leading icon (for Send In-App Message buttons)
+struct ActionButtonWithIcon: View {
+    let title: String
+    let iconName: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: iconName)
+                    .font(.system(size: 18))
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .textCase(.uppercase)
+                Spacer()
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .background(Color.accentColor)
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Card Container
 
 /// A white card container with rounded corners
 struct CardContainer<Content: View>: View {
     let content: Content
-    
+
     init(@ViewBuilder content: () -> Content) {
         self.content = content()
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             content
@@ -79,18 +137,58 @@ struct CardContainer<Content: View>: View {
 
 // MARK: - Section Header
 
-/// A small gray section header
+/// A small gray section header with optional info tooltip button
 struct SectionHeader: View {
     let title: String
-    
+    var tooltipKey: String?
+
+    @State private var showingTooltip = false
+
     var body: some View {
-        Text(title)
-            .font(.system(size: 14, weight: .medium))
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 4)
-            .padding(.top, 16)
-            .padding(.bottom, 8)
+        HStack {
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+
+            Spacer()
+
+            if tooltipKey != nil {
+                Button {
+                    showingTooltip = true
+                } label: {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.accentColor)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .padding(.horizontal, 4)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .alert(isPresented: $showingTooltip) {
+            if let key = tooltipKey,
+               let tooltip = TooltipService.shared.getTooltip(key: key) {
+                var message = tooltip.description
+                if let options = tooltip.options {
+                    message += "\n"
+                    for option in options {
+                        message += "\n\(option.name): \(option.description)"
+                    }
+                }
+                return Alert(
+                    title: Text(tooltip.title),
+                    message: Text(message),
+                    dismissButton: .default(Text("OK"))
+                )
+            } else {
+                return Alert(
+                    title: Text(title),
+                    message: Text("Tooltip content not available."),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+        }
     }
 }
 
@@ -100,12 +198,12 @@ struct SectionHeader: View {
 struct KeyValueRow: View {
     let item: KeyValueItem
     let onDelete: (() -> Void)?
-    
+
     init(item: KeyValueItem, onDelete: (() -> Void)? = nil) {
         self.item = item
         self.onDelete = onDelete
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -115,12 +213,13 @@ struct KeyValueRow: View {
                 Text(item.value)
                     .font(.body)
             }
-            
+
             Spacer()
-            
+
             if let onDelete = onDelete {
                 Button(action: onDelete) {
-                    Image(systemName: "trash")
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.red)
                 }
                 .buttonStyle(.borderless)
@@ -138,22 +237,23 @@ struct KeyValueRow: View {
 struct SingleValueRow: View {
     let value: String
     let onDelete: (() -> Void)?
-    
+
     init(value: String, onDelete: (() -> Void)? = nil) {
         self.value = value
         self.onDelete = onDelete
     }
-    
+
     var body: some View {
         HStack {
             Text(value)
                 .font(.body)
-            
+
             Spacer()
-            
+
             if let onDelete = onDelete {
                 Button(action: onDelete) {
-                    Image(systemName: "trash")
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.red)
                 }
                 .buttonStyle(.borderless)
@@ -172,17 +272,19 @@ struct InfoRow: View {
     let label: String
     let value: String
     let isMonospaced: Bool
-    
+
     init(label: String, value: String, isMonospaced: Bool = false) {
         self.label = label
         self.value = value
         self.isMonospaced = isMonospaced
     }
-    
+
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        HStack(alignment: .top) {
             Text(label)
                 .font(.system(size: 15, weight: .medium))
+                .foregroundColor(.secondary)
+            Spacer()
             Text(value)
                 .font(isMonospaced ? .system(size: 15, design: .monospaced) : .system(size: 15))
                 .foregroundColor(.primary)
@@ -201,13 +303,15 @@ struct ToggleRow: View {
     let title: String
     let subtitle: String?
     @Binding var isOn: Bool
-    
-    init(title: String, subtitle: String? = nil, isOn: Binding<Bool>) {
+    let isEnabled: Bool
+
+    init(title: String, subtitle: String? = nil, isOn: Binding<Bool>, isEnabled: Bool = true) {
         self.title = title
         self.subtitle = subtitle
         self._isOn = isOn
+        self.isEnabled = isEnabled
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -219,14 +323,16 @@ struct ToggleRow: View {
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             Toggle("", isOn: $isOn)
                 .labelsHidden()
+                .disabled(!isEnabled)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .opacity(isEnabled ? 1.0 : 0.5)
     }
 }
 
@@ -235,7 +341,7 @@ struct ToggleRow: View {
 /// A placeholder row for empty lists
 struct EmptyListRow: View {
     let message: String
-    
+
     var body: some View {
         Text(message)
             .font(.system(size: 16, weight: .medium))
@@ -254,38 +360,4 @@ struct CardDivider: View {
             .fill(Color(.separator))
             .frame(height: 0.5)
     }
-}
-
-#Preview {
-    ScrollView {
-        VStack(spacing: 16) {
-            SectionHeader(title: "Key-Value Items")
-            CardContainer {
-                KeyValueRow(
-                    item: KeyValueItem(key: "external_id", value: "user_123"),
-                    onDelete: {}
-                )
-                CardDivider()
-                KeyValueRow(
-                    item: KeyValueItem(key: "subscription_tier", value: "premium")
-                )
-            }
-            
-            SectionHeader(title: "Info Rows")
-            CardContainer {
-                InfoRow(label: "Push-Id:", value: "77e32082-ea27-42e3-a898-c72e141824ef", isMonospaced: true)
-                CardDivider()
-                ToggleRow(title: "Enabled", isOn: .constant(true))
-            }
-            
-            SectionHeader(title: "Empty")
-            CardContainer {
-                EmptyListRow(message: "No Items Added")
-            }
-            
-            ActionButton(title: "Add Item") {}
-        }
-        .padding()
-    }
-    .background(Color(.systemGroupedBackground))
 }

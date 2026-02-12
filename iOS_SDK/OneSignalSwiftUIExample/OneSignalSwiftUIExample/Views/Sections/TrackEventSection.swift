@@ -27,52 +27,24 @@
 
 import SwiftUI
 
-/// Section for sending test push notifications (3 full-width buttons)
-struct SendPushSection: View {
+/// Section for tracking custom events
+struct TrackEventSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Send Push Notification", tooltipKey: "sendPushNotification")
+            SectionHeader(title: "Track Event", tooltipKey: "trackEvent")
 
-            SendPushButtons(
-                onSimple: {
-                    viewModel.sendSimpleNotification()
-                },
-                onWithImage: {
-                    viewModel.sendNotificationWithImage()
-                },
-                onCustom: {
-                    viewModel.showingCustomNotificationSheet = true
-                }
-            )
-        }
-    }
-}
-
-/// Section for sending test in-app messages (4 full-width buttons with trailing icons)
-struct SendInAppSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-
-    var body: some View {
-        VStack(spacing: 0) {
-            SectionHeader(title: "Send In-App Message", tooltipKey: "sendInAppMessage")
-
-            SendInAppButtons { type in
-                viewModel.sendTestInAppMessage(type)
+            ActionButton(title: "Track Event") {
+                viewModel.showingTrackEventSheet = true
             }
         }
     }
 }
 
 #Preview {
-    ScrollView {
-        VStack {
-            SendPushSection()
-            SendInAppSection()
-        }
+    TrackEventSection()
         .padding()
-    }
-    .background(Color(.systemGroupedBackground))
-    .environmentObject(OneSignalViewModel())
+        .background(Color(.systemGroupedBackground))
+        .environmentObject(OneSignalViewModel())
 }
