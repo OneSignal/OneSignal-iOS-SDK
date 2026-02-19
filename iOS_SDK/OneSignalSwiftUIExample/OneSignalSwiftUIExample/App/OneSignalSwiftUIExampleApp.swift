@@ -37,6 +37,10 @@ struct OneSignalSwiftUIExampleApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(viewModel)
+                .onOpenURL { url in
+                    let originalURL = OneSignal.LiveActivities.trackClickAndReturnOriginal(url)
+                    LogManager.shared.i("LiveActivity", "Opened with URL: \(url), original: \(String(describing: originalURL))")
+                }
         }
     }
 }
@@ -63,6 +67,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Initialize OneSignal
         OneSignalService.shared.initialize(launchOptions: launchOptions)
+
+        // Start Live Activity listeners
+        if #available(iOS 16.1, *) {
+            LiveActivityController.start()
+        }
 
         // Restore cached SDK states before UI loads
         restoreCachedStates()

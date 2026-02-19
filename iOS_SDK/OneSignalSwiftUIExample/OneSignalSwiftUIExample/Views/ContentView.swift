@@ -81,7 +81,10 @@ struct ContentView: View {
                         // 14. Location
                         LocationSection()
 
-                        // 15. Next Activity
+                        // 15. Live Activities
+                        LiveActivitySection()
+
+                        // 16. Next Activity
                         NextScreenSection()
                     }
                     .padding(.horizontal, 16)
