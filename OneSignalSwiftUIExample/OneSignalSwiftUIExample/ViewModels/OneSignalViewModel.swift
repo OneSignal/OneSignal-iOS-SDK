@@ -34,85 +34,85 @@ import OneSignalLocation
 /// Main ViewModel managing all OneSignal SDK state and interactions
 @MainActor
 final class OneSignalViewModel: ObservableObject {
-    
+
     // MARK: - Published Properties
-    
+
     // App Info
     @Published var appId: String
-    
+
     // User
     @Published var externalUserId: String?
     @Published var aliases: [KeyValueItem] = []
-    
+
     // Push Subscription
     @Published var pushSubscriptionId: String?
     @Published var isPushEnabled: Bool = false
-    
+
     // Email & SMS
     @Published var emails: [String] = []
     @Published var smsNumbers: [String] = []
-    
+
     // Tags
     @Published var tags: [KeyValueItem] = []
-    
+
     // In-App Messaging
     @Published var isInAppMessagesPaused: Bool = true
     @Published var triggers: [KeyValueItem] = []
-    
+
     // Location
     @Published var isLocationShared: Bool = false
-    
+
     // UI State
     @Published var showingAddSheet: Bool = false
     @Published var addItemType: AddItemType = .email
     @Published var toastMessage: String?
-    
+
     // MARK: - Private Properties
-    
+
     private let service: OneSignalService
     private var observers = Observers()
-    
+
     // MARK: - Initialization
-    
+
     init(service: OneSignalService = .shared) {
         self.service = service
         self.appId = service.appId
-        
+
         // Initial state sync
         refreshState()
-        
+
         // Set up observers
         setupObservers()
     }
-    
+
     // MARK: - State Management
-    
+
     func refreshState() {
         pushSubscriptionId = service.pushSubscriptionId
         isPushEnabled = service.isPushEnabled
         isInAppMessagesPaused = service.isInAppMessagesPaused
         isLocationShared = service.isLocationShared
-        
+
         // Sync tags from SDK
         let sdkTags = service.getTags()
         tags = sdkTags.map { KeyValueItem(key: $0.key, value: $0.value) }
     }
-    
+
     // MARK: - Consent
-    
+
     func revokeConsent() {
         service.revokeConsent()
         showToast("Consent revoked")
     }
-    
+
     // MARK: - User Management
-    
+
     func login(externalId: String) {
         service.login(externalId: externalId)
         externalUserId = externalId
         showToast("Logged in as \(externalId)")
     }
-    
+
     func logout() {
         service.logout()
         externalUserId = nil
@@ -123,23 +123,23 @@ final class OneSignalViewModel: ObservableObject {
         triggers.removeAll()
         showToast("Logged out")
     }
-    
+
     // MARK: - Aliases
-    
+
     func addAlias(label: String, id: String) {
         service.addAlias(label: label, id: id)
         aliases.append(KeyValueItem(key: label, value: id))
         showToast("Alias added")
     }
-    
+
     func removeAlias(_ item: KeyValueItem) {
         service.removeAlias(item.key)
         aliases.removeAll { $0.id == item.id }
         showToast("Alias removed")
     }
-    
+
     // MARK: - Push Subscription
-    
+
     func togglePushEnabled() {
         if isPushEnabled {
             service.optOutPush()
@@ -151,7 +151,7 @@ final class OneSignalViewModel: ObservableObject {
             showToast("Push enabled")
         }
     }
-    
+
     func requestPushPermission() {
         service.requestPushPermission { [weak self] accepted in
             Task { @MainActor in
@@ -160,37 +160,37 @@ final class OneSignalViewModel: ObservableObject {
             }
         }
     }
-    
+
     // MARK: - Email
-    
+
     func addEmail(_ email: String) {
         service.addEmail(email)
         emails.append(email)
         showToast("Email added")
     }
-    
+
     func removeEmail(_ email: String) {
         service.removeEmail(email)
         emails.removeAll { $0 == email }
         showToast("Email removed")
     }
-    
+
     // MARK: - SMS
-    
+
     func addSms(_ number: String) {
         service.addSms(number)
         smsNumbers.append(number)
         showToast("SMS added")
     }
-    
+
     func removeSms(_ number: String) {
         service.removeSms(number)
         smsNumbers.removeAll { $0 == number }
         showToast("SMS removed")
     }
-    
+
     // MARK: - Tags
-    
+
     func addTag(key: String, value: String) {
         service.addTag(key: key, value: value)
         // Remove existing tag with same key if present
@@ -198,38 +198,38 @@ final class OneSignalViewModel: ObservableObject {
         tags.append(KeyValueItem(key: key, value: value))
         showToast("Tag added")
     }
-    
+
     func removeTag(_ item: KeyValueItem) {
         service.removeTag(item.key)
         tags.removeAll { $0.id == item.id }
         showToast("Tag removed")
     }
-    
+
     // MARK: - Outcomes
-    
+
     func sendOutcome(_ name: String) {
         service.sendOutcome(name)
         showToast("Outcome '\(name)' sent")
     }
-    
+
     func sendOutcome(_ name: String, value: Double) {
         service.sendOutcome(name, value: NSNumber(value: value))
         showToast("Outcome '\(name)' with value \(value) sent")
     }
-    
+
     func sendUniqueOutcome(_ name: String) {
         service.sendUniqueOutcome(name)
         showToast("Unique outcome '\(name)' sent")
     }
-    
+
     // MARK: - In-App Messaging
-    
+
     func toggleInAppMessagesPaused() {
         isInAppMessagesPaused.toggle()
         service.isInAppMessagesPaused = isInAppMessagesPaused
         showToast(isInAppMessagesPaused ? "In-app messages paused" : "In-app messages resumed")
     }
-    
+
     func addTrigger(key: String, value: String) {
         service.addTrigger(key: key, value: value)
         // Remove existing trigger with same key if present
@@ -237,52 +237,52 @@ final class OneSignalViewModel: ObservableObject {
         triggers.append(KeyValueItem(key: key, value: value))
         showToast("Trigger added")
     }
-    
+
     func removeTrigger(_ item: KeyValueItem) {
         service.removeTrigger(item.key)
         triggers.removeAll { $0.id == item.id }
         showToast("Trigger removed")
     }
-    
+
     // MARK: - Location
-    
+
     func toggleLocationShared() {
         isLocationShared.toggle()
         service.isLocationShared = isLocationShared
         showToast(isLocationShared ? "Location sharing enabled" : "Location sharing disabled")
     }
-    
+
     func promptLocation() {
         service.requestLocationPermission()
         showToast("Location permission requested")
     }
-    
+
     // MARK: - Notifications
-    
+
     func clearAllNotifications() {
         service.clearAllNotifications()
         showToast("All notifications cleared")
     }
-    
+
     func sendTestNotification(_ type: NotificationType) {
         // In a real app, this would trigger a notification via your backend
         // For demo purposes, we just show a toast
         showToast("Test '\(type.rawValue)' notification triggered")
     }
-    
+
     func sendTestInAppMessage(_ type: InAppMessageType) {
         // In a real app, this would trigger an IAM via your backend
         // For demo purposes, we just show a toast
         showToast("Test '\(type.rawValue)' in-app message triggered")
     }
-    
+
     // MARK: - Add Sheet
-    
+
     func showAddSheet(for type: AddItemType) {
         addItemType = type
         showingAddSheet = true
     }
-    
+
     func handleAddItem(key: String, value: String) {
         switch addItemType {
         case .alias:
@@ -300,21 +300,21 @@ final class OneSignalViewModel: ObservableObject {
         }
         showingAddSheet = false
     }
-    
+
     // MARK: - Toast
-    
+
     private func showToast(_ message: String) {
         toastMessage = message
-        
+
         // Auto-dismiss after 2 seconds
         Task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             toastMessage = nil
         }
     }
-    
+
     // MARK: - Observers
-    
+
     private func setupObservers() {
         observers.viewModel = self
         service.addPushSubscriptionObserver(observers)
@@ -327,21 +327,21 @@ final class OneSignalViewModel: ObservableObject {
 
 private class Observers: NSObject, OSPushSubscriptionObserver, OSUserStateObserver, OSNotificationPermissionObserver {
     weak var viewModel: OneSignalViewModel?
-    
+
     func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
         Task { @MainActor in
             viewModel?.pushSubscriptionId = state.current.id
             viewModel?.isPushEnabled = state.current.optedIn
         }
     }
-    
+
     func onUserStateDidChange(state: OSUserChangedState) {
         Task { @MainActor in
             // User state changed - could refresh aliases, etc.
             print("User state changed: \(state.jsonRepresentation())")
         }
     }
-    
+
     func onNotificationPermissionDidChange(_ permission: Bool) {
         Task { @MainActor in
             viewModel?.isPushEnabled = permission && (viewModel?.isPushEnabled ?? false)

@@ -30,7 +30,7 @@ import SwiftUI
 /// A toast notification view that appears at the bottom of the screen
 struct ToastView: View {
     let message: String
-    
+
     var body: some View {
         Text(message)
             .font(.subheadline)
@@ -46,11 +46,11 @@ struct ToastView: View {
 /// A view modifier that overlays a toast message
 struct ToastModifier: ViewModifier {
     @Binding var message: String?
-    
+
     func body(content: Content) -> some View {
         ZStack {
             content
-            
+
             if let message = message {
                 VStack {
                     Spacer()

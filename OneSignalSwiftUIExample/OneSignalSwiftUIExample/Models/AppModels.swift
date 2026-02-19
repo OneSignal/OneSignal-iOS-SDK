@@ -48,9 +48,9 @@ enum NotificationType: String, CaseIterable, Identifiable {
     case newPost = "New Post"
     case reEngagement = "Re-Engagement"
     case rating = "Rating"
-    
+
     var id: String { rawValue }
-    
+
     var iconName: String {
         switch self {
         case .general: return "bell.fill"
@@ -73,9 +73,9 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
     case bottomBanner = "Bottom Banner"
     case centerModal = "Center Modal"
     case fullScreen = "Full Screen"
-    
+
     var id: String { rawValue }
-    
+
     var iconName: String {
         switch self {
         case .topBanner: return "rectangle.topthird.inset.filled"
@@ -96,7 +96,7 @@ enum AddItemType {
     case tag
     case trigger
     case externalUserId
-    
+
     var title: String {
         switch self {
         case .alias: return "Add Alias"
@@ -107,14 +107,14 @@ enum AddItemType {
         case .externalUserId: return "Login User"
         }
     }
-    
+
     var requiresKeyValue: Bool {
         switch self {
         case .alias, .tag, .trigger: return true
         case .email, .sms, .externalUserId: return false
         }
     }
-    
+
     var keyPlaceholder: String {
         switch self {
         case .alias: return "Alias Label"
@@ -123,7 +123,7 @@ enum AddItemType {
         default: return "Key"
         }
     }
-    
+
     var valuePlaceholder: String {
         switch self {
         case .alias: return "Alias ID"
@@ -134,7 +134,7 @@ enum AddItemType {
         case .externalUserId: return "External User ID"
         }
     }
-    
+
     var keyboardType: UIKeyboardType {
         switch self {
         case .email: return .emailAddress

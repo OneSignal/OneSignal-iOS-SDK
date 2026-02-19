@@ -30,7 +30,7 @@ import SwiftUI
 /// Section for user login/logout and alias management
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         // Login/Logout Section
         Section {
@@ -45,7 +45,7 @@ struct UserSection: View {
                     Spacer()
                 }
             }
-            
+
             // Logout Button
             Button(role: .destructive) {
                 viewModel.logout()
@@ -58,7 +58,7 @@ struct UserSection: View {
                 }
             }
             .disabled(viewModel.externalUserId == nil)
-            
+
             // Current User Info
             if let userId = viewModel.externalUserId {
                 InfoRow(label: "External User ID", value: userId)
@@ -66,7 +66,7 @@ struct UserSection: View {
         } header: {
             Text("User")
         }
-        
+
         // Aliases Section
         Section {
             if viewModel.aliases.isEmpty {
@@ -78,7 +78,7 @@ struct UserSection: View {
                     }
                 }
             }
-            
+
             Button {
                 viewModel.showAddSheet(for: .alias)
             } label: {

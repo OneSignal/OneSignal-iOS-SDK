@@ -34,7 +34,7 @@ import OneSignalLocation
 struct OneSignalSwiftUIExampleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var viewModel = OneSignalViewModel()
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -46,38 +46,38 @@ struct OneSignalSwiftUIExampleApp: App {
 // MARK: - App Delegate
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         // Initialize OneSignal
         OneSignalService.shared.initialize(launchOptions: launchOptions)
-        
+
         // Set up notification lifecycle listeners
         setupNotificationListeners()
-        
+
         // Set up in-app message listeners
         setupInAppMessageListeners()
-        
+
         return true
     }
-    
+
     private func setupNotificationListeners() {
         // Foreground notification display
         OneSignal.Notifications.addForegroundLifecycleListener(NotificationLifecycleHandler.shared)
-        
+
         // Notification click handling
         OneSignal.Notifications.addClickListener(NotificationClickHandler.shared)
     }
-    
+
     private func setupInAppMessageListeners() {
         // In-app message lifecycle
         OneSignal.InAppMessages.addLifecycleListener(InAppMessageLifecycleHandler.shared)
-        
+
         // In-app message click handling
         OneSignal.InAppMessages.addClickListener(InAppMessageClickHandler.shared)
-        
+
         // Start with IAM paused
         OneSignal.InAppMessages.paused = true
     }
@@ -87,7 +87,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 class NotificationLifecycleHandler: NSObject, OSNotificationLifecycleListener {
     static let shared = NotificationLifecycleHandler()
-    
+
     func onWillDisplay(event: OSNotificationWillDisplayEvent) {
         print("[OneSignal] Notification will display: \(event.notification.title ?? "No title")")
         // Optionally modify display behavior
@@ -98,7 +98,7 @@ class NotificationLifecycleHandler: NSObject, OSNotificationLifecycleListener {
 
 class NotificationClickHandler: NSObject, OSNotificationClickListener {
     static let shared = NotificationClickHandler()
-    
+
     func onClick(event: OSNotificationClickEvent) {
         print("[OneSignal] Notification clicked: \(event.notification.title ?? "No title")")
         // Handle notification click - navigate to specific screen, etc.
@@ -109,19 +109,19 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
 
 class InAppMessageLifecycleHandler: NSObject, OSInAppMessageLifecycleListener {
     static let shared = InAppMessageLifecycleHandler()
-    
+
     func onWillDisplay(event: OSInAppMessageWillDisplayEvent) {
         print("[OneSignal] IAM will display: \(event.message.messageId)")
     }
-    
+
     func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
         print("[OneSignal] IAM did display: \(event.message.messageId)")
     }
-    
+
     func onWillDismiss(event: OSInAppMessageWillDismissEvent) {
         print("[OneSignal] IAM will dismiss: \(event.message.messageId)")
     }
-    
+
     func onDidDismiss(event: OSInAppMessageDidDismissEvent) {
         print("[OneSignal] IAM did dismiss: \(event.message.messageId)")
     }
@@ -129,7 +129,7 @@ class InAppMessageLifecycleHandler: NSObject, OSInAppMessageLifecycleListener {
 
 class InAppMessageClickHandler: NSObject, OSInAppMessageClickListener {
     static let shared = InAppMessageClickHandler()
-    
+
     func onClick(event: OSInAppMessageClickEvent) {
         print("[OneSignal] IAM clicked: \(event.result.actionId ?? "No action ID")")
         // Handle IAM click - navigate, track event, etc.

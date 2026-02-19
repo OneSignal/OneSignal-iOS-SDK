@@ -32,15 +32,15 @@ struct AddItemSheet: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
     let onCancel: () -> Void
-    
+
     @State private var keyText: String = ""
     @State private var valueText: String = ""
     @FocusState private var focusedField: Field?
-    
+
     private enum Field {
         case key, value
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
@@ -49,7 +49,7 @@ struct AddItemSheet: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 // Input Fields
                 if itemType.requiresKeyValue {
                     VStack(alignment: .leading, spacing: 8) {
@@ -62,7 +62,7 @@ struct AddItemSheet: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                     }
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Value")
                             .font(.caption)
@@ -87,18 +87,18 @@ struct AddItemSheet: View {
                             .keyboardType(itemType.keyboardType)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 // Action Buttons
                 HStack(spacing: 24) {
                     Spacer()
-                    
+
                     Button("CANCEL") {
                         onCancel()
                     }
                     .foregroundColor(.accentColor)
-                    
+
                     Button(itemType == .externalUserId ? "LOGIN" : "ADD") {
                         onAdd(keyText, valueText)
                     }
@@ -115,7 +115,7 @@ struct AddItemSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
-    
+
     private var singleFieldLabel: String {
         switch itemType {
         case .email: return "New Email"
@@ -124,7 +124,7 @@ struct AddItemSheet: View {
         default: return "Value"
         }
     }
-    
+
     private var isValid: Bool {
         if itemType.requiresKeyValue {
             return !keyText.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -137,12 +137,13 @@ struct AddItemSheet: View {
 
 /// A text field style with an underline instead of a border
 struct UnderlineTextFieldStyle: TextFieldStyle {
+    // swiftlint:disable:next identifier_name
     func _body(configuration: TextField<Self._Label>) -> some View {
         VStack(spacing: 0) {
             configuration
                 .font(.system(size: 17))
                 .padding(.vertical, 8)
-            
+
             Rectangle()
                 .fill(Color(.separator))
                 .frame(height: 1)

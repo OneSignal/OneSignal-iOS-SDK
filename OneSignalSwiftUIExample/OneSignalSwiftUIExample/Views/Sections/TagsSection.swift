@@ -30,7 +30,7 @@ import SwiftUI
 /// Section for managing user tags
 struct TagsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         Section {
             if viewModel.tags.isEmpty {
@@ -42,7 +42,7 @@ struct TagsSection: View {
                     }
                 }
             }
-            
+
             Button {
                 viewModel.showAddSheet(for: .tag)
             } label: {

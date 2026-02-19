@@ -30,7 +30,7 @@ import SwiftUI
 /// Section displaying app information and consent management
 struct AppInfoSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         Section {
             // App ID
@@ -43,7 +43,7 @@ struct AppInfoSection: View {
                     .textSelection(.enabled)
             }
             .padding(.vertical, 4)
-            
+
             // Revoke Consent Button
             Button(role: .destructive) {
                 viewModel.revokeConsent()

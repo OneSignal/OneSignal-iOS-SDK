@@ -31,12 +31,12 @@ import SwiftUI
 struct KeyValueRow: View {
     let item: KeyValueItem
     let onDelete: (() -> Void)?
-    
+
     init(item: KeyValueItem, onDelete: (() -> Void)? = nil) {
         self.item = item
         self.onDelete = onDelete
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -46,9 +46,9 @@ struct KeyValueRow: View {
                 Text(item.value)
                     .font(.body)
             }
-            
+
             Spacer()
-            
+
             if let onDelete = onDelete {
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -65,19 +65,19 @@ struct KeyValueRow: View {
 struct SingleValueRow: View {
     let value: String
     let onDelete: (() -> Void)?
-    
+
     init(value: String, onDelete: (() -> Void)? = nil) {
         self.value = value
         self.onDelete = onDelete
     }
-    
+
     var body: some View {
         HStack {
             Text(value)
                 .font(.body)
-            
+
             Spacer()
-            
+
             if let onDelete = onDelete {
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -95,13 +95,13 @@ struct InfoRow: View {
     let label: String
     let value: String
     let isMonospaced: Bool
-    
+
     init(label: String, value: String, isMonospaced: Bool = false) {
         self.label = label
         self.value = value
         self.isMonospaced = isMonospaced
     }
-    
+
     var body: some View {
         HStack {
             Text(label)
@@ -119,7 +119,7 @@ struct InfoRow: View {
 /// A placeholder row for empty lists
 struct EmptyListRow: View {
     let message: String
-    
+
     var body: some View {
         Text(message)
             .foregroundColor(.secondary)
@@ -140,17 +140,17 @@ struct EmptyListRow: View {
                 item: KeyValueItem(key: "subscription_tier", value: "premium")
             )
         }
-        
+
         Section("Single Values") {
             SingleValueRow(value: "user@example.com", onDelete: {})
             SingleValueRow(value: "+1234567890")
         }
-        
+
         Section("Info Rows") {
             InfoRow(label: "App ID", value: "77e32082-ea27-42e3-a898-c72e141824ef", isMonospaced: true)
             InfoRow(label: "Status", value: "Active")
         }
-        
+
         Section("Empty") {
             EmptyListRow(message: "No items added")
         }

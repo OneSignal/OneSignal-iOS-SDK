@@ -30,7 +30,7 @@ import SwiftUI
 /// Section for push subscription, email, and SMS management
 struct SubscriptionSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         // Push Section
         Section {
@@ -44,7 +44,7 @@ struct SubscriptionSection: View {
                     .textSelection(.enabled)
             }
             .padding(.vertical, 4)
-            
+
             // Enabled Toggle
             Toggle("Enabled", isOn: Binding(
                 get: { viewModel.isPushEnabled },
@@ -53,7 +53,7 @@ struct SubscriptionSection: View {
         } header: {
             Text("Push")
         }
-        
+
         // Emails Section
         Section {
             if viewModel.emails.isEmpty {
@@ -65,7 +65,7 @@ struct SubscriptionSection: View {
                     }
                 }
             }
-            
+
             Button {
                 viewModel.showAddSheet(for: .email)
             } label: {
@@ -79,7 +79,7 @@ struct SubscriptionSection: View {
         } header: {
             Text("Emails")
         }
-        
+
         // SMS Section
         Section {
             if viewModel.smsNumbers.isEmpty {
@@ -91,7 +91,7 @@ struct SubscriptionSection: View {
                     }
                 }
             }
-            
+
             Button {
                 viewModel.showAddSheet(for: .sms)
             } label: {

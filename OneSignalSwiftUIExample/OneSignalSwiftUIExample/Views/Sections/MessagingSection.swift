@@ -33,7 +33,7 @@ struct MessagingSection: View {
     @State private var showingOutcomeSheet = false
     @State private var outcomeName = ""
     @State private var outcomeValue = ""
-    
+
     var body: some View {
         // Outcome Events Section
         Section {
@@ -50,7 +50,7 @@ struct MessagingSection: View {
         } header: {
             Text("Outcome Events")
         }
-        
+
         // In-App Messaging Section
         Section {
             Toggle(isOn: Binding(
@@ -67,7 +67,7 @@ struct MessagingSection: View {
         } header: {
             Text("In-App Messaging")
         }
-        
+
         // Triggers Section
         Section {
             if viewModel.triggers.isEmpty {
@@ -79,7 +79,7 @@ struct MessagingSection: View {
                     }
                 }
             }
-            
+
             Button {
                 viewModel.showAddSheet(for: .trigger)
             } label: {
@@ -115,16 +115,16 @@ struct MessagingSection: View {
 struct OutcomeSheet: View {
     let onSend: (String, Double?) -> Void
     let onCancel: () -> Void
-    
+
     @State private var outcomeName = ""
     @State private var outcomeValue = ""
     @State private var includeValue = false
     @FocusState private var focusedField: Field?
-    
+
     private enum Field {
         case name, value
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -134,10 +134,10 @@ struct OutcomeSheet: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
-                
+
                 Section {
                     Toggle("Include Value", isOn: $includeValue)
-                    
+
                     if includeValue {
                         TextField("Value", text: $outcomeValue)
                             .focused($focusedField, equals: .value)
@@ -153,7 +153,7 @@ struct OutcomeSheet: View {
                         onCancel()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Send") {
                         let value = includeValue ? Double(outcomeValue) : nil

@@ -30,7 +30,7 @@ import SwiftUI
 /// Main content view composing all sections
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         NavigationStack {
             List {

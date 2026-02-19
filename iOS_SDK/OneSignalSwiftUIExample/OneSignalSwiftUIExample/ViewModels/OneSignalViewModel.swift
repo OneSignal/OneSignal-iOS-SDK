@@ -444,7 +444,19 @@ final class OneSignalViewModel: ObservableObject {
         showToast("Live Activity '\(id)' exited")
     }
 
-    // MARK: - Notifications
+    // MARK: - Observers
+
+    private func setupObservers() {
+        observers.viewModel = self
+        service.addPushSubscriptionObserver(observers)
+        service.addUserObserver(observers)
+        service.addPermissionObserver(observers)
+    }
+}
+
+// MARK: - Notifications
+
+extension OneSignalViewModel {
 
     func clearAllNotifications() {
         service.clearAllNotifications()
@@ -504,8 +516,11 @@ final class OneSignalViewModel: ObservableObject {
         service.addTrigger(key: "iam_type", value: triggerValue)
         showToast("Sent In-App Message: \(type.rawValue)")
     }
+}
 
-    // MARK: - Add Sheet
+// MARK: - Sheet Handling
+
+extension OneSignalViewModel {
 
     func showAddSheet(for type: AddItemType) {
         addItemType = type
@@ -567,26 +582,19 @@ final class OneSignalViewModel: ObservableObject {
         }
         showingRemoveMultiSheet = false
     }
+}
 
-    // MARK: - Toast
+// MARK: - Toast
+
+extension OneSignalViewModel {
 
     func showToast(_ message: String) {
         toastMessage = message
 
-        // Auto-dismiss after 2 seconds
         Task {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             toastMessage = nil
         }
-    }
-
-    // MARK: - Observers
-
-    private func setupObservers() {
-        observers.viewModel = self
-        service.addPushSubscriptionObserver(observers)
-        service.addUserObserver(observers)
-        service.addPermissionObserver(observers)
     }
 }
 

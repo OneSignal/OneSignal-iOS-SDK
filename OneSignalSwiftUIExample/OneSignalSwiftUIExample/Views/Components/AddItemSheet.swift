@@ -32,15 +32,15 @@ struct AddItemSheet: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
     let onCancel: () -> Void
-    
+
     @State private var keyText: String = ""
     @State private var valueText: String = ""
     @FocusState private var focusedField: Field?
-    
+
     private enum Field {
         case key, value
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -50,7 +50,7 @@ struct AddItemSheet: View {
                             .focused($focusedField, equals: .key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
-                        
+
                         TextField(itemType.valuePlaceholder, text: $valueText)
                             .focused($focusedField, equals: .value)
                             .textInputAutocapitalization(.never)
@@ -75,7 +75,7 @@ struct AddItemSheet: View {
                         onCancel()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button(itemType == .externalUserId ? "Login" : "Add") {
                         onAdd(keyText, valueText)
@@ -90,7 +90,7 @@ struct AddItemSheet: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
-    
+
     private var isValid: Bool {
         if itemType.requiresKeyValue {
             return !keyText.trimmingCharacters(in: .whitespaces).isEmpty &&

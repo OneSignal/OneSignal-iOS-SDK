@@ -30,7 +30,7 @@ import SwiftUI
 /// Section for sending test push notifications and in-app messages
 struct NotificationSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         // Send Push Notification Section
         Section {
@@ -40,7 +40,7 @@ struct NotificationSection: View {
         } header: {
             Text("Send Push Notification")
         }
-        
+
         // Send In-App Message Section
         Section {
             InAppMessageTypeGrid { type in

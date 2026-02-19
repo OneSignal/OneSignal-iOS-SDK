@@ -30,12 +30,12 @@ import SwiftUI
 /// A grid of notification type buttons
 struct NotificationTypeGrid: View {
     let onSelect: (NotificationType) -> Void
-    
+
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
-    
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(NotificationType.allCases) { type in
@@ -51,12 +51,12 @@ struct NotificationTypeGrid: View {
 /// A grid of in-app message type buttons
 struct InAppMessageTypeGrid: View {
     let onSelect: (InAppMessageType) -> Void
-    
+
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
-    
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(InAppMessageType.allCases) { type in
@@ -73,7 +73,7 @@ struct InAppMessageTypeGrid: View {
 struct NotificationTypeButton: View {
     let type: NotificationType
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
@@ -97,7 +97,7 @@ struct NotificationTypeButton: View {
 struct InAppMessageTypeButton: View {
     let type: InAppMessageType
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
@@ -125,7 +125,7 @@ struct InAppMessageTypeButton: View {
             NotificationTypeGrid(onSelect: { type in
                 print("Selected: \(type.rawValue)")
             })
-            
+
             Text("Send In-App Message")
                 .font(.headline)
             InAppMessageTypeGrid(onSelect: { type in

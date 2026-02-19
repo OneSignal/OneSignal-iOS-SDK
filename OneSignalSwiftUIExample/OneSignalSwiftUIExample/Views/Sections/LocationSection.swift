@@ -30,7 +30,7 @@ import SwiftUI
 /// Section for location sharing and permissions
 struct LocationSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    
+
     var body: some View {
         Section {
             Toggle(isOn: Binding(
@@ -44,7 +44,7 @@ struct LocationSection: View {
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             Button {
                 viewModel.promptLocation()
             } label: {
