@@ -76,9 +76,6 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
                 timeProcesor = [OSAttributedFocusTimeProcessor new];
                 break;
              case NOT_ATTRIBUTED:
-                // TODO: Clean up, this check should be for getting and not create
-                if (focusEventType == END_SESSION)
-                    break;
                 timeProcesor = [OSUnattributedFocusTimeProcessor new];
                 break;
         }
