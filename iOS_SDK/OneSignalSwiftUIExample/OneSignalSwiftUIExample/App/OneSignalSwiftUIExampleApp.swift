@@ -26,6 +26,7 @@
  */
 
 import SwiftUI
+import UserNotifications
 import OneSignalFramework
 
 @main
@@ -47,7 +48,7 @@ struct OneSignalSwiftUIExampleApp: App {
 
 // MARK: - App Delegate
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     // Keys for caching SDK state in UserDefaults
     private let cachedIAMPausedKey = "CachedInAppMessagesPaused"
@@ -59,6 +60,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
+
         // Set consent required before init (must be set before initWithContext)
         let consentRequired = UserDefaults.standard.bool(forKey: cachedConsentRequiredKey)
         let privacyConsent = UserDefaults.standard.bool(forKey: cachedPrivacyConsentKey)
@@ -89,6 +92,49 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         TooltipService.shared.initialize()
 
         return true
+    }
+
+    // MARK: - Manual Integration APIs (for use when swizzling is disabled)
+
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        OneSignal.Notifications.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+    }
+
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        OneSignal.Notifications.didFailToRegisterForRemoteNotifications(error: error as NSError)
+    }
+
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        OneSignal.Notifications.didReceiveRemoteNotification(userInfo: userInfo,
+                                                             completionHandler: completionHandler)
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        OneSignal.Notifications.willPresentNotification(
+            payload: notification.request.content.userInfo) { notif in
+                if notif != nil {
+                    if #available(iOS 14.0, *) {
+                        completionHandler([.banner, .list, .sound])
+                    } else {
+                        completionHandler([.alert, .sound])
+                    }
+                } else {
+                    completionHandler([])
+                }
+            }
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        OneSignal.Notifications.didReceiveNotificationResponse(response)
+        completionHandler()
     }
 
     private func setupLogListener() {
