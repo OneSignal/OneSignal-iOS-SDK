@@ -114,7 +114,7 @@ static NSMutableSet<Class>* swizzledClasses;
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    [OSNotificationsManager didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    [OSNotificationsManager didRegisterForRemoteNotificationsWithDeviceToken:inDeviceToken];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -132,7 +132,7 @@ static NSMutableSet<Class>* swizzledClasses;
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
     if ([OneSignalConfigManager getAppId])
-        [OSNotificationsManager handleDidFailRegisterForRemoteNotification:err];
+        [OSNotificationsManager didFailToRegisterForRemoteNotificationsWithError:err];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -180,7 +180,7 @@ static NSMutableSet<Class>* swizzledClasses;
         else if (appState == UIApplicationStateActive && isVisibleNotification)
             [OSNotificationsManager notificationReceived:userInfo wasOpened:NO];
         else
-            startedBackgroundJob = [OSNotificationsManager receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
+            startedBackgroundJob = [OSNotificationsManager didReceiveRemoteNotification:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
     }
     
     if (forwarder.hasReceiver) {
