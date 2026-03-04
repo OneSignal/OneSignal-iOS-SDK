@@ -44,7 +44,7 @@ static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
-    [OSBackgroundTaskManager setTaskInvalid:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
     return self;
 }
 
@@ -85,7 +85,7 @@ static let DELAY_TIME = 30;
         return;
     }
     
-    [OSBackgroundTaskManager beginBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager beginBackgroundTask:SESSION_OUTCOMES_TASK];
 
     if (params.onSessionEnded) {
         [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:@(totalTimeActive)];
@@ -114,10 +114,10 @@ static let DELAY_TIME = 30;
         [OneSignal sendSessionEndOutcomes:totalTimeActive params:params onSuccess:^(NSDictionary *result) {
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendBackgroundAttributed succeed"];
             [super saveUnsentActiveTime:0];
-            [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         } onFailure:^(NSError *error) {
             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendBackgroundAttributed failed, will retry on next open"];
-            [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         }];
     });
 }
@@ -128,7 +128,7 @@ static let DELAY_TIME = 30;
     
     [restCallTimer invalidate];
     restCallTimer = nil;
-    [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
 }
 
 @end

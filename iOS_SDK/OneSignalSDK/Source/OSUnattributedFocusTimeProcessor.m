@@ -28,8 +28,13 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import "OSMacros.h"
+#import "OneSignalFramework.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 #import <OneSignalUser/OneSignalUser.h>
+
+@interface OneSignal ()
++ (void)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params onSuccess:(OSResultSuccessBlock _Nonnull)successBlock onFailure:(OSFailureBlock _Nonnull)failureBlock;
+@end
 
 @implementation OSUnattributedFocusTimeProcessor
 
@@ -37,6 +42,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 - (instancetype)init {
     self = [super init];
+    [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
     return self;
 }
 
@@ -74,6 +80,17 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:sendSessionTime of %@", @(totalTimeActive)]];
     [OneSignalUserManagerImpl.sharedInstance sendSessionTime:@(totalTimeActive)];
     [super saveUnsentActiveTime:0];
+
+    [OSBackgroundTaskManager beginBackgroundTask:SESSION_OUTCOMES_TASK];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [OneSignal sendSessionEndOutcomes:@(totalTimeActive) params:params onSuccess:^(NSDictionary *result) {
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendUnattributed session end outcomes succeed"];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+        } onFailure:^(NSError *error) {
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendUnattributed session end outcomes failed"];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+        }];
+    });
 }
 
 - (void)cancelDelayedJob {

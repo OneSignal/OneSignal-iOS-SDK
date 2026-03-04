@@ -79,6 +79,7 @@
 		3C30FE362F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */; };
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
+		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -1318,6 +1319,7 @@
 		3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarlyTriggerTrackingTests.swift; sourceTree = "<group>"; };
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
+		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -2586,6 +2588,7 @@
 				3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */,
 				4746E2A62B86B64100D6324C /* LiveActivitiesSwiftTests.swift */,
 				4746E2AA2B8775C400D6324C /* LiveActivitiesObjcTests.m */,
+				3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -4531,6 +4534,7 @@
 				4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */,
 				CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */,
 				5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */,
+				3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */,
 				CA8E19022193C6B0009DA223 /* InAppMessagingIntegrationTests.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				7AECE59223674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
