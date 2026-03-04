@@ -801,6 +801,8 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
+    [OneSignalBadgeHelpers updateCachedBadgeValue:0 usePreviousBadgeCount:false];
+    
     if (@available(iOS 16.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:0 withCompletionHandler:^(NSError * _Nullable error) {
             if (error) {
