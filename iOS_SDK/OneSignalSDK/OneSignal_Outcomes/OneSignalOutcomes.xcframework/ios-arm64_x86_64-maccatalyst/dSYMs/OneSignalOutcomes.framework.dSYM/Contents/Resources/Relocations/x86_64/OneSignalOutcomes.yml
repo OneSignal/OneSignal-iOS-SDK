@@ -3,7 +3,7 @@ triple:          'x86_64-apple-darwin'
 binary-path:     '/Users/runner/Library/Developer/Xcode/DerivedData/OneSignal-btyiuxasarxrmcazajaxhhgwtsud/Build/Intermediates.noindex/ArchiveIntermediates/OneSignalOutcomes/InstallationBuildProductsLocation/Library/Frameworks/OneSignalOutcomes.framework/Versions/A/OneSignalOutcomes'
 relocations:
   - { offsetInCU: 0x27, offset: 0xD4F3F, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x8000, symSize: 0xAA }
-  - { offsetInCU: 0x46, offset: 0xD4F5E, size: 0x8, addend: 0x0, symName: _unattributedUniqueOutcomeEventsSentSet, symObjAddr: 0xC050, symBinAddr: 0x20D20, symSize: 0x0 }
+  - { offsetInCU: 0x46, offset: 0xD4F5E, size: 0x8, addend: 0x0, symName: _unattributedUniqueOutcomeEventsSentSet, symObjAddr: 0xC038, symBinAddr: 0x20D20, symSize: 0x0 }
   - { offsetInCU: 0x240, offset: 0xD5158, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initWithSessionManager:outcomeEventsFactory:]', symObjAddr: 0x0, symBinAddr: 0x8000, symSize: 0xAA }
   - { offsetInCU: 0x2FC, offset: 0xD5214, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController initUniqueOutcomeEventsFromCache]', symObjAddr: 0xAA, symBinAddr: 0x80AA, symSize: 0x8B }
   - { offsetInCU: 0x393, offset: 0xD52AB, size: 0x8, addend: 0x0, symName: '-[OneSignalOutcomeEventsController clearOutcomes]', symObjAddr: 0x135, symBinAddr: 0x8135, symSize: 0x6E }
