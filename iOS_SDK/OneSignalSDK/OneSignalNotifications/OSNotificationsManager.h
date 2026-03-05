@@ -131,5 +131,14 @@ NS_SWIFT_NAME(onClick(event:));
 + (void)notificationReceived:(NSDictionary* _Nonnull)messageDict wasOpened:(BOOL)opened;
 + (void)checkProvisionalAuthorizationStatus;
 + (void)registerLifecycleObserver;
++ (BOOL)isSwizzlingDisabled;
+
+// Internal entry points called by swizzled delegate paths
+// These bypass the swizzling-active guard so the SDK doesn't block its own calls
++ (void)processRegisteredDeviceToken:(NSData *_Nonnull)deviceToken;
++ (void)processFailedRemoteNotificationsRegistration:(NSError *_Nonnull)error;
++ (BOOL)processReceivedRemoteNotification:(NSDictionary *_Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
++ (void)processWillPresentNotificationWithPayload:(NSDictionary *_Nonnull)payload completion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)processNotificationResponse:(UNNotificationResponse *_Nonnull)response;
 
 @end

@@ -161,6 +161,16 @@ static NSString *_lastMessageIdFromAction;
 static UIBackgroundTaskIdentifier _mediaBackgroundTask;
 static BOOL _disableBadgeClearing = NO;
 
++ (BOOL)isSwizzlingDisabled {
+    static BOOL _cached = NO;
+    static BOOL _disabled = NO;
+    if (!_cached) {
+        id plistValue = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_SWIZZLING];
+        _disabled = plistValue != nil && [plistValue boolValue];
+        _cached = YES;
+    }
+    return _disabled;
+}
 
 static BOOL _coldStartFromTapOnNotification = NO;
 // Set to false as soon as it's read.
@@ -441,8 +451,16 @@ static NSString *_pushSubscriptionId;
     return true;
 }
 
-+ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)inDeviceToken {
-    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didRegisterForRemoteNotificationsWithDeviceToken: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processRegisteredDeviceToken:deviceToken];
+}
+
++ (void)processRegisteredDeviceToken:(NSData *)deviceToken {
+    let parsedDeviceToken = [NSString hexStringFromData:deviceToken];
 
     [OneSignalLog onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
 
@@ -462,6 +480,14 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError*)err {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didFailToRegisterForRemoteNotificationsWithError: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processFailedRemoteNotificationsRegistration:err];
+}
+
++ (void)processFailedRemoteNotificationsRegistration:(NSError*)err {
     OSNotificationsManager.waitingForApnsResponse = false;
     
     if (err.code == 3000) {
@@ -648,6 +674,15 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)willPresentNotificationWithPayload:(NSDictionary *)payload completion:(OSNotificationDisplayResponse)completion {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: willPresentNotificationWithPayload:completion: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        completion([OSNotification new]);
+        return;
+    }
+    [self processWillPresentNotificationWithPayload:payload completion:completion];
+}
+
++ (void)processWillPresentNotificationWithPayload:(NSDictionary *)payload completion:(OSNotificationDisplayResponse)completion {
     // check to make sure the app is in focus and it's a OneSignal notification
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]
         || ![OneSignalCoreHelper isOneSignalPayload:payload]
@@ -902,6 +937,14 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (BOOL)didReceiveRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didReceiveRemoteNotification:completionHandler: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return NO;
+    }
+    return [self processReceivedRemoteNotification:userInfo completionHandler:completionHandler];
+}
+
++ (BOOL)processReceivedRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
    var startedBackgroundJob = false;
    
    NSDictionary* richData = nil;
@@ -996,6 +1039,14 @@ static NSString *_lastnonActiveMessageId;
 #pragma mark - Manual Integration APIs (for use when swizzling is disabled)
 
 + (void)didReceiveNotificationResponse:(UNNotificationResponse *)response {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didReceiveNotificationResponse: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processNotificationResponse:response];
+}
+
++ (void)processNotificationResponse:(UNNotificationResponse *)response {
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     if (![OneSignalConfigManager getAppId])

@@ -752,7 +752,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSDialogInstanceManager setSharedOSDialogInstance:[OneSignalDialogController sharedInstance]];
     [OSNotificationsManager registerLifecycleObserver];
     
-    if ([self shouldDisableSwizzling]) {
+    if ([OSNotificationsManager isSwizzlingDisabled]) {
         [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled via Info.plist. Developers must manually forward notification delegate methods to OneSignal."];
         return;
     }
@@ -797,13 +797,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self onesignalSetApplicationIconBadgeNumber:badge];
 }
 
-+ (BOOL)shouldDisableSwizzling {
-    id plistValue = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_SWIZZLING];
-    if (plistValue != nil && [plistValue boolValue]) {
-        return YES;
-    }
-    return NO;
-}
 @end
 
 #pragma clang diagnostic pop
