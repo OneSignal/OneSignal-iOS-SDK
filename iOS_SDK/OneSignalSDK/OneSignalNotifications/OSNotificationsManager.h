@@ -65,6 +65,18 @@ NS_SWIFT_NAME(onClick(event:));
 + (void)addPermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
 + (void)removePermissionObserver:(NSObject<OSNotificationPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
 + (void)clearAll;
+// Manual integration APIs (for use when swizzling is disabled via Info.plist)
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *_Nonnull)deviceToken
+    NS_SWIFT_NAME(didRegisterForRemoteNotifications(deviceToken:));
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *_Nonnull)error
+    NS_SWIFT_NAME(didFailToRegisterForRemoteNotifications(error:));
++ (BOOL)didReceiveRemoteNotification:(NSDictionary *_Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler
+    NS_SWIFT_NAME(didReceiveRemoteNotification(userInfo:completionHandler:));
++ (void)willPresentNotificationWithPayload:(NSDictionary *_Nonnull)payload completion:(OSNotificationDisplayResponse _Nonnull)completion
+    NS_SWIFT_NAME(willPresentNotification(payload:completion:));
++ (void)didReceiveNotificationResponse:(UNNotificationResponse *_Nonnull)response
+    NS_SWIFT_NAME(didReceiveNotificationResponse(_:));
++ (void)setBadgeCount:(NSInteger)badgeCount;
 @end
 
 
@@ -82,7 +94,7 @@ NS_SWIFT_NAME(onClick(event:));
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
-+ (void)start;
++ (void)startSwizzling;
 + (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification;
 + (BOOL)getColdStartFromTapOnNotification;
 
@@ -116,10 +128,17 @@ NS_SWIFT_NAME(onClick(event:));
 + (void)handleNotificationActionWithUrl:(NSString* _Nullable)url actionID:(NSString* _Nonnull)actionID;
 + (void)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll;
 
-+ (BOOL)receiveRemoteNotification:(UIApplication* _Nonnull)application UserInfo:(NSDictionary* _Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
 + (void)notificationReceived:(NSDictionary* _Nonnull)messageDict wasOpened:(BOOL)opened;
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary * _Nonnull)payload withCompletion:(OSNotificationDisplayResponse _Nonnull)completion;
-+ (void)didRegisterForRemoteNotifications:(UIApplication *_Nonnull)app deviceToken:(NSData *_Nonnull)inDeviceToken;
-+ (void)handleDidFailRegisterForRemoteNotification:(NSError*_Nonnull)err;
 + (void)checkProvisionalAuthorizationStatus;
++ (void)registerLifecycleObserver;
++ (BOOL)isSwizzlingDisabled;
+
+// Internal entry points called by swizzled delegate paths
+// These bypass the swizzling-active guard so the SDK doesn't block its own calls
++ (void)processRegisteredDeviceToken:(NSData *_Nonnull)deviceToken;
++ (void)processFailedRemoteNotificationsRegistration:(NSError *_Nonnull)error;
++ (BOOL)processReceivedRemoteNotification:(NSDictionary *_Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
++ (void)processWillPresentNotificationWithPayload:(NSDictionary *_Nonnull)payload completion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)processNotificationResponse:(UNNotificationResponse *_Nonnull)response;
+
 @end

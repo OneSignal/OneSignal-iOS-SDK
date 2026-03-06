@@ -161,6 +161,15 @@ static NSString *_lastMessageIdFromAction;
 static UIBackgroundTaskIdentifier _mediaBackgroundTask;
 static BOOL _disableBadgeClearing = NO;
 
++ (BOOL)isSwizzlingDisabled {
+    static BOOL _disabled = NO;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        id plistValue = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_SWIZZLING];
+        _disabled = plistValue != nil && [plistValue boolValue];
+    });
+    return _disabled;
+}
 
 static BOOL _coldStartFromTapOnNotification = NO;
 // Set to false as soon as it's read.
@@ -235,7 +244,7 @@ static NSString *_pushSubscriptionId;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-+ (void)start {
++ (void)startSwizzling {
     // Swizzle - UIApplication delegate
     //TODO: do the equivalent in the notificaitons module
     injectSelector(
@@ -252,9 +261,6 @@ static NSString *_pushSubscriptionId;
         @selector(onesignalSetApplicationIconBadgeNumber:)
     );
     [OneSignalNotificationsUNUserNotificationCenter setup];
-    
-    [self registerLifecycleObserver];
-    
 }
 #pragma clang diagnostic pop
 
@@ -444,9 +450,16 @@ static NSString *_pushSubscriptionId;
     return true;
 }
 
-+ (void)didRegisterForRemoteNotifications:(UIApplication *)app
-                              deviceToken:(NSData *)inDeviceToken {
-    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didRegisterForRemoteNotificationsWithDeviceToken: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processRegisteredDeviceToken:deviceToken];
+}
+
++ (void)processRegisteredDeviceToken:(NSData *)deviceToken {
+    let parsedDeviceToken = [NSString hexStringFromData:deviceToken];
 
     [OneSignalLog onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
 
@@ -465,7 +478,15 @@ static NSString *_pushSubscriptionId;
     [self sendPushTokenToDelegate];
 }
 
-+ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError*)err {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didFailToRegisterForRemoteNotificationsWithError: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processFailedRemoteNotificationsRegistration:err];
+}
+
++ (void)processFailedRemoteNotificationsRegistration:(NSError*)err {
     OSNotificationsManager.waitingForApnsResponse = false;
     
     if (err.code == 3000) {
@@ -651,9 +672,19 @@ static NSString *_lastnonActiveMessageId;
     return nil;
 }
 
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {
++ (void)willPresentNotificationWithPayload:(NSDictionary *)payload completion:(OSNotificationDisplayResponse)completion {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: willPresentNotificationWithPayload:completion: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        completion([OSNotification new]);
+        return;
+    }
+    [self processWillPresentNotificationWithPayload:payload completion:completion];
+}
+
++ (void)processWillPresentNotificationWithPayload:(NSDictionary *)payload completion:(OSNotificationDisplayResponse)completion {
     // check to make sure the app is in focus and it's a OneSignal notification
-    if (![OneSignalCoreHelper isOneSignalPayload:payload]
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]
+        || ![OneSignalCoreHelper isOneSignalPayload:payload]
         || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
         completion([OSNotification new]);
         return;
@@ -662,10 +693,16 @@ static NSString *_lastnonActiveMessageId;
 
     OSDisplayableNotification *osNotification = [OSDisplayableNotification parseWithApns:payload];
     if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
+        [self notificationReceived:payload wasOpened:NO];
         completion(nil);
         return;
     }
-    [self handleWillShowInForegroundForNotification:osNotification completion:completion];
+
+    OSNotificationDisplayResponse wrappedCompletion = ^(OSNotification *notification) {
+        [self notificationReceived:payload wasOpened:NO];
+        completion(notification);
+    };
+    [self handleWillShowInForegroundForNotification:osNotification completion:wrappedCompletion];
 }
 
 + (void)handleWillShowInForegroundForNotification:(OSDisplayableNotification *)notification completion:(OSNotificationDisplayResponse)completion {
@@ -801,19 +838,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalBadgeHelpers updateCachedBadgeValue:0 usePreviousBadgeCount:false];
-    
-    if (@available(iOS 16.0, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:0 withCompletionHandler:^(NSError * _Nullable error) {
-            if (error) {
-                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"clearBadgeCount encountered error setting badge count: %@", error]];
-            }
-        }];
-    } else {
-        [OneSignalCoreHelper runOnMainThread:^{
-            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-        }];
-    }
+    [self setBadgeCount:0];
 }
 
 + (BOOL)handleIAMPreview:(OSNotification *)notification {
@@ -910,7 +935,15 @@ static NSString *_lastnonActiveMessageId;
     _unprocessedClickEvents = [NSMutableArray new];
 }
 
-+ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
++ (BOOL)didReceiveRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didReceiveRemoteNotification:completionHandler: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return NO;
+    }
+    return [self processReceivedRemoteNotification:userInfo completionHandler:completionHandler];
+}
+
++ (BOOL)processReceivedRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
    var startedBackgroundJob = false;
    
    NSDictionary* richData = nil;
@@ -929,7 +962,7 @@ static NSString *_lastnonActiveMessageId;
        }
    }
    // Method was called due to a tap on a notification - Fire open notification
-   else if (application.applicationState == UIApplicationStateActive) {
+   else if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
        _lastMessageReceived = userInfo;
 
        if ([OneSignalCoreHelper isDisplayableNotification:userInfo]) {
@@ -1000,6 +1033,45 @@ static NSString *_lastnonActiveMessageId;
     let trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.25 repeats:NO];
     let identifier = [OneSignalCoreHelper randomStringWithLength:16];
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
+}
+
+#pragma mark - Manual Integration APIs (for use when swizzling is disabled)
+
++ (void)didReceiveNotificationResponse:(UNNotificationResponse *)response {
+    if (![self isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didReceiveNotificationResponse: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
+        return;
+    }
+    [self processNotificationResponse:response];
+}
+
++ (void)processNotificationResponse:(UNNotificationResponse *)response {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    if (![OneSignalConfigManager getAppId])
+        return;
+    if ([@"com.apple.UNNotificationDismissActionIdentifier" isEqual:response.actionIdentifier])
+        return;
+    if (![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo])
+        return;
+    NSDictionary *userInfo = [OneSignalCoreHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
+                                                                    identifier:response.actionIdentifier];
+    [self notificationReceived:userInfo wasOpened:YES];
+}
+
++ (void)setBadgeCount:(NSInteger)badgeCount {
+    [OneSignalBadgeHelpers updateCachedBadgeValue:badgeCount usePreviousBadgeCount:false];
+    if (@available(iOS 16.0, *)) {
+        [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:badgeCount withCompletionHandler:^(NSError * _Nullable error) {
+            if (error) {
+                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"setBadgeCount encountered error setting badge count: %@", error]];
+            }
+        }];
+    } else {
+        [OneSignalCoreHelper runOnMainThread:^{
+            [UIApplication sharedApplication].applicationIconBadgeNumber = badgeCount;
+        }];
+    }
 }
 
 - (void)dealloc {

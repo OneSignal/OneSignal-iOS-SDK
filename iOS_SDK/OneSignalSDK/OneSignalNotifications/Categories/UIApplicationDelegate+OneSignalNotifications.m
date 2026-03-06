@@ -111,10 +111,10 @@ static NSMutableSet<Class>* swizzledClasses;
     return false;
 }
 
-- (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
+- (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)deviceToken {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    [OSNotificationsManager didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    [OSNotificationsManager processRegisteredDeviceToken:deviceToken];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -125,14 +125,14 @@ static NSMutableSet<Class>* swizzledClasses;
             application:didRegisterForRemoteNotificationsWithDeviceToken:
         )
     ];
-    [forwarder invokeWithArgs:@[app, inDeviceToken]];
+    [forwarder invokeWithArgs:@[app, deviceToken]];
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
     if ([OneSignalConfigManager getAppId])
-        [OSNotificationsManager handleDidFailRegisterForRemoteNotification:err];
+        [OSNotificationsManager processFailedRemoteNotificationsRegistration:err];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -180,7 +180,7 @@ static NSMutableSet<Class>* swizzledClasses;
         else if (appState == UIApplicationStateActive && isVisibleNotification)
             [OSNotificationsManager notificationReceived:userInfo wasOpened:NO];
         else
-            startedBackgroundJob = [OSNotificationsManager receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
+            startedBackgroundJob = [OSNotificationsManager processReceivedRemoteNotification:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
     }
     
     if (forwarder.hasReceiver) {
