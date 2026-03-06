@@ -94,7 +94,7 @@ NS_SWIFT_NAME(onClick(event:));
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
-+ (void)start;
++ (void)startSwizzling;
 + (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification;
 + (BOOL)getColdStartFromTapOnNotification;
 

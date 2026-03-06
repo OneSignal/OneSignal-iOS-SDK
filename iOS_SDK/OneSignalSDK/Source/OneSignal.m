@@ -781,7 +781,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         return;
     }
 
-    [OSNotificationsManager start];
+    [OSNotificationsManager startSwizzling];
 
     [[OSMigrationController new] migrate];
 //    sessionLaunchTime = [NSDate date];

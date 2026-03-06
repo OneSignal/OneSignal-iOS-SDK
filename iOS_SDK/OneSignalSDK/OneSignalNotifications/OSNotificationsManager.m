@@ -162,13 +162,12 @@ static UIBackgroundTaskIdentifier _mediaBackgroundTask;
 static BOOL _disableBadgeClearing = NO;
 
 + (BOOL)isSwizzlingDisabled {
-    static BOOL _cached = NO;
     static BOOL _disabled = NO;
-    if (!_cached) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         id plistValue = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_SWIZZLING];
         _disabled = plistValue != nil && [plistValue boolValue];
-        _cached = YES;
-    }
+    });
     return _disabled;
 }
 
@@ -245,7 +244,7 @@ static NSString *_pushSubscriptionId;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-+ (void)start {
++ (void)startSwizzling {
     // Swizzle - UIApplication delegate
     //TODO: do the equivalent in the notificaitons module
     injectSelector(
