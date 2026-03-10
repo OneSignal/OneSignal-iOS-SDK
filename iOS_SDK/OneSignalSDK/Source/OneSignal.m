@@ -749,9 +749,11 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
 + (void)load {
+    [OSDialogInstanceManager setSharedOSDialogInstance:[OneSignalDialogController sharedInstance]];
+    [OSNotificationsManager registerLifecycleObserver];
     
-    if ([self shouldDisableBasedOnProcessArguments]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];
+    if ([OSNotificationsManager isSwizzlingDisabled]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled via Info.plist. Developers must manually forward notification delegate methods to OneSignal."];
         return;
     }
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
@@ -779,13 +781,11 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         return;
     }
 
-    [OSNotificationsManager start];
+    [OSNotificationsManager startSwizzling];
 
     [[OSMigrationController new] migrate];
 //    sessionLaunchTime = [NSDate date];
     // TODO: sessionLaunchTime used to always be set in load
-    
-    [OSDialogInstanceManager setSharedOSDialogInstance:[OneSignalDialogController sharedInstance]];
 }
 
 /*
@@ -797,12 +797,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self onesignalSetApplicationIconBadgeNumber:badge];
 }
 
-+(BOOL) shouldDisableBasedOnProcessArguments {
-    if ([NSProcessInfo.processInfo.arguments containsObject:@"DISABLE_ONESIGNAL_SWIZZLING"]) {
-        return YES;
-    }
-    return NO;
-}
 @end
 
 #pragma clang diagnostic pop

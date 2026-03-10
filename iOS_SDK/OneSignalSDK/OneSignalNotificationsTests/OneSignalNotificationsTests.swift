@@ -63,7 +63,7 @@ final class OneSignalNotificationsTests: XCTestCase {
 
     func testClearBadgesWhenAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
-        OSNotificationsManager.start()
+        OSNotificationsManager.startSwizzling()
         // Set badge count > 0
         let expectation = self.expectation(description: "Badge set")
         setBadgeCount(1) {
@@ -88,7 +88,7 @@ final class OneSignalNotificationsTests: XCTestCase {
 
     func testDontclearBadgesWhenAppBecomesActive() throws {
         // NotificationManager Start to register lifecycle listener
-        OSNotificationsManager.start()
+        OSNotificationsManager.startSwizzling()
         // Set badge count > 0
         let expectation = self.expectation(description: "Badge set")
         setBadgeCount(1) {
@@ -113,7 +113,7 @@ final class OneSignalNotificationsTests: XCTestCase {
 
     func testUpdateNotificationTypesOnAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
-        OSNotificationsManager.start()
+        OSNotificationsManager.startSwizzling()
 
         OSNotificationsManager.delegate = self
 

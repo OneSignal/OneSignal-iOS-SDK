@@ -29,9 +29,10 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 #import <OneSignalFramework/OneSignalFramework.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSNotificationPermissionObserver, OSInAppMessageLifecycleListener, OSPushSubscriptionObserver, OSNotificationLifecycleListener, OSInAppMessageClickListener, OSNotificationClickListener, OSUserStateObserver, OSLogListener>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, UNUserNotificationCenterDelegate, OSNotificationPermissionObserver, OSInAppMessageLifecycleListener, OSPushSubscriptionObserver, OSNotificationLifecycleListener, OSInAppMessageClickListener, OSNotificationClickListener, OSUserStateObserver, OSLogListener>
 
 @property (strong, nonatomic) UIWindow *window;
 

@@ -111,10 +111,10 @@ static NSMutableSet<Class>* swizzledClasses;
     return false;
 }
 
-- (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
+- (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)deviceToken {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    [OSNotificationsManager didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    [OSNotificationsManager processRegisteredDeviceToken:deviceToken];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -125,14 +125,14 @@ static NSMutableSet<Class>* swizzledClasses;
             application:didRegisterForRemoteNotificationsWithDeviceToken:
         )
     ];
-    [forwarder invokeWithArgs:@[app, inDeviceToken]];
+    [forwarder invokeWithArgs:@[app, deviceToken]];
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
     if ([OneSignalConfigManager getAppId])
-        [OSNotificationsManager handleDidFailRegisterForRemoteNotification:err];
+        [OSNotificationsManager processFailedRemoteNotificationsRegistration:err];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -169,18 +169,10 @@ static NSMutableSet<Class>* swizzledClasses;
         let appState = [UIApplication sharedApplication].applicationState;
         let isVisibleNotification = userInfo[@"aps"][@"alert"] != nil;
         
-        // iOS 9 - Notification was tapped on
-        // https://medium.com/posts-from-emmerge/ios-push-notification-background-fetch-demystified-7090358bb66e
-        //   - NOTE: We do not have the extra logic for the notifiation center or double tap home button cases
-        //           of "inactive" on notification received the link above describes.
-        //           Omiting that complex logic as iOS 9 usage stats are very low (12/11/2020) and these are rare cases.
-        if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
-            [OSNotificationsManager notificationReceived:userInfo wasOpened:YES];
-        }
-        else if (appState == UIApplicationStateActive && isVisibleNotification)
+        if (appState == UIApplicationStateActive && isVisibleNotification)
             [OSNotificationsManager notificationReceived:userInfo wasOpened:NO];
         else
-            startedBackgroundJob = [OSNotificationsManager receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
+            startedBackgroundJob = [OSNotificationsManager processReceivedRemoteNotification:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
     }
     
     if (forwarder.hasReceiver) {

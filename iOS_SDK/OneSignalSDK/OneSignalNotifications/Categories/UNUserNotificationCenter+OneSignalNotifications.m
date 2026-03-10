@@ -293,7 +293,7 @@ static NSMutableSet<Class>* swizzledClasses;
 
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired! %@", notification.request.content.body]];
     
-    [OSNotificationsManager handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotification *responseNotif) {
+    [OSNotificationsManager processWillPresentNotificationWithPayload:notification.request.content.userInfo completion:^(OSNotification *responseNotif) {
         UNNotificationPresentationOptions displayType = responseNotif != nil ? (UNNotificationPresentationOptions)7 : (UNNotificationPresentationOptions)0;
         finishProcessingNotification(notification, center, displayType, completionHandler, self);
     }];
@@ -377,19 +377,7 @@ void finishProcessingNotification(UNNotification *notification,
 }
 
 + (void)processiOS10Open:(UNNotificationResponse*)response {
-    if (![OneSignalConfigManager getAppId])
-        return;
-    
-    if ([OneSignalNotificationsUNUserNotificationCenter isDismissEvent:response])
-        return;
-    
-    if (![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo])
-        return;
-    
-    let userInfo = [OneSignalCoreHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
-                                                      identifier:response.actionIdentifier];
-
-    [OSNotificationsManager notificationReceived:userInfo wasOpened:YES];
+    [OSNotificationsManager processNotificationResponse:response];
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
