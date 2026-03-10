@@ -169,15 +169,7 @@ static NSMutableSet<Class>* swizzledClasses;
         let appState = [UIApplication sharedApplication].applicationState;
         let isVisibleNotification = userInfo[@"aps"][@"alert"] != nil;
         
-        // iOS 9 - Notification was tapped on
-        // https://medium.com/posts-from-emmerge/ios-push-notification-background-fetch-demystified-7090358bb66e
-        //   - NOTE: We do not have the extra logic for the notifiation center or double tap home button cases
-        //           of "inactive" on notification received the link above describes.
-        //           Omiting that complex logic as iOS 9 usage stats are very low (12/11/2020) and these are rare cases.
-        if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
-            [OSNotificationsManager notificationReceived:userInfo wasOpened:YES];
-        }
-        else if (appState == UIApplicationStateActive && isVisibleNotification)
+        if (appState == UIApplicationStateActive && isVisibleNotification)
             [OSNotificationsManager notificationReceived:userInfo wasOpened:NO];
         else
             startedBackgroundJob = [OSNotificationsManager processReceivedRemoteNotification:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];

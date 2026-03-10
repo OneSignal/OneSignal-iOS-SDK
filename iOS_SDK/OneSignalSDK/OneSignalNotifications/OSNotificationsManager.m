@@ -935,17 +935,18 @@ static NSString *_lastnonActiveMessageId;
     _unprocessedClickEvents = [NSMutableArray new];
 }
 
-+ (BOOL)didReceiveRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
++ (void)didReceiveRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     if (![self isSwizzlingDisabled]) {
         [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal: didReceiveRemoteNotification:completionHandler: ignored because swizzling is active. Remove the manual call or set OneSignal_disable_swizzling to true in Info.plist."];
-        return NO;
+        return;
     }
-    return [self processReceivedRemoteNotification:userInfo completionHandler:completionHandler];
+    BOOL startedBackgroundJob = [self processReceivedRemoteNotification:userInfo completionHandler:completionHandler];
+    if (!startedBackgroundJob) {
+        completionHandler(UIBackgroundFetchResultNewData);
+    }
 }
 
 + (BOOL)processReceivedRemoteNotification:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-   var startedBackgroundJob = false;
-   
    NSDictionary* richData = nil;
    // TODO: Look into why the userInfo payload would be different here for displaying vs opening....
    // Check for buttons or attachments pre-2.4.0 version
@@ -955,11 +956,8 @@ static NSString *_lastnonActiveMessageId;
    // Generate local notification for action button and/or attachments.
    if (richData) {
        let osNotification = [OSNotification parseWithApns:userInfo];
-       
-       if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-           startedBackgroundJob = true;
-           [self addNotificationRequest:osNotification completionHandler:completionHandler];
-       }
+       [self addNotificationRequest:osNotification completionHandler:completionHandler];
+       return YES;
    }
    // Method was called due to a tap on a notification - Fire open notification
    else if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
@@ -968,14 +966,13 @@ static NSString *_lastnonActiveMessageId;
        if ([OneSignalCoreHelper isDisplayableNotification:userInfo]) {
             [self notificationReceived:userInfo wasOpened:YES];
        }
-       return startedBackgroundJob;
    }
    // content-available notification received in the background
    else {
        _lastMessageReceived = userInfo;
    }
-   
-   return startedBackgroundJob;
+
+   return NO;
 }
 
 + (void)addNotificationRequest:(OSNotification*)notification

@@ -70,7 +70,7 @@ NS_SWIFT_NAME(onClick(event:));
     NS_SWIFT_NAME(didRegisterForRemoteNotifications(deviceToken:));
 + (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *_Nonnull)error
     NS_SWIFT_NAME(didFailToRegisterForRemoteNotifications(error:));
-+ (BOOL)didReceiveRemoteNotification:(NSDictionary *_Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler
++ (void)didReceiveRemoteNotification:(NSDictionary *_Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler
     NS_SWIFT_NAME(didReceiveRemoteNotification(userInfo:completionHandler:));
 + (void)willPresentNotificationWithPayload:(NSDictionary *_Nonnull)payload completion:(OSNotificationDisplayResponse _Nonnull)completion
     NS_SWIFT_NAME(willPresentNotification(payload:completion:));
