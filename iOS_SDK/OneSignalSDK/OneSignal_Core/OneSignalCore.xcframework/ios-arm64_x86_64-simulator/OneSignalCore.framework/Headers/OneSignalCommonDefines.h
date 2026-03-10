@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050402"
+#define ONESIGNAL_VERSION                                                   @"050500"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -154,6 +154,9 @@
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
 #define ONESIGNAL_REQUIRE_PRIVACY_CONSENT @"OneSignal_require_privacy_consent"
+
+// Swizzling
+#define ONESIGNAL_DISABLE_SWIZZLING @"OneSignal_disable_swizzling"
 
 // Badge handling
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
