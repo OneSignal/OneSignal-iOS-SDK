@@ -19,27 +19,23 @@ The **Red App** is a SwiftUI sample application that exercises every major featu
 
 ### Option A — Open via the workspace (recommended)
 
+<p align="center">
+  <img src="docs/assets/xcode-scheme-selector.png" alt="Xcode scheme selector showing OneSignalSwiftUIExample" style="width:90%;max-width:100%"/>
+</p>
+
 1. Open `iOS_SDK/OneSignalSDK.xcworkspace` in Xcode.
 2. In the scheme selector (top-left toolbar), choose **OneSignalSwiftUIExample**.
 3. Pick a simulator (e.g. iPhone 17 Pro) or a connected device.
 4. Press **Cmd + R** to build and run.
 
-Your Xcode toolbar should look like this — scheme set to **OneSignalSwiftUIExample**, a simulator chosen, and the app running:
+Your Xcode toolbar should look like this above — scheme set to **OneSignalSwiftUIExample**, a simulator or physical device chosen, and the app running.
 
-<p align="center">
-  <img src="docs/assets/xcode-run-button.png" alt="Xcode toolbar showing the app running" width="700"/>
-</p>
-
-The workspace contains multiple schemes. Make sure **OneSignalSwiftUIExample** is selected:
-
-<p align="center">
-  <img src="docs/assets/xcode-scheme-selector.png" alt="Xcode scheme selector showing OneSignalSwiftUIExample" width="700"/>
-</p>
+The workspace contains multiple schemes. Make sure **OneSignalSwiftUIExample** is selected.
 
 Once the app is running, SDK debug logs stream to the Xcode console — useful for verifying network calls, subscription state, and in-app message events:
 
 <p align="center">
-  <img src="docs/assets/xcode-console-output.png" alt="Xcode console showing SDK debug logs" width="700"/>
+  <img src="docs/assets/xcode-console-output.png" alt="Xcode console showing SDK debug logs" style="width:90%;max-width:100%"/>
 </p>
 
 ### Option B — Open from the terminal
@@ -66,8 +62,11 @@ Select the **OneSignalSwiftUIExample** scheme, pick a destination, and run.
 
 The default App ID (`77e32082-ea27-...c72e141824ef`) is a shared test key. To use your own:
 
+**Changing the App ID requires uninstalling and reinstalling the app for it to take effect.**
+
 1. Open `iOS_SDK/OneSignalSwiftUIExample/OneSignalSwiftUIExample/Services/OneSignalService.swift`.
 2. Replace the `defaultAppId` value with your OneSignal App ID (available at [onesignal.com](https://onesignal.com)).
+3. Then uninstall the app from the device/simulator and run it again.
 
 ## Features
 
