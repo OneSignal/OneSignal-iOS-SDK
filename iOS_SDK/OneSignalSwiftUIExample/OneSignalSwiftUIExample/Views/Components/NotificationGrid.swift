@@ -33,12 +33,14 @@ struct SendPushButtons: View {
     let onSimple: () -> Void
     let onWithImage: () -> Void
     let onCustom: () -> Void
+    let onClearAll: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
             ActionButton(title: "Simple", action: onSimple)
             ActionButton(title: "With Image", action: onWithImage)
             ActionButton(title: "Custom", action: onCustom)
+            ActionButton(title: "Clear All", action: onClearAll)
         }
     }
 }
@@ -70,7 +72,8 @@ struct SendInAppButtons: View {
             SendPushButtons(
                 onSimple: { print("Simple") },
                 onWithImage: { print("With Image") },
-                onCustom: { print("Custom") }
+                onCustom: { print("Custom") },
+                onClearAll: { print("Clear All") }
             )
 
             Text("Send In-App Message")

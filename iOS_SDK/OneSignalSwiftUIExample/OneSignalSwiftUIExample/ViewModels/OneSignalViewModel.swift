@@ -621,7 +621,7 @@ private class Observers: NSObject, OSPushSubscriptionObserver, OSUserStateObserv
     func onNotificationPermissionDidChange(_ permission: Bool) {
         Task { @MainActor in
             viewModel?.notificationPermissionGranted = permission
-            viewModel?.isPushEnabled = permission && (viewModel?.isPushEnabled ?? false)
+            viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
         }
     }
 }

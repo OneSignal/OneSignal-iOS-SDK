@@ -144,7 +144,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     private func restoreCachedStates() {
         // Restore IAM paused status
-        let iamPaused = UserDefaults.standard.bool(forKey: cachedIAMPausedKey)
+        let iamPaused = UserDefaults.standard.object(forKey: cachedIAMPausedKey) == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: cachedIAMPausedKey)
         OneSignal.InAppMessages.paused = iamPaused
 
         // Restore location shared status

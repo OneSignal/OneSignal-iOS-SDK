@@ -44,6 +44,9 @@ struct SendPushSection: View {
                 },
                 onCustom: {
                     viewModel.showingCustomNotificationSheet = true
+                },
+                onClearAll: {
+                    viewModel.clearAllNotifications()
                 }
             )
         }
