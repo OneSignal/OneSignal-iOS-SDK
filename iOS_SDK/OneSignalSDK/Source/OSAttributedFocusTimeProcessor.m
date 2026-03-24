@@ -61,11 +61,8 @@ static let DELAY_TIME = 30;
     let totalTimeActive = unsentActive + params.timeElapsed;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"sendOnFocusCall attributed with totalTimeActive %f", totalTimeActive]];
-    
+
     [super saveUnsentActiveTime:totalTimeActive];
-    
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", @(params.timeElapsed)]];
-    [OneSignalUserManagerImpl.sharedInstance sendSessionTime:@(params.timeElapsed)];
 
     [self sendOnFocusCallWithParams:params totalTimeActive:totalTimeActive];
 }
@@ -109,6 +106,9 @@ static let DELAY_TIME = 30;
 
 - (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedSessionTimeWithParams start"];
+
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", totalTimeActive]];
+    [OneSignalUserManagerImpl.sharedInstance sendSessionTime:totalTimeActive];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignal sendSessionEndOutcomes:totalTimeActive params:params onSuccess:^(NSDictionary *result) {
