@@ -33,17 +33,6 @@
     NSNumber* unsentActiveTime;
 }
 
-// Must override
-- (int)getMinSessionTime {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
-}
-
-- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
-    return activeTime >= [self getMinSessionTime];
-}
-
 - (void)resetUnsentActiveTime {
     unsentActiveTime = nil;
 }

@@ -40,17 +40,12 @@
     NSTimer* restCallTimer;
 }
 
-static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
 static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
     [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
     return self;
-}
-
-- (int)getMinSessionTime {
-    return UNATTRIBUTED_MIN_SESSION_TIME_SEC;
 }
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
@@ -65,10 +60,6 @@ static let DELAY_TIME = 30;
 
     [super saveUnsentActiveTime:totalTimeActive];
 
-    if (![super hasMinSyncTime:totalTimeActive]) {
-        return;
-    }
-
     [self sendOnFocusCallWithParams:params totalTimeActive:totalTimeActive];
 }
 
@@ -80,6 +71,11 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
+    if (totalTimeActive < 1) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %f", totalTimeActive]];
+        return;
+    }
+    
     [OSBackgroundTaskManager beginBackgroundTask:SESSION_OUTCOMES_TASK];
 
     if (params.onSessionEnded) {

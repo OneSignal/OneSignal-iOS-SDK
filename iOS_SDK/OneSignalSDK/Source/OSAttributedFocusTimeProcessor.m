@@ -39,17 +39,12 @@
     NSTimer* restCallTimer;
 }
 
-static let ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
 static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
     [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
     return self;
-}
-
-- (int)getMinSessionTime {
-    return ATTRIBUTED_MIN_SESSION_TIME_SEC;
 }
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
