@@ -55,6 +55,7 @@ struct ContentView: View {
                                 TriggersSection()
                                 TrackEventSection()
                                 LocationSection()
+                                LiveActivitySection()
                                 NextScreenSection()
                             }
                             .padding(.horizontal, 16)
@@ -160,7 +161,7 @@ struct ContentView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 22)
-            Text("Sample App")
+            Text("iOS")
                 .font(.system(size: 14))
             Spacer()
         }

@@ -18,6 +18,7 @@
 		228DE2E45BE2EEA72F9436F3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 985DE7F1C6162433D11943B0 /* SystemConfiguration.framework */; };
 		23578DF36320EFEB17E12FFA /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A6BA7282C93D0714AB7AE9D /* OneSignalInAppMessages.framework */; };
 		25D4FC203BE01E9A35ACA465 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */; };
+		A1B2C3D4E5F60718293A4B5C /* vine_boom.wav in Resources */ = {isa = PBXBuildFile; fileRef = D6E7F8091A2B3C4D5E6F7081 /* vine_boom.wav */; };
 		2E6D6E17EEE5D42AE3CAB9EA /* AddItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42140C8B10F3D06BDE1C79E /* AddItemSheet.swift */; };
 		2F52BD9F2A3002390A7C8896 /* OneSignalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD249AC2E0DD1F282E33E3BF /* OneSignalViewModel.swift */; };
 		36AD6B646EA553AD54024FAC /* OneSignalLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5B39E8FA865B4030F3009B4 /* OneSignalLocation.framework */; };
@@ -179,6 +180,7 @@
 		FD249AC2E0DD1F282E33E3BF /* OneSignalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalViewModel.swift; sourceTree = "<group>"; };
 		FDEE7A98A0EBB6BF767A041D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		FE9826D274F62E747F3A931B /* OneSignalSwiftUIExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftUIExampleApp.swift; sourceTree = "<group>"; };
+		D6E7F8091A2B3C4D5E6F7081 /* vine_boom.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = vine_boom.wav; sourceTree = "<group>"; };
 		FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14520AFC1CB985AE6C04E572 /* OneSignalWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1CE2D8F93E1D14CD1F6D3078 /* OneSignalWidgetExtensionBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalWidgetExtensionBundle.swift; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 				BAB41B49B9BD40FB4375BA33 /* ViewModels */,
 				DE2A74C6876FFA7E42683810 /* Views */,
 				FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */,
+				D6E7F8091A2B3C4D5E6F7081 /* vine_boom.wav */,
 				FDEE7A98A0EBB6BF767A041D /* Info.plist */,
 				29513EB5D1B9AF2511CAD95A /* ExampleAppWidgetAttributes.swift */,
 				130E67036ECE13331B1CFFFA /* Services */,
@@ -544,6 +547,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				25D4FC203BE01E9A35ACA465 /* Assets.xcassets in Resources */,
+				A1B2C3D4E5F60718293A4B5C /* vine_boom.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

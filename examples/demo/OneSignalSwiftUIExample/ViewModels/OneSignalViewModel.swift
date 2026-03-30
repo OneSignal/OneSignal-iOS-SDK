@@ -395,6 +395,30 @@ final class OneSignalViewModel: ObservableObject {
         showToast("Location permission requested")
     }
 
+    // MARK: - Live Activities
+
+    func enterLiveActivity(activityId: String) {
+        guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showToast("Activity ID is required")
+            return
+        }
+        #if !targetEnvironment(macCatalyst)
+        if #available(iOS 16.1, *) {
+            LiveActivityController.createOneSignalAwareActivity(activityId: activityId)
+            showToast("Live Activity '\(activityId)' entered")
+        }
+        #endif
+    }
+
+    func exitLiveActivity(activityId: String) {
+        guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showToast("Activity ID is required")
+            return
+        }
+        OneSignal.LiveActivities.exit(activityId)
+        showToast("Live Activity '\(activityId)' exited")
+    }
+
     // MARK: - Observers
 
     private func setupObservers() {

@@ -38,6 +38,10 @@ struct OneSignalSwiftUIExampleApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(viewModel)
+                .onOpenURL { url in
+                    let originalURL = OneSignal.LiveActivities.trackClickAndReturnOriginal(url)
+                    LogManager.shared.i("LiveActivity", "Opened URL: \(originalURL?.absoluteString ?? url.absoluteString)")
+                }
         }
     }
 }
@@ -63,6 +67,12 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         OneSignal.setConsentGiven(privacyConsent)
 
         OneSignalService.shared.initialize(launchOptions: launchOptions)
+
+        #if !targetEnvironment(macCatalyst)
+        if #available(iOS 16.1, *) {
+            LiveActivityController.start()
+        }
+        #endif
 
         restoreCachedStates()
         setupNotificationListeners()

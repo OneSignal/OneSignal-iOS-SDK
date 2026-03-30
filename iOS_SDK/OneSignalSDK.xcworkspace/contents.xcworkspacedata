@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:examples/demo/OneSignalSwiftUIExample.xcodeproj">
+      location = "group:../examples/demo/OneSignalSwiftUIExample.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:OneSignalDevApp/OneSignalExample.xcodeproj">
