@@ -66,6 +66,7 @@ final class OneSignalViewModel: ObservableObject {
     @Published var removeMultiType: RemoveMultiItemType = .tags
     @Published var showingCustomNotificationSheet: Bool = false
     @Published var showingTrackEventSheet: Bool = false
+    @Published var showingOutcomeSheet: Bool = false
     @Published var toastMessage: String?
 
     // MARK: - Computed Properties

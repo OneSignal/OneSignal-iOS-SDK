@@ -27,91 +27,61 @@
 
 import SwiftUI
 
-struct AddItemSheet: View {
+struct AddItemDialog: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
     let onCancel: () -> Void
 
     @State private var keyText: String = ""
     @State private var valueText: String = ""
-    @FocusState private var focusedField: Field?
-
-    private enum Field {
-        case key, value
-    }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Text(itemType.title)
-                    .font(.system(size: 24))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 16) {
+            Text(itemType.title)
+                .font(.system(size: 24))
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                if itemType.requiresKeyValue {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Key")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                        TextField(itemType.keyPlaceholder, text: $keyText)
-                            .textFieldStyle(UnderlineTextFieldStyle())
-                            .focused($focusedField, equals: .key)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Value")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                        TextField(itemType.valuePlaceholder, text: $valueText)
-                            .textFieldStyle(UnderlineTextFieldStyle())
-                            .focused($focusedField, equals: .value)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .keyboardType(itemType.keyboardType)
-                    }
-                } else {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(singleFieldLabel)
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                        TextField(itemType.valuePlaceholder, text: $valueText)
-                            .textFieldStyle(UnderlineTextFieldStyle())
-                            .focused($focusedField, equals: .value)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .keyboardType(itemType.keyboardType)
-                    }
+            if itemType.requiresKeyValue {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Key")
+                        .font(.system(size: 12))
+                        .foregroundColor(.osGrey600)
+                    OSTextField(
+                        placeholder: itemType.keyPlaceholder,
+                        text: $keyText
+                    )
                 }
 
-                Spacer()
-
-                HStack(spacing: 8) {
-                    Spacer()
-
-                    Button("CANCEL") { onCancel() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-
-                    Button(itemType == .externalUserId ? "LOGIN" : "ADD") {
-                        onAdd(keyText, valueText)
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(isValid ? .accentColor : Color(red: 0.62, green: 0.62, blue: 0.62))
-                    .disabled(!isValid)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Value")
+                        .font(.system(size: 12))
+                        .foregroundColor(.osGrey600)
+                    OSTextField(
+                        placeholder: itemType.valuePlaceholder,
+                        text: $valueText,
+                        keyboardType: itemType.keyboardType
+                    )
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(singleFieldLabel)
+                        .font(.system(size: 12))
+                        .foregroundColor(.osGrey600)
+                    OSTextField(
+                        placeholder: itemType.valuePlaceholder,
+                        text: $valueText,
+                        keyboardType: itemType.keyboardType
+                    )
                 }
             }
-            .padding(24)
-            .onAppear {
-                focusedField = itemType.requiresKeyValue ? .key : .value
-            }
+
+            DialogActions(
+                confirmTitle: itemType == .externalUserId ? "Login" : "Add",
+                isConfirmEnabled: isValid,
+                onCancel: onCancel,
+                onConfirm: { onAdd(keyText, valueText) }
+            )
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 
     private var singleFieldLabel: String {
@@ -129,21 +99,6 @@ struct AddItemSheet: View {
                    !valueText.trimmingCharacters(in: .whitespaces).isEmpty
         } else {
             return !valueText.trimmingCharacters(in: .whitespaces).isEmpty
-        }
-    }
-}
-
-struct UnderlineTextFieldStyle: TextFieldStyle {
-    // swiftlint:disable:next identifier_name
-    func _body(configuration: TextField<Self._Label>) -> some View {
-        VStack(spacing: 0) {
-            configuration
-                .font(.system(size: 17))
-                .padding(.vertical, 8)
-
-            Rectangle()
-                .fill(Color(.separator))
-                .frame(height: 1)
         }
     }
 }

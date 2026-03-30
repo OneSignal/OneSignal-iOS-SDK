@@ -33,32 +33,36 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        LogView(logManager: LogManager.shared)
+                VStack(spacing: 0) {
+                    headerBar
 
+                    ScrollView {
                         VStack(spacing: 0) {
-                            AppInfoSection()
-                            UserSection()
-                            PushSection()
-                            SendPushSection()
-                            InAppMessagingSection()
-                            SendInAppSection()
-                            AliasesSection()
-                            EmailsSection()
-                            SMSSection()
-                            TagsSection()
-                            OutcomeEventsSection()
-                            TriggersSection()
-                            TrackEventSection()
-                            LocationSection()
-                            NextScreenSection()
+                            LogView(logManager: LogManager.shared)
+
+                            VStack(spacing: 0) {
+                                AppInfoSection()
+                                UserSection()
+                                PushSection()
+                                SendPushSection()
+                                InAppMessagingSection()
+                                SendInAppSection()
+                                AliasesSection()
+                                EmailsSection()
+                                SMSSection()
+                                TagsSection()
+                                OutcomeEventsSection()
+                                TriggersSection()
+                                TrackEventSection()
+                                LocationSection()
+                                NextScreenSection()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 24)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 24)
                     }
                 }
-                .background(Color(red: 0.97, green: 0.97, blue: 0.98))
+                .background(Color.osLightBackground)
 
                 if viewModel.isLoading {
                     Color.black.opacity(0.54)
@@ -67,73 +71,102 @@ struct ContentView: View {
                         .scaleEffect(1.5)
                         .tint(.white)
                 }
-            }
-            .safeAreaInset(edge: .top) {
-                VStack(spacing: 0) {
-                    Color.accentColor
-                        .frame(height: UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.statusBarManager?.statusBarFrame.height ?? 0)
-                    HStack(spacing: 10) {
-                        Image("OneSignalLogo")
-                            .renderingMode(.template)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 22)
-                        Text("Sample App")
-                            .font(.system(size: 14))
-                            .opacity(0.9)
-                        Spacer()
+
+                if viewModel.showingAddSheet {
+                    DialogOverlay {
+                        AddItemDialog(
+                            itemType: viewModel.addItemType,
+                            onAdd: { key, value in viewModel.handleAddItem(key: key, value: value) },
+                            onCancel: { viewModel.showingAddSheet = false }
+                        )
                     }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.accentColor)
                 }
-                .ignoresSafeArea(edges: .top)
+
+                if viewModel.showingMultiAddSheet {
+                    DialogOverlay {
+                        AddMultiItemDialog(
+                            type: viewModel.multiAddType,
+                            onAdd: { pairs in viewModel.handleMultiAdd(pairs: pairs) },
+                            onCancel: { viewModel.showingMultiAddSheet = false }
+                        )
+                    }
+                }
+
+                if viewModel.showingRemoveMultiSheet {
+                    DialogOverlay {
+                        RemoveMultiDialog(
+                            type: viewModel.removeMultiType,
+                            items: viewModel.removeMultiItems,
+                            onRemove: { keys in viewModel.handleRemoveMulti(keys: keys) },
+                            onCancel: { viewModel.showingRemoveMultiSheet = false }
+                        )
+                    }
+                }
+
+                if viewModel.showingCustomNotificationSheet {
+                    DialogOverlay {
+                        CustomNotificationDialog(
+                            onSend: { title, body in
+                                viewModel.sendCustomNotification(title: title, body: body)
+                                viewModel.showingCustomNotificationSheet = false
+                            },
+                            onCancel: { viewModel.showingCustomNotificationSheet = false }
+                        )
+                    }
+                }
+
+                if viewModel.showingTrackEventSheet {
+                    DialogOverlay {
+                        TrackEventDialog(
+                            onTrack: { name, properties in
+                                viewModel.trackEvent(name: name, properties: properties)
+                                viewModel.showingTrackEventSheet = false
+                            },
+                            onCancel: { viewModel.showingTrackEventSheet = false }
+                        )
+                    }
+                }
+
+                if viewModel.showingOutcomeSheet {
+                    DialogOverlay {
+                        OutcomeDialog(
+                            onSendNormal: { name in
+                                viewModel.sendOutcome(name)
+                                viewModel.showingOutcomeSheet = false
+                            },
+                            onSendUnique: { name in
+                                viewModel.sendUniqueOutcome(name)
+                                viewModel.showingOutcomeSheet = false
+                            },
+                            onSendWithValue: { name, value in
+                                viewModel.sendOutcome(name, value: value)
+                                viewModel.showingOutcomeSheet = false
+                            },
+                            onCancel: { viewModel.showingOutcomeSheet = false }
+                        )
+                    }
+                }
             }
             .navigationBarHidden(true)
-            .sheet(isPresented: $viewModel.showingAddSheet) {
-                AddItemSheet(
-                    itemType: viewModel.addItemType,
-                    onAdd: { key, value in viewModel.handleAddItem(key: key, value: value) },
-                    onCancel: { viewModel.showingAddSheet = false }
-                )
-            }
-            .sheet(isPresented: $viewModel.showingMultiAddSheet) {
-                AddMultiItemSheet(
-                    type: viewModel.multiAddType,
-                    onAdd: { pairs in viewModel.handleMultiAdd(pairs: pairs) },
-                    onCancel: { viewModel.showingMultiAddSheet = false }
-                )
-            }
-            .sheet(isPresented: $viewModel.showingRemoveMultiSheet) {
-                RemoveMultiSheet(
-                    type: viewModel.removeMultiType,
-                    items: viewModel.removeMultiItems,
-                    onRemove: { keys in viewModel.handleRemoveMulti(keys: keys) },
-                    onCancel: { viewModel.showingRemoveMultiSheet = false }
-                )
-            }
-            .sheet(isPresented: $viewModel.showingCustomNotificationSheet) {
-                CustomNotificationSheet(
-                    onSend: { title, body in
-                        viewModel.sendCustomNotification(title: title, body: body)
-                        viewModel.showingCustomNotificationSheet = false
-                    },
-                    onCancel: { viewModel.showingCustomNotificationSheet = false }
-                )
-            }
-            .sheet(isPresented: $viewModel.showingTrackEventSheet) {
-                TrackEventSheet(
-                    onTrack: { name, properties in
-                        viewModel.trackEvent(name: name, properties: properties)
-                        viewModel.showingTrackEventSheet = false
-                    },
-                    onCancel: { viewModel.showingTrackEventSheet = false }
-                )
-            }
         }
         .toast(message: $viewModel.toastMessage)
+    }
+
+    private var headerBar: some View {
+        HStack(spacing: 10) {
+            Spacer()
+            Image("OneSignalLogo")
+                .renderingMode(.template)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(height: 22)
+            Text("Sample App")
+                .font(.system(size: 14))
+            Spacer()
+        }
+        .foregroundColor(.white)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.osPrimary)
     }
 }

@@ -94,7 +94,7 @@ struct EmailsSection: View {
                         } label: {
                             Text("\(viewModel.emails.count - 5) more")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.osPrimary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 4)
                         }
@@ -142,7 +142,7 @@ struct SMSSection: View {
                         } label: {
                             Text("\(viewModel.smsNumbers.count - 5) more")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.accentColor)
+                                .foregroundColor(.osPrimary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 4)
                         }

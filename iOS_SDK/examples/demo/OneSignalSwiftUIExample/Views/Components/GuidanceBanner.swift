@@ -37,15 +37,15 @@ struct GuidanceBanner: View {
             Link("Get your keys at onesignal.com",
                  destination: URL(string: "https://onesignal.com")!)
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.accentColor)
+                .foregroundColor(.osPrimary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color(red: 1.0, green: 0.97, blue: 0.88))
+        .background(Color.osWarningBackground)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                .stroke(Color.black.opacity(0.1), lineWidth: 2)
         )
     }
 }

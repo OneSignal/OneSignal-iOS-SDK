@@ -53,7 +53,7 @@ This project is part of the `OneSignalSDK.xcworkspace` and is configured to work
 
 ### Quick Start
 
-1. Open `iOS_SDK/OneSignalSDK.xcworkspace` in Xcode
+1. Open `iOS_SDK/OneSignalSDK.xcworkspace` in Xcode (not the `.xcodeproj` directly)
 2. Select the **OneSignalSwiftUIExample** scheme
 3. Select a simulator or physical device
 4. Build and run (⌘R)

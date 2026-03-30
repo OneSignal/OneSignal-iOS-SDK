@@ -27,6 +27,27 @@
 
 import SwiftUI
 
+// MARK: - Design Tokens (styles.md)
+
+extension Color {
+    static let osPrimary = Color(red: 229/255, green: 75/255, blue: 77/255)
+    static let osSuccess = Color(red: 52/255, green: 168/255, blue: 83/255)
+    static let osGrey700 = Color(red: 97/255, green: 97/255, blue: 97/255)
+    static let osGrey600 = Color(red: 117/255, green: 117/255, blue: 117/255)
+    static let osGrey500 = Color(red: 158/255, green: 158/255, blue: 158/255)
+    static let osLightBackground = Color(red: 248/255, green: 249/255, blue: 250/255)
+    static let osCardBackground = Color.white
+    static let osDivider = Color(red: 232/255, green: 234/255, blue: 237/255)
+    static let osWarningBackground = Color(red: 255/255, green: 248/255, blue: 225/255)
+    static let osBackdrop = Color.black.opacity(0.54)
+    static let osLogBackground = Color(red: 26/255, green: 27/255, blue: 30/255)
+    static let osLogDebug = Color(red: 130/255, green: 170/255, blue: 255/255)
+    static let osLogInfo = Color(red: 195/255, green: 232/255, blue: 141/255)
+    static let osLogWarn = Color(red: 255/255, green: 203/255, blue: 107/255)
+    static let osLogError = Color(red: 255/255, green: 83/255, blue: 112/255)
+    static let osLogTimestamp = Color(red: 103/255, green: 110/255, blue: 123/255)
+}
+
 // MARK: - Action Buttons
 
 struct ActionButtonStyle: ButtonStyle {
@@ -36,8 +57,8 @@ struct ActionButtonStyle: ButtonStyle {
             .foregroundColor(.white)
             .textCase(.uppercase)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(Color.accentColor.opacity(configuration.isPressed ? 0.8 : 1.0))
+            .frame(height: 48)
+            .background(Color.osPrimary.opacity(configuration.isPressed ? 0.8 : 1.0))
             .cornerRadius(8)
     }
 }
@@ -58,15 +79,15 @@ struct OutlineActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .semibold))
-            .foregroundColor(.accentColor)
+            .foregroundColor(.osPrimary)
             .textCase(.uppercase)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(Color(.systemBackground).opacity(configuration.isPressed ? 0.8 : 1.0))
+            .frame(height: 48)
+            .background(Color.clear.opacity(configuration.isPressed ? 0.05 : 0.0))
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.accentColor, lineWidth: 1.5)
+                    .stroke(Color.osPrimary, lineWidth: 1)
             )
     }
 }
@@ -100,9 +121,9 @@ struct ActionButtonWithIcon: View {
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .frame(height: 48)
             .padding(.horizontal, 16)
-            .background(Color.accentColor)
+            .background(Color.osPrimary)
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
@@ -122,11 +143,11 @@ struct CardContainer<Content: View>: View {
         VStack(spacing: 0) {
             content
         }
-        .background(Color(.systemBackground))
+        .background(Color.osCardBackground)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                .stroke(Color.black.opacity(0.1), lineWidth: 2)
         )
     }
 }
@@ -143,7 +164,7 @@ struct SectionHeader: View {
         HStack {
             Text(title)
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(Color(red: 0.38, green: 0.38, blue: 0.38))
+                .foregroundColor(.osGrey700)
                 .kerning(0.5)
                 .textCase(.uppercase)
 
@@ -155,7 +176,7 @@ struct SectionHeader: View {
                 } label: {
                     Image(systemName: "info.circle")
                         .font(.system(size: 18))
-                        .foregroundColor(Color(red: 0.62, green: 0.62, blue: 0.62))
+                        .foregroundColor(.osGrey500)
                 }
                 .buttonStyle(.borderless)
             }
@@ -207,7 +228,7 @@ struct KeyValueRow: View {
                     .font(.system(size: 14))
                 Text(item.value)
                     .font(.system(size: 12))
-                    .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
+                    .foregroundColor(.osGrey600)
             }
 
             Spacer()
@@ -216,7 +237,7 @@ struct KeyValueRow: View {
                 Button(action: onDelete) {
                     Image(systemName: "xmark")
                         .font(.system(size: 18))
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.osPrimary)
                 }
                 .buttonStyle(.borderless)
             }
@@ -249,7 +270,7 @@ struct SingleValueRow: View {
                 Button(action: onDelete) {
                     Image(systemName: "xmark")
                         .font(.system(size: 18))
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.osPrimary)
                 }
                 .buttonStyle(.borderless)
             }
@@ -312,7 +333,7 @@ struct ToggleRow: View {
                 if let subtitle = subtitle {
                     Text(subtitle)
                         .font(.system(size: 12))
-                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
+                        .foregroundColor(.osGrey600)
                 }
             }
 
@@ -336,7 +357,7 @@ struct EmptyListRow: View {
     var body: some View {
         Text(message)
             .font(.system(size: 14))
-            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
+            .foregroundColor(.osGrey600)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 12)
     }
@@ -347,7 +368,104 @@ struct EmptyListRow: View {
 struct CardDivider: View {
     var body: some View {
         Rectangle()
-            .fill(Color(red: 0.91, green: 0.92, blue: 0.93))
+            .fill(Color.osDivider)
             .frame(height: 1)
+    }
+}
+
+// MARK: - Text Input Field (styles.md spec)
+
+struct OSTextField: View {
+    let placeholder: String
+    @Binding var text: String
+    var keyboardType: UIKeyboardType = .default
+    var autocapitalization: TextInputAutocapitalization = .never
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        TextField(placeholder, text: $text)
+            .font(.system(size: 16))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 14)
+            .focused($isFocused)
+            .textInputAutocapitalization(autocapitalization)
+            .autocorrectionDisabled()
+            .keyboardType(keyboardType)
+            .background(Color.osCardBackground)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isFocused ? Color.osPrimary : Color.osGrey700,
+                            lineWidth: isFocused ? 2 : 1)
+            )
+    }
+}
+
+// MARK: - Dialog Overlay Container
+
+struct DialogOverlay<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.54)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                content
+            }
+            .padding(24)
+            .background(Color.osCardBackground)
+            .cornerRadius(28)
+            .padding(.horizontal, 16)
+        }
+    }
+}
+
+// MARK: - Dialog Action Buttons
+
+struct DialogActions: View {
+    let cancelTitle: String
+    let confirmTitle: String
+    let isConfirmEnabled: Bool
+    let onCancel: () -> Void
+    let onConfirm: () -> Void
+
+    init(
+        cancelTitle: String = "Cancel",
+        confirmTitle: String,
+        isConfirmEnabled: Bool = true,
+        onCancel: @escaping () -> Void,
+        onConfirm: @escaping () -> Void
+    ) {
+        self.cancelTitle = cancelTitle
+        self.confirmTitle = confirmTitle
+        self.isConfirmEnabled = isConfirmEnabled
+        self.onCancel = onCancel
+        self.onConfirm = onConfirm
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Spacer()
+
+            Button(cancelTitle) { onCancel() }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.osPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+
+            Button(confirmTitle) { onConfirm() }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(isConfirmEnabled ? .osPrimary : .osGrey500)
+                .disabled(!isConfirmEnabled)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+        }
     }
 }

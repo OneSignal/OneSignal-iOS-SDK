@@ -41,8 +41,7 @@ struct UserSection: View {
                     Spacer()
                     Text(viewModel.isLoggedIn ? "Logged In" : "Anonymous")
                         .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(viewModel.isLoggedIn
-                                         ? Color(red: 0.20, green: 0.66, blue: 0.33) : .secondary)
+                        .foregroundColor(viewModel.isLoggedIn ? .osSuccess : .secondary)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 12)

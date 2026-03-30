@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-struct TrackEventSheet: View {
+struct TrackEventDialog: View {
     let onTrack: (String, [String: Any]?) -> Void
     let onCancel: () -> Void
 
@@ -35,77 +35,52 @@ struct TrackEventSheet: View {
     @State private var propertiesText: String = ""
     @State private var nameError: String?
     @State private var propertiesError: String?
-    @FocusState private var focusedField: Field?
-
-    private enum Field {
-        case name, properties
-    }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Text("Track Event")
-                    .font(.system(size: 24))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 16) {
+            Text("Track Event")
+                .font(.system(size: 24))
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Event Name")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                    TextField("", text: $eventName)
-                        .textFieldStyle(UnderlineTextFieldStyle())
-                        .focused($focusedField, equals: .name)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .onChange(of: eventName) { _ in nameError = nil }
-                    if let error = nameError {
-                        Text(error)
-                            .font(.system(size: 11))
-                            .foregroundColor(.red)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Properties (optional, JSON)")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                    TextField("{\"key\": \"value\"}", text: $propertiesText)
-                        .textFieldStyle(UnderlineTextFieldStyle())
-                        .focused($focusedField, equals: .properties)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .onChange(of: propertiesText) { _ in propertiesError = nil }
-                    if let error = propertiesError {
-                        Text(error)
-                            .font(.system(size: 11))
-                            .foregroundColor(.red)
-                    }
-                }
-
-                Spacer()
-
-                HStack(spacing: 8) {
-                    Spacer()
-
-                    Button("CANCEL") { onCancel() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-
-                    Button("TRACK") { submitForm() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(isTrackEnabled ? .accentColor : Color(red: 0.62, green: 0.62, blue: 0.62))
-                        .disabled(!isTrackEnabled)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Event Name")
+                    .font(.system(size: 12))
+                    .foregroundColor(.osGrey600)
+                OSTextField(
+                    placeholder: "",
+                    text: $eventName
+                )
+                .onChange(of: eventName) { _ in nameError = nil }
+                if let error = nameError {
+                    Text(error)
+                        .font(.system(size: 11))
+                        .foregroundColor(.red)
                 }
             }
-            .padding(24)
-            .onAppear { focusedField = .name }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Properties (optional, JSON)")
+                    .font(.system(size: 12))
+                    .foregroundColor(.osGrey600)
+                OSTextField(
+                    placeholder: "{\"key\": \"value\"}",
+                    text: $propertiesText
+                )
+                .onChange(of: propertiesText) { _ in propertiesError = nil }
+                if let error = propertiesError {
+                    Text(error)
+                        .font(.system(size: 11))
+                        .foregroundColor(.red)
+                }
+            }
+
+            DialogActions(
+                confirmTitle: "Track",
+                isConfirmEnabled: isTrackEnabled,
+                onCancel: onCancel,
+                onConfirm: { submitForm() }
+            )
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 
     private var isTrackEnabled: Bool {

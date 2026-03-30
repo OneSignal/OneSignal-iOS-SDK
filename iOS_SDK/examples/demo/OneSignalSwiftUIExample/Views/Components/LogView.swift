@@ -31,10 +31,6 @@ struct LogView: View {
     @ObservedObject var logManager: LogManager
     @State private var isExpanded = true
 
-    private let bgColor = Color(red: 0.10, green: 0.11, blue: 0.12)
-    private let timestampColor = Color(red: 0.40, green: 0.43, blue: 0.48)
-    private let iconColor = Color(red: 0.62, green: 0.62, blue: 0.62)
-
     var body: some View {
         VStack(spacing: 0) {
             Button {
@@ -49,7 +45,7 @@ struct LogView: View {
 
                     Text("(\(logManager.entries.count))")
                         .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(iconColor)
+                        .foregroundColor(.osGrey500)
 
                     Spacer()
 
@@ -59,7 +55,7 @@ struct LogView: View {
                         } label: {
                             Image(systemName: "trash")
                                 .font(.system(size: 18))
-                                .foregroundColor(iconColor)
+                                .foregroundColor(.osGrey500)
                         }
                         .buttonStyle(.borderless)
                         .accessibilityIdentifier("log_view_clear_button")
@@ -67,7 +63,7 @@ struct LogView: View {
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 18))
-                        .foregroundColor(iconColor)
+                        .foregroundColor(.osGrey500)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -79,7 +75,7 @@ struct LogView: View {
                 if logManager.entries.isEmpty {
                     Text("No logs yet")
                         .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(iconColor)
+                        .foregroundColor(.osGrey500)
                         .frame(maxWidth: .infinity)
                         .frame(height: 100)
                         .accessibilityIdentifier("log_view_empty")
@@ -91,7 +87,7 @@ struct LogView: View {
                                     HStack(alignment: .top, spacing: 4) {
                                         Text(entry.formattedTimestamp)
                                             .font(.system(size: 11, design: .monospaced))
-                                            .foregroundColor(timestampColor)
+                                            .foregroundColor(.osLogTimestamp)
 
                                         Text(entry.level.rawValue)
                                             .font(.system(size: 11, weight: .bold, design: .monospaced))
@@ -113,7 +109,7 @@ struct LogView: View {
                 }
             }
         }
-        .background(bgColor)
+        .background(Color.osLogBackground)
         .accessibilityIdentifier("log_view_container")
     }
 }

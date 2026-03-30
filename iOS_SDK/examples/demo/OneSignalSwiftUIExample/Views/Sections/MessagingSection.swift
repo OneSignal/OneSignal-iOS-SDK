@@ -54,32 +54,14 @@ struct InAppMessagingSection: View {
 
 struct OutcomeEventsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    @State private var showingOutcomeSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
             SectionHeader(title: "Outcome Events", tooltipKey: "outcomes")
 
             ActionButton(title: "Send Outcome") {
-                showingOutcomeSheet = true
+                viewModel.showingOutcomeSheet = true
             }
-        }
-        .sheet(isPresented: $showingOutcomeSheet) {
-            OutcomeSheet(
-                onSendNormal: { name in
-                    viewModel.sendOutcome(name)
-                    showingOutcomeSheet = false
-                },
-                onSendUnique: { name in
-                    viewModel.sendUniqueOutcome(name)
-                    showingOutcomeSheet = false
-                },
-                onSendWithValue: { name, value in
-                    viewModel.sendOutcome(name, value: value)
-                    showingOutcomeSheet = false
-                },
-                onCancel: { showingOutcomeSheet = false }
-            )
         }
     }
 }
@@ -131,7 +113,7 @@ struct TriggersSection: View {
     }
 }
 
-// MARK: - Outcome Sheet
+// MARK: - Outcome Dialog
 
 private enum OutcomeType: Int, CaseIterable {
     case normal = 0
@@ -147,7 +129,7 @@ private enum OutcomeType: Int, CaseIterable {
     }
 }
 
-struct OutcomeSheet: View {
+struct OutcomeDialog: View {
     let onSendNormal: (String) -> Void
     let onSendUnique: (String) -> Void
     let onSendWithValue: (String, Double) -> Void
@@ -156,11 +138,6 @@ struct OutcomeSheet: View {
     @State private var selectedType: OutcomeType = .normal
     @State private var outcomeName = ""
     @State private var outcomeValue = ""
-    @FocusState private var focusedField: Field?
-
-    private enum Field {
-        case name, value
-    }
 
     private var isSendDisabled: Bool {
         let nameEmpty = outcomeName.trimmingCharacters(in: .whitespaces).isEmpty
@@ -171,85 +148,63 @@ struct OutcomeSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("Send Outcome")
-                    .font(.system(size: 24))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 16) {
+            Text("Send Outcome")
+                .font(.system(size: 24))
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(OutcomeType.allCases, id: \.rawValue) { type in
-                        Button {
-                            selectedType = type
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: selectedType == type
-                                      ? "largecircle.fill.circle" : "circle")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(selectedType == type ? .accentColor : .secondary)
-                                Text(type.label)
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.primary)
-                            }
-                            .padding(.vertical, 6)
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(OutcomeType.allCases, id: \.rawValue) { type in
+                    Button {
+                        selectedType = type
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: selectedType == type
+                                  ? "largecircle.fill.circle" : "circle")
+                                .font(.system(size: 20))
+                                .foregroundColor(selectedType == type ? .osPrimary : .secondary)
+                            Text(type.label)
+                                .font(.system(size: 16))
+                                .foregroundColor(.primary)
                         }
-                        .buttonStyle(.plain)
+                        .padding(.vertical, 6)
                     }
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Outcome Name")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                    TextField("", text: $outcomeName)
-                        .textFieldStyle(.roundedBorder)
-                        .focused($focusedField, equals: .name)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
-
-                if selectedType == .withValue {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Value")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        TextField("", text: $outcomeValue)
-                            .textFieldStyle(.roundedBorder)
-                            .focused($focusedField, equals: .value)
-                            .keyboardType(.decimalPad)
-                    }
-                }
-
-                Spacer()
-
-                HStack(spacing: 8) {
-                    Spacer()
-
-                    Button("CANCEL") { onCancel() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-
-                    Button("SEND") {
-                        switch selectedType {
-                        case .normal: onSendNormal(outcomeName)
-                        case .unique: onSendUnique(outcomeName)
-                        case .withValue: onSendWithValue(outcomeName, Double(outcomeValue) ?? 0)
-                        }
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(isSendDisabled
-                                     ? Color(red: 0.62, green: 0.62, blue: 0.62) : .accentColor)
-                    .disabled(isSendDisabled)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+                    .buttonStyle(.plain)
                 }
             }
-            .padding(24)
-            .onAppear { focusedField = .name }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Outcome Name")
+                    .font(.system(size: 12))
+                    .foregroundColor(.osGrey600)
+                OSTextField(placeholder: "", text: $outcomeName)
+            }
+
+            if selectedType == .withValue {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Value")
+                        .font(.system(size: 12))
+                        .foregroundColor(.osGrey600)
+                    OSTextField(
+                        placeholder: "",
+                        text: $outcomeValue,
+                        keyboardType: .decimalPad
+                    )
+                }
+            }
+
+            DialogActions(
+                confirmTitle: "Send",
+                isConfirmEnabled: !isSendDisabled,
+                onCancel: onCancel,
+                onConfirm: {
+                    switch selectedType {
+                    case .normal: onSendNormal(outcomeName)
+                    case .unique: onSendUnique(outcomeName)
+                    case .withValue: onSendWithValue(outcomeName, Double(outcomeValue) ?? 0)
+                    }
+                }
+            )
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 }

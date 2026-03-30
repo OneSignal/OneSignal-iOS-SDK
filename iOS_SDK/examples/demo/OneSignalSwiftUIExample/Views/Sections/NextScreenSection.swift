@@ -36,8 +36,8 @@ struct NextScreenSection: View {
                     .foregroundColor(.white)
                     .textCase(.uppercase)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.accentColor)
+                    .frame(height: 48)
+                    .background(Color.osPrimary)
                     .cornerRadius(8)
             }
             .buttonStyle(.plain)
@@ -54,7 +54,7 @@ struct SecondaryView: View {
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.97, green: 0.97, blue: 0.98))
+        .background(Color.osLightBackground)
         .navigationTitle("Secondary Activity")
         .navigationBarTitleDisplayMode(.inline)
     }

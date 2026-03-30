@@ -27,71 +27,48 @@
 
 import SwiftUI
 
-struct CustomNotificationSheet: View {
+struct CustomNotificationDialog: View {
     let onSend: (String, String) -> Void
     let onCancel: () -> Void
 
     @State private var titleText: String = ""
     @State private var bodyText: String = ""
-    @FocusState private var focusedField: Field?
-
-    private enum Field {
-        case title, body
-    }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Text("Custom Notification")
-                    .font(.system(size: 24))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 16) {
+            Text("Custom Notification")
+                .font(.system(size: 24))
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Title")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                    TextField("", text: $titleText)
-                        .textFieldStyle(UnderlineTextFieldStyle())
-                        .focused($focusedField, equals: .title)
-                        .textInputAutocapitalization(.sentences)
-                        .autocorrectionDisabled()
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Body")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
-                    TextField("", text: $bodyText)
-                        .textFieldStyle(UnderlineTextFieldStyle())
-                        .focused($focusedField, equals: .body)
-                        .textInputAutocapitalization(.sentences)
-                        .autocorrectionDisabled()
-                }
-
-                Spacer()
-
-                HStack(spacing: 8) {
-                    Spacer()
-
-                    Button("CANCEL") { onCancel() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-
-                    Button("SEND") { onSend(titleText, bodyText) }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(isValid ? .accentColor : Color(red: 0.62, green: 0.62, blue: 0.62))
-                        .disabled(!isValid)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                }
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Title")
+                    .font(.system(size: 12))
+                    .foregroundColor(.osGrey600)
+                OSTextField(
+                    placeholder: "",
+                    text: $titleText,
+                    autocapitalization: .sentences
+                )
             }
-            .padding(24)
-            .onAppear { focusedField = .title }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Body")
+                    .font(.system(size: 12))
+                    .foregroundColor(.osGrey600)
+                OSTextField(
+                    placeholder: "",
+                    text: $bodyText,
+                    autocapitalization: .sentences
+                )
+            }
+
+            DialogActions(
+                confirmTitle: "Send",
+                isConfirmEnabled: isValid,
+                onCancel: onCancel,
+                onConfirm: { onSend(titleText, bodyText) }
+            )
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 
     private var isValid: Bool {

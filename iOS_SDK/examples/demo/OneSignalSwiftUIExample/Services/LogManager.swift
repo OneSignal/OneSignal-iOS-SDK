@@ -36,10 +36,10 @@ enum LogLevel: String {
 
     var color: Color {
         switch self {
-        case .debug: return Color(red: 0.51, green: 0.67, blue: 1.0)
-        case .info: return Color(red: 0.76, green: 0.91, blue: 0.55)
-        case .warning: return Color(red: 1.0, green: 0.80, blue: 0.42)
-        case .error: return Color(red: 1.0, green: 0.33, blue: 0.44)
+        case .debug: return .osLogDebug
+        case .info: return .osLogInfo
+        case .warning: return .osLogWarn
+        case .error: return .osLogError
         }
     }
 }

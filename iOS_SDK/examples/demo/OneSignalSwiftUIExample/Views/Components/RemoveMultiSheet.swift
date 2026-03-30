@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-struct RemoveMultiSheet: View {
+struct RemoveMultiDialog: View {
     let type: RemoveMultiItemType
     let items: [KeyValueItem]
     let onRemove: ([String]) -> Void
@@ -36,71 +36,52 @@ struct RemoveMultiSheet: View {
     @State private var selectedKeys: Set<String> = []
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 16) {
-                Text(type.rawValue)
-                    .font(.system(size: 24))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 16) {
+            Text(type.rawValue)
+                .font(.system(size: 24))
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(items) { item in
-                            Button {
-                                if selectedKeys.contains(item.key) {
-                                    selectedKeys.remove(item.key)
-                                } else {
-                                    selectedKeys.insert(item.key)
-                                }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    Image(systemName: selectedKeys.contains(item.key)
-                                          ? "checkmark.square.fill" : "square")
-                                        .font(.system(size: 22))
-                                        .foregroundColor(selectedKeys.contains(item.key)
-                                                         ? .accentColor : .secondary)
-
-                                    Text(item.key)
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.primary)
-
-                                    Spacer()
-                                }
-                                .padding(.vertical, 10)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(items) { item in
+                        Button {
+                            if selectedKeys.contains(item.key) {
+                                selectedKeys.remove(item.key)
+                            } else {
+                                selectedKeys.insert(item.key)
                             }
-                            .buttonStyle(.plain)
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: selectedKeys.contains(item.key)
+                                      ? "checkmark.square.fill" : "square")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(selectedKeys.contains(item.key)
+                                                     ? .osPrimary : .secondary)
 
-                            if item.id != items.last?.id {
-                                Divider()
+                                Text(item.key)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.primary)
+
+                                Spacer()
                             }
+                            .padding(.vertical, 10)
+                        }
+                        .buttonStyle(.plain)
+
+                        if item.id != items.last?.id {
+                            Divider()
                         }
                     }
                 }
-
-                Spacer()
-
-                HStack(spacing: 8) {
-                    Spacer()
-
-                    Button("CANCEL") { onCancel() }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.accentColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-
-                    Button("REMOVE (\(selectedKeys.count))") {
-                        onRemove(Array(selectedKeys))
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(selectedKeys.isEmpty
-                                     ? Color(red: 0.62, green: 0.62, blue: 0.62) : .accentColor)
-                    .disabled(selectedKeys.isEmpty)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                }
             }
-            .padding(24)
+            .frame(maxHeight: 300)
+
+            DialogActions(
+                confirmTitle: "Remove (\(selectedKeys.count))",
+                isConfirmEnabled: !selectedKeys.isEmpty,
+                onCancel: onCancel,
+                onConfirm: { onRemove(Array(selectedKeys)) }
+            )
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
     }
 }
