@@ -27,153 +27,229 @@
 
 import SwiftUI
 
-/// Section for outcomes, in-app messaging, and triggers
-struct MessagingSection: View {
+// MARK: - In-App Messaging Section
+
+struct InAppMessagingSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    @State private var showingOutcomeSheet = false
-    @State private var outcomeName = ""
-    @State private var outcomeValue = ""
 
     var body: some View {
-        // Outcome Events Section
-        Section {
-            Button {
+        VStack(spacing: 0) {
+            SectionHeader(title: "In-App Messaging", tooltipKey: "inAppMessaging")
+
+            CardContainer {
+                ToggleRow(
+                    title: "Pause In-App Messages",
+                    subtitle: "Toggle in-app message display",
+                    isOn: Binding(
+                        get: { viewModel.isInAppMessagesPaused },
+                        set: { _ in viewModel.toggleInAppMessagesPaused() }
+                    )
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Outcome Events Section
+
+struct OutcomeEventsSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var showingOutcomeSheet = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "Outcome Events", tooltipKey: "outcomes")
+
+            ActionButton(title: "Send Outcome") {
                 showingOutcomeSheet = true
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Send Outcome")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
             }
-        } header: {
-            Text("Outcome Events")
-        }
-
-        // In-App Messaging Section
-        Section {
-            Toggle(isOn: Binding(
-                get: { viewModel.isInAppMessagesPaused },
-                set: { _ in viewModel.toggleInAppMessagesPaused() }
-            )) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Pause In-App Messages")
-                    Text("Toggle in-app messages")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-        } header: {
-            Text("In-App Messaging")
-        }
-
-        // Triggers Section
-        Section {
-            if viewModel.triggers.isEmpty {
-                EmptyListRow(message: "No Triggers Added")
-            } else {
-                ForEach(viewModel.triggers) { trigger in
-                    KeyValueRow(item: trigger) {
-                        viewModel.removeTrigger(trigger)
-                    }
-                }
-            }
-
-            Button {
-                viewModel.showAddSheet(for: .trigger)
-            } label: {
-                HStack {
-                    Spacer()
-                    Label("Add Trigger", systemImage: "plus")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-            }
-        } header: {
-            Text("Triggers")
         }
         .sheet(isPresented: $showingOutcomeSheet) {
             OutcomeSheet(
-                onSend: { name, value in
-                    if let value = value {
-                        viewModel.sendOutcome(name, value: value)
-                    } else {
-                        viewModel.sendOutcome(name)
-                    }
+                onSendNormal: { name in
+                    viewModel.sendOutcome(name)
                     showingOutcomeSheet = false
                 },
-                onCancel: {
+                onSendUnique: { name in
+                    viewModel.sendUniqueOutcome(name)
                     showingOutcomeSheet = false
-                }
+                },
+                onSendWithValue: { name, value in
+                    viewModel.sendOutcome(name, value: value)
+                    showingOutcomeSheet = false
+                },
+                onCancel: { showingOutcomeSheet = false }
             )
         }
     }
 }
 
-/// Sheet for sending outcomes
+// MARK: - Triggers Section
+
+struct TriggersSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "Triggers", tooltipKey: "triggers")
+
+            CardContainer {
+                if viewModel.triggers.isEmpty {
+                    EmptyListRow(message: "No Triggers Added")
+                } else {
+                    ForEach(Array(viewModel.triggers.enumerated()), id: \.element.id) { index, trigger in
+                        if index > 0 { CardDivider() }
+                        KeyValueRow(item: trigger) {
+                            viewModel.removeTrigger(trigger)
+                        }
+                    }
+                }
+            }
+
+            ActionButton(title: "Add") {
+                viewModel.showAddSheet(for: .trigger)
+            }
+            .padding(.top, 12)
+
+            ActionButton(title: "Add Multiple") {
+                viewModel.showMultiAddSheet(for: .triggers)
+            }
+            .padding(.top, 8)
+
+            if !viewModel.triggers.isEmpty {
+                OutlineActionButton(title: "Remove Selected") {
+                    viewModel.showRemoveMultiSheet(for: .triggers)
+                }
+                .padding(.top, 8)
+
+                OutlineActionButton(title: "Clear All") {
+                    viewModel.clearTriggers()
+                }
+                .padding(.top, 8)
+            }
+        }
+    }
+}
+
+// MARK: - Outcome Sheet
+
+private enum OutcomeType: Int, CaseIterable {
+    case normal = 0
+    case unique = 1
+    case withValue = 2
+
+    var label: String {
+        switch self {
+        case .normal: return "Normal Outcome"
+        case .unique: return "Unique Outcome"
+        case .withValue: return "Outcome with Value"
+        }
+    }
+}
+
 struct OutcomeSheet: View {
-    let onSend: (String, Double?) -> Void
+    let onSendNormal: (String) -> Void
+    let onSendUnique: (String) -> Void
+    let onSendWithValue: (String, Double) -> Void
     let onCancel: () -> Void
 
+    @State private var selectedType: OutcomeType = .normal
     @State private var outcomeName = ""
     @State private var outcomeValue = ""
-    @State private var includeValue = false
     @FocusState private var focusedField: Field?
 
     private enum Field {
         case name, value
     }
 
+    private var isSendDisabled: Bool {
+        let nameEmpty = outcomeName.trimmingCharacters(in: .whitespaces).isEmpty
+        if selectedType == .withValue {
+            return nameEmpty || Double(outcomeValue) == nil
+        }
+        return nameEmpty
+    }
+
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Outcome Name", text: $outcomeName)
+            VStack(spacing: 20) {
+                Text("Send Outcome")
+                    .font(.system(size: 24))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(OutcomeType.allCases, id: \.rawValue) { type in
+                        Button {
+                            selectedType = type
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: selectedType == type
+                                      ? "largecircle.fill.circle" : "circle")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(selectedType == type ? .accentColor : .secondary)
+                                Text(type.label)
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.primary)
+                            }
+                            .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Outcome Name")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                    TextField("", text: $outcomeName)
+                        .textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .name)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
 
-                Section {
-                    Toggle("Include Value", isOn: $includeValue)
-
-                    if includeValue {
-                        TextField("Value", text: $outcomeValue)
+                if selectedType == .withValue {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Value")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        TextField("", text: $outcomeValue)
+                            .textFieldStyle(.roundedBorder)
                             .focused($focusedField, equals: .value)
                             .keyboardType(.decimalPad)
                     }
                 }
-            }
-            .navigationTitle("Send Outcome")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        onCancel()
-                    }
-                }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Send") {
-                        let value = includeValue ? Double(outcomeValue) : nil
-                        onSend(outcomeName, value)
+                Spacer()
+
+                HStack(spacing: 8) {
+                    Spacer()
+
+                    Button("CANCEL") { onCancel() }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.accentColor)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+
+                    Button("SEND") {
+                        switch selectedType {
+                        case .normal: onSendNormal(outcomeName)
+                        case .unique: onSendUnique(outcomeName)
+                        case .withValue: onSendWithValue(outcomeName, Double(outcomeValue) ?? 0)
+                        }
                     }
-                    .disabled(outcomeName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(isSendDisabled
+                                     ? Color(red: 0.62, green: 0.62, blue: 0.62) : .accentColor)
+                    .disabled(isSendDisabled)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                 }
             }
-            .onAppear {
-                focusedField = .name
-            }
+            .padding(24)
+            .onAppear { focusedField = .name }
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
     }
-}
-
-#Preview {
-    List {
-        MessagingSection()
-    }
-    .environmentObject(OneSignalViewModel())
 }

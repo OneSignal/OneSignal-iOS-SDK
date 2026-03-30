@@ -27,28 +27,25 @@
 
 import SwiftUI
 
-struct LocationSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-
+struct GuidanceBanner: View {
     var body: some View {
-        VStack(spacing: 0) {
-            SectionHeader(title: "Location", tooltipKey: "location")
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Add your own App ID, then rebuild to fully test all functionality.")
+                .font(.system(size: 12))
+                .foregroundColor(.primary)
 
-            CardContainer {
-                ToggleRow(
-                    title: "Location Shared",
-                    subtitle: "Share device location with OneSignal",
-                    isOn: Binding(
-                        get: { viewModel.isLocationShared },
-                        set: { _ in viewModel.toggleLocationShared() }
-                    )
-                )
-            }
-
-            ActionButton(title: "Prompt Location") {
-                viewModel.promptLocation()
-            }
-            .padding(.top, 12)
+            Link("Get your keys at onesignal.com",
+                 destination: URL(string: "https://onesignal.com")!)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.accentColor)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(Color(red: 1.0, green: 0.97, blue: 0.88))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.black.opacity(0.1), lineWidth: 1)
+        )
     }
 }

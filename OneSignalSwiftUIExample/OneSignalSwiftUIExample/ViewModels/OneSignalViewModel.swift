@@ -28,44 +28,63 @@
 import Foundation
 import Combine
 import OneSignalFramework
-import OneSignalInAppMessages
-import OneSignalLocation
 
-/// Main ViewModel managing all OneSignal SDK state and interactions
 @MainActor
 final class OneSignalViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
-    // App Info
     @Published var appId: String
 
-    // User
     @Published var externalUserId: String?
     @Published var aliases: [KeyValueItem] = []
 
-    // Push Subscription
     @Published var pushSubscriptionId: String?
     @Published var isPushEnabled: Bool = false
+    @Published var notificationPermissionGranted: Bool = false
 
-    // Email & SMS
     @Published var emails: [String] = []
     @Published var smsNumbers: [String] = []
 
-    // Tags
     @Published var tags: [KeyValueItem] = []
 
-    // In-App Messaging
     @Published var isInAppMessagesPaused: Bool = true
     @Published var triggers: [KeyValueItem] = []
 
-    // Location
     @Published var isLocationShared: Bool = false
 
-    // UI State
+    @Published var consentRequired: Bool = UserDefaults.standard.bool(forKey: "CachedConsentRequired")
+    @Published var consentGiven: Bool = UserDefaults.standard.bool(forKey: "CachedPrivacyConsent")
+
+    @Published var isLoading: Bool = false
+
     @Published var showingAddSheet: Bool = false
     @Published var addItemType: AddItemType = .email
+    @Published var showingMultiAddSheet: Bool = false
+    @Published var multiAddType: MultiAddItemType = .tags
+    @Published var showingRemoveMultiSheet: Bool = false
+    @Published var removeMultiType: RemoveMultiItemType = .tags
+    @Published var showingCustomNotificationSheet: Bool = false
+    @Published var showingTrackEventSheet: Bool = false
     @Published var toastMessage: String?
+
+    // MARK: - Computed Properties
+
+    var isLoggedIn: Bool {
+        externalUserId != nil && !(externalUserId?.isEmpty ?? true)
+    }
+
+    var loginButtonTitle: String {
+        isLoggedIn ? "Switch User" : "Login User"
+    }
+
+    var removeMultiItems: [KeyValueItem] {
+        switch removeMultiType {
+        case .aliases: return aliases
+        case .tags: return tags
+        case .triggers: return triggers
+        }
+    }
 
     // MARK: - Private Properties
 
@@ -77,12 +96,15 @@ final class OneSignalViewModel: ObservableObject {
     init(service: OneSignalService = .shared) {
         self.service = service
         self.appId = service.appId
+        self.notificationPermissionGranted = service.hasNotificationPermission
+        self.externalUserId = service.externalId
 
-        // Initial state sync
         refreshState()
-
-        // Set up observers
         setupObservers()
+
+        if service.onesignalId != nil {
+            Task { await fetchUserDataFromApi() }
+        }
     }
 
     // MARK: - State Management
@@ -92,28 +114,72 @@ final class OneSignalViewModel: ObservableObject {
         isPushEnabled = service.isPushEnabled
         isInAppMessagesPaused = service.isInAppMessagesPaused
         isLocationShared = service.isLocationShared
+        notificationPermissionGranted = service.hasNotificationPermission
+        externalUserId = service.externalId
 
-        // Sync tags from SDK
         let sdkTags = service.getTags()
         tags = sdkTags.map { KeyValueItem(key: $0.key, value: $0.value) }
     }
 
+    // MARK: - User Data Fetching
+
+    func fetchUserDataFromApi() async {
+        guard let onesignalId = service.onesignalId else { return }
+
+        isLoading = true
+
+        if let userData = await UserFetchService.shared.fetchUser(appId: appId, onesignalId: onesignalId) {
+            aliases = userData.aliases.map { KeyValueItem(key: $0.key, value: $0.value) }
+            tags = userData.tags.map { KeyValueItem(key: $0.key, value: $0.value) }
+            emails = userData.emails
+            smsNumbers = userData.smsNumbers
+            if let extId = userData.externalId, !extId.isEmpty {
+                externalUserId = extId
+            }
+        }
+
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        isLoading = false
+    }
+
     // MARK: - Consent
 
-    func revokeConsent() {
-        service.revokeConsent()
-        showToast("Consent revoked")
+    func toggleConsentRequired() {
+        consentRequired.toggle()
+        service.setConsentRequired(consentRequired)
+        UserDefaults.standard.set(consentRequired, forKey: "CachedConsentRequired")
+        if !consentRequired {
+            consentGiven = true
+            service.setConsentGiven(true)
+            UserDefaults.standard.set(true, forKey: "CachedPrivacyConsent")
+        }
+        showToast(consentRequired ? "Consent required enabled" : "Consent required disabled")
+    }
+
+    func toggleConsent() {
+        consentGiven.toggle()
+        service.setConsentGiven(consentGiven)
+        UserDefaults.standard.set(consentGiven, forKey: "CachedPrivacyConsent")
+        showToast(consentGiven ? "Consent given" : "Consent revoked")
     }
 
     // MARK: - User Management
 
     func login(externalId: String) {
+        isLoading = true
         service.login(externalId: externalId)
         externalUserId = externalId
-        showToast("Logged in as \(externalId)")
+
+        aliases.removeAll()
+        emails.removeAll()
+        smsNumbers.removeAll()
+        tags.removeAll()
+
+        showToast("Logged in as: \(externalId)")
     }
 
     func logout() {
+        isLoading = true
         service.logout()
         externalUserId = nil
         aliases.removeAll()
@@ -121,6 +187,7 @@ final class OneSignalViewModel: ObservableObject {
         smsNumbers.removeAll()
         tags.removeAll()
         triggers.removeAll()
+        isLoading = false
         showToast("Logged out")
     }
 
@@ -128,14 +195,32 @@ final class OneSignalViewModel: ObservableObject {
 
     func addAlias(label: String, id: String) {
         service.addAlias(label: label, id: id)
+        aliases.removeAll { $0.key == label }
         aliases.append(KeyValueItem(key: label, value: id))
-        showToast("Alias added")
+        showToast("Alias added: \(label)")
+    }
+
+    func addAliases(_ pairs: [(String, String)]) {
+        let dict = Dictionary(pairs, uniquingKeysWith: { _, last in last })
+        service.addAliases(dict)
+        for (key, value) in pairs {
+            aliases.removeAll { $0.key == key }
+            aliases.append(KeyValueItem(key: key, value: value))
+        }
+        showToast("\(pairs.count) alias(es) added")
     }
 
     func removeAlias(_ item: KeyValueItem) {
         service.removeAlias(item.key)
         aliases.removeAll { $0.id == item.id }
         showToast("Alias removed")
+    }
+
+    func removeSelectedAliases(_ keys: [String]) {
+        guard !keys.isEmpty else { return }
+        service.removeAliases(keys)
+        aliases.removeAll { keys.contains($0.key) }
+        showToast("\(keys.count) alias(es) removed")
     }
 
     // MARK: - Push Subscription
@@ -155,6 +240,7 @@ final class OneSignalViewModel: ObservableObject {
     func requestPushPermission() {
         service.requestPushPermission { [weak self] accepted in
             Task { @MainActor in
+                self?.notificationPermissionGranted = accepted
                 self?.isPushEnabled = accepted
                 self?.showToast(accepted ? "Push permission granted" : "Push permission denied")
             }
@@ -165,7 +251,9 @@ final class OneSignalViewModel: ObservableObject {
 
     func addEmail(_ email: String) {
         service.addEmail(email)
-        emails.append(email)
+        if !emails.contains(email) {
+            emails.append(email)
+        }
         showToast("Email added")
     }
 
@@ -179,7 +267,9 @@ final class OneSignalViewModel: ObservableObject {
 
     func addSms(_ number: String) {
         service.addSms(number)
-        smsNumbers.append(number)
+        if !smsNumbers.contains(number) {
+            smsNumbers.append(number)
+        }
         showToast("SMS added")
     }
 
@@ -193,10 +283,19 @@ final class OneSignalViewModel: ObservableObject {
 
     func addTag(key: String, value: String) {
         service.addTag(key: key, value: value)
-        // Remove existing tag with same key if present
         tags.removeAll { $0.key == key }
         tags.append(KeyValueItem(key: key, value: value))
         showToast("Tag added")
+    }
+
+    func addTags(_ pairs: [(String, String)]) {
+        let dict = Dictionary(pairs, uniquingKeysWith: { _, last in last })
+        service.addTags(dict)
+        for (key, value) in pairs {
+            tags.removeAll { $0.key == key }
+            tags.append(KeyValueItem(key: key, value: value))
+        }
+        showToast("\(pairs.count) tag(s) added")
     }
 
     func removeTag(_ item: KeyValueItem) {
@@ -205,21 +304,28 @@ final class OneSignalViewModel: ObservableObject {
         showToast("Tag removed")
     }
 
+    func removeSelectedTags(_ keys: [String]) {
+        guard !keys.isEmpty else { return }
+        service.removeTags(keys)
+        tags.removeAll { keys.contains($0.key) }
+        showToast("\(keys.count) tag(s) removed")
+    }
+
     // MARK: - Outcomes
 
     func sendOutcome(_ name: String) {
         service.sendOutcome(name)
-        showToast("Outcome '\(name)' sent")
+        showToast("Outcome sent: \(name)")
     }
 
     func sendOutcome(_ name: String, value: Double) {
         service.sendOutcome(name, value: NSNumber(value: value))
-        showToast("Outcome '\(name)' with value \(value) sent")
+        showToast("Outcome sent: \(name)")
     }
 
     func sendUniqueOutcome(_ name: String) {
         service.sendUniqueOutcome(name)
-        showToast("Unique outcome '\(name)' sent")
+        showToast("Outcome sent: \(name)")
     }
 
     // MARK: - In-App Messaging
@@ -227,15 +333,25 @@ final class OneSignalViewModel: ObservableObject {
     func toggleInAppMessagesPaused() {
         isInAppMessagesPaused.toggle()
         service.isInAppMessagesPaused = isInAppMessagesPaused
+        UserDefaults.standard.set(isInAppMessagesPaused, forKey: "CachedInAppMessagesPaused")
         showToast(isInAppMessagesPaused ? "In-app messages paused" : "In-app messages resumed")
     }
 
     func addTrigger(key: String, value: String) {
         service.addTrigger(key: key, value: value)
-        // Remove existing trigger with same key if present
         triggers.removeAll { $0.key == key }
         triggers.append(KeyValueItem(key: key, value: value))
         showToast("Trigger added")
+    }
+
+    func addTriggers(_ pairs: [(String, String)]) {
+        let dict = Dictionary(pairs, uniquingKeysWith: { _, last in last })
+        service.addTriggers(dict)
+        for (key, value) in pairs {
+            triggers.removeAll { $0.key == key }
+            triggers.append(KeyValueItem(key: key, value: value))
+        }
+        showToast("\(pairs.count) trigger(s) added")
     }
 
     func removeTrigger(_ item: KeyValueItem) {
@@ -244,73 +360,38 @@ final class OneSignalViewModel: ObservableObject {
         showToast("Trigger removed")
     }
 
+    func removeSelectedTriggers(_ keys: [String]) {
+        guard !keys.isEmpty else { return }
+        service.removeTriggers(keys)
+        triggers.removeAll { keys.contains($0.key) }
+        showToast("\(keys.count) trigger(s) removed")
+    }
+
+    func clearTriggers() {
+        service.clearTriggers()
+        triggers.removeAll()
+        showToast("All triggers cleared")
+    }
+
+    // MARK: - Track Event
+
+    func trackEvent(name: String, properties: [String: Any]? = nil) {
+        OneSignal.User.trackEvent(name: name, properties: properties)
+        showToast("Event tracked: \(name)")
+    }
+
     // MARK: - Location
 
     func toggleLocationShared() {
         isLocationShared.toggle()
         service.isLocationShared = isLocationShared
+        UserDefaults.standard.set(isLocationShared, forKey: "CachedLocationShared")
         showToast(isLocationShared ? "Location sharing enabled" : "Location sharing disabled")
     }
 
     func promptLocation() {
         service.requestLocationPermission()
         showToast("Location permission requested")
-    }
-
-    // MARK: - Notifications
-
-    func clearAllNotifications() {
-        service.clearAllNotifications()
-        showToast("All notifications cleared")
-    }
-
-    func sendTestNotification(_ type: NotificationType) {
-        // In a real app, this would trigger a notification via your backend
-        // For demo purposes, we just show a toast
-        showToast("Test '\(type.rawValue)' notification triggered")
-    }
-
-    func sendTestInAppMessage(_ type: InAppMessageType) {
-        // In a real app, this would trigger an IAM via your backend
-        // For demo purposes, we just show a toast
-        showToast("Test '\(type.rawValue)' in-app message triggered")
-    }
-
-    // MARK: - Add Sheet
-
-    func showAddSheet(for type: AddItemType) {
-        addItemType = type
-        showingAddSheet = true
-    }
-
-    func handleAddItem(key: String, value: String) {
-        switch addItemType {
-        case .alias:
-            addAlias(label: key, id: value)
-        case .email:
-            addEmail(value)
-        case .sms:
-            addSms(value)
-        case .tag:
-            addTag(key: key, value: value)
-        case .trigger:
-            addTrigger(key: key, value: value)
-        case .externalUserId:
-            login(externalId: value)
-        }
-        showingAddSheet = false
-    }
-
-    // MARK: - Toast
-
-    private func showToast(_ message: String) {
-        toastMessage = message
-
-        // Auto-dismiss after 2 seconds
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            toastMessage = nil
-        }
     }
 
     // MARK: - Observers
@@ -320,6 +401,145 @@ final class OneSignalViewModel: ObservableObject {
         service.addPushSubscriptionObserver(observers)
         service.addUserObserver(observers)
         service.addPermissionObserver(observers)
+    }
+}
+
+// MARK: - Notifications
+
+extension OneSignalViewModel {
+
+    func clearAllNotifications() {
+        service.clearAllNotifications()
+        showToast("All notifications cleared")
+    }
+
+    func sendSimpleNotification() {
+        NotificationSender.shared.sendSimpleNotification(appId: appId) { [weak self] result in
+            Task { @MainActor in
+                switch result {
+                case .success: self?.showToast("Notification sent: Simple")
+                case .failure(let error): self?.showToast("Failed to send notification")
+                    LogManager.shared.e("Notification", error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    func sendNotificationWithImage() {
+        NotificationSender.shared.sendNotificationWithImage(appId: appId) { [weak self] result in
+            Task { @MainActor in
+                switch result {
+                case .success: self?.showToast("Notification sent: With Image")
+                case .failure(let error): self?.showToast("Failed to send notification")
+                    LogManager.shared.e("Notification", error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    func sendNotificationWithSound() {
+        NotificationSender.shared.sendNotificationWithSound(appId: appId) { [weak self] result in
+            Task { @MainActor in
+                switch result {
+                case .success: self?.showToast("Notification sent: With Sound")
+                case .failure(let error): self?.showToast("Failed to send notification")
+                    LogManager.shared.e("Notification", error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    func sendCustomNotification(title: String, body: String) {
+        NotificationSender.shared.sendCustomNotification(title: title, body: body, appId: appId) { [weak self] result in
+            Task { @MainActor in
+                switch result {
+                case .success: self?.showToast("Notification sent: Custom")
+                case .failure(let error): self?.showToast("Failed to send notification")
+                    LogManager.shared.e("Notification", error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    func sendTestInAppMessage(_ type: InAppMessageType) {
+        let triggerValue: String
+        switch type {
+        case .topBanner: triggerValue = "top_banner"
+        case .bottomBanner: triggerValue = "bottom_banner"
+        case .centerModal: triggerValue = "center_modal"
+        case .fullScreen: triggerValue = "full_screen"
+        }
+        service.addTrigger(key: "iam_type", value: triggerValue)
+        triggers.removeAll { $0.key == "iam_type" }
+        triggers.append(KeyValueItem(key: "iam_type", value: triggerValue))
+        showToast("Sent In-App Message: \(type.rawValue)")
+    }
+}
+
+// MARK: - Sheet Handling
+
+extension OneSignalViewModel {
+
+    func showAddSheet(for type: AddItemType) {
+        addItemType = type
+        showingAddSheet = true
+    }
+
+    func showMultiAddSheet(for type: MultiAddItemType) {
+        multiAddType = type
+        showingMultiAddSheet = true
+    }
+
+    func showRemoveMultiSheet(for type: RemoveMultiItemType) {
+        removeMultiType = type
+        showingRemoveMultiSheet = true
+    }
+
+    func handleAddItem(key: String, value: String) {
+        switch addItemType {
+        case .alias: addAlias(label: key, id: value)
+        case .email: addEmail(value)
+        case .sms: addSms(value)
+        case .tag: addTag(key: key, value: value)
+        case .trigger: addTrigger(key: key, value: value)
+        case .externalUserId: login(externalId: value)
+        case .customNotification: sendCustomNotification(title: key, body: value)
+        case .trackEvent: trackEvent(name: value)
+        }
+        showingAddSheet = false
+    }
+
+    func handleMultiAdd(pairs: [(String, String)]) {
+        switch multiAddType {
+        case .aliases: addAliases(pairs)
+        case .tags: addTags(pairs)
+        case .triggers: addTriggers(pairs)
+        }
+        showingMultiAddSheet = false
+    }
+
+    func handleRemoveMulti(keys: [String]) {
+        switch removeMultiType {
+        case .aliases: removeSelectedAliases(keys)
+        case .tags: removeSelectedTags(keys)
+        case .triggers: removeSelectedTriggers(keys)
+        }
+        showingRemoveMultiSheet = false
+    }
+}
+
+// MARK: - Toast
+
+extension OneSignalViewModel {
+
+    func showToast(_ message: String) {
+        LogManager.shared.i("App", message)
+        toastMessage = message
+
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            toastMessage = nil
+        }
     }
 }
 
@@ -337,14 +557,15 @@ private class Observers: NSObject, OSPushSubscriptionObserver, OSUserStateObserv
 
     func onUserStateDidChange(state: OSUserChangedState) {
         Task { @MainActor in
-            // User state changed - could refresh aliases, etc.
-            print("User state changed: \(state.jsonRepresentation())")
+            LogManager.shared.i("User", "User state changed")
+            await viewModel?.fetchUserDataFromApi()
         }
     }
 
     func onNotificationPermissionDidChange(_ permission: Bool) {
         Task { @MainActor in
-            viewModel?.isPushEnabled = permission && (viewModel?.isPushEnabled ?? false)
+            viewModel?.notificationPermissionGranted = permission
+            viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
         }
     }
 }

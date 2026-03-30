@@ -26,9 +26,8 @@
  */
 
 import SwiftUI
+import UserNotifications
 import OneSignalFramework
-import OneSignalInAppMessages
-import OneSignalLocation
 
 @main
 struct OneSignalSwiftUIExampleApp: App {
@@ -45,41 +44,103 @@ struct OneSignalSwiftUIExampleApp: App {
 
 // MARK: - App Delegate
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+
+    private let cachedIAMPausedKey = "CachedInAppMessagesPaused"
+    private let cachedLocationSharedKey = "CachedLocationShared"
+    private let cachedConsentRequiredKey = "CachedConsentRequired"
+    private let cachedPrivacyConsentKey = "CachedPrivacyConsent"
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Initialize OneSignal
+        UNUserNotificationCenter.current().delegate = self
+
+        let consentRequired = UserDefaults.standard.bool(forKey: cachedConsentRequiredKey)
+        let privacyConsent = UserDefaults.standard.bool(forKey: cachedPrivacyConsentKey)
+        OneSignal.setConsentRequired(consentRequired)
+        OneSignal.setConsentGiven(privacyConsent)
+
         OneSignalService.shared.initialize(launchOptions: launchOptions)
 
-        // Set up notification lifecycle listeners
+        restoreCachedStates()
         setupNotificationListeners()
-
-        // Set up in-app message listeners
         setupInAppMessageListeners()
+        setupLogListener()
+        TooltipService.shared.initialize()
 
         return true
     }
 
-    private func setupNotificationListeners() {
-        // Foreground notification display
-        OneSignal.Notifications.addForegroundLifecycleListener(NotificationLifecycleHandler.shared)
+    // MARK: - Manual Push Integration (for swizzle-disabled setups)
 
-        // Notification click handling
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        OneSignal.Notifications.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+    }
+
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        OneSignal.Notifications.didFailToRegisterForRemoteNotifications(error: error as NSError)
+    }
+
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        OneSignal.Notifications.didReceiveRemoteNotification(
+            userInfo: userInfo, completionHandler: completionHandler)
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        OneSignal.Notifications.willPresentNotification(
+            payload: notification.request.content.userInfo) { notif in
+                if notif != nil {
+                    if #available(iOS 14.0, *) {
+                        completionHandler([.banner, .list, .sound])
+                    } else {
+                        completionHandler([.alert, .sound])
+                    }
+                } else {
+                    completionHandler([])
+                }
+            }
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        OneSignal.Notifications.didReceiveNotificationResponse(response)
+        completionHandler()
+    }
+
+    // MARK: - Private Setup
+
+    private func setupLogListener() {
+        OneSignal.Debug.setLogLevel(.LL_VERBOSE)
+        OneSignal.Debug.addLogListener(SDKLogListener.shared)
+    }
+
+    private func restoreCachedStates() {
+        let iamPaused = UserDefaults.standard.object(forKey: cachedIAMPausedKey) == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: cachedIAMPausedKey)
+        OneSignal.InAppMessages.paused = iamPaused
+
+        let locationShared = UserDefaults.standard.bool(forKey: cachedLocationSharedKey)
+        OneSignal.Location.isShared = locationShared
+    }
+
+    private func setupNotificationListeners() {
+        OneSignal.Notifications.addForegroundLifecycleListener(NotificationLifecycleHandler.shared)
         OneSignal.Notifications.addClickListener(NotificationClickHandler.shared)
     }
 
     private func setupInAppMessageListeners() {
-        // In-app message lifecycle
         OneSignal.InAppMessages.addLifecycleListener(InAppMessageLifecycleHandler.shared)
-
-        // In-app message click handling
         OneSignal.InAppMessages.addClickListener(InAppMessageClickHandler.shared)
-
-        // Start with IAM paused
-        OneSignal.InAppMessages.paused = true
     }
 }
 
@@ -89,10 +150,9 @@ class NotificationLifecycleHandler: NSObject, OSNotificationLifecycleListener {
     static let shared = NotificationLifecycleHandler()
 
     func onWillDisplay(event: OSNotificationWillDisplayEvent) {
-        print("[OneSignal] Notification will display: \(event.notification.title ?? "No title")")
-        // Optionally modify display behavior
-        // event.preventDefault() // Prevent automatic display
-        // event.notification.display() // Manually display later
+        Task { @MainActor in
+            LogManager.shared.i("Notification", "Will display: \(event.notification.title ?? "No title")")
+        }
     }
 }
 
@@ -100,8 +160,9 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
     static let shared = NotificationClickHandler()
 
     func onClick(event: OSNotificationClickEvent) {
-        print("[OneSignal] Notification clicked: \(event.notification.title ?? "No title")")
-        // Handle notification click - navigate to specific screen, etc.
+        Task { @MainActor in
+            LogManager.shared.i("Notification", "Clicked: \(event.notification.title ?? "No title")")
+        }
     }
 }
 
@@ -111,19 +172,27 @@ class InAppMessageLifecycleHandler: NSObject, OSInAppMessageLifecycleListener {
     static let shared = InAppMessageLifecycleHandler()
 
     func onWillDisplay(event: OSInAppMessageWillDisplayEvent) {
-        print("[OneSignal] IAM will display: \(event.message.messageId)")
+        Task { @MainActor in
+            LogManager.shared.i("IAM", "Will display: \(event.message.messageId)")
+        }
     }
 
     func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
-        print("[OneSignal] IAM did display: \(event.message.messageId)")
+        Task { @MainActor in
+            LogManager.shared.i("IAM", "Did display: \(event.message.messageId)")
+        }
     }
 
     func onWillDismiss(event: OSInAppMessageWillDismissEvent) {
-        print("[OneSignal] IAM will dismiss: \(event.message.messageId)")
+        Task { @MainActor in
+            LogManager.shared.i("IAM", "Will dismiss: \(event.message.messageId)")
+        }
     }
 
     func onDidDismiss(event: OSInAppMessageDidDismissEvent) {
-        print("[OneSignal] IAM did dismiss: \(event.message.messageId)")
+        Task { @MainActor in
+            LogManager.shared.i("IAM", "Did dismiss: \(event.message.messageId)")
+        }
     }
 }
 
@@ -131,7 +200,27 @@ class InAppMessageClickHandler: NSObject, OSInAppMessageClickListener {
     static let shared = InAppMessageClickHandler()
 
     func onClick(event: OSInAppMessageClickEvent) {
-        print("[OneSignal] IAM clicked: \(event.result.actionId ?? "No action ID")")
-        // Handle IAM click - navigate, track event, etc.
+        Task { @MainActor in
+            LogManager.shared.i("IAM", "Clicked: \(event.result.actionId ?? "No action ID")")
+        }
+    }
+}
+
+// MARK: - SDK Log Listener
+
+class SDKLogListener: NSObject, OSLogListener {
+    static let shared = SDKLogListener()
+
+    func onLogEvent(_ event: OneSignalLogEvent) {
+        let level: LogLevel
+        switch event.level {
+        case .LL_FATAL, .LL_ERROR: level = .error
+        case .LL_WARN: level = .warning
+        case .LL_INFO: level = .info
+        default: level = .debug
+        }
+        Task { @MainActor in
+            LogManager.shared.log("SDK", event.entry, level: level)
+        }
     }
 }

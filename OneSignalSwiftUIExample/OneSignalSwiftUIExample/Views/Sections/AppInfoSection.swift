@@ -27,43 +27,43 @@
 
 import SwiftUI
 
-/// Section displaying app information and consent management
 struct AppInfoSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
-        Section {
-            // App ID
-            VStack(alignment: .leading, spacing: 4) {
-                Text("App ID")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(viewModel.appId)
-                    .font(.system(.footnote, design: .monospaced))
-                    .textSelection(.enabled)
-            }
-            .padding(.vertical, 4)
+        VStack(spacing: 0) {
+            SectionHeader(title: "App")
 
-            // Revoke Consent Button
-            Button(role: .destructive) {
-                viewModel.revokeConsent()
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Revoke Consent")
-                        .fontWeight(.medium)
-                    Spacer()
+            CardContainer {
+                InfoRow(label: "App ID", value: viewModel.appId, isMonospaced: true)
+            }
+
+            GuidanceBanner()
+                .padding(.top, 8)
+
+            CardContainer {
+                ToggleRow(
+                    title: "Consent Required",
+                    subtitle: "Require consent before SDK processes data",
+                    isOn: Binding(
+                        get: { viewModel.consentRequired },
+                        set: { _ in viewModel.toggleConsentRequired() }
+                    )
+                )
+
+                if viewModel.consentRequired {
+                    CardDivider()
+                    ToggleRow(
+                        title: "Privacy Consent",
+                        subtitle: "Consent given for data collection",
+                        isOn: Binding(
+                            get: { viewModel.consentGiven },
+                            set: { _ in viewModel.toggleConsent() }
+                        )
+                    )
                 }
             }
-        } header: {
-            Text("App")
+            .padding(.top, 8)
         }
     }
-}
-
-#Preview {
-    List {
-        AppInfoSection()
-    }
-    .environmentObject(OneSignalViewModel())
 }

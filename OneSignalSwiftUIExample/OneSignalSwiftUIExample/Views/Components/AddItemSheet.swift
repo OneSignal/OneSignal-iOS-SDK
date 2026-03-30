@@ -27,7 +27,6 @@
 
 import SwiftUI
 
-/// A reusable sheet for adding items with one or two text fields
 struct AddItemSheet: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
@@ -43,52 +42,85 @@ struct AddItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            VStack(spacing: 24) {
+                Text(itemType.title)
+                    .font(.system(size: 24))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 if itemType.requiresKeyValue {
-                    Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Key")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
                         TextField(itemType.keyPlaceholder, text: $keyText)
+                            .textFieldStyle(UnderlineTextFieldStyle())
                             .focused($focusedField, equals: .key)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                    }
 
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Value")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
                         TextField(itemType.valuePlaceholder, text: $valueText)
+                            .textFieldStyle(UnderlineTextFieldStyle())
                             .focused($focusedField, equals: .value)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .keyboardType(itemType.keyboardType)
                     }
                 } else {
-                    Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(singleFieldLabel)
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
                         TextField(itemType.valuePlaceholder, text: $valueText)
+                            .textFieldStyle(UnderlineTextFieldStyle())
                             .focused($focusedField, equals: .value)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .keyboardType(itemType.keyboardType)
                     }
                 }
-            }
-            .navigationTitle(itemType.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        onCancel()
-                    }
-                }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(itemType == .externalUserId ? "Login" : "Add") {
+                Spacer()
+
+                HStack(spacing: 8) {
+                    Spacer()
+
+                    Button("CANCEL") { onCancel() }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.accentColor)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+
+                    Button(itemType == .externalUserId ? "LOGIN" : "ADD") {
                         onAdd(keyText, valueText)
                     }
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(isValid ? .accentColor : Color(red: 0.62, green: 0.62, blue: 0.62))
                     .disabled(!isValid)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                 }
             }
+            .padding(24)
             .onAppear {
                 focusedField = itemType.requiresKeyValue ? .key : .value
             }
         }
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
+    }
+
+    private var singleFieldLabel: String {
+        switch itemType {
+        case .email: return "New Email"
+        case .sms: return "New SMS"
+        case .externalUserId: return "External User Id"
+        default: return "Value"
+        }
     }
 
     private var isValid: Bool {
@@ -101,26 +133,17 @@ struct AddItemSheet: View {
     }
 }
 
-#Preview("Add Alias") {
-    AddItemSheet(
-        itemType: .alias,
-        onAdd: { key, value in print("Add: \(key) = \(value)") },
-        onCancel: { print("Cancel") }
-    )
-}
+struct UnderlineTextFieldStyle: TextFieldStyle {
+    // swiftlint:disable:next identifier_name
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        VStack(spacing: 0) {
+            configuration
+                .font(.system(size: 17))
+                .padding(.vertical, 8)
 
-#Preview("Add Email") {
-    AddItemSheet(
-        itemType: .email,
-        onAdd: { _, value in print("Add: \(value)") },
-        onCancel: { print("Cancel") }
-    )
-}
-
-#Preview("Login User") {
-    AddItemSheet(
-        itemType: .externalUserId,
-        onAdd: { _, value in print("Login: \(value)") },
-        onCancel: { print("Cancel") }
-    )
+            Rectangle()
+                .fill(Color(.separator))
+                .frame(height: 1)
+        }
+    }
 }

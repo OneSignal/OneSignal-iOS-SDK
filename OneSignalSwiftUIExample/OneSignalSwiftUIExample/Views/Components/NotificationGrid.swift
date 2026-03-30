@@ -27,111 +27,37 @@
 
 import SwiftUI
 
-/// A grid of notification type buttons
-struct NotificationTypeGrid: View {
-    let onSelect: (NotificationType) -> Void
-
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+struct SendPushButtons: View {
+    let onSimple: () -> Void
+    let onWithImage: () -> Void
+    let onWithSound: () -> Void
+    let onCustom: () -> Void
+    let onClearAll: () -> Void
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(NotificationType.allCases) { type in
-                NotificationTypeButton(type: type) {
-                    onSelect(type)
-                }
-            }
+        VStack(spacing: 8) {
+            ActionButton(title: "Simple", action: onSimple)
+            ActionButton(title: "With Image", action: onWithImage)
+            ActionButton(title: "With Sound", action: onWithSound)
+            ActionButton(title: "Custom", action: onCustom)
+            OutlineActionButton(title: "Clear All", action: onClearAll)
         }
-        .padding(.vertical, 8)
     }
 }
 
-/// A grid of in-app message type buttons
-struct InAppMessageTypeGrid: View {
+struct SendInAppButtons: View {
     let onSelect: (InAppMessageType) -> Void
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
-
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
+        VStack(spacing: 8) {
             ForEach(InAppMessageType.allCases) { type in
-                InAppMessageTypeButton(type: type) {
+                ActionButtonWithIcon(
+                    title: type.rawValue,
+                    iconName: type.iconName
+                ) {
                     onSelect(type)
                 }
             }
         }
-        .padding(.vertical, 8)
-    }
-}
-
-/// A button for a notification type with icon and label
-struct NotificationTypeButton: View {
-    let type: NotificationType
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: type.iconName)
-                    .font(.title2)
-                Text(type.rawValue)
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(12)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-/// A button for an in-app message type with icon and label
-struct InAppMessageTypeButton: View {
-    let type: InAppMessageType
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: type.iconName)
-                    .font(.title2)
-                Text(type.rawValue)
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(12)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-#Preview {
-    ScrollView {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Send Push Notification")
-                .font(.headline)
-            NotificationTypeGrid(onSelect: { type in
-                print("Selected: \(type.rawValue)")
-            })
-
-            Text("Send In-App Message")
-                .font(.headline)
-            InAppMessageTypeGrid(onSelect: { type in
-                print("Selected: \(type.rawValue)")
-            })
-        }
-        .padding()
     }
 }

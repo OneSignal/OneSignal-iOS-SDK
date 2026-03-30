@@ -27,77 +27,83 @@
 
 import SwiftUI
 
-/// Section for user login/logout and alias management
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
-        // Login/Logout Section
-        Section {
-            // Login Button
-            Button {
+        VStack(spacing: 0) {
+            SectionHeader(title: "User")
+
+            CardContainer {
+                HStack {
+                    Text("Status")
+                        .font(.system(size: 14))
+                    Spacer()
+                    Text(viewModel.isLoggedIn ? "Logged In" : "Anonymous")
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(viewModel.isLoggedIn
+                                         ? Color(red: 0.20, green: 0.66, blue: 0.33) : .secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+
+                CardDivider()
+
+                HStack {
+                    Text("External ID")
+                        .font(.system(size: 14))
+                    Spacer()
+                    Text(viewModel.externalUserId ?? "\u{2013}")
+                        .font(.system(size: 12, design: .monospaced))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+            }
+
+            ActionButton(title: viewModel.loginButtonTitle) {
                 viewModel.showAddSheet(for: .externalUserId)
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Login User")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
             }
+            .padding(.top, 12)
 
-            // Logout Button
-            Button(role: .destructive) {
-                viewModel.logout()
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Logout User")
-                        .fontWeight(.medium)
-                    Spacer()
+            if viewModel.isLoggedIn {
+                OutlineActionButton(title: "Logout User") {
+                    viewModel.logout()
                 }
+                .padding(.top, 8)
             }
-            .disabled(viewModel.externalUserId == nil)
-
-            // Current User Info
-            if let userId = viewModel.externalUserId {
-                InfoRow(label: "External User ID", value: userId)
-            }
-        } header: {
-            Text("User")
-        }
-
-        // Aliases Section
-        Section {
-            if viewModel.aliases.isEmpty {
-                EmptyListRow(message: "No Aliases Added")
-            } else {
-                ForEach(viewModel.aliases) { alias in
-                    KeyValueRow(item: alias) {
-                        viewModel.removeAlias(alias)
-                    }
-                }
-            }
-
-            Button {
-                viewModel.showAddSheet(for: .alias)
-            } label: {
-                HStack {
-                    Spacer()
-                    Label("Add Alias", systemImage: "plus")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-            }
-        } header: {
-            Text("Aliases")
         }
     }
 }
 
-#Preview {
-    List {
-        UserSection()
+struct AliasesSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "Aliases", tooltipKey: "aliases")
+
+            CardContainer {
+                if viewModel.aliases.isEmpty {
+                    EmptyListRow(message: "No Aliases Added")
+                } else {
+                    ForEach(Array(viewModel.aliases.enumerated()), id: \.element.id) { index, alias in
+                        if index > 0 { CardDivider() }
+                        KeyValueRow(item: alias)
+                    }
+                }
+            }
+
+            ActionButton(title: "Add") {
+                viewModel.showAddSheet(for: .alias)
+            }
+            .padding(.top, 12)
+
+            ActionButton(title: "Add Multiple") {
+                viewModel.showMultiAddSheet(for: .aliases)
+            }
+            .padding(.top, 8)
+        }
     }
-    .environmentObject(OneSignalViewModel())
 }

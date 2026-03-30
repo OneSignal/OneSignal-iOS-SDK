@@ -27,7 +27,6 @@
 
 import SwiftUI
 
-/// A toast notification view that appears at the bottom of the screen
 struct ToastView: View {
     let message: String
 
@@ -43,7 +42,6 @@ struct ToastView: View {
     }
 }
 
-/// A view modifier that overlays a toast message
 struct ToastModifier: ViewModifier {
     @Binding var message: String?
 
@@ -65,16 +63,7 @@ struct ToastModifier: ViewModifier {
 }
 
 extension View {
-    /// Adds a toast overlay to the view
     func toast(message: Binding<String?>) -> some View {
         modifier(ToastModifier(message: message))
     }
-}
-
-#Preview {
-    VStack {
-        Text("Content")
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .toast(message: .constant("This is a toast message"))
 }

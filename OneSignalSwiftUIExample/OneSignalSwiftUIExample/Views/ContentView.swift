@@ -27,49 +27,113 @@
 
 import SwiftUI
 
-/// Main content view composing all sections
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
         NavigationStack {
-            List {
-                AppInfoSection()
-                UserSection()
-                SubscriptionSection()
-                TagsSection()
-                MessagingSection()
-                LocationSection()
-                NotificationSection()
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle("OneSignal")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        viewModel.refreshState()
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        LogView(logManager: LogManager.shared)
+
+                        VStack(spacing: 0) {
+                            AppInfoSection()
+                            UserSection()
+                            PushSection()
+                            SendPushSection()
+                            InAppMessagingSection()
+                            SendInAppSection()
+                            AliasesSection()
+                            EmailsSection()
+                            SMSSection()
+                            TagsSection()
+                            OutcomeEventsSection()
+                            TriggersSection()
+                            TrackEventSection()
+                            LocationSection()
+                            NextScreenSection()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 24)
                     }
                 }
+                .background(Color(red: 0.97, green: 0.97, blue: 0.98))
+
+                if viewModel.isLoading {
+                    Color.black.opacity(0.54)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                }
             }
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 0) {
+                    Color.accentColor
+                        .frame(height: UIApplication.shared.connectedScenes
+                            .compactMap { $0 as? UIWindowScene }
+                            .first?.statusBarManager?.statusBarFrame.height ?? 0)
+                    HStack(spacing: 10) {
+                        Image("OneSignalLogo")
+                            .renderingMode(.template)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 22)
+                        Text("Sample App")
+                            .font(.system(size: 14))
+                            .opacity(0.9)
+                        Spacer()
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
+                }
+                .ignoresSafeArea(edges: .top)
+            }
+            .navigationBarHidden(true)
             .sheet(isPresented: $viewModel.showingAddSheet) {
                 AddItemSheet(
                     itemType: viewModel.addItemType,
-                    onAdd: { key, value in
-                        viewModel.handleAddItem(key: key, value: value)
+                    onAdd: { key, value in viewModel.handleAddItem(key: key, value: value) },
+                    onCancel: { viewModel.showingAddSheet = false }
+                )
+            }
+            .sheet(isPresented: $viewModel.showingMultiAddSheet) {
+                AddMultiItemSheet(
+                    type: viewModel.multiAddType,
+                    onAdd: { pairs in viewModel.handleMultiAdd(pairs: pairs) },
+                    onCancel: { viewModel.showingMultiAddSheet = false }
+                )
+            }
+            .sheet(isPresented: $viewModel.showingRemoveMultiSheet) {
+                RemoveMultiSheet(
+                    type: viewModel.removeMultiType,
+                    items: viewModel.removeMultiItems,
+                    onRemove: { keys in viewModel.handleRemoveMulti(keys: keys) },
+                    onCancel: { viewModel.showingRemoveMultiSheet = false }
+                )
+            }
+            .sheet(isPresented: $viewModel.showingCustomNotificationSheet) {
+                CustomNotificationSheet(
+                    onSend: { title, body in
+                        viewModel.sendCustomNotification(title: title, body: body)
+                        viewModel.showingCustomNotificationSheet = false
                     },
-                    onCancel: {
-                        viewModel.showingAddSheet = false
-                    }
+                    onCancel: { viewModel.showingCustomNotificationSheet = false }
+                )
+            }
+            .sheet(isPresented: $viewModel.showingTrackEventSheet) {
+                TrackEventSheet(
+                    onTrack: { name, properties in
+                        viewModel.trackEvent(name: name, properties: properties)
+                        viewModel.showingTrackEventSheet = false
+                    },
+                    onCancel: { viewModel.showingTrackEventSheet = false }
                 )
             }
         }
         .toast(message: $viewModel.toastMessage)
     }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(OneSignalViewModel())
 }

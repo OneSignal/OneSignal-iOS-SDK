@@ -27,34 +27,34 @@
 
 import SwiftUI
 
-/// Section for sending test push notifications and in-app messages
-struct NotificationSection: View {
+struct SendPushSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
-        // Send Push Notification Section
-        Section {
-            NotificationTypeGrid { type in
-                viewModel.sendTestNotification(type)
-            }
-        } header: {
-            Text("Send Push Notification")
-        }
+        VStack(spacing: 0) {
+            SectionHeader(title: "Send Push Notification", tooltipKey: "sendPushNotification")
 
-        // Send In-App Message Section
-        Section {
-            InAppMessageTypeGrid { type in
-                viewModel.sendTestInAppMessage(type)
-            }
-        } header: {
-            Text("Send In-App Message")
+            SendPushButtons(
+                onSimple: { viewModel.sendSimpleNotification() },
+                onWithImage: { viewModel.sendNotificationWithImage() },
+                onWithSound: { viewModel.sendNotificationWithSound() },
+                onCustom: { viewModel.showingCustomNotificationSheet = true },
+                onClearAll: { viewModel.clearAllNotifications() }
+            )
         }
     }
 }
 
-#Preview {
-    List {
-        NotificationSection()
+struct SendInAppSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "Send In-App Message", tooltipKey: "sendInAppMessage")
+
+            SendInAppButtons { type in
+                viewModel.sendTestInAppMessage(type)
+            }
+        }
     }
-    .environmentObject(OneSignalViewModel())
 }

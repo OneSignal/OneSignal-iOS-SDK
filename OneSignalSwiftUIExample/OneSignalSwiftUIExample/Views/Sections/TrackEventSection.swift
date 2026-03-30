@@ -27,28 +27,16 @@
 
 import SwiftUI
 
-struct LocationSection: View {
+struct TrackEventSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Location", tooltipKey: "location")
+            SectionHeader(title: "Track Event", tooltipKey: "trackEvent")
 
-            CardContainer {
-                ToggleRow(
-                    title: "Location Shared",
-                    subtitle: "Share device location with OneSignal",
-                    isOn: Binding(
-                        get: { viewModel.isLocationShared },
-                        set: { _ in viewModel.toggleLocationShared() }
-                    )
-                )
+            ActionButton(title: "Track Event") {
+                viewModel.showingTrackEventSheet = true
             }
-
-            ActionButton(title: "Prompt Location") {
-                viewModel.promptLocation()
-            }
-            .padding(.top, 12)
         }
     }
 }

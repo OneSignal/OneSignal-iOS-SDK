@@ -27,90 +27,134 @@
 
 import SwiftUI
 
-/// Section for push subscription, email, and SMS management
-struct SubscriptionSection: View {
+// MARK: - Push Section
+
+struct PushSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
-        // Push Section
-        Section {
-            // Push ID
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Push ID")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(viewModel.pushSubscriptionId ?? "Not available")
-                    .font(.system(.footnote, design: .monospaced))
-                    .textSelection(.enabled)
+        VStack(spacing: 0) {
+            SectionHeader(title: "Push", tooltipKey: "push")
+
+            CardContainer {
+                InfoRow(
+                    label: "Push ID",
+                    value: viewModel.pushSubscriptionId ?? "Not available",
+                    isMonospaced: true
+                )
+                CardDivider()
+                ToggleRow(
+                    title: "Enabled",
+                    isOn: Binding(
+                        get: { viewModel.isPushEnabled },
+                        set: { _ in viewModel.togglePushEnabled() }
+                    ),
+                    isEnabled: viewModel.notificationPermissionGranted
+                )
             }
-            .padding(.vertical, 4)
 
-            // Enabled Toggle
-            Toggle("Enabled", isOn: Binding(
-                get: { viewModel.isPushEnabled },
-                set: { _ in viewModel.togglePushEnabled() }
-            ))
-        } header: {
-            Text("Push")
-        }
-
-        // Emails Section
-        Section {
-            if viewModel.emails.isEmpty {
-                EmptyListRow(message: "No Emails Added")
-            } else {
-                ForEach(viewModel.emails, id: \.self) { email in
-                    SingleValueRow(value: email) {
-                        viewModel.removeEmail(email)
-                    }
+            if !viewModel.notificationPermissionGranted {
+                ActionButton(title: "Prompt Push") {
+                    viewModel.requestPushPermission()
                 }
+                .padding(.top, 12)
             }
-
-            Button {
-                viewModel.showAddSheet(for: .email)
-            } label: {
-                HStack {
-                    Spacer()
-                    Label("Add Email", systemImage: "plus")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-            }
-        } header: {
-            Text("Emails")
-        }
-
-        // SMS Section
-        Section {
-            if viewModel.smsNumbers.isEmpty {
-                EmptyListRow(message: "No SMSs Added")
-            } else {
-                ForEach(viewModel.smsNumbers, id: \.self) { sms in
-                    SingleValueRow(value: sms) {
-                        viewModel.removeSms(sms)
-                    }
-                }
-            }
-
-            Button {
-                viewModel.showAddSheet(for: .sms)
-            } label: {
-                HStack {
-                    Spacer()
-                    Label("Add SMS", systemImage: "plus")
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-            }
-        } header: {
-            Text("SMSs")
         }
     }
 }
 
-#Preview {
-    List {
-        SubscriptionSection()
+// MARK: - Emails Section
+
+struct EmailsSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "Emails", tooltipKey: "emails")
+
+            CardContainer {
+                if viewModel.emails.isEmpty {
+                    EmptyListRow(message: "No Emails Added")
+                } else {
+                    let displayEmails = isExpanded
+                        ? viewModel.emails : Array(viewModel.emails.prefix(5))
+
+                    ForEach(Array(displayEmails.enumerated()), id: \.element) { index, email in
+                        if index > 0 { CardDivider() }
+                        SingleValueRow(value: email) {
+                            viewModel.removeEmail(email)
+                        }
+                    }
+
+                    if !isExpanded && viewModel.emails.count > 5 {
+                        CardDivider()
+                        Button {
+                            isExpanded = true
+                        } label: {
+                            Text("\(viewModel.emails.count - 5) more")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.accentColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 4)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            ActionButton(title: "Add Email") {
+                viewModel.showAddSheet(for: .email)
+            }
+            .padding(.top, 12)
+        }
     }
-    .environmentObject(OneSignalViewModel())
+}
+
+// MARK: - SMS Section
+
+struct SMSSection: View {
+    @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            SectionHeader(title: "SMS", tooltipKey: "sms")
+
+            CardContainer {
+                if viewModel.smsNumbers.isEmpty {
+                    EmptyListRow(message: "No SMS Added")
+                } else {
+                    let displaySms = isExpanded
+                        ? viewModel.smsNumbers : Array(viewModel.smsNumbers.prefix(5))
+
+                    ForEach(Array(displaySms.enumerated()), id: \.element) { index, sms in
+                        if index > 0 { CardDivider() }
+                        SingleValueRow(value: sms) {
+                            viewModel.removeSms(sms)
+                        }
+                    }
+
+                    if !isExpanded && viewModel.smsNumbers.count > 5 {
+                        CardDivider()
+                        Button {
+                            isExpanded = true
+                        } label: {
+                            Text("\(viewModel.smsNumbers.count - 5) more")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.accentColor)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 4)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            ActionButton(title: "Add SMS") {
+                viewModel.showAddSheet(for: .sms)
+            }
+            .padding(.top, 12)
+        }
+    }
 }

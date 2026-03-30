@@ -27,28 +27,35 @@
 
 import SwiftUI
 
-struct LocationSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-
+struct NextScreenSection: View {
     var body: some View {
         VStack(spacing: 0) {
-            SectionHeader(title: "Location", tooltipKey: "location")
-
-            CardContainer {
-                ToggleRow(
-                    title: "Location Shared",
-                    subtitle: "Share device location with OneSignal",
-                    isOn: Binding(
-                        get: { viewModel.isLocationShared },
-                        set: { _ in viewModel.toggleLocationShared() }
-                    )
-                )
+            NavigationLink(destination: SecondaryView()) {
+                Text("Next Activity")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .textCase(.uppercase)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.accentColor)
+                    .cornerRadius(8)
             }
-
-            ActionButton(title: "Prompt Location") {
-                viewModel.promptLocation()
-            }
-            .padding(.top, 12)
+            .buttonStyle(.plain)
+            .padding(.top, 24)
         }
+    }
+}
+
+struct SecondaryView: View {
+    var body: some View {
+        VStack {
+            Text("Secondary Activity")
+                .font(.title)
+                .fontWeight(.semibold)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.97, green: 0.97, blue: 0.98))
+        .navigationTitle("Secondary Activity")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

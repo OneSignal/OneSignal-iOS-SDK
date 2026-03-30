@@ -27,7 +27,170 @@
 
 import SwiftUI
 
-/// A row displaying a key-value pair with optional delete action
+// MARK: - Action Buttons
+
+struct ActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.white)
+            .textCase(.uppercase)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.accentColor.opacity(configuration.isPressed ? 0.8 : 1.0))
+            .cornerRadius(8)
+    }
+}
+
+struct ActionButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+        }
+        .buttonStyle(ActionButtonStyle())
+    }
+}
+
+struct OutlineActionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.accentColor)
+            .textCase(.uppercase)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color(.systemBackground).opacity(configuration.isPressed ? 0.8 : 1.0))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.accentColor, lineWidth: 1.5)
+            )
+    }
+}
+
+struct OutlineActionButton: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+        }
+        .buttonStyle(OutlineActionButtonStyle())
+    }
+}
+
+struct ActionButtonWithIcon: View {
+    let title: String
+    let iconName: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: iconName)
+                    .font(.system(size: 18))
+                Text(title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .textCase(.uppercase)
+                Spacer()
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
+            .background(Color.accentColor)
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Card Container
+
+struct CardContainer<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            content
+        }
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.black.opacity(0.1), lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - Section Header
+
+struct SectionHeader: View {
+    let title: String
+    var tooltipKey: String?
+
+    @State private var showingTooltip = false
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(Color(red: 0.38, green: 0.38, blue: 0.38))
+                .kerning(0.5)
+                .textCase(.uppercase)
+
+            Spacer()
+
+            if tooltipKey != nil {
+                Button {
+                    showingTooltip = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color(red: 0.62, green: 0.62, blue: 0.62))
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+        .padding(.horizontal, 4)
+        .padding(.top, 24)
+        .padding(.bottom, 8)
+        .alert(isPresented: $showingTooltip) {
+            if let key = tooltipKey,
+               let tooltip = TooltipService.shared.getTooltip(key: key) {
+                var message = tooltip.description
+                if let options = tooltip.options {
+                    message += "\n"
+                    for option in options {
+                        message += "\n\(option.name): \(option.description)"
+                    }
+                }
+                return Alert(
+                    title: Text(tooltip.title),
+                    message: Text(message),
+                    dismissButton: .default(Text("OK"))
+                )
+            } else {
+                return Alert(
+                    title: Text(title),
+                    message: Text("Tooltip content not available."),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Key-Value Row (Stacked layout)
+
 struct KeyValueRow: View {
     let item: KeyValueItem
     let onDelete: (() -> Void)?
@@ -41,27 +204,31 @@ struct KeyValueRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.key)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 14))
                 Text(item.value)
-                    .font(.body)
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
             }
 
             Spacer()
 
             if let onDelete = onDelete {
                 Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 18))
+                        .foregroundColor(.accentColor)
                 }
                 .buttonStyle(.borderless)
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
         .contentShape(Rectangle())
     }
 }
 
-/// A row displaying a single value with optional delete action
+// MARK: - Single Value Row (Unstacked layout)
+
 struct SingleValueRow: View {
     let value: String
     let onDelete: (() -> Void)?
@@ -74,23 +241,27 @@ struct SingleValueRow: View {
     var body: some View {
         HStack {
             Text(value)
-                .font(.body)
+                .font(.system(size: 14))
 
             Spacer()
 
             if let onDelete = onDelete {
                 Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 18))
+                        .foregroundColor(.accentColor)
                 }
                 .buttonStyle(.borderless)
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
         .contentShape(Rectangle())
     }
 }
 
-/// A row displaying a label and value in a horizontal layout
+// MARK: - Info Row
+
 struct InfoRow: View {
     let label: String
     let value: String
@@ -103,56 +274,80 @@ struct InfoRow: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(alignment: .top) {
             Text(label)
-                .foregroundColor(.secondary)
+                .font(.system(size: 14))
             Spacer()
             Text(value)
-                .font(isMonospaced ? .system(.body, design: .monospaced) : .body)
+                .font(isMonospaced ? .system(size: 12, design: .monospaced) : .system(size: 12))
                 .foregroundColor(.primary)
                 .lineLimit(1)
                 .truncationMode(.middle)
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
     }
 }
 
-/// A placeholder row for empty lists
+// MARK: - Toggle Row
+
+struct ToggleRow: View {
+    let title: String
+    let subtitle: String?
+    @Binding var isOn: Bool
+    let isEnabled: Bool
+
+    init(title: String, subtitle: String? = nil, isOn: Binding<Bool>, isEnabled: Bool = true) {
+        self.title = title
+        self.subtitle = subtitle
+        self._isOn = isOn
+        self.isEnabled = isEnabled
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 14))
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
+                }
+            }
+
+            Spacer()
+
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .disabled(!isEnabled)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 12)
+        .opacity(isEnabled ? 1.0 : 0.5)
+    }
+}
+
+// MARK: - Empty List Row
+
 struct EmptyListRow: View {
     let message: String
 
     var body: some View {
         Text(message)
-            .foregroundColor(.secondary)
-            .font(.subheadline)
+            .font(.system(size: 14))
+            .foregroundColor(Color(red: 0.46, green: 0.46, blue: 0.46))
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)
     }
 }
 
-#Preview {
-    List {
-        Section("Key-Value Items") {
-            KeyValueRow(
-                item: KeyValueItem(key: "external_id", value: "user_123"),
-                onDelete: {}
-            )
-            KeyValueRow(
-                item: KeyValueItem(key: "subscription_tier", value: "premium")
-            )
-        }
+// MARK: - Card Divider
 
-        Section("Single Values") {
-            SingleValueRow(value: "user@example.com", onDelete: {})
-            SingleValueRow(value: "+1234567890")
-        }
-
-        Section("Info Rows") {
-            InfoRow(label: "App ID", value: "77e32082-ea27-42e3-a898-c72e141824ef", isMonospaced: true)
-            InfoRow(label: "Status", value: "Active")
-        }
-
-        Section("Empty") {
-            EmptyListRow(message: "No items added")
-        }
+struct CardDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color(red: 0.91, green: 0.92, blue: 0.93))
+            .frame(height: 1)
     }
 }
