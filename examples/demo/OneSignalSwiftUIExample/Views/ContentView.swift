@@ -35,32 +35,29 @@ struct ContentView: View {
             ZStack {
                 VStack(spacing: 0) {
                     headerBar
+                    LogView(logManager: LogManager.shared)
 
                     ScrollView {
                         VStack(spacing: 0) {
-                            LogView(logManager: LogManager.shared)
-
-                            VStack(spacing: 0) {
-                                AppInfoSection()
-                                UserSection()
-                                PushSection()
-                                SendPushSection()
-                                InAppMessagingSection()
-                                SendInAppSection()
-                                AliasesSection()
-                                EmailsSection()
-                                SMSSection()
-                                TagsSection()
-                                OutcomeEventsSection()
-                                TriggersSection()
-                                TrackEventSection()
-                                LocationSection()
-                                LiveActivitySection()
-                                NextScreenSection()
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 24)
+                            AppInfoSection()
+                            UserSection()
+                            PushSection()
+                            SendPushSection()
+                            InAppMessagingSection()
+                            SendInAppSection()
+                            AliasesSection()
+                            EmailsSection()
+                            SMSSection()
+                            TagsSection()
+                            OutcomeEventsSection()
+                            TriggersSection()
+                            TrackEventSection()
+                            LocationSection()
+                            LiveActivitySection()
+                            NextScreenSection()
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 24)
                     }
                 }
                 .background(Color.osLightBackground)
