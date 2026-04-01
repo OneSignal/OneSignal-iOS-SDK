@@ -144,6 +144,15 @@ struct ContentView: View {
                         )
                     }
                 }
+
+                if viewModel.showingTooltip, let tooltip = viewModel.activeTooltip {
+                    DialogOverlay {
+                        TooltipDialog(tooltip: tooltip) {
+                            viewModel.showingTooltip = false
+                            viewModel.activeTooltip = nil
+                        }
+                    }
+                }
             }
             .navigationBarHidden(true)
         }

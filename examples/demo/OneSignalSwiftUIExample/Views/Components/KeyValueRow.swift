@@ -158,7 +158,7 @@ struct SectionHeader: View {
     let title: String
     var tooltipKey: String?
 
-    @State private var showingTooltip = false
+    @EnvironmentObject var viewModel: OneSignalViewModel
 
     var body: some View {
         HStack {
@@ -172,7 +172,10 @@ struct SectionHeader: View {
 
             if tooltipKey != nil {
                 Button {
-                    showingTooltip = true
+                    let tooltip = tooltipKey.flatMap { TooltipService.shared.getTooltip(key: $0) }
+                        ?? TooltipData(title: title, description: "Tooltip content not available.", options: nil)
+                    viewModel.activeTooltip = tooltip
+                    viewModel.showingTooltip = true
                 } label: {
                     Image(systemName: "info.circle")
                         .font(.system(size: 18))
@@ -184,27 +187,43 @@ struct SectionHeader: View {
         .padding(.horizontal, 4)
         .padding(.top, 24)
         .padding(.bottom, 8)
-        .alert(isPresented: $showingTooltip) {
-            if let key = tooltipKey,
-               let tooltip = TooltipService.shared.getTooltip(key: key) {
-                var message = tooltip.description
-                if let options = tooltip.options {
-                    message += "\n"
-                    for option in options {
-                        message += "\n\(option.name): \(option.description)"
+    }
+}
+
+// MARK: - Tooltip Dialog
+
+struct TooltipDialog: View {
+    let tooltip: TooltipData
+    let onClose: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(tooltip.title)
+                .font(.system(size: 20, weight: .semibold))
+
+            Text(tooltip.description)
+                .font(.system(size: 14))
+                .foregroundColor(.osGrey600)
+
+            if let options = tooltip.options {
+                ForEach(options, id: \.name) { option in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(option.name)
+                            .font(.system(size: 13, weight: .semibold))
+                        Text(option.description)
+                            .font(.system(size: 13))
+                            .foregroundColor(.osGrey600)
                     }
                 }
-                return Alert(
-                    title: Text(tooltip.title),
-                    message: Text(message),
-                    dismissButton: .default(Text("OK"))
-                )
-            } else {
-                return Alert(
-                    title: Text(title),
-                    message: Text("Tooltip content not available."),
-                    dismissButton: .default(Text("OK"))
-                )
+            }
+
+            HStack {
+                Spacer()
+                Button("Ok") { onClose() }
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.osPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
             }
         }
     }

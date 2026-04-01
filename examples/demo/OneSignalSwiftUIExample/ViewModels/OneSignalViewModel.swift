@@ -67,6 +67,8 @@ final class OneSignalViewModel: ObservableObject {
     @Published var showingCustomNotificationSheet: Bool = false
     @Published var showingTrackEventSheet: Bool = false
     @Published var showingOutcomeSheet: Bool = false
+    @Published var showingTooltip: Bool = false
+    @Published var activeTooltip: TooltipData?
     @Published var toastMessage: String?
 
     // MARK: - Computed Properties
