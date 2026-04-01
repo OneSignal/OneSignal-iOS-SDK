@@ -84,14 +84,21 @@ final class LiveActivityApiService {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: payload)
         } catch {
+            await LogManager.shared.e("LiveActivityApi", "Failed to serialize payload: \(error)")
             return false
         }
 
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else { return false }
-            return httpResponse.statusCode == 200 || httpResponse.statusCode == 202
+            let success = (200...299).contains(httpResponse.statusCode)
+            if !success {
+                let body = String(data: data, encoding: .utf8) ?? ""
+                await LogManager.shared.e("LiveActivityApi", "HTTP \(httpResponse.statusCode): \(body)")
+            }
+            return success
         } catch {
+            await LogManager.shared.e("LiveActivityApi", "Request failed: \(error)")
             return false
         }
     }

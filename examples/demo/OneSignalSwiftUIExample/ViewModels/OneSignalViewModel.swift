@@ -450,7 +450,7 @@ final class OneSignalViewModel: ObservableObject {
                 appId: appId,
                 activityId: activityId,
                 event: .update,
-                eventUpdates: nextStatus.contentState
+                eventUpdates: ["data": nextStatus.contentState]
             )
 
             if success {
