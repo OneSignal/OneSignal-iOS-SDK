@@ -31,7 +31,7 @@ struct NextScreenSection: View {
     var body: some View {
         VStack(spacing: 0) {
             NavigationLink(destination: SecondaryView()) {
-                Text("Next Activity")
+                Text("Next Screen")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.white)
                     .textCase(.uppercase)
@@ -49,13 +49,13 @@ struct NextScreenSection: View {
 struct SecondaryView: View {
     var body: some View {
         VStack {
-            Text("Secondary Activity")
+            Text("Secondary Screen")
                 .font(.title)
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.osLightBackground)
-        .navigationTitle("Secondary Activity")
+        .navigationTitle("Secondary Screen")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

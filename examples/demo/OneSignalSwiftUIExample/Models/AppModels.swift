@@ -157,6 +157,61 @@ struct UserData {
     let externalId: String?
 }
 
+// MARK: - Order Status (Live Activities)
+
+enum OrderStatus: Int, CaseIterable {
+    case preparing = 0
+    case onTheWay = 1
+    case delivered = 2
+
+    var statusKey: String {
+        switch self {
+        case .preparing: return "preparing"
+        case .onTheWay: return "on_the_way"
+        case .delivered: return "delivered"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .preparing: return "Your order is being prepared"
+        case .onTheWay: return "Driver is heading your way"
+        case .delivered: return "Order delivered!"
+        }
+    }
+
+    var estimatedTime: String {
+        switch self {
+        case .preparing: return "15 min"
+        case .onTheWay: return "10 min"
+        case .delivered: return ""
+        }
+    }
+
+    var displayLabel: String {
+        switch self {
+        case .preparing: return "PREPARING"
+        case .onTheWay: return "ON THE WAY"
+        case .delivered: return "DELIVERED"
+        }
+    }
+
+    var next: OrderStatus? {
+        OrderStatus(rawValue: rawValue + 1)
+    }
+
+    var contentState: [String: Any] {
+        var state: [String: Any] = [
+            "status": statusKey,
+            "message": message
+        ]
+        if !estimatedTime.isEmpty {
+            state["estimatedTime"] = estimatedTime
+        }
+        return state
+    }
+}
+
 // MARK: - Tooltip Models
 
 struct TooltipData {

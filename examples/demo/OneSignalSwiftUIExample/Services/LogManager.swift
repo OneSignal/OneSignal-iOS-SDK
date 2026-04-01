@@ -68,7 +68,10 @@ final class LogManager: ObservableObject {
     private init() {}
 
     func log(_ tag: String, _ message: String, level: LogLevel = .debug) {
-        let entry = LogEntry(timestamp: Date(), level: level, message: "\(tag): \(message)")
+        let fullMessage = "\(tag): \(message)"
+        let now = Date()
+
+        let entry = LogEntry(timestamp: now, level: level, message: fullMessage)
         entries.insert(entry, at: 0)
         if entries.count > maxEntries {
             entries.removeLast(entries.count - maxEntries)

@@ -29,35 +29,89 @@ import SwiftUI
 
 struct LiveActivitySection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
-    @State private var activityId: String = ""
+    @State private var activityId: String = "order-1"
+    @State private var orderNumber: String = "ORD-1234"
+
+    private var isActivityIdEmpty: Bool {
+        activityId.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             SectionHeader(title: "Live Activities", tooltipKey: "liveActivities")
 
             CardContainer {
-                HStack {
-                    Text("Activity ID")
-                        .font(.system(size: 14))
-                    Spacer()
-                    TextField("", text: $activityId)
-                        .font(.system(size: 12, design: .monospaced))
-                        .multilineTextAlignment(.trailing)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("Activity ID")
+                            .font(.system(size: 14))
+                        Spacer()
+                        TextField("", text: $activityId)
+                            .font(.system(size: 12, design: .monospaced))
+                            .multilineTextAlignment(.trailing)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 12)
+
+                    CardDivider()
+
+                    HStack {
+                        Text("Order #")
+                            .font(.system(size: 14))
+                        Spacer()
+                        TextField("", text: $orderNumber)
+                            .font(.system(size: 12, design: .monospaced))
+                            .multilineTextAlignment(.trailing)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 12)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
             }
 
-            ActionButton(title: "Enter Live Activity") {
-                viewModel.enterLiveActivity(activityId: activityId)
+            ActionButton(title: "Start Live Activity") {
+                viewModel.startLiveActivity(activityId: activityId, orderNumber: orderNumber)
             }
+            .disabled(isActivityIdEmpty)
+            .opacity(isActivityIdEmpty ? 0.5 : 1.0)
             .padding(.top, 12)
 
-            OutlineActionButton(title: "Exit Live Activity") {
-                viewModel.exitLiveActivity(activityId: activityId)
+            ActionButton(title: viewModel.updateButtonLabel) {
+                viewModel.updateLiveActivity(activityId: activityId)
             }
+            .disabled(isActivityIdEmpty || viewModel.isUpdatingLiveActivity || !viewModel.hasApiKey || viewModel.isAtFinalStatus)
+            .opacity(isActivityIdEmpty || viewModel.isUpdatingLiveActivity || !viewModel.hasApiKey || viewModel.isAtFinalStatus ? 0.5 : 1.0)
+            .padding(.top, 8)
+
+            OutlineActionButton(title: "Stop Updating Live Activity") {
+                viewModel.stopUpdatingLiveActivity(activityId: activityId)
+            }
+            .disabled(isActivityIdEmpty)
+            .opacity(isActivityIdEmpty ? 0.5 : 1.0)
+            .padding(.top, 8)
+
+            Button {
+                viewModel.endLiveActivity(activityId: activityId)
+            } label: {
+                Text("End Live Activity")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.osPrimary)
+                    .textCase(.uppercase)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.clear)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.osPrimary, lineWidth: 1)
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(isActivityIdEmpty || !viewModel.hasApiKey)
+            .opacity(isActivityIdEmpty || !viewModel.hasApiKey ? 0.5 : 1.0)
             .padding(.top, 8)
         }
     }

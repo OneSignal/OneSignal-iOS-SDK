@@ -397,26 +397,99 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - Live Activities
 
-    func enterLiveActivity(activityId: String) {
+    @Published var currentOrderStatusIndex: Int = 0
+    @Published var isUpdatingLiveActivity: Bool = false
+
+    var hasApiKey: Bool {
+        LiveActivityApiService.shared.hasApiKey
+    }
+
+    var nextOrderStatus: OrderStatus? {
+        OrderStatus(rawValue: currentOrderStatusIndex)?.next
+    }
+
+    var updateButtonLabel: String {
+        if let next = nextOrderStatus {
+            return "UPDATE → \(next.displayLabel)"
+        }
+        return "UPDATE"
+    }
+
+    var isAtFinalStatus: Bool {
+        currentOrderStatusIndex >= OrderStatus.allCases.count - 1
+    }
+
+    func startLiveActivity(activityId: String, orderNumber: String) {
         guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
             showToast("Activity ID is required")
             return
         }
-        #if !targetEnvironment(macCatalyst)
-        if #available(iOS 16.1, *) {
-            LiveActivityController.createOneSignalAwareActivity(activityId: activityId)
-            showToast("Live Activity '\(activityId)' entered")
-        }
-        #endif
+        let initialStatus = OrderStatus.preparing
+        let attributes: [String: Any] = ["orderNumber": orderNumber]
+        let content = initialStatus.contentState
+
+        OneSignal.LiveActivities.startDefault(activityId, attributes: attributes, content: content)
+        currentOrderStatusIndex = 0
+        showToast("Started Live Activity: \(activityId)")
     }
 
-    func exitLiveActivity(activityId: String) {
+    func updateLiveActivity(activityId: String) {
+        guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showToast("Activity ID is required")
+            return
+        }
+        guard let nextStatus = nextOrderStatus else {
+            showToast("Already at final status")
+            return
+        }
+
+        isUpdatingLiveActivity = true
+
+        Task {
+            let success = await LiveActivityApiService.shared.updateLiveActivity(
+                appId: appId,
+                activityId: activityId,
+                eventUpdates: nextStatus.contentState
+            )
+
+            if success {
+                currentOrderStatusIndex = nextStatus.rawValue
+                showToast("Updated Live Activity: \(activityId)")
+            } else {
+                showToast("Failed to update Live Activity")
+            }
+            isUpdatingLiveActivity = false
+        }
+    }
+
+    func stopUpdatingLiveActivity(activityId: String) {
         guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
             showToast("Activity ID is required")
             return
         }
         OneSignal.LiveActivities.exit(activityId)
-        showToast("Live Activity '\(activityId)' exited")
+        showToast("Exited Live Activity: \(activityId)")
+    }
+
+    func endLiveActivity(activityId: String) {
+        guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showToast("Activity ID is required")
+            return
+        }
+
+        Task {
+            let success = await LiveActivityApiService.shared.endLiveActivity(
+                appId: appId,
+                activityId: activityId
+            )
+
+            if success {
+                currentOrderStatusIndex = 0
+                showToast("Ended Live Activity: \(activityId)")
+            } else {
+                showToast("Failed to end Live Activity")
+            }
+        }
     }
 
     // MARK: - Observers

@@ -19,3 +19,4 @@ DerivedData
 iOS_SDK/Carthage/Build
 /temp/
 .build/
+examples/demo/OneSignalSwiftUIExample/Secrets.plist
