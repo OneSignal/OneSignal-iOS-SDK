@@ -462,15 +462,6 @@ final class OneSignalViewModel: ObservableObject {
         }
     }
 
-    func stopUpdatingLiveActivity(activityId: String) {
-        guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
-            showToast("Activity ID is required")
-            return
-        }
-        OneSignal.LiveActivities.exit(activityId)
-        showToast("Exited Live Activity: \(activityId)")
-    }
-
     func endLiveActivity(activityId: String) {
         guard !activityId.trimmingCharacters(in: .whitespaces).isEmpty else {
             showToast("Activity ID is required")

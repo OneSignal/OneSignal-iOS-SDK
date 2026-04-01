@@ -86,13 +86,6 @@ struct LiveActivitySection: View {
             .opacity(isActivityIdEmpty || viewModel.isUpdatingLiveActivity || !viewModel.hasApiKey || viewModel.isAtFinalStatus ? 0.5 : 1.0)
             .padding(.top, 8)
 
-            OutlineActionButton(title: "Stop Updating Live Activity") {
-                viewModel.stopUpdatingLiveActivity(activityId: activityId)
-            }
-            .disabled(isActivityIdEmpty)
-            .opacity(isActivityIdEmpty ? 0.5 : 1.0)
-            .padding(.top, 8)
-
             Button {
                 viewModel.endLiveActivity(activityId: activityId)
             } label: {
