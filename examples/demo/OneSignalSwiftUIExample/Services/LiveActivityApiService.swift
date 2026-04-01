@@ -49,38 +49,27 @@ final class LiveActivityApiService {
         return !key.isEmpty && key != placeholderKey
     }
 
-    func updateLiveActivity(appId: String, activityId: String, eventUpdates: [String: Any]) async -> Bool {
-        guard let key = apiKey, hasApiKey else { return false }
-
-        let urlString = "https://api.onesignal.com/apps/\(appId)/live_activities/\(activityId)/notifications"
-        guard let url = URL(string: urlString) else { return false }
-
-        let payload: [String: Any] = [
-            "event": "update",
-            "event_updates": eventUpdates,
-            "name": "Update Live Activity",
-            "priority": 10
-        ]
-
-        return await sendRequest(url: url, payload: payload, apiKey: key)
+    enum LiveActivityEvent: String {
+        case update
+        case end
     }
 
-    func endLiveActivity(appId: String, activityId: String, eventUpdates: [String: Any]? = nil) async -> Bool {
+    func updateLiveActivity(appId: String, activityId: String, event: LiveActivityEvent, eventUpdates: [String: Any] = [:]) async -> Bool {
         guard let key = apiKey, hasApiKey else { return false }
 
         let urlString = "https://api.onesignal.com/apps/\(appId)/live_activities/\(activityId)/notifications"
         guard let url = URL(string: urlString) else { return false }
 
-        let dismissalDate = Int(Date().timeIntervalSince1970)
-        let updates = eventUpdates ?? ["data": [String: Any]()]
-
-        let payload: [String: Any] = [
-            "event": "end",
-            "event_updates": updates,
-            "dismissal_date": dismissalDate,
-            "name": "End Live Activity",
+        var payload: [String: Any] = [
+            "event": event.rawValue,
+            "event_updates": eventUpdates,
+            "name": event == .end ? "End Live Activity" : "Live Activity Update",
             "priority": 10
         ]
+
+        if event == .end {
+            payload["dismissal_date"] = Int(Date().timeIntervalSince1970)
+        }
 
         return await sendRequest(url: url, payload: payload, apiKey: key)
     }

@@ -449,6 +449,7 @@ final class OneSignalViewModel: ObservableObject {
             let success = await LiveActivityApiService.shared.updateLiveActivity(
                 appId: appId,
                 activityId: activityId,
+                event: .update,
                 eventUpdates: nextStatus.contentState
             )
 
@@ -469,9 +470,11 @@ final class OneSignalViewModel: ObservableObject {
         }
 
         Task {
-            let success = await LiveActivityApiService.shared.endLiveActivity(
+            let success = await LiveActivityApiService.shared.updateLiveActivity(
                 appId: appId,
-                activityId: activityId
+                activityId: activityId,
+                event: .end,
+                eventUpdates: ["message": "Ended Live Activity"]
             )
 
             if success {
