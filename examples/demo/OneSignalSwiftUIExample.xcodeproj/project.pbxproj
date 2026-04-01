@@ -77,6 +77,7 @@
 		2A7E93C9978EA3A5DD713D88 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5D4431B0C1F4352A359427 /* SwiftUI.framework */; };
 		45050FAF882B8B140E005816 /* LiveActivitySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D896003C77EC90B7A3C75BD /* LiveActivitySection.swift */; };
 		A7B3C4D5E6F70819203A4B5D /* LiveActivityApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C4D5E6F7081920304A5B6E /* LiveActivityApiService.swift */; };
+		C9D5E6F7A8B90A1B2C3D4E5F /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = D0E6F7A8B9C01A2B3C4D5E6F /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -193,6 +194,7 @@
 		2B5D4431B0C1F4352A359427 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		2D896003C77EC90B7A3C75BD /* LiveActivitySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitySection.swift; sourceTree = "<group>"; };
 		B8C4D5E6F7081920304A5B6E /* LiveActivityApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityApiService.swift; sourceTree = "<group>"; };
+		D0E6F7A8B9C01A2B3C4D5E6F /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -385,6 +387,7 @@
 				FEE98DA6A075AEB7709CCBE2 /* Assets.xcassets */,
 				D6E7F8091A2B3C4D5E6F7081 /* vine_boom.wav */,
 				FDEE7A98A0EBB6BF767A041D /* Info.plist */,
+				D0E6F7A8B9C01A2B3C4D5E6F /* Secrets.plist */,
 				29513EB5D1B9AF2511CAD95A /* ExampleAppWidgetAttributes.swift */,
 				130E67036ECE13331B1CFFFA /* Services */,
 				6CC0A9DDAC1CB43170E00043 /* Views */,
@@ -548,6 +551,7 @@
 			files = (
 				25D4FC203BE01E9A35ACA465 /* Assets.xcassets in Resources */,
 				A1B2C3D4E5F60718293A4B5C /* vine_boom.wav in Resources */,
+				C9D5E6F7A8B90A1B2C3D4E5F /* Secrets.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
