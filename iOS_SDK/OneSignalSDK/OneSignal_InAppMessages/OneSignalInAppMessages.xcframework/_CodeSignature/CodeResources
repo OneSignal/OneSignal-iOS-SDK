@@ -10,7 +10,7 @@
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/Info.plist</key>
 		<data>
-		kDpLoQO3xotLSXK7qqb5fn2M0jU=
+		K7Gy6tonHI5FKmKMMzO3QVARFFU=
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/Modules/module.modulemap</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/OneSignalInAppMessages</key>
 		<data>
-		4f7C1NFwlbb3EEP0OsQi4QIIQ6A=
+		82/63/r95YodGDCudA7sNKQ7fko=
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -26,7 +26,7 @@
 		</data>
 		<key>ios-arm64/OneSignalInAppMessages.framework/_CodeSignature/CodeResources</key>
 		<data>
-		/0no6xg3pp+Zr9BV1Y7Z9scM6SU=
+		VClgT2aF0lYCFMUsI5PDNcl52+k=
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -34,7 +34,7 @@
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/DWARF/OneSignalInAppMessages</key>
 		<data>
-		33pWk10qtg6OgXYrBKLLJRF1kXA=
+		mK3Ebke/pstvx5eck6EPGT3KAxU=
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
 		<data>
@@ -50,11 +50,11 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/OneSignalInAppMessages</key>
 		<data>
-		lUL6tyvSLq0MhmX3sTA/jgnmX+M=
+		xgi3K4SdJKyFxoEPMQDELNCch4A=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/Info.plist</key>
 		<data>
-		yrlk1m3AIRutmqzwdCJ+WcjLSXE=
+		oCbF96rZ3q5pQ+WqSzLmvdQLUlE=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -62,7 +62,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/_CodeSignature/CodeResources</key>
 		<data>
-		Ysip3e/koB4sNF5WM3RrnymT7Fk=
+		6XndU5nCOw9OBKiLRPh5fRrFoFc=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/DWARF/OneSignalInAppMessages</key>
 		<data>
-		ux+U0nODFUZm/xkkGZbHUbHEzPA=
+		EcnACvdJVVfHHGOI5NZtrJLQodo=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
 		<data>
@@ -86,7 +86,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/Info.plist</key>
 		<data>
-		4At0xB6P4CJD3grbMR3YfWSz+bk=
+		ar0KRYprLxYpNQ6q58wk6kjp0zM=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/Modules/module.modulemap</key>
 		<data>
@@ -94,7 +94,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/OneSignalInAppMessages</key>
 		<data>
-		jEXfiXuU6BGVRplK6OJWyPjRMRY=
+		3hKQycqMCv2cycBEi4pATOGal80=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -102,7 +102,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/_CodeSignature/CodeResources</key>
 		<data>
-		Ok4w3V7BS+qvFFFzEBl4r1b4LhU=
+		GRWpx6/6MlJz0TZrUuaKWxn7+b4=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Info.plist</key>
 		<data>
@@ -110,7 +110,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/DWARF/OneSignalInAppMessages</key>
 		<data>
-		lcIG4xfz/eyuKF85aACGQz8ppZw=
+		HBuhh4d5J3EDZSCR5468gYwwZRU=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
 		<data>
@@ -138,11 +138,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			kDpLoQO3xotLSXK7qqb5fn2M0jU=
+			K7Gy6tonHI5FKmKMMzO3QVARFFU=
 			</data>
 			<key>hash2</key>
 			<data>
-			9TsQMapGCULToZihlbKa0HxxRApBOijUEYRcUbKF23Y=
+			Jfg3gQ2o2Dt4uvvtZxIuML6vZGCk0HCkauwDmg78KXI=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalInAppMessages.framework/Modules/module.modulemap</key>
@@ -160,11 +160,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			4f7C1NFwlbb3EEP0OsQi4QIIQ6A=
+			82/63/r95YodGDCudA7sNKQ7fko=
 			</data>
 			<key>hash2</key>
 			<data>
-			xH5GjKy1Mvgsmlp2BrS19+1Ot9+2GJNT2Aff+Ct9B+Y=
+			ddPI2vLsuiHwpTvy6CqSCF3+k5IPwGs43LAWmjgjRs0=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
@@ -182,11 +182,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			/0no6xg3pp+Zr9BV1Y7Z9scM6SU=
+			VClgT2aF0lYCFMUsI5PDNcl52+k=
 			</data>
 			<key>hash2</key>
 			<data>
-			qFx0VkcMmyCuWuRC+ckBe3zzGevn8h4TOLld+x8A89Y=
+			wDfGppAorDtKAqqdgPNa6CFnGplqwT0a1RU5ZxBhBK4=
 			</data>
 		</dict>
 		<key>ios-arm64/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Info.plist</key>
@@ -204,11 +204,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			33pWk10qtg6OgXYrBKLLJRF1kXA=
+			mK3Ebke/pstvx5eck6EPGT3KAxU=
 			</data>
 			<key>hash2</key>
 			<data>
-			Ys2THCajcje7q6VnKEwmlNRzV8kqDbueX0TKROTNEW4=
+			z2664hSJgyf0kIe1i42RBC1PEYTzQbdx2ayeZE9xkdE=
 			</data>
 		</dict>
 		<key>ios-arm64/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
@@ -268,22 +268,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			lUL6tyvSLq0MhmX3sTA/jgnmX+M=
+			xgi3K4SdJKyFxoEPMQDELNCch4A=
 			</data>
 			<key>hash2</key>
 			<data>
-			McQrog2BrskZy5TLni82nfx8oTGvmteRUog0b9kEmNc=
+			OaqvaEg7VaDLeQGgGzflpk+89l9MMzQPvVxwRYFi7Jg=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/Info.plist</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			yrlk1m3AIRutmqzwdCJ+WcjLSXE=
+			oCbF96rZ3q5pQ+WqSzLmvdQLUlE=
 			</data>
 			<key>hash2</key>
 			<data>
-			OaQxFbL3bLx/d6IFjMZXJ1hmJqKovulhTZjeR2rMf5c=
+			lXjyu61BvrBfj2a5pJJ2wsSUfZ9hu6yTkgSVcKd8J48=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/A/Resources/PrivacyInfo.xcprivacy</key>
@@ -301,11 +301,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Ysip3e/koB4sNF5WM3RrnymT7Fk=
+			6XndU5nCOw9OBKiLRPh5fRrFoFc=
 			</data>
 			<key>hash2</key>
 			<data>
-			h+Fzl4MtBCkL/IzbyAuOChzTRudybkyX7IrF1IvzAd4=
+			lvvKGrY3yTA+V2BqLs7CHh2bZWmlQPUeVE1uJzpiBxE=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalInAppMessages.framework/Versions/Current</key>
@@ -328,11 +328,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			ux+U0nODFUZm/xkkGZbHUbHEzPA=
+			EcnACvdJVVfHHGOI5NZtrJLQodo=
 			</data>
 			<key>hash2</key>
 			<data>
-			iIz0GmfMZrNUQWNY8CmBr+gXqsngdYvDi+x5F2C+zz8=
+			hM0QkrAd3yscJvwnpc57TJB7mZOQ70nSPSip+mjztFk=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
@@ -372,11 +372,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			4At0xB6P4CJD3grbMR3YfWSz+bk=
+			ar0KRYprLxYpNQ6q58wk6kjp0zM=
 			</data>
 			<key>hash2</key>
 			<data>
-			zCRe2huy+YojPqYqZSAF6thrSkSKUlAZFm0vtpYWfNY=
+			MlKKQVTeUbvL1YYSAqABJWnHW5sM3SAAxWz4khU/BKc=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/Modules/module.modulemap</key>
@@ -394,11 +394,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			jEXfiXuU6BGVRplK6OJWyPjRMRY=
+			3hKQycqMCv2cycBEi4pATOGal80=
 			</data>
 			<key>hash2</key>
 			<data>
-			xpUPgn97qY/wqjBay7sN/yRpti8pvUrxvHL1rbhBkpw=
+			QXRbiCo5noLkatNaqbgHP0CWusxErEgYLqSI6u87bHo=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalInAppMessages.framework/PrivacyInfo.xcprivacy</key>
@@ -416,11 +416,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Ok4w3V7BS+qvFFFzEBl4r1b4LhU=
+			GRWpx6/6MlJz0TZrUuaKWxn7+b4=
 			</data>
 			<key>hash2</key>
 			<data>
-			LHnspi8fl0Yr0QRkgunlcwdFERJCqPjWtkuoqcWNA8o=
+			2q95d00I0e7husVIanF3YA/KUMfVWiNrXCDV2s5Ywic=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Info.plist</key>
@@ -438,11 +438,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			lcIG4xfz/eyuKF85aACGQz8ppZw=
+			HBuhh4d5J3EDZSCR5468gYwwZRU=
 			</data>
 			<key>hash2</key>
 			<data>
-			AIOKZ+TFGDXMvYviLquHhUbeVvT8zyFKywS9t5KcPYI=
+			yZZUUGj/H6S1LTgAb9Gc6OIcGciPJ9FIbg1+MzlP+uA=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalInAppMessages.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalInAppMessages.yml</key>
