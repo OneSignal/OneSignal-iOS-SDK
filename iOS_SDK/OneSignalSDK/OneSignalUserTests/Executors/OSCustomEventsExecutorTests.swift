@@ -40,7 +40,7 @@ private class CustomEventsMocks {
 
     init() {
         OneSignalCoreImpl.setSharedClient(client)
-        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
+        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, jwtConfig: OSUserJwtConfig())
     }
 }
 

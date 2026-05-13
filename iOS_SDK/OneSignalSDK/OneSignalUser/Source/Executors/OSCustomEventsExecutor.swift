@@ -46,15 +46,19 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     var supportedDeltas: [String] = [OS_CUSTOM_EVENT_DELTA]
-    private var deltaQueue: [OSDelta] = []
-    private var requestQueue: [OSRequestCustomEvents] = []
-    private let newRecordsState: OSNewRecordsState
+    var deltaQueue: [OSDelta] = []
+    var requestQueue: [OSRequestCustomEvents] = []
+    var pendingAuthRequests: [String: [OSRequestCustomEvents]] = [String: [OSRequestCustomEvents]]()
+    let newRecordsState: OSNewRecordsState
+    let jwtConfig: OSUserJwtConfig
 
     // The executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `requestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSCustomEventsExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, jwtConfig: OSUserJwtConfig) {
         self.newRecordsState = newRecordsState
+        self.jwtConfig = jwtConfig
+        self.jwtConfig.subscribe(self, key: OS_CUSTOM_EVENTS_EXECUTOR)
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheRequests()
@@ -63,9 +67,16 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     private func uncacheDeltas() {
         if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             for (index, delta) in deltaQueue.enumerated().reversed() {
-                if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
+                guard let model = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) else {
                     // The identity model does not exist, drop this Delta
                     OneSignalLog.onesignalLog(.LL_WARN, message: "OSCustomEventsExecutor.init dropped: \(delta)")
+                    deltaQueue.remove(at: index)
+                    continue
+                }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if jwtConfig.isRequired == true, model.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSCustomEventsExecutor.uncacheDeltas dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -79,27 +90,44 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     private func uncacheRequests() {
-        if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCustomEvents] {
-            // Hook each uncached Request to the model in the store
-            for (index, request) in requestQueue.enumerated().reversed() {
-                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
-                    // 1. The identity model exist in the repo, set it to be the Request's model
-                    request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
-                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
-                } else {
-                    // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSCustomEventsExecutor.init dropped: \(request)")
-                    requestQueue.remove(at: index)
+        var requestQueue: [OSRequestCustomEvents] = []
+
+        if let cachedQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCustomEvents] {
+            requestQueue = cachedQueue
+        }
+
+        if let pendingRequests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY, defaultValue: [:]) as? [String: [OSRequestCustomEvents]] {
+            for requests in pendingRequests.values {
+                for request in requests {
+                    requestQueue.append(request)
                 }
             }
-            self.requestQueue = requestQueue
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSCustomEventsExecutor error encountered reading from cache for \(OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY)")
-            self.requestQueue = []
         }
+
+        // Hook each uncached Request to the model in the store
+        for (index, request) in requestQueue.enumerated().reversed() {
+            if jwtConfig.isRequired == true,
+               request.identityModel.externalId == nil
+            {
+                // remove if jwt is on but the model does not have external ID
+                requestQueue.remove(at: index)
+                continue
+            }
+
+            if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
+                // 1. The identity model exist in the repo, set it to be the Request's model
+                request.identityModel = identityModel
+            } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                // 2. The request can be sent, add the model to the repo
+                OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+            } else {
+                // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSCustomEventsExecutor.init dropped: \(request)")
+                requestQueue.remove(at: index)
+            }
+        }
+        self.requestQueue = requestQueue
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor successfully uncached Requests: \(requestQueue)")
     }
 
@@ -119,6 +147,11 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     /// The `deltaQueue` can contain events for multiple users. They will remain as Deltas if there is no onesignal ID yet for its user.
     /// This method will be used in an upcoming release that combine multiple events.
     func processDeltaQueueWithBatching(inBackground: Bool) {
+        guard jwtConfig.isRequired != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor processDeltaQueueWithBatching returning early due to requiresAuth: \(String(describing: jwtConfig.isRequired))")
+            return
+        }
+
         self.dispatchQueue.async {
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
@@ -137,6 +170,13 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 else {
                     OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor.processDeltaQueue skipping: \(delta)")
                     // keep this Delta in the queue, as it is not yet ready to be processed
+                    continue
+                }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSCustomEventsExecutor.processDeltaQueue dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
                     continue
                 }
 
@@ -181,6 +221,11 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue(inBackground: Bool) {
+        guard jwtConfig.isRequired != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor processDeltaQueue returning early due to requiresAuth: \(String(describing: jwtConfig.isRequired))")
+            return
+        }
+
         self.dispatchQueue.async {
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
@@ -195,6 +240,13 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 else {
                     OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor.processDeltaQueue skipping: \(delta)")
                     // keep this Delta in the queue, as it is not yet ready to be processed
+                    continue
+                }
+
+                // If JWT is on but the external ID does not exist, drop this Delta
+                if self.jwtConfig.isRequired == true, identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSCustomEventsExecutor.processDeltaQueue dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
                     continue
                 }
 
@@ -258,10 +310,41 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 
-    private func executeRequest(_ request: OSRequestCustomEvents, inBackground: Bool) {
+    func handleUnauthorizedError(externalId: String, request: OSRequestCustomEvents) {
+        if jwtConfig.isRequired ?? false {
+            self.pendRequestUntilAuthUpdated(request, externalId: externalId)
+            OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: externalId)
+        }
+    }
+
+    func pendRequestUntilAuthUpdated(_ request: OSRequestCustomEvents, externalId: String?) {
+        self.dispatchQueue.async {
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            guard let externalId = externalId else {
+                return
+            }
+            var requests = self.pendingAuthRequests[externalId] ?? []
+            let inQueue = requests.contains(where: {$0 == request})
+            guard !inQueue else {
+                return
+            }
+            requests.append(request)
+            self.pendingAuthRequests[externalId] = requests
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+        }
+    }
+
+    func executeRequest(_ request: OSRequestCustomEvents, inBackground: Bool) {
         guard !request.sentToClient else {
             return
         }
+
+        guard request.addJWTHeaderIsValid(identityModel: request.identityModel) else {
+            pendRequestUntilAuthUpdated(request, externalId: request.identityModel.externalId)
+            return
+        }
+
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
@@ -284,7 +367,12 @@ class OSCustomEventsExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSCustomEventsExecutor request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized && (self.jwtConfig.isRequired ?? false) {
+                    if let externalId = request.identityModel.externalId {
+                        self.handleUnauthorizedError(externalId: externalId, request: request)
+                    }
+                    request.sentToClient = false
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.requestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
@@ -298,6 +386,56 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 }
 
+extension OSCustomEventsExecutor: OSUserJwtConfigListener {
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
+        // If auth changed from false or unknown to true, drop invalid items
+        if to == .on {
+            removeInvalidDeltasAndRequests()
+        }
+    }
+
+    func onJwtUpdated(externalId: String, token: String?) {
+        reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    private func reQueuePendingRequestsForExternalId(externalId: String) {
+        self.dispatchQueue.async {
+            guard let requests = self.pendingAuthRequests[externalId] else {
+                return
+            }
+            for request in requests {
+                self.requestQueue.append(request)
+            }
+            self.pendingAuthRequests[externalId] = nil
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
+    }
+
+    private func removeInvalidDeltasAndRequests() {
+        self.dispatchQueue.async {
+            for (index, delta) in self.deltaQueue.enumerated().reversed() {
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId),
+                   identityModel.externalId == nil
+                {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSCustomEventsExecutor.removeInvalidDeltasAndRequests dropped \(delta)")
+                    self.deltaQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            for (index, request) in self.requestQueue.enumerated().reversed() {
+                if request.identityModel.externalId == nil {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "Invalid with JWT: OSCustomEventsExecutor.removeInvalidDeltasAndRequests dropped \(request)")
+                    self.requestQueue.remove(at: index)
+                }
+            }
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+        }
+    }
+}
+
 extension OSCustomEventsExecutor: OSLoggable {
     func logSelf() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message:
@@ -305,6 +443,7 @@ extension OSCustomEventsExecutor: OSLoggable {
             OSCustomEventsExecutor has the following queues:
                 requestQueue: \(self.requestQueue)
                 deltaQueue: \(self.deltaQueue)
+                pendingAuthRequests: \(self.pendingAuthRequests)
 
             """
         )

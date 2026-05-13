@@ -193,7 +193,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
             let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
             let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
-            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
+            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
