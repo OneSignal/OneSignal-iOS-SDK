@@ -269,8 +269,4 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
     completionHandler();
 }
 
-- (void)onLogEvent:(OneSignalLogEvent * _Nonnull)event {
-    NSLog(@"Dev App onLogEvent: %@", event.entry);
-}
-
 @end
