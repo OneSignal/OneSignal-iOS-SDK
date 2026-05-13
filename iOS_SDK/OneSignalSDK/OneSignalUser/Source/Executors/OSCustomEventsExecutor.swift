@@ -297,3 +297,16 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSCustomEventsExecutor: OSLoggable {
+    func logSelf() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message:
+            """
+            OSCustomEventsExecutor has the following queues:
+                requestQueue: \(self.requestQueue)
+                deltaQueue: \(self.deltaQueue)
+
+            """
+        )
+    }
+}
