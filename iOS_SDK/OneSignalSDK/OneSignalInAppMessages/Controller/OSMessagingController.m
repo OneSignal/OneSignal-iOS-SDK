@@ -146,9 +146,6 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
 
 @property (nonatomic) BOOL calledLoadTags;
 
-/// set when we attempt getInAppMessagesFromServer and no onesignal ID is available yet
-@property (strong, nonatomic, nullable) NSString *shouldFetchOnUserChangeWithSubscriptionID;
-
 /// Tracks whether the first IAM fetch has completed since this cold start
 @property (nonatomic) BOOL hasCompletedFirstFetch;
 
@@ -303,7 +300,7 @@ static BOOL _isInAppMessagingPaused = false;
         NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
         if (!onesignalId) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID, will reattempt"];
-            self.shouldFetchOnUserChangeWithSubscriptionID = subscriptionId;
+            shouldRetryGetInAppMessagesOnUserChange = true;
             return;
         }
 
@@ -1330,15 +1327,6 @@ static BOOL _isInAppMessagingPaused = false;
     if (![token  isEqual: OS_JWT_TOKEN_INVALID] && shouldRetryGetInAppMessagesOnJwtUpdated) {
         shouldRetryGetInAppMessagesOnJwtUpdated = false;
         [self getInAppMessagesFromServer];
-    }
-}
-
-- (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
-    if (state.current.onesignalId != nil && self.shouldFetchOnUserChangeWithSubscriptionID) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onUserStateDidChangeWithState: changed to new valid onesignal id"];
-        NSString *subscriptionID = self.shouldFetchOnUserChangeWithSubscriptionID;
-        self.shouldFetchOnUserChangeWithSubscriptionID = nil;
-        [self getInAppMessagesFromServer:subscriptionID];
     }
 }
 

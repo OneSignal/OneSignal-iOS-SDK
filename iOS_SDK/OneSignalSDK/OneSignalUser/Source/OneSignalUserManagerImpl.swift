@@ -926,7 +926,7 @@ extension OneSignalUserManagerImpl: OSUser {
             property: name,
             value: processedProperties
         )
-        OSOperationRepo.sharedInstance.enqueueDelta(delta)
+        operationRepo.enqueueDelta(delta)
     }
 }
 

@@ -62,7 +62,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "test_event", properties: properties)
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
@@ -80,7 +80,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "test_event", properties: nil)
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
@@ -98,7 +98,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "test_event", properties: [:])
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
@@ -119,7 +119,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "test_event", properties: invalidProperties)
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then - No request should be made */
@@ -154,7 +154,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "complex_event", properties: complexProperties)
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
@@ -220,7 +220,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
 
         /* When */
         userManager.trackEvent(name: "array_event", properties: properties)
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+        userManager.operationRepo.addFlushDeltaQueueToDispatchQueue()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
