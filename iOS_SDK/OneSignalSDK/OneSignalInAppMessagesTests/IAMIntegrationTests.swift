@@ -105,7 +105,7 @@ final class IAMIntegrationTests: XCTestCase {
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         // 7. Fetch IAMs
-        OneSignalInAppMessages.getFromServer(testPushSubId)
+        OneSignalInAppMessages.getInAppMessagesFromServer()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         // Make sure no IAM is showing, and the queue has no IAMs
