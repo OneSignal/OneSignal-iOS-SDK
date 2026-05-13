@@ -14,7 +14,7 @@
  all copies or substantial portions of the Software.
  
  2. All copies of substantial portions of the Software may only be used in connection
-with services provided by OneSignal.
+ with services provided by OneSignal.
  
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -167,7 +167,7 @@ final class UserExecutorTests: XCTestCase {
         let mocks = Mocks()
         mocks.setAuthRequired(false)
 
-        let user = mocks.setUserManagerInternalUser(externalId: "new-eid")
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: "new-eid", onesignalId: nil)
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
         let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userB_EUID], changeNotifier: OSEventProducer())
 

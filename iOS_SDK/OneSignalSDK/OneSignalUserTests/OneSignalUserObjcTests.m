@@ -37,7 +37,7 @@
     [OneSignalUserManagerImpl.sharedInstance start];
 
     // 1. Set up mock responses for the anonymous user
-    [MockUserRequests setDefaultCreateAnonUserResponsesWith:client];
+    [MockUserRequests setDefaultCreateAnonUserResponsesWith:client onesignalId:nil subscriptionId:nil];
     [OneSignalCoreImpl setSharedClient:client];
 
     /* When */

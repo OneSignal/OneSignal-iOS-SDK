@@ -50,9 +50,20 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 typedef void (^JwtCompletionBlock)(NSString*);
 typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    // Log the full tracking URL and the original extracted URL
+    // Also trigger trackClickAndReturnOriginal twice to confirm this click event is only sent once
+    NSLog(@"Dev App: application openURL FULL URL is %@", url);
+    NSURL *originalURL1 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSURL *originalURL2 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSLog(@"Dev App: application openURL processed, original URL is %@", originalURL1);
+    return YES;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [FIRApp configure];
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     // Uncomment to test LogListener
@@ -196,13 +207,66 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 - (void)applicationWillTerminate:(UIApplication *)application {
 }
 
-// Remote
+- (void)onLogEvent:(OneSignalLogEvent * _Nonnull)event {
+    NSLog(@"Dev App onLogEvent: %@", event.entry);
+}
+
+#pragma mark - Manual Integration APIs (for use when swizzling is disabled)
+
+// Forward the APNs device token to OneSignal so it can register the device for push
 - (void)application:(UIApplication *)application
-didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
-    
-    NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
-    completionHandler(UIBackgroundFetchResultNoData);
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"Dev App application:didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
+    [OneSignal.Notifications didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+// Forward APNs registration failures so OneSignal can log and retry appropriately
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSLog(@"Dev App application:didFailToRegisterForRemoteNotificationsWithError %@", error);
+    [OneSignal.Notifications didFailToRegisterForRemoteNotificationsWithError:error];
+}
+
+// Forward background / silent notifications for content-available processing
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo
+    fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSLog(@"Dev App application:didReceiveRemoteNotification %@", userInfo);
+    [OneSignal.Notifications didReceiveRemoteNotification:userInfo
+                                       completionHandler:completionHandler];
+}
+
+// Forward foreground notifications so the SDK can invoke onWillDisplayNotification listeners
+// and determine whether to show a banner. Completion returns nil for IAM previews.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSLog(@"Dev App userNotificationCenter:willPresentNotification %@", notification);
+    [OneSignal.Notifications
+        willPresentNotificationWithPayload:notification.request.content.userInfo
+        completion:^(OSNotification *notif) {
+            if (notif) {
+                if (@available(iOS 14.0, *)) {
+                    completionHandler(UNNotificationPresentationOptionBanner |
+                                      UNNotificationPresentationOptionList |
+                                      UNNotificationPresentationOptionSound);
+                } else {
+                    completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+                }
+            } else {
+                completionHandler(UNNotificationPresentationOptionNone);
+            }
+        }];
+}
+
+// Forward notification tap / action so the SDK can fire onClickNotification listeners
+// and handle deep links and action buttons
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+    didReceiveNotificationResponse:(UNNotificationResponse *)response
+             withCompletionHandler:(void (^)(void))completionHandler {
+    NSLog(@"Dev App userNotificationCenter:didReceiveNotificationResponse %@", response);
+    [OneSignal.Notifications didReceiveNotificationResponse:response];
+    completionHandler();
 }
 
 - (void)onLogEvent:(OneSignalLogEvent * _Nonnull)event {

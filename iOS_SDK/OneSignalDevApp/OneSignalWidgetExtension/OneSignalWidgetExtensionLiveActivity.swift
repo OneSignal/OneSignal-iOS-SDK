@@ -52,9 +52,11 @@ import OneSignalLiveActivities
                  }
                  Spacer()
              }
+             .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
+             // .widgetURL(URL(string: "myapp://product/12345"))
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
-         } dynamicIsland: { _ in
+         } dynamicIsland: { context in
              DynamicIsland {
                  // Expanded UI goes here.  Compose the expanded UI through
                  // various regions, like leading/trailing/center/bottom
@@ -75,7 +77,8 @@ import OneSignalLiveActivities
              } minimal: {
                  Text("Min")
              }
-             .widgetURL(URL(string: "http://www.apple.com"))
+             .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
+             // .widgetURL(URL(string: "myapp://product/12345"))
              .keylineTint(Color.red)
          }
      }
@@ -118,7 +121,8 @@ import OneSignalLiveActivities
              .padding([.all], 20)
              .activitySystemActionForegroundColor(.black)
              .activityBackgroundTint(.white)
-         } dynamicIsland: { _ in
+             .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
+         } dynamicIsland: { context in
              DynamicIsland {
                  // Expanded UI goes here.  Compose the expanded UI through
                  // various regions, like leading/trailing/center/bottom
@@ -140,6 +144,7 @@ import OneSignalLiveActivities
                  Text("Min")
              }
              .keylineTint(Color.red)
+             .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
          }
      }
  }
@@ -233,7 +238,8 @@ struct DefaultOneSignalLiveActivityWidget: Widget {
             .padding([.all], 20)
             .activitySystemActionForegroundColor(.black)
             .activityBackgroundTint(.white)
-        } dynamicIsland: { _ in
+            .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
+        } dynamicIsland: { context in
             DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
                 // various regions, like leading/trailing/center/bottom
@@ -255,6 +261,7 @@ struct DefaultOneSignalLiveActivityWidget: Widget {
                 Text("Min")
             }
             .keylineTint(Color.red)
+            .onesignalWidgetURL(URL(string: "https://example.com/page?param1=value1&param2=value2#section"), context: context)
         }
     }
 }

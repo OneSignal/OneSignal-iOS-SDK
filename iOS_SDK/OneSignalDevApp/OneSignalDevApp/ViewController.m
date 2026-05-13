@@ -251,8 +251,12 @@
         NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
         if (activityId && activityId.length) {
-//            [LiveActivityController createDefaultActivityWithActivityId:activityId ];
-            [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
+            // 1. Create a Default activity
+            // [LiveActivityController createDefaultActivityWithActivityId:activityId ];
+            // 2. Create non-OneSignal-aware activity
+            // [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
+            // 3. Create OneSignal-aware activity
+            [LiveActivityController createOneSignalAwareActivityWithActivityId:activityId];
         }
     } else {
         NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
@@ -284,6 +288,23 @@
 - (IBAction)dontRequireConsent:(id)sender {
     NSLog(@"Dev App: setting setConsentRequired to false.");
     [OneSignal setConsentRequired:false];
+}
+
+- (IBAction)trackCustomEvents:(id)sender {    
+    NSLog(@"Dev App: tracking some preset custom events");
+    [OneSignal.User trackEventWithName:@"simple event" properties:@{@"foobarbaz": @"foobarbaz"}];
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    dict[@"dict"] = @{@"abc" : @"def"};
+    dict[@"false"] = false;
+    dict[@"int"] = @99;
+    [OneSignal.User trackEventWithName:@"complex event" properties:dict];
+    [SwiftTest trackCustomEvents];
+}
+
+- (IBAction)trackNamedCustomEvent:(id)sender {
+    NSString *name = self.customEventsTextField.text;
+    NSLog(@"Dev App: Tracking custom event with name: %@", name);
+    [OneSignal.User trackEventWithName:name properties:nil];
 }
 
 @end

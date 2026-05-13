@@ -34,9 +34,7 @@
 
 @property (nonatomic, readonly) BOOL onFocusCallEnabled;
 
-- (int)getMinSessionTime;
 - (NSString*)unsentActiveTimeUserDefaultsKey;
-- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime;
 
 - (void)resetUnsentActiveTime;
 - (void)sendOnFocusCall:(OSFocusCallParams *)params;

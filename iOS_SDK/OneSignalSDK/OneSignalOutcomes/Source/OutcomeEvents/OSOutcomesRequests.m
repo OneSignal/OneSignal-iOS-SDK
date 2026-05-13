@@ -26,7 +26,7 @@
  */
 
 #import "OSOutcomesRequests.h"
-
+#import "OSMacros.h"
 
 @implementation OSRequestSendOutcomesV1ToServer
 NSString * const APP_ID = @"app_id";

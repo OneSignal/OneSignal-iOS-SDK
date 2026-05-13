@@ -31,9 +31,7 @@
 #define NSString_OneSignal_h
 @interface NSString (OneSignal)
 
-- (NSString *_Nonnull)one_getVersionForRange:(NSRange)range;
 - (NSString *_Nonnull)one_substringAfter:(NSString *_Nonnull)needle;
-- (NSString *_Nonnull)one_getSemanticVersion;
 - (NSString *_Nullable)fileExtensionForMimeType;
 - (NSString *_Nullable)supportedFileExtension;
 

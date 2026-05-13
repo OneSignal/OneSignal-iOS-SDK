@@ -26,6 +26,7 @@
 */
 
 #import "OSInAppMessageTag.h"
+#import "OSMacros.h"
 
 @implementation OSInAppMessageTag
 

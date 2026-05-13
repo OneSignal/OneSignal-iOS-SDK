@@ -27,6 +27,7 @@
 
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
+#import "OSMacros.h"
 
 @interface OSTriggerController ()
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, id> *triggers;
@@ -66,12 +67,6 @@
 - (NSDictionary<NSString *, id> *)getTriggers {
     @synchronized (self.triggers) {
         return self.triggers;
-    }
-}
-
-- (id)getTriggerValueForKey:(NSString *)key {
-    @synchronized (self.triggers) {
-        return self.triggers[key];
     }
 }
 
@@ -186,11 +181,9 @@
 - (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessageInternal *)message {
     if (!self.triggers[trigger.property] && [trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_CUSTOM]) {
         // The value doesn't exist
-        
-        // The condition for this trigger is true since the value doesn't exist
-        // Either loop to the next condition, or return true if we are the last condition
-        return trigger.operatorType == OSTriggerOperatorTypeNotExists ||
-        (trigger.value && trigger.operatorType == OSTriggerOperatorTypeNotEqualTo);
+
+        // Only NotExists operator should return true for non-existent values
+        return trigger.operatorType == OSTriggerOperatorTypeNotExists;
 
     } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
         return true;

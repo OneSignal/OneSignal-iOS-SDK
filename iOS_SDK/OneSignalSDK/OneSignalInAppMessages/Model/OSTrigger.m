@@ -26,6 +26,7 @@
  */
 
 #import "OSTrigger.h"
+#import "OSMacros.h"
 
 @implementation OSTrigger
 

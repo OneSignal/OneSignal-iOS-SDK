@@ -171,8 +171,58 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     contentState: contentState,
                     pushType: .token)
         } catch let error {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: " + error.localizedDescription)
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot start default live activity: \(error)")
         }
+    }
+
+    @objc
+    public static func trackClickAndReturnOriginal(_ url: URL) -> URL? {
+        // Check if this is a OneSignal click tracking URL
+        guard url.scheme == LiveActivityConstants.Tracking.scheme,
+              url.host == LiveActivityConstants.Tracking.host,
+              url.path == LiveActivityConstants.Tracking.clickPath,
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let queryItems = components.queryItems else
+        {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "trackClickAndReturnOriginal:\(url) is not a tracking URL")
+            return url
+        }
+
+        /// Helper function to extract redirect URL
+        func getRedirectURL() -> URL? {
+            guard let redirectString = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.redirect })?.value,
+                  let redirectURL = URL(string: redirectString)
+            else {
+                return nil
+            }
+            return redirectURL
+        }
+
+        // Extract metadata
+        guard let clickId = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.clickId })?.value,
+              let activityId = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.activityId })?.value,
+              let activityType = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.activityType })?.value else
+        {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "Missing required parameters in tracking URL: \(url)")
+            return getRedirectURL()
+        }
+
+        let notificationId = queryItems.first(where: { $0.name == LiveActivityConstants.Tracking.notificationId })?.value
+
+        trackClick(clickId: clickId, activityType: activityType, activityId: activityId, notificationId: notificationId)
+
+        return getRedirectURL()
+    }
+
+    /**
+     Track the click event.
+     - Parameters:
+        - clickId: UUID representing the unique click event, as it is possible for this click to be tracked multiple times.
+     */
+    private static func trackClick(clickId: String, activityType: String, activityId: String, notificationId: String?) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities trackClick called with clickId: \(clickId), activityType: \(activityType), activityId: \(activityId)")
+        let req = OSRequestLiveActivityClicked(key: clickId, activityType: activityType, activityId: activityId, notificationId: notificationId)
+        _executor.append(req)
     }
 
     @available(iOS 17.2, *)
@@ -202,6 +252,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         for activity in Activity<Attributes>.activities {
             listenForActivityStateUpdates(activityType, activity: activity, options: options)
             listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+            if #available(iOS 16.2, *) {
+                listenForContentUpdates(activityType, activity: activity)
+            }
         }
 
         // Establish listeners for activity updates
@@ -221,6 +274,9 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
 
                 listenForActivityStateUpdates(activityType, activity: activity, options: options)
                 listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+                if #available(iOS 16.2, *) {
+                    listenForContentUpdates(activityType, activity: activity)
+                }
             }
         }
     }
@@ -271,6 +327,24 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                 }
             }
         }
+    }
+
+    @available(iOS 16.2, *)
+    private static func listenForContentUpdates<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>) {
+        Task {
+            for await content in activity.contentUpdates {
+                // Don't track a live activity started / updated "in app" without a notification
+                if let notificationId = activity.content.state.onesignal?.notificationId {
+                    OneSignalLiveActivitiesManagerImpl.addReceiveReceipts(notificationId: notificationId, activityType: "\(activityType)", activityId: activity.attributes.onesignal.activityId)
+                }
+            }
+        }
+    }
+
+    private static func addReceiveReceipts(notificationId: String, activityType: String, activityId: String) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities addReceiveReceipts called with notificationId: \(notificationId), activityType: \(activityType), activityId: \(activityId)")
+        let req = OSRequestLiveActivityReceiveReceipts(key: notificationId, activityType: activityType, activityId: activityId)
+        _executor.append(req)
     }
 }
 #endif
