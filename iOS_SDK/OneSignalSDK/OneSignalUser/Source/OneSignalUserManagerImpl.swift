@@ -29,6 +29,9 @@ import OneSignalCore
 import OneSignalOSCore
 import OneSignalNotifications
 
+// swiftlint:disable file_length type_body_length
+// TODO: This file exceeds the 1000-line limit and the class body exceeds 350 lines.
+// Extract in followup, since this is only for rebasing.
 /**
  Internal API to access the User Manager.
  */
