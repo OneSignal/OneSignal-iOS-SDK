@@ -56,6 +56,10 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
 
         OneSignalConfigManager.setAppId(testAppId)
         OneSignalLog.setLogLevel(.LL_VERBOSE)
+
+        // Tell the User Manager JWT is not required so OSUserUtils.getAlias resolves
+        // (otherwise the IAM fetch is blocked by null alias and no request fires).
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
     }
 
     override func tearDownWithError() throws {
@@ -80,7 +84,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OSMessagingController.start()
 
         /* Execute */
-        OneSignalInAppMessages.getInAppMessagesFromServer()
+        OneSignalInAppMessages.getFromServer()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Verify */
@@ -117,7 +121,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.login(externalId: testExternalId, token: nil)
 
         // First attempt: fetch is deferred because OneSignal ID is missing on the new user.
-        OneSignalInAppMessages.getInAppMessagesFromServer()
+        OneSignalInAppMessages.getFromServer()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 0))

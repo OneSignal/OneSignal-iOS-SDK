@@ -44,6 +44,10 @@ final class IAMIntegrationTests: XCTestCase {
         OSConsistencyManager.shared.reset()
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
+
+        // Tell the User Manager JWT is not required so OSUserUtils.getAlias resolves
+        // (otherwise the IAM fetch is blocked by null alias and no request fires).
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
     }
 
     override func tearDownWithError() throws { }
@@ -91,7 +95,7 @@ final class IAMIntegrationTests: XCTestCase {
         let message = IAMTestHelpers.testMessageJsonWithTrigger(kind: OS_DYNAMIC_TRIGGER_KIND_CUSTOM, property: "session_time", triggerId: "test_id1", type: 1, value: 10.0)
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/test-app-id/subscriptions/\(testPushSubId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/subscriptions/\(testPushSubId)/iams>",
             response: response)
 
         // 4. Unblock the Consistency Manager to allow fetching of IAMs
@@ -105,7 +109,7 @@ final class IAMIntegrationTests: XCTestCase {
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         // 7. Fetch IAMs
-        OneSignalInAppMessages.getInAppMessagesFromServer()
+        OneSignalInAppMessages.getFromServer()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         // Make sure no IAM is showing, and the queue has no IAMs
