@@ -40,7 +40,14 @@ private class CustomEventsMocks {
 
     init() {
         OneSignalCoreImpl.setSharedClient(client)
-        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, jwtConfig: OSUserJwtConfig())
+        // jwtConfig on BOTH the local config (gates the executor's processDeltaQueue) AND the
+        // shared instance (request's addJWTHeaderIsValid reads sharedInstance.jwtConfig, not
+        // the local one) must be in a known state (.off), otherwise the request gets pended
+        // instead of executed.
+        let jwtConfig = OSUserJwtConfig()
+        jwtConfig.isRequired = false
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = false
+        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
     }
 }
 
@@ -262,8 +269,8 @@ final class OSCustomEventsExecutorTests: XCTestCase {
     func testProcessDeltaQueue_withEventsForMultipleUsers_createsSeparateRequestsPerEvent() {
         /* Setup */
         let mocks = CustomEventsMocks()
-        let userA = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: userA_OSID)
-        let userB = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: userB_OSID)
+        let userA = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        let userB = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
 
         let deltaUserA1 = createCustomEventDelta(name: "userA_event1", properties: ["user": "A"], identityModel: userA.identityModel)
         let deltaUserA2 = createCustomEventDelta(name: "userA_event2", properties: ["user": "A"], identityModel: userA.identityModel)

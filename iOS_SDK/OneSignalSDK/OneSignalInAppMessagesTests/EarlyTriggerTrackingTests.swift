@@ -55,6 +55,10 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Set up basic configuration
         OneSignalConfigManager.setAppId(testAppId)
         OneSignalLog.setLogLevel(.LL_VERBOSE)
+
+        // Tell the User Manager JWT is not required so OSUserUtils.getAlias resolves
+        // (otherwise the IAM fetch is blocked by null alias and no request fires).
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
     }
 
     override func tearDownWithError() throws {
@@ -87,7 +91,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/subscriptions/\(testSubscriptionId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/users/by/onesignal_id/\(testOneSignalId)/subscriptions/\(testSubscriptionId)/iams>",
             response: response)
 
         /* Execute */
@@ -186,7 +190,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Set up IAM fetch response with an empty message list
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/subscriptions/\(testSubscriptionId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/users/by/onesignal_id/\(testOneSignalId)/subscriptions/\(testSubscriptionId)/iams>",
             response: response)
 
         // Start the SDK and trigger first fetch
@@ -287,7 +291,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Set up IAM fetch response
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message1Json, message2Json, message3Json])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/subscriptions/\(testSubscriptionId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/users/by/onesignal_id/\(testOneSignalId)/subscriptions/\(testSubscriptionId)/iams>",
             response: response)
 
         /* Execute */
@@ -363,7 +367,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Set up IAM fetch response
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [messageJson])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/subscriptions/\(testSubscriptionId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/users/by/onesignal_id/\(testOneSignalId)/subscriptions/\(testSubscriptionId)/iams>",
             response: response)
 
         /* Execute */
@@ -434,7 +438,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Set up IAM fetch response
         let response = IAMTestHelpers.testFetchMessagesResponse(messages: [message1Json, message2Json])
         client.setMockResponseForRequest(
-            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/subscriptions/\(testSubscriptionId)/iams>",
+            request: "<OSRequestGetInAppMessages from apps/\(testAppId)/users/by/onesignal_id/\(testOneSignalId)/subscriptions/\(testSubscriptionId)/iams>",
             response: response)
 
         /* Execute */
