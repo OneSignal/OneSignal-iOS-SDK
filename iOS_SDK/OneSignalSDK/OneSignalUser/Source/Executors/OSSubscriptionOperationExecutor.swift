@@ -30,7 +30,7 @@ import OneSignalCore
 
 class OSSubscriptionOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_ADD_SUBSCRIPTION_DELTA, OS_REMOVE_SUBSCRIPTION_DELTA, OS_UPDATE_SUBSCRIPTION_DELTA]
-    var deltaQueue: [OSDelta] = []
+    private var deltaQueue: [OSDelta] = []
     // To simplify uncaching, we maintain separate request queues for each type
     var addRequestQueue: [OSRequestCreateSubscription] = []
     var removeRequestQueue: [OSRequestDeleteSubscription] = []
@@ -196,7 +196,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     /**
      Since there are 2 subscription stores, we need to check both stores for the model with a particular `modelId`.
      */
-    func getSubscriptionModelFromStores(modelId: String) -> OSSubscriptionModel? {
+    private func getSubscriptionModelFromStores(modelId: String) -> OSSubscriptionModel? {
         if let modelInStore = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
             return modelInStore
         }
@@ -320,7 +320,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
-    func processRequestQueue(inBackground: Bool) {
+    private func processRequestQueue(inBackground: Bool) {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue + updateRequestQueue
 
         if requestQueue.isEmpty {
@@ -482,7 +482,7 @@ extension OSSubscriptionOperationExecutor {
         }
     }
 
-    func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription, inBackground: Bool) {
+    private func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription, inBackground: Bool) {
         guard !request.sentToClient else {
             return
         }

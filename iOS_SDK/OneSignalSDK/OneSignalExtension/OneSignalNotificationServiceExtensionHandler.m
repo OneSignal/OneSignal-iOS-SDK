@@ -26,6 +26,7 @@
  */
 
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"

@@ -46,6 +46,7 @@
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
+- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
 @end
 
 
@@ -112,7 +113,7 @@
 
 - (void)overrideWebViewContentFinishedLoading:(OSInAppMessageInternal *)message {
     if (message) {
-        [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
+         [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
     }
 }
 

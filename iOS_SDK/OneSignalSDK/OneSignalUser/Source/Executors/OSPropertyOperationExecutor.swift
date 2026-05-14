@@ -261,7 +261,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
-    func processRequestQueue(inBackground: Bool) {
+    private func processRequestQueue(inBackground: Bool) {
         if updateRequestQueue.isEmpty {
             return
         }

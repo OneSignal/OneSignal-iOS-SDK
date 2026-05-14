@@ -27,6 +27,7 @@
 
 
 #import "OSInAppMessageClickEvent.h"
+#import "OSMacros.h"
 
 @implementation OSInAppMessageClickEvent
 
