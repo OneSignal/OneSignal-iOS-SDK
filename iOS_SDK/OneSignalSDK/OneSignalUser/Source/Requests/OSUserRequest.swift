@@ -70,12 +70,12 @@ internal extension OneSignalRequest {
      | --------------- | -------------- | ------- | ------- |
      */
     func addJWTHeaderIsValid(identityModel: OSIdentityModel) -> Bool {
-        let tokenIsValid = identityModel.isJwtValid()
+        // Snapshot once via getValidJwt() to avoid split read-then-check races
+        // between concurrent writers (login/setUserJwtToken/invalidate).
+        let validToken = identityModel.getValidJwt()
         let required = OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired
-        let canBeSent = (required == false) || (required == true && tokenIsValid)
-        if canBeSent && tokenIsValid,
-           let token = identityModel.jwtBearerToken
-        {
+        let canBeSent = (required == false) || (required == true && validToken != nil)
+        if canBeSent, let token = validToken {
             // Add the JWT token if it is valid, regardless of requirements
             var additionalHeaders = self.additionalHeaders ?? [String: String]()
             additionalHeaders["Authorization"] = "Bearer \(token)"
