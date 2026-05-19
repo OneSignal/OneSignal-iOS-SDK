@@ -76,6 +76,25 @@ class OSIdentityModel: OSModel {
         return token
     }
 
+    /**
+     Atomically transition the JWT token to `OS_JWT_TOKEN_INVALID`. Returns
+     `true` if the transition occurred, `false` if the token was already
+     invalid. Used by `invalidateJwtForExternalId` so only the thread that
+     actually invalidated fires `fireJwtExpired`.
+     */
+    @discardableResult
+    func invalidateJwtBearerToken() -> Bool {
+        let changed: Bool = lock.withLock {
+            guard _jwtBearerToken != OS_JWT_TOKEN_INVALID else { return false }
+            _jwtBearerToken = OS_JWT_TOKEN_INVALID
+            return true
+        }
+        if changed {
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: OS_JWT_TOKEN_INVALID)
+        }
+        return changed
+    }
+
     // MARK: - Initialization
 
     // Initialize with aliases, if any

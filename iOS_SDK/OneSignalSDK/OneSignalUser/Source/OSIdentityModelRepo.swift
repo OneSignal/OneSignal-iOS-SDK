@@ -73,17 +73,19 @@ class OSIdentityModelRepo {
      This can be optimized in the future to re-use an Identity Model if multiple logins are made for the same user.
      */
     func updateJwtToken(externalId: String, token: String) {
-        var found = false
-        lock.withLock {
-            for model in models.values {
-                if model.externalId == externalId {
-                    model.jwtBearerToken = token
-                    found = true
-                }
-            }
+        // Snapshot matching models under the repo lock, then mutate outside.
+        // Writing the token fires the model's change notifier synchronously
+        // (→ onModelUpdated → onJwtTokenChanged); doing that while holding the
+        // repo lock leaves a trap for future listeners to deadlock on.
+        let matchingModels: [OSIdentityModel] = lock.withLock {
+            models.values.filter { $0.externalId == externalId }
         }
-        if !found {
+        guard !matchingModels.isEmpty else {
             OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_ERROR, message: "Update User JWT called for external ID \(externalId) that does not exist")
+            return
+        }
+        for model in matchingModels {
+            model.jwtBearerToken = token
         }
     }
 }
