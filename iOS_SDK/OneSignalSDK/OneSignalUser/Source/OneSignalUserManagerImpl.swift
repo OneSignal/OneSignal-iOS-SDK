@@ -714,14 +714,13 @@ extension OneSignalUserManagerImpl {
             return
         }
 
-        // Return, if the token has already been invalidated
-        guard identityModel.jwtBearerToken != OS_JWT_TOKEN_INVALID else {
-            return
+        // Atomic compare-and-set on the model. Only the thread that actually
+        // transitioned the token to INVALID fires the expired event — avoids
+        // a needless re-auth round trip if a concurrent valid-token write
+        // landed between a TOCTOU read/write pair.
+        if identityModel.invalidateJwtBearerToken() {
+            fireJwtExpired(externalId: externalId)
         }
-
-        identityModel.jwtBearerToken = OS_JWT_TOKEN_INVALID
-
-        fireJwtExpired(externalId: externalId)
     }
 
     private func fireJwtExpired(externalId: String) {
