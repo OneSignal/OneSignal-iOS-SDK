@@ -34,6 +34,19 @@ targets:
         excludes:
           - "Info.plist"
           - "**/*.entitlements"
+          # Handled separately below so we can force buildPhase: resources.
+          # XcodeGen defaults .plist files to BuildPhase.none (assumes
+          # Info.plist-like), which leaves Secrets.plist out of Copy Bundle
+          # Resources and Bundle.main.url(...) returns nil at runtime.
+          - "Secrets.plist"
+      # Credentials read by App/Services/SecretsConfig.swift at runtime.
+      # Gitignored and auto-written by sdk-shared/appium/scripts/run-local.sh
+      # when ONESIGNAL_APP_ID / ONESIGNAL_API_KEY are set; manually populated
+      # otherwise (see README step 4). optional: true so xcodegen succeeds on
+      # a fresh clone where the file hasn't been created yet.
+      - path: App/Secrets.plist
+        buildPhase: resources
+        optional: true
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
