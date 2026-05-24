@@ -29,6 +29,9 @@ targets:
     type: application
     platform: iOS
     deploymentTarget: "16.0"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
     sources:
       - path: App
         excludes:
@@ -103,6 +106,9 @@ targets:
     type: app-extension
     platform: iOS
     deploymentTarget: "16.0"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
     sources:
       - path: OneSignalNotificationServiceExtension
         excludes:
@@ -111,7 +117,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.OneSignalNotificationServiceExtension
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.NSE
         INFOPLIST_FILE: OneSignalNotificationServiceExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -132,6 +138,9 @@ targets:
     type: app-extension
     platform: iOS
     deploymentTarget: "16.2"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
     sources:
       - path: OneSignalWidget
         excludes:
@@ -140,7 +149,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.OneSignalWidget
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.LA
         INFOPLIST_FILE: OneSignalWidget/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"

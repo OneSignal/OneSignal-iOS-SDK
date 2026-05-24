@@ -133,6 +133,15 @@ struct ContentView: View {
             }
         }
         .toast(message: $viewModel.toastMessage)
+        // Auto-prompt for notification permission on first appear, matching the
+        // Capacitor / Flutter / React Native demos (which all prompt from their
+        // home screen's mount lifecycle). This races the OneSignal iOS-params
+        // response: the standard alert shows before the SDK can register for
+        // provisional authorization (which would otherwise silently grant
+        // permission and skip the prompt entirely).
+        .task {
+            viewModel.promptPushPermission()
+        }
     }
 
     @ToolbarContentBuilder
