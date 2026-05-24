@@ -31,7 +31,7 @@ examples/demo/
 ├── App.xcodeproj
 ├── App.entitlements                                  # main app: aps-environment + app group
 ├── App/                                              # Main app target source
-│   ├── OneSignalSwiftUIExampleApp.swift              # @main + AppDelegate, SDK + Live Activity setup
+│   ├── App.swift                                     # @main + AppDelegate, SDK + Live Activity setup
 │   ├── Views/
 │   │   ├── ContentView.swift                         # Composes sections + sheets in Capacitor order
 │   │   ├── Sections/                                 # AppSection, UserSection, PushSection, ...
@@ -70,58 +70,35 @@ This mirrors the Capacitor demo's iOS layout (`OneSignal-Capacitor-SDK/examples/
 
 ## Setup Instructions
 
-### 1. Create the Xcode project
+The Xcode project is generated from `project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen) and is wired into `iOS_SDK/OneSignalSDK.xcworkspace`, so it builds against the SDK source tree directly. There are no manual Xcode setup steps.
 
-1. Open Xcode and create a new **iOS App** named `App` (Interface: SwiftUI, Language: Swift, Storage: None)
-2. Save it inside `examples/demo/` so the project file ends up at `examples/demo/App.xcodeproj`
-3. Delete the auto-generated `App/ContentView.swift` and `App/AppApp.swift`
-4. Drag the existing source folders from `examples/demo/App/` into the target with **Copy items if needed unchecked**: `Views/`, `ViewModels/`, `Models/`, `Services/`, `Assets.xcassets/`, and the `OneSignalSwiftUIExampleApp.swift` entry point at the root
+### 1. Open the workspace
 
-### 2. Add the Notification Service Extension target
+```bash
+open iOS_SDK/OneSignalSDK.xcworkspace
+```
 
-1. **File → New → Target… → Notification Service Extension**, name it `OneSignalNotificationServiceExtension`
-2. Delete the auto-generated `NotificationService.swift` and `Info.plist` from the new target
-3. Drag in the existing `OneSignalNotificationServiceExtension/` files from this folder, with **target membership** set to the new extension only
-4. Set the entitlements file to `OneSignalNotificationServiceExtension.entitlements`
+In the scheme picker pick **App** and run on a simulator or device. Granting notification permissions and selecting a section is enough to exercise the SDK against your local source.
 
-### 3. Add the Widget Extension target (for Live Activities)
+### 2. Regenerate the project (only when `project.yml` changes)
 
-1. **File → New → Target… → Widget Extension**, name it `OneSignalWidget`. **Uncheck** "Include Configuration Intent"
-2. Delete the auto-generated `OneSignalWidget.swift`, `OneSignalWidgetBundle.swift`, `Info.plist`, and `Assets.xcassets`
-3. Drag in the existing `OneSignalWidget/` files from this folder, target membership set to the widget target only
-4. In the widget target's build settings, set **iOS Deployment Target** to 16.2 or later
+```bash
+brew install xcodegen           # one time
+cd examples/demo
+xcodegen generate               # rewrites App.xcodeproj
+```
 
-### 4. Add OneSignal SDK dependencies
+`project.yml` declares three targets — `App`, `OneSignalNotificationServiceExtension`, `OneSignalWidget` — and references the framework targets in `iOS_SDK/OneSignalSDK/OneSignal.xcodeproj` so each one links and embeds the right SDK frameworks at build time.
 
-Use Swift Package Manager (**File → Add Package Dependencies…**, URL `https://github.com/OneSignal/OneSignal-iOS-SDK`, version 5.0.0+) and attach products to targets:
+### 3. Capabilities & App Group
 
-| Product                     | Main app | NSE | Widget |
-| --------------------------- | -------- | --- | ------ |
-| `OneSignalFramework`        | yes      |     |        |
-| `OneSignalInAppMessages`    | yes      |     |        |
-| `OneSignalLocation`         | yes      |     |        |
-| `OneSignalLiveActivities`   | yes      |     | yes    |
-| `OneSignalExtension`        |          | yes |        |
+The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.example.onesignal`. If you need a different group (for example to install on a real device under your own team), change the value in both files to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
 
-### 5. Configure capabilities
+### 4. Update the App ID
 
-For the **main app** target in **Signing & Capabilities**:
+`App/Services/OneSignalService.swift` ships with a placeholder OneSignal App ID. Either edit `defaultAppId` or override it at runtime via `UserDefaults` (key `OneSignalAppId`).
 
-- **Push Notifications**
-- **Background Modes** → Remote notifications
-- **App Groups** → `group.com.onesignal.example.onesignal` (rename to your own app group, then update both entitlements files)
-
-For the **NSE** target:
-
-- **App Groups** → same group as the main app
-
-The widget target needs no capabilities beyond what Xcode adds for you. `NSSupportsLiveActivities` is already set in `App/Info.plist`.
-
-### 6. Update App ID
-
-`Services/OneSignalService.swift` ships with a placeholder. Either edit `defaultAppId` or override it at runtime via `UserDefaults` (key `OneSignalAppId`).
-
-### 7. (Optional) Live Activities REST API key
+### 5. (Optional) Live Activities REST API key
 
 To exercise **Update** / **End** of Live Activities, add a `Secrets.plist` file to the main app bundle with key `ONESIGNAL_API_KEY` set to a OneSignal REST API key for your app. Without a key the section disables those buttons and shows a hint.
 

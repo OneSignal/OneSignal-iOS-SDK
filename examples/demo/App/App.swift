@@ -27,12 +27,10 @@
 
 import SwiftUI
 import OneSignalFramework
-import OneSignalInAppMessages
 import OneSignalLiveActivities
-import OneSignalLocation
 
 @main
-struct OneSignalSwiftUIExampleApp: App {
+struct App: SwiftUI.App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var viewModel = OneSignalViewModel()
 

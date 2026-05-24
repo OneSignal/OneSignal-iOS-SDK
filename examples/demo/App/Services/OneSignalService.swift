@@ -27,8 +27,6 @@
 
 import Foundation
 import OneSignalFramework
-import OneSignalInAppMessages
-import OneSignalLocation
 
 /// Thin wrapper that funnels demo calls through a single OneSignal entry point
 final class OneSignalService {
@@ -60,15 +58,25 @@ final class OneSignalService {
     var externalId: String? { OneSignal.User.externalId }
 
     // MARK: - Consent
+    // The SDK exposes setters only, so we mirror the values here for UI state.
+
+    private let consentRequiredKey = "OneSignalConsentRequired"
+    private let consentGivenKey = "OneSignalConsentGiven"
 
     var consentRequired: Bool {
-        get { OneSignal.privacyConsentRequired }
-        set { OneSignal.setConsentRequired(newValue) }
+        get { UserDefaults.standard.bool(forKey: consentRequiredKey) }
+        set {
+            UserDefaults.standard.set(newValue, forKey: consentRequiredKey)
+            OneSignal.setConsentRequired(newValue)
+        }
     }
 
     var consentGiven: Bool {
-        get { OneSignal.privacyConsentGiven }
-        set { OneSignal.setConsentGiven(newValue) }
+        get { UserDefaults.standard.bool(forKey: consentGivenKey) }
+        set {
+            UserDefaults.standard.set(newValue, forKey: consentGivenKey)
+            OneSignal.setConsentGiven(newValue)
+        }
     }
 
     // MARK: - User
@@ -119,7 +127,7 @@ final class OneSignalService {
     // MARK: - Outcomes
 
     func sendOutcome(_ name: String) { OneSignal.Session.addOutcome(name) }
-    func sendOutcome(_ name: String, value: NSNumber) { OneSignal.Session.addOutcome(name, value: value) }
+    func sendOutcome(_ name: String, value: NSNumber) { OneSignal.Session.addOutcome(name, value) }
     func sendUniqueOutcome(_ name: String) { OneSignal.Session.addUniqueOutcome(name) }
 
     // MARK: - In-App Messages
