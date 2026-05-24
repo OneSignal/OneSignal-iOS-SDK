@@ -129,23 +129,10 @@ enum LiveActivityController {
         return await postLiveActivity(appId: appId, activityId: activityId, payload: payload)
     }
 
-    // The Live Activity API key is read from a Secrets.plist bundled with the demo. Without
-    // a key the request returns 401 - we surface that as a failed result so the UI can react.
-    private static var apiKey: String? {
-        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
-              let key = plist["ONESIGNAL_API_KEY"] as? String,
-              !key.isEmpty else {
-            return nil
-        }
-        return key
-    }
-
-    static var hasApiKey: Bool { apiKey != nil }
+    static var hasApiKey: Bool { SecretsConfig.hasApiKey }
 
     private static func postLiveActivity(appId: String, activityId: String, payload: [String: Any]) async -> Bool {
-        guard let key = apiKey else { return false }
+        guard let key = SecretsConfig.apiKey else { return false }
         let urlString = "https://api.onesignal.com/apps/\(appId)/live_activities/\(activityId)/notifications"
         guard let url = URL(string: urlString) else { return false }
 

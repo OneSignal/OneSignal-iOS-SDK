@@ -24,6 +24,7 @@
 		232A52A5D5719F863641166C /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; };
 		25C963476DF0B01BAABE24D9 /* TooltipService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939E1F476EE48B9833A3311C /* TooltipService.swift */; };
 		27C72DF35BE082E3E1093F75 /* SendIamSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60D09DC8C809877FB4BF465 /* SendIamSection.swift */; };
+		28D491D31B5C07E4D4F48A7D /* SecretsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */; };
 		2FCC417641D480849E99588B /* SmsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E194A3F19072CB17A8F1A12E /* SmsSection.swift */; };
 		3038C8C43A465DFED77AA533 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B24E059F4DF6ABED55BA3183 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3927A4BF207695E98A57E445 /* TagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */; };
@@ -342,6 +343,7 @@
 		C360043C7B20683C2E3FA3B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C60D09DC8C809877FB4BF465 /* SendIamSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendIamSection.swift; sourceTree = "<group>"; };
 		D261D46C404E325CBA87A9E0 /* OSDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDialog.swift; sourceTree = "<group>"; };
+		D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretsConfig.swift; sourceTree = "<group>"; };
 		D6094499773760C3190F62C9 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
 		E336B9D7158768462C81494C /* TrackEventSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackEventSheet.swift; sourceTree = "<group>"; };
@@ -477,6 +479,7 @@
 				0542854462194E28D9E4638D /* LiveActivityController.swift */,
 				38138523A8A81A60A77800CA /* NotificationSender.swift */,
 				5E0F5CBE80CF861238E1A9AA /* OneSignalService.swift */,
+				D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */,
 				939E1F476EE48B9833A3311C /* TooltipService.swift */,
 				3FD8258E807E6672642A32E6 /* UserFetchService.swift */,
 			);
@@ -809,6 +812,7 @@
 				14228D0C997F9168643F8154 /* OutcomesSection.swift in Sources */,
 				EA93E372AA3E66073487B89C /* PushSection.swift in Sources */,
 				A22162D78B8C17D4958EA44B /* RemoveMultiSheet.swift in Sources */,
+				28D491D31B5C07E4D4F48A7D /* SecretsConfig.swift in Sources */,
 				7B94F48C31E0BEA4B8CB20E2 /* SectionCard.swift in Sources */,
 				27C72DF35BE082E3E1093F75 /* SendIamSection.swift in Sources */,
 				0BC1978B56970258E20C24C4 /* SendPushSection.swift in Sources */,

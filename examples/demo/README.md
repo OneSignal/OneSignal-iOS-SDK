@@ -94,13 +94,21 @@ xcodegen generate               # rewrites App.xcodeproj
 
 The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.example.onesignal`. If you need a different group (for example to install on a real device under your own team), change the value in both files to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
 
-### 4. Update the App ID
+### 4. Configure your OneSignal credentials
 
-`App/Services/OneSignalService.swift` ships with a placeholder OneSignal App ID. Either edit `defaultAppId` or override it at runtime via `UserDefaults` (key `OneSignalAppId`).
+Both the App ID and (optional) REST API key live in a single `Secrets.plist` next to `App/Info.plist`. The file is gitignored. Add it to the App target with the keys you need:
 
-### 5. (Optional) Live Activities REST API key
+```xml
+<dict>
+    <key>ONESIGNAL_APP_ID</key>
+    <string>YOUR_APP_ID</string>
+    <key>ONESIGNAL_API_KEY</key>
+    <string>YOUR_REST_API_KEY</string>
+</dict>
+```
 
-To exercise **Update** / **End** of Live Activities, add a `Secrets.plist` file to the main app bundle with key `ONESIGNAL_API_KEY` set to a OneSignal REST API key for your app. Without a key the section disables those buttons and shows a hint.
+- `ONESIGNAL_APP_ID` — optional. Falls back to the placeholder in `SecretsConfig.defaultAppId` when missing.
+- `ONESIGNAL_API_KEY` — optional, only needed for Live Activity **Update** / **End**. Without it, those buttons disable themselves and the section shows a hint.
 
 > The widget renders `DefaultLiveActivityAttributes` (provided by the SDK), so the Activity ID + Order # you type into the demo flows through to the same widget regardless of whether the update came from `OneSignal.LiveActivities` locally or from the REST `/live_activities/{id}/notifications` endpoint.
 

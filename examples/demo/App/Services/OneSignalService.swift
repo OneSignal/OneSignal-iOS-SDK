@@ -37,13 +37,9 @@ final class OneSignalService {
 
     // MARK: - App ID
 
-    private let appIdKey = "OneSignalAppId"
-    private let defaultAppId = "77e32082-ea27-42e3-a898-c72e141824ef"
-
-    var appId: String {
-        get { UserDefaults.standard.string(forKey: appIdKey) ?? defaultAppId }
-        set { UserDefaults.standard.set(newValue, forKey: appIdKey) }
-    }
+    /// Read once at init from `Secrets.plist` (or the hard-coded fallback) so
+    /// the running session uses a stable value even if the bundle changes.
+    let appId: String = SecretsConfig.appId
 
     // MARK: - Initialization
 

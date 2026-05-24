@@ -55,7 +55,8 @@ Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as
 - `OneSignalService` (singleton, `App/Services/OneSignalService.swift`) funnels every SDK call through one entry point and mirrors any setters the SDK doesn't expose as getters (consent flags) into `UserDefaults`
 - `NotificationSender` (singleton, `App/Services/NotificationSender.swift`) wraps the `/notifications` REST endpoint with `URLSession` and retries with exponential backoff when the API returns 200 with empty `id` / `recipients == 0` / a non-empty `errors` payload (transient race between subscription create and notification fan-out)
 - `UserFetchService` (singleton, `App/Services/UserFetchService.swift`) hydrates aliases / tags / emails / SMS via `GET /users/by/onesignal_id/{id}` — no auth header, public endpoint
-- `LiveActivityController` (`App/Services/LiveActivityController.swift`) wraps `OneSignal.LiveActivities.startDefault(...)` plus the authenticated REST update/end calls. Reads the API key from a `Secrets.plist` bundled with the app; missing/empty key disables UPDATE / END
+- `LiveActivityController` (`App/Services/LiveActivityController.swift`) wraps `OneSignal.LiveActivities.startDefault(...)` plus the authenticated REST update/end calls. Reads the API key via `SecretsConfig.apiKey`; missing/empty key disables UPDATE / END
+- `SecretsConfig` (`App/Services/SecretsConfig.swift`) reads `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` from a bundled `Secrets.plist` (iOS equivalent of `.env`); both keys optional, app ID falls back to a placeholder when missing
 - `TooltipService` (singleton, `App/Services/TooltipService.swift`) loads the shared tooltip JSON from `sdk-shared` on a detached task with a bundled fallback so the first render isn't blocked
 
 ### SDK state restoration
@@ -181,26 +182,23 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 
 The demo bundles `examples/demo/App/vine_boom.wav` (sourced from [sdk-shared/assets](https://github.com/OneSignal/sdk-shared/tree/main/assets)). XcodeGen picks it up automatically via the `sources: - path: App` block, and `NotificationSender.swift`'s WITH SOUND payload sets `ios_sound = "vine_boom.wav"` to play it.
 
-### App ID configuration
+### Credentials (App ID & REST API key)
 
-The iOS demo does NOT use a `.env` file. Instead `OneSignalService.shared.appId` reads from `UserDefaults` (key `OneSignalAppId`) with a fallback to the placeholder `defaultAppId` constant. Override at runtime by either:
-
-- Editing `defaultAppId` in `App/Services/OneSignalService.swift`, or
-- Setting the value programmatically: `OneSignalService.shared.appId = "your-app-id"`, or
-- Passing `-OneSignalAppId your-app-id` as a launch argument in the App scheme's Run configuration
-
-### Live Activities REST API key
-
-Live Activity **update** / **end** require a REST API key. The demo loads it from a `Secrets.plist` bundled with the app:
+The iOS demo does NOT use a `.env` file. Instead, `App/Services/SecretsConfig.swift` reads both `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` from a single `Secrets.plist` bundled with the App target — the iOS-idiomatic equivalent of `.env`:
 
 ```xml
 <dict>
+    <key>ONESIGNAL_APP_ID</key>
+    <string>YOUR_APP_ID</string>
     <key>ONESIGNAL_API_KEY</key>
     <string>YOUR_REST_API_KEY</string>
 </dict>
 ```
 
-`Secrets.plist` is gitignored. Without it, `LiveActivityController.hasApiKey == false` and the UPDATE / END buttons disable themselves and show a hint in the Live Activity section.
+- `ONESIGNAL_APP_ID` — optional. Falls back to `SecretsConfig.defaultAppId` (the placeholder defined in `sdk-shared/demo/build.md`) when missing or empty. `OneSignalService.shared.appId` is captured from `SecretsConfig.appId` once during `init`, so the value is stable for the running session.
+- `ONESIGNAL_API_KEY` — optional, only needed for Live Activity **update** / **end**. `LiveActivityController.hasApiKey` is `true` when set; otherwise the UPDATE / END buttons disable themselves and show a hint in the Live Activity section.
+
+`Secrets.plist` is gitignored.
 
 ---
 
