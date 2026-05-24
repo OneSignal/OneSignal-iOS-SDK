@@ -1,6 +1,6 @@
 # OneSignal SwiftUI Example App
 
-A SwiftUI demo app that exercises every public surface of the OneSignal iOS SDK and mirrors the layout, naming, and behavior of the OneSignal Capacitor demo so the same end-to-end test suite (`@onesignal/sdk-shared`) can drive both apps.
+A SwiftUI demo app that exercises every public surface of the OneSignal iOS SDK and mirrors the layout, naming, and behavior of other OneSignal SDKS so the same end-to-end test suite (`@onesignal/sdk-shared`) can drive both apps.
 
 ## Features
 
