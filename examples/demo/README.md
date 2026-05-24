@@ -28,11 +28,10 @@ The Xcode project ships three targets, mirroring the Capacitor / Cordova / RN de
 
 ```
 examples/demo/
-├── OneSignalSwiftUIExample.xcodeproj
-├── OneSignalSwiftUIExample.entitlements              # main app: aps-environment + app group
-├── OneSignalSwiftUIExample/                          # Main app target
-│   ├── App/
-│   │   └── OneSignalSwiftUIExampleApp.swift          # @main + AppDelegate, SDK + Live Activity setup
+├── App.xcodeproj
+├── App.entitlements                                  # main app: aps-environment + app group
+├── App/                                              # Main app target source
+│   ├── OneSignalSwiftUIExampleApp.swift              # @main + AppDelegate, SDK + Live Activity setup
 │   ├── Views/
 │   │   ├── ContentView.swift                         # Composes sections + sheets in Capacitor order
 │   │   ├── Sections/                                 # AppSection, UserSection, PushSection, ...
@@ -52,7 +51,8 @@ examples/demo/
 │   │   ├── UserFetchService.swift                    # Hydrates aliases / tags / channels via /users
 │   │   ├── TooltipService.swift                      # Loads tooltip JSON from sdk-shared (with fallback)
 │   │   └── LiveActivityController.swift              # Wraps OneSignal.LiveActivities + REST update / end
-│   └── Assets.xcassets/
+│   ├── Assets.xcassets/
+│   └── Info.plist
 │
 ├── OneSignalNotificationServiceExtension/            # NSE target — required for rich push (images, decryption, mutable content)
 │   ├── NotificationService.swift                     # Forwards to OneSignalExtension.didReceiveNotificationExtensionRequest
@@ -66,14 +66,16 @@ examples/demo/
     └── Assets.xcassets/                              # WidgetBackground, AccentColor, AppIcon
 ```
 
+This mirrors the Capacitor demo's iOS layout (`OneSignal-Capacitor-SDK/examples/demo/ios/App/{App,OneSignalNotificationServiceExtension,OneSignalWidget}/`).
+
 ## Setup Instructions
 
 ### 1. Create the Xcode project
 
-1. Open Xcode and create a new **iOS App** (Interface: SwiftUI, Language: Swift, Storage: None)
-2. Save the project as `OneSignalSwiftUIExample` inside `examples/demo/`
-3. Delete the auto-generated `ContentView.swift` and `OneSignalSwiftUIExampleApp.swift`
-4. Drag the `App/`, `Views/`, `ViewModels/`, `Models/`, `Services/`, and `Assets.xcassets/` folders from this repo into your project, with **Copy items if needed unchecked**
+1. Open Xcode and create a new **iOS App** named `App` (Interface: SwiftUI, Language: Swift, Storage: None)
+2. Save it inside `examples/demo/` so the project file ends up at `examples/demo/App.xcodeproj`
+3. Delete the auto-generated `App/ContentView.swift` and `App/AppApp.swift`
+4. Drag the existing source folders from `examples/demo/App/` into the target with **Copy items if needed unchecked**: `Views/`, `ViewModels/`, `Models/`, `Services/`, `Assets.xcassets/`, and the `OneSignalSwiftUIExampleApp.swift` entry point at the root
 
 ### 2. Add the Notification Service Extension target
 
@@ -113,7 +115,7 @@ For the **NSE** target:
 
 - **App Groups** → same group as the main app
 
-The widget target needs no capabilities beyond what Xcode adds for you. `NSSupportsLiveActivities` is already set in `OneSignalSwiftUIExample/Info.plist`.
+The widget target needs no capabilities beyond what Xcode adds for you. `NSSupportsLiveActivities` is already set in `App/Info.plist`.
 
 ### 6. Update App ID
 
