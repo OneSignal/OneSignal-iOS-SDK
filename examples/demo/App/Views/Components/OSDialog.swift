@@ -196,7 +196,7 @@ struct OSTextEditor: View {
 // MARK: - Sheet presentation helper
 
 extension View {
-    /// Standard sheet treatment shared by every dialog: medium detent, 28-corner
+    /// Standard sheet treatment shared by input dialogs: medium detent, 28-corner
     /// pull tab on iOS 16.4+, transparent backdrop tinted with `OS.Color.backdrop`.
     func osDialogPresentation() -> some View {
         modifier(OSDialogPresentation())
@@ -216,5 +216,46 @@ private struct OSDialogPresentation: ViewModifier {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+    }
+}
+
+// MARK: - Centered dialog presentation
+
+extension View {
+    /// Presents `content` as a centered modal dialog over the receiver, matching
+    /// the styles.md "Dialogs" spec: 54% black backdrop, 16pt horizontal /
+    /// 24pt vertical insets, 28pt corner radius, white card. Tapping the
+    /// backdrop dismisses.
+    func osCenteredDialog<DialogContent: View>(
+        isPresented: Binding<Bool>,
+        @ViewBuilder content: @escaping () -> DialogContent
+    ) -> some View {
+        modifier(OSCenteredDialogModifier(isPresented: isPresented, dialog: content))
+    }
+}
+
+private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
+    @Binding var isPresented: Bool
+    @ViewBuilder var dialog: () -> DialogContent
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if isPresented {
+                    ZStack {
+                        OS.Color.backdrop
+                            .ignoresSafeArea()
+                            .contentShape(Rectangle())
+                            .onTapGesture { isPresented = false }
+
+                        dialog()
+                            .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 24)
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.18), value: isPresented)
     }
 }

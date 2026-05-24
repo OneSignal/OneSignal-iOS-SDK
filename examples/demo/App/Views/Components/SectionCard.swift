@@ -64,6 +64,7 @@ struct SectionCard<Content: View>: View {
                             .frame(width: 32, height: 32)
                     }
                     .buttonStyle(.plain)
+                    .padding(.trailing, -6)
                     .accessibilityIdentifier("\(sectionKey)_info_icon")
                 }
             }

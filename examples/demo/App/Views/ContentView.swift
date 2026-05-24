@@ -122,14 +122,14 @@ struct ContentView: View {
                 onCancel: { viewModel.showingTrackEventSheet = false }
             )
         }
-        .sheet(
+        .osCenteredDialog(
             isPresented: Binding(
                 get: { viewModel.activeTooltip != nil },
                 set: { isPresented in if !isPresented { viewModel.dismissTooltip() } }
             )
         ) {
             if let tooltip = viewModel.activeTooltip {
-                TooltipSheet(tooltip: tooltip, onClose: { viewModel.dismissTooltip() })
+                TooltipDialog(tooltip: tooltip, onClose: { viewModel.dismissTooltip() })
             }
         }
         .toast(message: $viewModel.toastMessage)
@@ -150,22 +150,6 @@ struct ContentView: View {
                     .foregroundColor(.white)
             }
             .accessibilityIdentifier("brand_title")
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                Task {
-                    await viewModel.fetchUserDataFromApi()
-                    viewModel.refreshState()
-                }
-            } label: {
-                if viewModel.isLoading {
-                    ProgressView().tint(.white)
-                } else {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.white)
-                }
-            }
-            .accessibilityIdentifier("refresh_button")
         }
     }
 }

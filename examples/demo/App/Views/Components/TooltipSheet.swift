@@ -27,9 +27,10 @@
 
 import SwiftUI
 
-/// Simple info sheet shown when the user taps a section's info icon.
-/// Single OK action — no Cancel.
-struct TooltipSheet: View {
+/// Tooltip dialog body shown when the user taps a section's info icon.
+/// Single OK action — no Cancel. Presented as a centered modal via
+/// `osCenteredDialog`, so this view renders only the card chrome.
+struct TooltipDialog: View {
     let tooltip: TooltipData
     let onClose: () -> Void
 
@@ -38,36 +39,12 @@ struct TooltipSheet: View {
             Text(tooltip.title)
                 .font(.system(size: 24, weight: .regular))
                 .foregroundColor(OS.Color.bodyText)
+                .accessibilityIdentifier("tooltip_title")
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(tooltip.description)
-                        .font(OS.Font.bodyMedium)
-                        .foregroundColor(OS.Color.bodyText)
-                        .accessibilityIdentifier("tooltip_description")
-
-                    if let options = tooltip.options, !options.isEmpty {
-                        Rectangle()
-                            .fill(OS.Color.divider)
-                            .frame(height: OS.Layout.dividerHeight)
-                            .padding(.vertical, 4)
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            ForEach(options, id: \.name) { option in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(option.name)
-                                        .font(OS.Font.bodyMedium.weight(.semibold))
-                                        .foregroundColor(OS.Color.bodyText)
-                                    Text(option.description)
-                                        .font(OS.Font.bodyMedium)
-                                        .foregroundColor(OS.Color.grey600)
-                                }
-                            }
-                        }
-                    }
-                }
+            ViewThatFits(in: .vertical) {
+                bodyContent
+                ScrollView { bodyContent }
             }
-            .frame(maxHeight: 360)
 
             HStack {
                 Spacer()
@@ -84,6 +61,36 @@ struct TooltipSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(OS.Color.cardBackground)
         .accessibilityIdentifier("tooltip_sheet")
-        .osDialogPresentation()
+    }
+
+    private var bodyContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(tooltip.description)
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityIdentifier("tooltip_description")
+
+            if let options = tooltip.options, !options.isEmpty {
+                Rectangle()
+                    .fill(OS.Color.divider)
+                    .frame(height: OS.Layout.dividerHeight)
+                    .padding(.vertical, 4)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(options, id: \.name) { option in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(option.name)
+                                .font(OS.Font.bodyMedium.weight(.semibold))
+                                .foregroundColor(OS.Color.bodyText)
+                            Text(option.description)
+                                .font(OS.Font.bodyMedium)
+                                .foregroundColor(OS.Color.grey600)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
