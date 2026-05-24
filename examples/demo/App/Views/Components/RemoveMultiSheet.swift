@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Sheet that lets the user pick multiple keys to remove (Remove Tags / Remove Triggers)
+/// Sheet that lets the user pick multiple keys to remove (Remove Tags / Remove Triggers).
 struct RemoveMultiSheet: View {
     let type: RemoveMultiItemType
     let items: [KeyValueItem]
@@ -37,60 +37,79 @@ struct RemoveMultiSheet: View {
     @State private var selected: Set<String> = []
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if items.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "tray")
-                            .font(.largeTitle)
-                            .foregroundColor(.secondary)
-                        Text("Nothing to remove")
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        OSDialog(
+            title: type.rawValue,
+            confirmLabel: selected.isEmpty ? "Remove" : "Remove (\(selected.count))",
+            isConfirmEnabled: !selected.isEmpty,
+            confirmAccessibilityID: "multiselect_confirm_button",
+            cancelAccessibilityID: "multiselect_cancel_button",
+            onConfirm: { onRemove(Array(selected)) },
+            onCancel: onCancel
+        ) {
+            if items.isEmpty {
+                Text("Nothing to remove")
+                    .font(OS.Font.bodyMedium)
+                    .foregroundColor(OS.Color.grey600)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, OS.Spacing.cardPadding)
                     .accessibilityIdentifier("remove_multi_empty")
-                } else {
-                    Form {
-                        ForEach(items) { item in
-                            Toggle(isOn: Binding(
-                                get: { selected.contains(item.key) },
-                                set: { isOn in
-                                    if isOn {
+            } else {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(items.indices, id: \.self) { index in
+                            let item = items[index]
+                            CheckboxRow(
+                                item: item,
+                                isChecked: selected.contains(item.key),
+                                onToggle: { isChecked in
+                                    if isChecked {
                                         selected.insert(item.key)
                                     } else {
                                         selected.remove(item.key)
                                     }
                                 }
-                            )) {
-                                VStack(alignment: .leading) {
-                                    Text(item.key)
-                                    Text(item.value)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                            )
+                            if index < items.count - 1 {
+                                Rectangle()
+                                    .fill(OS.Color.divider)
+                                    .frame(height: OS.Layout.dividerHeight)
                             }
-                            .accessibilityIdentifier("remove_checkbox_\(item.key)")
                         }
                     }
                 }
-            }
-            .navigationTitle(type.rawValue)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("multiselect_cancel_button")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Remove (\(selected.count))") {
-                        onRemove(Array(selected))
-                    }
-                    .disabled(selected.isEmpty)
-                    .accessibilityIdentifier("multiselect_confirm_button")
-                }
+                .frame(maxHeight: 320)
             }
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        .osDialogPresentation()
+    }
+}
+
+private struct CheckboxRow: View {
+    let item: KeyValueItem
+    let isChecked: Bool
+    let onToggle: (Bool) -> Void
+
+    var body: some View {
+        Button {
+            onToggle(!isChecked)
+        } label: {
+            HStack(alignment: .center, spacing: 14) {
+                Image(systemName: isChecked ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 24))
+                    .foregroundColor(isChecked ? OS.Color.primary : OS.Color.grey700)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.key)
+                        .font(OS.Font.bodyLarge)
+                        .foregroundColor(OS.Color.bodyText)
+                    Text(item.value)
+                        .font(OS.Font.bodySmall)
+                        .foregroundColor(OS.Color.grey600)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("remove_checkbox_\(item.key)")
     }
 }

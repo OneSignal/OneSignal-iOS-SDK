@@ -179,11 +179,7 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 
 ### Custom Notification Sound
 
-Copy `vine_boom.wav` from [sdk-shared/assets](https://github.com/OneSignal/sdk-shared/tree/main/assets) and place it in the main app bundle so the WITH SOUND payload can resolve it:
-
-- `examples/demo/App/vine_boom.wav` (add to the App target's "Copy Bundle Resources" build phase — XcodeGen picks it up automatically because the `sources: - path: App` block includes everything under `App/`)
-
-Then in `NotificationSender.swift` the WITH SOUND payload sets `ios_sound = "vine_boom.wav"` (currently the demo uses `"default"` as a placeholder; switch to `"vine_boom.wav"` once the file is bundled).
+The demo bundles `examples/demo/App/vine_boom.wav` (sourced from [sdk-shared/assets](https://github.com/OneSignal/sdk-shared/tree/main/assets)). XcodeGen picks it up automatically via the `sources: - path: App` block, and `NotificationSender.swift`'s WITH SOUND payload sets `ios_sound = "vine_boom.wav"` to play it.
 
 ### App ID configuration
 

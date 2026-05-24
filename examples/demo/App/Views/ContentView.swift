@@ -35,7 +35,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: OS.Spacing.sectionGap) {
                     AppSection()
                     UserSection()
                     PushSection()
@@ -52,13 +52,16 @@ struct ContentView: View {
                     LocationSection()
                     LiveActivitySection()
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, OS.Spacing.pagePadding)
+                .padding(.top, OS.Spacing.pagePadding)
+                .padding(.bottom, OS.Spacing.sectionGap)
                 .accessibilityIdentifier("main_scroll_view")
             }
-            .background(Color(.systemGroupedBackground).ignoresSafeArea())
-            .navigationTitle("OneSignal")
+            .background(OS.Color.lightBackground.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(OS.Color.primary, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar { toolbarContent }
         }
         .sheet(isPresented: $viewModel.showingAddSheet) {
@@ -134,6 +137,20 @@ struct ContentView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            HStack(spacing: 6) {
+                Image("onesignal_logo")
+                    .renderingMode(.template)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 22)
+                    .foregroundColor(.white)
+                Text("iOS")
+                    .font(OS.Font.bodyMedium)
+                    .foregroundColor(.white)
+            }
+            .accessibilityIdentifier("brand_title")
+        }
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Task {
@@ -142,9 +159,10 @@ struct ContentView: View {
                 }
             } label: {
                 if viewModel.isLoading {
-                    ProgressView()
+                    ProgressView().tint(.white)
                 } else {
                     Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.white)
                 }
             }
             .accessibilityIdentifier("refresh_button")

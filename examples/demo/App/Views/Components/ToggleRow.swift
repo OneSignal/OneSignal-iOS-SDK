@@ -27,7 +27,8 @@
 
 import SwiftUI
 
-/// Bordered toggle row with label + supporting subtitle (matches the Capacitor ToggleRow)
+/// Toggle row inside a card. Label (14) + optional supporting subtitle (12 osGrey600)
+/// on the left, native switch on the right.
 struct ToggleRow: View {
     let label: String
     let description: String?
@@ -50,23 +51,24 @@ struct ToggleRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
+                    .font(OS.Font.bodyMedium)
+                    .foregroundColor(OS.Color.bodyText)
                 if let description = description {
                     Text(description)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(OS.Font.bodySmall)
+                        .foregroundColor(OS.Color.grey600)
                 }
             }
-            Spacer()
+            Spacer(minLength: 0)
             Toggle("", isOn: isOn)
                 .labelsHidden()
+                .tint(OS.Color.primary)
                 .disabled(isDisabled)
                 .accessibilityIdentifier(accessibilityID)
         }
-        .padding(12)
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
+        .osCard()
     }
 }

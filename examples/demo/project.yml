@@ -37,7 +37,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.App
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -98,7 +98,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.App.OneSignalNotificationServiceExtension
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.OneSignalNotificationServiceExtension
         INFOPLIST_FILE: OneSignalNotificationServiceExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -127,7 +127,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.App.OneSignalWidget
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.OneSignalWidget
         INFOPLIST_FILE: OneSignalWidget/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"

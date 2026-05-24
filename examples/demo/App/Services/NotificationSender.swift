@@ -71,7 +71,7 @@ final class NotificationSender {
         case .withSound:
             headings = "Sound Notification"
             contents = "This notification plays a custom sound"
-            extra["ios_sound"] = "default"
+            extra["ios_sound"] = "vine_boom.wav"
         }
 
         post(

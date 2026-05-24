@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Sheet for composing a custom push notification (title + body)
+/// Sheet for composing a custom push notification (title + body).
 struct CustomNotificationSheet: View {
     let onSend: (String, String) -> Void
     let onCancel: () -> Void
@@ -36,40 +36,34 @@ struct CustomNotificationSheet: View {
     @State private var bodyText: String = ""
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("Title", text: $titleText)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("custom_notification_title_input")
-                    TextField("Body", text: $bodyText)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("custom_notification_body_input")
-                }
-            }
-            .navigationTitle("Custom Notification")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("custom_notification_cancel_button")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Send") {
-                        onSend(
-                            titleText.trimmingCharacters(in: .whitespaces),
-                            bodyText.trimmingCharacters(in: .whitespaces)
-                        )
-                    }
-                    .disabled(!isValid)
-                    .accessibilityIdentifier("custom_notification_send_button")
-                }
+        OSDialog(
+            title: "Custom Notification",
+            confirmLabel: "Send",
+            isConfirmEnabled: isValid,
+            confirmAccessibilityID: "custom_notification_send_button",
+            cancelAccessibilityID: "custom_notification_cancel_button",
+            onConfirm: {
+                onSend(
+                    titleText.trimmingCharacters(in: .whitespaces),
+                    bodyText.trimmingCharacters(in: .whitespaces)
+                )
+            },
+            onCancel: onCancel
+        ) {
+            VStack(spacing: 12) {
+                OSTextField(
+                    placeholder: "Title",
+                    text: $titleText,
+                    accessibilityID: "custom_notification_title_input"
+                )
+                OSTextEditor(
+                    placeholder: "Body",
+                    text: $bodyText,
+                    accessibilityID: "custom_notification_body_input"
+                )
             }
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
+        .osDialogPresentation()
     }
 
     private var isValid: Bool {

@@ -42,62 +42,75 @@ struct MultiPairInputSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                ForEach(rows.indices, id: \.self) { index in
-                    Section {
-                        TextField(type.keyPlaceholder, text: $rows[index].key)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("multipair_key_\(index)")
-                        TextField(type.valuePlaceholder, text: $rows[index].value)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("multipair_value_\(index)")
-                        if rows.count > 1 {
-                            Button(role: .destructive) {
-                                rows.remove(at: index)
-                            } label: {
-                                Label("Remove Row", systemImage: "minus.circle")
+        OSDialog(
+            title: type.rawValue,
+            confirmLabel: "Add All",
+            isConfirmEnabled: isValid,
+            confirmAccessibilityID: "multipair_confirm_button",
+            cancelAccessibilityID: "multipair_cancel_button",
+            onConfirm: {
+                let pairs = rows.compactMap { row -> (String, String)? in
+                    let key = row.key.trimmingCharacters(in: .whitespaces)
+                    let value = row.value.trimmingCharacters(in: .whitespaces)
+                    guard !key.isEmpty, !value.isEmpty else { return nil }
+                    return (key, value)
+                }
+                onAdd(pairs)
+            },
+            onCancel: onCancel
+        ) {
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(rows.indices, id: \.self) { index in
+                        VStack(spacing: 8) {
+                            HStack(spacing: 8) {
+                                OSTextField(
+                                    placeholder: type.keyPlaceholder,
+                                    text: $rows[index].key,
+                                    accessibilityID: "multipair_key_\(index)"
+                                )
+                                OSTextField(
+                                    placeholder: type.valuePlaceholder,
+                                    text: $rows[index].value,
+                                    accessibilityID: "multipair_value_\(index)"
+                                )
+                                if rows.count > 1 {
+                                    Button {
+                                        rows.remove(at: index)
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: OS.Layout.infoIconSize, weight: .semibold))
+                                            .foregroundColor(OS.Color.primary)
+                                            .frame(width: 28, height: 28)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityIdentifier("multipair_remove_row_\(index)")
+                                }
                             }
-                            .accessibilityIdentifier("multipair_remove_row_\(index)")
+                            if index < rows.count - 1 {
+                                Rectangle()
+                                    .fill(OS.Color.divider)
+                                    .frame(height: OS.Layout.dividerHeight)
+                            }
                         }
                     }
-                }
 
-                Section {
                     Button {
                         rows.append(Row())
                     } label: {
-                        Label("Add Row", systemImage: "plus.circle")
+                        Text("+ Add another")
+                            .font(OS.Font.bodyMedium.weight(.bold))
+                            .foregroundColor(OS.Color.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 4)
                     }
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("multipair_add_row_button")
                 }
             }
-            .navigationTitle(type.rawValue)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("multipair_cancel_button")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add All") {
-                        let pairs = rows.compactMap { row -> (String, String)? in
-                            let key = row.key.trimmingCharacters(in: .whitespaces)
-                            let value = row.value.trimmingCharacters(in: .whitespaces)
-                            guard !key.isEmpty, !value.isEmpty else { return nil }
-                            return (key, value)
-                        }
-                        onAdd(pairs)
-                    }
-                    .disabled(!isValid)
-                    .accessibilityIdentifier("multipair_confirm_button")
-                }
-            }
+            .frame(maxHeight: 320)
         }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
+        .osDialogPresentation()
     }
 
     private var isValid: Bool {

@@ -27,7 +27,9 @@
 
 import SwiftUI
 
-/// Card with a section title (ALL CAPS) and optional info icon. Mirrors the Capacitor SectionCard.
+/// Section container. Renders a section header (12pt bold uppercase, osGrey700,
+/// letter spacing 0.5) above a vertical stack of children. Per the design spec
+/// children supply their own card chrome — this view only owns the header.
 struct SectionCard<Content: View>: View {
     let title: String
     let sectionKey: String
@@ -47,35 +49,35 @@ struct SectionCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
+        VStack(alignment: .leading, spacing: OS.Spacing.cardGap) {
+            HStack(alignment: .center, spacing: 0) {
                 Text(title.uppercased())
-                    .font(.subheadline.weight(.bold))
-                    .kerning(0.5)
-                    .foregroundColor(.secondary)
-                Spacer()
+                    .font(OS.Font.bodySmall.weight(.bold))
+                    .tracking(0.5)
+                    .foregroundColor(OS.Color.grey700)
+                Spacer(minLength: 0)
                 if let onInfoTap = onInfoTap {
                     Button(action: onInfoTap) {
                         Image(systemName: "info.circle")
-                            .imageScale(.medium)
-                            .foregroundColor(.accentColor)
+                            .font(.system(size: OS.Layout.infoIconSize))
+                            .foregroundColor(OS.Color.grey500)
+                            .frame(width: 32, height: 32)
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("\(sectionKey)_info_icon")
                 }
             }
 
-            content()
+            VStack(alignment: .leading, spacing: OS.Spacing.cardGap) {
+                content()
+            }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(12)
-        .padding(.vertical, 6)
         .accessibilityIdentifier("\(sectionKey)_section")
     }
 }
 
-/// Generic value card used at the top of sections (App ID, Push ID, Status, etc.)
+/// Generic value card used at the top of sections (App ID, Push ID, Status, etc.).
+/// Renders rows with a 14pt label and a 12pt value (monospace by default for IDs).
 struct ValueCard: View {
     struct Row {
         let label: String
@@ -97,26 +99,28 @@ struct ValueCard: View {
         VStack(spacing: 0) {
             ForEach(rows.indices, id: \.self) { index in
                 let row = rows[index]
-                HStack {
+                HStack(alignment: .center, spacing: 12) {
                     Text(row.label)
-                        .foregroundColor(.secondary)
-                    Spacer()
+                        .font(OS.Font.bodyMedium)
+                        .foregroundColor(OS.Color.bodyText)
+                    Spacer(minLength: 0)
                     Text(row.value)
-                        .font(row.monospaced ? .system(.footnote, design: .monospaced) : .body)
-                        .foregroundColor(.primary)
+                        .font(row.monospaced ? OS.Font.mono12 : OS.Font.bodySmall)
+                        .foregroundColor(OS.Color.bodyText)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .accessibilityIdentifier(row.valueAccessibilityID ?? "")
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
 
                 if index < rows.count - 1 {
-                    Divider().padding(.leading, 12)
+                    Rectangle()
+                        .fill(OS.Color.divider)
+                        .frame(height: OS.Layout.dividerHeight)
+                        .padding(.vertical, 4)
                 }
             }
         }
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
+        .osCard()
     }
 }

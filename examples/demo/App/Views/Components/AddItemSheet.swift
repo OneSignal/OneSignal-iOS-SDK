@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Reusable sheet for adding items with one or two text fields
+/// Reusable dialog for adding items with one or two text fields.
 struct AddItemSheet: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
@@ -35,63 +35,46 @@ struct AddItemSheet: View {
 
     @State private var keyText: String = ""
     @State private var valueText: String = ""
-    @FocusState private var focusedField: Field?
-
-    private enum Field { case key, value }
 
     var body: some View {
-        NavigationStack {
-            Form {
+        OSDialog(
+            title: itemType.title,
+            confirmLabel: itemType.confirmLabel,
+            isConfirmEnabled: isValid,
+            confirmAccessibilityID: "singleinput_confirm_button",
+            cancelAccessibilityID: "singleinput_cancel_button",
+            onConfirm: {
+                onAdd(
+                    keyText.trimmingCharacters(in: .whitespaces),
+                    valueText.trimmingCharacters(in: .whitespaces)
+                )
+            },
+            onCancel: onCancel
+        ) {
+            VStack(spacing: 12) {
                 if itemType.requiresKeyValue {
-                    Section {
-                        TextField(itemType.keyPlaceholder, text: $keyText)
-                            .focused($focusedField, equals: .key)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("\(itemType.accessibilityKey)_key_input")
-
-                        TextField(itemType.valuePlaceholder, text: $valueText)
-                            .focused($focusedField, equals: .value)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .keyboardType(itemType.keyboardType)
-                            .accessibilityIdentifier("\(itemType.accessibilityKey)_value_input")
-                    }
+                    OSTextField(
+                        placeholder: itemType.keyPlaceholder,
+                        text: $keyText,
+                        accessibilityID: "\(itemType.accessibilityKey)_key_input"
+                    )
+                    OSTextField(
+                        placeholder: itemType.valuePlaceholder,
+                        text: $valueText,
+                        keyboardType: itemType.keyboardType,
+                        accessibilityID: "\(itemType.accessibilityKey)_value_input"
+                    )
                 } else {
-                    Section {
-                        TextField(itemType.valuePlaceholder, text: $valueText)
-                            .focused($focusedField, equals: .value)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .keyboardType(itemType.keyboardType)
-                            .accessibilityIdentifier("\(itemType.accessibilityKey)_input")
-                    }
+                    OSTextField(
+                        placeholder: itemType.valuePlaceholder,
+                        text: $valueText,
+                        keyboardType: itemType.keyboardType,
+                        accessibilityID: "\(itemType.accessibilityKey)_input"
+                    )
                 }
-            }
-            .navigationTitle(itemType.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("singleinput_cancel_button")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(itemType.confirmLabel) {
-                        onAdd(
-                            keyText.trimmingCharacters(in: .whitespaces),
-                            valueText.trimmingCharacters(in: .whitespaces)
-                        )
-                    }
-                    .disabled(!isValid)
-                    .accessibilityIdentifier("singleinput_confirm_button")
-                }
-            }
-            .onAppear {
-                focusedField = itemType.requiresKeyValue ? .key : .value
             }
         }
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
+        .osDialogPresentation()
     }
 
     private var isValid: Bool {

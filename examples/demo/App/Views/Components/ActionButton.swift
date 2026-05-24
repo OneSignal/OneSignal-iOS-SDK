@@ -27,13 +27,17 @@
 
 import SwiftUI
 
-/// Visual treatment of an action button
+/// Visual treatment of an action button. The spec defines exactly two variants:
+/// the filled primary, and the outlined ("destructive" / secondary) button.
 enum ActionButtonStyle {
     case filled
     case outline
 }
 
-/// Standard wide button used by sections (mirrors the Capacitor demo's ActionButton)
+/// Standard wide button used by sections.
+///
+/// Matches the spec: full width, 48 tall, 8 corner radius, semibold label,
+/// optional 18pt leading icon with 8pt gap before the label.
 struct ActionButton: View {
     let title: String
     let style: ActionButtonStyle
@@ -63,44 +67,44 @@ struct ActionButton: View {
             HStack(spacing: 8) {
                 if let icon = icon {
                     icon
+                        .font(.system(size: OS.Layout.infoIconSize, weight: .semibold))
                 }
                 Text(title)
-                    .fontWeight(.semibold)
+                    .font(OS.Font.bodyMedium.weight(.semibold))
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(backgroundColor)
+            .frame(height: OS.Layout.buttonHeight)
             .foregroundColor(foregroundColor)
+            .background(backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: OS.Radius.button))
             .overlay(border)
-            .cornerRadius(10)
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
         .opacity(isDisabled ? 0.5 : 1)
-        .padding(.top, 4)
         .accessibilityIdentifier(accessibilityID)
     }
 
     private var backgroundColor: Color {
         switch style {
-        case .filled: return Color.accentColor
-        case .outline: return Color.clear
+        case .filled:  return OS.Color.primary
+        case .outline: return .clear
         }
     }
 
     private var foregroundColor: Color {
         switch style {
-        case .filled: return .white
-        case .outline: return Color.accentColor
+        case .filled:  return .white
+        case .outline: return OS.Color.primary
         }
     }
 
     @ViewBuilder
     private var border: some View {
         if case .outline = style {
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(Color.accentColor, lineWidth: 1)
+            RoundedRectangle(cornerRadius: OS.Radius.button)
+                .strokeBorder(OS.Color.primary, lineWidth: 1)
         }
     }
 }

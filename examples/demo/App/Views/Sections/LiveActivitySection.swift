@@ -32,8 +32,8 @@ import SwiftUI
 struct LiveActivitySection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
-    @State private var activityId: String = "order-1"
-    @State private var orderNumber: String = "ORD-1234"
+    @State private var activityId: String = ""
+    @State private var orderNumber: String = ""
     @State private var statusIndex: Int = 0
 
     private let statuses: [LiveActivityStatus] = [.preparing, .onTheWay, .delivered]
@@ -83,8 +83,9 @@ struct LiveActivitySection: View {
 
             if !LiveActivityController.hasApiKey {
                 Text("Set ONESIGNAL_API_KEY in Secrets.plist to enable update & end")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(OS.Font.bodySmall)
+                    .foregroundColor(OS.Color.grey600)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .accessibilityIdentifier("live_activities_hint")
             }
         }
@@ -103,32 +104,41 @@ struct LiveActivitySection: View {
     }
 
     private var inputCard: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("Activity ID").foregroundColor(.secondary)
-                Spacer()
-                TextField("Activity ID", text: $activityId)
-                    .multilineTextAlignment(.trailing)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .accessibilityIdentifier("live_activity_id_input")
-            }
-            .padding(12)
-
-            Divider().padding(.leading, 12)
-
-            HStack {
-                Text("Order #").foregroundColor(.secondary)
-                Spacer()
-                TextField("Order #", text: $orderNumber)
-                    .multilineTextAlignment(.trailing)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .accessibilityIdentifier("live_activity_order_number")
-            }
-            .padding(12)
+        VStack(spacing: 4) {
+            inlineRow(
+                label: "Activity ID",
+                placeholder: "Activity ID",
+                text: $activityId,
+                accessibilityID: "live_activity_id_input"
+            )
+            inlineRow(
+                label: "Order #",
+                placeholder: "Order #",
+                text: $orderNumber,
+                accessibilityID: "live_activity_order_number"
+            )
         }
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
+        .osCard()
+    }
+
+    private func inlineRow(
+        label: String,
+        placeholder: String,
+        text: Binding<String>,
+        accessibilityID: String
+    ) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text(label)
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.grey600)
+                .frame(minWidth: OS.Layout.inlineLabelMinWidth, alignment: .leading)
+            TextField(placeholder, text: text)
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+                .multilineTextAlignment(.trailing)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .accessibilityIdentifier(accessibilityID)
+        }
     }
 }

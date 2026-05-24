@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Sheet that captures an event name plus an optional JSON properties payload
+/// Sheet that captures an event name plus an optional JSON properties payload.
 struct TrackEventSheet: View {
     let onTrack: (String, [String: Any]?) -> Void
     let onCancel: () -> Void
@@ -37,46 +37,42 @@ struct TrackEventSheet: View {
     @State private var error: String?
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField("Event Name", text: $name)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("event_name_input")
-                }
+        OSDialog(
+            title: "Track Event",
+            confirmLabel: "Track",
+            isConfirmEnabled: isValid,
+            confirmAccessibilityID: "event_track_button",
+            cancelAccessibilityID: "event_cancel_button",
+            onConfirm: submit,
+            onCancel: onCancel
+        ) {
+            VStack(alignment: .leading, spacing: 12) {
+                OSTextField(
+                    placeholder: "Event Name",
+                    text: $name,
+                    accessibilityID: "event_name_input"
+                )
 
-                Section("Properties (JSON, optional)") {
-                    TextEditor(text: $propertiesText)
-                        .frame(minHeight: 120)
-                        .font(.system(.body, design: .monospaced))
-                        .autocorrectionDisabled()
-                        .accessibilityIdentifier("event_properties_input")
+                Text("Properties (JSON, optional)")
+                    .font(OS.Font.bodySmall)
+                    .foregroundColor(OS.Color.grey600)
 
-                    if let error = error {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .accessibilityIdentifier("event_properties_error")
-                    }
-                }
-            }
-            .navigationTitle("Track Event")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: onCancel)
-                        .accessibilityIdentifier("event_cancel_button")
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Track") { submit() }
-                        .disabled(!isValid)
-                        .accessibilityIdentifier("event_track_button")
+                OSTextEditor(
+                    placeholder: "{ \"key\": \"value\" }",
+                    text: $propertiesText,
+                    minHeight: 120,
+                    accessibilityID: "event_properties_input"
+                )
+
+                if let error = error {
+                    Text(error)
+                        .font(OS.Font.bodySmall)
+                        .foregroundColor(OS.Color.primary)
+                        .accessibilityIdentifier("event_properties_error")
                 }
             }
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        .osDialogPresentation()
     }
 
     private var isValid: Bool {

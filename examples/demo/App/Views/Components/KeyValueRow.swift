@@ -27,7 +27,8 @@
 
 import SwiftUI
 
-/// Single label/value horizontal row used inside the App / User / Push info cards
+/// Single label/value horizontal row used inside the App / User / Push info cards.
+/// Label is 14pt, value is 12pt (monospaced when a value is an ID).
 struct InfoRow: View {
     let label: String
     let value: String
@@ -42,13 +43,14 @@ struct InfoRow: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: 12) {
             Text(label)
-                .foregroundColor(.secondary)
-            Spacer()
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+            Spacer(minLength: 0)
             Text(value)
-                .font(isMonospaced ? .system(.body, design: .monospaced) : .body)
-                .foregroundColor(.primary)
+                .font(isMonospaced ? OS.Font.mono12 : OS.Font.bodySmall)
+                .foregroundColor(OS.Color.bodyText)
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .accessibilityIdentifier(valueAccessibilityID ?? "")

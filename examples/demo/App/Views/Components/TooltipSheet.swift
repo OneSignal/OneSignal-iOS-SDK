@@ -27,45 +27,63 @@
 
 import SwiftUI
 
-/// Simple info sheet shown when the user taps a section's info icon
+/// Simple info sheet shown when the user taps a section's info icon.
+/// Single OK action — no Cancel.
 struct TooltipSheet: View {
     let tooltip: TooltipData
     let onClose: () -> Void
 
     var body: some View {
-        NavigationStack {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(tooltip.title)
+                .font(.system(size: 24, weight: .regular))
+                .foregroundColor(OS.Color.bodyText)
+
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(tooltip.description)
-                        .font(.body)
+                        .font(OS.Font.bodyMedium)
+                        .foregroundColor(OS.Color.bodyText)
                         .accessibilityIdentifier("tooltip_description")
 
                     if let options = tooltip.options, !options.isEmpty {
-                        Divider()
-                        ForEach(options, id: \.name) { option in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(option.name)
-                                    .font(.subheadline.weight(.semibold))
-                                Text(option.description)
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
+                        Rectangle()
+                            .fill(OS.Color.divider)
+                            .frame(height: OS.Layout.dividerHeight)
+                            .padding(.vertical, 4)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(options, id: \.name) { option in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(option.name)
+                                        .font(OS.Font.bodyMedium.weight(.semibold))
+                                        .foregroundColor(OS.Color.bodyText)
+                                    Text(option.description)
+                                        .font(OS.Font.bodyMedium)
+                                        .foregroundColor(OS.Color.grey600)
+                                }
                             }
                         }
                     }
                 }
-                .padding()
             }
-            .navigationTitle(tooltip.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("OK", action: onClose)
-                        .accessibilityIdentifier("tooltip_ok_button")
-                }
+            .frame(maxHeight: 360)
+
+            HStack {
+                Spacer()
+                OSDialogActionButton(
+                    title: "OK",
+                    accessibilityID: "tooltip_ok_button",
+                    isEnabled: true,
+                    action: onClose
+                )
             }
+            .padding(.top, 8)
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        .padding(24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(OS.Color.cardBackground)
         .accessibilityIdentifier("tooltip_sheet")
+        .osDialogPresentation()
     }
 }
