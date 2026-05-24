@@ -19,3 +19,5 @@ DerivedData
 iOS_SDK/Carthage/Build
 /temp/
 .build/
+
+examples/demo/App/Secrets.plist
