@@ -37,25 +37,15 @@ struct PushSection: View {
             sectionKey: "push",
             onInfoTap: { viewModel.showTooltip(for: "push") }
         ) {
-            ValueCard(rows: [
-                ValueCard.Row(
-                    label: "Push ID",
-                    value: viewModel.pushSubscriptionId ?? "—",
-                    valueAccessibilityID: "push_id_value",
-                    monospaced: true
-                )
-            ])
-
-            ToggleRow(
-                label: "Push Enabled",
-                description: nil,
-                isOn: Binding(
-                    get: { viewModel.isPushEnabled },
-                    set: { viewModel.setPushEnabled($0) }
-                ),
-                isDisabled: !viewModel.hasNotificationPermission,
-                accessibilityID: "push_enabled_toggle"
-            )
+            VStack(spacing: 0) {
+                pushIdRow
+                Rectangle()
+                    .fill(OS.Color.divider)
+                    .frame(height: OS.Layout.dividerHeight)
+                    .padding(.vertical, 4)
+                pushEnabledRow
+            }
+            .osCard()
 
             if !viewModel.hasNotificationPermission {
                 ActionButton(
@@ -66,5 +56,42 @@ struct PushSection: View {
                 }
             }
         }
+    }
+
+    private var pushIdRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text("Push ID")
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+            Spacer(minLength: 0)
+            Text(viewModel.pushSubscriptionId ?? "—")
+                .font(OS.Font.mono12)
+                .foregroundColor(OS.Color.bodyText)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .accessibilityIdentifier("push_id_value")
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var pushEnabledRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text("Push Enabled")
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+            Spacer(minLength: 0)
+            Toggle(
+                "",
+                isOn: Binding(
+                    get: { viewModel.isPushEnabled },
+                    set: { viewModel.setPushEnabled($0) }
+                )
+            )
+            .labelsHidden()
+            .tint(OS.Color.primary)
+            .disabled(!viewModel.hasNotificationPermission)
+            .accessibilityIdentifier("push_enabled_toggle")
+        }
+        .padding(.vertical, 4)
     }
 }
