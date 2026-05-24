@@ -24,30 +24,46 @@ Every interactive element exposes an `accessibilityIdentifier` matching the Capa
 
 ## Architecture
 
+The Xcode project ships three targets, mirroring the Capacitor / Cordova / RN demos:
+
 ```
-OneSignalSwiftUIExample/
-├── App/
-│   └── OneSignalSwiftUIExampleApp.swift   # @main + AppDelegate, SDK + Live Activities setup
-├── Views/
-│   ├── ContentView.swift                  # Composes sections + sheets in Capacitor demo order
-│   ├── Sections/                          # AppSection, UserSection, PushSection, ...
-│   └── Components/                        # SectionCard, ActionButton, ToggleRow,
-│                                          # AddItemSheet, MultiPairInputSheet, RemoveMultiSheet,
-│                                          # OutcomeSheet, CustomNotificationSheet, TrackEventSheet,
-│                                          # TooltipSheet, ToastView, ListWidgets, KeyValueRow
-├── ViewModels/
-│   └── OneSignalViewModel.swift           # Single ObservableObject backing every section
-├── Models/
-│   └── AppModels.swift                    # KeyValueItem, NotificationType, InAppMessageType,
-│                                          # AddItemType, MultiAddItemType, RemoveMultiItemType,
-│                                          # OutcomeMode, TooltipData, UserData
-├── Services/
-│   ├── OneSignalService.swift             # Thin wrapper over OneSignal.* APIs
-│   ├── NotificationSender.swift           # Posts to /notifications with retry on transient failures
-│   ├── UserFetchService.swift             # Hydrates aliases / tags / channels via /users
-│   ├── TooltipService.swift               # Loads tooltip JSON from sdk-shared (with fallback)
-│   └── LiveActivityController.swift       # Wraps OneSignal.LiveActivities + REST update / end
-└── Assets.xcassets/
+examples/demo/
+├── OneSignalSwiftUIExample.xcodeproj
+├── OneSignalSwiftUIExample.entitlements              # main app: aps-environment + app group
+├── OneSignalSwiftUIExample/                          # Main app target
+│   ├── App/
+│   │   └── OneSignalSwiftUIExampleApp.swift          # @main + AppDelegate, SDK + Live Activity setup
+│   ├── Views/
+│   │   ├── ContentView.swift                         # Composes sections + sheets in Capacitor order
+│   │   ├── Sections/                                 # AppSection, UserSection, PushSection, ...
+│   │   └── Components/                               # SectionCard, ActionButton, ToggleRow,
+│   │                                                 # AddItemSheet, MultiPairInputSheet, RemoveMultiSheet,
+│   │                                                 # OutcomeSheet, CustomNotificationSheet, TrackEventSheet,
+│   │                                                 # TooltipSheet, ToastView, ListWidgets, KeyValueRow
+│   ├── ViewModels/
+│   │   └── OneSignalViewModel.swift                  # Single ObservableObject backing every section
+│   ├── Models/
+│   │   └── AppModels.swift                           # KeyValueItem, NotificationType, InAppMessageType,
+│   │                                                 # AddItemType, MultiAddItemType, RemoveMultiItemType,
+│   │                                                 # OutcomeMode, TooltipData, UserData
+│   ├── Services/
+│   │   ├── OneSignalService.swift                    # Thin wrapper over OneSignal.* APIs
+│   │   ├── NotificationSender.swift                  # Posts to /notifications with retry on transient failures
+│   │   ├── UserFetchService.swift                    # Hydrates aliases / tags / channels via /users
+│   │   ├── TooltipService.swift                      # Loads tooltip JSON from sdk-shared (with fallback)
+│   │   └── LiveActivityController.swift              # Wraps OneSignal.LiveActivities + REST update / end
+│   └── Assets.xcassets/
+│
+├── OneSignalNotificationServiceExtension/            # NSE target — required for rich push (images, decryption, mutable content)
+│   ├── NotificationService.swift                     # Forwards to OneSignalExtension.didReceiveNotificationExtensionRequest
+│   ├── Info.plist                                    # NSExtension/usernotifications.service
+│   └── OneSignalNotificationServiceExtension.entitlements   # app group (must match main app)
+│
+└── OneSignalWidget/                                  # Widget Extension target — required to render Live Activities
+    ├── OneSignalWidgetBundle.swift                   # @main WidgetBundle
+    ├── OneSignalWidgetLiveActivity.swift             # Lock screen + Dynamic Island UI for DefaultLiveActivityAttributes
+    ├── Info.plist                                    # NSExtension/widgetkit-extension
+    └── Assets.xcassets/                              # WidgetBackground, AccentColor, AppIcon
 ```
 
 ## Setup Instructions
@@ -59,33 +75,55 @@ OneSignalSwiftUIExample/
 3. Delete the auto-generated `ContentView.swift` and `OneSignalSwiftUIExampleApp.swift`
 4. Drag the `App/`, `Views/`, `ViewModels/`, `Models/`, `Services/`, and `Assets.xcassets/` folders from this repo into your project, with **Copy items if needed unchecked**
 
-### 2. Add OneSignal SDK dependencies
+### 2. Add the Notification Service Extension target
 
-Use Swift Package Manager:
+1. **File → New → Target… → Notification Service Extension**, name it `OneSignalNotificationServiceExtension`
+2. Delete the auto-generated `NotificationService.swift` and `Info.plist` from the new target
+3. Drag in the existing `OneSignalNotificationServiceExtension/` files from this folder, with **target membership** set to the new extension only
+4. Set the entitlements file to `OneSignalNotificationServiceExtension.entitlements`
 
-1. **File → Add Package Dependencies…**
-2. Enter `https://github.com/OneSignal/OneSignal-iOS-SDK`, select 5.0.0+
-3. Add these packages to the main app target:
-   - `OneSignalFramework`
-   - `OneSignalInAppMessages`
-   - `OneSignalLiveActivities`
-   - `OneSignalLocation`
+### 3. Add the Widget Extension target (for Live Activities)
 
-### 3. Configure capabilities
+1. **File → New → Target… → Widget Extension**, name it `OneSignalWidget`. **Uncheck** "Include Configuration Intent"
+2. Delete the auto-generated `OneSignalWidget.swift`, `OneSignalWidgetBundle.swift`, `Info.plist`, and `Assets.xcassets`
+3. Drag in the existing `OneSignalWidget/` files from this folder, target membership set to the widget target only
+4. In the widget target's build settings, set **iOS Deployment Target** to 16.2 or later
 
-In **Signing & Capabilities** add:
+### 4. Add OneSignal SDK dependencies
+
+Use Swift Package Manager (**File → Add Package Dependencies…**, URL `https://github.com/OneSignal/OneSignal-iOS-SDK`, version 5.0.0+) and attach products to targets:
+
+| Product                     | Main app | NSE | Widget |
+| --------------------------- | -------- | --- | ------ |
+| `OneSignalFramework`        | yes      |     |        |
+| `OneSignalInAppMessages`    | yes      |     |        |
+| `OneSignalLocation`         | yes      |     |        |
+| `OneSignalLiveActivities`   | yes      |     | yes    |
+| `OneSignalExtension`        |          | yes |        |
+
+### 5. Configure capabilities
+
+For the **main app** target in **Signing & Capabilities**:
 
 - **Push Notifications**
 - **Background Modes** → Remote notifications
-- **Live Activities** (iOS 16.1+): set `NSSupportsLiveActivities = YES` in Info.plist
+- **App Groups** → `group.com.onesignal.example.onesignal` (rename to your own app group, then update both entitlements files)
 
-### 4. Update App ID
+For the **NSE** target:
+
+- **App Groups** → same group as the main app
+
+The widget target needs no capabilities beyond what Xcode adds for you. `NSSupportsLiveActivities` is already set in `OneSignalSwiftUIExample/Info.plist`.
+
+### 6. Update App ID
 
 `Services/OneSignalService.swift` ships with a placeholder. Either edit `defaultAppId` or override it at runtime via `UserDefaults` (key `OneSignalAppId`).
 
-### 5. (Optional) Live Activities REST API key
+### 7. (Optional) Live Activities REST API key
 
-To exercise **Update** / **End** of Live Activities, add a `Secrets.plist` file to the bundle with key `ONESIGNAL_API_KEY` set to a OneSignal REST API key for your app. Without a key the section disables those buttons and shows a hint.
+To exercise **Update** / **End** of Live Activities, add a `Secrets.plist` file to the main app bundle with key `ONESIGNAL_API_KEY` set to a OneSignal REST API key for your app. Without a key the section disables those buttons and shows a hint.
+
+> The widget renders `DefaultLiveActivityAttributes` (provided by the SDK), so the Activity ID + Order # you type into the demo flows through to the same widget regardless of whether the update came from `OneSignal.LiveActivities` locally or from the REST `/live_activities/{id}/notifications` endpoint.
 
 ## Running the App
 
