@@ -51,7 +51,7 @@ struct UserSection: View {
                 viewModel.loginButtonTitle,
                 accessibilityID: "login_user_button"
             ) {
-                viewModel.showAddSheet(for: .externalUserId)
+                viewModel.showAddDialog(for: .externalUserId)
             }
 
             if viewModel.isLoggedIn {

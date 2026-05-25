@@ -48,10 +48,10 @@ struct TagsSection: View {
             )
 
             ActionButton("ADD", accessibilityID: "add_tag_button") {
-                viewModel.showAddSheet(for: .tag)
+                viewModel.showAddDialog(for: .tag)
             }
             ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_tags_button") {
-                viewModel.showMultiAddSheet(for: .tags)
+                viewModel.showMultiAddDialog(for: .tags)
             }
             ActionButton(
                 "REMOVE SELECTED",
@@ -59,7 +59,7 @@ struct TagsSection: View {
                 isDisabled: viewModel.tags.isEmpty,
                 accessibilityID: "remove_tags_button"
             ) {
-                viewModel.showRemoveMultiSheet(for: .tags)
+                viewModel.showRemoveMultiDialog(for: .tags)
             }
         }
     }

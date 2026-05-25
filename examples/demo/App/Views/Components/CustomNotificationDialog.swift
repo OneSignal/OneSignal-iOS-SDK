@@ -27,8 +27,8 @@
 
 import SwiftUI
 
-/// Sheet for composing a custom push notification (title + body).
-struct CustomNotificationSheet: View {
+/// Centered dialog for composing a custom push notification (title + body).
+struct CustomNotificationDialog: View {
     let onSend: (String, String) -> Void
     let onCancel: () -> Void
 
@@ -63,7 +63,6 @@ struct CustomNotificationSheet: View {
                 )
             }
         }
-        .osDialogPresentation()
     }
 
     private var isValid: Bool {

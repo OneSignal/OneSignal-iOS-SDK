@@ -47,7 +47,7 @@ struct SendPushSection: View {
                 viewModel.sendNotification(.withSound)
             }
             ActionButton("CUSTOM", accessibilityID: "send_custom_button") {
-                viewModel.showingCustomNotificationSheet = true
+                viewModel.showingCustomNotificationDialog = true
             }
             ActionButton(
                 "CLEAR ALL",

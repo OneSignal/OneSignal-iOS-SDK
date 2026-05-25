@@ -13,29 +13,29 @@
 		0C4F40193331204CC2E05743 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 283B132CEE12D26D1FA1AADF /* OneSignalNotifications.framework */; };
 		0E6E9EEBF2500A4E70022960 /* UserFetchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD8258E807E6672642A32E6 /* UserFetchService.swift */; };
 		0E7D0439A19C8BF291A8BEB1 /* EmailsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1892E9B40F0E8FB23DD64206 /* EmailsSection.swift */; };
-		0FE5C360856660ACD893CCEA /* OutcomeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF74D1CE043AD45649BF9D2B /* OutcomeSheet.swift */; };
-		12410756291F687630ECE348 /* TooltipSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1425623C6445676EE0F85A92 /* TooltipSheet.swift */; };
 		12597AC14E1783CC87D6E147 /* OneSignalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0F5CBE80CF861238E1A9AA /* OneSignalService.swift */; };
 		14228D0C997F9168643F8154 /* OutcomesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4078B5F096680AFA83D1CB85 /* OutcomesSection.swift */; };
 		1653658B1F4EE21203BBAA5D /* TriggersSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1155DE423DAA8B5396948C9B /* TriggersSection.swift */; };
 		16B0C854BC2498BEEDC4EEED /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E7F504B0421F2B6247E2F5 /* Theme.swift */; };
+		1A247F505A707756873AA9FA /* AddItemDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D84B9C2B0EFE086A8E48CD /* AddItemDialog.swift */; };
 		1FF9F70882A0CF6A73416DDF /* OneSignalWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0864BD4A6F62539B2809338F /* OneSignalWidgetLiveActivity.swift */; };
 		2015D767360C96D01A2FF3D9 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C1B9BE42E81492B9DB61343 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		232A52A5D5719F863641166C /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; };
 		25C963476DF0B01BAABE24D9 /* TooltipService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939E1F476EE48B9833A3311C /* TooltipService.swift */; };
 		27C72DF35BE082E3E1093F75 /* SendIamSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60D09DC8C809877FB4BF465 /* SendIamSection.swift */; };
+		2859C7827BE28C7EE4AFDAB4 /* CustomNotificationDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D959B1636916DAEE5FE6278 /* CustomNotificationDialog.swift */; };
 		28D491D31B5C07E4D4F48A7D /* SecretsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */; };
+		2FA8128D2A921DDF02210D8A /* RemoveMultiDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A654457BF0A55B54220E669 /* RemoveMultiDialog.swift */; };
 		2FCC417641D480849E99588B /* SmsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E194A3F19072CB17A8F1A12E /* SmsSection.swift */; };
 		3038C8C43A465DFED77AA533 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B24E059F4DF6ABED55BA3183 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3927A4BF207695E98A57E445 /* TagsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */; };
+		39D2C94F79A62BFF9DE5DBA9 /* OutcomeDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */; };
 		3C899E2494DE29756F5451BE /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 283B132CEE12D26D1FA1AADF /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3E4B37B396D90F6FFCE04B74 /* TrackEventSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E336B9D7158768462C81494C /* TrackEventSheet.swift */; };
 		3FB3C8C0634A765EE81D042E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 76989E05CECAD7B8B3C424A7 /* Assets.xcassets */; };
 		4414A3304BAEB384B8D16D09 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4C18E3D284BB28BD846162F3 /* NotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38138523A8A81A60A77800CA /* NotificationSender.swift */; };
 		56DF63011CB625810F81075D /* OneSignalWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD14C3CEEDFB9557E589B45 /* OneSignalWidgetBundle.swift */; };
 		5737CABFA55E019B2732B90D /* OneSignalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1FA3F3D16A857DB6ED045F /* OneSignalViewModel.swift */; };
-		5AFC97FA04B15A1D51168DCB /* AddItemSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2AEE935AF5AB2E2C787CEF /* AddItemSheet.swift */; };
 		5B959D44AB09CB821C00AFBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F726E64F9B6817F917227C /* ContentView.swift */; };
 		5F4B7EC8437D1A8D80DF7674 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20B46F63592FC67B655BEB8 /* NotificationService.swift */; };
 		638B81D9DA5FD8636BB038B0 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF49509A218369322ECFA3B9 /* OneSignalUser.framework */; };
@@ -58,9 +58,10 @@
 		9A7BE456B679D7DE7CA300BC /* ListWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 280B23B41935EAB89C8C6FCB /* ListWidgets.swift */; };
 		9B0D1DD32B99602629BBCB95 /* ActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6094499773760C3190F62C9 /* ActionButton.swift */; };
 		9FCE157075859B954814F6B7 /* OneSignalLiveActivities.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F5EBC48D807036E572D97F0E /* OneSignalLiveActivities.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A22162D78B8C17D4958EA44B /* RemoveMultiSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB1AF59253E36FE6FCFDC874 /* RemoveMultiSheet.swift */; };
 		A2B1975BB925DCA45327D71E /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB04A33912347325A0155D6 /* App.swift */; };
+		A2E180ADEA246FB6530E5C8C /* TooltipDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38067B9DDA25E12809D9A245 /* TooltipDialog.swift */; };
 		A7A5153D68A4967A88B2B433 /* AliasesSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225DEBDFE699D266D5BDE7ED /* AliasesSection.swift */; };
+		A8498B9A2AA7DA8CB0856CAC /* TrackEventDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 432444EA41C495988DFAB422 /* TrackEventDialog.swift */; };
 		AB963AA6733C32EFB84DCBC0 /* vine_boom.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1EE449E8308FCB038408D7CF /* vine_boom.wav */; };
 		AD514855D19B2C249269C7D2 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC2530FFC78AECEAF6A7E1B7 /* OneSignalOutcomes.framework */; };
 		AF8A33E8CFAF1A8DB1907130 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1636BCBAB444EAC7BB34CEDE /* OneSignalOSCore.framework */; };
@@ -69,11 +70,10 @@
 		C6E9E2C6716059856A1AC571 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 919F0D129D0FA271E24F0BBD /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CAB90AEC123A57B401881DBC /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1636BCBAB444EAC7BB34CEDE /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CE2C54D552E42C2538FB95C4 /* UserSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2383E8AA63BF04ADA2CF0D /* UserSection.swift */; };
-		CF76A5715EB5AE7F47839B9B /* CustomNotificationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C10708FFB28FB6B9AF895E1 /* CustomNotificationSheet.swift */; };
 		D154E0266C8AB372F928D42A /* OneSignalLocation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9834773C437CC373607693 /* OneSignalLocation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D4CEA45BD0A4D71AF43524E2 /* MultiPairInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FB43BE0E085909B109C661F /* MultiPairInputSheet.swift */; };
 		D65AC6EC014557264E7A3697 /* OneSignal-Dynamic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25848A5B7E93DCA744373200 /* OneSignal-Dynamic.framework */; };
 		DBDA727D6317A3CCC73A1699 /* LiveActivitySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27856D76807C31B23CD10CFD /* LiveActivitySection.swift */; };
+		E3725231A3FD5F5A88BAA758 /* MultiPairInputDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */; };
 		E5671E3A84219D49E45F8DCF /* KeyValueRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5984B93007C6B85AFE09045A /* KeyValueRow.swift */; };
 		E72F68A7DB51347AB8B10FA7 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5EBC48D807036E572D97F0E /* OneSignalLiveActivities.framework */; };
 		EA93E372AA3E66073487B89C /* PushSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A42B5EDA3264E3D00A5CB265 /* PushSection.swift */; };
@@ -307,27 +307,29 @@
 		0864BD4A6F62539B2809338F /* OneSignalWidgetLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalWidgetLiveActivity.swift; sourceTree = "<group>"; };
 		0F1FA3F3D16A857DB6ED045F /* OneSignalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalViewModel.swift; sourceTree = "<group>"; };
 		1155DE423DAA8B5396948C9B /* TriggersSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggersSection.swift; sourceTree = "<group>"; };
-		1425623C6445676EE0F85A92 /* TooltipSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipSheet.swift; sourceTree = "<group>"; };
 		1892E9B40F0E8FB23DD64206 /* EmailsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailsSection.swift; sourceTree = "<group>"; };
 		1EE449E8308FCB038408D7CF /* vine_boom.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = vine_boom.wav; sourceTree = "<group>"; };
 		225DEBDFE699D266D5BDE7ED /* AliasesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AliasesSection.swift; sourceTree = "<group>"; };
 		27856D76807C31B23CD10CFD /* LiveActivitySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitySection.swift; sourceTree = "<group>"; };
 		280B23B41935EAB89C8C6FCB /* ListWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWidgets.swift; sourceTree = "<group>"; };
 		291D83300C20BA3831824AFD /* OneSignalSDK */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OneSignalSDK; path = ../../iOS_SDK/OneSignalSDK/OneSignal.xcodeproj; sourceTree = "<group>"; };
+		2D959B1636916DAEE5FE6278 /* CustomNotificationDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNotificationDialog.swift; sourceTree = "<group>"; };
 		35F726E64F9B6817F917227C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		38067B9DDA25E12809D9A245 /* TooltipDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipDialog.swift; sourceTree = "<group>"; };
 		38138523A8A81A60A77800CA /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
+		3A654457BF0A55B54220E669 /* RemoveMultiDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveMultiDialog.swift; sourceTree = "<group>"; };
 		3B81D7E1A7EB9BB4466C768F /* SendPushSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendPushSection.swift; sourceTree = "<group>"; };
 		3FD8258E807E6672642A32E6 /* UserFetchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFetchService.swift; sourceTree = "<group>"; };
+		4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiPairInputDialog.swift; sourceTree = "<group>"; };
 		4078B5F096680AFA83D1CB85 /* OutcomesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomesSection.swift; sourceTree = "<group>"; };
+		432444EA41C495988DFAB422 /* TrackEventDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackEventDialog.swift; sourceTree = "<group>"; };
 		497484E7C094D645338BD404 /* SectionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCard.swift; sourceTree = "<group>"; };
 		49D88A349FD70A9153DD2C03 /* App.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B6FF0BC430F5A2B89215967 /* CustomEventsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEventsSection.swift; sourceTree = "<group>"; };
 		5984B93007C6B85AFE09045A /* KeyValueRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyValueRow.swift; sourceTree = "<group>"; };
 		5C0EE23773C63B6EC3FB563A /* LocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSection.swift; sourceTree = "<group>"; };
 		5E0F5CBE80CF861238E1A9AA /* OneSignalService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalService.swift; sourceTree = "<group>"; };
-		5FB43BE0E085909B109C661F /* MultiPairInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiPairInputSheet.swift; sourceTree = "<group>"; };
 		6B00BC406653BC6B08ECCE26 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
-		6C10708FFB28FB6B9AF895E1 /* CustomNotificationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNotificationSheet.swift; sourceTree = "<group>"; };
 		6DD14C3CEEDFB9557E589B45 /* OneSignalWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalWidgetBundle.swift; sourceTree = "<group>"; };
 		76989E05CECAD7B8B3C424A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7EA9D80191548D49F09D30B3 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
@@ -346,15 +348,13 @@
 		C60D09DC8C809877FB4BF465 /* SendIamSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendIamSection.swift; sourceTree = "<group>"; };
 		D261D46C404E325CBA87A9E0 /* OSDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDialog.swift; sourceTree = "<group>"; };
 		D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretsConfig.swift; sourceTree = "<group>"; };
+		D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomeDialog.swift; sourceTree = "<group>"; };
 		D6094499773760C3190F62C9 /* ActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButton.swift; sourceTree = "<group>"; };
+		D8D84B9C2B0EFE086A8E48CD /* AddItemDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemDialog.swift; sourceTree = "<group>"; };
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
-		E336B9D7158768462C81494C /* TrackEventSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackEventSheet.swift; sourceTree = "<group>"; };
-		EA2AEE935AF5AB2E2C787CEF /* AddItemSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddItemSheet.swift; sourceTree = "<group>"; };
-		EB1AF59253E36FE6FCFDC874 /* RemoveMultiSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveMultiSheet.swift; sourceTree = "<group>"; };
 		ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
 		F46DFACB9F304B9374F3C570 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		FF74D1CE043AD45649BF9D2B /* OutcomeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomeSheet.swift; sourceTree = "<group>"; };
-		"TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		"TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -494,19 +494,19 @@
 			isa = PBXGroup;
 			children = (
 				D6094499773760C3190F62C9 /* ActionButton.swift */,
-				EA2AEE935AF5AB2E2C787CEF /* AddItemSheet.swift */,
-				6C10708FFB28FB6B9AF895E1 /* CustomNotificationSheet.swift */,
+				D8D84B9C2B0EFE086A8E48CD /* AddItemDialog.swift */,
+				2D959B1636916DAEE5FE6278 /* CustomNotificationDialog.swift */,
 				5984B93007C6B85AFE09045A /* KeyValueRow.swift */,
 				280B23B41935EAB89C8C6FCB /* ListWidgets.swift */,
-				5FB43BE0E085909B109C661F /* MultiPairInputSheet.swift */,
+				4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */,
 				D261D46C404E325CBA87A9E0 /* OSDialog.swift */,
-				FF74D1CE043AD45649BF9D2B /* OutcomeSheet.swift */,
-				EB1AF59253E36FE6FCFDC874 /* RemoveMultiSheet.swift */,
+				D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */,
+				3A654457BF0A55B54220E669 /* RemoveMultiDialog.swift */,
 				497484E7C094D645338BD404 /* SectionCard.swift */,
 				F46DFACB9F304B9374F3C570 /* ToastView.swift */,
 				911376C90AA43F41478596FE /* ToggleRow.swift */,
-				1425623C6445676EE0F85A92 /* TooltipSheet.swift */,
-				E336B9D7158768462C81494C /* TrackEventSheet.swift */,
+				38067B9DDA25E12809D9A245 /* TooltipDialog.swift */,
+				432444EA41C495988DFAB422 /* TrackEventDialog.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -558,10 +558,10 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_2A75F706-BD9F-4715-A03C-7C89218E2598" /* demo */ = {
+		"TEMP_E285A8CC-4F21-467E-B635-E37BB8F08F93" /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */,
+				"TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */,
 			);
 			path = demo;
 			sourceTree = "<group>";
@@ -801,14 +801,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B0D1DD32B99602629BBCB95 /* ActionButton.swift in Sources */,
-				5AFC97FA04B15A1D51168DCB /* AddItemSheet.swift in Sources */,
+				1A247F505A707756873AA9FA /* AddItemDialog.swift in Sources */,
 				A7A5153D68A4967A88B2B433 /* AliasesSection.swift in Sources */,
 				A2B1975BB925DCA45327D71E /* App.swift in Sources */,
 				6E3E040FD8A750248E70E46F /* AppModels.swift in Sources */,
 				F1DBBD7F18CB70C5DF2FFC32 /* AppSection.swift in Sources */,
 				5B959D44AB09CB821C00AFBF /* ContentView.swift in Sources */,
 				8EA2FF24D93691FDC1661913 /* CustomEventsSection.swift in Sources */,
-				CF76A5715EB5AE7F47839B9B /* CustomNotificationSheet.swift in Sources */,
+				2859C7827BE28C7EE4AFDAB4 /* CustomNotificationDialog.swift in Sources */,
 				0E7D0439A19C8BF291A8BEB1 /* EmailsSection.swift in Sources */,
 				837FCE7A095ED1D7CCFEACF3 /* InAppSection.swift in Sources */,
 				E5671E3A84219D49E45F8DCF /* KeyValueRow.swift in Sources */,
@@ -816,15 +816,15 @@
 				7D2BA9022E77B00205453467 /* LiveActivityController.swift in Sources */,
 				DBDA727D6317A3CCC73A1699 /* LiveActivitySection.swift in Sources */,
 				B3AE701075398C6A369DBBE0 /* LocationSection.swift in Sources */,
-				D4CEA45BD0A4D71AF43524E2 /* MultiPairInputSheet.swift in Sources */,
+				E3725231A3FD5F5A88BAA758 /* MultiPairInputDialog.swift in Sources */,
 				4C18E3D284BB28BD846162F3 /* NotificationSender.swift in Sources */,
 				674995A7A55C13341317E19B /* OSDialog.swift in Sources */,
 				12597AC14E1783CC87D6E147 /* OneSignalService.swift in Sources */,
 				5737CABFA55E019B2732B90D /* OneSignalViewModel.swift in Sources */,
-				0FE5C360856660ACD893CCEA /* OutcomeSheet.swift in Sources */,
+				39D2C94F79A62BFF9DE5DBA9 /* OutcomeDialog.swift in Sources */,
 				14228D0C997F9168643F8154 /* OutcomesSection.swift in Sources */,
 				EA93E372AA3E66073487B89C /* PushSection.swift in Sources */,
-				A22162D78B8C17D4958EA44B /* RemoveMultiSheet.swift in Sources */,
+				2FA8128D2A921DDF02210D8A /* RemoveMultiDialog.swift in Sources */,
 				28D491D31B5C07E4D4F48A7D /* SecretsConfig.swift in Sources */,
 				7B94F48C31E0BEA4B8CB20E2 /* SectionCard.swift in Sources */,
 				27C72DF35BE082E3E1093F75 /* SendIamSection.swift in Sources */,
@@ -834,9 +834,9 @@
 				16B0C854BC2498BEEDC4EEED /* Theme.swift in Sources */,
 				7C904CE2F4C2A2083324BBEB /* ToastView.swift in Sources */,
 				902A116B26B8ECAD8EE29C95 /* ToggleRow.swift in Sources */,
+				A2E180ADEA246FB6530E5C8C /* TooltipDialog.swift in Sources */,
 				25C963476DF0B01BAABE24D9 /* TooltipService.swift in Sources */,
-				12410756291F687630ECE348 /* TooltipSheet.swift in Sources */,
-				3E4B37B396D90F6FFCE04B74 /* TrackEventSheet.swift in Sources */,
+				A8498B9A2AA7DA8CB0856CAC /* TrackEventDialog.swift in Sources */,
 				1653658B1F4EE21203BBAA5D /* TriggersSection.swift in Sources */,
 				0E6E9EEBF2500A4E70022960 /* UserFetchService.swift in Sources */,
 				CE2C54D552E42C2538FB95C4 /* UserSection.swift in Sources */,
@@ -940,7 +940,7 @@
 /* Begin XCBuildConfiguration section */
 		0D2EF3911CA89837C30DB0D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -957,7 +957,7 @@
 		};
 		4A0C935808978B5A7673E412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1036,7 +1036,7 @@
 		};
 		D0E56A85F1C385808720F94B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
@@ -1052,7 +1052,7 @@
 		};
 		EB1CC3A930E09FEBECF9195D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1070,7 +1070,7 @@
 		};
 		F305A3E63851EE49DA2D190E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1087,7 +1087,7 @@
 		};
 		F5FD25168D9B32A08A468069 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_9C66ED0B-078B-4B2A-AC74-6C9C626EB903" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;

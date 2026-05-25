@@ -28,7 +28,7 @@
 import SwiftUI
 
 /// Root view composing every section in the same order as the Capacitor demo
-/// and wiring the modal sheets to the view-model state.
+/// and wiring the modal dialogs to the view-model state.
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
@@ -55,8 +55,18 @@ struct ContentView: View {
                 .padding(.horizontal, OS.Spacing.pagePadding)
                 .padding(.top, OS.Spacing.pagePadding)
                 .padding(.bottom, OS.Spacing.sectionGap)
-                .accessibilityIdentifier("main_scroll_view")
             }
+            // `main_scroll_view` is anchored to the SwiftUI `ScrollView` (not
+            // the inner `VStack`) so XCUITest exposes it as
+            // `XCUIElementTypeScrollView` with the visible viewport's rect.
+            // Anchoring on the inner `VStack` reported the full content rect
+            // (multiple screens tall), causing WDIO `swipe` to compute
+            // gesture coordinates outside the viewport — iOS clipped those
+            // to the visible region and the swipe registered as a tap on
+            // whatever button sat there (e.g. `send_sound_button`). The
+            // ScrollView identifier is read by `waitForAppReady` and by
+            // Android's `scrollIntoView` `scrollableElement` param.
+            .accessibilityIdentifier("main_scroll_view")
             .background(OS.Color.lightBackground.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(OS.Color.primary, for: .navigationBar)
@@ -64,30 +74,30 @@ struct ContentView: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar { toolbarContent }
         }
-        .sheet(isPresented: $viewModel.showingAddSheet) {
-            AddItemSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingAddDialog) {
+            AddItemDialog(
                 itemType: viewModel.addItemType,
                 onAdd: { key, value in viewModel.handleAddItem(key: key, value: value) },
-                onCancel: { viewModel.showingAddSheet = false }
+                onCancel: { viewModel.showingAddDialog = false }
             )
         }
-        .sheet(isPresented: $viewModel.showingMultiAddSheet) {
-            MultiPairInputSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingMultiAddDialog) {
+            MultiPairInputDialog(
                 type: viewModel.multiAddType,
                 onAdd: { pairs in viewModel.handleMultiAdd(pairs) },
-                onCancel: { viewModel.showingMultiAddSheet = false }
+                onCancel: { viewModel.showingMultiAddDialog = false }
             )
         }
-        .sheet(isPresented: $viewModel.showingRemoveMultiSheet) {
-            RemoveMultiSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingRemoveMultiDialog) {
+            RemoveMultiDialog(
                 type: viewModel.removeMultiType,
                 items: viewModel.removeMultiItems,
                 onRemove: { keys in viewModel.handleRemoveMulti(keys) },
-                onCancel: { viewModel.showingRemoveMultiSheet = false }
+                onCancel: { viewModel.showingRemoveMultiDialog = false }
             )
         }
-        .sheet(isPresented: $viewModel.showingOutcomeSheet) {
-            OutcomeSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingOutcomeDialog) {
+            OutcomeDialog(
                 onSend: { name, mode, value in
                     switch mode {
                     case .normal:
@@ -99,27 +109,27 @@ struct ContentView: View {
                             viewModel.sendOutcome(name, value: value)
                         }
                     }
-                    viewModel.showingOutcomeSheet = false
+                    viewModel.showingOutcomeDialog = false
                 },
-                onCancel: { viewModel.showingOutcomeSheet = false }
+                onCancel: { viewModel.showingOutcomeDialog = false }
             )
         }
-        .sheet(isPresented: $viewModel.showingCustomNotificationSheet) {
-            CustomNotificationSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingCustomNotificationDialog) {
+            CustomNotificationDialog(
                 onSend: { title, body in
                     viewModel.sendCustomNotification(title: title, body: body)
-                    viewModel.showingCustomNotificationSheet = false
+                    viewModel.showingCustomNotificationDialog = false
                 },
-                onCancel: { viewModel.showingCustomNotificationSheet = false }
+                onCancel: { viewModel.showingCustomNotificationDialog = false }
             )
         }
-        .sheet(isPresented: $viewModel.showingTrackEventSheet) {
-            TrackEventSheet(
+        .osCenteredDialog(isPresented: $viewModel.showingTrackEventDialog) {
+            TrackEventDialog(
                 onTrack: { name, properties in
                     viewModel.trackEvent(name: name, properties: properties)
-                    viewModel.showingTrackEventSheet = false
+                    viewModel.showingTrackEventDialog = false
                 },
-                onCancel: { viewModel.showingTrackEventSheet = false }
+                onCancel: { viewModel.showingTrackEventDialog = false }
             )
         }
         .osCenteredDialog(

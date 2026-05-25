@@ -27,8 +27,9 @@
 
 import SwiftUI
 
-/// Sheet that lets the user pick multiple keys to remove (Remove Tags / Remove Triggers).
-struct RemoveMultiSheet: View {
+/// Centered dialog that lets the user pick multiple keys to remove
+/// (Remove Tags / Remove Triggers).
+struct RemoveMultiDialog: View {
     let type: RemoveMultiItemType
     let items: [KeyValueItem]
     let onRemove: ([String]) -> Void
@@ -80,7 +81,6 @@ struct RemoveMultiSheet: View {
                 .frame(maxHeight: 320)
             }
         }
-        .osDialogPresentation()
     }
 }
 

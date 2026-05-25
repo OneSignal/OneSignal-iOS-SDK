@@ -27,8 +27,9 @@
 
 import SwiftUI
 
-/// Sheet that captures an event name plus an optional JSON properties payload.
-struct TrackEventSheet: View {
+/// Centered dialog that captures an event name plus an optional
+/// JSON properties payload.
+struct TrackEventDialog: View {
     let onTrack: (String, [String: Any]?) -> Void
     let onCancel: () -> Void
 
@@ -72,7 +73,6 @@ struct TrackEventSheet: View {
                 }
             }
         }
-        .osDialogPresentation()
     }
 
     private var isValid: Bool {

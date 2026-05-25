@@ -27,8 +27,8 @@
 
 import SwiftUI
 
-/// Reusable dialog for adding items with one or two text fields.
-struct AddItemSheet: View {
+/// Reusable centered dialog for adding items with one or two text fields.
+struct AddItemDialog: View {
     let itemType: AddItemType
     let onAdd: (String, String) -> Void
     let onCancel: () -> Void
@@ -74,7 +74,6 @@ struct AddItemSheet: View {
                 }
             }
         }
-        .osDialogPresentation()
     }
 
     private var isValid: Bool {

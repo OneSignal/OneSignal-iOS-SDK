@@ -48,10 +48,10 @@ struct TriggersSection: View {
             )
 
             ActionButton("ADD", accessibilityID: "add_trigger_button") {
-                viewModel.showAddSheet(for: .trigger)
+                viewModel.showAddDialog(for: .trigger)
             }
             ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_triggers_button") {
-                viewModel.showMultiAddSheet(for: .triggers)
+                viewModel.showMultiAddDialog(for: .triggers)
             }
             if !viewModel.triggers.isEmpty {
                 ActionButton(
@@ -59,7 +59,7 @@ struct TriggersSection: View {
                     style: .outline,
                     accessibilityID: "remove_triggers_button"
                 ) {
-                    viewModel.showRemoveMultiSheet(for: .triggers)
+                    viewModel.showRemoveMultiDialog(for: .triggers)
                 }
                 ActionButton(
                     "CLEAR ALL",

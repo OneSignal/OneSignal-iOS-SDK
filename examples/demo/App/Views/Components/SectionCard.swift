@@ -73,6 +73,12 @@ struct SectionCard<Content: View>: View {
                 content()
             }
         }
+        // SwiftUI does not promote a bare VStack to an accessibility element,
+        // so a plain `.accessibilityIdentifier` here is invisible to XCUITest /
+        // Appium queries (e.g. `scrollToEl('user_section')` would loop until it
+        // hits the scroll cap). `.contain` makes the container queryable while
+        // keeping every child (Texts, Buttons, toggles) individually accessible.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("\(sectionKey)_section")
     }
 }

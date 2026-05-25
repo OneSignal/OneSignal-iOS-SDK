@@ -193,32 +193,6 @@ struct OSTextEditor: View {
     }
 }
 
-// MARK: - Sheet presentation helper
-
-extension View {
-    /// Standard sheet treatment shared by input dialogs: medium detent, 28-corner
-    /// pull tab on iOS 16.4+, transparent backdrop tinted with `OS.Color.backdrop`.
-    func osDialogPresentation() -> some View {
-        modifier(OSDialogPresentation())
-    }
-}
-
-private struct OSDialogPresentation: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 16.4, *) {
-            content
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-                .presentationCornerRadius(OS.Radius.modal)
-                .presentationBackground(OS.Color.cardBackground)
-        } else {
-            content
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
-    }
-}
-
 // MARK: - Centered dialog presentation
 
 extension View {

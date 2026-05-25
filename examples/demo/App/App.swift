@@ -81,9 +81,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // In-app message click handling
         OneSignal.InAppMessages.addClickListener(InAppMessageClickHandler.shared)
-
-        // Start with IAM paused
-        OneSignal.InAppMessages.paused = true
     }
 }
 

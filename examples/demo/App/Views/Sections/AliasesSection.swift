@@ -48,10 +48,10 @@ struct AliasesSection: View {
             )
 
             ActionButton("ADD", accessibilityID: "add_alias_button") {
-                viewModel.showAddSheet(for: .alias)
+                viewModel.showAddDialog(for: .alias)
             }
             ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_aliases_button") {
-                viewModel.showMultiAddSheet(for: .aliases)
+                viewModel.showMultiAddDialog(for: .aliases)
             }
         }
     }

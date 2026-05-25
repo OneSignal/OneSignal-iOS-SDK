@@ -62,7 +62,7 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - In-App / Location
 
-    @Published var isInAppMessagesPaused: Bool = true
+    @Published var isInAppMessagesPaused: Bool = false
     @Published var isLocationShared: Bool = false
 
     // MARK: - UI State
@@ -70,18 +70,18 @@ final class OneSignalViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var toastMessage: String?
 
-    @Published var showingAddSheet: Bool = false
+    @Published var showingAddDialog: Bool = false
     @Published var addItemType: AddItemType = .email
 
-    @Published var showingMultiAddSheet: Bool = false
+    @Published var showingMultiAddDialog: Bool = false
     @Published var multiAddType: MultiAddItemType = .tags
 
-    @Published var showingRemoveMultiSheet: Bool = false
+    @Published var showingRemoveMultiDialog: Bool = false
     @Published var removeMultiType: RemoveMultiItemType = .tags
 
-    @Published var showingOutcomeSheet: Bool = false
-    @Published var showingCustomNotificationSheet: Bool = false
-    @Published var showingTrackEventSheet: Bool = false
+    @Published var showingOutcomeDialog: Bool = false
+    @Published var showingCustomNotificationDialog: Bool = false
+    @Published var showingTrackEventDialog: Bool = false
 
     @Published var activeTooltip: TooltipData?
 
@@ -513,21 +513,21 @@ final class OneSignalViewModel: ObservableObject {
         activeTooltip = nil
     }
 
-    // MARK: - Sheet handling
+    // MARK: - Dialog handling
 
-    func showAddSheet(for type: AddItemType) {
+    func showAddDialog(for type: AddItemType) {
         addItemType = type
-        showingAddSheet = true
+        showingAddDialog = true
     }
 
-    func showMultiAddSheet(for type: MultiAddItemType) {
+    func showMultiAddDialog(for type: MultiAddItemType) {
         multiAddType = type
-        showingMultiAddSheet = true
+        showingMultiAddDialog = true
     }
 
-    func showRemoveMultiSheet(for type: RemoveMultiItemType) {
+    func showRemoveMultiDialog(for type: RemoveMultiItemType) {
         removeMultiType = type
-        showingRemoveMultiSheet = true
+        showingRemoveMultiDialog = true
     }
 
     func handleAddItem(key: String, value: String) {
@@ -545,7 +545,7 @@ final class OneSignalViewModel: ObservableObject {
         case .externalUserId:
             login(externalId: value)
         }
-        showingAddSheet = false
+        showingAddDialog = false
     }
 
     func handleMultiAdd(_ pairs: [(String, String)]) {
@@ -554,7 +554,7 @@ final class OneSignalViewModel: ObservableObject {
         case .tags: addTags(pairs)
         case .triggers: addTriggers(pairs)
         }
-        showingMultiAddSheet = false
+        showingMultiAddDialog = false
     }
 
     func handleRemoveMulti(_ keys: [String]) {
@@ -562,7 +562,7 @@ final class OneSignalViewModel: ObservableObject {
         case .tags: removeSelectedTags(keys)
         case .triggers: removeSelectedTriggers(keys)
         }
-        showingRemoveMultiSheet = false
+        showingRemoveMultiDialog = false
     }
 
     // MARK: - Toast

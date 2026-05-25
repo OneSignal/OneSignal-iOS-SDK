@@ -27,8 +27,8 @@
 
 import SwiftUI
 
-/// Sheet for sending an outcome (normal, unique, or with value).
-struct OutcomeSheet: View {
+/// Centered dialog for sending an outcome (normal, unique, or with value).
+struct OutcomeDialog: View {
     let onSend: (String, OutcomeMode, Double?) -> Void
     let onCancel: () -> Void
 
@@ -76,7 +76,6 @@ struct OutcomeSheet: View {
                 }
             }
         }
-        .osDialogPresentation()
     }
 
     private var isValid: Bool {

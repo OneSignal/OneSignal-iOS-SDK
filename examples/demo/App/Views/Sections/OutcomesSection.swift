@@ -37,7 +37,7 @@ struct OutcomesSection: View {
             onInfoTap: { viewModel.showTooltip(for: "outcomes") }
         ) {
             ActionButton("SEND OUTCOME", accessibilityID: "send_outcome_button") {
-                viewModel.showingOutcomeSheet = true
+                viewModel.showingOutcomeDialog = true
             }
         }
     }

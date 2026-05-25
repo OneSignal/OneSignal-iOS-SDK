@@ -60,7 +60,12 @@ struct TooltipDialog: View {
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(OS.Color.cardBackground)
-        .accessibilityIdentifier("tooltip_sheet")
+        // `.contain` mirrors `SectionCard`: without it, the outer
+        // `.accessibilityIdentifier` would propagate down and overwrite each
+        // child's identifier (`tooltip_title`, `tooltip_description`,
+        // `tooltip_ok_button`), making them unreachable to XCUITest.
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("tooltip_dialog")
     }
 
     private var bodyContent: some View {

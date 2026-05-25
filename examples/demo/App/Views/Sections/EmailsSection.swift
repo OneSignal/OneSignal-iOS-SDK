@@ -44,7 +44,7 @@ struct EmailsSection: View {
             )
 
             ActionButton("ADD EMAIL", accessibilityID: "add_email_button") {
-                viewModel.showAddSheet(for: .email)
+                viewModel.showAddDialog(for: .email)
             }
         }
     }

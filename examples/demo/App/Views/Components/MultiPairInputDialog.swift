@@ -27,8 +27,9 @@
 
 import SwiftUI
 
-/// Sheet that adds multiple key/value pairs at once (Add Multiple Aliases / Tags / Triggers)
-struct MultiPairInputSheet: View {
+/// Centered dialog that adds multiple key/value pairs at once
+/// (Add Multiple Aliases / Tags / Triggers).
+struct MultiPairInputDialog: View {
     let type: MultiAddItemType
     let onAdd: ([(String, String)]) -> Void
     let onCancel: () -> Void
@@ -110,7 +111,6 @@ struct MultiPairInputSheet: View {
             }
             .frame(maxHeight: 320)
         }
-        .osDialogPresentation()
     }
 
     private var isValid: Bool {

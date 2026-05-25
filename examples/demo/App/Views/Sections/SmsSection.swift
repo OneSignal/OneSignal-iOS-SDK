@@ -44,7 +44,7 @@ struct SmsSection: View {
             )
 
             ActionButton("ADD SMS", accessibilityID: "add_sms_button") {
-                viewModel.showAddSheet(for: .sms)
+                viewModel.showAddDialog(for: .sms)
             }
         }
     }

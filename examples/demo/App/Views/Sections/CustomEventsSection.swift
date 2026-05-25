@@ -37,7 +37,7 @@ struct CustomEventsSection: View {
             onInfoTap: { viewModel.showTooltip(for: "customEvents") }
         ) {
             ActionButton("TRACK EVENT", accessibilityID: "track_event_button") {
-                viewModel.showingTrackEventSheet = true
+                viewModel.showingTrackEventDialog = true
             }
         }
     }
