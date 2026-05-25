@@ -41,8 +41,8 @@ struct AddItemDialog: View {
             title: itemType.title,
             confirmLabel: itemType.confirmLabel,
             isConfirmEnabled: isValid,
-            confirmAccessibilityID: "singleinput_confirm_button",
-            cancelAccessibilityID: "singleinput_cancel_button",
+            confirmAccessibilityID: itemType.confirmButtonID,
+            cancelAccessibilityID: itemType.cancelButtonID,
             onConfirm: {
                 onAdd(
                     keyText.trimmingCharacters(in: .whitespaces),
@@ -56,20 +56,20 @@ struct AddItemDialog: View {
                     OSTextField(
                         placeholder: itemType.keyPlaceholder,
                         text: $keyText,
-                        accessibilityID: "\(itemType.accessibilityKey)_key_input"
+                        accessibilityID: itemType.keyInputID
                     )
                     OSTextField(
                         placeholder: itemType.valuePlaceholder,
                         text: $valueText,
                         keyboardType: itemType.keyboardType,
-                        accessibilityID: "\(itemType.accessibilityKey)_value_input"
+                        accessibilityID: itemType.valueInputID
                     )
                 } else {
                     OSTextField(
                         placeholder: itemType.valuePlaceholder,
                         text: $valueText,
                         keyboardType: itemType.keyboardType,
-                        accessibilityID: "\(itemType.accessibilityKey)_input"
+                        accessibilityID: itemType.valueInputID
                     )
                 }
             }

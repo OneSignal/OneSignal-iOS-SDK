@@ -47,10 +47,10 @@ struct TriggersSection: View {
                 }
             )
 
-            ActionButton("ADD", accessibilityID: "add_trigger_button") {
+            ActionButton("ADD TRIGGER", accessibilityID: "add_trigger_button") {
                 viewModel.showAddDialog(for: .trigger)
             }
-            ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_triggers_button") {
+            ActionButton("ADD MULTIPLE TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
                 viewModel.showMultiAddDialog(for: .triggers)
             }
             if !viewModel.triggers.isEmpty {

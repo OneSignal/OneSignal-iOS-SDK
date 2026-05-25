@@ -167,14 +167,12 @@ final class OneSignalViewModel: ObservableObject {
             service.consentGiven = true
             UserDefaults.standard.set(true, forKey: "CachedPrivacyConsent")
         }
-        showToast(required ? "Consent required enabled" : "Consent required disabled")
     }
 
     func setConsentGiven(_ granted: Bool) {
         consentGiven = granted
         service.consentGiven = granted
         UserDefaults.standard.set(granted, forKey: "CachedPrivacyConsent")
-        showToast(granted ? "Consent given" : "Consent revoked")
     }
 
     // MARK: - User
@@ -186,14 +184,12 @@ final class OneSignalViewModel: ObservableObject {
         service.login(externalId: trimmed)
         externalUserId = trimmed
         clearUserData()
-        showToast("Logged in as \(trimmed)")
     }
 
     func logout() {
         service.logout()
         externalUserId = nil
         clearUserData()
-        showToast("Logged out")
     }
 
     private func clearUserData() {
@@ -210,7 +206,6 @@ final class OneSignalViewModel: ObservableObject {
         service.addAlias(label: label, id: id)
         aliases.removeAll { $0.key == label }
         aliases.append(KeyValueItem(key: label, value: id))
-        showToast("Alias added")
     }
 
     func addAliases(_ pairs: [(String, String)]) {
@@ -220,13 +215,11 @@ final class OneSignalViewModel: ObservableObject {
             aliases.removeAll { $0.key == key }
             aliases.append(KeyValueItem(key: key, value: value))
         }
-        showToast("\(pairs.count) alias(es) added")
     }
 
     func removeAlias(_ item: KeyValueItem) {
         service.removeAlias(item.key)
         aliases.removeAll { $0.id == item.id }
-        showToast("Alias removed")
     }
 
     // MARK: - Push
@@ -235,11 +228,9 @@ final class OneSignalViewModel: ObservableObject {
         if enabled {
             service.optInPush()
             isPushEnabled = true
-            showToast("Push enabled")
         } else {
             service.optOutPush()
             isPushEnabled = false
-            showToast("Push disabled")
         }
     }
 
@@ -248,7 +239,6 @@ final class OneSignalViewModel: ObservableObject {
             Task { @MainActor in
                 self?.hasNotificationPermission = accepted
                 self?.isPushEnabled = accepted
-                self?.showToast(accepted ? "Push permission granted" : "Push permission denied")
             }
         }
     }
@@ -258,13 +248,11 @@ final class OneSignalViewModel: ObservableObject {
     func addEmail(_ email: String) {
         service.addEmail(email)
         if !emails.contains(email) { emails.append(email) }
-        showToast("Email added")
     }
 
     func removeEmail(_ email: String) {
         service.removeEmail(email)
         emails.removeAll { $0 == email }
-        showToast("Email removed")
     }
 
     // MARK: - SMS
@@ -272,13 +260,11 @@ final class OneSignalViewModel: ObservableObject {
     func addSms(_ number: String) {
         service.addSms(number)
         if !smsNumbers.contains(number) { smsNumbers.append(number) }
-        showToast("SMS added")
     }
 
     func removeSms(_ number: String) {
         service.removeSms(number)
         smsNumbers.removeAll { $0 == number }
-        showToast("SMS removed")
     }
 
     // MARK: - Tags
@@ -287,7 +273,6 @@ final class OneSignalViewModel: ObservableObject {
         service.addTag(key: key, value: value)
         tags.removeAll { $0.key == key }
         tags.append(KeyValueItem(key: key, value: value))
-        showToast("Tag added")
     }
 
     func addTags(_ pairs: [(String, String)]) {
@@ -297,20 +282,17 @@ final class OneSignalViewModel: ObservableObject {
             tags.removeAll { $0.key == key }
             tags.append(KeyValueItem(key: key, value: value))
         }
-        showToast("\(pairs.count) tag(s) added")
     }
 
     func removeTag(_ item: KeyValueItem) {
         service.removeTag(item.key)
         tags.removeAll { $0.id == item.id }
-        showToast("Tag removed")
     }
 
     func removeSelectedTags(_ keys: [String]) {
         guard !keys.isEmpty else { return }
         service.removeTags(keys)
         tags.removeAll { keys.contains($0.key) }
-        showToast("\(keys.count) tag(s) removed")
     }
 
     // MARK: - Outcomes
@@ -335,14 +317,12 @@ final class OneSignalViewModel: ObservableObject {
     func setIamPaused(_ paused: Bool) {
         isInAppMessagesPaused = paused
         service.isInAppMessagesPaused = paused
-        showToast(paused ? "In-app messages paused" : "In-app messages resumed")
     }
 
     func sendIamTrigger(_ type: InAppMessageType) {
         service.addTrigger(key: "iam_type", value: type.triggerValue)
         triggers.removeAll { $0.key == "iam_type" }
         triggers.append(KeyValueItem(key: "iam_type", value: type.triggerValue))
-        showToast("Sent IAM trigger: \(type.rawValue)")
     }
 
     // MARK: - Triggers
@@ -351,7 +331,6 @@ final class OneSignalViewModel: ObservableObject {
         service.addTrigger(key: key, value: value)
         triggers.removeAll { $0.key == key }
         triggers.append(KeyValueItem(key: key, value: value))
-        showToast("Trigger added")
     }
 
     func addTriggers(_ pairs: [(String, String)]) {
@@ -361,26 +340,22 @@ final class OneSignalViewModel: ObservableObject {
             triggers.removeAll { $0.key == key }
             triggers.append(KeyValueItem(key: key, value: value))
         }
-        showToast("\(pairs.count) trigger(s) added")
     }
 
     func removeTrigger(_ item: KeyValueItem) {
         service.removeTrigger(item.key)
         triggers.removeAll { $0.id == item.id }
-        showToast("Trigger removed")
     }
 
     func removeSelectedTriggers(_ keys: [String]) {
         guard !keys.isEmpty else { return }
         service.removeTriggers(keys)
         triggers.removeAll { keys.contains($0.key) }
-        showToast("\(keys.count) trigger(s) removed")
     }
 
     func clearTriggers() {
         service.clearTriggers()
         triggers.removeAll()
-        showToast("All triggers cleared")
     }
 
     // MARK: - Custom Events
@@ -395,12 +370,10 @@ final class OneSignalViewModel: ObservableObject {
     func setLocationShared(_ shared: Bool) {
         isLocationShared = shared
         service.isLocationShared = shared
-        showToast(shared ? "Location sharing enabled" : "Location sharing disabled")
     }
 
     func promptLocation() {
         service.requestLocationPermission()
-        showToast("Location permission requested")
     }
 
     func checkLocationShared() {
@@ -412,92 +385,52 @@ final class OneSignalViewModel: ObservableObject {
 
     func clearAllNotifications() {
         service.clearAllNotifications()
-        showToast("All notifications cleared")
     }
 
     func sendNotification(_ type: NotificationType) {
-        guard let subscriptionId = service.pushSubscriptionId, !subscriptionId.isEmpty else {
-            showToast("No push subscription")
-            return
-        }
-        showToast("Sending \(type.rawValue) notification...")
-        NotificationSender.shared.sendNotification(type, appId: appId, subscriptionId: subscriptionId) { [weak self] result in
-            Task { @MainActor in
-                switch result {
-                case .success:
-                    self?.showToast("\(type.rawValue) sent!")
-                case .failure(let error):
-                    self?.showToast("Send failed: \(error.localizedDescription)")
-                }
-            }
-        }
+        guard let subscriptionId = service.pushSubscriptionId, !subscriptionId.isEmpty else { return }
+        NotificationSender.shared.sendNotification(type, appId: appId, subscriptionId: subscriptionId) { _ in }
     }
 
     func sendCustomNotification(title: String, body: String) {
-        guard let subscriptionId = service.pushSubscriptionId, !subscriptionId.isEmpty else {
-            showToast("No push subscription")
-            return
-        }
-        NotificationSender.shared.sendCustomNotification(title: title, body: body, appId: appId, subscriptionId: subscriptionId) { [weak self] result in
-            Task { @MainActor in
-                switch result {
-                case .success:
-                    self?.showToast("Custom notification sent")
-                case .failure(let error):
-                    self?.showToast("Send failed: \(error.localizedDescription)")
-                }
-            }
-        }
+        guard let subscriptionId = service.pushSubscriptionId, !subscriptionId.isEmpty else { return }
+        NotificationSender.shared.sendCustomNotification(title: title, body: body, appId: appId, subscriptionId: subscriptionId) { _ in }
     }
 
     // MARK: - Live Activities
 
     func startLiveActivity(activityId: String, orderNumber: String, status: LiveActivityStatus) {
         let trimmedId = activityId.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedId.isEmpty else {
-            showToast("Activity ID required")
-            return
-        }
+        guard !trimmedId.isEmpty else { return }
         if #available(iOS 16.1, *) {
             LiveActivityController.start(
                 activityId: trimmedId,
                 orderNumber: orderNumber,
                 status: status
             )
-            showToast("Live Activity '\(trimmedId)' started")
-        } else {
-            showToast("Live Activities require iOS 16.1+")
         }
     }
 
     func updateLiveActivity(activityId: String, status: LiveActivityStatus) {
         let trimmedId = activityId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty else { return }
-        showToast("Updating Live Activity...")
         Task {
-            let success = await LiveActivityController.update(
+            _ = await LiveActivityController.update(
                 appId: appId,
                 activityId: trimmedId,
                 status: status
             )
-            await MainActor.run {
-                showToast(success ? "Live Activity updated" : "Update failed")
-            }
         }
     }
 
     func endLiveActivity(activityId: String) {
         let trimmedId = activityId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty else { return }
-        showToast("Ending Live Activity...")
         Task {
-            let success = await LiveActivityController.end(
+            _ = await LiveActivityController.end(
                 appId: appId,
                 activityId: trimmedId
             )
-            await MainActor.run {
-                showToast(success ? "Live Activity ended" : "End failed")
-            }
         }
     }
 

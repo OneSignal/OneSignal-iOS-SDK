@@ -32,8 +32,8 @@ import SwiftUI
 struct LiveActivitySection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
-    @State private var activityId: String = ""
-    @State private var orderNumber: String = ""
+    @State private var activityId: String = "order-1"
+    @State private var orderNumber: String = "ORD-1234"
     @State private var statusIndex: Int = 0
 
     private let statuses: [LiveActivityStatus] = [.preparing, .onTheWay, .delivered]

@@ -40,7 +40,6 @@ struct SendIamSection: View {
             ForEach(InAppMessageType.allCases) { type in
                 ActionButton(
                     type.rawValue.uppercased(),
-                    icon: Image(systemName: type.iconName),
                     accessibilityID: "send_iam_\(type.triggerValue)_button"
                 ) {
                     viewModel.sendIamTrigger(type)

@@ -46,8 +46,12 @@ struct LocationSection: View {
                 accessibilityID: "location_shared_toggle"
             )
 
-            ActionButton("REQUEST PERMISSION", accessibilityID: "request_location_button") {
+            ActionButton("PROMPT LOCATION", accessibilityID: "prompt_location_button") {
                 viewModel.promptLocation()
+            }
+
+            ActionButton("CHECK LOCATION", accessibilityID: "check_location_button") {
+                viewModel.checkLocationShared()
             }
         }
     }

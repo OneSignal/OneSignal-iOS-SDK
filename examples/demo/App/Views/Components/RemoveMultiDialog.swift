@@ -36,6 +36,10 @@ struct RemoveMultiDialog: View {
     let onCancel: () -> Void
 
     @State private var selected: Set<String> = []
+    @State private var measuredContentHeight: CGFloat = 0
+
+    /// Upper bound for the rows ScrollView. Content scrolls beyond this.
+    private let maxRowsHeight: CGFloat = 320
 
     var body: some View {
         OSDialog(
@@ -55,32 +59,55 @@ struct RemoveMultiDialog: View {
                     .padding(.vertical, OS.Spacing.cardPadding)
                     .accessibilityIdentifier("remove_multi_empty")
             } else {
+                // Always wrap in a ScrollView (single stable view tree), and
+                // size the frame to the measured content height so the dialog
+                // shrinks for short lists and scrolls past `maxRowsHeight`.
                 ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(items.indices, id: \.self) { index in
-                            let item = items[index]
-                            CheckboxRow(
-                                item: item,
-                                isChecked: selected.contains(item.key),
-                                onToggle: { isChecked in
-                                    if isChecked {
-                                        selected.insert(item.key)
-                                    } else {
-                                        selected.remove(item.key)
-                                    }
-                                }
-                            )
-                            if index < items.count - 1 {
-                                Rectangle()
-                                    .fill(OS.Color.divider)
-                                    .frame(height: OS.Layout.dividerHeight)
+                    rowsContent
+                        .background(
+                            GeometryReader { proxy in
+                                Color.clear.preference(
+                                    key: RowsHeightPreferenceKey.self,
+                                    value: proxy.size.height
+                                )
                             }
-                        }
-                    }
+                        )
                 }
-                .frame(maxHeight: 320)
+                .frame(height: min(max(measuredContentHeight, 1), maxRowsHeight))
+                .onPreferenceChange(RowsHeightPreferenceKey.self) { measuredContentHeight = $0 }
             }
         }
+    }
+
+    private var rowsContent: some View {
+        VStack(spacing: 0) {
+            ForEach(items.indices, id: \.self) { index in
+                let item = items[index]
+                CheckboxRow(
+                    item: item,
+                    isChecked: selected.contains(item.key),
+                    onToggle: { isChecked in
+                        if isChecked {
+                            selected.insert(item.key)
+                        } else {
+                            selected.remove(item.key)
+                        }
+                    }
+                )
+                if index < items.count - 1 {
+                    Rectangle()
+                        .fill(OS.Color.divider)
+                        .frame(height: OS.Layout.dividerHeight)
+                }
+            }
+        }
+    }
+}
+
+private struct RowsHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

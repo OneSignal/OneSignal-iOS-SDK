@@ -47,10 +47,10 @@ struct TagsSection: View {
                 }
             )
 
-            ActionButton("ADD", accessibilityID: "add_tag_button") {
+            ActionButton("ADD TAG", accessibilityID: "add_tag_button") {
                 viewModel.showAddDialog(for: .tag)
             }
-            ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_tags_button") {
+            ActionButton("ADD MULTIPLE TAGS", accessibilityID: "add_multiple_tags_button") {
                 viewModel.showMultiAddDialog(for: .tags)
             }
             ActionButton(

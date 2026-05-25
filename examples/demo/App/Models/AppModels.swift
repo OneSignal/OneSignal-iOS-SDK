@@ -68,15 +68,6 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
         case .fullScreen: return "full_screen"
         }
     }
-
-    var iconName: String {
-        switch self {
-        case .topBanner: return "arrow.up.to.line"
-        case .bottomBanner: return "arrow.down.to.line"
-        case .centerModal: return "square"
-        case .fullScreen: return "arrow.up.left.and.arrow.down.right"
-        }
-    }
 }
 
 // MARK: - Add Item Type
@@ -151,6 +142,42 @@ enum AddItemType {
         case .trigger: return "trigger"
         case .externalUserId: return "login_user_id"
         }
+    }
+
+    /// Accessibility id for the first text field in two-input dialogs.
+    /// Mirrors the shared Appium spec naming (`alias_label_input`,
+    /// `tag_key_input`, `trigger_key_input`).
+    var keyInputID: String {
+        switch self {
+        case .alias: return "alias_label_input"
+        case .tag: return "tag_key_input"
+        case .trigger: return "trigger_key_input"
+        default: return "\(accessibilityKey)_key_input"
+        }
+    }
+
+    /// Accessibility id for the second / single text field.
+    /// Mirrors the shared Appium spec naming (`alias_id_input`,
+    /// `tag_value_input`, `trigger_value_input`, `email_input`,
+    /// `sms_input`, `login_user_id_input`).
+    var valueInputID: String {
+        switch self {
+        case .alias: return "alias_id_input"
+        case .tag: return "tag_value_input"
+        case .trigger: return "trigger_value_input"
+        default: return "\(accessibilityKey)_input"
+        }
+    }
+
+    /// Two-input flavors share `singlepair_*` buttons; single-input flavors
+    /// share `singleinput_*` so the Appium suite can find them by a stable id
+    /// regardless of the specific item type.
+    var confirmButtonID: String {
+        requiresKeyValue ? "singlepair_confirm_button" : "singleinput_confirm_button"
+    }
+
+    var cancelButtonID: String {
+        requiresKeyValue ? "singlepair_cancel_button" : "singleinput_cancel_button"
     }
 }
 

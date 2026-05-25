@@ -39,18 +39,13 @@ struct AliasesSection: View {
             PairList(
                 items: viewModel.aliases,
                 emptyText: "No Aliases Added",
-                sectionKey: "aliases",
-                onRemove: { key in
-                    if let item = viewModel.aliases.first(where: { $0.key == key }) {
-                        viewModel.removeAlias(item)
-                    }
-                }
+                sectionKey: "aliases"
             )
 
-            ActionButton("ADD", accessibilityID: "add_alias_button") {
+            ActionButton("ADD ALIAS", accessibilityID: "add_alias_button") {
                 viewModel.showAddDialog(for: .alias)
             }
-            ActionButton("ADD MULTIPLE", accessibilityID: "add_multiple_aliases_button") {
+            ActionButton("ADD MULTIPLE ALIASES", accessibilityID: "add_multiple_aliases_button") {
                 viewModel.showMultiAddDialog(for: .aliases)
             }
         }
