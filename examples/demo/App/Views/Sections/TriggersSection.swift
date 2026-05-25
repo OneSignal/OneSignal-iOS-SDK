@@ -55,14 +55,14 @@ struct TriggersSection: View {
             }
             if !viewModel.triggers.isEmpty {
                 ActionButton(
-                    "REMOVE SELECTED",
+                    "REMOVE TRIGGERS",
                     style: .outline,
                     accessibilityID: "remove_triggers_button"
                 ) {
                     viewModel.showRemoveMultiDialog(for: .triggers)
                 }
                 ActionButton(
-                    "CLEAR ALL",
+                    "CLEAR ALL TRIGGERS",
                     style: .outline,
                     accessibilityID: "clear_triggers_button"
                 ) {

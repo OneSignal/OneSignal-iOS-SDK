@@ -53,17 +53,19 @@ struct AddItemDialog: View {
         ) {
             VStack(spacing: 12) {
                 if itemType.requiresKeyValue {
-                    OSTextField(
-                        placeholder: itemType.keyPlaceholder,
-                        text: $keyText,
-                        accessibilityID: itemType.keyInputID
-                    )
-                    OSTextField(
-                        placeholder: itemType.valuePlaceholder,
-                        text: $valueText,
-                        keyboardType: itemType.keyboardType,
-                        accessibilityID: itemType.valueInputID
-                    )
+                    HStack(spacing: 8) {
+                        OSTextField(
+                            placeholder: itemType.keyPlaceholder,
+                            text: $keyText,
+                            accessibilityID: itemType.keyInputID
+                        )
+                        OSTextField(
+                            placeholder: itemType.valuePlaceholder,
+                            text: $valueText,
+                            keyboardType: itemType.keyboardType,
+                            accessibilityID: itemType.valueInputID
+                        )
+                    }
                 } else {
                     OSTextField(
                         placeholder: itemType.valuePlaceholder,

@@ -38,7 +38,7 @@ struct AliasesSection: View {
         ) {
             PairList(
                 items: viewModel.aliases,
-                emptyText: "No Aliases Added",
+                emptyText: "No aliases added",
                 sectionKey: "aliases"
             )
 

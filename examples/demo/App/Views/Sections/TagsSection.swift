@@ -53,13 +53,14 @@ struct TagsSection: View {
             ActionButton("ADD MULTIPLE TAGS", accessibilityID: "add_multiple_tags_button") {
                 viewModel.showMultiAddDialog(for: .tags)
             }
-            ActionButton(
-                "REMOVE SELECTED",
-                style: .outline,
-                isDisabled: viewModel.tags.isEmpty,
-                accessibilityID: "remove_tags_button"
-            ) {
-                viewModel.showRemoveMultiDialog(for: .tags)
+            if !viewModel.tags.isEmpty {
+                ActionButton(
+                    "REMOVE TAGS",
+                    style: .outline,
+                    accessibilityID: "remove_tags_button"
+                ) {
+                    viewModel.showRemoveMultiDialog(for: .tags)
+                }
             }
         }
     }
