@@ -36,8 +36,8 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - App / Consent
 
     @Published var appId: String
-    @Published var consentRequired: Bool = UserDefaults.standard.bool(forKey: "CachedConsentRequired")
-    @Published var consentGiven: Bool = UserDefaults.standard.bool(forKey: "CachedPrivacyConsent")
+    @Published var consentRequired: Bool = false
+    @Published var consentGiven: Bool = false
 
     // MARK: - Identity
 
@@ -85,6 +85,11 @@ final class OneSignalViewModel: ObservableObject {
     private let service: OneSignalService
     private var observers = Observers()
 
+    /// Monotonically incremented on every `fetchUserDataFromApi` call. The
+    /// value captured at entry guards the post-await write so a slow fetch
+    /// for an old `onesignalId` cannot overwrite a newer fetch's results.
+    private var requestSequence: UInt64 = 0
+
     // MARK: - Init
 
     init(service: OneSignalService = .shared) {
@@ -120,10 +125,16 @@ final class OneSignalViewModel: ObservableObject {
 
     func fetchUserDataFromApi() async {
         guard let onesignalId = service.onesignalId else { return }
+        requestSequence &+= 1
+        let captured = requestSequence
         isLoading = true
-        defer { isLoading = false }
 
-        if let userData = await UserFetchService.shared.fetchUser(appId: appId, onesignalId: onesignalId) {
+        let userData = await UserFetchService.shared.fetchUser(appId: appId, onesignalId: onesignalId)
+
+        // Drop the result if a newer fetch has started while this one was in flight.
+        guard captured == requestSequence else { return }
+
+        if let userData = userData {
             aliases = userData.aliases.map { KeyValueItem(key: $0.key, value: $0.value) }
             tags = userData.tags.map { KeyValueItem(key: $0.key, value: $0.value) }
             emails = userData.emails
@@ -132,7 +143,7 @@ final class OneSignalViewModel: ObservableObject {
                 externalUserId = extId
             }
         }
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        isLoading = false
     }
 
     // MARK: - Consent
@@ -140,18 +151,15 @@ final class OneSignalViewModel: ObservableObject {
     func setConsentRequired(_ required: Bool) {
         consentRequired = required
         service.consentRequired = required
-        UserDefaults.standard.set(required, forKey: "CachedConsentRequired")
         if !required {
             consentGiven = true
             service.consentGiven = true
-            UserDefaults.standard.set(true, forKey: "CachedPrivacyConsent")
         }
     }
 
     func setConsentGiven(_ granted: Bool) {
         consentGiven = granted
         service.consentGiven = granted
-        UserDefaults.standard.set(granted, forKey: "CachedPrivacyConsent")
     }
 
     // MARK: - User

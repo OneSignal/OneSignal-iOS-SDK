@@ -82,8 +82,8 @@ if #available(iOS 16.1, *) { LiveActivityController.setup() }
 - `OneSignalService.initialize(launchOptions:)` calls `OneSignal.Debug.setLogLevel(.LL_VERBOSE)` then `OneSignal.initialize(appId, withLaunchOptions:)`. The app id comes from `SecretsConfig.appId` (`Secrets.plist` -> hard-coded fallback)
 - `LiveActivityController.setup()` wraps `OneSignal.LiveActivities.setupDefault()` (iOS 16.1+ guard lives in the controller, not inline)
 - The four SDK listeners (`NotificationLifecycleHandler`, `NotificationClickHandler`, `InAppMessageLifecycleHandler`, `InAppMessageClickHandler`) are registered via `OneSignal.Notifications.add*Listener(...)` / `OneSignal.InAppMessages.add*Listener(...)` from the `setupNotificationListeners` / `setupInAppMessageListeners` helpers
-- The demo does NOT do pre/post-init consent + IAM-paused + location-shared restoration in `AppDelegate`. The view model only reads `Cached*` UserDefaults at init for UI toggle state; SDK state is read directly from `OneSignal.*` getters once initialized
-- Consent uses two different UserDefaults key sets: `OneSignalViewModel` reads/writes `CachedConsentRequired` / `CachedPrivacyConsent` for UI, while `OneSignalService` reads/writes `OneSignalConsentRequired` / `OneSignalConsentGiven` to mirror the SDK setters. These are NOT synced today
+- The demo does NOT do pre/post-init consent + IAM-paused + location-shared restoration in `AppDelegate`. SDK state is read directly from `OneSignal.*` getters once initialized
+- Consent state is owned by `OneSignalService` and persisted under `OneSignalConsentRequired` / `OneSignalConsentGiven`. The view model mirrors those values into `@Published` props during init (and on every setter) so the UI toggles update without subscribing to the SDK directly
 
 Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushSubscription.id`, `OneSignal.User.pushSubscription.optedIn`, `OneSignal.User.externalId`, `OneSignal.Notifications.permission`) instead of from cache.
 
@@ -100,7 +100,7 @@ Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushS
 ### Loading State
 
 - `isLoading` is currently dead state in the view model -- it's flipped inside `fetchUserDataFromApi()` and `login(externalId:)` but no file under `App/Views/` references it. The Aliases / Emails / SMS / Tags sections always render their static empty-state copy via `PairList` / `SingleList` regardless of fetch state
-- No global overlay, no `ProgressView`, no stale-result guard. The view-model has no `requestSequence` counter
+- Stale-result protection: `fetchUserDataFromApi()` increments a `requestSequence` counter on entry, captures the value, and short-circuits after the `await` if a newer fetch has run in the meantime. Mirrors the `requestSequenceRef` pattern from the Capacitor demo so back-to-back logout / login flows don't get overwritten by a slow earlier fetch
 
 ### Toast
 
