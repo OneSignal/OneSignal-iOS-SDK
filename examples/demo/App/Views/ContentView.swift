@@ -30,6 +30,7 @@ import SwiftUI
 /// Root view composing every section in the same order as the Capacitor demo.
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @EnvironmentObject var toast: ToastPresenter
 
     var body: some View {
         NavigationStack {
@@ -83,7 +84,7 @@ struct ContentView: View {
                 TooltipDialog(tooltip: tooltip, onClose: { viewModel.dismissTooltip() })
             }
         }
-        .toast(message: $viewModel.toastMessage)
+        .toast(message: $toast.message)
         // Auto-prompt for notification permission on first appear, matching the
         // Capacitor / Flutter / React Native demos (which all prompt from their
         // home screen's mount lifecycle). This races the OneSignal iOS-params
@@ -117,4 +118,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .environmentObject(OneSignalViewModel())
+        .environmentObject(ToastPresenter())
 }

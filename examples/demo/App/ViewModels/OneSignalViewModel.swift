@@ -68,7 +68,6 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - UI State
 
     @Published var isLoading: Bool = false
-    @Published var toastMessage: String?
 
     @Published var activeTooltip: TooltipData?
 
@@ -85,7 +84,6 @@ final class OneSignalViewModel: ObservableObject {
 
     private let service: OneSignalService
     private var observers = Observers()
-    private var toastDismissTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -280,17 +278,17 @@ final class OneSignalViewModel: ObservableObject {
 
     func sendOutcome(_ name: String) {
         service.sendOutcome(name)
-        showToast("Outcome sent: \(name)")
+        print("[OneSignal] Outcome sent: \(name)")
     }
 
     func sendUniqueOutcome(_ name: String) {
         service.sendUniqueOutcome(name)
-        showToast("Unique outcome sent: \(name)")
+        print("[OneSignal] Unique outcome sent: \(name)")
     }
 
     func sendOutcome(_ name: String, value: Double) {
         service.sendOutcome(name, value: NSNumber(value: value))
-        showToast("Outcome sent: \(name) = \(value)")
+        print("[OneSignal] Outcome sent: \(name) = \(value)")
     }
 
     // MARK: - In-App
@@ -343,7 +341,7 @@ final class OneSignalViewModel: ObservableObject {
 
     func trackEvent(name: String, properties: [String: Any]?) {
         service.trackEvent(name: name, properties: properties)
-        showToast("Event tracked: \(name)")
+        print("[OneSignal] Event tracked: \(name)")
     }
 
     // MARK: - Location
@@ -357,9 +355,10 @@ final class OneSignalViewModel: ObservableObject {
         service.requestLocationPermission()
     }
 
-    func checkLocationShared() {
+    func checkLocationShared() -> Bool {
         let shared = service.isLocationShared
-        showToast("Location shared: \(shared)")
+        print("[OneSignal] Location shared: \(shared)")
+        return shared
     }
 
     // MARK: - Notifications
@@ -425,18 +424,6 @@ final class OneSignalViewModel: ObservableObject {
 
     func dismissTooltip() {
         activeTooltip = nil
-    }
-
-    // MARK: - Toast
-
-    func showToast(_ message: String) {
-        toastDismissTask?.cancel()
-        toastMessage = message
-        toastDismissTask = Task {
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
-            guard !Task.isCancelled else { return }
-            if toastMessage == message { toastMessage = nil }
-        }
     }
 
     // MARK: - Observers

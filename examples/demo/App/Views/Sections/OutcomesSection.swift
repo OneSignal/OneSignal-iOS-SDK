@@ -29,6 +29,7 @@ import SwiftUI
 
 struct OutcomesSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @EnvironmentObject var toast: ToastPresenter
     @State private var open = false
 
     var body: some View {
@@ -47,11 +48,14 @@ struct OutcomesSection: View {
                     switch mode {
                     case .normal:
                         viewModel.sendOutcome(name)
+                        toast.show("Outcome sent: \(name)")
                     case .unique:
                         viewModel.sendUniqueOutcome(name)
+                        toast.show("Unique outcome sent: \(name)")
                     case .value:
                         if let value = value {
                             viewModel.sendOutcome(name, value: value)
+                            toast.show("Outcome sent: \(name) = \(value)")
                         }
                     }
                     open = false

@@ -25,32 +25,32 @@
  * THE SOFTWARE.
  */
 
-import SwiftUI
+import Foundation
+import Combine
 
-struct CustomEventsSection: View {
-    @EnvironmentObject var viewModel: OneSignalViewModel
-    @EnvironmentObject var toast: ToastPresenter
-    @State private var open = false
+/// UI-layer toast presenter per sdk-shared/demo/build.md Prompt 7.6.
+/// Feedback messages are owned by the UI layer (injected as an
+/// `@EnvironmentObject`), never by `OneSignalViewModel`. Replace-on-show:
+/// dismisses any visible toast and resets the [toastDurationMs] timer on
+/// every call.
+@MainActor
+final class ToastPresenter: ObservableObject {
 
-    var body: some View {
-        SectionCard(
-            title: "CUSTOM EVENTS",
-            sectionKey: "custom_events",
-            onInfoTap: { viewModel.showTooltip(for: "customEvents") }
-        ) {
-            ActionButton("TRACK EVENT", accessibilityID: "track_event_button") {
-                open = true
-            }
-        }
-        .osCenteredDialog(isPresented: $open) {
-            TrackEventDialog(
-                onTrack: { name, properties in
-                    viewModel.trackEvent(name: name, properties: properties)
-                    toast.show("Event tracked: \(name)")
-                    open = false
-                },
-                onCancel: { open = false }
-            )
+    static let toastDurationMs: UInt64 = 3_000
+
+    @Published var message: String?
+
+    private var dismissTask: Task<Void, Never>?
+
+    func show(_ message: String) {
+        dismissTask?.cancel()
+        self.message = message
+        let target = message
+        dismissTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: ToastPresenter.toastDurationMs * 1_000_000)
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            if self.message == target { self.message = nil }
         }
     }
 }

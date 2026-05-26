@@ -33,11 +33,13 @@ import OneSignalLiveActivities
 struct App: SwiftUI.App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var viewModel = OneSignalViewModel()
+    @StateObject private var toastPresenter = ToastPresenter()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(viewModel)
+                .environmentObject(toastPresenter)
         }
     }
 }

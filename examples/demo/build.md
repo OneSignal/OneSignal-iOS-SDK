@@ -33,9 +33,18 @@ Open `iOS_SDK/OneSignalSDK.xcworkspace`, select the **App** scheme, and run. The
 
 `App/Assets.xcassets/AppIcon.appiconset/` ships pre-populated with the OneSignal logo asset. The widget extension has its own `OneSignalWidget/Assets.xcassets/AppIcon.appiconset/` plus an `AccentColor` and `WidgetBackground` color set (referenced via `ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME` / `ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME` in `project.yml`). No regeneration step is needed.
 
+### Environment / secrets
+
+Per-developer build settings and OneSignal credentials are split across two layers, both wired into XcodeGen via `project.yml`:
+
+- `Build.xcconfig` -- root xcconfig referenced by every target's `configFiles: { Debug, Release }`. It only does `#include? "Local.xcconfig"`, so a fresh clone builds with no extra setup.
+- `Local.xcconfig` (gitignored) -- per-developer overrides such as `DEVELOPMENT_TEAM`, `CODE_SIGN_STYLE`, and `PROVISIONING_PROFILE_SPECIFIER`. Anything set here survives `xcodegen generate`. See `Local.xcconfig.example` for the template.
+- `App/Secrets.plist` (gitignored, `optional: true` in `project.yml`) -- `<dict>` with `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` strings. Parsed at runtime by `App/Services/SecretsConfig.swift`. Bundled via an explicit `buildPhase: resources` source entry because XcodeGen otherwise treats `.plist` files as Info.plist-like and skips Copy Bundle Resources.
+- `App/vine_boom.wav` (gitignored optional) -- bundled custom notification sound; XcodeGen picks it up automatically from the `App/` source path.
+
 ### Build & run
 
-There is no `setup.sh` / `run-ios.sh` script — Xcode handles everything:
+There is no `setup.sh` / `run-ios.sh` script -- Xcode handles everything:
 
 1. `open iOS_SDK/OneSignalSDK.xcworkspace`
 2. Pick the **App** scheme
@@ -47,36 +56,34 @@ The only manual step is running `xcodegen generate` after editing `project.yml`.
 
 ## State Management
 
-Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as the central state manager. There is no repository wrapper — the view-model calls the OneSignal SDK directly through a thin `OneSignalService` singleton (`App/Services/OneSignalService.swift`).
+Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as the central state manager. There is no repository wrapper -- the view-model calls the OneSignal SDK directly through a thin `OneSignalService` singleton (`App/Services/OneSignalService.swift`).
 
-- `@MainActor final class OneSignalViewModel: ObservableObject` with `@Published` properties for reactive state (app id, push subscription id, aliases, tags, emails, SMS, triggers, consent, location, IAM paused, loading, sheet visibility)
-- A `requestSequence` counter discards stale REST results when a newer fetch is in flight (mirrors the `requestSequenceRef` in Capacitor)
-- One `setup()` call registers SDK observers (`OSPushSubscriptionObserver`, `OSUserStateObserver`, `OSNotificationPermissionObserver`); SwiftUI keeps the view-model alive for the app lifetime via `@StateObject` in `App.swift`, so no manual teardown is needed
+- `@MainActor final class OneSignalViewModel: ObservableObject` with `@Published` properties for reactive state (app id, push subscription id, aliases, tags, emails, SMS, triggers, consent, location, IAM paused, `isLoading`)
+- The only `@Published` UI overlay state is `activeTooltip: TooltipData?`. Action dialogs are NOT in the view-model -- each section owns its own `@State` boolean and binds `.osCenteredDialog(isPresented:)` locally
+- `init` calls `refreshState()` and the private `setupObservers()`, which registers `OSPushSubscriptionObserver`, `OSUserStateObserver`, and `OSNotificationPermissionObserver`. SwiftUI keeps the view-model alive for the app lifetime via `@StateObject` in `App.swift`, so no manual teardown is needed
 - `OneSignalService` (singleton, `App/Services/OneSignalService.swift`) funnels every SDK call through one entry point and mirrors any setters the SDK doesn't expose as getters (consent flags) into `UserDefaults`
 - `NotificationSender` (singleton, `App/Services/NotificationSender.swift`) wraps the `/notifications` REST endpoint with `URLSession` and retries with exponential backoff when the API returns 200 with empty `id` / `recipients == 0` / a non-empty `errors` payload (transient race between subscription create and notification fan-out)
-- `UserFetchService` (singleton, `App/Services/UserFetchService.swift`) hydrates aliases / tags / emails / SMS via `GET /users/by/onesignal_id/{id}` — no auth header, public endpoint
+- `UserFetchService` (singleton, `App/Services/UserFetchService.swift`) hydrates aliases / tags / emails / SMS via `GET /users/by/onesignal_id/{id}` -- no auth header, public endpoint
 - `LiveActivityController` (`App/Services/LiveActivityController.swift`) wraps `OneSignal.LiveActivities.startDefault(...)` plus the authenticated REST update/end calls. Reads the API key via `SecretsConfig.apiKey`; missing/empty key disables UPDATE / END
 - `SecretsConfig` (`App/Services/SecretsConfig.swift`) reads `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` from a bundled `Secrets.plist` (iOS equivalent of `.env`); both keys optional, app ID falls back to a placeholder when missing
 - `TooltipService` (singleton, `App/Services/TooltipService.swift`) loads the shared tooltip JSON from `sdk-shared` on a detached task with a bundled fallback so the first render isn't blocked
 
-### SDK state restoration
+### SDK initialization
 
-In `App.swift`'s `AppDelegate.application(_:didFinishLaunchingWithOptions:)`, restore SDK state from `UserDefaults` BEFORE calling `initialize`:
+`AppDelegate.application(_:didFinishLaunchingWithOptions:)` in `App/App.swift` is intentionally minimal:
 
 ```swift
-OneSignal.Debug.setLogLevel(.LL_VERBOSE)
-OneSignal.setConsentRequired(cachedConsentRequired)
-OneSignal.setConsentGiven(cachedConsentGiven)
 OneSignalService.shared.initialize(launchOptions: launchOptions)
+setupNotificationListeners()
+setupInAppMessageListeners()
+if #available(iOS 16.1, *) { LiveActivityController.setup() }
 ```
 
-Then AFTER initialize:
-
-```swift
-OneSignal.LiveActivities.setupDefault()          // iOS 16.1+
-OneSignal.InAppMessages.paused = cachedIamPaused
-OneSignal.Location.isShared    = cachedLocationShared
-```
+- `OneSignalService.initialize(launchOptions:)` calls `OneSignal.Debug.setLogLevel(.LL_VERBOSE)` then `OneSignal.initialize(appId, withLaunchOptions:)`. The app id comes from `SecretsConfig.appId` (`Secrets.plist` -> hard-coded fallback)
+- `LiveActivityController.setup()` wraps `OneSignal.LiveActivities.setupDefault()` (iOS 16.1+ guard lives in the controller, not inline)
+- The four SDK listeners (`NotificationLifecycleHandler`, `NotificationClickHandler`, `InAppMessageLifecycleHandler`, `InAppMessageClickHandler`) are registered via `OneSignal.Notifications.add*Listener(...)` / `OneSignal.InAppMessages.add*Listener(...)` from the `setupNotificationListeners` / `setupInAppMessageListeners` helpers
+- The demo does NOT do pre/post-init consent + IAM-paused + location-shared restoration in `AppDelegate`. The view model only reads `Cached*` UserDefaults at init for UI toggle state; SDK state is read directly from `OneSignal.*` getters once initialized
+- Consent uses two different UserDefaults key sets: `OneSignalViewModel` reads/writes `CachedConsentRequired` / `CachedPrivacyConsent` for UI, while `OneSignalService` reads/writes `OneSignalConsentRequired` / `OneSignalConsentGiven` to mirror the SDK setters. These are NOT synced today
 
 Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushSubscription.id`, `OneSignal.User.pushSubscription.optedIn`, `OneSignal.User.externalId`, `OneSignal.Notifications.permission`) instead of from cache.
 
@@ -86,33 +93,48 @@ Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushS
 
 ### Notification Permission
 
-- `OneSignalViewModel` exposes `isReady` (set after the initial `refreshState()` runs) and `promptPush()`
-- `PushSection` calls `viewModel.promptPush()` from a `.task` modifier gated on `isReady`
-- The PROMPT PUSH button is rendered conditionally — hidden once `hasNotificationPermission == true`
+- `OneSignalViewModel` exposes `promptPushPermission()` (no `isReady` gate, no separate `promptPush()` method)
+- `ContentView` auto-prompts on first appear via an unconditional `.task { viewModel.promptPushPermission() }` modifier on the root view -- this races the OneSignal iOS-params response so the standard alert shows before the SDK can register provisional auth
+- `PushSection` renders a conditional `PROMPT PUSH` button that calls `viewModel.promptPushPermission()`. The button is hidden once `hasNotificationPermission == true`
 
 ### Loading State
 
-- No global overlay; the four list sections that depend on the `/users` fetch (Aliases, Emails, SMS, Tags) render an inline `ProgressView` in the empty-state slot when `viewModel.isLoading` is true
-- Stale-result protection via `requestSequence` in the view-model (each fetch captures the counter; results are dropped if a newer fetch has incremented it)
+- `isLoading` is currently dead state in the view model -- it's flipped inside `fetchUserDataFromApi()` and `login(externalId:)` but no file under `App/Views/` references it. The Aliases / Emails / SMS / Tags sections always render their static empty-state copy via `PairList` / `SingleList` regardless of fetch state
+- No global overlay, no `ProgressView`, no stale-result guard. The view-model has no `requestSequence` counter
 
 ### Toast
 
-- A lightweight `ToastView` modifier (`App/Views/Components/ToastView.swift`) attached via `.toast(message: $viewModel.toastMessage)` on the root `ContentView`. Setting `toastMessage` shows it; auto-dismisses after 3s
-- Only login / logout / outcomes / track event / location-check actions feed the toast (matches Phase 7.6 of the shared guide); everything else uses `print()` only
+- `ToastPresenter` (`App/ViewModels/ToastPresenter.swift`) is a `@MainActor` `ObservableObject` with `@Published var message: String?` and a `show(_:)` method. It is created as a `@StateObject` in `App.swift` and injected into `ContentView` via `.environmentObject(toastPresenter)`.
+- Section views declare `@EnvironmentObject var toast: ToastPresenter` and call `toast.show(...)` from action handlers. Only Outcomes, Custom Events, and Location check trigger the toast; everything else uses `print()` only.
+- `ContentView` attaches the host `.toast(message: $toast.message)` modifier (defined in `App/Views/Components/ToastView.swift`) so a single host renders the current message regardless of which section emitted it.
+- Replace-on-show: `show(_:)` cancels the previous `dismissTask`, sets `self.message`, and starts a new `Task` that sleeps `ToastPresenter.toastDurationMs` (milliseconds) and clears `message` only if it still matches the captured target string.
+- Duration is the static constant `static let toastDurationMs: UInt64 = 3_000` (milliseconds).
+- `OneSignalViewModel` must not hold any toast state, expose `toastMessage`, or call a `showToast` method.
 
-### Send In-App Message Icons
+### Dialogs
 
-Use SF Symbols: `arrow.up.to.line`, `arrow.down.to.line`, `square`, `rectangle.expand.vertical`.
-
-### Sheets
-
-All modals live in `App/Views/Components/` and render through SwiftUI's `.sheet(isPresented:)`. Single-field prompts use `AddItemSheet` (typed via `AddItemType`); pair prompts go through the same `AddItemSheet` with a key-and-value layout selected by the type; bulk add/remove use `MultiPairInputSheet` and `RemoveMultiSheet`. Specialized sheets: `OutcomeSheet`, `CustomNotificationSheet`, `TrackEventSheet`, `TooltipSheet`.
+- Tooltip state lives on the view model as `@Published var activeTooltip: TooltipData?`. `ContentView` owns layout only and binds the tooltip dialog via `viewModel.activeTooltip` / `viewModel.dismissTooltip()` attached with `.osCenteredDialog`. Sections call `viewModel.showTooltip(for:)` from info icons.
+- Sections declare `@State` booleans for their action dialogs (`@State private var addOpen = false`, `@State private var loginOpen = false`, ...) and attach `.osCenteredDialog(isPresented: $addOpen) { AddItemDialog(...) }` on the section view. Dialog confirm handlers call ViewModel SDK methods and (where applicable) `toast.show(...)`.
+- `OneSignalViewModel` must not hold any action dialog visibility flags or dialog input drafts.
+- `osCenteredDialog` (in `App/Views/Components/OSDialog.swift`) is implemented on top of `.fullScreenCover` with a `ClearBackgroundView` (`UIViewRepresentable`) so the dialog presents at the window level instead of being clipped to the section's frame inside `ScrollView`. The default slide-up animation is suppressed via `.transaction { $0.disablesAnimations = true }` so the dialog's own fade-in is preserved.
+- Shared dialog primitives live in `App/Views/Components/`: `AddItemDialog` (typed via `AddItemType` -- single-field and pair layouts both flow through it), `MultiPairInputDialog`, `RemoveMultiDialog`, `OutcomeDialog`, `CustomNotificationDialog`, `TrackEventDialog`, `TooltipDialog`. Sections import and compose them locally.
 
 ### Accessibility (Appium)
 
 Apply test ids with SwiftUI's `.accessibilityIdentifier("…")` modifier on every interactive element and value display. The ids match the `data-testid` values used by the Capacitor / React Native / Cordova demos one-for-one so the shared Appium suite under `sdk-shared/appium/tests/` runs unchanged against the iOS build.
 
-XCUITest does NOT inherit identifiers from `Button(role:)` automatically — set `.accessibilityIdentifier(...)` on every `Button`, `Toggle`, `TextField`, and the wrapping `VStack` of each section.
+XCUITest does NOT inherit identifiers from `Button(role:)` automatically -- set `.accessibilityIdentifier(...)` on every `Button`, `Toggle`, `TextField`, and the wrapping `VStack` of each section.
+
+- `ContentView` anchors `accessibilityIdentifier("main_scroll_view")` on the SwiftUI `ScrollView` itself (not the inner `VStack`) so XCUITest exposes it as `XCUIElementTypeScrollView` with the visible viewport's rect. The shared Appium swipe workaround on iOS depends on this anchoring -- attaching the id to the inner stack reports the full content rect (multiple screens tall) and WDIO `swipe` then computes gestures outside the viewport, which iOS clips to the visible region and registers as taps on whatever button sits there.
+- `ContentView` runs the auto push-permission prompt via `.task { viewModel.promptPushPermission() }` on mount. It races the OneSignal iOS-params response, so the standard alert can show before the SDK registers provisional auth (which would otherwise silently grant permission and skip the prompt entirely).
+
+### Branding assets
+
+`App/Assets.xcassets/` ships three branded asset folders alongside the standard `AppIcon` / `AccentColor`:
+
+- `LaunchBackground.colorset` -- referenced by `UILaunchScreen.UIColorName` in `App/Info.plist`
+- `onesignal_launch_icon.imageset` -- referenced by `UILaunchScreen.UIImageName`
+- `onesignal_logo.imageset` -- rendered as a template image in the `ContentView` toolbar's principal placement
 
 ---
 
@@ -131,7 +153,7 @@ override func didReceive(_ request: UNNotificationRequest,
 
     if let bestAttemptContent = bestAttemptContent {
         OneSignalExtension.didReceiveNotificationExtensionRequest(
-            request, with: bestAttemptContent, withContentHandler: contentHandler)
+            self.receivedRequest, with: bestAttemptContent, withContentHandler: contentHandler)
     }
 }
 
@@ -174,9 +196,11 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 
 `App/Info.plist` declares:
 
-- `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysAndWhenInUseUsageDescription` — required for the Location section's prompt
-- `NSSupportsLiveActivities = true` — required for the Live Activity section
-- `UIBackgroundModes` with `remote-notification` — required for silent / background pushes
+- `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysAndWhenInUseUsageDescription` -- required for the Location section's prompt
+- `NSSupportsLiveActivities = true` -- required for the Live Activity section
+- `NSSupportsLiveActivitiesFrequentUpdates = true` -- enables high-frequency push updates to running activities
+- `UIBackgroundModes` with `remote-notification` -- required for silent / background pushes
+- `UILaunchScreen` references the `LaunchBackground` color set and `onesignal_launch_icon` image set bundled in `App/Assets.xcassets/`
 
 ### Custom Notification Sound
 
@@ -209,30 +233,55 @@ examples/demo/
 ├── App.xcodeproj                                  # Generated by `xcodegen generate`
 ├── project.yml                                    # XcodeGen project definition
 ├── App.entitlements                               # aps-environment + app group
+├── Build.xcconfig                                 # Root xcconfig wired into every target;
+│                                                  # only does `#include? "Local.xcconfig"`
+├── Local.xcconfig.example                         # Per-developer overrides template
+│                                                  # (DEVELOPMENT_TEAM, CODE_SIGN_STYLE, ...)
 ├── build.md                                       # This file
 ├── README.md
 ├── App/                                           # Main app target source
-│   ├── App.swift                                  # @main + AppDelegate, SDK init,
-│   │                                              # notification/IAM listeners, Live Activity setup
+│   ├── App.swift                                  # @main + AppDelegate; calls
+│   │                                              # OneSignalService.shared.initialize,
+│   │                                              # registers NotificationLifecycleHandler /
+│   │                                              # NotificationClickHandler /
+│   │                                              # InAppMessageLifecycleHandler /
+│   │                                              # InAppMessageClickHandler, runs
+│   │                                              # LiveActivityController.setup() on iOS 16.1+
 │   ├── Info.plist
-│   ├── Assets.xcassets/                           # AppIcon + AccentColor
+│   ├── Secrets.plist                              # gitignored optional; ONESIGNAL_APP_ID +
+│   │                                              # ONESIGNAL_API_KEY consumed by SecretsConfig
+│   ├── vine_boom.wav                              # gitignored optional; custom notification sound
+│   ├── Assets.xcassets/
+│   │   ├── AppIcon.appiconset/
+│   │   ├── AccentColor.colorset/
+│   │   ├── LaunchBackground.colorset/             # UILaunchScreen background color
+│   │   ├── onesignal_launch_icon.imageset/        # UILaunchScreen image
+│   │   └── onesignal_logo.imageset/               # Used by ContentView toolbar
 │   ├── Models/
 │   │   └── AppModels.swift                        # KeyValueItem, NotificationType,
 │   │                                              # AddItemType, MultiAddItemType,
 │   │                                              # RemoveMultiItemType, OutcomeMode,
 │   │                                              # TooltipData, UserData
 │   ├── ViewModels/
-│   │   └── OneSignalViewModel.swift               # @MainActor ObservableObject, all UI state,
-│   │                                              # request-sequence guard, mergePairs/mergeUnique
+│   │   ├── OneSignalViewModel.swift               # @MainActor ObservableObject, holds
+│   │   │                                          # @Published activeTooltip, drives REST
+│   │   │                                          # fetches via UserFetchService, registers
+│   │   │                                          # SDK observers via private setupObservers()
+│   │   └── ToastPresenter.swift                   # @MainActor ObservableObject; @Published
+│   │                                              # message + show() with replace-on-show
 │   ├── Services/
 │   │   ├── OneSignalService.swift                 # Thin wrapper over OneSignal.* APIs
+│   │   ├── SecretsConfig.swift                    # Reads ONESIGNAL_APP_ID / ONESIGNAL_API_KEY
+│   │   │                                          # from Secrets.plist with defaults
 │   │   ├── NotificationSender.swift               # /notifications POST + transient-retry loop
 │   │   ├── UserFetchService.swift                 # /users GET, parses identity + tags + subs
 │   │   ├── TooltipService.swift                   # Loads sdk-shared tooltip JSON (with fallback)
 │   │   └── LiveActivityController.swift           # OneSignal.LiveActivities + REST update/end
 │   └── Views/
-│       ├── ContentView.swift                      # NavigationStack + ScrollView, composes sections,
-│       │                                          # binds every sheet to the view-model
+│       ├── ContentView.swift                      # NavigationStack + ScrollView; layout +
+│       │                                          # auto push-permission `.task` + tooltip dialog
+│       │                                          # via viewModel.activeTooltip; sections own
+│       │                                          # action dialog state
 │       ├── Theme.swift                            # Design tokens from sdk-shared/demo/styles.md
 │       ├── Sections/
 │       │   ├── AppSection.swift
@@ -254,24 +303,27 @@ examples/demo/
 │           ├── SectionCard.swift
 │           ├── ActionButton.swift
 │           ├── ToggleRow.swift
-│           ├── ListWidgets.swift                  # PairItem, SingleItem, EmptyState, LoadingState,
-│           │                                      # CollapsibleList, PairList
-│           ├── KeyValueRow.swift
-│           ├── AddItemSheet.swift                 # Single + Pair input sheets (typed)
-│           ├── MultiPairInputSheet.swift          # Bulk add (aliases / tags / triggers)
-│           ├── RemoveMultiSheet.swift             # Bulk remove (tags / triggers)
-│           ├── OutcomeSheet.swift                 # Normal / Unique / With Value
-│           ├── CustomNotificationSheet.swift
-│           ├── TrackEventSheet.swift              # Name + JSON properties, validates JSON
-│           ├── TooltipSheet.swift
-│           └── ToastView.swift
+│           ├── ListWidgets.swift                  # PairList + SingleList; private helpers
+│           │                                      # ListCardEmpty, ItemDivider, DeleteButton,
+│           │                                      # MoreLink. No LoadingState / CollapsibleList
+│           ├── KeyValueRow.swift                  # Filename vs type name differ -- type is
+│           │                                      # `InfoRow` (currently unused in demo)
+│           ├── OSDialog.swift                    # osCenteredDialog modifier + ClearBackgroundView
+│           ├── AddItemDialog.swift                # Single + Pair input dialogs (typed via AddItemType)
+│           ├── MultiPairInputDialog.swift        # Bulk add (aliases / tags / triggers)
+│           ├── RemoveMultiDialog.swift           # Bulk remove (tags / triggers)
+│           ├── OutcomeDialog.swift               # Normal / Unique / With Value
+│           ├── CustomNotificationDialog.swift
+│           ├── TrackEventDialog.swift            # Name + JSON properties, validates JSON
+│           ├── TooltipDialog.swift
+│           └── ToastView.swift                   # toast(message:) host modifier
 │
-├── OneSignalNotificationServiceExtension/         # NSE target — rich push
+├── OneSignalNotificationServiceExtension/         # NSE target -- rich push
 │   ├── NotificationService.swift                  # Forwards to OneSignalExtension
 │   ├── Info.plist                                 # NSExtension/usernotifications.service
 │   └── OneSignalNotificationServiceExtension.entitlements   # MUST match main app group
 │
-└── OneSignalWidget/                               # Widget Extension target — Live Activities
+└── OneSignalWidget/                               # Widget Extension target -- Live Activities
     ├── OneSignalWidgetBundle.swift                # @main WidgetBundle
     ├── OneSignalWidgetLiveActivity.swift          # Lock screen + Dynamic Island UI for
     │                                              # DefaultLiveActivityAttributes
@@ -287,7 +339,7 @@ examples/demo/
 - Always link the SDK frameworks through the workspace's `projectReferences` (not via SPM or CocoaPods inside the demo) so the demo builds against your local SDK edits without an extra publish step.
 - Keep the app group string identical in `App.entitlements` AND `OneSignalNotificationServiceExtension.entitlements` — they MUST match for confidential pushes and badge sync.
 - Embed and code-sign each SDK framework on the App target only; the NSE and Widget targets must link the frameworks they need without embedding (the App target owns them in `Frameworks/`).
-- Restore consent flags BEFORE `OneSignal.initialize(...)`; restore IAM paused / location shared AFTER. The SDK is the source of truth for everything else (push subscription id, external id, permission, tags) — read it directly instead of caching.
+- Consent / IAM-paused / location-shared restore is NOT implemented in `App.swift` today. The view model only tracks UI toggle state in `Cached*` UserDefaults keys; the SDK side mirrors its own writes through separate `OneSignal*` UserDefaults keys via `OneSignalService`, and the two key sets are not synced. The SDK is the source of truth for everything else (push subscription id, external id, permission, tags) -- read it directly instead of caching.
 - Use `OneSignal.User.pushSubscription.optIn()` / `optOut()` rather than touching `optedIn` directly; the SDK applies side effects (token registration, server sync) inside the methods.
 - Drive `fetchUserDataFromApi` from the `OSUserStateObserver` only — never call it synchronously right after `OneSignal.login(...)`. The SDK assigns the new `onesignalId` asynchronously, so a synchronous fetch races the assignment and returns null.
 - Set `.accessibilityIdentifier(...)` on every interactive control and value display you want to drive from Appium / XCUITest. SwiftUI does not derive identifiers from button titles, and the shared E2E suite selects by identifier.

@@ -29,6 +29,7 @@ import SwiftUI
 
 struct LocationSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @EnvironmentObject var toast: ToastPresenter
 
     var body: some View {
         SectionCard(
@@ -51,7 +52,8 @@ struct LocationSection: View {
             }
 
             ActionButton("CHECK LOCATION", accessibilityID: "check_location_button") {
-                viewModel.checkLocationShared()
+                let shared = viewModel.checkLocationShared()
+                toast.show("Location shared: \(shared)")
             }
         }
     }

@@ -18,6 +18,7 @@
 		1653658B1F4EE21203BBAA5D /* TriggersSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1155DE423DAA8B5396948C9B /* TriggersSection.swift */; };
 		16B0C854BC2498BEEDC4EEED /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E7F504B0421F2B6247E2F5 /* Theme.swift */; };
 		1A247F505A707756873AA9FA /* AddItemDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D84B9C2B0EFE086A8E48CD /* AddItemDialog.swift */; };
+		1F417CAD2528616703CAA54D /* ToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CBCD47A3EA4209A6DDB03 /* ToastPresenter.swift */; };
 		1FF9F70882A0CF6A73416DDF /* OneSignalWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0864BD4A6F62539B2809338F /* OneSignalWidgetLiveActivity.swift */; };
 		2015D767360C96D01A2FF3D9 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C1B9BE42E81492B9DB61343 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		232A52A5D5719F863641166C /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; };
@@ -334,6 +335,7 @@
 		76989E05CECAD7B8B3C424A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7EA9D80191548D49F09D30B3 /* AppModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModels.swift; sourceTree = "<group>"; };
 		7EB548D4688766660864F581 /* AppSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSection.swift; sourceTree = "<group>"; };
+		8F6CBCD47A3EA4209A6DDB03 /* ToastPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastPresenter.swift; sourceTree = "<group>"; };
 		911376C90AA43F41478596FE /* ToggleRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleRow.swift; sourceTree = "<group>"; };
 		939E1F476EE48B9833A3311C /* TooltipService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipService.swift; sourceTree = "<group>"; };
 		9E2383E8AA63BF04ADA2CF0D /* UserSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSection.swift; sourceTree = "<group>"; };
@@ -354,7 +356,7 @@
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
 		ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
 		F46DFACB9F304B9374F3C570 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		"TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		"TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -400,6 +402,7 @@
 			isa = PBXGroup;
 			children = (
 				0F1FA3F3D16A857DB6ED045F /* OneSignalViewModel.swift */,
+				8F6CBCD47A3EA4209A6DDB03 /* ToastPresenter.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -558,10 +561,10 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_E285A8CC-4F21-467E-B635-E37BB8F08F93" /* demo */ = {
+		"TEMP_C70C6C9C-81BF-4D16-94B2-1948700325A4" /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */,
+				"TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */,
 			);
 			path = demo;
 			sourceTree = "<group>";
@@ -832,6 +835,7 @@
 				2FCC417641D480849E99588B /* SmsSection.swift in Sources */,
 				3927A4BF207695E98A57E445 /* TagsSection.swift in Sources */,
 				16B0C854BC2498BEEDC4EEED /* Theme.swift in Sources */,
+				1F417CAD2528616703CAA54D /* ToastPresenter.swift in Sources */,
 				7C904CE2F4C2A2083324BBEB /* ToastView.swift in Sources */,
 				902A116B26B8ECAD8EE29C95 /* ToggleRow.swift in Sources */,
 				A2E180ADEA246FB6530E5C8C /* TooltipDialog.swift in Sources */,
@@ -940,7 +944,7 @@
 /* Begin XCBuildConfiguration section */
 		0D2EF3911CA89837C30DB0D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -957,7 +961,7 @@
 		};
 		4A0C935808978B5A7673E412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1036,7 +1040,7 @@
 		};
 		D0E56A85F1C385808720F94B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
@@ -1052,7 +1056,7 @@
 		};
 		EB1CC3A930E09FEBECF9195D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1070,7 +1074,7 @@
 		};
 		F305A3E63851EE49DA2D190E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1087,7 +1091,7 @@
 		};
 		F5FD25168D9B32A08A468069 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_AF750D86-34E4-49D2-85E4-00E4A4E93B2E" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
