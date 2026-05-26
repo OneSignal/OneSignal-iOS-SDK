@@ -97,7 +97,7 @@ Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushS
 
 ### Toast
 
-- A lightweight `ToastView` modifier (`App/Views/Components/ToastView.swift`) attached via `.toast(message: $viewModel.toastMessage)` on the root `ContentView`. Setting `toastMessage` shows it; auto-dismisses after ~2s
+- A lightweight `ToastView` modifier (`App/Views/Components/ToastView.swift`) attached via `.toast(message: $viewModel.toastMessage)` on the root `ContentView`. Setting `toastMessage` shows it; auto-dismisses after 3s
 - Only login / logout / outcomes / track event / location-check actions feed the toast (matches Phase 7.6 of the shared guide); everything else uses `print()` only
 
 ### Send In-App Message Icons

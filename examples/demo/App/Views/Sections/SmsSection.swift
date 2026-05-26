@@ -29,6 +29,7 @@ import SwiftUI
 
 struct SmsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var addOpen = false
 
     var body: some View {
         SectionCard(
@@ -44,8 +45,18 @@ struct SmsSection: View {
             )
 
             ActionButton("ADD SMS", accessibilityID: "add_sms_button") {
-                viewModel.showAddDialog(for: .sms)
+                addOpen = true
             }
+        }
+        .osCenteredDialog(isPresented: $addOpen) {
+            AddItemDialog(
+                itemType: .sms,
+                onAdd: { _, value in
+                    viewModel.addSms(value)
+                    addOpen = false
+                },
+                onCancel: { addOpen = false }
+            )
         }
     }
 }

@@ -27,8 +27,7 @@
 
 import SwiftUI
 
-/// Root view composing every section in the same order as the Capacitor demo
-/// and wiring the modal dialogs to the view-model state.
+/// Root view composing every section in the same order as the Capacitor demo.
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
@@ -73,64 +72,6 @@ struct ContentView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar { toolbarContent }
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingAddDialog) {
-            AddItemDialog(
-                itemType: viewModel.addItemType,
-                onAdd: { key, value in viewModel.handleAddItem(key: key, value: value) },
-                onCancel: { viewModel.showingAddDialog = false }
-            )
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingMultiAddDialog) {
-            MultiPairInputDialog(
-                type: viewModel.multiAddType,
-                onAdd: { pairs in viewModel.handleMultiAdd(pairs) },
-                onCancel: { viewModel.showingMultiAddDialog = false }
-            )
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingRemoveMultiDialog) {
-            RemoveMultiDialog(
-                type: viewModel.removeMultiType,
-                items: viewModel.removeMultiItems,
-                onRemove: { keys in viewModel.handleRemoveMulti(keys) },
-                onCancel: { viewModel.showingRemoveMultiDialog = false }
-            )
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingOutcomeDialog) {
-            OutcomeDialog(
-                onSend: { name, mode, value in
-                    switch mode {
-                    case .normal:
-                        viewModel.sendOutcome(name)
-                    case .unique:
-                        viewModel.sendUniqueOutcome(name)
-                    case .value:
-                        if let value = value {
-                            viewModel.sendOutcome(name, value: value)
-                        }
-                    }
-                    viewModel.showingOutcomeDialog = false
-                },
-                onCancel: { viewModel.showingOutcomeDialog = false }
-            )
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingCustomNotificationDialog) {
-            CustomNotificationDialog(
-                onSend: { title, body in
-                    viewModel.sendCustomNotification(title: title, body: body)
-                    viewModel.showingCustomNotificationDialog = false
-                },
-                onCancel: { viewModel.showingCustomNotificationDialog = false }
-            )
-        }
-        .osCenteredDialog(isPresented: $viewModel.showingTrackEventDialog) {
-            TrackEventDialog(
-                onTrack: { name, properties in
-                    viewModel.trackEvent(name: name, properties: properties)
-                    viewModel.showingTrackEventDialog = false
-                },
-                onCancel: { viewModel.showingTrackEventDialog = false }
-            )
         }
         .osCenteredDialog(
             isPresented: Binding(

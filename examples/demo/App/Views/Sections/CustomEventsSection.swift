@@ -29,6 +29,7 @@ import SwiftUI
 
 struct CustomEventsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var open = false
 
     var body: some View {
         SectionCard(
@@ -37,8 +38,17 @@ struct CustomEventsSection: View {
             onInfoTap: { viewModel.showTooltip(for: "customEvents") }
         ) {
             ActionButton("TRACK EVENT", accessibilityID: "track_event_button") {
-                viewModel.showingTrackEventDialog = true
+                open = true
             }
+        }
+        .osCenteredDialog(isPresented: $open) {
+            TrackEventDialog(
+                onTrack: { name, properties in
+                    viewModel.trackEvent(name: name, properties: properties)
+                    open = false
+                },
+                onCancel: { open = false }
+            )
         }
     }
 }

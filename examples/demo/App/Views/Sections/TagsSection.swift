@@ -29,6 +29,9 @@ import SwiftUI
 
 struct TagsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var addOpen = false
+    @State private var addMultipleOpen = false
+    @State private var removeOpen = false
 
     var body: some View {
         SectionCard(
@@ -48,10 +51,10 @@ struct TagsSection: View {
             )
 
             ActionButton("ADD TAG", accessibilityID: "add_tag_button") {
-                viewModel.showAddDialog(for: .tag)
+                addOpen = true
             }
             ActionButton("ADD MULTIPLE TAGS", accessibilityID: "add_multiple_tags_button") {
-                viewModel.showMultiAddDialog(for: .tags)
+                addMultipleOpen = true
             }
             if !viewModel.tags.isEmpty {
                 ActionButton(
@@ -59,9 +62,40 @@ struct TagsSection: View {
                     style: .outline,
                     accessibilityID: "remove_tags_button"
                 ) {
-                    viewModel.showRemoveMultiDialog(for: .tags)
+                    removeOpen = true
                 }
             }
+        }
+        .osCenteredDialog(isPresented: $addOpen) {
+            AddItemDialog(
+                itemType: .tag,
+                onAdd: { key, value in
+                    viewModel.addTag(key: key, value: value)
+                    addOpen = false
+                },
+                onCancel: { addOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $addMultipleOpen) {
+            MultiPairInputDialog(
+                type: .tags,
+                onAdd: { pairs in
+                    viewModel.addTags(pairs)
+                    addMultipleOpen = false
+                },
+                onCancel: { addMultipleOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $removeOpen) {
+            RemoveMultiDialog(
+                type: .tags,
+                items: viewModel.tags,
+                onRemove: { keys in
+                    viewModel.removeSelectedTags(keys)
+                    removeOpen = false
+                },
+                onCancel: { removeOpen = false }
+            )
         }
     }
 }

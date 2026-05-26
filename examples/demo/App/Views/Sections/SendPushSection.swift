@@ -30,6 +30,7 @@ import SwiftUI
 /// Buttons that fire test pushes via the OneSignal REST API
 struct SendPushSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var customOpen = false
 
     var body: some View {
         SectionCard(
@@ -47,7 +48,7 @@ struct SendPushSection: View {
                 viewModel.sendNotification(.withSound)
             }
             ActionButton("CUSTOM", accessibilityID: "send_custom_button") {
-                viewModel.showingCustomNotificationDialog = true
+                customOpen = true
             }
             ActionButton(
                 "CLEAR ALL",
@@ -56,6 +57,15 @@ struct SendPushSection: View {
             ) {
                 viewModel.clearAllNotifications()
             }
+        }
+        .osCenteredDialog(isPresented: $customOpen) {
+            CustomNotificationDialog(
+                onSend: { title, body in
+                    viewModel.sendCustomNotification(title: title, body: body)
+                    customOpen = false
+                },
+                onCancel: { customOpen = false }
+            )
         }
     }
 }

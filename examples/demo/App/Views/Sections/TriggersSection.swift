@@ -29,6 +29,9 @@ import SwiftUI
 
 struct TriggersSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var addOpen = false
+    @State private var addMultipleOpen = false
+    @State private var removeOpen = false
 
     var body: some View {
         SectionCard(
@@ -48,10 +51,10 @@ struct TriggersSection: View {
             )
 
             ActionButton("ADD TRIGGER", accessibilityID: "add_trigger_button") {
-                viewModel.showAddDialog(for: .trigger)
+                addOpen = true
             }
             ActionButton("ADD MULTIPLE TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
-                viewModel.showMultiAddDialog(for: .triggers)
+                addMultipleOpen = true
             }
             if !viewModel.triggers.isEmpty {
                 ActionButton(
@@ -59,7 +62,7 @@ struct TriggersSection: View {
                     style: .outline,
                     accessibilityID: "remove_triggers_button"
                 ) {
-                    viewModel.showRemoveMultiDialog(for: .triggers)
+                    removeOpen = true
                 }
                 ActionButton(
                     "CLEAR ALL TRIGGERS",
@@ -69,6 +72,37 @@ struct TriggersSection: View {
                     viewModel.clearTriggers()
                 }
             }
+        }
+        .osCenteredDialog(isPresented: $addOpen) {
+            AddItemDialog(
+                itemType: .trigger,
+                onAdd: { key, value in
+                    viewModel.addTrigger(key: key, value: value)
+                    addOpen = false
+                },
+                onCancel: { addOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $addMultipleOpen) {
+            MultiPairInputDialog(
+                type: .triggers,
+                onAdd: { pairs in
+                    viewModel.addTriggers(pairs)
+                    addMultipleOpen = false
+                },
+                onCancel: { addMultipleOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $removeOpen) {
+            RemoveMultiDialog(
+                type: .triggers,
+                items: viewModel.triggers,
+                onRemove: { keys in
+                    viewModel.removeSelectedTriggers(keys)
+                    removeOpen = false
+                },
+                onCancel: { removeOpen = false }
+            )
         }
     }
 }

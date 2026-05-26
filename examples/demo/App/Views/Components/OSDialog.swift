@@ -196,10 +196,18 @@ struct OSTextEditor: View {
 // MARK: - Centered dialog presentation
 
 extension View {
-    /// Presents `content` as a centered modal dialog over the receiver, matching
-    /// the styles.md "Dialogs" spec: 54% black backdrop, 16pt horizontal /
-    /// 24pt vertical insets, 28pt corner radius, white card. Tapping the
-    /// backdrop dismisses.
+    /// Presents `content` as a centered modal dialog over the entire screen,
+    /// matching the styles.md "Dialogs" spec: 54% black backdrop, 16pt
+    /// horizontal / 24pt vertical insets, 28pt corner radius, white card.
+    /// Tapping the backdrop dismisses.
+    ///
+    /// Uses `.fullScreenCover` rather than `.overlay` so the backdrop and
+    /// dialog are anchored to the window — sections can attach this modifier
+    /// without the overlay being clipped to the section's frame inside
+    /// `ScrollView`. The cover's UIHostingController background is forced
+    /// clear via `ClearBackgroundView` so the dialog's own backdrop is what
+    /// the user sees (iOS 16.4+ has `presentationBackground(.clear)`; this
+    /// works on the demo's 16.0 deployment target).
     func osCenteredDialog<DialogContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> DialogContent
@@ -213,23 +221,35 @@ private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
     @ViewBuilder var dialog: () -> DialogContent
 
     func body(content: Content) -> some View {
-        content
-            .overlay {
-                if isPresented {
-                    ZStack {
-                        OS.Color.backdrop
-                            .ignoresSafeArea()
-                            .contentShape(Rectangle())
-                            .onTapGesture { isPresented = false }
+        content.fullScreenCover(isPresented: $isPresented) {
+            ZStack {
+                OS.Color.backdrop
+                    .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture { isPresented = false }
 
-                        dialog()
-                            .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 24)
-                    }
-                    .transition(.opacity)
-                }
+                dialog()
+                    .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 24)
             }
-            .animation(.easeInOut(duration: 0.18), value: isPresented)
+            .background(ClearBackgroundView())
+        }
+        .transaction { $0.disablesAnimations = true }
     }
+}
+
+/// UIKit bridge that walks up to the `UIHostingController`'s view and clears
+/// its background so the SwiftUI `fullScreenCover` is see-through. Required on
+/// iOS < 16.4 where `presentationBackground(.clear)` is unavailable.
+private struct ClearBackgroundView: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        DispatchQueue.main.async {
+            view.superview?.superview?.backgroundColor = .clear
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }

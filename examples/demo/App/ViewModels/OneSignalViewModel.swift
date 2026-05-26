@@ -70,19 +70,6 @@ final class OneSignalViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var toastMessage: String?
 
-    @Published var showingAddDialog: Bool = false
-    @Published var addItemType: AddItemType = .email
-
-    @Published var showingMultiAddDialog: Bool = false
-    @Published var multiAddType: MultiAddItemType = .tags
-
-    @Published var showingRemoveMultiDialog: Bool = false
-    @Published var removeMultiType: RemoveMultiItemType = .tags
-
-    @Published var showingOutcomeDialog: Bool = false
-    @Published var showingCustomNotificationDialog: Bool = false
-    @Published var showingTrackEventDialog: Bool = false
-
     @Published var activeTooltip: TooltipData?
 
     // MARK: - Computed
@@ -94,17 +81,11 @@ final class OneSignalViewModel: ObservableObject {
 
     var loginButtonTitle: String { isLoggedIn ? "SWITCH USER" : "LOGIN USER" }
 
-    var removeMultiItems: [KeyValueItem] {
-        switch removeMultiType {
-        case .tags: return tags
-        case .triggers: return triggers
-        }
-    }
-
     // MARK: - Private
 
     private let service: OneSignalService
     private var observers = Observers()
+    private var toastDismissTask: Task<Void, Never>?
 
     // MARK: - Init
 
@@ -446,64 +427,14 @@ final class OneSignalViewModel: ObservableObject {
         activeTooltip = nil
     }
 
-    // MARK: - Dialog handling
-
-    func showAddDialog(for type: AddItemType) {
-        addItemType = type
-        showingAddDialog = true
-    }
-
-    func showMultiAddDialog(for type: MultiAddItemType) {
-        multiAddType = type
-        showingMultiAddDialog = true
-    }
-
-    func showRemoveMultiDialog(for type: RemoveMultiItemType) {
-        removeMultiType = type
-        showingRemoveMultiDialog = true
-    }
-
-    func handleAddItem(key: String, value: String) {
-        switch addItemType {
-        case .alias:
-            addAlias(label: key, id: value)
-        case .email:
-            addEmail(value)
-        case .sms:
-            addSms(value)
-        case .tag:
-            addTag(key: key, value: value)
-        case .trigger:
-            addTrigger(key: key, value: value)
-        case .externalUserId:
-            login(externalId: value)
-        }
-        showingAddDialog = false
-    }
-
-    func handleMultiAdd(_ pairs: [(String, String)]) {
-        switch multiAddType {
-        case .aliases: addAliases(pairs)
-        case .tags: addTags(pairs)
-        case .triggers: addTriggers(pairs)
-        }
-        showingMultiAddDialog = false
-    }
-
-    func handleRemoveMulti(_ keys: [String]) {
-        switch removeMultiType {
-        case .tags: removeSelectedTags(keys)
-        case .triggers: removeSelectedTriggers(keys)
-        }
-        showingRemoveMultiDialog = false
-    }
-
     // MARK: - Toast
 
     func showToast(_ message: String) {
+        toastDismissTask?.cancel()
         toastMessage = message
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+        toastDismissTask = Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard !Task.isCancelled else { return }
             if toastMessage == message { toastMessage = nil }
         }
     }

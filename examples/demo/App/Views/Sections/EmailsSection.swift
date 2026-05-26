@@ -29,6 +29,7 @@ import SwiftUI
 
 struct EmailsSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var addOpen = false
 
     var body: some View {
         SectionCard(
@@ -44,8 +45,18 @@ struct EmailsSection: View {
             )
 
             ActionButton("ADD EMAIL", accessibilityID: "add_email_button") {
-                viewModel.showAddDialog(for: .email)
+                addOpen = true
             }
+        }
+        .osCenteredDialog(isPresented: $addOpen) {
+            AddItemDialog(
+                itemType: .email,
+                onAdd: { _, value in
+                    viewModel.addEmail(value)
+                    addOpen = false
+                },
+                onCancel: { addOpen = false }
+            )
         }
     }
 }

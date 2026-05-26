@@ -29,6 +29,8 @@ import SwiftUI
 
 struct AliasesSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var addOpen = false
+    @State private var addMultipleOpen = false
 
     var body: some View {
         SectionCard(
@@ -43,11 +45,31 @@ struct AliasesSection: View {
             )
 
             ActionButton("ADD ALIAS", accessibilityID: "add_alias_button") {
-                viewModel.showAddDialog(for: .alias)
+                addOpen = true
             }
             ActionButton("ADD MULTIPLE ALIASES", accessibilityID: "add_multiple_aliases_button") {
-                viewModel.showMultiAddDialog(for: .aliases)
+                addMultipleOpen = true
             }
+        }
+        .osCenteredDialog(isPresented: $addOpen) {
+            AddItemDialog(
+                itemType: .alias,
+                onAdd: { key, value in
+                    viewModel.addAlias(label: key, id: value)
+                    addOpen = false
+                },
+                onCancel: { addOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $addMultipleOpen) {
+            MultiPairInputDialog(
+                type: .aliases,
+                onAdd: { pairs in
+                    viewModel.addAliases(pairs)
+                    addMultipleOpen = false
+                },
+                onCancel: { addMultipleOpen = false }
+            )
         }
     }
 }

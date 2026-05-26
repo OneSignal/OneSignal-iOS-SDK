@@ -30,6 +30,7 @@ import SwiftUI
 /// Login/logout + status display, mirroring the Capacitor UserSection
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var loginOpen = false
 
     var body: some View {
         SectionCard(title: "USER", sectionKey: "user") {
@@ -51,7 +52,7 @@ struct UserSection: View {
                 viewModel.loginButtonTitle,
                 accessibilityID: "login_user_button"
             ) {
-                viewModel.showAddDialog(for: .externalUserId)
+                loginOpen = true
             }
 
             if viewModel.isLoggedIn {
@@ -63,6 +64,16 @@ struct UserSection: View {
                     viewModel.logout()
                 }
             }
+        }
+        .osCenteredDialog(isPresented: $loginOpen) {
+            AddItemDialog(
+                itemType: .externalUserId,
+                onAdd: { _, value in
+                    viewModel.login(externalId: value)
+                    loginOpen = false
+                },
+                onCancel: { loginOpen = false }
+            )
         }
     }
 }

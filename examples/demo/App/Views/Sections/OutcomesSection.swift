@@ -29,6 +29,7 @@ import SwiftUI
 
 struct OutcomesSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @State private var open = false
 
     var body: some View {
         SectionCard(
@@ -37,8 +38,26 @@ struct OutcomesSection: View {
             onInfoTap: { viewModel.showTooltip(for: "outcomes") }
         ) {
             ActionButton("SEND OUTCOME", accessibilityID: "send_outcome_button") {
-                viewModel.showingOutcomeDialog = true
+                open = true
             }
+        }
+        .osCenteredDialog(isPresented: $open) {
+            OutcomeDialog(
+                onSend: { name, mode, value in
+                    switch mode {
+                    case .normal:
+                        viewModel.sendOutcome(name)
+                    case .unique:
+                        viewModel.sendUniqueOutcome(name)
+                    case .value:
+                        if let value = value {
+                            viewModel.sendOutcome(name, value: value)
+                        }
+                    }
+                    open = false
+                },
+                onCancel: { open = false }
+            )
         }
     }
 }
