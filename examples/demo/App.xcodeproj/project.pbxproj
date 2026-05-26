@@ -21,6 +21,7 @@
 		1F417CAD2528616703CAA54D /* ToastPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6CBCD47A3EA4209A6DDB03 /* ToastPresenter.swift */; };
 		1FF9F70882A0CF6A73416DDF /* OneSignalWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0864BD4A6F62539B2809338F /* OneSignalWidgetLiveActivity.swift */; };
 		2015D767360C96D01A2FF3D9 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 2C1B9BE42E81492B9DB61343 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		20792A9930A201E187AA0ABF /* PreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76153AD2F6C6EB8F77138B9 /* PreferencesService.swift */; };
 		232A52A5D5719F863641166C /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; };
 		25C963476DF0B01BAABE24D9 /* TooltipService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939E1F476EE48B9833A3311C /* TooltipService.swift */; };
 		27C72DF35BE082E3E1093F75 /* SendIamSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60D09DC8C809877FB4BF465 /* SendIamSection.swift */; };
@@ -348,6 +349,7 @@
 		BDB04A33912347325A0155D6 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		C360043C7B20683C2E3FA3B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C60D09DC8C809877FB4BF465 /* SendIamSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendIamSection.swift; sourceTree = "<group>"; };
+		C76153AD2F6C6EB8F77138B9 /* PreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesService.swift; sourceTree = "<group>"; };
 		D261D46C404E325CBA87A9E0 /* OSDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDialog.swift; sourceTree = "<group>"; };
 		D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretsConfig.swift; sourceTree = "<group>"; };
 		D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomeDialog.swift; sourceTree = "<group>"; };
@@ -356,7 +358,7 @@
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
 		ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
 		F46DFACB9F304B9374F3C570 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		"TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		"TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -486,6 +488,7 @@
 				0542854462194E28D9E4638D /* LiveActivityController.swift */,
 				38138523A8A81A60A77800CA /* NotificationSender.swift */,
 				5E0F5CBE80CF861238E1A9AA /* OneSignalService.swift */,
+				C76153AD2F6C6EB8F77138B9 /* PreferencesService.swift */,
 				D4EBF32FC1DBF3C34188E08C /* SecretsConfig.swift */,
 				939E1F476EE48B9833A3311C /* TooltipService.swift */,
 				3FD8258E807E6672642A32E6 /* UserFetchService.swift */,
@@ -561,10 +564,10 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		"TEMP_C70C6C9C-81BF-4D16-94B2-1948700325A4" /* demo */ = {
+		"TEMP_BC60B80C-3553-4130-8508-42B5AB6C4C1B" /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */,
+				"TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */,
 			);
 			path = demo;
 			sourceTree = "<group>";
@@ -826,6 +829,7 @@
 				5737CABFA55E019B2732B90D /* OneSignalViewModel.swift in Sources */,
 				39D2C94F79A62BFF9DE5DBA9 /* OutcomeDialog.swift in Sources */,
 				14228D0C997F9168643F8154 /* OutcomesSection.swift in Sources */,
+				20792A9930A201E187AA0ABF /* PreferencesService.swift in Sources */,
 				EA93E372AA3E66073487B89C /* PushSection.swift in Sources */,
 				2FA8128D2A921DDF02210D8A /* RemoveMultiDialog.swift in Sources */,
 				28D491D31B5C07E4D4F48A7D /* SecretsConfig.swift in Sources */,
@@ -944,7 +948,7 @@
 /* Begin XCBuildConfiguration section */
 		0D2EF3911CA89837C30DB0D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -961,7 +965,7 @@
 		};
 		4A0C935808978B5A7673E412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1040,7 +1044,7 @@
 		};
 		D0E56A85F1C385808720F94B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
@@ -1056,7 +1060,7 @@
 		};
 		EB1CC3A930E09FEBECF9195D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1074,7 +1078,7 @@
 		};
 		F305A3E63851EE49DA2D190E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1091,7 +1095,7 @@
 		};
 		F5FD25168D9B32A08A468069 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_72409DA8-0C22-468A-B084-E8BC425FFB81" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_196A01E1-FF4D-4A91-B9D6-E6100CF24C88" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;

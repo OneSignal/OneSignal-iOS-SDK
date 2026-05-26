@@ -83,6 +83,7 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - Private
 
     private let service: OneSignalService
+    private let prefs: PreferencesService
     private var observers = Observers()
 
     /// Monotonically incremented on every `fetchUserDataFromApi` call. The
@@ -92,12 +93,13 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(service: OneSignalService = .shared) {
+    init(service: OneSignalService = .shared, prefs: PreferencesService = .shared) {
         self.service = service
+        self.prefs = prefs
         self.appId = service.appId
         self.consentRequired = service.consentRequired
         self.consentGiven = service.consentGiven
-        self.externalUserId = service.externalId
+        self.externalUserId = service.externalId ?? prefs.getExternalUserId()
         self.hasNotificationPermission = service.hasNotificationPermission
         refreshState()
         setupObservers()

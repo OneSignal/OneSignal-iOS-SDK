@@ -79,13 +79,20 @@ setupInAppMessageListeners()
 if #available(iOS 16.1, *) { LiveActivityController.setup() }
 ```
 
-- `OneSignalService.initialize(launchOptions:)` calls `OneSignal.Debug.setLogLevel(.LL_VERBOSE)` then `OneSignal.initialize(appId, withLaunchOptions:)`. The app id comes from `SecretsConfig.appId` (`Secrets.plist` -> hard-coded fallback)
+- `OneSignalService.initialize(launchOptions:)` mirrors the Capacitor `useOneSignal` startup order so toggles persist across cold launches:
+  1. `OneSignal.Debug.setLogLevel(.LL_VERBOSE)`
+  2. `OneSignal.setConsentRequired(prefs.getConsentRequired())`
+  3. `OneSignal.setConsentGiven(prefs.getConsentGiven())`
+  4. `OneSignal.initialize(appId, withLaunchOptions:)`
+  5. `OneSignal.InAppMessages.paused = prefs.getIamPaused()`
+  6. `OneSignal.Location.isShared = prefs.getLocationShared()`
+  7. If `prefs.getExternalUserId()` is non-nil: `OneSignal.login(storedExternalId)`
 - `LiveActivityController.setup()` wraps `OneSignal.LiveActivities.setupDefault()` (iOS 16.1+ guard lives in the controller, not inline)
 - The four SDK listeners (`NotificationLifecycleHandler`, `NotificationClickHandler`, `InAppMessageLifecycleHandler`, `InAppMessageClickHandler`) are registered via `OneSignal.Notifications.add*Listener(...)` / `OneSignal.InAppMessages.add*Listener(...)` from the `setupNotificationListeners` / `setupInAppMessageListeners` helpers
-- The demo does NOT do pre/post-init consent + IAM-paused + location-shared restoration in `AppDelegate`. SDK state is read directly from `OneSignal.*` getters once initialized
-- Consent state is owned by `OneSignalService` and persisted under `OneSignalConsentRequired` / `OneSignalConsentGiven`. The view model mirrors those values into `@Published` props during init (and on every setter) so the UI toggles update without subscribing to the SDK directly
 
-Read UI state directly from the SDK once it's initialized (`OneSignal.User.pushSubscription.id`, `OneSignal.User.pushSubscription.optedIn`, `OneSignal.User.externalId`, `OneSignal.Notifications.permission`) instead of from cache.
+`PreferencesService` (`App/Services/PreferencesService.swift`) is the demo's UserDefaults-backed cache, keyed under `onesignal.demo.*`. It's the single source of truth for any state the demo needs to restore on a fresh launch: consent flags, IAM-paused, location-shared, and the last-logged-in external user id. Setters on `OneSignalService` read-through and write-through this cache (in addition to forwarding to the SDK), so the view model's `@Published` props can hydrate from `service.consentRequired` / `service.consentGiven` / `service.isInAppMessagesPaused` / `service.isLocationShared` and get cached values on cold launch.
+
+Push subscription id, opt-in, notification permission, and the live `OneSignal.User.externalId` are still read directly from the SDK at runtime (they don't need preference caching).
 
 ---
 
