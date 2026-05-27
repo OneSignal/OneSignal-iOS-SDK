@@ -59,6 +59,16 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
         ENABLE_USER_SCRIPT_SANDBOXING: NO
+      configs:
+        Debug:
+          DEVELOPMENT_TEAM: 99SW8E36CT
+        Release:
+          CODE_SIGN_IDENTITY: "iPhone Developer"
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ""
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          PROVISIONING_PROFILE_SPECIFIER: ""
+          "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - Main"
     dependencies:
       # SDK Swift framework targets (built from local source via the workspace)
       - target: OneSignalSDK/OneSignalCore
@@ -123,6 +133,16 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
         SKIP_INSTALL: YES
+      configs:
+        Debug:
+          DEVELOPMENT_TEAM: 99SW8E36CT
+        Release:
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer"
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ""
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          PROVISIONING_PROFILE_SPECIFIER: ""
+          "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - NSE"
     dependencies:
       - target: OneSignalSDK/OneSignalCore
         embed: false
@@ -156,6 +176,16 @@ targets:
         SKIP_INSTALL: YES
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
+      configs:
+        Debug:
+          DEVELOPMENT_TEAM: 99SW8E36CT
+        Release:
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer"
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ""
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          PROVISIONING_PROFILE_SPECIFIER: ""
+          "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - Live Activity"
     dependencies:
       - target: OneSignalSDK/OneSignalLiveActivities
         embed: false
