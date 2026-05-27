@@ -17,19 +17,17 @@ runs:
     - name: Create Secrets.plist
       shell: bash
       working-directory: examples/demo
+      env:
+        APP_ID: ${{ inputs.onesignal-app-id }}
+        API_KEY: ${{ inputs.onesignal-api-key }}
       run: |
-        cat > App/Secrets.plist <<EOF
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>ONESIGNAL_APP_ID</key>
-            <string>${{ inputs.onesignal-app-id }}</string>
-            <key>ONESIGNAL_API_KEY</key>
-            <string>${{ inputs.onesignal-api-key }}</string>
-        </dict>
-        </plist>
-        EOF
+        python3 - <<'PY'
+        import os, plistlib, pathlib
+        pathlib.Path('App/Secrets.plist').write_bytes(plistlib.dumps({
+            'ONESIGNAL_APP_ID': os.environ['APP_ID'],
+            'ONESIGNAL_API_KEY': os.environ['API_KEY'],
+        }))
+        PY
 
     - name: Generate Xcode project
       shell: bash
