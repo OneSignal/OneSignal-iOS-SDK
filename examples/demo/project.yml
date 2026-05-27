@@ -1,0 +1,161 @@
+name: App
+options:
+  bundleIdPrefix: com.onesignal.example
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+  groupSortPosition: top
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: NO
+projectReferences:
+  OneSignalSDK:
+    path: ../../iOS_SDK/OneSignalSDK/OneSignal.xcodeproj
+targets:
+  # ---------------------------------------------------------------------------
+  # Main app
+  # ---------------------------------------------------------------------------
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
+    sources:
+      - path: App
+        excludes:
+          - "Info.plist"
+          - "**/*.entitlements"
+          # Handled separately below so we can force buildPhase: resources.
+          # XcodeGen defaults .plist files to BuildPhase.none (assumes
+          # Info.plist-like), which leaves Secrets.plist out of Copy Bundle
+          # Resources and Bundle.main.url(...) returns nil at runtime.
+          - "Secrets.plist"
+      # Credentials read by App/Services/SecretsConfig.swift at runtime.
+      # Gitignored and auto-written by sdk-shared/appium/scripts/run-local.sh
+      # when ONESIGNAL_APP_ID / ONESIGNAL_API_KEY are set; manually populated
+      # otherwise (see README step 4). optional: true so xcodegen succeeds on
+      # a fresh clone where the file hasn't been created yet.
+      - path: App/Secrets.plist
+        buildPhase: resources
+        optional: true
+    settings:
+      base:
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example
+        INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_ENTITLEMENTS: App.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    dependencies:
+      # SDK Swift framework targets (built from local source via the workspace)
+      - target: OneSignalSDK/OneSignalCore
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalOSCore
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalOutcomes
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalNotifications
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalUser
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalExtension
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalLocation
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalInAppMessages
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalLiveActivities
+        embed: true
+        codeSign: true
+      - target: OneSignalSDK/OneSignalFramework
+        embed: true
+        codeSign: true
+      # Local app extensions
+      - target: OneSignalNotificationServiceExtension
+        embed: true
+        codeSign: true
+      - target: OneSignalWidget
+        embed: true
+        codeSign: true
+
+  # ---------------------------------------------------------------------------
+  # Notification Service Extension (rich push)
+  # ---------------------------------------------------------------------------
+  OneSignalNotificationServiceExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
+    sources:
+      - path: OneSignalNotificationServiceExtension
+        excludes:
+          - "Info.plist"
+          - "**/*.entitlements"
+    settings:
+      base:
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.NSE
+        INFOPLIST_FILE: OneSignalNotificationServiceExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        SKIP_INSTALL: YES
+    dependencies:
+      - target: OneSignalSDK/OneSignalCore
+        embed: false
+      - target: OneSignalSDK/OneSignalOutcomes
+        embed: false
+      - target: OneSignalSDK/OneSignalExtension
+        embed: false
+
+  # ---------------------------------------------------------------------------
+  # Widget Extension (Live Activities)
+  # ---------------------------------------------------------------------------
+  OneSignalWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.2"
+    configFiles:
+      Debug: Build.xcconfig
+      Release: Build.xcconfig
+    sources:
+      - path: OneSignalWidget
+        excludes:
+          - "Info.plist"
+          - "**/*.entitlements"
+    settings:
+      base:
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.LA
+        INFOPLIST_FILE: OneSignalWidget/Info.plist
+        TARGETED_DEVICE_FAMILY: "1,2"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        SKIP_INSTALL: YES
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
+    dependencies:
+      - target: OneSignalSDK/OneSignalLiveActivities
+        embed: false

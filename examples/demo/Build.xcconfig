@@ -1,0 +1,8 @@
+// Demo build settings auto-included by every target via project.yml.
+//
+// Per-developer values (Apple DEVELOPMENT_TEAM, custom bundle ids, etc.)
+// belong in a sibling `Local.xcconfig` so they never get committed. The
+// optional include below is a no-op when the file is missing, so a fresh
+// clone builds without further setup. See `Local.xcconfig.example`.
+
+#include? "Local.xcconfig"
