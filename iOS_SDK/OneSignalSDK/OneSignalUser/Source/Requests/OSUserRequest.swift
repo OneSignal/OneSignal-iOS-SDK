@@ -70,8 +70,6 @@ internal extension OneSignalRequest {
      | --------------- | -------------- | ------- | ------- |
      */
     func addJWTHeaderIsValid(identityModel: OSIdentityModel) -> Bool {
-        // Snapshot once via getValidJwt() to avoid split read-then-check races
-        // between concurrent writers (login/setUserJwtToken/invalidate).
         let validToken = identityModel.getValidJwt()
         let required = OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired
         let canBeSent = (required == false) || (required == true && validToken != nil)
