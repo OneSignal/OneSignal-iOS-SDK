@@ -44,18 +44,17 @@ class OSIdentityModel: OSModel {
 
     // MARK: - JWT
 
-    private var _jwtBearerToken: String?
+    private var jwtBearerTokenLocked: String? // only read/write under self.lock
     public var jwtBearerToken: String? {
         get {
-            lock.withLock { _jwtBearerToken }
+            lock.withLock { jwtBearerTokenLocked }
         }
         set {
             // Lock only the storage write. The change notifier fires synchronously
-            // to listeners that may take other locks; firing under our lock would
-            // risk deadlock (NSRecursiveLock only saves same-thread re-entry).
-            let changed: Bool = lock.withLock {
-                guard newValue != _jwtBearerToken else { return false }
-                _jwtBearerToken = newValue
+            // to listeners that may take other locks
+            let changed = lock.withLock {
+                guard newValue != jwtBearerTokenLocked else { return false }
+                jwtBearerTokenLocked = newValue
                 return true
             }
             if changed {
@@ -64,10 +63,7 @@ class OSIdentityModel: OSModel {
         }
     }
 
-    /// Returns the bearer token if it is non-nil, non-empty, and not the
-    /// `OS_JWT_TOKEN_INVALID` sentinel — otherwise nil. Snapshots once so the
-    /// caller cannot split a read-then-check across two reads of a property
-    /// that other threads can mutate.
+    /// Returns the bearer token if it is valid, otherwise nil, snapshots once
     func getValidJwt() -> String? {
         let token = jwtBearerToken
         guard let token = token, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
@@ -78,15 +74,13 @@ class OSIdentityModel: OSModel {
 
     /**
      Atomically transition the JWT token to `OS_JWT_TOKEN_INVALID`. Returns
-     `true` if the transition occurred, `false` if the token was already
-     invalid. Used by `invalidateJwtForExternalId` so only the thread that
-     actually invalidated fires `fireJwtExpired`.
+     `true` if the transition occurred, `false` if the token was already invalid.
      */
     @discardableResult
     func invalidateJwtBearerToken() -> Bool {
-        let changed: Bool = lock.withLock {
-            guard _jwtBearerToken != OS_JWT_TOKEN_INVALID else { return false }
-            _jwtBearerToken = OS_JWT_TOKEN_INVALID
+        let changed = lock.withLock {
+            guard jwtBearerTokenLocked != OS_JWT_TOKEN_INVALID else { return false }
+            jwtBearerTokenLocked = OS_JWT_TOKEN_INVALID
             return true
         }
         if changed {
@@ -107,7 +101,7 @@ class OSIdentityModel: OSModel {
         lock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
-            coder.encode(_jwtBearerToken, forKey: OS_JWT_BEARER_TOKEN)
+            coder.encode(jwtBearerTokenLocked, forKey: OS_JWT_BEARER_TOKEN)
         }
     }
 
@@ -117,7 +111,7 @@ class OSIdentityModel: OSModel {
             // log error
             return nil
         }
-        self._jwtBearerToken = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
+        self.jwtBearerTokenLocked = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
         self.aliases = aliases
     }
 
