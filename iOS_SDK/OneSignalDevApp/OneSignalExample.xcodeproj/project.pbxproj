@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3C448BA429381303002F96BC /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C448BA329381303002F96BC /* OneSignalNotifications.framework */; };
 		3C448BA529381303002F96BC /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C448BA329381303002F96BC /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C5C6FED2FC902C600102E2C /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */; };
 		3C79A42C2DB2B3170097BC13 /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3C79A42A2DB2B3170097BC13 /* click.wav */; };
 		3C79A42D2DB2B3170097BC13 /* bark.wav in Resources */ = {isa = PBXBuildFile; fileRef = 3C79A4292DB2B3170097BC13 /* bark.wav */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
@@ -293,6 +294,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5C6FED2FC902C600102E2C /* OneSignalOSCore.framework in Frameworks */,
 				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
 				DE97177A2756E6FF00FC409E /* OneSignalOutcomes.framework in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,

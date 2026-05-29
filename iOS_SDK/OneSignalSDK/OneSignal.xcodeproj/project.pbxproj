@@ -94,6 +94,10 @@
 		3C5501402E09CF0100E77DF7 /* OSCopyOnWriteSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */; };
 		3C5501412E09CF0100E77DF7 /* OSCopyOnWriteSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */; };
 		3C5501432E09F3D900E77DF7 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5501422E09F3D900E77DF7 /* LoggingTests.swift */; };
+		3C5C6FE72FC9008A00102E2C /* OSResilientStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5C6FE62FC9008A00102E2C /* OSResilientStorage.swift */; };
+		3C5C6FE82FC902A100102E2C /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
+		3C5C6FE92FC902A100102E2C /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3C5C6FF02FC903B900102E2C /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		3C60BB9B2ECF860600C765F7 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; };
 		3C60BB9C2ECF860600C765F7 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEBAAE282A4211D900BF2C1C /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3C62999F2BEEA34800649187 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */; };
@@ -665,6 +669,20 @@
 			remoteGlobalIDString = 3C115160289A259500565C41;
 			remoteInfo = OneSignalOSCore;
 		};
+		3C5C6FEA2FC902A100102E2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C115160289A259500565C41;
+			remoteInfo = OneSignalOSCore;
+		};
+		3C5C6FF22FC903B900102E2C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C115160289A259500565C41;
+			remoteInfo = OneSignalOSCore;
+		};
 		3C60BB9D2ECF860600C765F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -1147,6 +1165,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3C5C6FEC2FC902A100102E2C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3C5C6FE92FC902A100102E2C /* OneSignalOSCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3C60BB9F2ECF860600C765F7 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1330,6 +1359,7 @@
 		3C55013E2E09CF0100E77DF7 /* OSCopyOnWriteSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSCopyOnWriteSet.h; sourceTree = "<group>"; };
 		3C55013F2E09CF0100E77DF7 /* OSCopyOnWriteSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSCopyOnWriteSet.m; sourceTree = "<group>"; };
 		3C5501422E09F3D900E77DF7 /* LoggingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
+		3C5C6FE62FC9008A00102E2C /* OSResilientStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSResilientStorage.swift; sourceTree = "<group>"; };
 		3C62999E2BEEA34800649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A02BEEA38100649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C6299A22BEEA3CC00649187 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -1964,6 +1994,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5C6FE82FC902A100102E2C /* OneSignalOSCore.framework in Frameworks */,
 				DE7D1846270286C6002D3A5D /* OneSignalCore.framework in Frameworks */,
 				DE7D18D22703ADE0002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				DE7D1843270283B9002D3A5D /* UserNotifications.framework in Frameworks */,
@@ -2048,6 +2079,7 @@
 				DEF7845F2912EA0D00A1F3A5 /* UserNotifications.framework in Frameworks */,
 				DEF784612912F5E100A1F3A5 /* UIKit.framework in Frameworks */,
 				DEF784422912E16F00A1F3A5 /* OneSignalCore.framework in Frameworks */,
+				3C5C6FF02FC903B900102E2C /* OneSignalOSCore.framework in Frameworks */,
 				DE2D8F4A2947D86200844084 /* OneSignalOutcomes.framework in Frameworks */,
 				DE2D8F452947D85800844084 /* OneSignalExtension.framework in Frameworks */,
 			);
@@ -2204,6 +2236,7 @@
 				3C115163289A259500565C41 /* OneSignalOSCore.h */,
 				3C115188289ADEA300565C41 /* OSModelStore.swift */,
 				3C115186289ADE7700565C41 /* OSModelStoreListener.swift */,
+				3C5C6FE62FC9008A00102E2C /* OSResilientStorage.swift */,
 				3C115184289ADE4F00565C41 /* OSModel.swift */,
 				3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */,
 				3C11518A289ADEEB00565C41 /* OSEventProducer.swift */,
@@ -3750,12 +3783,14 @@
 				DE7D17F527026BA3002D3A5D /* Sources */,
 				DE7D17F627026BA3002D3A5D /* Frameworks */,
 				DE7D17F727026BA3002D3A5D /* Resources */,
+				3C5C6FEC2FC902A100102E2C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DE7D181B27026BEC002D3A5D /* PBXTargetDependency */,
 				DE7D18D52703ADE0002D3A5D /* PBXTargetDependency */,
+				3C5C6FEB2FC902A100102E2C /* PBXTargetDependency */,
 			);
 			name = OneSignalExtension;
 			productName = OneSignalExtension;
@@ -3888,6 +3923,7 @@
 				DEF784452912E16F00A1F3A5 /* PBXTargetDependency */,
 				DE2D8F482947D85800844084 /* PBXTargetDependency */,
 				DE2D8F4D2947D86200844084 /* PBXTargetDependency */,
+				3C5C6FF32FC903B900102E2C /* PBXTargetDependency */,
 			);
 			name = OneSignalNotifications;
 			productName = OneSignalNotifications;
@@ -4349,6 +4385,7 @@
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				5BC1DE5E2C90B80E00CA8807 /* OSCondition.swift in Sources */,
+				3C5C6FE72FC9008A00102E2C /* OSResilientStorage.swift in Sources */,
 				5BC1DE5C2C90B7E600CA8807 /* OSConsistencyManager.swift in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
@@ -4794,6 +4831,16 @@
 			isa = PBXTargetDependency;
 			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
 			targetProxy = 3C115199289AF86C00565C41 /* PBXContainerItemProxy */;
+		};
+		3C5C6FEB2FC902A100102E2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
+			targetProxy = 3C5C6FEA2FC902A100102E2C /* PBXContainerItemProxy */;
+		};
+		3C5C6FF32FC903B900102E2C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
+			targetProxy = 3C5C6FF22FC903B900102E2C /* PBXContainerItemProxy */;
 		};
 		3C60BB9E2ECF860600C765F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
