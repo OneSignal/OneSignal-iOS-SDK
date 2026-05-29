@@ -137,6 +137,9 @@ class OSIdentityModel: OSModel {
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
 
+        // Mirror onesignal_id to the unencrypted cache; external_id is intentionally NOT cached as it can be PII.
+        OSResilientStorage.setString(newOnesignalId ?? "", forKey: OSResilientStorage.keyOneSignalId)
+
         let curUserState = OSUserState(onesignalId: newOnesignalId, externalId: newExternalId)
         let changedState = OSUserChangedState(current: curUserState)
 
