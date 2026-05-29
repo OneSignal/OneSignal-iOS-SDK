@@ -135,8 +135,8 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
-            // Cache the subscriptionId as it persists across users on the device??
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
+            // Cache the subscriptionId as it persists across users on the device
+            cacheSubscriptionId(subscriptionId)
 
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
@@ -432,8 +432,15 @@ extension OSSubscriptionModel {
         // sdkType ??
         // isRooted ??
         if type == .push && !(subscriptionId ?? "").isEmpty {
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
+            cacheSubscriptionId(subscriptionId)
         }
+    }
+
+    /// Persists the subscription ID to shared UserDefaults and mirrors it to
+    /// OSResilientStorage so it survives prewarm / locked-storage reads.
+    func cacheSubscriptionId(_ subscriptionId: String?) {
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
+        OSResilientStorage.setString(subscriptionId ?? "", forKey: OSResilientStorage.keySubscriptionId)
     }
 
     enum OSPushPropertyChanged {
