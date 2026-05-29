@@ -228,6 +228,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
                 addIdentityModelToRepo(identityModel)
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
+
+                // Backfill the OSResilientStorage mirror so SDK upgraders populate it on first normal launch.
+                if let subId = pushSubscription.subscriptionId, !subId.isEmpty {
+                    OSResilientStorage.setString(subId, forKey: OSResilientStorage.keySubscriptionId)
+                }
+                if let osId = identityModel.onesignalId, !osId.isEmpty {
+                    OSResilientStorage.setString(osId, forKey: OSResilientStorage.keyOneSignalId)
+                }
             }
 
             // TODO: Update the push sub model with any new state from NotificationsManager
