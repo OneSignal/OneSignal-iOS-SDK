@@ -44,6 +44,7 @@
 #import <OneSignalNotifications/OneSignalNotifications.h>
 #import <OneSignalLocation/OneSignalLocationManager.h>
 #import <OneSignalInAppMessages/OneSignalInAppMessages.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 
 // TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
 
@@ -533,33 +534,48 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     }
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    let prevAppId = [standardUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+    NSString *prevAppId = [standardUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+
+    // If UserDefaults returns nil for the previously-stored app id, the read may be
+    // unreliable (e.g. iOS prewarm before first unlock). Fall back to the unencrypted
+    // cache file before treating the absence as new install or "app id changed"
+    if (!prevAppId) {
+        prevAppId = [OSResilientStorage stringForKey:OSResilientStorage.keyAppId];
+    }
 
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
-    if (appId && ![appId isEqualToString:prevAppId]) {
+    // Only treat as changed if a non-nil previous ID was stored AND it differs
+    if (appId && prevAppId && ![appId isEqualToString:prevAppId]) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        
-        [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
-        
+
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
-        
+
+        // Drop the cached identifiers: a real app-id change invalidates them.
+        [OSResilientStorage setStrings:@{
+            OSResilientStorage.keySubscriptionId: @"",
+            OSResilientStorage.keyOneSignalId: @"",
+        }];
+
         // Clear all cached data, does not start User Module nor call logout.
         [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
     }
-    
-    // Always save appId and player_id as it will not be present on shared if:
+
+    // Always save appId as it will not be present on shared if:
     //   - Updating from an older SDK
     //   - Updating to an app that didn't have App Groups setup before
+    // Save to both UserDefaults and to the unencrypted cache
+    [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
+    [OSResilientStorage setString:appId forKey:OSResilientStorage.keyAppId];
 }
 
 + (void)registerForAPNsToken {
@@ -609,8 +625,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             [OSNotificationsManager checkProvisionalAuthorizationStatus];
         }
 
-        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null]) {
+            BOOL enabled = [result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue];
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:enabled];
+            // Mirror to the unencrypted cache so the NSE can read this flag
+            // while the device is booted-but-locked (UserDefaults reads return nil in that state).
+            [OSResilientStorage setString:enabled ? @"1" : @"0" forKey:OSResilientStorage.keyReceiveReceiptsEnabled];
+        }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
