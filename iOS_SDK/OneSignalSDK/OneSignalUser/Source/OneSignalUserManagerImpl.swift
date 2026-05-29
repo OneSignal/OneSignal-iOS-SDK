@@ -266,6 +266,24 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
                 OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
                 OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
+            } else if !hasCachedUser,
+                      _user == nil,
+                      let cachedSubscriptionId = OSResilientStorage.string(forKey: OSResilientStorage.keySubscriptionId),
+                      !cachedSubscriptionId.isEmpty
+            {
+                // TODO: In this state, we don't want to persist anything to UserDefaults and overwrite correct data with half data.
+                // TODO: However, in this state where we can't read UserDefaults, does writing to it fail automatically?
+                // Path 2.5. Model stores loaded empty but the resilient cache shows we've
+                // initialized before: the prewarm-before-first-unlock case. Recover identity
+                // locally; missing properties/aliases will rehydrate on next fetchUser.
+                let cachedOnesignalId = OSResilientStorage.string(forKey: OSResilientStorage.keyOneSignalId)
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: recovering user from cache subscription_id=\(cachedSubscriptionId) onesignal_id=\(cachedOnesignalId ?? "(nil)")")
+
+                let pushSubscriptionModel = createDefaultPushSubscription(subscriptionId: cachedSubscriptionId)
+                let recoveredUser = setNewInternalUser(externalId: nil, pushSubscriptionModel: pushSubscriptionModel)
+                if let onesignalId = cachedOnesignalId, !onesignalId.isEmpty {
+                    recoveredUser.identityModel.hydrate([OS_ONESIGNAL_ID: onesignalId])
+                }
             } else {
                 // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
                 if _user == nil {
