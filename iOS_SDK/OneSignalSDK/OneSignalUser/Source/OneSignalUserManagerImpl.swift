@@ -500,7 +500,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
         let reachable = OSNotificationsManager.currentPermissionState.reachable
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
-        let subscriptionId = subscriptionId ?? sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
+        let subscriptionId = subscriptionId ?? OneSignalIdentifiers.subscriptionId
 
         return OSSubscriptionModel(type: .push,
                                    address: token,

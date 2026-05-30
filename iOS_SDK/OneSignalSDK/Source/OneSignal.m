@@ -26,6 +26,7 @@
  */
 
 #import "OneSignalFramework.h"
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
@@ -236,17 +237,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self init];
 }
 
-+ (NSString * _Nullable)getCachedAppId {
-    let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
-    if (!prevAppId) {
-        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
-    } else {
-        let logMessage = [NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", prevAppId];
-        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:logMessage];
-    }
-    return prevAppId;
-}
-
 /*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
@@ -257,10 +247,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
-        NSString* cachedAppId = [self getCachedAppId];
+        NSString* cachedAppId = OneSignalIdentifiers.storedAppId;
         if (cachedAppId) {
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", cachedAppId]];
             [OneSignalConfigManager setAppId:cachedAppId];
         } else {
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
             return;
         }
     } else if ([OneSignalConfigManager getAppId] && ![newAppId isEqualToString:[OneSignalConfigManager getAppId]])  {
@@ -533,7 +525,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     }
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    let prevAppId = [standardUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+    NSString *prevAppId = OneSignalIdentifiers.storedAppId;
 
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
@@ -543,22 +535,17 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         _didCallDownloadParameters = false;
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        
-        [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
-        
+
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
-        
+
         // Clear all cached data, does not start User Module nor call logout.
         [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
     }
-    
-    // Always save appId and player_id as it will not be present on shared if:
-    //   - Updating from an older SDK
-    //   - Updating to an app that didn't have App Groups setup before
+
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
 }
 

@@ -27,6 +27,7 @@
 
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
@@ -234,7 +235,7 @@ static NSString *_pushToken;
 static NSString *_pushSubscriptionId;
 + (NSString*)pushSubscriptionId {
     if (!_pushSubscriptionId) {
-        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
+        _pushSubscriptionId = OneSignalIdentifiers.subscriptionId;
     }
     return _pushSubscriptionId;
 }
