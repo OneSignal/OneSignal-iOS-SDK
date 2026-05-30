@@ -232,17 +232,6 @@ static NSString *_pushToken;
     return _pushToken;
 }
 
-static NSString *_pushSubscriptionId;
-+ (NSString*)pushSubscriptionId {
-    if (!_pushSubscriptionId) {
-        _pushSubscriptionId = OneSignalIdentifiers.subscriptionId;
-    }
-    return _pushSubscriptionId;
-}
-+ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
-    _pushSubscriptionId = pushSubscriptionId;
-}
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 + (void)startSwizzling {
@@ -784,7 +773,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:[self pushSubscriptionId]
+        [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:OneSignalIdentifiers.subscriptionId
                                                                                              appId:[OneSignalConfigManager getAppId]
                                                                                          wasOpened:YES
                                                                                          messageId:messageId

@@ -528,11 +528,8 @@ extension OSUserExecutor {
                    areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String)
                 {
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
-                    if let subId = subModel["id"] as? String {
-                        OSNotificationsManager.setPushSubscriptionId(subId)
-                        if addNewRecords {
-                            newRecordsState.add(subId)
-                        }
+                    if addNewRecords, let subId = subModel["id"] as? String {
+                        newRecordsState.add(subId)
                     }
                     break
                 }
