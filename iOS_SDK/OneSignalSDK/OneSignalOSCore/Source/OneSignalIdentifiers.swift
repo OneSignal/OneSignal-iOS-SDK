@@ -36,6 +36,17 @@ import OneSignalCore
 @objc(OneSignalIdentifiers)
 public final class OneSignalIdentifiers: NSObject {
 
+    private static let lock = NSLock()
+    private static var _currentAppId: String?
+
+    /// The current in-memory `app_id`, set by `OneSignal.initialize`.
+    /// nil before `initialize` has been called (or in a process like the NSE that
+    /// never calls `initialize` — use `storedAppId` there).
+    @objc public static var currentAppId: String? {
+        get { lock.withLock { _currentAppId } }
+        set { lock.withLock { _currentAppId = newValue } }
+    }
+
     /// Last-known persisted `app_id` from shared UserDefaults. Returns nil if absent.
     @objc public static var storedAppId: String? {
         return OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_APP_ID, defaultValue: nil)

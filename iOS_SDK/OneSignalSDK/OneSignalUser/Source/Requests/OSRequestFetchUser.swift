@@ -45,7 +45,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let onNewSession: Bool
 
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId(),
+        guard let appId = OneSignalIdentifiers.currentAppId,
               newRecordsState.canAccess(aliasId)
         else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(aliasLabel): \(aliasId) yet.")

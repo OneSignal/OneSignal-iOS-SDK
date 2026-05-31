@@ -41,7 +41,7 @@ class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
 
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         // newRecordsState is unused for this request
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the FetchIdentityBySubscription request due to null app ID.")
             return false
         }

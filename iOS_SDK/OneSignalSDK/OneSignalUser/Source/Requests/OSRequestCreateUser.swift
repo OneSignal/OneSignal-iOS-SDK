@@ -47,7 +47,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the create user request due to null app ID.")
             return false
         }

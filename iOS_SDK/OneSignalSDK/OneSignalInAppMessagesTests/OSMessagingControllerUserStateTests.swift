@@ -54,7 +54,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OSMessagingController.removeInstance()
 
         // Set up basic configuration
-        OneSignalConfigManager.setAppId(testAppId)
+        OneSignalIdentifiers.currentAppId = testAppId
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 

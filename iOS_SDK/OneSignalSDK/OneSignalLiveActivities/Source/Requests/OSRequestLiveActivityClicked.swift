@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 
 class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
@@ -39,7 +40,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
     var shouldForgetWhenSuccessful: Bool = true
 
     func prepareForExecution() -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityClicked due to null app ID.")
             return false
         }

@@ -44,7 +44,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId,
            newRecordsState.canAccess(subscriptionId),
-           let appId = OneSignalConfigManager.getAppId()
+           let appId = OneSignalIdentifiers.currentAppId
         {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true

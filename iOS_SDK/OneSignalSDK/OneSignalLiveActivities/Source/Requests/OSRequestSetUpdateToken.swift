@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 
 class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityUpdateTokenRequest {
@@ -37,7 +38,7 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
     var shouldForgetWhenSuccessful: Bool = false
 
     func prepareForExecution() -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null app ID.")
             return false
         }

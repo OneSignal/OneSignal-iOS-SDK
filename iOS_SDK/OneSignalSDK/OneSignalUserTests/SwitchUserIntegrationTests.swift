@@ -13,7 +13,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
-        OneSignalConfigManager.setAppId("test-app-id")
+       OneSignalIdentifiers.currentAppId = "test-app-id"
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }

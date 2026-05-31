@@ -136,7 +136,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
-    [OneSignalConfigManager setAppId:nil];
+    [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
     initDone = false;
@@ -162,7 +162,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (void)login:(NSString * _Nonnull)externalId {
     // return if no app_id / the user has not granted privacy permissions
-    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
+    if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
         return;
     }
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:nil];
@@ -172,7 +172,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
     // TODO: Need to await download iOS params
     // return if no app_id / the user has not granted privacy permissions
-    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
+    if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
         return;
     }
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
@@ -250,21 +250,21 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         NSString* cachedAppId = OneSignalIdentifiers.storedAppId;
         if (cachedAppId) {
             [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", cachedAppId]];
-            [OneSignalConfigManager setAppId:cachedAppId];
+            [OneSignalIdentifiers setCurrentAppId:cachedAppId];
         } else {
             [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
             return;
         }
-    } else if ([OneSignalConfigManager getAppId] && ![newAppId isEqualToString:[OneSignalConfigManager getAppId]])  {
+    } else if (OneSignalIdentifiers.currentAppId && ![newAppId isEqualToString:OneSignalIdentifiers.currentAppId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
-        [OneSignalConfigManager setAppId:newAppId];
+        [OneSignalIdentifiers setCurrentAppId:newAppId];
     } else {
-        [OneSignalConfigManager setAppId:newAppId];
+        [OneSignalIdentifiers setCurrentAppId:newAppId];
     }
 
-    [self handleAppIdChange:[OneSignalConfigManager getAppId]];
+    [self handleAppIdChange:OneSignalIdentifiers.currentAppId];
 }
 
 + (BOOL)isValidAppId:(NSString*)appId {
@@ -446,16 +446,16 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)delayInitializationForPrivacyConsent {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the setPrivacyConsent() method"];
     delayedInitializationForPrivacyConsent = true;
-    _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:[OneSignalConfigManager getAppId]];
+    _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:OneSignalIdentifiers.currentAppId];
     // Init was not successful, set appId back to nil
-    [OneSignalConfigManager setAppId:nil];
+    [OneSignalIdentifiers setCurrentAppId:nil];
 }
 
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", [OneSignalConfigManager getAppId]]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", OneSignalIdentifiers.currentAppId]];
     
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
@@ -470,8 +470,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!_didCallDownloadParameters && [OneSignalConfigManager getAppId] && [OneSignalConfigManager getAppId] != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:[OneSignalConfigManager getAppId]];
+    if (!_didCallDownloadParameters && OneSignalIdentifiers.currentAppId && OneSignalIdentifiers.currentAppId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:OneSignalIdentifiers.currentAppId];
     
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
@@ -484,7 +484,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // Now really initializing the SDK!
     
     // Invalid app ids reaching here will cause failure
-    if (![self isValidAppId:[OneSignalConfigManager getAppId]])
+    if (![self isValidAppId:OneSignalIdentifiers.currentAppId])
         return;
 
     // TODO: Consider the implications of `registerUserInternal` previously running on the main_queue
@@ -694,7 +694,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     }
     
     [OSOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
-                                                  appId:[OneSignalConfigManager getAppId]
+                                                  appId:OneSignalIdentifiers.currentAppId
                                      pushSubscriptionId:pushSubscriptionId
                                             onesignalId:onesignalId
                                         influenceParams:params.influenceParams

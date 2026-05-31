@@ -643,7 +643,7 @@ static BOOL _isInAppMessagingPaused = false;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
-    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignalConfigManager.getAppId
+    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignalIdentifiers.currentAppId
                                                        withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                       withMessageId:message.messageId
                                                          withPageId:pageId
@@ -683,7 +683,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self.impressionedInAppMessages addObject:message.messageId];
     
     // Create the request and attach a payload to it
-    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignalConfigManager.getAppId
+    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignalIdentifiers.currentAppId
                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
@@ -1094,7 +1094,7 @@ static BOOL _isInAppMessagingPaused = false;
     // Track clickId per IAM
     [message addClickId:clickId];
     
-    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignalConfigManager.getAppId
+    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignalIdentifiers.currentAppId
                                                     withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
@@ -1140,7 +1140,7 @@ static BOOL _isInAppMessagingPaused = false;
         return;
     }
 
-    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:OneSignalConfigManager.getAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:OneSignalIdentifiers.currentAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 /*
