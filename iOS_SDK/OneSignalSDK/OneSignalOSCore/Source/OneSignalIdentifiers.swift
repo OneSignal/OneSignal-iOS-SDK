@@ -47,13 +47,24 @@ public final class OneSignalIdentifiers: NSObject {
         set { lock.withLock { _currentAppId = newValue } }
     }
 
-    /// Last-known persisted `app_id` from shared UserDefaults. Returns nil if absent.
+    /// Persisted `app_id` — shared UserDefaults first, then the unencrypted
+    /// `OSResilientStorage` mirror. The mirror covers the prewarm-before-first-unlock
+    /// window where UserDefaults is locked and cfprefsd silently returns nil.
     @objc public static var storedAppId: String? {
-        return OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_APP_ID, defaultValue: nil)
+        if let fromUD = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_APP_ID, defaultValue: nil),
+           !fromUD.isEmpty {
+            return fromUD
+        }
+        return OSResilientStorage.string(forKey: OSResilientStorage.keyAppId)
     }
 
-    /// Persisted push `subscription_id` from shared UserDefaults. Returns nil if absent.
+    /// Persisted push `subscription_id` — shared UserDefaults first, then the unencrypted
+    /// `OSResilientStorage` mirror.
     @objc public static var subscriptionId: String? {
-        return OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
+        if let fromUD = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil),
+           !fromUD.isEmpty {
+            return fromUD
+        }
+        return OSResilientStorage.string(forKey: OSResilientStorage.keySubscriptionId)
     }
 }

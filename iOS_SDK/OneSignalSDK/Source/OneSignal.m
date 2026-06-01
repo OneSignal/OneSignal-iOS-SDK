@@ -456,7 +456,15 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  */
 + (void)init {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", OneSignalIdentifiers.currentAppId]];
-    
+
+    // Wire the protected-data check so OneSignalConfig's readiness predicate defers SDK
+    // operations during iOS prewarm (before first unlock) when shared UserDefaults reads
+    // are unreliable. UIApplication isn't available to OneSignalOSCore (which OneSignalConfig
+    // lives in), so the main app injects the check here at initialize time.
+    OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
+        return UIApplication.sharedApplication.isProtectedDataAvailable;
+    };
+
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
         return;
@@ -527,9 +535,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     NSString *prevAppId = OneSignalIdentifiers.storedAppId;
 
-    // Handle changes to the app id, this might happen on a developer's device when testing
-    // Will also run the first time OneSignal is initialized
-    if (appId && ![appId isEqualToString:prevAppId]) {
+    // Handle changes to the app id, this might happen on a developer's device when testing.
+    // Only treat as a change when a non-nil prevAppId was previously stored AND it differs —
+    // a nil prevAppId means either a true first install OR a degenerate read (which the
+    // OSResilientStorage fallback inside storedAppId now mostly prevents). Treating nil as
+    // "changed" would fire the destructive subscription_id clear on first install.
+    if (appId && prevAppId && ![appId isEqualToString:prevAppId]) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
@@ -542,11 +553,18 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
 
+        // Drop cached identifiers — a real app-id change invalidates them.
+        [OSResilientStorage setStrings:@{
+            OSResilientStorage.keySubscriptionId: @"",
+            OSResilientStorage.keyOneSignalId: @""
+        }];
+
         // Clear all cached data, does not start User Module nor call logout.
         [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
     }
 
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
+    [OSResilientStorage setString:appId forKey:OSResilientStorage.keyAppId];
 }
 
 + (void)registerForAPNsToken {
@@ -596,8 +614,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             [OSNotificationsManager checkProvisionalAuthorizationStatus];
         }
 
-        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null]) {
+            BOOL enabled = [result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue];
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:enabled];
+            // Mirror to the unencrypted cache so the NSE can read this flag while the
+            // device is booted-but-locked (UserDefaults reads return nil in that state).
+            [OSResilientStorage setString:enabled ? @"1" : @"0" forKey:OSResilientStorage.keyReceiveReceiptsEnabled];
+        }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {

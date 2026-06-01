@@ -32,9 +32,17 @@ import OneSignalCore
 @objc(OneSignalConfig)
 public final class OneSignalConfig: NSObject {
 
-    /// Returns true when the SDK shouldn't perform an operation yet because either:
+    /// Optional readability check for device-protected storage. The main app sets this to
+    /// `{ UIApplication.shared.isProtectedDataAvailable }` at initialize. Left nil in
+    /// app-extension contexts (NSE) since `UIApplication` is unavailable there.
+    /// When nil the predicate treats protected data as available — the right default for NSE,
+    /// which reads identifiers through `OSResilientStorage` (file-backed, bypasses cfprefsd).
+    @objc public static var isProtectedDataAvailableProvider: (() -> Bool)?
+
+    /// Returns true when the SDK shouldn't perform an operation yet because:
     ///   * `app_id` hasn't been set via `OneSignal.initialize`, or
-    ///   * the host app hasn't granted privacy consent (per `OSPrivacyConsentController`).
+    ///   * the host app hasn't granted privacy consent, or
+    ///   * device storage isn't readable yet (iOS prewarm before first unlock).
     @objc public static func shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod methodName: String?) -> Bool {
         var shouldAwait = false
         if OneSignalIdentifiers.currentAppId == nil {
@@ -44,6 +52,9 @@ public final class OneSignalConfig: NSObject {
             shouldAwait = true
         }
         if OSPrivacyConsentController.shouldLogMissingPrivacyConsentError(withMethodName: methodName) {
+            shouldAwait = true
+        }
+        if let provider = isProtectedDataAvailableProvider, !provider() {
             shouldAwait = true
         }
         return shouldAwait
