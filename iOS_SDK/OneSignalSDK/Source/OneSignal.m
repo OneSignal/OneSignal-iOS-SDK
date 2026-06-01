@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import <stdatomic.h>
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
@@ -461,22 +462,41 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // operations during iOS prewarm (before first unlock) when shared UserDefaults reads
     // are unreliable. UIApplication isn't available to OneSignalOSCore (which OneSignalConfig
     // lives in), so the main app injects the check here at initialize time.
-    OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
-        return UIApplication.sharedApplication.isProtectedDataAvailable;
-    };
+    //
+    // The flag is cached in an atomic BOOL and updated from
+    // UIApplicationProtectedData{DidBecomeAvailable,WillBecomeUnavailable} so we never touch
+    // `UIApplication` synchronously from the arbitrary threads that hit the predicate.
+    static _Atomic(BOOL) gProtectedDataAvailable = NO;
+    static dispatch_once_t protectedDataOnce;
+    dispatch_once(&protectedDataOnce, ^{
+        // Seed the cache on the main thread once. UIApplication APIs are main-thread-only.
+        // On a normal launch this resolves to YES near-immediately; on a prewarm launch
+        // before first unlock it stays NO and the notification will flip it later.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            atomic_store(&gProtectedDataAvailable, UIApplication.sharedApplication.isProtectedDataAvailable);
+        });
 
-    // When the device unlocks after a locked-storage launch (iOS app prewarm), drive `start()`
-    // again. `start()` was gated by the predicate while protected data was unavailable; the
-    // re-call now sees the gate clear, refreshes the model stores from shared UserDefaults,
-    // and takes the normal Path 1 cache load.
-    static dispatch_once_t protectedDataObserverOnce;
-    dispatch_once(&protectedDataObserverOnce, ^{
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                                                          object:nil
-                                                           queue:nil
-                                                      usingBlock:^(NSNotification * _Nonnull note) {
+        NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+        [center addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification * _Nonnull note) {
+            atomic_store(&gProtectedDataAvailable, YES);
+            // Drive `start()` again — it was gated by the predicate while protected data was
+            // unavailable. The re-call now sees the gate clear, refreshes the model stores
+            // from shared UserDefaults, and takes the normal Path 1 cache load.
             [OneSignalUserManagerImpl.sharedInstance start];
         }];
+        [center addObserverForName:UIApplicationProtectedDataWillBecomeUnavailable
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification * _Nonnull note) {
+            atomic_store(&gProtectedDataAvailable, NO);
+        }];
+
+        OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
+            return atomic_load(&gProtectedDataAvailable);
+        };
     });
 
     // TODO: We moved this check to the top of this method, we should test this.
@@ -570,7 +590,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
             OSResilientStorage.keySubscriptionId: @"",
-            OSResilientStorage.keyOneSignalId: @""
+            OSResilientStorage.keyOneSignalId: @"",
+            OSResilientStorage.keyReceiveReceiptsEnabled: @""
         }];
 
         // Clear all cached data, does not start User Module nor call logout.

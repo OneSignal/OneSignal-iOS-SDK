@@ -32,9 +32,16 @@ import OneSignalCore
 @objc(OneSignalConfig)
 public final class OneSignalConfig: NSObject {
 
-    /// Optional readability check for device-protected storage. The main app sets this to
-    /// `{ UIApplication.shared.isProtectedDataAvailable }` at initialize. Left nil in
-    /// app-extension contexts (NSE) since `UIApplication` is unavailable there.
+    /// Optional readability check for device-protected storage.
+    ///
+    /// Set-once invariant: the main app assigns this exactly once during `OneSignal.init`,
+    /// inside a `dispatch_once`. The assignment is the publishing side and `dispatch_once`
+    /// is a memory barrier, so concurrent readers via `shouldAwait…` observe a stable closure.
+    /// The closure itself must be cheap and thread-safe — the main app implements it as an
+    /// atomic-BOOL load fed by `UIApplicationProtectedData{Did,Will}BecomeAvailable` so we
+    /// never touch the main-thread-only `UIApplication` from arbitrary callers.
+    ///
+    /// Left nil in app-extension contexts (NSE) since `UIApplication` is unavailable there.
     /// When nil the predicate treats protected data as available — the right default for NSE,
     /// which reads identifiers through `OSResilientStorage` (file-backed, bypasses cfprefsd).
     @objc public static var isProtectedDataAvailableProvider: (() -> Bool)?
