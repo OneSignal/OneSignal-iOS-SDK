@@ -40,7 +40,6 @@ public final class OSResilientStorage: NSObject {
 
     @objc public static let keyAppId = "app_id"
     @objc public static let keySubscriptionId = "subscription_id"
-    @objc public static let keyOneSignalId = "onesignal_id"
     /// Needed because the NSE reads this flag from shared UserDefaults while the device may be locked
     /// and the read silently returns the default (NO). Stored as "1" / "0".
     @objc public static let keyReceiveReceiptsEnabled = "receive_receipts_enabled"

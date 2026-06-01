@@ -243,9 +243,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 if let subId = pushSubscription.subscriptionId, !subId.isEmpty {
                     OSResilientStorage.setString(subId, forKey: OSResilientStorage.keySubscriptionId)
                 }
-                if let osId = identityModel.onesignalId, !osId.isEmpty {
-                    OSResilientStorage.setString(osId, forKey: OSResilientStorage.keyOneSignalId)
-                }
             }
 
             // TODO: Update the push sub model with any new state from NotificationsManager

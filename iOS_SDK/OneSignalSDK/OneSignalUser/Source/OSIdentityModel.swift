@@ -137,14 +137,6 @@ class OSIdentityModel: OSModel {
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: newOnesignalId)
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_EXTERNAL_ID, withValue: newExternalId)
 
-        // Mirror onesignal_id to the OSResilientStorage cache so it survives prewarm-locked
-        // UserDefaults. Only update when we have a value — some hydrate responses (e.g.
-        // alias-add) only carry external_id and must not clobber the stored onesignal_id.
-        // external_id is intentionally NOT mirrored (potential PII).
-        if let newOnesignalId, !newOnesignalId.isEmpty {
-            OSResilientStorage.setString(newOnesignalId, forKey: OSResilientStorage.keyOneSignalId)
-        }
-
         let curUserState = OSUserState(onesignalId: newOnesignalId, externalId: newExternalId)
         let changedState = OSUserChangedState(current: curUserState)
 

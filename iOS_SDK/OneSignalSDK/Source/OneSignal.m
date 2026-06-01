@@ -463,14 +463,19 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // are unreliable. UIApplication isn't available to OneSignalOSCore (which OneSignalConfig
     // lives in), so the main app injects the check here at initialize time.
     //
-    // The flag is cached in an atomic BOOL and updated from
-    // UIApplicationProtectedData{DidBecomeAvailable,WillBecomeUnavailable} so we never touch
-    // `UIApplication` synchronously from the arbitrary threads that hit the predicate.
+    // The flag is a one-way latch: it starts NO, flips to YES on first unlock, and stays YES
+    // for the lifetime of the process. The SDK's shared App Group UserDefaults use
+    // `NSFileProtectionCompleteUntilFirstUserAuthentication`, which becomes readable at first
+    // unlock and stays readable across every subsequent lock/unlock cycle — so we deliberately
+    // do NOT observe `UIApplicationProtectedDataWillBecomeUnavailable`. That notification
+    // tracks the stricter `NSFileProtectionComplete` class (~10s after every lock) and would
+    // re-engage the gate on routine device locks, silently dropping API calls in
+    // background-mode / silent-push / BGTaskScheduler contexts where the storage is in fact
+    // still readable.
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
-        NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
-        [center addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                             object:nil
                              queue:nil
                         usingBlock:^(NSNotification * _Nonnull note) {
@@ -479,12 +484,11 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             // unavailable. The re-call now sees the gate clear, refreshes the model stores
             // from shared UserDefaults, and takes the normal Path 1 cache load.
             [OneSignalUserManagerImpl.sharedInstance start];
-        }];
-        [center addObserverForName:UIApplicationProtectedDataWillBecomeUnavailable
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification * _Nonnull note) {
-            atomic_store(&gProtectedDataAvailable, NO);
+            // Also drive `startNewSession` — it was gated during `+init`'s synchronous
+            // `[self startNewSession:YES]` so the session_count delta and `fetchUser` never
+            // ran. Use `:NO` so `+shouldStartNewSession`'s 30s threshold still applies and
+            // we don't trigger spurious new-session calls.
+            [OneSignal startNewSession:NO];
         }];
 
         OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
@@ -506,6 +510,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
                 atomic_store(&gProtectedDataAvailable, available);
                 if (available) {
                     [OneSignalUserManagerImpl.sharedInstance start];
+                    [OneSignal startNewSession:NO];
                 }
             });
         }
@@ -598,11 +603,14 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
+        // Symmetric with the OSResilientStorage clear below. The NSE's `isReceiveReceiptsEnabled`
+        // short-circuits on UD = YES before consulting the mirror, so leaving stale UD here
+        // would mask the mirror clear until the new app's `downloadIOSParams` lands.
+        [sharedUserDefaults removeValueForKey:OSUD_RECEIVE_RECEIPTS_ENABLED];
 
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
             OSResilientStorage.keySubscriptionId: @"",
-            OSResilientStorage.keyOneSignalId: @"",
             OSResilientStorage.keyReceiveReceiptsEnabled: @""
         }];
 
