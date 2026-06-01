@@ -55,7 +55,7 @@ final class IAMIntegrationTests: XCTestCase {
         /* Setup */
         OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
         // App ID is set because there are guards against nil App ID
-       OneSignalIdentifiers.currentAppId = "test-app-id"
+        OneSignalIdentifiers.currentAppId = "test-app-id"
 
         // 1. Pause IAMs
         OneSignalInAppMessages.__paused(true)
@@ -82,7 +82,7 @@ final class IAMIntegrationTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
 
         // 1. App ID is set because there are guards against nil App ID
-       OneSignalIdentifiers.currentAppId = "test-app-id"
+        OneSignalIdentifiers.currentAppId = "test-app-id"
 
         // 2. Set up mock responses for the anonymous user, as the user needs an OSID
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)

@@ -38,7 +38,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
-       OneSignalIdentifiers.currentAppId = "test-app-id"
+        OneSignalIdentifiers.currentAppId = "test-app-id"
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 

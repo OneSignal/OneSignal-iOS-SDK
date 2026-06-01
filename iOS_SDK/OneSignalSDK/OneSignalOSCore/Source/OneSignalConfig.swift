@@ -28,7 +28,7 @@
 import Foundation
 import OneSignalCore
 
-/// SDK-level configuration / readiness predicates. Replaces
+/// SDK-level configuration / readiness predicates
 @objc(OneSignalConfig)
 public final class OneSignalConfig: NSObject {
 
