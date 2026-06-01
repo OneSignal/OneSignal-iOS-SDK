@@ -62,6 +62,9 @@ public final class OneSignalConfig: NSObject {
             shouldAwait = true
         }
         if let provider = isProtectedDataAvailableProvider, !provider() {
+            if let methodName {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(methodName) deferred: device-protected storage is not yet available (iOS prewarm before first unlock).")
+            }
             shouldAwait = true
         }
         return shouldAwait

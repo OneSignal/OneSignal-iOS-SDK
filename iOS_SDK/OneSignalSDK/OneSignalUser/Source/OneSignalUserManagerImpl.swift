@@ -294,6 +294,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 _user?.update()
             }
             hasCalledStart = true
+            // Mark that the SDK has completed start() at least once on this device.
+            // The main app's protected-data seed reads this on subsequent launches to
+            // distinguish "fresh install" from "prior session exists but UserDefaults isn't
+            // readable yet (iOS prewarm before first unlock)".
+            OSResilientStorage.setString("1", forKey: OSResilientStorage.keyDidStart)
         }
     }
 

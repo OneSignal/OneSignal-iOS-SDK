@@ -463,15 +463,24 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // are unreliable. UIApplication isn't available to OneSignalOSCore (which OneSignalConfig
     // lives in), so the main app injects the check here at initialize time.
     //
-    // The flag is a one-way latch: it starts NO, flips to YES on first unlock, and stays YES
-    // for the lifetime of the process. The SDK's shared App Group UserDefaults use
-    // `NSFileProtectionCompleteUntilFirstUserAuthentication`, which becomes readable at first
-    // unlock and stays readable across every subsequent lock/unlock cycle — so we deliberately
-    // do NOT observe `UIApplicationProtectedDataWillBecomeUnavailable`. That notification
-    // tracks the stricter `NSFileProtectionComplete` class (~10s after every lock) and would
-    // re-engage the gate on routine device locks, silently dropping API calls in
-    // background-mode / silent-push / BGTaskScheduler contexts where the storage is in fact
-    // still readable.
+    // The flag is a one-way latch: it starts NO, flips to YES once our storage is readable,
+    // and stays YES for the lifetime of the process. The SDK's shared App Group UserDefaults
+    // use `NSFileProtectionCompleteUntilFirstUserAuthentication` (Class B), which becomes
+    // readable at first unlock and stays readable across every subsequent lock/unlock cycle.
+    //
+    // We seed via a UD probe of the push-subscription model store rather than
+    // `UIApplication.isProtectedDataAvailable`. The UIApplication property tracks the
+    // stricter `NSFileProtectionComplete` class (Class A) which flips back to NO ~10s after
+    // every device lock — using it would silently gate APIs in locked-after-first-unlock
+    // contexts (silent push, BGTaskScheduler) where our Class B storage is actually readable.
+    // The probe directly tests Class B readability:
+    //   * Prior SDK session + UD readable → pushModels has entries → flag = YES
+    //   * Prior SDK session + UD locked (genuine prewarm) → pushModels empty, `keyDidStart` sentinel set → flag = NO
+    //   * No prior SDK session (fresh install) → both empty → flag = YES (no orphan risk; Path 3 creates the first user)
+    // `keyDidStart` is written at the end of a successful `start()` and cleared on app-id change;
+    // it's the explicit "SDK previously initialized on this device" sentinel.
+    // We deliberately do NOT observe `UIApplicationProtectedDataWillBecomeUnavailable`
+    // (same Class A mismatch reason).
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
@@ -484,36 +493,26 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             // unavailable. The re-call now sees the gate clear, refreshes the model stores
             // from shared UserDefaults, and takes the normal Path 1 cache load.
             [OneSignalUserManagerImpl.sharedInstance start];
-            // Also drive `startNewSession` — it was gated during `+init`'s synchronous
-            // `[self startNewSession:YES]` so the session_count delta and `fetchUser` never
-            // ran. Use `:NO` so `+shouldStartNewSession`'s 30s threshold still applies and
-            // we don't trigger spurious new-session calls.
-            [OneSignal startNewSession:NO];
+            // Replay any APNs token cached in `_pushToken` before the delegate was set.
+            // `start()` only assigns `OSNotificationsManager.delegate`; it does not pull the
+            // existing token. Mirrors `+startUserManager`'s pairing.
+            [OSNotificationsManager sendPushTokenToDelegate];
+            // Complete the deferred `+init` new-session call. We use `:YES` (force) because
+            // the 30s threshold would otherwise no-op this recovery when unlock happens
+            // within 30s of init.
+            [OneSignal startNewSession:YES];
         }];
 
         OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
             return atomic_load(&gProtectedDataAvailable);
         };
 
-        // Seed the cached flag. UIApplication APIs are main-thread-only. `initialize` is normally
-        // called from `application:didFinishLaunchingWithOptions:` on the main thread, so seed
-        // synchronously here — that way the flag is correct before `startUserManager` runs later
-        // in this same `init`. If we're off the main thread, hop to main to read it; once it
-        // resolves to available, re-drive `start()`, because the synchronous `start()` below will
-        // have been gated out and a normal (already-unlocked) launch never posts
-        // UIApplicationProtectedDataDidBecomeAvailable to re-drive it.
-        if ([NSThread isMainThread]) {
-            atomic_store(&gProtectedDataAvailable, UIApplication.sharedApplication.isProtectedDataAvailable);
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                BOOL available = UIApplication.sharedApplication.isProtectedDataAvailable;
-                atomic_store(&gProtectedDataAvailable, available);
-                if (available) {
-                    [OneSignalUserManagerImpl.sharedInstance start];
-                    [OneSignal startNewSession:NO];
-                }
-            });
-        }
+        // Seed the cached flag via a Class B probe — see the block comment above for the
+        // case table. UserDefaults reads are thread-safe so this works from any thread.
+        NSDictionary *pushModels = [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY defaultValue:@{}];
+        BOOL hasPriorSession = [OSResilientStorage stringForKey:OSResilientStorage.keyDidStart] != nil;
+        BOOL classBReadable = pushModels.count > 0 || !hasPriorSession;
+        atomic_store(&gProtectedDataAvailable, classBReadable);
     });
 
     // TODO: We moved this check to the top of this method, we should test this.
@@ -611,7 +610,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
             OSResilientStorage.keySubscriptionId: @"",
-            OSResilientStorage.keyReceiveReceiptsEnabled: @""
+            OSResilientStorage.keyReceiveReceiptsEnabled: @"",
+            OSResilientStorage.keyDidStart: @""
         }];
 
         // Clear all cached data, does not start User Module nor call logout.

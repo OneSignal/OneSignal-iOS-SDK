@@ -43,6 +43,11 @@ public final class OSResilientStorage: NSObject {
     /// Needed because the NSE reads this flag from shared UserDefaults while the device may be locked
     /// and the read silently returns the default (NO). Stored as "1" / "0".
     @objc public static let keyReceiveReceiptsEnabled = "receive_receipts_enabled"
+    /// Set to `"1"` once `OneSignalUserManagerImpl.start()` has completed on this device at least once.
+    /// Used by the main app's protected-data seed to distinguish "fresh install" from
+    /// "prior session exists but UserDefaults isn't readable yet (iOS prewarm before first
+    /// unlock)". Cleared on app-id change so a new app's first launch behaves like a fresh install.
+    @objc public static let keyDidStart = "did_start"
 
     // MARK: - Internal
 
