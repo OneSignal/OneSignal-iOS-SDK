@@ -465,6 +465,20 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         return UIApplication.sharedApplication.isProtectedDataAvailable;
     };
 
+    // When the device unlocks after a locked-storage launch (iOS app prewarm), drive `start()`
+    // again. `start()` was gated by the predicate while protected data was unavailable; the
+    // re-call now sees the gate clear, refreshes the model stores from shared UserDefaults,
+    // and takes the normal Path 1 cache load.
+    static dispatch_once_t protectedDataObserverOnce;
+    dispatch_once(&protectedDataObserverOnce, ^{
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification * _Nonnull note) {
+            [OneSignalUserManagerImpl.sharedInstance start];
+        }];
+    });
+
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
         return;

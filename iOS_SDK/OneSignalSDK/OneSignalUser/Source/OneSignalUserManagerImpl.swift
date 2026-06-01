@@ -215,6 +215,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
 
+            // The model stores load their in-memory `models` dict once in their initializer.
+            // If the singleton was first touched while protected data was unavailable (iOS app
+            // prewarm), that read returned nil and the dicts are empty. The gate above ensures
+            // `start()` only proceeds when protected data is available, but the stores need to
+            // be refreshed here so Path 1's cache check can see what's on disk.
+            identityModelStore.refresh()
+            propertiesModelStore.refresh()
+            subscriptionModelStore.refresh()
+            pushSubscriptionModelStore.refresh()
+
             OSNotificationsManager.delegate = self
 
             var hasCachedUser = false
@@ -266,25 +276,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
                 OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
                 OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
-            } else if !hasCachedUser, _user == nil,
-                      let cachedSubId = OSResilientStorage.string(forKey: OSResilientStorage.keySubscriptionId), !cachedSubId.isEmpty {
-                // Path 2.5. Model stores looked empty, but the resilient cache shows we've
-                // initialized before — the prewarm-before-first-unlock case where
-                // OSModelStore's in-memory dict was loaded empty during locked storage and
-                // never re-read. Recover the existing identity locally; missing properties /
-                // aliases will rehydrate on the next fetchUser. Do NOT call setNewInternalUser
-                // (which would write stub models through modelStore.add) — that would
-                // overwrite the real cached models on disk.
-                let cachedOnesignalId = OSResilientStorage.string(forKey: OSResilientStorage.keyOneSignalId)
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: recovering user from resilient cache subscription_id=\(cachedSubId) onesignal_id=\(cachedOnesignalId ?? "(nil)")")
-                let identityModel = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
-                if let onesignalId = cachedOnesignalId, !onesignalId.isEmpty {
-                    identityModel.hydrate([OS_ONESIGNAL_ID: onesignalId])
-                }
-                addIdentityModelToRepo(identityModel)
-                let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-                let pushSubscriptionModel = createDefaultPushSubscription(subscriptionId: cachedSubId)
-                _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscriptionModel)
             } else {
                 // Path 3. Creates an anonymous user if there isn't one in the cache nor a legacy player
                 if _user == nil {
@@ -899,10 +890,7 @@ extension OneSignalUserManagerImpl {
             guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.id") else {
                 return nil
             }
-            // Fall back to the live `_user.pushSubscriptionModel` so the prewarm-recovery
-            // path (where the model isn't added to the store) still returns the right value.
             return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.subscriptionId
-                ?? OneSignalUserManagerImpl.sharedInstance._user?.pushSubscriptionModel.subscriptionId
         }
 
         public var token: String? {
@@ -910,17 +898,13 @@ extension OneSignalUserManagerImpl {
                 return nil
             }
             return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.address
-                ?? OneSignalUserManagerImpl.sharedInstance._user?.pushSubscriptionModel.address
         }
 
         public var optedIn: Bool {
             guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
                 return false
             }
-            if let storeModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY) {
-                return storeModel.optedIn
-            }
-            return OneSignalUserManagerImpl.sharedInstance._user?.pushSubscriptionModel.optedIn ?? false
+            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.optedIn ?? false
         }
 
         /**
