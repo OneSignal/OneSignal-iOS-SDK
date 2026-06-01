@@ -299,6 +299,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // distinguish "fresh install" from "prior session exists but UserDefaults isn't
             // readable yet (iOS prewarm before first unlock)".
             OSResilientStorage.setString("1", forKey: OSResilientStorage.keyDidStart)
+            // Force the OSResilientStorage write queue to drain before returning. The setString
+            // above is `queue.async`; if the OS kills the process within the ms-window before
+            // the file write lands and the next launch happens under prewarm-before-first-unlock,
+            // the seed would misclassify as "fresh install" and Path 3 would orphan the real user.
+            // `snapshot()` is `queue.sync`, FIFO with pending writes — calling it here drains.
+            _ = OSResilientStorage.snapshot()
         }
     }
 

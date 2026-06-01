@@ -482,6 +482,14 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // We deliberately do NOT observe `UIApplicationProtectedDataWillBecomeUnavailable`
     // (same Class A mismatch reason).
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
+    // Whether `+init`'s synchronous `start()` / `startNewSession:YES` calls were gated out
+    // and need to be re-driven from the observer. Set inside the dispatch_once below;
+    // cleared atomically on the first observer fire. Without this guard, every
+    // device lock-then-unlock cycle while the app is alive would post
+    // `UIApplicationProtectedDataDidBecomeAvailable` (Class A transitions on every lock),
+    // re-run `startNewSession:YES`, and bypass the 30s threshold — spuriously incrementing
+    // `session_count` and firing duplicate `fetchUser` requests.
+    static _Atomic(BOOL) gObserverShouldRecover = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
         [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
@@ -489,6 +497,13 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
                              queue:nil
                         usingBlock:^(NSNotification * _Nonnull note) {
             atomic_store(&gProtectedDataAvailable, YES);
+            // Only run the recovery if the seed put us in the deferred state. Otherwise
+            // `+init`'s synchronous calls already ran and re-driving them on routine
+            // lock/unlock cycles would duplicate work.
+            BOOL expected = YES;
+            if (!atomic_compare_exchange_strong(&gObserverShouldRecover, &expected, NO)) {
+                return;
+            }
             // Drive `start()` again — it was gated by the predicate while protected data was
             // unavailable. The re-call now sees the gate clear, refreshes the model stores
             // from shared UserDefaults, and takes the normal Path 1 cache load.
@@ -513,6 +528,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         BOOL hasPriorSession = [OSResilientStorage stringForKey:OSResilientStorage.keyDidStart] != nil;
         BOOL classBReadable = pushModels.count > 0 || !hasPriorSession;
         atomic_store(&gProtectedDataAvailable, classBReadable);
+        atomic_store(&gObserverShouldRecover, !classBReadable);
     });
 
     // TODO: We moved this check to the top of this method, we should test this.
