@@ -469,13 +469,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
-        // Seed the cache on the main thread once. UIApplication APIs are main-thread-only.
-        // On a normal launch this resolves to YES near-immediately; on a prewarm launch
-        // before first unlock it stays NO and the notification will flip it later.
-        dispatch_async(dispatch_get_main_queue(), ^{
-            atomic_store(&gProtectedDataAvailable, UIApplication.sharedApplication.isProtectedDataAvailable);
-        });
-
         NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
         [center addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
                             object:nil
@@ -497,6 +490,25 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
             return atomic_load(&gProtectedDataAvailable);
         };
+
+        // Seed the cached flag. UIApplication APIs are main-thread-only. `initialize` is normally
+        // called from `application:didFinishLaunchingWithOptions:` on the main thread, so seed
+        // synchronously here — that way the flag is correct before `startUserManager` runs later
+        // in this same `init`. If we're off the main thread, hop to main to read it; once it
+        // resolves to available, re-drive `start()`, because the synchronous `start()` below will
+        // have been gated out and a normal (already-unlocked) launch never posts
+        // UIApplicationProtectedDataDidBecomeAvailable to re-drive it.
+        if ([NSThread isMainThread]) {
+            atomic_store(&gProtectedDataAvailable, UIApplication.sharedApplication.isProtectedDataAvailable);
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BOOL available = UIApplication.sharedApplication.isProtectedDataAvailable;
+                atomic_store(&gProtectedDataAvailable, available);
+                if (available) {
+                    [OneSignalUserManagerImpl.sharedInstance start];
+                }
+            });
+        }
     });
 
     // TODO: We moved this check to the top of this method, we should test this.

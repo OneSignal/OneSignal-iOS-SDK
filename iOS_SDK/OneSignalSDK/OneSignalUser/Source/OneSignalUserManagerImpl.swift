@@ -274,6 +274,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
                 createUserFromLegacyPlayer(legacyPlayerId)
                 OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
+                // Mirror to OSResilientStorage as well — createDefaultPushSubscription sets the id
+                // via the initializer, so subscriptionId.didSet (which normally writes the mirror)
+                // does not fire here. Keeps the prewarm fallback populated for migrated v3 players.
+                OSResilientStorage.setString(legacyPlayerId, forKey: OSResilientStorage.keySubscriptionId)
                 OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
                 OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
             } else {
