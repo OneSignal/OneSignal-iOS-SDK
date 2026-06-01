@@ -70,6 +70,9 @@
 		3C14E3A12AFAE461006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
 		3C19C6322E919F0C00D6731E /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */; };
+		3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */; };
+		3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */; };
+		3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */; };
 		3C24B0EC2BD09D7A0052E771 /* OneSignalCoreObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */; };
 		3C277D7E2BD76E0000857606 /* OSIdentityModelRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
@@ -1333,6 +1336,9 @@
 		3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestLiveActivityClicked.swift; sourceTree = "<group>"; };
+		3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalIdentifiersFallbackTests.swift; sourceTree = "<group>"; };
+		3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStoreRefreshTests.swift; sourceTree = "<group>"; };
+		3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSResilientStorageTests.swift; sourceTree = "<group>"; };
 		3C24B0EA2BD09D790052E771 /* OneSignalCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C24B0EB2BD09D7A0052E771 /* OneSignalCoreObjCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCoreObjCTests.m; sourceTree = "<group>"; };
 		3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelRepo.swift; sourceTree = "<group>"; };
@@ -2516,6 +2522,9 @@
 			isa = PBXGroup;
 			children = (
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
+				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
+				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
+				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
 			);
 			path = OneSignalOSCoreTests;
 			sourceTree = "<group>";
@@ -4531,6 +4540,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */,
+				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
+				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
+				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
