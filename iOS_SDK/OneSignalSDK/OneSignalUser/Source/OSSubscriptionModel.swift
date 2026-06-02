@@ -135,8 +135,9 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
-            // Cache the subscriptionId as it persists across users on the device??
+            // Cache the subscriptionId to UserDefaults for routine reads, and the OSResilientStorage mirror 
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
+            OSResilientStorage.setString(subscriptionId ?? "", forKey: OSResilientStorage.keySubscriptionId)
 
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }

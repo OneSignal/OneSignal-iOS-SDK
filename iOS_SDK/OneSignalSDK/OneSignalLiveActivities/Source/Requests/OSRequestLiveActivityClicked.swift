@@ -45,7 +45,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
             return false
         }
 
-        guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
+        guard let subscriptionId = OneSignalIdentifiers.subscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityClicked due to null subscription ID.")
             return false
         }

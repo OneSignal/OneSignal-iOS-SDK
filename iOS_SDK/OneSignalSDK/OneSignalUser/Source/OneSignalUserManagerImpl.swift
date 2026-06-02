@@ -215,6 +215,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
 
+            // The model stores load their in-memory `models` dict once in their initializer.
+            // If the singleton was first touched while protected data was unavailable (iOS app
+            // prewarm), that read returned nil and the dicts are empty. The gate above ensures
+            // `start()` only proceeds when protected data is available, but the stores need to
+            // be refreshed here so Path 1's cache check can see what's on disk.
+            identityModelStore.refresh()
+            propertiesModelStore.refresh()
+            subscriptionModelStore.refresh()
+            pushSubscriptionModelStore.refresh()
+
             OSNotificationsManager.delegate = self
 
             var hasCachedUser = false
@@ -228,6 +238,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
                 addIdentityModelToRepo(identityModel)
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
+
+                // Backfill the mirror so SDK upgraders to v5.5.2 populate it on first normal launch.
+                if let subId = pushSubscription.subscriptionId, !subId.isEmpty {
+                    OSResilientStorage.setString(subId, forKey: OSResilientStorage.keySubscriptionId)
+                }
             }
 
             // TODO: Update the push sub model with any new state from NotificationsManager
@@ -256,6 +271,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager: creating user linked to legacy subscription \(legacyPlayerId)")
                 createUserFromLegacyPlayer(legacyPlayerId)
                 OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: legacyPlayerId)
+                OSResilientStorage.setString(legacyPlayerId, forKey: OSResilientStorage.keySubscriptionId)
                 OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
                 OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_LEGACY_PLAYER_ID)
             } else {
@@ -275,6 +291,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 _user?.update()
             }
             hasCalledStart = true
+            // Mark this app install as having completed `start()` at least once — see
+            // `OSResilientStorage.keyHasPriorSession`. The `snapshot()` below forces the
+            // async write queue to drain before returning, so an OS kill in the
+            // microsecond window can't lose the sentinel and cause the next prewarm
+            // launch to misclassify us as a fresh install.
+            OSResilientStorage.setString("1", forKey: OSResilientStorage.keyHasPriorSession)
+            _ = OSResilientStorage.snapshot()
         }
     }
 
