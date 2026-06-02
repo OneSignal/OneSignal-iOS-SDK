@@ -38,13 +38,13 @@ public final class OneSignalConfig: NSObject {
     /// inside a `dispatch_once`. The assignment is the publishing side and `dispatch_once`
     /// is a memory barrier, so concurrent readers via `shouldAwait…` observe a stable closure.
     /// The closure itself must be cheap and thread-safe — the main app implements it as an
-    /// atomic-BOOL load. The flag is a one-way latch: seeded from a Class B UserDefaults
-    /// probe at init, then flipped to YES by `UIApplicationProtectedDataDidBecomeAvailable`
+    /// atomic-BOOL load. The flag is a one-way latch: seeded from a UserDefaults probe at
+    /// init (testing whether `NSFileProtectionCompleteUntilFirstUserAuthentication`-protected
+    /// reads succeed), then flipped to YES by `UIApplicationProtectedDataDidBecomeAvailable`
     /// if the seed put us in the deferred state. We deliberately do NOT observe
-    /// `UIApplicationProtectedDataWillBecomeUnavailable` — that notification tracks the
-    /// stricter `NSFileProtectionComplete` class and would re-gate APIs on routine locks
-    /// even though the SDK's `NSFileProtectionCompleteUntilFirstUserAuthentication`
-    /// storage stays readable.
+    /// `UIApplicationProtectedDataWillBecomeUnavailable` — that notification tracks
+    /// `NSFileProtectionComplete` and would re-gate APIs on routine locks even though the
+    /// SDK's `…UntilFirstUserAuthentication` storage stays readable.
     ///
     /// Left nil in app-extension contexts (NSE) since `UIApplication` is unavailable there.
     /// When nil the predicate treats protected data as available — the right default for NSE,
