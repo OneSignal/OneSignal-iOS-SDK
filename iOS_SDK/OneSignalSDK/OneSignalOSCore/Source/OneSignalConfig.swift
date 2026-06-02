@@ -32,9 +32,17 @@ import OneSignalCore
 @objc(OneSignalConfig)
 public final class OneSignalConfig: NSObject {
 
-    /// Returns true when the SDK shouldn't perform an operation yet because either:
+    /// Returns whether device-protected storage is currently readable. The main app target sets
+    /// this once at `+OneSignal.init`; the predicate calls it on every gate check from
+    /// arbitrary threads, so the closure must be cheap and thread-safe. Left nil in app
+    /// extensions (NSE) where `UIApplication` is unavailable — nil is treated as available,
+    /// which is correct for NSE since it reads identifiers through `OSResilientStorage`.
+    @objc public static var isProtectedDataAvailableProvider: (() -> Bool)?
+
+    /// Returns true when the SDK shouldn't perform an operation yet because:
     ///   * `app_id` hasn't been set via `OneSignal.initialize`, or
-    ///   * the host app hasn't granted privacy consent (per `OSPrivacyConsentController`).
+    ///   * the host app hasn't granted privacy consent, or
+    ///   * device storage isn't readable yet (iOS prewarm before first unlock).
     @objc public static func shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod methodName: String?) -> Bool {
         var shouldAwait = false
         if OneSignalIdentifiers.currentAppId == nil {
@@ -44,6 +52,12 @@ public final class OneSignalConfig: NSObject {
             shouldAwait = true
         }
         if OSPrivacyConsentController.shouldLogMissingPrivacyConsentError(withMethodName: methodName) {
+            shouldAwait = true
+        }
+        if let provider = isProtectedDataAvailableProvider, !provider() {
+            if let methodName {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(methodName) deferred: device-protected storage is not yet available")
+            }
             shouldAwait = true
         }
         return shouldAwait
