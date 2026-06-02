@@ -35,7 +35,15 @@
 @implementation OneSignalReceiveReceiptsController
 
 - (BOOL)isReceiveReceiptsEnabled {
-    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED defaultValue:NO];
+    BOOL enabled = [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED defaultValue:NO];
+    if (enabled) {
+        return YES;
+    }
+    // UserDefaults can return NO for two reasons: the flag is genuinely off, or the shared
+    // UserDefaults file isn't readable right now (NSE running while device is locked under
+    // NSFileProtectionCompleteUntilFirstUserAuthentication). Fall back to the unencrypted cache.
+    NSString *cached = [OSResilientStorage stringForKey:OSResilientStorage.keyReceiveReceiptsEnabled];
+    return [cached isEqualToString:@"1"];
 }
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
