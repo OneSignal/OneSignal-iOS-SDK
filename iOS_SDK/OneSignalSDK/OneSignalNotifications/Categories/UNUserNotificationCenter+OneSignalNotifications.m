@@ -33,6 +33,7 @@
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <objc/runtime.h>
 #pragma clang diagnostic push
@@ -310,7 +311,7 @@ void finishProcessingNotification(UNNotification *notification,
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
     
-    if ([OneSignalConfigManager getAppId])
+    if (OneSignalIdentifiers.currentAppId)
         [OSNotificationsManager notificationReceived:notification.request.content.userInfo wasOpened:NO];
 
     

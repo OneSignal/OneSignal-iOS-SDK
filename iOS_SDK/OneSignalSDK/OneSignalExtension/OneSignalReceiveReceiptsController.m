@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalReceiveReceiptsController.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import "OneSignalExtensionRequests.h"
 
@@ -38,9 +39,8 @@
 }
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
-    let sharedUserDefaults = OneSignalUserDefaults.initShared;
-    let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
-    let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+    NSString *playerId = OneSignalIdentifiers.subscriptionId;
+    NSString *appId = OneSignalIdentifiers.storedAppId;
 
     [self sendReceiveReceiptWithPlayerId:playerId
                           notificationId:notificationId

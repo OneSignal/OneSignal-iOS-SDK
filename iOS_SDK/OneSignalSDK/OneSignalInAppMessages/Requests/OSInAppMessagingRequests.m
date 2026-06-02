@@ -25,6 +25,7 @@
  THE SOFTWARE.
  */
 #import <Foundation/Foundation.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSInAppMessagingRequests.h"
 #import "OSMacros.h"
 
@@ -54,7 +55,7 @@
 
     request.additionalHeaders = headers;
 
-    NSString *appId = [OneSignalConfigManager getAppId];
+    NSString *appId = OneSignalIdentifiers.currentAppId;
     request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
     return request;
 }

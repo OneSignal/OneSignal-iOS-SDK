@@ -54,7 +54,7 @@ public class OSOperationRepo: NSObject {
      Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
     public func start() {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
         guard !hasCalledStart else {
@@ -90,7 +90,7 @@ public class OSOperationRepo: NSObject {
      Add and start an executor.
      */
     public func addExecutor(_ executor: OSOperationExecutor) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
         start()
@@ -108,7 +108,7 @@ public class OSOperationRepo: NSObject {
      This can happen when session data and purchase data use the model / store / listener infrastructure.
      */
     public func enqueueDelta(_ delta: OSDelta, flush: Bool = false) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
         start()
@@ -137,7 +137,7 @@ public class OSOperationRepo: NSObject {
             return
         }
 
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
 

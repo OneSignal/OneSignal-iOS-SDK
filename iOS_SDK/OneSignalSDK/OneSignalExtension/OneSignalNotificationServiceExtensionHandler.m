@@ -26,6 +26,7 @@
  */
 
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OneSignalNotificationServiceExtensionHandler.h"
@@ -140,9 +141,8 @@
         [[OSSessionManager sharedSessionManager] onNotificationReceived:receivedNotificationId];
         
         // Track confirmed delivery
-        let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
-        let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+        NSString *playerId = OneSignalIdentifiers.subscriptionId;
+        NSString *appId = OneSignalIdentifiers.storedAppId;
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
         int randomDelay = semaphore != nil ? arc4random_uniform(MAX_CONF_DELIVERY_DELAY) : 0;
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt with delay: %i", randomDelay]];

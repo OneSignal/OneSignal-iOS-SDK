@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 
 class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLiveActivityStartTokenRequest {
@@ -36,7 +37,7 @@ class OSRequestRemoveStartToken: OneSignalRequest, OSLiveActivityRequest, OSLive
     var shouldForgetWhenSuccessful: Bool = true
 
     func prepareForExecution() -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove start token request due to null app ID.")
             return false
         }

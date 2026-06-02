@@ -121,9 +121,6 @@ NS_SWIFT_NAME(onClick(event:));
 
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
-// This is set by the user module
-+ (void)setPushSubscriptionId:(NSString *_Nullable)pushSubscriptionId;
-
 + (void)handleWillShowInForegroundForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
 + (void)handleNotificationActionWithUrl:(NSString* _Nullable)url actionID:(NSString* _Nonnull)actionID;
 + (void)clearBadgeCount:(BOOL)fromNotifOpened fromClearAll:(BOOL)fromClearAll;
