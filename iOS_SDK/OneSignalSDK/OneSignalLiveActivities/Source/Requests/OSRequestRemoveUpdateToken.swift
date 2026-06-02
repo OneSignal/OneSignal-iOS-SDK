@@ -42,7 +42,7 @@ class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiv
             return false
         }
 
-        guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
+        guard let subscriptionId = OneSignalIdentifiers.subscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the remove update token request due to null subscription ID.")
             return false
         }
