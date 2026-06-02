@@ -65,6 +65,43 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     /**
+     Regression test for the iOS prewarm fix (SDK-4725).
+
+     `start()` is gated by `OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent`, which now
+     also defers while device-protected storage is unreadable (iOS app prewarm before first unlock).
+     This verifies the contract the fix depends on: a `start()` that is gated out must be a no-op —
+     `hasCalledStart` stays false and no user is half-initialized — and a later `start()`, once
+     protected data is available, must proceed. The main app relies on that re-drive after it seeds
+     the protected-data flag and on `UIApplicationProtectedDataDidBecomeAvailable`; if the re-drive
+     ever stops taking effect (as it did when the flag was seeded asynchronously after the
+     synchronous `start()` during init), the user module never starts on a normal launch.
+     */
+    func testStartDefersUntilProtectedDataAvailableThenProceeds() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let manager = OneSignalUserManagerImpl.sharedInstance
+
+        // Simulate protected data being unavailable (iOS prewarm before first unlock).
+        var protectedDataAvailable = false
+        OneSignalConfig.isProtectedDataAvailableProvider = { protectedDataAvailable }
+        defer { OneSignalConfig.isProtectedDataAvailableProvider = nil }
+
+        /* When protected data is unavailable, start() must be a no-op */
+        manager.start()
+        XCTAssertFalse(manager.hasCalledStart)
+        XCTAssertNil(manager._user)
+
+        /* When protected data becomes available, the re-driven start() must proceed */
+        protectedDataAvailable = true
+        manager.start()
+        XCTAssertTrue(manager.hasCalledStart)
+        XCTAssertNotNil(manager._user)
+    }
+
+    /**
      Tests multiple user updates should be combined and sent together.
      Multiple session times should be added.
      Adding and removing multiple tags should be combined correctly.
