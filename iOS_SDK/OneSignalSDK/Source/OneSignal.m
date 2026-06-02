@@ -522,6 +522,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             // `start()` only assigns `OSNotificationsManager.delegate`; it does not pull the
             // existing token. Mirrors `+startUserManager`'s pairing.
             [OSNotificationsManager sendPushTokenToDelegate];
+            // Start the modules `+init` deferred during prewarm — their singletons eagerly
+            // read UserDefaults at init, so initializing them now (with storage readable)
+            // gives them the real on-disk state instead of empty caches that would overwrite
+            // it on first save.
+            [OneSignal startLiveActivitiesManager];
+            [OneSignal startInAppMessages];
             // Complete the deferred `+init` new-session call. We use `:YES` (force) because
             // the 30s threshold would otherwise no-op this recovery when unlock happens
             // within 30s of init.
@@ -599,8 +605,16 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self startLifecycleObserver];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-    [self startLiveActivitiesManager];
-    [self startInAppMessages];
+    // `OneSignalLiveActivitiesManagerImpl` and `OSMessagingController` both eagerly read
+    // shared/standard UserDefaults at their first-access init (LA's `RequestCache.init`
+    // reads the pending token-update queue; IAM's `OSMessagingController.init` reads
+    // seen/clicked/impressioned sets). During prewarm-before-first-unlock those reads
+    // return empty and subsequent saves overwrite the prior on-disk state. Gate both here
+    // and re-drive from the protected-data observer (above) once storage is readable.
+    if (![OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil]) {
+        [self startLiveActivitiesManager];
+        [self startInAppMessages];
+    }
     [self startNewSession:YES];
     
     initializationTime = [[NSDate date] timeIntervalSince1970];
