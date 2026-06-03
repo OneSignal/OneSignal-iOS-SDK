@@ -134,6 +134,27 @@ jobs:
           done
         shell: bash
 
+      - name: Verify Code Signing
+        run: |
+          cd iOS_SDK/OneSignalSDK
+          set -e
+          # Fail the release if any slice or wrapper is tampered/unsigned or not
+          # signed by the OneSignal team. --deep is unreliable across xcframework
+          # slices, so each inner .framework is verified explicitly.
+          REQUIREMENT="anchor apple generic and certificate leaf[subject.OU] = J3J28YJX9L"
+          for XCF in $XCFRAMEWORKS; do
+            while IFS= read -r FW; do
+              echo "Verifying inner framework: $FW"
+              codesign --verify --strict --verbose=2 "$FW"
+              codesign --verify -R="$REQUIREMENT" "$FW"
+            done < <(find "$XCF" -type d -name "*.framework")
+            echo "Verifying wrapper: $XCF"
+            codesign --verify --strict --verbose=2 "$XCF"
+            codesign --verify -R="$REQUIREMENT" "$XCF"
+          done
+          echo "All XCFrameworks verified: intact and signed by OneSignal (J3J28YJX9L)."
+        shell: bash
+
       - name: Commit Build and Push Changes
         run: |
           git commit -am "chore: build binaries"
