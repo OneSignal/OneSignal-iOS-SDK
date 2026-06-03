@@ -50,6 +50,20 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   @objc public func resolveConditionsWithID(id: Swift.String)
   @objc deinit
 }
+@_inheritsConvenienceInitializers @objc(OneSignalIdentifiers) final public class OneSignalIdentifiers : ObjectiveC.NSObject {
+  @objc public static var currentAppId: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public static var storedAppId: Swift.String? {
+    @objc get
+  }
+  @objc public static var subscriptionId: Swift.String? {
+    @objc get
+  }
+  @objc override dynamic public init()
+  @objc deinit
+}
 open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
   public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
   public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
@@ -57,12 +71,25 @@ open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOS
   public func getModel(key: Swift.String) -> TModel?
   public func getModel(modelId: Swift.String) -> TModel?
   public func getModels() -> [Swift.String : TModel]
+  public func refresh()
   public func add(id: Swift.String, model: TModel, hydrating: Swift.Bool)
   public func remove(_ id: Swift.String)
   public func clearModelsFromStore()
 }
 extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   public func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+@_inheritsConvenienceInitializers @objc(OSResilientStorage) final public class OSResilientStorage : ObjectiveC.NSObject {
+  @objc public static let keyAppId: Swift.String
+  @objc public static let keySubscriptionId: Swift.String
+  @objc public static let keyReceiveReceiptsEnabled: Swift.String
+  @objc public static let keyHasPriorSession: Swift.String
+  @objc public static func snapshot() -> [Swift.String : Swift.String]
+  @objc public static func string(forKey key: Swift.String) -> Swift.String?
+  @objc public static func setString(_ value: Swift.String?, forKey key: Swift.String)
+  @objc public static func setStrings(_ values: [Swift.String : Swift.String])
+  @objc override dynamic public init()
+  @objc deinit
 }
 @objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
   final public let modelId: Swift.String
@@ -118,6 +145,12 @@ extension OneSignalOSCore.OSModelStoreListener {
   public func onAdded(_ model: OneSignalOSCore.OSModel)
   public func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
   public func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+@_inheritsConvenienceInitializers @objc(OneSignalConfig) final public class OneSignalConfig : ObjectiveC.NSObject {
+  @objc public static var isProtectedDataAvailableProvider: (() -> Swift.Bool)?
+  @objc public static func shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod methodName: Swift.String?) -> Swift.Bool
+  @objc override dynamic public init()
+  @objc deinit
 }
 @_hasMissingDesignatedInitializers @objc public class OSIamFetchReadyCondition : ObjectiveC.NSObject, OneSignalOSCore.OSCondition {
   @objc public static func sharedInstance(withId id: Swift.String) -> OneSignalOSCore.OSIamFetchReadyCondition

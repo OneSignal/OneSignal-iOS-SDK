@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		xH/K2afbw3izDuyuOYF3fc3WmD8=
+		CfM7NgD5lH5MRanB5yO2ncySamQ=
 		</data>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -33,7 +33,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			z85uWcd2XMafzOJK2blvnyG5EMKWrakzWQYihsdSv48=
+			yJj8btgm8nXE32nFE6AdrU1r9Rzc/yATqY5T286PxQU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalLiveActivities.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
@@ -57,18 +57,11 @@
 			ZB9NvlXuHfw6KD6XnnSQ53GTlECbZTEsfTEj8VFB/GY=
 			</data>
 		</dict>
-		<key>Modules/OneSignalLiveActivities.swiftmodule/arm64-apple-ios-macabi.swiftmodule</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			ncFBYaWwjVmQdDi1nn7CqhKzojddGb/GIyDhE/x/xvI=
-			</data>
-		</dict>
 		<key>Modules/OneSignalLiveActivities.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			z85uWcd2XMafzOJK2blvnyG5EMKWrakzWQYihsdSv48=
+			yJj8btgm8nXE32nFE6AdrU1r9Rzc/yATqY5T286PxQU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalLiveActivities.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
@@ -92,13 +85,6 @@
 			WfczBoSjZvdNBorP+UerSWnnqyX/5tdsoaG7PxcYHsg=
 			</data>
 		</dict>
-		<key>Modules/OneSignalLiveActivities.swiftmodule/x86_64-apple-ios-macabi.swiftmodule</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			zEN6AXrCick+Rjvof/YI1m2oGZc/TYOgD05L369IGYw=
-			</data>
-		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
@@ -110,7 +96,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			FM36GdGIVIbF98e8Jyj9LUK80G9qJq8A2puE8s7zb9M=
+			WTnuLiojG5Np5f2AmrYiiGtJ0cHfhbJQrYSX8w/xTe0=
 			</data>
 		</dict>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
