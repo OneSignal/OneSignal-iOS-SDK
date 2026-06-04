@@ -79,6 +79,7 @@ enum AddItemType {
     case tag
     case trigger
     case externalUserId
+    case updateUserJwt
     case customNotification
     case trackEvent
 
@@ -90,6 +91,7 @@ enum AddItemType {
         case .tag: return "Add Tag"
         case .trigger: return "Add Trigger"
         case .externalUserId: return "Login User"
+        case .updateUserJwt: return "Update User JWT"
         case .customNotification: return "Custom Notification"
         case .trackEvent: return "Track Event"
         }
@@ -97,8 +99,17 @@ enum AddItemType {
 
     var requiresKeyValue: Bool {
         switch self {
-        case .alias, .tag, .trigger, .customNotification: return true
-        case .email, .sms, .externalUserId, .trackEvent: return false
+        case .alias, .tag, .trigger, .customNotification, .externalUserId, .updateUserJwt: return true
+        case .email, .sms, .trackEvent: return false
+        }
+    }
+
+    /// When true, the second (value) field may be left empty and validation still passes.
+    /// Used for `.externalUserId` where the JWT token is optional.
+    var valueIsOptional: Bool {
+        switch self {
+        case .externalUserId: return true
+        default: return false
         }
     }
 
@@ -108,6 +119,7 @@ enum AddItemType {
         case .tag: return "Key"
         case .trigger: return "Key"
         case .customNotification: return "Title"
+        case .externalUserId, .updateUserJwt: return "External User Id"
         default: return "Key"
         }
     }
@@ -119,7 +131,8 @@ enum AddItemType {
         case .sms: return "SMS"
         case .tag: return "Value"
         case .trigger: return "Value"
-        case .externalUserId: return "External User Id"
+        case .externalUserId: return "JWT Token (Optional)"
+        case .updateUserJwt: return "JWT Token"
         case .customNotification: return "Body"
         case .trackEvent: return "Event Name"
         }

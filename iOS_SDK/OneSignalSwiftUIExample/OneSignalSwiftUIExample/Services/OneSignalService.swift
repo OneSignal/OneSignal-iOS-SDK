@@ -87,8 +87,12 @@ final class OneSignalService {
 
     // MARK: - User Management
 
-    func login(externalId: String) {
-        OneSignal.login(externalId)
+    func login(externalId: String, token: String?) {
+        OneSignal.login(externalId: externalId, token: token)
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
     func logout() {

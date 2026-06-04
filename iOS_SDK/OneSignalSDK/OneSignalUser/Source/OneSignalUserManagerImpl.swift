@@ -412,9 +412,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // JWT is required
 
-        if _user.identityModel.isJwtValid(),
-           let token = _user.identityModel.jwtBearerToken
-        {
+        if let token = _user.identityModel.getValidJwt() {
             fullHeader["Authorization"] = "Bearer \(token)"
             return fullHeader
         }
@@ -716,14 +714,9 @@ extension OneSignalUserManagerImpl {
             return
         }
 
-        // Return, if the token has already been invalidated
-        guard identityModel.jwtBearerToken != OS_JWT_TOKEN_INVALID else {
-            return
+        if identityModel.invalidateJwtBearerToken() {
+            fireJwtExpired(externalId: externalId)
         }
-
-        identityModel.jwtBearerToken = OS_JWT_TOKEN_INVALID
-
-        fireJwtExpired(externalId: externalId)
     }
 
     private func fireJwtExpired(externalId: String) {

@@ -99,7 +99,7 @@ struct AddItemSheet: View {
                     }
                     .foregroundColor(.accentColor)
 
-                    Button(itemType == .externalUserId ? "LOGIN" : "ADD") {
+                    Button(actionButtonTitle) {
                         onAdd(keyText, valueText)
                     }
                     .foregroundColor(isValid ? .accentColor : .gray)
@@ -127,10 +127,20 @@ struct AddItemSheet: View {
 
     private var isValid: Bool {
         if itemType.requiresKeyValue {
-            return !keyText.trimmingCharacters(in: .whitespaces).isEmpty &&
-                   !valueText.trimmingCharacters(in: .whitespaces).isEmpty
+            let keyOk = !keyText.trimmingCharacters(in: .whitespaces).isEmpty
+            let valueOk = itemType.valueIsOptional
+                || !valueText.trimmingCharacters(in: .whitespaces).isEmpty
+            return keyOk && valueOk
         } else {
             return !valueText.trimmingCharacters(in: .whitespaces).isEmpty
+        }
+    }
+
+    private var actionButtonTitle: String {
+        switch itemType {
+        case .externalUserId: return "LOGIN"
+        case .updateUserJwt: return "UPDATE"
+        default: return "ADD"
         }
     }
 }

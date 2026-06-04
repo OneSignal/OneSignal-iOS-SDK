@@ -188,18 +188,24 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - User Management
 
-    func login(externalId: String) {
-        isLoading = true
-        service.login(externalId: externalId)
+    func login(externalId: String, token: String? = nil) {
+        service.login(externalId: externalId, token: token)
         externalUserId = externalId
 
         // Clear old data; will be repopulated by fetchUserDataFromApi when user state changes
+        // (or stay empty if login fails — e.g. invalid JWT triggers a 401 and the observer
+        // never fires; that's fine, the UI just shows empty state instead of hanging).
         aliases.removeAll()
         emails.removeAll()
         smsNumbers.removeAll()
         tags.removeAll()
 
         showToast("Logged in as \(externalId)")
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        service.updateUserJwt(externalId: externalId, token: token)
+        showToast("Updated JWT for \(externalId)")
     }
 
     func logout() {
@@ -550,7 +556,10 @@ extension OneSignalViewModel {
         case .trigger:
             addTrigger(key: key, value: value)
         case .externalUserId:
-            login(externalId: value)
+            let trimmedToken = value.trimmingCharacters(in: .whitespaces)
+            login(externalId: key, token: trimmedToken.isEmpty ? nil : trimmedToken)
+        case .updateUserJwt:
+            updateUserJwt(externalId: key, token: value)
         case .customNotification:
             sendCustomNotification(title: key, body: value)
         case .trackEvent:
