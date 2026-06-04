@@ -95,6 +95,8 @@
 
 - (void)setupWebviewWithMessageHandler:(id<WKScriptMessageHandler>)handler {
     let configuration = [WKWebViewConfiguration new];
+    configuration.allowsInlineMediaPlayback = YES;
+    configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
     [configuration.userContentController addScriptMessageHandler:handler name:@"iosListener"];
     
     CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
