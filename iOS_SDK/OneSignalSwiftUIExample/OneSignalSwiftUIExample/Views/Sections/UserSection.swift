@@ -74,6 +74,12 @@ struct UserSection: View {
             }
             .padding(.top, 12)
 
+            // Update User JWT button
+            ActionButton(title: "Update User JWT") {
+                viewModel.showAddSheet(for: .updateUserJwt)
+            }
+            .padding(.top, 8)
+
             // Logout button (outlined, only when logged in)
             if viewModel.isLoggedIn {
                 OutlineActionButton(title: "Logout User") {
