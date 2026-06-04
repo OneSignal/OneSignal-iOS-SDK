@@ -1,0 +1,35 @@
+name: 'Setup Demo'
+description: 'Installs XcodeGen, generates the demo Xcode project, and creates Secrets.plist for Appium E2E'
+inputs:
+  onesignal-app-id:
+    description: 'OneSignal App ID for the demo Secrets.plist'
+    required: true
+  onesignal-api-key:
+    description: 'OneSignal API Key for the demo Secrets.plist'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install XcodeGen
+      shell: bash
+      run: brew install xcodegen
+
+    - name: Create Secrets.plist
+      shell: bash
+      working-directory: examples/demo
+      env:
+        APP_ID: ${{ inputs.onesignal-app-id }}
+        API_KEY: ${{ inputs.onesignal-api-key }}
+      run: |
+        python3 - <<'PY'
+        import os, plistlib, pathlib
+        pathlib.Path('App/Secrets.plist').write_bytes(plistlib.dumps({
+            'ONESIGNAL_APP_ID': os.environ['APP_ID'],
+            'ONESIGNAL_API_KEY': os.environ['API_KEY'],
+        }))
+        PY
+
+    - name: Generate Xcode project
+      shell: bash
+      working-directory: examples/demo
+      run: xcodegen generate

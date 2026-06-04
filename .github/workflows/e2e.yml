@@ -1,0 +1,94 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - rel/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up demo
+        uses: ./.github/actions/setup-demo
+        with:
+          onesignal-app-id: ${{ vars.APPIUM_ONESIGNAL_APP_ID }}
+          onesignal-api-key: ${{ secrets.APPIUM_ONESIGNAL_API_KEY }}
+
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v5
+        with:
+          path: examples/demo/build
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('examples/demo/project.yml', 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj/project.pbxproj') }}
+          restore-keys: deriveddata-${{ runner.os }}-
+
+      - name: Set up iOS codesigning
+        uses: OneSignal/sdk-shared/.github/actions/setup-ios-demo-codesigning@main
+        with:
+          p12-base64: ${{ secrets.APPIUM_IOS_DEV_CERT_P12_BASE64 }}
+          p12-password: ${{ secrets.APPIUM_IOS_DEV_CERT_PASSWORD }}
+          asc-key-id: ${{ secrets.APPIUM_APP_STORE_CONNECT_KEY_ID }}
+          asc-issuer-id: ${{ secrets.APPIUM_APP_STORE_CONNECT_ISSUER_ID }}
+          asc-private-key: ${{ secrets.APPIUM_APP_STORE_CONNECT_PRIVATE_KEY }}
+
+      - name: Build signed IPA
+        run: |
+          xcodebuild archive \
+            -workspace iOS_SDK/OneSignalSDK.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath examples/demo/build/App.xcarchive \
+            -derivedDataPath examples/demo/build \
+            -quiet \
+            -hideShellScriptEnvironment \
+            CODE_SIGN_STYLE=Manual \
+            COMPILER_INDEX_STORE_ENABLE=NO
+          xcodebuild -exportArchive \
+            -archivePath examples/demo/build/App.xcarchive \
+            -exportOptionsPlist examples/demo/ExportOptions.plist \
+            -exportPath examples/demo/build/ipa \
+            -quiet
+
+      - name: Verify aps-environment in IPA
+        working-directory: examples/demo
+        run: |
+          IPA=$(ls build/ipa/*.ipa | head -n1)
+          unzip -oq "$IPA" -d /tmp/ipa
+          APP=$(ls -d /tmp/ipa/Payload/*.app | head -n1)
+          codesign -d --entitlements - "$APP" 2>&1 | tee /tmp/entitlements.txt
+          if ! grep -q 'aps-environment' /tmp/entitlements.txt; then
+            echo "::error::Built IPA is missing aps-environment entitlement; push subscription will not work"
+            exit 1
+          fi
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-ipa
+          path: examples/demo/build/ipa/App.ipa
+          retention-days: 1
+          compression-level: 0
+
+  e2e-ios:
+    needs: build-ios
+    uses: OneSignal/sdk-shared/.github/workflows/appium-e2e.yml@main
+    secrets: inherit
+    with:
+      platform: ios
+      app-artifact: demo-ipa
+      app-filename: App.ipa
+      sdk-type: ios
+      build-name: ios-${{ github.ref_name }}-${{ github.run_number }}
