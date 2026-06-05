@@ -28,25 +28,54 @@
 import Foundation
 import OneSignalFramework
 
-class SwiftTest: NSObject, OSUserJwtInvalidatedListener, OSLogListener {
+class SwiftTest: NSObject, OSLogListener {
     func onLogEvent(_ event: OneSignalLogEvent) {
         print("Dev App onLogEvent: \(event.level) - \(event.entry)")
-    }
-
-    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
-        print("event: \(event.jsonRepresentation())")
-        print("externalId: \(event.externalId)")
     }
 
     func testSwiftUserModel() {
         let token1 = OneSignal.User.pushSubscription.token
         let token = OneSignal.User.pushSubscription.token
-        OneSignal.Debug._dump()
-        OneSignal.login(externalId: "euid", token: "token")
-        OneSignal.updateUserJwt(externalId: "euid", token: "token")
-        OneSignal.addUserJwtInvalidatedListener(self)
-        OneSignal.removeUserJwtInvalidatedListener(self)
         OneSignal.Debug.addLogListener(self)
         OneSignal.Debug.removeLogListener(self)
+    }
+
+    /**
+     Track multiple events with different properties.
+     Properties must pass `JSONSerialization.isValidJSONObject` to be accepted.
+     */
+    @objc
+    static func trackCustomEvents() {
+        print("Dev App: track an event with nil properties")
+        OneSignal.User.trackEvent(name: "null properties", properties: nil)
+
+        print("Dev App: track an event with empty properties")
+        OneSignal.User.trackEvent(name: "empty properties", properties: [:])
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+
+        let mixedTypes = [
+            "string": "somestring",
+            "number": 5,
+            "bool": false,
+            "dateStr": formatter.string(from: Date())
+        ] as [String: Any]
+
+        let nestedDict = [
+            "someDict": mixedTypes,
+            "anotherDict": [
+                "foo": "bar",
+                "booleanVal": true,
+                "float": Float("3.14")!
+            ]
+        ]
+        let invalidProperties = ["date": Date()]
+
+        print("Dev App: track an event with a valid nested dictionary")
+        OneSignal.User.trackEvent(name: "nested dictionary", properties: nestedDict)
+
+        print("Dev App: track an event with invalid dictionary types")
+        OneSignal.User.trackEvent(name: "invalid dictionary", properties: invalidProperties)
     }
 }

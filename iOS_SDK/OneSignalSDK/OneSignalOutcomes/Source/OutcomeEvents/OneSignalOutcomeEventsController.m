@@ -117,12 +117,12 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
                                                   pushSubscriptionId:pushSubscriptionId
                                                   onesignalId:onesignalId
                                                   influenceParams:influenceParams] onSuccess:^(NSDictionary *result) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed succeed"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes succeed"];
         if (successBlock) {
             successBlock(result);
         }
     } onFailure:^(OneSignalClientError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes attributed failed"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes failed"];
         if (failureBlock) {
             failureBlock(error.underlyingError);
         }

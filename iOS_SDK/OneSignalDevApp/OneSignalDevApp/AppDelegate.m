@@ -46,13 +46,20 @@
 
 OneSignalNotificationCenterDelegate *_notificationDelegate;
 
-// ECM Should we ship these typedefs in OneSignalFramework.h to make them available to Objective C customers?
-typedef void (^JwtCompletionBlock)(NSString*);
-typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    // Log the full tracking URL and the original extracted URL
+    // Also trigger trackClickAndReturnOriginal twice to confirm this click event is only sent once
+    NSLog(@"Dev App: application openURL FULL URL is %@", url);
+    NSURL *originalURL1 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSURL *originalURL2 = [OneSignal.LiveActivities trackClickAndReturnOriginal:url];
+    NSLog(@"Dev App: application openURL processed, original URL is %@", originalURL1);
+    return YES;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
 //    [FIRApp configure];
+    [UNUserNotificationCenter currentNotificationCenter].delegate = self;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     // Uncomment to test LogListener
@@ -78,7 +85,6 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
     [OneSignal.User addObserver:self];
     [OneSignal.Notifications addPermissionObserver:self];
     [OneSignal.InAppMessages addClickListener:self];
-    [OneSignal addUserJwtInvalidatedListener:self];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -94,7 +100,7 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 }
 
 #define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"YOUR_APP_ID_HERE"
 
 + (NSString*)getOneSignalAppId {
     NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
@@ -126,10 +132,6 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
     NSLog(@"Dev App onUserStateDidChangeWithState: %@", [state jsonRepresentation]);
-}
-
-- (void)onUserJwtInvalidatedWithEvent:(OSUserJwtInvalidatedEvent * _Nonnull)event {
-    NSLog(@"Dev App onUserJwtInvalidatedWithEvent: %@", [event jsonRepresentation]);
 }
 
 #pragma mark OSInAppMessageDelegate
@@ -196,17 +198,66 @@ typedef void (^JwtExpiredBlock)(NSString *, JwtCompletionBlock);
 - (void)applicationWillTerminate:(UIApplication *)application {
 }
 
-// Remote
-- (void)application:(UIApplication *)application
-didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
-    
-    NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
-    completionHandler(UIBackgroundFetchResultNoData);
-}
-
 - (void)onLogEvent:(OneSignalLogEvent * _Nonnull)event {
     NSLog(@"Dev App onLogEvent: %@", event.entry);
+}
+
+#pragma mark - Manual Integration APIs (for use when swizzling is disabled)
+
+// Forward the APNs device token to OneSignal so it can register the device for push
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    NSLog(@"Dev App application:didRegisterForRemoteNotificationsWithDeviceToken %@", deviceToken);
+    [OneSignal.Notifications didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+// Forward APNs registration failures so OneSignal can log and retry appropriately
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    NSLog(@"Dev App application:didFailToRegisterForRemoteNotificationsWithError %@", error);
+    [OneSignal.Notifications didFailToRegisterForRemoteNotificationsWithError:error];
+}
+
+// Forward background / silent notifications for content-available processing
+- (void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo
+    fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSLog(@"Dev App application:didReceiveRemoteNotification %@", userInfo);
+    [OneSignal.Notifications didReceiveRemoteNotification:userInfo
+                                       completionHandler:completionHandler];
+}
+
+// Forward foreground notifications so the SDK can invoke onWillDisplayNotification listeners
+// and determine whether to show a banner. Completion returns nil for IAM previews.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSLog(@"Dev App userNotificationCenter:willPresentNotification %@", notification);
+    [OneSignal.Notifications
+        willPresentNotificationWithPayload:notification.request.content.userInfo
+        completion:^(OSNotification *notif) {
+            if (notif) {
+                if (@available(iOS 14.0, *)) {
+                    completionHandler(UNNotificationPresentationOptionBanner |
+                                      UNNotificationPresentationOptionList |
+                                      UNNotificationPresentationOptionSound);
+                } else {
+                    completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
+                }
+            } else {
+                completionHandler(UNNotificationPresentationOptionNone);
+            }
+        }];
+}
+
+// Forward notification tap / action so the SDK can fire onClickNotification listeners
+// and handle deep links and action buttons
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+    didReceiveNotificationResponse:(UNNotificationResponse *)response
+             withCompletionHandler:(void (^)(void))completionHandler {
+    NSLog(@"Dev App userNotificationCenter:didReceiveNotificationResponse %@", response);
+    [OneSignal.Notifications didReceiveNotificationResponse:response];
+    completionHandler();
 }
 
 @end

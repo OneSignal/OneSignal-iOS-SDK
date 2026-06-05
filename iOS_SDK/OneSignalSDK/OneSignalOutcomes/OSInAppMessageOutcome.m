@@ -26,6 +26,7 @@
  */
 
 #import "OSInAppMessageOutcome.h"
+#import "OSMacros.h"
 
 @implementation OSInAppMessageOutcome
 

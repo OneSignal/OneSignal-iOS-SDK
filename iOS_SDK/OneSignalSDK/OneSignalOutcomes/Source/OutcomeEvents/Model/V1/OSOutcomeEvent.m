@@ -27,6 +27,7 @@
 
 #import "OSOutcomeEvent.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 
 @implementation OSOutcomeEvent
 

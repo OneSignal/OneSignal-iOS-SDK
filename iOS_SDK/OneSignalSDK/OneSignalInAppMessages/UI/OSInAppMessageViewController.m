@@ -30,6 +30,7 @@
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import "OSMacros.h"
 #import "OSSessionManager.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
@@ -515,9 +516,14 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     if (self.dismissalTimer)
         [self.dismissalTimer invalidate];
     
-    // If the rendering event never occurs any constraints being adjusted for dismissal will be nil
-    // and we should bypass dismissal adjustments and animations and skip straight to the OSMessagingController callback for dismissing
-    if (!self.didPageRenderingComplete) {
+    // Return early and skip constraint adjustments/animations if:
+    // - Page rendering never completed (constraints would be nil)
+    // - messageView is not valid or not a direct subview of self.view (prevents crashes when
+    //   dismissal is triggered while the view hierarchy is in an inconsistent state)
+    if (!self.didPageRenderingComplete ||
+        !self.messageView ||
+        self.messageView.superview != self.view)
+    {
         [self dismissViewControllerAnimated:false completion:nil];
         [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
         return;

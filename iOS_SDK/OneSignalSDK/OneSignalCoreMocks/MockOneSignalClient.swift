@@ -202,9 +202,15 @@ extension MockOneSignalClient {
         return found
     }
 
-    public func hasExecutedRequestOfType(_ type: AnyClass) -> Bool {
-        executedRequests.contains { request in
+    public func hasExecutedRequestOfType(_ type: AnyClass, expectedCount: Int? = nil) -> Bool {
+        let matchingCount = executedRequests.filter { request in
             request.isKind(of: type)
+        }.count
+
+        if let expectedCount = expectedCount {
+            return matchingCount == expectedCount
+        } else {
+            return matchingCount > 0
         }
     }
 }

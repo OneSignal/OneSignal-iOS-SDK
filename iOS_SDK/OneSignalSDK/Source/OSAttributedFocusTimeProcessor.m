@@ -26,6 +26,7 @@
  */
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 #import "OneSignalFramework.h"
 #import "OSAttributedFocusTimeProcessor.h"
 #import <OneSignalUser/OneSignalUser.h>
@@ -38,17 +39,12 @@
     NSTimer* restCallTimer;
 }
 
-static let ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
 static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
-    [OSBackgroundTaskManager setTaskInvalid:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
     return self;
-}
-
-- (int)getMinSessionTime {
-    return ATTRIBUTED_MIN_SESSION_TIME_SEC;
 }
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
@@ -60,11 +56,8 @@ static let DELAY_TIME = 30;
     let totalTimeActive = unsentActive + params.timeElapsed;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"sendOnFocusCall attributed with totalTimeActive %f", totalTimeActive]];
-    
+
     [super saveUnsentActiveTime:totalTimeActive];
-    
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", @(params.timeElapsed)]];
-    [OneSignalUserManagerImpl.sharedInstance sendSessionTime:@(params.timeElapsed)];
 
     [self sendOnFocusCallWithParams:params totalTimeActive:totalTimeActive];
 }
@@ -84,7 +77,7 @@ static let DELAY_TIME = 30;
         return;
     }
     
-    [OSBackgroundTaskManager beginBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager beginBackgroundTask:SESSION_OUTCOMES_TASK];
 
     if (params.onSessionEnded) {
         [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:@(totalTimeActive)];
@@ -109,14 +102,17 @@ static let DELAY_TIME = 30;
 - (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedSessionTimeWithParams start"];
 
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", totalTimeActive]];
+    [OneSignalUserManagerImpl.sharedInstance sendSessionTime:totalTimeActive];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignal sendSessionEndOutcomes:totalTimeActive params:params onSuccess:^(NSDictionary *result) {
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendBackgroundAttributed succeed"];
             [super saveUnsentActiveTime:0];
-            [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         } onFailure:^(NSError *error) {
             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendBackgroundAttributed failed, will retry on next open"];
-            [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         }];
     });
 }
@@ -127,7 +123,7 @@ static let DELAY_TIME = 30;
     
     [restCallTimer invalidate];
     restCallTimer = nil;
-    [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+    [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
 }
 
 @end

@@ -34,7 +34,7 @@ import OneSignalCore
 public protocol OSLiveActivities {
     /**
      Indicate this device has entered a live activity, identified within OneSignal by the `activityId`.
-     - Parameters
+     - Parameters:
         - activityId: The activity identifier the live activity on this device will receive updates for.
         - withToken: The live activity's update token to receive the updates.
      */
@@ -43,7 +43,7 @@ public protocol OSLiveActivities {
     /**
      Indicate this device has entered a live activity, identified within OneSignal by the `activityId`. This method is deprecated since
      the request to enter a live activity will always succeed.
-     - Parameters
+     - Parameters:
         - activityId: The activity identifier the live activity on this device will receive updates for.
         - withToken: The live activity's update token to receive the updates.
         - withSuccess: A success callback that will be called when the live activity enter request has been queued.
@@ -54,7 +54,7 @@ public protocol OSLiveActivities {
 
     /**
      Indicate this device has exited a live activity, identified within OneSignal by the `activityId`.
-     - Parameters
+     - Parameters:
         - activityId: The activity identifier the live activity on this device will no longer receive updates for.
      */
     static func exit(_ activityId: String)
@@ -62,11 +62,21 @@ public protocol OSLiveActivities {
     /**
      Indicate this device has exited a live activity, identified within OneSignal by the `activityId`. This method is deprecated since
      the request to enter a live activity will always succeed.
-     - Parameters
+     - Parameters:
         - activityId: The activity identifier the live activity on this device will no longer receive updates for.
         - withSuccess: A success callback that will be called when the live activity exit request has been queued.
         - withFailure: A failure callback that will be called when the live activity enter exit was not successfully queued.
      */
     @available(*, deprecated)
     static func exit(_ activityId: String, withSuccess: OSResultSuccessBlock?, withFailure: OSFailureBlock?)
+
+    /**
+     Use in conjunction with the `onesignalWidgetURL` modifier. Handle a URL opened in the app to track Live Activity clicks. Call this method from your app's URL handling code
+     (e.g., `application(_:open:options:)` in AppDelegate or `onOpenURL` in SwiftUI).
+
+     - Parameters:
+        - url: The URL that was opened, which may be a OneSignal Live Activity click tracking URL.
+     - Returns: The intended original nullable URL.
+     */
+    static func trackClickAndReturnOriginal(_ url: URL) -> URL?
 }

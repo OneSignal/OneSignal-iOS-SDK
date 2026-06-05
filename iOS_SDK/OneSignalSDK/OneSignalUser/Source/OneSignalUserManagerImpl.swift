@@ -141,6 +141,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var propertyExecutor: OSPropertyOperationExecutor?
     var identityExecutor: OSIdentityOperationExecutor?
     var subscriptionExecutor: OSSubscriptionOperationExecutor?
+    var customEventsExecutor: OSCustomEventsExecutor?
 
     private init(jwtConfig: OSUserJwtConfig) {
         self.jwtConfig = jwtConfig
@@ -192,12 +193,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
             let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
             let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, jwtConfig: jwtConfig)
+            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
+            self.customEventsExecutor = customEventsExecutor
             operationRepo.addExecutor(identityExecutor)
             operationRepo.addExecutor(propertyExecutor)
             operationRepo.addExecutor(subscriptionExecutor)
+            operationRepo.addExecutor(customEventsExecutor)
 
             // Path 2. There is a legacy player to migrate
             if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
@@ -897,6 +901,32 @@ extension OneSignalUserManagerImpl: OSUser {
         }
 
         user.setLanguage(language)
+    }
+
+    public func trackEvent(name: String, properties: [String: Any]?) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "trackEvent") else {
+            return
+        }
+
+        let processedProperties = properties ?? [:]
+
+        // Make sure the properties are serializable as JSON object
+        guard JSONSerialization.isValidJSONObject(processedProperties) else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "trackEvent called with invalid properties \(processedProperties), dropping this event.")
+            return
+        }
+
+        // Get the identity model of the current user
+        let identityModel = user.identityModel
+
+        let delta = OSDelta(
+            name: OS_CUSTOM_EVENT_DELTA,
+            identityModelId: identityModel.modelId,
+            model: identityModel,
+            property: name,
+            value: processedProperties
+        )
+        OSOperationRepo.sharedInstance.enqueueDelta(delta)
     }
 }
 
