@@ -53,7 +53,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         guard
             let onesignalId = identityModelToIdentify.onesignalId,
             newRecordsState.canAccess(onesignalId),
-            let appId = OneSignalConfigManager.getAppId(),
+            let appId = OneSignalIdentifiers.currentAppId,
             OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired == false
         else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the Identify User request yet.")

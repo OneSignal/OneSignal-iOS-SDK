@@ -66,7 +66,7 @@ public class OSOperationRepo {
      Start this Operation Repo.
      */
     public func start() {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
 
@@ -101,7 +101,7 @@ public class OSOperationRepo {
      Add an executor.
      */
     public func addExecutor(_ executor: OSOperationExecutor) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
         executors.append(executor)
@@ -118,7 +118,7 @@ public class OSOperationRepo {
      This can happen when session data and purchase data use the model / store / listener infrastructure.
      */
     public func enqueueDelta(_ delta: OSDelta, flush: Bool = false) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
         self.dispatchQueue.async {
@@ -146,7 +146,7 @@ public class OSOperationRepo {
             return
         }
 
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
 

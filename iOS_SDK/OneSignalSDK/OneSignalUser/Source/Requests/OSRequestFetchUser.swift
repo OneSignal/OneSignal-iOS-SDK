@@ -50,7 +50,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard
             let alias = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState),
-            let appId = OneSignalConfigManager.getAppId()
+            let appId = OneSignalIdentifiers.currentAppId
         else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(identityModel.aliases) yet.")
             return false

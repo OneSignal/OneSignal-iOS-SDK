@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalOutcomeEventsController.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSOutcomeEvent.h"
 #import "OSCachedUniqueOutcome.h"
 #import "OSSessionManager.h"
@@ -339,7 +340,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         return;
     }
     
-    [self sendOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+    [self sendOutcomeEvent:name appId:OneSignalIdentifiers.currentAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
 }
 
 - (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
@@ -347,7 +348,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         return;
     }
 
-    [self sendOutcomeEventWithValue:name value:value appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+    [self sendOutcomeEventWithValue:name value:value appId:OneSignalIdentifiers.currentAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
 }
 
 - (void)addUniqueOutcome:(NSString * _Nonnull)name {
@@ -355,7 +356,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         return;
     }
     
-    [self sendUniqueOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+    [self sendUniqueOutcomeEvent:name appId:OneSignalIdentifiers.currentAppId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
 }
 
 - (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {

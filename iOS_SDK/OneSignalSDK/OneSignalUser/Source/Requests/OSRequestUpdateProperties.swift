@@ -41,7 +41,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard
             let alias = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState),
-            let appId = OneSignalConfigManager.getAppId()
+            let appId = OneSignalIdentifiers.currentAppId
         else {
             return false
         }

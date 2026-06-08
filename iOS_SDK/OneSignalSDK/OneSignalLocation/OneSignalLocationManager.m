@@ -29,6 +29,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "OneSignalLocationManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
@@ -87,7 +88,7 @@ static OneSignalLocationManager* singleInstance = nil;
 }
 
 + (void)start {
-    if ([OneSignalConfigManager getAppId] != nil && [self isShared]) {
+    if (OneSignalIdentifiers.currentAppId != nil && [self isShared]) {
         [OneSignalLocationManager getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     }
 }

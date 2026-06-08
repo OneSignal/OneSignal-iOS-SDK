@@ -42,7 +42,7 @@ class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
     /// Only send this request if Identity Verification is off.
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard
-            let appId = OneSignalConfigManager.getAppId(),
+            let appId = OneSignalIdentifiers.currentAppId,
             let subscriptionId = pushSubscriptionModel.subscriptionId,
             OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired == false
         else {

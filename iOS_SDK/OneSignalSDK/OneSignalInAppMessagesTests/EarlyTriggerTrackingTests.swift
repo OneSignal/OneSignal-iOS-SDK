@@ -53,7 +53,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         OSMessagingController.removeInstance()
 
         // Set up basic configuration
-        OneSignalConfigManager.setAppId(testAppId)
+        OneSignalIdentifiers.currentAppId = testAppId
         OneSignalLog.setLogLevel(.LL_VERBOSE)
 
         // Tell the User Manager JWT is not required so OSUserUtils.getAlias resolves

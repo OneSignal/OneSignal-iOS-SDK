@@ -27,6 +27,7 @@ with services provided by OneSignal.
 
 import XCTest
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 import OneSignalCoreMocks
 import OneSignalUserMocks
@@ -41,7 +42,7 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
         // App ID is set because User Manager has guards against nil App ID
-        OneSignalConfigManager.setAppId("test-app-id")
+        OneSignalIdentifiers.currentAppId = "test-app-id"
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }

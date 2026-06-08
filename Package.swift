@@ -75,6 +75,7 @@ let package = Package(
                 "OneSignalNotifications",
                 "OneSignalExtension",
                 "OneSignalOutcomes",
+                "OneSignalOSCore",
                 "OneSignalCore"
             ],
             path: "OneSignalNotificationsWrapper"
@@ -84,6 +85,7 @@ let package = Package(
             dependencies: [
                 "OneSignalExtension",
                 "OneSignalOutcomes",
+                "OneSignalOSCore",
                 "OneSignalCore"
             ],
             path: "OneSignalExtensionWrapper"
@@ -92,6 +94,7 @@ let package = Package(
             name: "OneSignalOutcomesWrapper",
             dependencies: [
                 "OneSignalOutcomes",
+                "OneSignalOSCore",
                 "OneSignalCore"
             ],
             path: "OneSignalOutcomesWrapper"

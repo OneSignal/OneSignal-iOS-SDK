@@ -40,7 +40,7 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         guard let onesignalId = identityModel.onesignalId,
               newRecordsState.canAccess(onesignalId),
-              let appId = OneSignalConfigManager.getAppId()
+              let appId = OneSignalIdentifiers.currentAppId
         else {
             return false
         }

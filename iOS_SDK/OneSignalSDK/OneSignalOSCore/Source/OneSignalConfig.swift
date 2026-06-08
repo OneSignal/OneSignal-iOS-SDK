@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2026 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +25,27 @@
  THE SOFTWARE.
  */
 
-#import "OneSignalConfigManager.h"
-#import "OSPrivacyConsentController.h"
-#import "OneSignalLog.h"
+import Foundation
+import OneSignalCore
 
-@implementation OneSignalConfigManager
+/// SDK-level configuration / readiness predicates
+@objc(OneSignalConfig)
+public final class OneSignalConfig: NSObject {
 
-static NSString *_appId;
-+ (void)setAppId:(NSString *)appId {
-    _appId = appId;
-}
-+ (NSString *_Nullable)getAppId {
-    return _appId;
-}
-
-+ (BOOL)shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:(NSString *)methodName {
-    BOOL shouldAwait = false;
-    if (!_appId) {
-        if (methodName) {
-            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before app ID has been set. Please call `initialize:appId withLaunchOptions:launchOptions` in order to set the app ID", methodName]];
+    /// Returns true when the SDK shouldn't perform an operation yet because either:
+    ///   * `app_id` hasn't been set via `OneSignal.initialize`, or
+    ///   * the host app hasn't granted privacy consent (per `OSPrivacyConsentController`).
+    @objc public static func shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod methodName: String?) -> Bool {
+        var shouldAwait = false
+        if OneSignalIdentifiers.currentAppId == nil {
+            if let methodName {
+                OneSignalLog.onesignalLog(.LL_WARN, message: "Your application has called \(methodName) before app ID has been set. Please call `initialize:appId withLaunchOptions:launchOptions` in order to set the app ID")
+            }
+            shouldAwait = true
         }
-        shouldAwait = true;
+        if OSPrivacyConsentController.shouldLogMissingPrivacyConsentError(withMethodName: methodName) {
+            shouldAwait = true
+        }
+        return shouldAwait
     }
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:methodName]) {
-        shouldAwait = true;
-    }
-    return shouldAwait;
 }
-
-@end

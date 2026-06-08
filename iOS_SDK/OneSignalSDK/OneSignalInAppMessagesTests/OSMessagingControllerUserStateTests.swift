@@ -54,7 +54,8 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OSConsistencyManager.shared.reset()
         OSMessagingController.removeInstance()
 
-        OneSignalConfigManager.setAppId(testAppId)
+        // Set up basic configuration
+        OneSignalIdentifiers.currentAppId = testAppId
         OneSignalLog.setLogLevel(.LL_VERBOSE)
 
         // Tell the User Manager JWT is not required so OSUserUtils.getAlias resolves

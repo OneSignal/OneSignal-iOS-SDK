@@ -45,7 +45,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         addPushSubscriptionToAdditionalHeaders()
         if let subscriptionId = subscriptionModel.subscriptionId,
            newRecordsState.canAccess(subscriptionId),
-           let appId = OneSignalConfigManager.getAppId()
+           let appId = OneSignalIdentifiers.currentAppId
         {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true

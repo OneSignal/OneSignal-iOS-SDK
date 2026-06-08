@@ -48,7 +48,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             let subscriptionId = subscriptionModel.subscriptionId,
             let token = subscriptionModel.address,
             newRecordsState.canAccess(subscriptionId),
-            let appId = OneSignalConfigManager.getAppId(),
+            let appId = OneSignalIdentifiers.currentAppId,
             let _ = checkUserRequirementsAndReturnAlias(identityModel, newRecordsState)
         else {
             return false

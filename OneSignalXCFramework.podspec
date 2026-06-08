@@ -22,17 +22,20 @@ Pod::Spec.new do |s|
 
     s.subspec 'OneSignalOutcomes' do |ss|
       ss.dependency 'OneSignalXCFramework/OneSignalCore'
+      ss.dependency 'OneSignalXCFramework/OneSignalOSCore'
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Outcomes/OneSignalOutcomes.xcframework'
     end
 
     s.subspec 'OneSignalExtension' do |ss|
       ss.dependency 'OneSignalXCFramework/OneSignalCore'
+      ss.dependency 'OneSignalXCFramework/OneSignalOSCore'
       ss.dependency 'OneSignalXCFramework/OneSignalOutcomes'
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Extension/OneSignalExtension.xcframework'
     end
 
     s.subspec 'OneSignalNotifications' do |ss|
       ss.dependency 'OneSignalXCFramework/OneSignalCore'
+      ss.dependency 'OneSignalXCFramework/OneSignalOSCore'
       ss.dependency 'OneSignalXCFramework/OneSignalOutcomes'
       ss.dependency 'OneSignalXCFramework/OneSignalExtension'
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Notifications/OneSignalNotifications.xcframework'

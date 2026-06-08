@@ -26,6 +26,7 @@ THE SOFTWARE.
 */
 
 #import <Foundation/Foundation.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalLifecycleObserver.h"
 #import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
@@ -79,7 +80,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)didBecomeActive {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
     
-    if ([OneSignalConfigManager getAppId]) {
+    if (OneSignalIdentifiers.currentAppId) {
         [OneSignalTracker onFocus:NO];
         let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
@@ -95,7 +96,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)willResignActive {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
     
-    if ([OneSignalConfigManager getAppId]) {
+    if (OneSignalIdentifiers.currentAppId) {
         [OneSignalTracker onFocus:YES];
         // TODO: Method no longer exists, transitions into flushing operation repo on backgrounding.
         // [OneSignal sendTagsOnBackground];
@@ -104,7 +105,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 - (void)didEnterBackground {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
-    if ([OneSignalConfigManager getAppId]) {
+    if (OneSignalIdentifiers.currentAppId) {
         let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:NO];

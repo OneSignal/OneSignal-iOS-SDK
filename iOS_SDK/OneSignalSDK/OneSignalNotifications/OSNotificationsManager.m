@@ -27,6 +27,7 @@
 
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
@@ -229,17 +230,6 @@ static NSString *_pushToken;
         _pushToken = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_TOKEN defaultValue:nil];
     }
     return _pushToken;
-}
-
-static NSString *_pushSubscriptionId;
-+ (NSString*)pushSubscriptionId {
-    if (!_pushSubscriptionId) {
-        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
-    }
-    return _pushSubscriptionId;
-}
-+ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
-    _pushSubscriptionId = pushSubscriptionId;
 }
 
 #pragma clang diagnostic push
@@ -622,7 +612,7 @@ static NSString *_lastnonActiveMessageId;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (![OneSignalConfigManager getAppId]) {
+    if (!OneSignalIdentifiers.currentAppId) {
         return;
     }
     
@@ -783,8 +773,8 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:[self pushSubscriptionId]
-                                                                                             appId:[OneSignalConfigManager getAppId]
+        [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:OneSignalIdentifiers.subscriptionId
+                                                                                             appId:OneSignalIdentifiers.currentAppId
                                                                                          wasOpened:YES
                                                                                          messageId:messageId
                                                                                     withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
@@ -1045,7 +1035,7 @@ static NSString *_lastnonActiveMessageId;
 + (void)processNotificationResponse:(UNNotificationResponse *)response {
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
-    if (![OneSignalConfigManager getAppId])
+    if (!OneSignalIdentifiers.currentAppId)
         return;
     if ([@"com.apple.UNNotificationDismissActionIdentifier" isEqual:response.actionIdentifier])
         return;

@@ -31,6 +31,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSFocusTimeProcessorFactory.h"
@@ -143,7 +144,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         [focusInfluenceParams addObject:focusInfluenceParam];
     }
 
-    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignalConfigManager getAppId]
+    return [[OSFocusCallParams alloc] initWithParamsAppId:OneSignalIdentifiers.currentAppId
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];

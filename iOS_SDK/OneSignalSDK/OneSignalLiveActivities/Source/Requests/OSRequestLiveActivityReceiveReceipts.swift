@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalOSCore
 import OneSignalUser
 
 class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequest {
@@ -38,7 +39,7 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
     var shouldForgetWhenSuccessful: Bool = true
 
     func prepareForExecution() -> Bool {
-        guard let appId = OneSignalConfigManager.getAppId() else {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the OSRequestLiveActivityReceiveReceipts due to null app ID.")
             return false
         }

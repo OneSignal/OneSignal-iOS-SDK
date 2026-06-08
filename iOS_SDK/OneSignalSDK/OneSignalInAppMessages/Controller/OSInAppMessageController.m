@@ -27,6 +27,7 @@
 
 #import "OSInAppMessageController.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OSMacros.h"
 #import <OneSignalUser/OneSignalUser.h>
 #import "OSInAppMessagingDefines.h"
@@ -45,7 +46,7 @@
         return;
     }
     
-    let request = [OSRequestLoadInAppMessageContent withAppId:[OneSignalConfigManager getAppId] withMessageId:self.messageId withVariantId:variantId];
+    let request = [OSRequestLoadInAppMessageContent withAppId:OneSignalIdentifiers.currentAppId withMessageId:self.messageId withVariantId:variantId];
     
     [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:successBlock onFailure:^(OneSignalClientError *error) {
         failureBlock(error.underlyingError);
@@ -53,7 +54,7 @@
 }
 
 - (void)loadPreviewMessageHTMLContentWithUUID:(NSString * _Nonnull)previewUUID success:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock {
-    let request = [OSRequestLoadInAppMessagePreviewContent withAppId:[OneSignalConfigManager getAppId] previewUUID:previewUUID];
+    let request = [OSRequestLoadInAppMessagePreviewContent withAppId:OneSignalIdentifiers.currentAppId previewUUID:previewUUID];
     
     [OneSignalCoreImpl.sharedClient executeRequest:request onSuccess:successBlock onFailure:^(OneSignalClientError *error) {
         failureBlock(error.underlyingError);
