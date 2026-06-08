@@ -36,17 +36,20 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>, storeKey: String) {
         self.storeKey = storeKey
         self.changeSubscription = changeSubscription
-
-        // read models from cache, if any
-        if let models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as? [String: TModel] {
-            self.models = models
-        } else {
-            // log error
-            self.models = [:]
-        }
+        self.models = OSModelStore.loadModelsFromUserDefaults(storeKey: storeKey)
         super.init()
+        subscribeToOwnedModels()
+    }
 
-        // listen for changes to the models
+    /// Reads the archived `[String: TModel]` dict for `storeKey` from shared UserDefaults.
+    /// Returns an empty dict if the entry is missing or the unarchive fails.
+    private static func loadModelsFromUserDefaults(storeKey: String) -> [String: TModel] {
+        return (OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: storeKey, defaultValue: [:]) as? [String: TModel]) ?? [:]
+    }
+
+    /// Subscribes this store as a change observer on every model currently in `models`.
+    /// Callers must hold `lock` if invoking after init.
+    private func subscribeToOwnedModels() {
         for model in self.models.values {
             model.changeNotifier.subscribe(self, key: storeKey)
         }
@@ -90,6 +93,25 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     public func getModels() -> [String: TModel] {
         lock.withLock {
             return self.models
+        }
+    }
+
+    /// Re-read this store's backing UserDefaults entry and hydrate `models` from disk.
+    /// No-op when `models` is already non-empty — we never clobber in-memory state.
+    ///
+    /// Motivation: model stores load their `models` dict once in `init()` from shared UserDefaults.
+    /// If `init()` runs while protected data is unavailable (iOS app prewarm, NSE before first
+    /// unlock), that read returns nil and the dict stays empty for the lifetime of the singleton —
+    /// it is never re-read. After protected data becomes available, callers can call `refresh()`
+    /// so the store reflects what's actually on disk. Does not fire listener events.
+    public func refresh() {
+        lock.withLock {
+            guard models.isEmpty else { return }
+            let stored = OSModelStore.loadModelsFromUserDefaults(storeKey: self.storeKey)
+            guard !stored.isEmpty else { return }
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSModelStore[\(self.storeKey)] refresh hydrated \(stored.count) model(s) from UserDefaults")
+            self.models = stored
+            subscribeToOwnedModels()
         }
     }
 

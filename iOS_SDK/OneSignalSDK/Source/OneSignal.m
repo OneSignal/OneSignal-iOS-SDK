@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import <stdatomic.h>
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
@@ -204,7 +205,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
-    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
+    if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"updateUserJwt"]) {
         return;
     }
     [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId token:token];
@@ -381,9 +382,9 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (void)startNewSessionInternal {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignal.startNewSessionInternal"];
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+
+    // return if the user has not granted consent, or device-protected storage isn't readable yet
+    if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil])
         return;
 
     [OSOutcomes.sharedController clearOutcomes];
@@ -478,12 +479,83 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalIdentifiers setCurrentAppId:nil];
 }
 
+/// Computes the initial value for `gProtectedDataAvailable` (see the case table in
+/// `+setupProtectedDataObserverOnce`).
+static BOOL ComputeInitialStorageReadable(void) {
+    NSDictionary *pushModels = [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY defaultValue:@{}];
+    BOOL hasPriorSession = [OSResilientStorage stringForKey:OSResilientStorage.keyHasPriorSession] != nil;
+    if (pushModels.count > 0) { // UD is readable
+        return YES;
+    }
+    if (hasPriorSession) { // returning user during prewarm; defer
+        return NO;
+    }
+    if ([NSThread isMainThread]) {
+        return UIApplication.sharedApplication.isProtectedDataAvailable;
+    }
+    return YES; // off-main: can't safely read UIApplication
+}
+
+/// One-time setup of the protected-data readiness check that matters during iOS app
+/// prewarm, when reads from shared App Group UserDefaults silently return nil
+///
+/// The cached flag is a one-way latch (NO → YES, never reverses). It is:
+///   * Seeded by `ComputeInitialStorageReadable` (case table below).
+///   * Flipped to YES on `UIApplicationProtectedDataDidBecomeAvailable`.
+///   * Read via `OneSignalConfig.isProtectedDataAvailableProvider`
+///
+/// Seed case table:
+///   1. pushModels populated                              → YES (UD is readable)
+///   2. `keyHasPriorSession` set, no UD    → NO  (returning user during prewarm; defer)
+///   3. neither + main thread                                → fall back to `UIApplication.isProtectedDataAvailable`
+///   4. neither + off-main thread                           → YES (can't safely read UIApplication)
+///
+/// `keyHasPriorSession`  is the only reliable "SDK previously ran here" sentinel, and case 3's
+/// `isProtectedDataAvailable` tiebreaker also protects SDK upgraders who never wrote `keyHasPriorSession`.
+///
+/// `gObserverShouldRecover` is set when init defers (storage isn't yet readable) and cleared by the
+/// observer's first fire (tracked since `DidBecomeAvailable` posts on every device unlock).
++ (void)setupProtectedDataObserverOnce {
+    static _Atomic(BOOL) gProtectedDataAvailable = NO;
+    static _Atomic(BOOL) gObserverShouldRecover = NO;
+    static dispatch_once_t protectedDataOnce;
+    dispatch_once(&protectedDataOnce, ^{
+        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification * _Nonnull note) {
+            atomic_store(&gProtectedDataAvailable, YES);
+            // Only run the recovery if init deferred. If `gObserverShouldRecover == YES`,
+            // atomically swap to NO and proceed; otherwise bail (already consumed, or never set).
+            BOOL shouldRecover = YES;
+            if (!atomic_compare_exchange_strong(&gObserverShouldRecover, &shouldRecover, NO)) {
+                return;
+            }
+            [OneSignalUserManagerImpl.sharedInstance start];
+            [OSNotificationsManager sendPushTokenToDelegate];
+            [OneSignal startLiveActivitiesManager];
+            [OneSignal startInAppMessages];
+            [OneSignal startNewSession:YES];
+        }];
+
+        OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
+            return atomic_load(&gProtectedDataAvailable);
+        };
+
+        BOOL initialState = ComputeInitialStorageReadable();
+        atomic_store(&gProtectedDataAvailable, initialState);
+        atomic_store(&gObserverShouldRecover, !initialState);
+    });
+}
+
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", OneSignalIdentifiers.currentAppId]];
-    
+
+    [self setupProtectedDataObserverOnce];
+
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
         return;
@@ -532,8 +604,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [self startLifecycleObserver];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-    [self startLiveActivitiesManager];
-    [self startInAppMessages];
+    // Defer LA and IAM init during prewarm: both eagerly read UserDefaults at first access and would
+    // overwrite the on-disk state with empty caches on the next save. The observer re-drives them post-unlock.
+    if (![OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil]) {
+        [self startLiveActivitiesManager];
+        [self startInAppMessages];
+    }
     [self startNewSession:YES];
     
     initializationTime = [[NSDate date] timeIntervalSince1970];
@@ -555,8 +631,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     NSString *prevAppId = OneSignalIdentifiers.storedAppId;
 
     // Handle changes to the app id, this might happen on a developer's device when testing
-    // Will also run the first time OneSignal is initialized
-    if (appId && ![appId isEqualToString:prevAppId]) {
+    if (appId && prevAppId && ![appId isEqualToString:prevAppId]) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
@@ -568,12 +643,22 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         [sharedUserDefaults removeValueForKey:OSUD_PUSH_SUBSCRIPTION_ID];
         [standardUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
+        [sharedUserDefaults removeValueForKey:OSUD_RECEIVE_RECEIPTS_ENABLED];
+        [sharedUserDefaults removeValueForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY];
+
+        // Drop cached identifiers — a real app-id change invalidates them.
+        [OSResilientStorage setStrings:@{
+            OSResilientStorage.keySubscriptionId: @"",
+            OSResilientStorage.keyReceiveReceiptsEnabled: @"",
+            OSResilientStorage.keyHasPriorSession: @""
+        }];
 
         // Clear all cached data, does not start User Module nor call logout.
         [OneSignalUserManagerImpl.sharedInstance clearAllModelsFromStores];
     }
 
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
+    [OSResilientStorage setString:appId forKey:OSResilientStorage.keyAppId];
 }
 
 + (void)registerForAPNsToken {
@@ -625,8 +710,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
             [OSNotificationsManager checkProvisionalAuthorizationStatus];
         }
 
-        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null]) {
+            BOOL enabled = [result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue];
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:enabled];
+            // Mirror to the unencrypted cache so the NSE can read this flag
+            [OSResilientStorage setString:enabled ? @"1" : @"0" forKey:OSResilientStorage.keyReceiveReceiptsEnabled];
+        }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {

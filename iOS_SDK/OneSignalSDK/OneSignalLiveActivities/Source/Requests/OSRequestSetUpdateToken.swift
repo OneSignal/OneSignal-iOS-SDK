@@ -43,7 +43,7 @@ class OSRequestSetUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiveAc
             return false
         }
 
-        guard let subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId else {
+        guard let subscriptionId = OneSignalIdentifiers.subscriptionId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the set update token request due to null subscription ID.")
             return false
         }

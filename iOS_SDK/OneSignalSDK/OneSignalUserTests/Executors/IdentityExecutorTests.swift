@@ -48,7 +48,7 @@ final class IdentityExecutorTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
         // App ID is set because requests have guards against null App ID
-        OneSignalConfigManager.setAppId("test-app-id")
+        OneSignalIdentifiers.currentAppId = "test-app-id"
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
