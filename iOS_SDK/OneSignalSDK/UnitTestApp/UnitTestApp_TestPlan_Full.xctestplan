@@ -13,11 +13,6 @@
       "targets" : [
         {
           "containerPath" : "container:OneSignal.xcodeproj",
-          "identifier" : "911E2CB91E398AB3003112A4",
-          "name" : "UnitTests"
-        },
-        {
-          "containerPath" : "container:OneSignal.xcodeproj",
           "identifier" : "DE7D17E527026B95002D3A5D",
           "name" : "OneSignalCore"
         },
@@ -48,18 +43,23 @@
         },
         {
           "containerPath" : "container:OneSignal.xcodeproj",
-          "identifier" : "3CC063EA2B6D7FE8002BB07F",
-          "name" : "OneSignalUserTests"
+          "identifier" : "DEBAAE272A4211D900BF2C1C",
+          "name" : "OneSignalInAppMessages"
         },
         {
           "containerPath" : "container:OneSignal.xcodeproj",
-          "identifier" : "3CC063A02B6D7A8D002BB07F",
-          "name" : "OneSignalCoreTests"
+          "identifier" : "475F471D2B8E398D00EC05B3",
+          "name" : "OneSignalLiveActivities"
         },
         {
           "containerPath" : "container:OneSignal.xcodeproj",
-          "identifier" : "DEBA2A192C20E35E00E234DB",
-          "name" : "OneSignalNotificationsTests"
+          "identifier" : "DEBAADF82A420A3700BF2C1C",
+          "name" : "OneSignalLocation"
+        },
+        {
+          "containerPath" : "container:OneSignal.xcodeproj",
+          "identifier" : "DEF784282912DEB600A1F3A5",
+          "name" : "OneSignalNotifications"
         }
       ]
     },

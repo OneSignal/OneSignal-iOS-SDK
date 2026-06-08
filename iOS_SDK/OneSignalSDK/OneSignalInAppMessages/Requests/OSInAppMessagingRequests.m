@@ -26,8 +26,13 @@
  */
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingRequests.h"
+#import "OSMacros.h"
 
 @implementation OSRequestGetInAppMessages
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<OSRequestGetInAppMessages from %@>", self.path];
+}
+
 + (instancetype _Nonnull)   withSubscriptionId:(NSString * _Nonnull)subscriptionId
                             withAliasLabel:(NSString * _Nonnull)aliasLabel
                             withAliasId:(NSString * _Nonnull)aliasId

@@ -33,7 +33,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OSNotificationsManager.h"
 #import <OneSignalCore/OSDeviceUtils.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSMacros.h"
 #import <OneSignalCore/OneSignalCoreHelper.h>
 
 @interface OneSignalNotificationSettings ()

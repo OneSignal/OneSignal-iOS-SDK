@@ -49,6 +49,10 @@
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 
+// Forward declarations for Objective-C++ compatibility
+@protocol OSUser;
+@protocol OSLiveActivities;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -61,9 +65,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
-
-+ (NSString* _Nonnull)sdkVersionRaw;
-+ (NSString* _Nonnull)sdkSemanticVersion;
 
 #pragma mark User
 + (id<OSUser>)User NS_REFINED_FOR_SWIFT;

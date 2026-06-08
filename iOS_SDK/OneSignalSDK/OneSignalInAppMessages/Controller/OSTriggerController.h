@@ -52,7 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;
-- (id)getTriggerValueForKey:(NSString *)key;
 - (void)timeSinceLastMessage:(NSDate *)date;
 
 @end

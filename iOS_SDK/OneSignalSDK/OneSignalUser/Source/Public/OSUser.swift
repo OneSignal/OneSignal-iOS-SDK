@@ -57,4 +57,12 @@
     func removeSms(_ number: String)
     // Language
     func setLanguage(_ language: String)
+    // Events
+    /**
+     Track an event performed by the current user.
+     - Parameters:
+        - name: Name of the event, e.g., 'Started Free Trial'
+        - properties: Optional properties specific to the event. For example, an event with the name 'Started Free Trial' might have properties like promo code used or expiration date.
+     */
+    func trackEvent(name: String, properties: [String: Any]?)
 }

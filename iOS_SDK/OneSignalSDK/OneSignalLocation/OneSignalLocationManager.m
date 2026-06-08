@@ -29,6 +29,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "OneSignalLocationManager.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 #import <OneSignalUser/OneSignalUser-Swift.h>
 
 @implementation OneSignalLocationManager

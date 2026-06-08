@@ -26,9 +26,10 @@
  */
 
 #import "OSMessagingController.h"
-#import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
-#import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
+#import "UIApplication+OneSignal.h"
+#import "NSDateFormatter+OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 #import "OSInAppMessageClickResult.h"
 #import "OSInAppMessageClickEvent.h"
 #import "OSInAppMessageController.h"
@@ -145,6 +146,12 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
 
 @property (nonatomic) BOOL calledLoadTags;
 
+/// Tracks whether the first IAM fetch has completed since this cold start
+@property (nonatomic) BOOL hasCompletedFirstFetch;
+
+/// Tracks trigger keys added early on cold start (before first fetch completes), for redisplay logic
+@property (strong, nonatomic, nonnull) NSMutableSet<NSString *> *earlySessionTriggers;
+
 @end
 
 @implementation OSMessagingController
@@ -180,6 +187,7 @@ static dispatch_once_t once;
     return sharedInstance;
 }
 
+/// Note: This method is used in tests only.
 + (void)removeInstance {
     sharedInstance = nil;
     once = 0;
@@ -229,6 +237,8 @@ static BOOL _isInAppMessagingPaused = false;
         self.messageDisplayQueue = [NSMutableArray new];
         self.clickListeners = [NSMutableArray new];
         self.lifecycleListeners = [NSMutableArray new];
+        self.hasCompletedFirstFetch = NO;
+        self.earlySessionTriggers = [NSMutableSet new];
         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
         
@@ -289,7 +299,8 @@ static BOOL _isInAppMessagingPaused = false;
         // We also need the onesignal ID for ryw consistency
         NSString *onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
         if (!onesignalId) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID"];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID, will reattempt"];
+            shouldRetryGetInAppMessagesOnUserChange = true;
             return;
         }
 
@@ -475,6 +486,23 @@ static BOOL _isInAppMessagingPaused = false;
     self.messages = newMessages;
     self.calledLoadTags = NO;
     [self resetRedisplayMessagesBySession];
+
+    // Apply isTriggerChanged for messages that match triggers added too early on cold start
+    if (self.earlySessionTriggers.count > 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Processing triggers added early on cold start: %@", self.earlySessionTriggers]];
+        for (OSInAppMessageInternal *message in self.messages) {
+            if ([self.redisplayedInAppMessages objectForKey:message.messageId] &&
+                [self.triggerController hasSharedTriggers:message newTriggersKeys:self.earlySessionTriggers.allObjects]) {
+                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Setting isTriggerChanged=YES for message %@", message]];
+                message.isTriggerChanged = YES;
+            }
+        }
+        [self.earlySessionTriggers removeAllObjects];
+    }
+
+    // Mark that first fetch has completed
+    self.hasCompletedFirstFetch = YES;
+
     [self evaluateMessages];
     [self deleteOldRedisplayedInAppMessages];
 }
@@ -877,6 +905,13 @@ static BOOL _isInAppMessagingPaused = false;
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
     [self evaluateRedisplayedInAppMessages:triggers.allKeys];
+
+    // Track triggers added early on cold start (before first fetch completes) for redisplay logic
+    if (!self.hasCompletedFirstFetch) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tracking triggers added early on cold start: %@", triggers]];
+        [self.earlySessionTriggers addObjectsFromArray:triggers.allKeys];
+    }
+
     [self.triggerController addTriggers:triggers];
 }
 
@@ -892,10 +927,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (NSDictionary<NSString *, id> *)getTriggers {
     return self.triggerController.getTriggers;
-}
-
-- (id)getTriggerValueForKey:(NSString *)key {
-    return [self.triggerController getTriggerValueForKey:key];
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
@@ -1326,7 +1357,6 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
 - (void)clearTriggers {}
 - (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
-- (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
 - (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageClickResult *)action {}

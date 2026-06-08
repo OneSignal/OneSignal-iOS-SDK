@@ -79,14 +79,13 @@ class OSRequestRemoveUpdateToken: OneSignalRequest, OSLiveActivityRequest, OSLiv
     required init?(coder: NSCoder) {
         guard
             let key = coder.decodeObject(forKey: "key") as? String,
-            let requestSuccessful = coder.decodeObject(forKey: "requestSuccessful") as? Bool,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
             // Log error
             return nil
         }
         self.key = key
-        self.requestSuccessful = requestSuccessful
+        self.requestSuccessful = coder.decodeBool(forKey: "requestSuccessful")
         super.init()
         self.timestamp = timestamp
     }

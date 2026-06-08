@@ -1,0 +1,15 @@
+// Copy this file to `Local.xcconfig` (gitignored) and uncomment any
+// per-developer overrides you need. Settings here apply to the App,
+// OneSignalNotificationServiceExtension, and OneSignalWidget targets.
+//
+// Anything you set here survives `xcodegen generate`; settings you change
+// only in Xcode's Signing & Capabilities UI are wiped on regeneration.
+
+// Apple Developer team id used by automatic signing. Required to run on a
+// physical device.
+// DEVELOPMENT_TEAM = ABCDE12345
+
+// Switch from automatic to manual signing if you have a specific
+// provisioning profile to attach. Leave on Automatic for most cases.
+// CODE_SIGN_STYLE = Manual
+// PROVISIONING_PROFILE_SPECIFIER = MyProfile

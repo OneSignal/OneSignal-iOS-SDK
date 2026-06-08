@@ -1,6 +1,0 @@
-language: objective-c
-osx_image: xcode11.1
-before_install:
-  - cd iOS_SDK/OneSignalSDK
-script:
-  - xcodebuild -scheme UnitTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=13.1' test

@@ -41,7 +41,6 @@
 #import <OneSignalCore/OneSignalClient.h>
 #import <OneSignalCore/OneSignalCoreHelper.h>
 #import <OneSignalCore/OneSignalTrackFirebaseAnalytics.h>
-#import <OneSignalCore/OSMacros.h>
 #import <OneSignalCore/OSJSONHandling.h>
 #import <OneSignalCore/OSPrivacyConsentController.h>
 #import <OneSignalCore/OSDeviceUtils.h>

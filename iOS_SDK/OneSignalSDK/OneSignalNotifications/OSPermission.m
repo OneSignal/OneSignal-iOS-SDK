@@ -27,6 +27,7 @@
 
 #import "OSPermission.h"
 #import <OneSignalCore/OneSignalCore.h>
+#import "OSMacros.h"
 #import "OSNotificationsManager.h"
 
 @implementation OSPermissionStateInternal
