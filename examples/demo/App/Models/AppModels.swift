@@ -80,6 +80,7 @@ enum AddItemType {
     case tag
     case trigger
     case externalUserId
+    case updateJwt
 
     var title: String {
         switch self {
@@ -89,13 +90,23 @@ enum AddItemType {
         case .tag: return "Add Tag"
         case .trigger: return "Add Trigger"
         case .externalUserId: return "Login User"
+        case .updateJwt: return "Update JWT"
         }
     }
 
     var requiresKeyValue: Bool {
         switch self {
-        case .alias, .tag, .trigger: return true
-        case .email, .sms, .externalUserId: return false
+        case .alias, .tag, .trigger, .externalUserId, .updateJwt: return true
+        case .email, .sms: return false
+        }
+    }
+
+    /// When true the second field may be left blank (confirm stays enabled).
+    /// Used by Login, where the JWT token is optional.
+    var optionalValue: Bool {
+        switch self {
+        case .externalUserId: return true
+        default: return false
         }
     }
 
@@ -103,6 +114,7 @@ enum AddItemType {
         switch self {
         case .alias: return "Label"
         case .tag, .trigger: return "Key"
+        case .externalUserId, .updateJwt: return "External User Id"
         default: return "Key"
         }
     }
@@ -113,7 +125,8 @@ enum AddItemType {
         case .email: return "Email Address"
         case .sms: return "Phone Number"
         case .tag, .trigger: return "Value"
-        case .externalUserId: return "External User Id"
+        case .externalUserId: return "JWT Token (optional)"
+        case .updateJwt: return "JWT Token"
         }
     }
 
@@ -128,6 +141,7 @@ enum AddItemType {
     var confirmLabel: String {
         switch self {
         case .externalUserId: return "Login"
+        case .updateJwt: return "Update"
         default: return "Add"
         }
     }
@@ -141,6 +155,7 @@ enum AddItemType {
         case .tag: return "tag"
         case .trigger: return "trigger"
         case .externalUserId: return "login_user_id"
+        case .updateJwt: return "update_jwt"
         }
     }
 
@@ -152,6 +167,8 @@ enum AddItemType {
         case .alias: return "alias_label_input"
         case .tag: return "tag_key_input"
         case .trigger: return "trigger_key_input"
+        case .externalUserId: return "login_user_id_input"
+        case .updateJwt: return "update_jwt_external_id_input"
         default: return "\(accessibilityKey)_key_input"
         }
     }
@@ -165,6 +182,8 @@ enum AddItemType {
         case .alias: return "alias_id_input"
         case .tag: return "tag_value_input"
         case .trigger: return "trigger_value_input"
+        case .externalUserId: return "login_user_jwt_input"
+        case .updateJwt: return "update_jwt_token_input"
         default: return "\(accessibilityKey)_input"
         }
     }
