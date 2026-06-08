@@ -80,8 +80,9 @@ struct AddItemDialog: View {
 
     private var isValid: Bool {
         if itemType.requiresKeyValue {
-            return !keyText.trimmingCharacters(in: .whitespaces).isEmpty &&
-                   !valueText.trimmingCharacters(in: .whitespaces).isEmpty
+            let keyOK = !keyText.trimmingCharacters(in: .whitespaces).isEmpty
+            if itemType.optionalValue { return keyOK }
+            return keyOK && !valueText.trimmingCharacters(in: .whitespaces).isEmpty
         }
         return !valueText.trimmingCharacters(in: .whitespaces).isEmpty
     }

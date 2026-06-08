@@ -67,8 +67,6 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - UI State
 
-    @Published var isLoading: Bool = false
-
     @Published var activeTooltip: TooltipData?
 
     // MARK: - Computed
@@ -129,7 +127,6 @@ final class OneSignalViewModel: ObservableObject {
         guard let onesignalId = service.onesignalId else { return }
         requestSequence &+= 1
         let captured = requestSequence
-        isLoading = true
 
         let userData = await UserFetchService.shared.fetchUser(appId: appId, onesignalId: onesignalId)
 
@@ -145,7 +142,6 @@ final class OneSignalViewModel: ObservableObject {
                 externalUserId = extId
             }
         }
-        isLoading = false
     }
 
     // MARK: - Consent
@@ -166,13 +162,20 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - User
 
-    func login(externalId: String) {
+    func login(externalId: String, token: String? = nil) {
         let trimmed = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        isLoading = true
-        service.login(externalId: trimmed)
+        let trimmedToken = token?.trimmingCharacters(in: .whitespacesAndNewlines)
+        service.login(externalId: trimmed, token: (trimmedToken?.isEmpty ?? true) ? nil : trimmedToken)
         externalUserId = trimmed
         clearUserData()
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        let trimmedId = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedId.isEmpty, !trimmedToken.isEmpty else { return }
+        service.updateUserJwt(externalId: trimmedId, token: trimmedToken)
     }
 
     func logout() {
