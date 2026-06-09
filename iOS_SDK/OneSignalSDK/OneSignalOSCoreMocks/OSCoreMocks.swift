@@ -34,6 +34,16 @@ public class OSCoreMocks: NSObject {
     public static func resetOperationRepo() {
         OSOperationRepo.sharedInstance.reset()
     }
+
+    /// Clears the file-backed `OSResilientStorage` identifier mirror between tests.
+    public static func resetResilientStorage() {
+        OSResilientStorage.setString(nil, forKey: OSResilientStorage.keySubscriptionId)
+        OSResilientStorage.setString(nil, forKey: OSResilientStorage.keyAppId)
+        OSResilientStorage.setString(nil, forKey: OSResilientStorage.keyReceiveReceiptsEnabled)
+        OSResilientStorage.setString(nil, forKey: OSResilientStorage.keyHasPriorSession)
+        // Force the async write queue to drain so the cleared state is on disk before the test runs.
+        _ = OSResilientStorage.snapshot()
+    }
 }
 
 extension OSOperationRepo {
