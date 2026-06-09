@@ -602,6 +602,12 @@ extension OSUserExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { response in
             self.removeFromRequestQueueAndPersist(request)
 
+            // A fetch for a user that is no longer current is stale
+            guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel) else {
+                self.executePendingRequests()
+                return
+            }
+
             if let response = response {
                 // Clear local data in preparation for hydration
                 // TODO: JWT 🔐 the following line feels wrong... maybe the user's changed by now
@@ -610,7 +616,6 @@ extension OSUserExecutor {
 
                 // If this is a on-new-session's fetch user call, check that the subscription still exists
                 if request.onNewSession,
-                   OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
                    let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
                    let subscriptionObjects = self.parseSubscriptionObjectResponse(response) {
                     var subscriptionExists = false
