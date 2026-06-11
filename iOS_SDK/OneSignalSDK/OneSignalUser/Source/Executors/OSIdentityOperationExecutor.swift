@@ -397,14 +397,41 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
 extension OSIdentityOperationExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
-        // If auth changed from false or unknown to true, process requests
+        // If auth changed from false or unknown to true, drop now-invalid requests
         if to == .on {
             removeInvalidDeltasAndRequests()
+        } else if to == .off {
+            // Identity Verification was turned off: release requests parked awaiting a JWT.
+            reQueueAllPendingRequests()
         }
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
         reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    /// Identity Verification was turned off: move every auth-pended request, across all
+    /// external IDs, back into the request queue and flush
+    private func reQueueAllPendingRequests() {
+        self.dispatchQueue.async {
+            guard !self.pendingAuthRequests.isEmpty else {
+                return
+            }
+            for (_, requests) in self.pendingAuthRequests {
+                for request in requests {
+                    if let addRequest = request as? OSRequestAddAliases {
+                        self.addRequestQueue.append(addRequest)
+                    } else if let removeRequest = request as? OSRequestRemoveAlias {
+                        self.removeRequestQueue.append(removeRequest)
+                    }
+                }
+            }
+            self.pendingAuthRequests = [:]
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     private func reQueuePendingRequestsForExternalId(externalId: String) {
