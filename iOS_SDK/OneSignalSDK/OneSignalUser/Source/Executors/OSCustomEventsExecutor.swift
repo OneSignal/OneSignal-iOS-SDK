@@ -391,11 +391,33 @@ extension OSCustomEventsExecutor: OSUserJwtConfigListener {
         // If auth changed from false or unknown to true, drop invalid items
         if to == .on {
             removeInvalidDeltasAndRequests()
+        } else if to == .off {
+            // Identity Verification was turned off: release requests parked awaiting a JWT.
+            reQueueAllPendingRequests()
         }
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
         reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    /// Identity Verification was turned off: move every auth-pended request, across all
+    /// external IDs, back into the request queue and flush.
+    private func reQueueAllPendingRequests() {
+        self.dispatchQueue.async {
+            guard !self.pendingAuthRequests.isEmpty else {
+                return
+            }
+            for (_, requests) in self.pendingAuthRequests {
+                for request in requests {
+                    self.requestQueue.append(request)
+                }
+            }
+            self.pendingAuthRequests = [:]
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     private func reQueuePendingRequestsForExternalId(externalId: String) {

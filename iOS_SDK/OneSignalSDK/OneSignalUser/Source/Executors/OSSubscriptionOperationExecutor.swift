@@ -541,11 +541,38 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth) {
         if to == .on {
             removeInvalidDeltasAndRequests()
+        } else if to == .off {
+            // Identity Verification was turned off: release requests parked awaiting a JWT.
+            reQueueAllPendingRequests()
         }
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
         reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    /// Identity Verification was turned off: move every auth-pended request, across all
+    /// external IDs, back into the add/remove queues and flush.
+    private func reQueueAllPendingRequests() {
+        self.dispatchQueue.async {
+            guard !self.pendingAuthRequests.isEmpty else {
+                return
+            }
+            for (_, requests) in self.pendingAuthRequests {
+                for request in requests {
+                    if let addRequest = request as? OSRequestCreateSubscription {
+                        self.addRequestQueue.append(addRequest)
+                    } else if let removeRequest = request as? OSRequestDeleteSubscription {
+                        self.removeRequestQueue.append(removeRequest)
+                    }
+                }
+            }
+            self.pendingAuthRequests = [:]
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     func handleUnauthorizedError(externalId: String, request: OSUserRequest) {
@@ -615,7 +642,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
                     self.addRequestQueue.remove(at: index)
                 }
             }
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
             for (index, request) in self.removeRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
@@ -623,7 +650,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
                     self.removeRequestQueue.remove(at: index)
                 }
             }
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
         }
     }
 }

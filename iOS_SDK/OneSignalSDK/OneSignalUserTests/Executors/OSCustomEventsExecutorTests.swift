@@ -428,4 +428,36 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         // Verify user properties are still present
         XCTAssertEqual(payload["user_key"] as? String, "user_value")
     }
+
+    // MARK: - Identity Verification turned off
+
+    /// When Identity Verification is turned off, custom-event requests parked awaiting a JWT must
+    /// be released and sent without a token (no JWT will ever arrive once auth is off).
+    func testReleasePendingRequests_OnIdentityVerificationTurnedOff() {
+        /* Setup */
+        let mocks = CustomEventsMocks()
+        // Turn Identity Verification on via the shared config, which the user manager's executor reads.
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = true
+
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        // start() initializes sharedInstance.customEventsExecutor and subscribes it as a JWT listener.
+        OneSignalUserManagerImpl.sharedInstance.start()
+        let executor = OneSignalUserManagerImpl.sharedInstance.customEventsExecutor!
+
+        mocks.client.fireSuccessForAllRequests = true
+        let delta = createCustomEventDelta(name: "iv_off_event", properties: ["key": "value"], identityModel: user.identityModel)
+        executor.enqueueDelta(delta)
+
+        /* When: the request is parked because no token is present */
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
+
+        /* When: Identity Verification is turned off */
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = false
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then: the parked request is released and sent */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
+    }
 }

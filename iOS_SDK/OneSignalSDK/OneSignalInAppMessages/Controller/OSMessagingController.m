@@ -1320,7 +1320,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSUserJwtConfigListener Methods
 - (void)onRequiresUserAuthChangedFrom:(enum OSRequiresUserAuth)from to:(enum OSRequiresUserAuth)to {
-    // This callback is unused, the controller will fetch when subscription ID changes
+    // Identity Verification was turned off: a fetch deferred waiting for a JWT may never be
+    // retried via onJwtUpdated once auth is off, so release it here
+    if (to == OSRequiresUserAuthOff && shouldRetryGetInAppMessagesOnJwtUpdated) {
+        shouldRetryGetInAppMessagesOnJwtUpdated = false;
+        [self getInAppMessagesFromServer];
+    }
 }
 
 - (void)onJwtUpdatedWithExternalId:(NSString *)externalId token:(NSString *)token {
