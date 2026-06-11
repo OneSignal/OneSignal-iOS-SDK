@@ -278,4 +278,41 @@ final class IdentityExecutorTests: XCTestCase {
 
         XCTAssertEqual(removeAliasRequests.count, 3)
     }
+
+    /// When Identity Verification is turned off, alias requests parked awaiting a JWT must be
+    /// released and sent without a token (no JWT will ever arrive once auth is off).
+    func testReleasePendingRequests_OnIdentityVerificationTurnedOff() {
+        /* Setup */
+        let mocks = Mocks()
+        mocks.setAuthRequired(true)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
+
+        let user = mocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        // No JWT token, so the request is parked awaiting a JWT while Identity Verification is on.
+        // Use the user manager's executor because the JWT-config callback fires only on subscribed
+        // executors; start() initializes and subscribes them.
+        OneSignalUserManagerImpl.sharedInstance.start()
+        let executor = OneSignalUserManagerImpl.sharedInstance.identityExecutor!
+
+        let aliases = userA_Aliases
+        MockUserRequests.setAddAliasesResponse(with: mocks.client, aliases: aliases)
+
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
+
+        executor.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: user.identityModel.modelId, model: user.identityModel, property: "aliases", value: aliases))
+
+        /* When: the request is parked because no token is present */
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
+
+        /* When: Identity Verification is turned off */
+        mocks.setAuthRequired(false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then: the parked request is released and sent, with no JWT invalidation */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestAddAliases.self))
+        XCTAssertFalse(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
+    }
 }

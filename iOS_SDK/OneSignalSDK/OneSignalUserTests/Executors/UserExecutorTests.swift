@@ -492,4 +492,107 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertNil(currentUser.identityModel.aliases["stale_label"])
         XCTAssertEqual(currentUser.identityModel.externalId, userA_EUID)
     }
+
+    /// When Identity Verification is turned off, requests parked awaiting a JWT must be released
+    /// and sent without a token (no JWT will ever arrive once auth is off).
+    func testReleasePendingRequests_OnIdentityVerificationTurnedOff() {
+        /* Setup */
+        let mocks = Mocks()
+        mocks.setAuthRequired(true)
+
+        _ = mocks.setUserManagerInternalUser(externalId: userA_EUID)
+        // start() initializes sharedInstance.userExecutor and subscribes it as a JWT listener.
+        OneSignalUserManagerImpl.sharedInstance.start()
+        let executor = OneSignalUserManagerImpl.sharedInstance.userExecutor!
+
+        // No JWT token, so the Fetch User request is parked awaiting a JWT while IV is on.
+        let newIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        MockUserRequests.setDefaultFetchUserResponseForHydration(with: mocks.client, externalId: userA_EUID)
+
+        let userJwtInvalidatedListener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(userJwtInvalidatedListener)
+
+        /* When: the request is parked because no token is present */
+        executor.fetchUser(onesignalId: userA_OSID, identityModel: newIdentityModel)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
+
+        /* When: Identity Verification is turned off */
+        mocks.setAuthRequired(false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then: the parked request is released and sent, with no JWT invalidation */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
+        XCTAssertFalse(userJwtInvalidatedListener.invalidatedCallbackWasCalled)
+    }
+
+    // MARK: - Identity Verification config: a missing remote-params field always means off
+
+    /// The regression: a previously-ON app must turn OFF when remote params omit jwt_required.
+    func testRemoteParamsMissingJwtRequired_TurnsOff_WhenPreviouslyOn() {
+        /* Setup */
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(true)
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired, true)
+
+        let listener = MockJwtConfigListener()
+        OneSignalUserManagerImpl.sharedInstance.subscribeToJwtConfig(listener, key: "test_iv_off_previously_on")
+
+        /* When: remote params come back without the jwt_required field */
+        OneSignalUserManagerImpl.sharedInstance.remoteParamsReturnedUnknownRequiresUserAuth()
+
+        /* Then: it flips to off and fires the transition exactly once */
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired, false)
+        XCTAssertEqual(listener.changes.count, 1)
+        XCTAssertEqual(listener.changes.first?.from, OSRequiresUserAuth.on)
+        XCTAssertEqual(listener.changes.first?.to, OSRequiresUserAuth.off)
+    }
+
+    /// An unknown (never-set) status resolves to off when remote params omit jwt_required.
+    func testRemoteParamsMissingJwtRequired_TurnsOff_WhenPreviouslyUnknown() {
+        /* Setup */
+        OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired = nil // force unknown
+        XCTAssertNil(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired)
+
+        let listener = MockJwtConfigListener()
+        OneSignalUserManagerImpl.sharedInstance.subscribeToJwtConfig(listener, key: "test_iv_off_previously_unknown")
+
+        /* When */
+        OneSignalUserManagerImpl.sharedInstance.remoteParamsReturnedUnknownRequiresUserAuth()
+
+        /* Then */
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired, false)
+        XCTAssertEqual(listener.changes.count, 1)
+        XCTAssertEqual(listener.changes.first?.from, OSRequiresUserAuth.unknown)
+        XCTAssertEqual(listener.changes.first?.to, OSRequiresUserAuth.off)
+    }
+
+    /// Re-confirming an already-off status must not re-fire listeners (didSet equality guard).
+    func testRemoteParamsMissingJwtRequired_DoesNotRefire_WhenAlreadyOff() {
+        /* Setup */
+        OneSignalUserManagerImpl.sharedInstance.setRequiresUserAuth(false)
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired, false)
+
+        let listener = MockJwtConfigListener()
+        OneSignalUserManagerImpl.sharedInstance.subscribeToJwtConfig(listener, key: "test_iv_off_already_off")
+
+        /* When */
+        OneSignalUserManagerImpl.sharedInstance.remoteParamsReturnedUnknownRequiresUserAuth()
+
+        /* Then: value unchanged, no transition fired */
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.jwtConfig.isRequired, false)
+        XCTAssertEqual(listener.changes.count, 0)
+    }
+}
+
+private class MockJwtConfigListener: NSObject, OSUserJwtConfigListener {
+    var changes: [(from: OSRequiresUserAuth, to: OSRequiresUserAuth)] = []
+    var jwtUpdateCount = 0
+
+    func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
+        changes.append((from: from, to: to))
+    }
+
+    func onJwtUpdated(externalId: String, token: String?) {
+        jwtUpdateCount += 1
+    }
 }
