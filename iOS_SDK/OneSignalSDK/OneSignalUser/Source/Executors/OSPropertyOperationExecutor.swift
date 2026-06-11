@@ -380,14 +380,36 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
 extension OSPropertyOperationExecutor: OSUserJwtConfigListener {
     func onRequiresUserAuthChanged(from: OSRequiresUserAuth, to: OSRequiresUserAuth) {
-        // If auth changed from false or unknown to true, process requests
+        // If auth changed from false or unknown to true, drop now-invalid requests
         if to == .on {
             removeInvalidDeltasAndRequests()
+        } else if to == .off {
+            // Identity Verification was turned off: release requests parked awaiting a JWT.
+            reQueueAllPendingRequests()
         }
     }
 
     func onJwtUpdated(externalId: String, token: String?) {
         reQueuePendingRequestsForExternalId(externalId: externalId)
+    }
+
+    /// Identity Verification was turned off: move every auth-pended request, across all
+    /// external IDs, back into the update queue and flush.
+    private func reQueueAllPendingRequests() {
+        self.dispatchQueue.async {
+            guard !self.pendingAuthRequests.isEmpty else {
+                return
+            }
+            for (_, requests) in self.pendingAuthRequests {
+                for request in requests {
+                    self.updateRequestQueue.append(request)
+                }
+            }
+            self.pendingAuthRequests = [:]
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY, withValue: self.pendingAuthRequests)
+            self.processRequestQueue(inBackground: false)
+        }
     }
 
     private func reQueuePendingRequestsForExternalId(externalId: String) {
