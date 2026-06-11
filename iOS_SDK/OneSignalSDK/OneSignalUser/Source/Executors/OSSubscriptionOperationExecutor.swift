@@ -642,7 +642,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
                     self.addRequestQueue.remove(at: index)
                 }
             }
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
             for (index, request) in self.removeRequestQueue.enumerated().reversed() {
                 if request.identityModel.externalId == nil {
@@ -650,7 +650,7 @@ extension OSSubscriptionOperationExecutor: OSUserJwtConfigListener {
                     self.removeRequestQueue.remove(at: index)
                 }
             }
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
         }
     }
 }
