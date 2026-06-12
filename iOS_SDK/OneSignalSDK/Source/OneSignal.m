@@ -488,7 +488,8 @@ static BOOL ComputeInitialStorageReadable(void) {
 ///
 /// The cached flag is a one-way latch (NO → YES, never reverses). It is:
 ///   * Seeded by `ComputeInitialStorageReadable` (case table below).
-///   * Flipped to YES on `UIApplicationProtectedDataDidBecomeAvailable`.
+///   * Flipped to YES on `UIApplicationProtectedDataDidBecomeAvailable`, or on
+///     `didFinishLaunching`/`didBecomeActive` when `isProtectedDataAvailable` verifies YES.
 ///   * Read via `OneSignalConfig.isProtectedDataAvailableProvider`
 ///
 /// Seed case table:
@@ -502,30 +503,60 @@ static BOOL ComputeInitialStorageReadable(void) {
 /// `keyHasPriorSession` is the only reliable "SDK previously ran here" sentinel, and case 4's
 /// `isProtectedDataAvailable` tiebreaker also protects SDK upgraders who never wrote `keyHasPriorSession`.
 ///
-/// `gObserverShouldRecover` is set when init defers (storage isn't yet readable) and cleared by the
-/// observer's first fire (tracked since `DidBecomeAvailable` posts on every device unlock).
+/// `gObserverShouldRecover` is set when init defers (storage isn't yet readable) and cleared when
+/// recovery runs once. Recovery triggers, whichever verifies first:
+///   * `UIApplicationProtectedDataDidBecomeAvailable` — posts on unlock, including the
+///     first unlock after boot (the locked-prewarm case). Does NOT post if storage was
+///     never locked, so it cannot be the only trigger.
+///   * `didFinishLaunching` / `didBecomeActive` with a live `isProtectedDataAvailable` == YES
+///     re-check — covers deferrals where storage was readable all along (e.g. a prewarm-created
+///     process the user later foregrounds, when the unlock notification never fires).
 + (void)setupProtectedDataObserverOnce {
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
     static _Atomic(BOOL) gObserverShouldRecover = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
-        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
-                            object:nil
-                             queue:nil
-                        usingBlock:^(NSNotification * _Nonnull note) {
+        // Marks storage readable, then re-drives the SDK components that init skipped —
+        // at most once. If `gObserverShouldRecover == YES`, atomically swap to NO and
+        // proceed; otherwise bail (already consumed, or init never deferred).
+        void (^recoverIfDeferred)(void) = ^{
             atomic_store(&gProtectedDataAvailable, YES);
-            // Only run the recovery if init deferred. If `gObserverShouldRecover == YES`,
-            // atomically swap to NO and proceed; otherwise bail (already consumed, or never set).
             BOOL shouldRecover = YES;
             if (!atomic_compare_exchange_strong(&gObserverShouldRecover, &shouldRecover, NO)) {
                 return;
             }
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Device storage became readable; starting deferred OneSignal components"];
             [OneSignalUserManagerImpl.sharedInstance start];
             [OSNotificationsManager sendPushTokenToDelegate];
             [OneSignal startLiveActivitiesManager];
             [OneSignal startInAppMessages];
             [OneSignal startNewSession:YES];
+        };
+
+        // Authoritative signal: the OS says protected data just became available.
+        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationProtectedDataDidBecomeAvailable
+                            object:nil
+                             queue:nil
+                        usingBlock:^(NSNotification * _Nonnull note) {
+            recoverIfDeferred();
         }];
+
+        // Lifecycle signals: if init deferred while storage was actually readable (seed
+        // case 5, or a conservative misjudgment), the unlock notification never posts.
+        // Once UIApplicationMain has run, `sharedApplication` exists and we can consult
+        // the real `isProtectedDataAvailable`. Skipped when it reports NO (e.g. a
+        // background launch before first unlock) — the unlock notification covers those.
+        for (NSNotificationName name in @[UIApplicationDidFinishLaunchingNotification,
+                                          UIApplicationDidBecomeActiveNotification]) {
+            [NSNotificationCenter.defaultCenter addObserverForName:name
+                                object:nil
+                                 queue:NSOperationQueue.mainQueue
+                            usingBlock:^(NSNotification * _Nonnull note) {
+                if (UIApplication.sharedApplication.isProtectedDataAvailable) {
+                    recoverIfDeferred();
+                }
+            }];
+        }
 
         OneSignalConfig.isProtectedDataAvailableProvider = ^BOOL {
             return atomic_load(&gProtectedDataAvailable);
