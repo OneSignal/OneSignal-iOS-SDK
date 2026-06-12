@@ -8,6 +8,11 @@ WORKING_DIR=$(pwd)
 # read VERSION_NUMBER
 VERSION_NUMBER=$1
 
+if [ -z "${VERSION_NUMBER}" ]; then
+    echo "ERROR: release version argument is required (usage: $0 <version>)" >&2
+    exit 1
+fi
+
 update_framework() {
     FRAMEWORK_FOLDER_NAME=$1
 
@@ -36,43 +41,80 @@ update_framework() {
     # Compute the checksum for the Zipped framework
     echo "Computing package checksum and updating Package.swift ${SWIFT_PACKAGE_PATH}"
     CHECKSUM=$(swift package compute-checksum "${FRAMEWORK_ZIP_PATH}")
-    SWIFT_PM_CHECKSUM_LINE="          checksum: \"${CHECKSUM}\""
+    if [ -z "${CHECKSUM}" ]; then
+        echo "ERROR: empty checksum computed for ${FRAMEWORK_NAME}" >&2
+        exit 1
+    fi
+    # Update this framework's .binaryTarget in place, located by the framework
+    # name in its url line (NOT by hardcoded line number). Only the version in the
+    # url and the hash in the following checksum line are rewritten; surrounding
+    # structure/formatting is preserved. Matching by name keeps this correct even
+    # when the manifest layout shifts -- the previous line-number approach silently
+    # corrupted Package.swift once unrelated lines moved (broke 5.5.2 SPM).
+    awk -v fw="${FRAMEWORK_NAME}" -v ver="${VERSION_NUMBER}" -v chk="${CHECKSUM}" '
+        # This framework'"'"'s url line: bump only the version path segment.
+        $0 ~ ("url: \"https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/[^/]*/" fw "\\.xcframework\\.zip\"") {
+            sub("download/[^/]*/", "download/" ver "/")
+            print
+            expect_checksum = 1
+            next
+        }
+        # The checksum must sit on the line IMMEDIATELY after that url (the
+        # well-formed .binaryTarget layout). Only that one line is eligible, so a
+        # reordered/stray/renamed checksum line can never be clobbered: if it is not
+        # a checksum line nothing is rewritten and the post-run guard fails loudly.
+        expect_checksum {
+            expect_checksum = 0
+            if ($0 ~ /^[[:space:]]*checksum: "[0-9a-fA-F]*"[[:space:]]*$/) {
+                sub("checksum: \"[0-9a-fA-F]*\"", "checksum: \"" chk "\"")
+            }
+            print
+            next
+        }
+        { print }
+    ' "${SWIFT_PACKAGE_PATH}" > "${SWIFT_PACKAGE_PATH}.tmp"
+    mv "${SWIFT_PACKAGE_PATH}.tmp" "${SWIFT_PACKAGE_PATH}"
 
-    # Use sed to remove line from the Swift.package and replace it with the new checksum
-    sed -i '' "$3s/.*/$SWIFT_PM_CHECKSUM_LINE/" "${SWIFT_PACKAGE_PATH}"
-    SWIFT_PM_URL_LINE="          url: \"https:\/\/github.com\/OneSignal\/OneSignal-iOS-SDK\/releases\/download\/${VERSION_NUMBER}\/${FRAMEWORK_NAME}.xcframework.zip\","
-    #Use sed to remove line from the Swift.package and replace it with the new URL for the new release
-    sed -i '' "$4s/.*/$SWIFT_PM_URL_LINE/" "${SWIFT_PACKAGE_PATH}"
+    # Fail loudly if the entry was not found/updated, instead of silently leaving
+    # the manifest stale or malformed.
+    if ! grep -q "releases/download/${VERSION_NUMBER}/${FRAMEWORK_NAME}.xcframework.zip" "${SWIFT_PACKAGE_PATH}"; then
+        echo "ERROR: could not find/update url for ${FRAMEWORK_NAME} in Package.swift" >&2
+        exit 1
+    fi
+    if ! grep -q "checksum: \"${CHECKSUM}\"" "${SWIFT_PACKAGE_PATH}"; then
+        echo "ERROR: could not update checksum for ${FRAMEWORK_NAME} in Package.swift" >&2
+        exit 1
+    fi
     #Open XCFramework folder to drag zip into new release
     open "${WORKING_DIR}/${FRAMEWORK_FOLDER_NAME}"
 }
 
 ## OneSignal LiveActivities ##
-update_framework "OneSignal_LiveActivities" "OneSignalLiveActivities" "163" "162"
+update_framework "OneSignal_LiveActivities" "OneSignalLiveActivities"
 
 ## OneSignal Core ##
-update_framework "OneSignal_Core" "OneSignalCore" "158" "157"
+update_framework "OneSignal_Core" "OneSignalCore"
 
 ## OneSignal OSCore ##
-update_framework "OneSignal_OSCore" "OneSignalOSCore" "153" "152"
+update_framework "OneSignal_OSCore" "OneSignalOSCore"
 
 ## OneSignal Outcomes ##
-update_framework "OneSignal_Outcomes" "OneSignalOutcomes" "148" "147"
+update_framework "OneSignal_Outcomes" "OneSignalOutcomes"
 
 ## OneSignal Extension ##
-update_framework "OneSignal_Extension" "OneSignalExtension" "143" "142"
+update_framework "OneSignal_Extension" "OneSignalExtension"
 
 ## OneSignal Notifications ##
-update_framework "OneSignal_Notifications" "OneSignalNotifications" "138" "137"
+update_framework "OneSignal_Notifications" "OneSignalNotifications"
 
 ## OneSignal User ##
-update_framework "OneSignal_User" "OneSignalUser" "133" "132"
+update_framework "OneSignal_User" "OneSignalUser"
 
 ## OneSignal Location ##
-update_framework "OneSignal_Location" "OneSignalLocation" "128" "127"
+update_framework "OneSignal_Location" "OneSignalLocation"
 
 ## OneSignal InAppMessages ##
-update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages" "123" "122"
+update_framework "OneSignal_InAppMessages" "OneSignalInAppMessages"
 
 ## OneSignal ##
-update_framework "OneSignal_XCFramework" "OneSignalFramework" "118" "117"
+update_framework "OneSignal_XCFramework" "OneSignalFramework"
