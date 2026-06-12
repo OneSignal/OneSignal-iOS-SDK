@@ -463,10 +463,24 @@ static BOOL ComputeInitialStorageReadable(void) {
     if (hasPriorSession) { // returning user during prewarm; defer
         return NO;
     }
-    if ([NSThread isMainThread]) {
-        return UIApplication.sharedApplication.isProtectedDataAvailable;
+    if (![NSThread isMainThread]) {
+        return YES; // off-main: can't safely read UIApplication
     }
-    return YES; // off-main: can't safely read UIApplication
+    UIApplication *sharedApp = UIApplication.sharedApplication;
+    if (sharedApp) {
+        return sharedApp.isProtectedDataAvailable;
+    }
+    // sharedApplication is nil: we are running before UIApplicationMain, e.g. a SwiftUI
+    // App.init() or an ObjC +load. (Messaging nil here would silently return NO and leave
+    // the SDK permanently gated, since the recovery notification below may never fire.)
+    // A user-initiated launch implies the device is unlocked, so storage is readable.
+    // Only a prewarm-created process can reach this point while storage may still be
+    // locked; iOS marks those processes with the ActivePrewarm environment variable,
+    // which is cleared after launch completes — but pre-UIApplicationMain is always
+    // before that, so the read is reliable here.
+    BOOL isPrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal initialized before UIApplicationMain (ActivePrewarm=%d); %@", isPrewarm, isPrewarm ? @"deferring storage reads until launch completes" : @"treating storage as readable"]];
+    return !isPrewarm;
 }
 
 /// One-time setup of the protected-data readiness check that matters during iOS app
@@ -478,12 +492,14 @@ static BOOL ComputeInitialStorageReadable(void) {
 ///   * Read via `OneSignalConfig.isProtectedDataAvailableProvider`
 ///
 /// Seed case table:
-///   1. pushModels populated                              → YES (UD is readable)
-///   2. `keyHasPriorSession` set, no UD    → NO  (returning user during prewarm; defer)
-///   3. neither + main thread                                → fall back to `UIApplication.isProtectedDataAvailable`
-///   4. neither + off-main thread                           → YES (can't safely read UIApplication)
+///   1. pushModels populated                  → YES (UD is readable)
+///   2. `keyHasPriorSession` set, no UD       → NO  (returning user during prewarm; defer)
+///   3. neither + off-main thread             → YES (can't safely read UIApplication)
+///   4. neither + sharedApplication exists    → `UIApplication.isProtectedDataAvailable`
+///   5. neither + sharedApplication nil       → NO only when `ActivePrewarm=1` (pre-UIApplicationMain:
+///      a user-initiated launch implies unlocked storage; only prewarm can mean locked storage)
 ///
-/// `keyHasPriorSession`  is the only reliable "SDK previously ran here" sentinel, and case 3's
+/// `keyHasPriorSession` is the only reliable "SDK previously ran here" sentinel, and case 4's
 /// `isProtectedDataAvailable` tiebreaker also protects SDK upgraders who never wrote `keyHasPriorSession`.
 ///
 /// `gObserverShouldRecover` is set when init defers (storage isn't yet readable) and cleared by the
