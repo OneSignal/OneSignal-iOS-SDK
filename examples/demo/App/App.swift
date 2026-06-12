@@ -31,9 +31,22 @@ import OneSignalLiveActivities
 
 @main
 struct App: SwiftUI.App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var viewModel = OneSignalViewModel()
     @StateObject private var toastPresenter = ToastPresenter()
+
+    // REPRO SDK-4757: pure SwiftUI lifecycle (no AppDelegate), initialize in App.init()
+    // like the reporter's app. Revert to the @UIApplicationDelegateAdaptor version after.
+    init() {
+        let sharedApp = UIApplication
+            .perform(NSSelectorFromString("sharedApplication"))?
+            .takeUnretainedValue() as? UIApplication
+        if let app = sharedApp {
+            print("[SDK-4757 REPRO] App.init — sharedApplication exists, isProtectedDataAvailable=\(app.isProtectedDataAvailable)")
+        } else {
+            print("[SDK-4757 REPRO] App.init — UIApplication.sharedApplication is NIL (UIApplicationMain not called yet)")
+        }
+        OneSignalService.shared.initialize(launchOptions: nil)
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -41,48 +54,6 @@ struct App: SwiftUI.App {
                 .environmentObject(viewModel)
                 .environmentObject(toastPresenter)
         }
-    }
-}
-
-// MARK: - App Delegate
-
-class AppDelegate: NSObject, UIApplicationDelegate {
-
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-        // Initialize OneSignal
-        OneSignalService.shared.initialize(launchOptions: launchOptions)
-
-        // Set up notification lifecycle listeners
-        setupNotificationListeners()
-
-        // Set up in-app message listeners
-        setupInAppMessageListeners()
-
-        // Set up Live Activities (iOS 16.1+)
-        if #available(iOS 16.1, *) {
-            LiveActivityController.setup()
-        }
-
-        return true
-    }
-
-    private func setupNotificationListeners() {
-        // Foreground notification display
-        OneSignal.Notifications.addForegroundLifecycleListener(NotificationLifecycleHandler.shared)
-
-        // Notification click handling
-        OneSignal.Notifications.addClickListener(NotificationClickHandler.shared)
-    }
-
-    private func setupInAppMessageListeners() {
-        // In-app message lifecycle
-        OneSignal.InAppMessages.addLifecycleListener(InAppMessageLifecycleHandler.shared)
-
-        // In-app message click handling
-        OneSignal.InAppMessages.addClickListener(InAppMessageClickHandler.shared)
     }
 }
 
