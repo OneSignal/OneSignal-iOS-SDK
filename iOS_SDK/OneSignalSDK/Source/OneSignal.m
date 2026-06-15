@@ -471,12 +471,11 @@ static BOOL ComputeInitialStorageReadable(void) {
         return sharedApp.isProtectedDataAvailable;
     }
     // sharedApplication is nil: we are running before UIApplicationMain, e.g. a SwiftUI
-    // App.init() or an ObjC +load. (Messaging nil here would silently return NO and leave
-    // the SDK permanently gated, since the recovery notification below may never fire.)
+    // App.init().
     // A user-initiated launch implies the device is unlocked, so storage is readable.
     // Only a prewarm-created process can reach this point while storage may still be
     // locked; iOS marks those processes with the ActivePrewarm environment variable,
-    // which is cleared after launch completes — but pre-UIApplicationMain is always
+    // which is cleared after launch completes, but pre-UIApplicationMain is always
     // before that, so the read is reliable here.
     BOOL isPrewarm = [NSProcessInfo.processInfo.environment[@"ActivePrewarm"] isEqualToString:@"1"];
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal initialized before UIApplicationMain (ActivePrewarm=%d); %@", isPrewarm, isPrewarm ? @"deferring storage reads until launch completes" : @"treating storage as readable"]];
@@ -505,19 +504,19 @@ static BOOL ComputeInitialStorageReadable(void) {
 ///
 /// `gObserverShouldRecover` is set when init defers (storage isn't yet readable) and cleared when
 /// recovery runs once. Recovery triggers, whichever verifies first:
-///   * `UIApplicationProtectedDataDidBecomeAvailable` — posts on unlock, including the
+///   * `UIApplicationProtectedDataDidBecomeAvailable` posts on unlock, including the
 ///     first unlock after boot (the locked-prewarm case). Does NOT post if storage was
 ///     never locked, so it cannot be the only trigger.
 ///   * `didFinishLaunching` / `didBecomeActive` with a live `isProtectedDataAvailable` == YES
-///     re-check — covers deferrals where storage was readable all along (e.g. a prewarm-created
+///     re-check covers deferrals where storage was readable all along (e.g. a prewarm-created
 ///     process the user later foregrounds, when the unlock notification never fires).
 + (void)setupProtectedDataObserverOnce {
     static _Atomic(BOOL) gProtectedDataAvailable = NO;
     static _Atomic(BOOL) gObserverShouldRecover = NO;
     static dispatch_once_t protectedDataOnce;
     dispatch_once(&protectedDataOnce, ^{
-        // Marks storage readable, then re-drives the SDK components that init skipped —
-        // at most once. If `gObserverShouldRecover == YES`, atomically swap to NO and
+        // Marks storage readable, then re-drives the SDK components that init skipped
+        // (at most once). If `gObserverShouldRecover == YES`, atomically swap to NO and
         // proceed; otherwise bail (already consumed, or init never deferred).
         void (^recoverIfDeferred)(void) = ^{
             atomic_store(&gProtectedDataAvailable, YES);
@@ -541,11 +540,9 @@ static BOOL ComputeInitialStorageReadable(void) {
             recoverIfDeferred();
         }];
 
-        // Lifecycle signals: if init deferred while storage was actually readable (seed
-        // case 5, or a conservative misjudgment), the unlock notification never posts.
-        // Once UIApplicationMain has run, `sharedApplication` exists and we can consult
-        // the real `isProtectedDataAvailable`. Skipped when it reports NO (e.g. a
-        // background launch before first unlock) — the unlock notification covers those.
+        // Lifecycle signals: if init deferred while storage was actually readable,
+        // the unlock notification never posts. Once UIApplicationMain has run,
+        // `sharedApplication` exists and we can consult the real `isProtectedDataAvailable`.
         for (NSNotificationName name in @[UIApplicationDidFinishLaunchingNotification,
                                           UIApplicationDidBecomeActiveNotification]) {
             [NSNotificationCenter.defaultCenter addObserverForName:name
