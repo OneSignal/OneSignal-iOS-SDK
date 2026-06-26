@@ -278,8 +278,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    // Logout only if the request still owns the current user (captured once), so a
+                    // concurrent login/logout can't escalate this into an erroneous logout of another user
+                    guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                     else {
                         if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)

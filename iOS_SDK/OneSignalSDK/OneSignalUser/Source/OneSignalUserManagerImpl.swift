@@ -427,13 +427,56 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         return userInstance.identityModel.externalId == externalId
     }
+
+    /**
+     Returns the current user only if it still owns `modelId`, otherwise `nil`.
+
+     `_user` is read exactly once, so callers operate on a single confirmed instance instead of
+     checking the current user and then separately re-reading `_user`. That check-then-deref is a
+     TOCTOU: a concurrent login/logout can swap `_user` in the window between the two, landing one
+     user's data or action on a different user.
+     */
+    func currentUser(matching modelId: String) -> OSUserInternal? {
+        guard let user = _user, user.identityModel.modelId == modelId else {
+            return nil
+        }
+        return user
+    }
+
+    /**
+     Runs `body` with the current user, but only if it still owns `modelId`, capturing `_user` once.
+
+     The same captured instance is both checked and passed to `body`, so a concurrent login/logout
+     can't divert a network-response callback's mutation onto a different user. No lock is held
+     across `body`: the model mutations callers perform here (e.g. `hydrate`, `clearData`) fire
+     model-store listeners into the operation repo, so holding a lock across them could deadlock.
+     */
+    func withCurrentUser(matching modelId: String, _ body: (OSUserInternal) -> Void) {
+        guard let user = currentUser(matching: modelId) else {
+            return
+        }
+        body(user)
+    }
+
     /**
      Clears the existing user's data in preparation for hydration via a fetch user call.
      */
     func clearUserData() {
+        guard let user = _user else {
+            return
+        }
+        clearUserData(user)
+    }
+
+    /**
+     Clears the passed-in (already-confirmed) user's data in preparation for hydration via a fetch
+     user call. Operating on the captured `user` rather than re-reading `_user` avoids clearing a
+     different user's data if a concurrent login/logout swaps `_user`.
+     */
+    func clearUserData(_ user: OSUserInternal) {
         // Identity and property models should still be the same instances, but with data cleared
-        _user?.identityModel.clearData()
-        _user?.propertiesModel.clearData()
+        user.identityModel.clearData()
+        user.propertiesModel.clearData()
 
         // Subscription model store should be cleared completely
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()

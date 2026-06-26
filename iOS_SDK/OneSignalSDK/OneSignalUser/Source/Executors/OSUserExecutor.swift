@@ -412,8 +412,9 @@ extension OSUserExecutor {
             } else if responseType == .missing {
                 self.removeFromQueue(request)
                 self.executePendingRequests()
-                // Logout if the user in the SDK is the same
-                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate)
+                // Logout only if the request still owns the current user (captured once), so a
+                // concurrent login/logout can't escalate this into an erroneous logout of another user
+                guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil
                 else {
                     return
                 }
@@ -448,15 +449,15 @@ extension OSUserExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { response in
             self.removeFromQueue(request)
 
-            // A fetch for a user that is no longer current is stale
-            guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel) else {
-                self.executePendingRequests()
-                return
-            }
-
-            if let response = response {
+            // A fetch for a user that is no longer current is stale. Capture `_user` once and
+            // clear/hydrate that same instance, so a concurrent login/logout can't wipe or hydrate
+            // a different user's data.
+            OneSignalUserManagerImpl.sharedInstance.withCurrentUser(matching: request.identityModel.modelId) { user in
+                guard let response = response else {
+                    return
+                }
                 // Clear local data in preparation for hydration
-                OneSignalUserManagerImpl.sharedInstance.clearUserData()
+                OneSignalUserManagerImpl.sharedInstance.clearUserData(user)
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
                 // If this is a on-new-session's fetch user call, check that the subscription still exists
@@ -485,8 +486,9 @@ extension OSUserExecutor {
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .missing {
                 self.removeFromQueue(request)
-                // Logout if the user in the SDK is the same
-                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                // Logout only if the request still owns the current user (captured once), so a
+                // concurrent login/logout can't escalate this into an erroneous logout of another user
+                guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                 else {
                     return
                 }
@@ -541,39 +543,40 @@ extension OSUserExecutor {
             }
         }
 
-        // Check if the current user is the same as the one in the request
-        // If user has changed, don't hydrate, except for push subscription above
-        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
-            return
-        }
+        // Hydrate the properties and email/SMS subscriptions only if the request still owns the
+        // current user; if the user has changed, don't hydrate (except for the push subscription
+        // above). Capture `_user` once and hydrate that same instance, so a concurrent login/logout
+        // can't land this response's data on a different user. This is reached from both the fetch
+        // user and create user paths, so the guard must live here.
+        OneSignalUserManagerImpl.sharedInstance.withCurrentUser(matching: identityModel.modelId) { user in
+            if let propertiesObject = parsePropertiesObjectResponse(response) {
+                user.propertiesModel.hydrate(propertiesObject)
+            }
 
-        if let propertiesObject = parsePropertiesObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance._user?.propertiesModel.hydrate(propertiesObject)
-        }
+            // Now parse email and sms subscriptions
+            if let subscriptionObject = parseSubscriptionObjectResponse(response) {
+                let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
+                for subModel in subscriptionObject {
+                    if let address = subModel["token"] as? String,
+                       let rawType = subModel["type"] as? String,
+                       rawType != "iOSPush",
+                       let type = OSSubscriptionType(rawValue: rawType)
+                    {
+                        if let model = models[address] {
+                            // This subscription exists in the store, hydrate
+                            model.hydrate(subModel)
 
-        // Now parse email and sms subscriptions
-        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
-            let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
-            for subModel in subscriptionObject {
-                if let address = subModel["token"] as? String,
-                   let rawType = subModel["type"] as? String,
-                   rawType != "iOSPush",
-                   let type = OSSubscriptionType(rawValue: rawType)
-                {
-                    if let model = models[address] {
-                        // This subscription exists in the store, hydrate
-                        model.hydrate(subModel)
-
-                    } else {
-                        // This subscription does not exist in the store, add
-                        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
-                            type: type,
-                            address: address,
-                            subscriptionId: subModel["id"] as? String,
-                            reachable: true,
-                            isDisabled: false,
-                            changeNotifier: OSEventProducer()), hydrating: true
-                        )
+                        } else {
+                            // This subscription does not exist in the store, add
+                            OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
+                                type: type,
+                                address: address,
+                                subscriptionId: subModel["id"] as? String,
+                                reachable: true,
+                                isDisabled: false,
+                                changeNotifier: OSEventProducer()), hydrating: true
+                            )
+                        }
                     }
                 }
             }
