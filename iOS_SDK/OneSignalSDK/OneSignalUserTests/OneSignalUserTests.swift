@@ -189,4 +189,98 @@ final class OneSignalUserTests: XCTestCase {
             contains: expectedPayload)
         )
     }
+
+    // MARK: - Atomic current-user accessor (TOCTOU)
+
+    /**
+     The user executors guard a network-response callback with the current user and then separately
+     dereference `_user`. A concurrent login/logout can swap `_user` between the two, applying one
+     user's data or action to a different user. `withCurrentUser(matching:)` closes that window by
+     reading `_user` once and passing that same captured instance to the closure.
+
+     This is the safe path: when the current user still owns the model ID, the closure runs on the
+     captured current user.
+     */
+    func testWithCurrentUser_runsClosureOnCapturedCurrentUser_whenModelIdMatches() throws {
+        /* Setup */
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        let modelId = user.identityModel.modelId
+
+        /* When */
+        var runCount = 0
+        var capturedIsCurrentUser = false
+        OneSignalUserManagerImpl.sharedInstance.withCurrentUser(matching: modelId) { capturedUser in
+            runCount += 1
+            // The closure must receive the very instance that is currently `_user`.
+            capturedIsCurrentUser = capturedUser.identityModel === OneSignalUserManagerImpl.sharedInstance._user?.identityModel
+        }
+
+        /* Then */
+        XCTAssertEqual(runCount, 1)
+        XCTAssertTrue(capturedIsCurrentUser)
+    }
+
+    /**
+     Simulates the TOCTOU race: a concurrent login swaps `_user` to a different user before the
+     callback runs. The accessor must NOT run its closure for the now-stale model ID, so the response
+     can't be applied to the new current user (cross-user contamination).
+     */
+    func testWithCurrentUser_doesNotRunClosure_whenUserSwappedToDifferentModelId() throws {
+        /* Setup */
+        let previousUser = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        let staleModelId = previousUser.identityModel.modelId
+
+        // A concurrent login swaps the current user out from under the in-flight request.
+        let currentUser = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        XCTAssertNotEqual(staleModelId, currentUser.identityModel.modelId)
+
+        /* When */
+        var runCount = 0
+        OneSignalUserManagerImpl.sharedInstance.withCurrentUser(matching: staleModelId) { _ in
+            runCount += 1
+        }
+
+        /* Then */
+        XCTAssertEqual(runCount, 0)
+    }
+
+    /**
+     When there is no current user (e.g. `_user == nil` during the logout window), the accessor must
+     not run its closure rather than dereferencing a nil or recreated user.
+     */
+    func testWithCurrentUser_doesNotRunClosure_whenNoCurrentUser() throws {
+        /* Setup */
+        // `OneSignalUserMocks.reset()` (called in setUp) leaves `_user == nil`.
+        XCTAssertNil(OneSignalUserManagerImpl.sharedInstance._user)
+
+        /* When */
+        var runCount = 0
+        OneSignalUserManagerImpl.sharedInstance.withCurrentUser(matching: UUID().uuidString) { _ in
+            runCount += 1
+        }
+
+        /* Then */
+        XCTAssertEqual(runCount, 0)
+    }
+
+    /**
+     `currentUser(matching:)` is the non-closure variant used to gate `_logout()`. It must return the
+     current user only when the model ID matches, and `nil` when there is no user or the user was
+     swapped, so a stale failure callback can't log out a different user.
+     */
+    func testCurrentUserMatching_returnsUserOnlyWhenModelIdMatches() throws {
+        /* No current user → nil */
+        XCTAssertNil(OneSignalUserManagerImpl.sharedInstance.currentUser(matching: UUID().uuidString))
+
+        /* Matching current user → the captured instance */
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        let staleModelId = user.identityModel.modelId
+        let matched = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: staleModelId)
+        XCTAssertNotNil(matched)
+        XCTAssertTrue(matched?.identityModel === user.identityModel)
+
+        /* Concurrent swap → the previous model ID no longer matches → nil */
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        XCTAssertNil(OneSignalUserManagerImpl.sharedInstance.currentUser(matching: staleModelId))
+    }
 }
