@@ -96,9 +96,13 @@ final class OneSignalService {
 
     // MARK: - User
 
-    func login(externalId: String) {
+    func login(externalId: String, token: String? = nil) {
         prefs.setExternalUserId(externalId)
-        OneSignal.login(externalId)
+        OneSignal.login(externalId: externalId, token: token)
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
     func logout() {

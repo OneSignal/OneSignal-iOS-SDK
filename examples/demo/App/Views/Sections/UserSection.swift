@@ -31,6 +31,7 @@ import SwiftUI
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
     @State private var loginOpen = false
+    @State private var updateJwtOpen = false
 
     var body: some View {
         SectionCard(title: "USER", sectionKey: "user") {
@@ -55,6 +56,14 @@ struct UserSection: View {
                 loginOpen = true
             }
 
+            ActionButton(
+                "UPDATE JWT",
+                style: .outline,
+                accessibilityID: "update_jwt_button"
+            ) {
+                updateJwtOpen = true
+            }
+
             if viewModel.isLoggedIn {
                 ActionButton(
                     "LOGOUT USER",
@@ -68,11 +77,21 @@ struct UserSection: View {
         .osCenteredDialog(isPresented: $loginOpen) {
             AddItemDialog(
                 itemType: .externalUserId,
-                onAdd: { _, value in
-                    viewModel.login(externalId: value)
+                onAdd: { externalId, token in
+                    viewModel.login(externalId: externalId, token: token.isEmpty ? nil : token)
                     loginOpen = false
                 },
                 onCancel: { loginOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $updateJwtOpen) {
+            AddItemDialog(
+                itemType: .updateJwt,
+                onAdd: { externalId, token in
+                    viewModel.updateUserJwt(externalId: externalId, token: token)
+                    updateJwtOpen = false
+                },
+                onCancel: { updateJwtOpen = false }
             )
         }
     }
