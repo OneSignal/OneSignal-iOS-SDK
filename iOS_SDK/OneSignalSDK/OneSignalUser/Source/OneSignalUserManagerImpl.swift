@@ -699,15 +699,12 @@ extension OneSignalUserManagerImpl {
     }
 
     /**
-     This is called when remote params does not return the property `IOS_JWT_REQUIRED`.
-     It is likely this feature is not enabled for the app, so we will assume it is off.
-     However, don't overwrite the value if this has already been set.
+     This is called when remote params does not return the property `IOS_JWT_REQUIRED`. A missing value means Identity Verification
+     is off for this app, so we set it to off unconditionally — including when it was previously on. The `requiresUserAuth` didSet only
+     fires listeners when the value actually changes, so re-confirming an existing off value is a no-op.
      */
     @objc
     public func remoteParamsReturnedUnknownRequiresUserAuth() {
-        guard jwtConfig.isRequired == nil else {
-            return
-        }
         OneSignalLog.onesignalLog(.LL_DEBUG, message: "remoteParamsReturnedUnknownRequiresUserAuth called")
         jwtConfig.isRequired = false
     }
