@@ -334,7 +334,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         Task {
             for await content in activity.contentUpdates {
                 // Don't track a live activity started / updated "in app" without a notification
-                if let notificationId = activity.content.state.onesignal?.notificationId {
+                if let notificationId = content.state.onesignal?.notificationId {
                     OneSignalLiveActivitiesManagerImpl.addReceiveReceipts(notificationId: notificationId, activityType: "\(activityType)", activityId: activity.attributes.onesignal.activityId)
                 }
             }
