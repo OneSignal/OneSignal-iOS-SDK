@@ -36,6 +36,7 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
     var activityType: String
     var activityId: String
     var requestSuccessful: Bool
+    // Forgotten once sent; duplicate suppression is handled by the executor's confirmedReceiptIds.
     var shouldForgetWhenSuccessful: Bool = true
 
     func prepareForExecution() -> Bool {

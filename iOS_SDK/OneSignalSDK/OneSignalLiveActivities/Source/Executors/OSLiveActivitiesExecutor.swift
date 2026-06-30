@@ -115,11 +115,11 @@ class StartRequestCache: RequestCache {
 }
 
 class ReceiveReceiptsRequestCache: RequestCache {
-    // Keep receive receipts requests for up to 30 days.
-    static let OneMonthInSeconds = TimeInterval(60 * 60 * 24 * 30)
+    // Only pending receipts live here; de-duplication is handled by the executor's confirmedReceiptIds.
+    static let OneWeekInSeconds = TimeInterval(60 * 60 * 24 * 7)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.OneMonthInSeconds)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.OneWeekInSeconds)
     }
 }
 
@@ -138,6 +138,8 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     let startTokens: StartRequestCache = StartRequestCache()
     let receiveReceipts: ReceiveReceiptsRequestCache = ReceiveReceiptsRequestCache()
     let clickEvents: ClickedRequestCache = ClickedRequestCache()
+    // Dedupes receipts per session so duplicate content-update listeners can't over-report.
+    var confirmedReceiptIds: Set<String> = []
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
@@ -172,6 +174,10 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
     func append(_ request: OSLiveActivityRequest) {
         self.requestDispatch.async {
+            if request is OSRequestLiveActivityReceiveReceipts, !self.claimReceipt(request.key) {
+                return
+            }
+
             let cache = self.getCache(request)
             let existingRequest = cache.items[request.key]
 
@@ -182,6 +188,16 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities superseded request not saved/executed: \(request)")
             }
         }
+    }
+
+    // False if this notificationId was already claimed this session. Call on requestDispatch.
+    private func claimReceipt(_ notificationId: String) -> Bool {
+        if confirmedReceiptIds.contains(notificationId) {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities duplicate receive receipt not sent for notificationId: \(notificationId)")
+            return false
+        }
+        confirmedReceiptIds.insert(notificationId)
+        return true
     }
 
     private func pollPendingRequests() {

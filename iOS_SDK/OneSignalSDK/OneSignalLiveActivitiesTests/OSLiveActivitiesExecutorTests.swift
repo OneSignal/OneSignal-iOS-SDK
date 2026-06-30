@@ -173,7 +173,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
+        // Forgotten from the cache, but its notificationId is remembered so it isn't reported again.
         XCTAssertEqual(executor.receiveReceipts.items.count, 0)
+        XCTAssertTrue(executor.confirmedReceiptIds.contains("notification-id"))
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
@@ -515,8 +517,50 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
+        // request2 is suppressed as a duplicate of request1; the sent receipt is then forgotten.
         XCTAssertEqual(executor.receiveReceipts.items.count, 0)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
+        XCTAssertTrue(mockClient.executedRequests[0] == request1)
+    }
+
+    /**
+     A receive-receipt for a notificationId must be sent at most once per device. This covers the
+     cross-cycle case: unlike `testReceiveReceiptsRequestNotExecutedWithSameNotificationId` (both receipts
+     appended in one cycle), here the first fully completes and is forgotten before the second arrives, so
+     the duplicate is caught by the remembered notificationIds rather than by the request cache.
+     */
+    func testReceiveReceiptsNotResentForSameNotificationIdAcrossDeliveryCycles() throws {
+        /* Setup */
+        let mockDispatchQueue = MockDispatchQueue()
+        let mockClient = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(mockClient)
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
+        OneSignalUserManagerImpl.sharedInstance.start()
+        // Wait for any user setup requests to complete
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+        mockClient.reset()
+
+        let request1 = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        let request2 = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
+        /* When */
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
+
+        // First cycle: receipt is sent, succeeds, is forgotten, and its notificationId is remembered.
+        executor.append(request1)
+        mockDispatchQueue.waitForDispatches(2)
+        XCTAssertEqual(mockClient.executedRequests.count, 1)
+        XCTAssertEqual(executor.receiveReceipts.items.count, 0)
+        XCTAssertTrue(executor.confirmedReceiptIds.contains("my-notification-id"))
+
+        // Second cycle, same notificationId (e.g. another content update / relaunch): a duplicate.
+        executor.append(request2)
+        mockDispatchQueue.waitForDispatches(3)
+
+        /* Then */
+        XCTAssertEqual(mockClient.executedRequests.count, 1, "Duplicate receive-receipt must not be sent for the same notificationId across delivery cycles")
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
 }
