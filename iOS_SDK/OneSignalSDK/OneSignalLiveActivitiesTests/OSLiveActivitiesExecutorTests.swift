@@ -173,9 +173,9 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockDispatchQueue.waitForDispatches(2)
 
         /* Then */
-        // Forgotten from the cache, but its notificationId is remembered so it isn't reported again.
-        XCTAssertEqual(executor.receiveReceipts.items.count, 0)
-        XCTAssertTrue(executor.confirmedReceiptIds.contains("notification-id"))
+        // The sent receipt is kept as a dedup marker so the same notificationId isn't reported again.
+        XCTAssertEqual(executor.receiveReceipts.items.count, 1)
+        XCTAssertTrue(executor.receiveReceipts.items["notification-id"]?.requestSuccessful ?? false)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
@@ -517,21 +517,19 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockDispatchQueue.waitForDispatches(3)
 
         /* Then */
-        // request2 is suppressed as a duplicate of request1; the sent receipt is then forgotten.
-        XCTAssertEqual(executor.receiveReceipts.items.count, 0)
+        // request2 is suppressed as a duplicate of request1, which is kept as a dedup marker.
+        XCTAssertEqual(executor.receiveReceipts.items.count, 1)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
 
     /**
-     A receive-receipt for a notificationId must be sent at most once per device. This covers the
-     cross-cycle case: unlike `testReceiveReceiptsRequestNotExecutedWithSameNotificationId` (both receipts
-     appended in one cycle), here the first fully completes and is forgotten before the second arrives, so
-     the duplicate is caught by the remembered notificationIds rather than by the request cache.
+     A receive receipt must be sent at most once per device, even across app launches. The second executor
+     reloads the persisted cache with in-memory state gone, simulating a relaunch where ActivityKit re-emits
+     the active activity's current content and the same notificationId is reported again.
      */
-    func testReceiveReceiptsNotResentForSameNotificationIdAcrossDeliveryCycles() throws {
+    func testReceiveReceiptsNotResentForSameNotificationIdAfterRelaunch() throws {
         /* Setup */
-        let mockDispatchQueue = MockDispatchQueue()
         let mockClient = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(mockClient)
         OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
@@ -546,21 +544,21 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
 
         /* When */
-        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
-
-        // First cycle: receipt is sent, succeeds, is forgotten, and its notificationId is remembered.
-        executor.append(request1)
-        mockDispatchQueue.waitForDispatches(2)
+        // First launch: the receipt is sent and succeeds.
+        let firstLaunch = MockDispatchQueue()
+        let executor1 = OSLiveActivitiesExecutor(requestDispatch: firstLaunch)
+        executor1.append(request1)
+        firstLaunch.waitForDispatches(2)
         XCTAssertEqual(mockClient.executedRequests.count, 1)
-        XCTAssertEqual(executor.receiveReceipts.items.count, 0)
-        XCTAssertTrue(executor.confirmedReceiptIds.contains("my-notification-id"))
 
-        // Second cycle, same notificationId (e.g. another content update / relaunch): a duplicate.
-        executor.append(request2)
-        mockDispatchQueue.waitForDispatches(3)
+        // Relaunch: a fresh executor reloads the persisted cache; ActivityKit re-emits the same content.
+        let secondLaunch = MockDispatchQueue()
+        let executor2 = OSLiveActivitiesExecutor(requestDispatch: secondLaunch)
+        executor2.append(request2)
+        secondLaunch.waitForDispatches(1)
 
         /* Then */
-        XCTAssertEqual(mockClient.executedRequests.count, 1, "Duplicate receive-receipt must not be sent for the same notificationId across delivery cycles")
+        XCTAssertEqual(mockClient.executedRequests.count, 1, "Receive receipt must not be re-sent for the same notificationId after relaunch")
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
 }
