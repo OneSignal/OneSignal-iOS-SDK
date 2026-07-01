@@ -478,3 +478,104 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[0] == request1)
     }
 }
+
+// Receive-receipt dedup robustness: retry poll, TTL expiry, and non-retryable failure.
+extension OSLiveActivitiesExecutorTests {
+    /**
+     After relaunch the persisted success marker is reloaded; the retry poll only re-executes unsent
+     requests, so an already-confirmed notificationId must not be sent again.
+     */
+    func testPollDoesNotResendReloadedSuccessfulReceipt() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+
+        let request = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
+        // First launch: send the receipt so a success marker is persisted.
+        let firstLaunch = MockDispatchQueue()
+        let executor1 = OSLiveActivitiesExecutor(requestDispatch: firstLaunch)
+        executor1.append(request)
+        firstLaunch.waitForDispatches(2)
+        XCTAssertEqual(mockClient.executedRequests.count, 1)
+
+        /* When */
+        // Relaunch and drive the retry poll directly against the reloaded marker.
+        let secondLaunch = MockDispatchQueue()
+        let executor2 = OSLiveActivitiesExecutor(requestDispatch: secondLaunch, pollIntervalSeconds: 0)
+        XCTAssertTrue(executor2.receiveReceipts.items["my-notification-id"]?.requestSuccessful ?? false, "Success marker must survive reload")
+        executor2.pollPendingRequests()
+        secondLaunch.waitForDispatches(1)
+
+        /* Then */
+        XCTAssertEqual(mockClient.executedRequests.count, 1, "Poll must skip a receipt already marked successful")
+    }
+
+    /**
+     A success marker only suppresses re-sends until its TTL elapses. Once expired and pruned, the same
+     notificationId can be confirmed again on a later relaunch.
+     */
+    func testReceiveReceiptResentAfterMarkerExpires() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+
+        let expiredNotif = "expired-notification-id"
+        let request1 = OSRequestLiveActivityReceiveReceipts(key: expiredNotif, activityType: "my-activity-type", activityId: "my-activity-id")
+        let request2 = OSRequestLiveActivityReceiveReceipts(key: expiredNotif, activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+
+        // First launch: send the receipt, then age its persisted marker past the TTL.
+        let firstLaunch = MockDispatchQueue()
+        let executor1 = OSLiveActivitiesExecutor(requestDispatch: firstLaunch)
+        executor1.append(request1)
+        firstLaunch.waitForDispatches(2)
+        executor1.receiveReceipts.items[expiredNotif]?.timestamp = Date(timeIntervalSinceNow: -(ReceiveReceiptsRequestCache.OneDayInSeconds + 60))
+
+        // Any later save prunes the expired marker; append an unrelated receipt to trigger one.
+        let other = OSRequestLiveActivityReceiveReceipts(key: "other-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: other), response: [String: Any]())
+        executor1.append(other)
+        firstLaunch.waitForDispatches(4)
+        XCTAssertNil(executor1.receiveReceipts.items[expiredNotif], "Expired marker should be pruned on the next save")
+
+        /* When */
+        // Relaunch: the expired notificationId is re-emitted and must be sent again.
+        let secondLaunch = MockDispatchQueue()
+        let executor2 = OSLiveActivitiesExecutor(requestDispatch: secondLaunch)
+        executor2.append(request2)
+        secondLaunch.waitForDispatches(2)
+
+        /* Then */
+        XCTAssertTrue(mockClient.executedRequests.contains { $0 == request2 }, "Receipt should be re-sent after its marker expires")
+    }
+
+    /**
+     A non-retryable failure removes the receipt from the cache, leaving no marker, so a later re-emit of
+     the same notificationId is sent again rather than suppressed.
+     */
+    func testReceiveReceiptResentAfterNonRetryableFailure() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+
+        let request1 = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request1), error: OneSignalClientError(code: 401, message: "not-important", responseHeaders: nil, response: nil, underlyingError: nil))
+
+        /* When */
+        let mockDispatchQueue = MockDispatchQueue()
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
+        executor.append(request1)
+        mockDispatchQueue.waitForDispatches(2)
+        XCTAssertEqual(executor.receiveReceipts.items.count, 0, "A non-retryable failure should leave no dedup marker")
+
+        // Re-emit the same notificationId; this time it succeeds and must be sent again.
+        let request2 = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: request2), response: [String: Any]())
+        executor.append(request2)
+        mockDispatchQueue.waitForDispatches(4)
+
+        /* Then */
+        XCTAssertEqual(mockClient.executedRequests.count, 2, "Receipt should be re-sent after a non-retryable failure")
+        XCTAssertTrue(executor.receiveReceipts.items["my-notification-id"]?.requestSuccessful ?? false)
+    }
+}

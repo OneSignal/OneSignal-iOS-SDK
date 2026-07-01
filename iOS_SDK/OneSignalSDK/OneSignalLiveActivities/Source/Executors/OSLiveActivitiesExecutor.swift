@@ -142,10 +142,11 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
-    private var pollIntervalSeconds = 30
+    private var pollIntervalSeconds: Int
 
-    init(requestDispatch: OSDispatchQueue) {
+    init(requestDispatch: OSDispatchQueue, pollIntervalSeconds: Int = 30) {
         self.requestDispatch = requestDispatch
+        self.pollIntervalSeconds = pollIntervalSeconds
     }
 
     func start() {
@@ -185,7 +186,7 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
     }
 
-    private func pollPendingRequests() {
+    func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
 
         self.requestDispatch.asyncAfterTime(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
