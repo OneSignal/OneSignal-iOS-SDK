@@ -192,4 +192,63 @@ final class OneSignalUserTests: XCTestCase {
             contains: expectedPayload)
         )
     }
+
+    /**
+     Unit test for the tag-merge primitive.
+
+     `mergeConfirmedTags` must overlay only the provided keys onto the local model: update existing
+     values, remove keys whose value is `""`, add new keys, and leave all other (e.g. backend-managed)
+     tags untouched. It must never wholesale-replace the tag dictionary.
+     */
+    func testMergeConfirmedTags_mergesAndRemovesWithoutTouchingOtherTags() throws {
+        /* Setup */
+        let model = OSPropertiesModel(changeNotifier: OSEventProducer())
+        model.hydrate(["tags": ["keep": "1", "update": "old", "remove": "2"]])
+
+        /* When */
+        // "update" changes, "remove" is deleted (""), "add" is new; "keep" must be left untouched
+        model.mergeConfirmedTags(["update": "new", "remove": "", "add": "3"])
+
+        /* Then */
+        XCTAssertEqual(model.tags, ["keep": "1", "update": "new", "add": "3"])
+    }
+
+    /**
+     Regression test: `getTags()` returns `{}` after a concurrent, stale `FetchUser` overwrites the
+     local tag model.
+
+     A concurrent `FetchUser` whose response is missing a recently written tag clears the local tag
+     cache (`clearUserData()`) and hydrates without it. The `OSRequestUpdateProperties` 202 response
+     echoes the tags the server just confirmed, so merging those back into the local model must restore
+     the tags that the stale fetch cleared.
+     */
+    func testUpdatePropertiesResponse_restoresTagsClearedByConcurrentFetch() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        let tags = ["tag_a": "value_a", "tag_b": "value_b"]
+        MockUserRequests.setAddTagsResponse(with: client, tags: tags)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+
+        // Let the anonymous user be created so it has a OneSignal ID for the update request
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* When */
+        // Tags are applied optimistically to the local model and queued as an update request
+        OneSignalUserManagerImpl.sharedInstance.addTags(tags)
+
+        // Simulate a concurrent, stale FetchUser clearing the local tag cache before the
+        // UpdateProperties 202 response is processed
+        OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.clearData()
+        XCTAssertTrue(OneSignalUserManagerImpl.sharedInstance.getTags().isEmpty)
+
+        // Let the queued UpdateProperties request flush and its 202 echo be processed
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+
+        /* Then */
+        // The confirmed tags from the 202 response are merged back into the local model
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.getTags(), tags)
+    }
 }
