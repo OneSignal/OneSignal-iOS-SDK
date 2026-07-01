@@ -115,11 +115,12 @@ class StartRequestCache: RequestCache {
 }
 
 class ReceiveReceiptsRequestCache: RequestCache {
-    // Sent receipts stay as dedup markers (not only pending retries), so re-emits after relaunch aren't re-sent.
-    static let ThreeDaysInSeconds = TimeInterval(60 * 60 * 24 * 3)
+    // Sent receipts are kept as dedup markers, so bound retention: an active activity re-emits for at most
+    // ~12h on relaunch, and updates arrive over the network, so a day covers dedup and retries without piling up.
+    static let OneDayInSeconds = TimeInterval(60 * 60 * 24)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.ThreeDaysInSeconds)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.OneDayInSeconds)
     }
 }
 
