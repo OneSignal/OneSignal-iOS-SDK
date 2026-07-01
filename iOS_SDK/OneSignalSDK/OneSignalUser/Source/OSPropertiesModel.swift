@@ -151,6 +151,25 @@ class OSPropertiesModel: OSModel {
         self.set(property: "tags", newValue: tagsToSend)
     }
 
+    /**
+     Merges server-confirmed tags into the local model, without enqueuing a new delta.
+     A value of `""` removes the tag.
+
+     Used to re-assert tags in order to remedy a concurrent FetchUser whose response
+     may be missing the just-written tags.
+     */
+    func mergeConfirmedTags(_ serverTags: [String: String]) {
+        tagsLock.withLock {
+            for (key, value) in serverTags {
+                if value.isEmpty {
+                    self.tags.removeValue(forKey: key)
+                } else {
+                    self.tags[key] = value
+                }
+            }
+        }
+    }
+
     public override func hydrateModel(_ response: [String: Any]) {
         for property in response {
             switch property.key {
