@@ -115,11 +115,12 @@ class StartRequestCache: RequestCache {
 }
 
 class ReceiveReceiptsRequestCache: RequestCache {
-    // Keep receive receipts requests for up to 30 days.
-    static let OneMonthInSeconds = TimeInterval(60 * 60 * 24 * 30)
+    // Sent receipts are kept as dedup markers, so bound retention: an active activity re-emits for at most
+    // ~12h on relaunch, and updates arrive over the network, so a day covers dedup and retries without piling up.
+    static let OneDayInSeconds = TimeInterval(60 * 60 * 24)
 
     init() {
-        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.OneMonthInSeconds)
+        super.init(cacheKey: OS_LIVE_ACTIVITIES_EXECUTOR_RECEIVE_RECEIPTS_KEY, ttl: ReceiveReceiptsRequestCache.OneDayInSeconds)
     }
 }
 
@@ -141,10 +142,11 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
-    private var pollIntervalSeconds = 30
+    private var pollIntervalSeconds: Int
 
-    init(requestDispatch: OSDispatchQueue) {
+    init(requestDispatch: OSDispatchQueue, pollIntervalSeconds: Int = 30) {
         self.requestDispatch = requestDispatch
+        self.pollIntervalSeconds = pollIntervalSeconds
     }
 
     func start() {
@@ -184,7 +186,7 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
     }
 
-    private func pollPendingRequests() {
+    func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
 
         self.requestDispatch.asyncAfterTime(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
