@@ -6294,35 +6294,35 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 4807,
+      "offset": 5419,
       "length": 10,
       "value": "\"language\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 4894,
+      "offset": 5506,
       "length": 6,
       "value": "\"tags\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "Dictionary",
-      "offset": 5009,
+      "offset": 5621,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 5114,
+      "offset": 5726,
       "length": 58,
       "value": "\"Not hydrating properties model for property: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/OSPropertiesModel.swift",
       "kind": "StringLiteral",
-      "offset": 5171,
+      "offset": 5783,
       "length": 2,
       "value": "\"\""
     },
@@ -7435,28 +7435,42 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 12847,
+      "offset": 12979,
+      "length": 12,
+      "value": "\"properties\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 13058,
+      "length": 6,
+      "value": "\"tags\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
+      "kind": "StringLiteral",
+      "offset": 13369,
       "length": 11,
       "value": "\"ryw_token\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 12934,
+      "offset": 13456,
       "length": 11,
       "value": "\"ryw_delay\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 13604,
+      "offset": 14126,
       "length": 100,
       "value": "\"OSPropertyOperationExecutor update properties request failed with error: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalUser\/Source\/Executors\/OSPropertyOperationExecutor.swift",
       "kind": "StringLiteral",
-      "offset": 13703,
+      "offset": 14225,
       "length": 2,
       "value": "\"\""
     },

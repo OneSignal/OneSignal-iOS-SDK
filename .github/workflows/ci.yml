@@ -11,12 +11,12 @@ on:
 jobs:
   build:
     name: Build and Test using any available iPhone simulator
-    runs-on: macos-latest-large
+    runs-on: macos-15-large
 
     steps:
       - name: Select Xcode Version
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.0.app
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v3
       - name: Set Default Scheme
