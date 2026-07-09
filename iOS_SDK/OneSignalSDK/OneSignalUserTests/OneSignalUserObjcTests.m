@@ -33,12 +33,12 @@
 
     MockOneSignalClient* client = [MockOneSignalClient new];
 
-    // 0. Purchases will be dropped if there is no user instance.
-    [OneSignalUserManagerImpl.sharedInstance start];
-
-    // 1. Set up mock responses for the anonymous user
+    // 0. Set up mock responses for the anonymous user and install the mock client BEFORE start()
     [MockUserRequests setDefaultCreateAnonUserResponsesWith:client onesignalId:nil subscriptionId:nil];
     [OneSignalCoreImpl setSharedClient:client];
+
+    // 1. Purchases will be dropped if there is no user instance, so create the user first.
+    [OneSignalUserManagerImpl.sharedInstance start];
 
     /* When */
 

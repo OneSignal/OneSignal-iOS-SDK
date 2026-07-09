@@ -38,6 +38,7 @@ public class OneSignalUserMocks: NSObject {
     @objc
     public static func reset() {
         OSCoreMocks.resetOperationRepo()
+        OSCoreMocks.resetResilientStorage()
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 
