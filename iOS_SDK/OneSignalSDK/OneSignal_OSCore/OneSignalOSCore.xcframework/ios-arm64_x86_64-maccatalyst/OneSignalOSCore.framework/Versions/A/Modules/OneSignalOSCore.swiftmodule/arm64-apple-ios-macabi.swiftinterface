@@ -9,6 +9,12 @@ import Swift
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
+@objc public class OSAliasPair : ObjectiveC.NSObject {
+  @objc final public let label: Swift.String
+  @objc final public let id: Swift.String
+  public init(_ label: Swift.String, _ id: Swift.String)
+  @objc deinit
+}
 @objc public protocol OSLiveActivities {
   @objc static func enter(_ activityId: Swift.String, withToken: Swift.String)
   @objc @available(*, deprecated)
@@ -20,22 +26,31 @@ import _SwiftConcurrencyShims
 }
 public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValue == Swift.Int {
 }
-@objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
-  public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+public class OSOperationRepo {
   public var paused: Swift.Bool
+  public init(jwtConfig: OneSignalOSCore.OSUserJwtConfig)
   public func start()
   public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
   public func enqueueDelta(_ delta: OneSignalOSCore.OSDelta, flush: Swift.Bool = false)
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
-  @objc override dynamic public init()
   @objc deinit
 }
+extension OneSignalOSCore.OSOperationRepo : OneSignalOSCore.OSUserJwtConfigListener {
+  @objc dynamic public func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth)
+  @objc dynamic public func onJwtUpdated(externalId: Swift.String, token: Swift.String?)
+}
+extension OneSignalOSCore.OSOperationRepo : OneSignalOSCore.OSLoggable {
+  public func logSelf()
+}
 @_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
-  public func subscribe(_ handler: THandler)
-  public func unsubscribe(_ handler: THandler)
+  public func subscribe(_ handler: THandler, key: Swift.String)
+  public func unsubscribe(_ handler: THandler, key: Swift.String)
   public func fire(callback: (THandler) -> Swift.Void)
   @objc override dynamic public init()
   @objc deinit
+}
+public protocol OSLoggable {
+  func logSelf()
 }
 @objc public protocol OSCondition {
   @objc var conditionId: Swift.String { get }
@@ -50,6 +65,20 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   @objc public func resolveConditionsWithID(id: Swift.String)
   @objc deinit
 }
+@_inheritsConvenienceInitializers @objc(OneSignalIdentifiers) final public class OneSignalIdentifiers : ObjectiveC.NSObject {
+  @objc public static var currentAppId: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public static var storedAppId: Swift.String? {
+    @objc get
+  }
+  @objc public static var subscriptionId: Swift.String? {
+    @objc get
+  }
+  @objc override dynamic public init()
+  @objc deinit
+}
 open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOSCore.OSModel {
   public init(changeSubscription: OneSignalOSCore.OSEventProducer<any OneSignalOSCore.OSModelStoreChangedHandler>, storeKey: Swift.String)
   public func registerAsUserObserver() -> OneSignalOSCore.OSModelStore<TModel>
@@ -57,12 +86,25 @@ open class OSModelStore<TModel> : ObjectiveC.NSObject where TModel : OneSignalOS
   public func getModel(key: Swift.String) -> TModel?
   public func getModel(modelId: Swift.String) -> TModel?
   public func getModels() -> [Swift.String : TModel]
+  public func refresh()
   public func add(id: Swift.String, model: TModel, hydrating: Swift.Bool)
   public func remove(_ id: Swift.String)
   public func clearModelsFromStore()
 }
 extension OneSignalOSCore.OSModelStore : OneSignalOSCore.OSModelChangedHandler {
   public func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
+}
+@_inheritsConvenienceInitializers @objc(OSResilientStorage) final public class OSResilientStorage : ObjectiveC.NSObject {
+  @objc public static let keyAppId: Swift.String
+  @objc public static let keySubscriptionId: Swift.String
+  @objc public static let keyReceiveReceiptsEnabled: Swift.String
+  @objc public static let keyHasPriorSession: Swift.String
+  @objc public static func snapshot() -> [Swift.String : Swift.String]
+  @objc public static func string(forKey key: Swift.String) -> Swift.String?
+  @objc public static func setString(_ value: Swift.String?, forKey key: Swift.String)
+  @objc public static func setStrings(_ values: [Swift.String : Swift.String])
+  @objc override dynamic public init()
+  @objc deinit
 }
 @objc open class OSModel : ObjectiveC.NSObject, Foundation.NSCoding {
   final public let modelId: Swift.String
@@ -106,8 +148,9 @@ public class OSNewRecordsState {
 }
 public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandler {
   associatedtype TModel : OneSignalOSCore.OSModel
+  var operationRepo: OneSignalOSCore.OSOperationRepo { get }
   var store: OneSignalOSCore.OSModelStore<Self.TModel> { get }
-  init(store: OneSignalOSCore.OSModelStore<Self.TModel>)
+  init(store: OneSignalOSCore.OSModelStore<Self.TModel>, operationRepo: OneSignalOSCore.OSOperationRepo)
   func getAddModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getRemoveModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getUpdateModelDelta(_ args: OneSignalOSCore.OSModelChangedArgs) -> OneSignalOSCore.OSDelta?
@@ -118,6 +161,12 @@ extension OneSignalOSCore.OSModelStoreListener {
   public func onAdded(_ model: OneSignalOSCore.OSModel)
   public func onUpdated(_ args: OneSignalOSCore.OSModelChangedArgs)
   public func onRemoved(_ model: OneSignalOSCore.OSModel)
+}
+@_inheritsConvenienceInitializers @objc(OneSignalConfig) final public class OneSignalConfig : ObjectiveC.NSObject {
+  @objc public static var isProtectedDataAvailableProvider: (() -> Swift.Bool)?
+  @objc public static func shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod methodName: Swift.String?) -> Swift.Bool
+  @objc override dynamic public init()
+  @objc deinit
 }
 @_hasMissingDesignatedInitializers @objc public class OSIamFetchReadyCondition : ObjectiveC.NSObject, OneSignalOSCore.OSCondition {
   @objc public static func sharedInstance(withId id: Swift.String) -> OneSignalOSCore.OSIamFetchReadyCondition
@@ -163,6 +212,30 @@ extension Dispatch.DispatchQueue : OneSignalOSCore.OSDispatchQueue {
   public func asyncAfterTime(deadline: Dispatch.DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Swift.Void)
   #endif
 }
+@objc public enum OSRequiresUserAuth : Swift.Int {
+  case on = 1
+  case off = -1
+  case unknown = 0
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public protocol OSUserJwtConfigListener {
+  @objc func onRequiresUserAuthChanged(from: OneSignalOSCore.OSRequiresUserAuth, to: OneSignalOSCore.OSRequiresUserAuth)
+  @objc func onJwtUpdated(externalId: Swift.String, token: Swift.String?)
+}
+public class OSUserJwtConfig {
+  public var isRequired: Swift.Bool? {
+    get
+    set
+  }
+  public init()
+  public func subscribe(_ listener: any OneSignalOSCore.OSUserJwtConfigListener, key: Swift.String)
+  public func onJwtTokenChanged(externalId: Swift.String, token: Swift.String?)
+  @objc deinit
+}
 @objc @_inheritsConvenienceInitializers public class OSStubLiveActivities : ObjectiveC.NSObject, OneSignalOSCore.OSLiveActivities {
   @objc public static func liveActivities() -> Swift.AnyClass
   @objc public static func enter(_ activityId: Swift.String, withToken: Swift.String)
@@ -195,11 +268,14 @@ public enum OSIamFetchOffsetKey : Swift.Int, OneSignalOSCore.OSConsistencyKeyEnu
 public protocol OSModelChangedHandler {
   func onModelUpdated(args: OneSignalOSCore.OSModelChangedArgs, hydrating: Swift.Bool)
 }
-public protocol OSOperationExecutor {
+public protocol OSOperationExecutor : OneSignalOSCore.OSLoggable {
   var supportedDeltas: [Swift.String] { get }
   func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   func cacheDeltaQueue()
   func processDeltaQueue(inBackground: Swift.Bool)
 }
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Equatable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Hashable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.RawRepresentable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Equatable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Hashable {}
