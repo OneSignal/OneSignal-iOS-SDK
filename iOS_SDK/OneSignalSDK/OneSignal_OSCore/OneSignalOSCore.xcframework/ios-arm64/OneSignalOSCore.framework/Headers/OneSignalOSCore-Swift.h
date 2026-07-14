@@ -458,6 +458,38 @@ typedef SWIFT_ENUM(NSInteger, OSRequiresUserAuth, open) {
 };
 
 
+/// File-backed mirror of OneSignal SDK identifiers, written with <code>NSFileProtectionNone</code>
+/// so it’s readable before first unlock, when shared <code>UserDefaults</code> reads silently return nil.
+/// Stored in the App Group container, so it’s shared across any targets (main app, NSE, etc.)
+/// configured with the same App Group entitlement. Opaque identifiers only: no PII or credentials.
+SWIFT_CLASS_NAMED("OSResilientStorage")
+@interface OSResilientStorage : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull keyAppId;)
++ (NSString * _Nonnull)keyAppId SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull keySubscriptionId;)
++ (NSString * _Nonnull)keySubscriptionId SWIFT_WARN_UNUSED_RESULT;
+/// Needed because the NSE reads this flag from shared UserDefaults while the device may be locked
+/// and the read silently returns the default (NO). Stored as “1” / “0”.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull keyReceiveReceiptsEnabled;)
++ (NSString * _Nonnull)keyReceiveReceiptsEnabled SWIFT_WARN_UNUSED_RESULT;
+/// Set to <code>"1"</code> once <code>OneSignalUserManagerImpl.start()</code> has completed at least once on this app
+/// install; cleared on app-id change. Read at startup to distinguish a true fresh install from
+/// a prior session whose UserDefaults isn’t readable yet (ie: during iOS prewarm before first unlock).
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull keyHasPriorSession;)
++ (NSString * _Nonnull)keyHasPriorSession SWIFT_WARN_UNUSED_RESULT;
+/// Returns the full current contents of the cache. Empty dict if absent.
++ (NSDictionary<NSString *, NSString *> * _Nonnull)snapshot SWIFT_WARN_UNUSED_RESULT;
+/// Reads a single value. Returns nil when missing or unreadable.
++ (NSString * _Nullable)stringForKey:(NSString * _Nonnull)key SWIFT_WARN_UNUSED_RESULT;
+/// Atomically updates a single value. Passing nil or an empty string removes the key.
++ (void)setString:(NSString * _Nullable)value forKey:(NSString * _Nonnull)key;
+/// Atomically updates multiple values, preserving keys not in <code>values</code>.
+/// An empty-string value removes the corresponding key.
++ (void)setStrings:(NSDictionary<NSString *, NSString *> * _Nonnull)values;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
 SWIFT_CLASS("_TtC15OneSignalOSCore20OSStubLiveActivities")
 @interface OSStubLiveActivities : NSObject <OSLiveActivities>
 + (Class _Nonnull)liveActivities SWIFT_WARN_UNUSED_RESULT;
@@ -475,6 +507,57 @@ SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSUserJwtConfigListener_")
 @protocol OSUserJwtConfigListener
 - (void)onRequiresUserAuthChangedFrom:(enum OSRequiresUserAuth)from to:(enum OSRequiresUserAuth)to;
 - (void)onJwtUpdatedWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nullable)token;
+@end
+
+
+/// SDK-level configuration / readiness predicates
+SWIFT_CLASS_NAMED("OneSignalConfig")
+@interface OneSignalConfig : NSObject
+/// Returns whether device-protected storage is currently readable. The main app target sets
+/// this once at <code>+OneSignal.init</code>; the predicate calls it on every gate check from
+/// arbitrary threads, so the closure must be cheap and thread-safe. Left nil in app
+/// extensions (NSE) where <code>UIApplication</code> is unavailable — nil is treated as available,
+/// which is correct for NSE since it reads identifiers through <code>OSResilientStorage</code>.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, copy) BOOL (^ _Nullable isProtectedDataAvailableProvider)(void);)
++ (BOOL (^ _Nullable)(void))isProtectedDataAvailableProvider SWIFT_WARN_UNUSED_RESULT;
++ (void)setIsProtectedDataAvailableProvider:(BOOL (^ _Nullable)(void))value;
+/// Returns true when the SDK shouldn’t perform an operation yet because:
+/// <ul>
+///   <li>
+///     <code>app_id</code> hasn’t been set via <code>OneSignal.initialize</code>, or
+///   </li>
+///   <li>
+///     the host app hasn’t granted privacy consent, or
+///   </li>
+///   <li>
+///     device storage isn’t readable yet (iOS prewarm before first unlock).
+///   </li>
+/// </ul>
++ (BOOL)shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:(NSString * _Nullable)methodName SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Durable accessors for OneSignal identifiers persisted to shared UserDefaults.
+/// Useful when the in-memory source isn’t available, notably the NSE process
+/// Callers with access to the in-memory current value (main-app SDK code)
+/// should continue to use that source
+SWIFT_CLASS_NAMED("OneSignalIdentifiers")
+@interface OneSignalIdentifiers : NSObject
+/// The current in-memory <code>app_id</code>, set by <code>OneSignal.initialize</code>.
+/// nil before <code>initialize</code> has been called (or in a process like the NSE that
+/// never calls <code>initialize</code> — use <code>storedAppId</code> there).
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, copy) NSString * _Nullable currentAppId;)
++ (NSString * _Nullable)currentAppId SWIFT_WARN_UNUSED_RESULT;
++ (void)setCurrentAppId:(NSString * _Nullable)newValue;
+/// Persisted <code>app_id</code> from shared UserDefaults first, then the unencrypted <code>OSResilientStorage</code> mirror,
+/// covering the prewarm-before-first-unlock window where UserDefaults is locked and silently returns nil.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nullable storedAppId;)
++ (NSString * _Nullable)storedAppId SWIFT_WARN_UNUSED_RESULT;
+/// Persisted push <code>subscription_id</code> from shared UserDefaults first, then the unencrypted <code>OSResilientStorage</code> mirror.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nullable subscriptionId;)
++ (NSString * _Nullable)subscriptionId SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
 #endif
