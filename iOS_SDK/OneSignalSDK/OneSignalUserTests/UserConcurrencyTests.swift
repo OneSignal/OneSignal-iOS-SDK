@@ -33,6 +33,105 @@ import OneSignalUserMocks
 @testable import OneSignalOSCore
 @testable import OneSignalUser
 
+private final class ContentionSignalingRecursiveLock: NSLocking {
+    let contentionStarted = DispatchSemaphore(value: 0)
+
+    private let condition = NSCondition()
+    private var owner: Thread?
+    private var recursionDepth = 0
+    private var hasSignaledContention = false
+
+    func lock() {
+        condition.lock()
+        let currentThread = Thread.current
+        if owner === currentThread {
+            recursionDepth += 1
+            condition.unlock()
+            return
+        }
+
+        while owner != nil {
+            if !hasSignaledContention {
+                hasSignaledContention = true
+                contentionStarted.signal()
+            }
+            condition.wait()
+        }
+
+        owner = currentThread
+        recursionDepth = 1
+        condition.unlock()
+    }
+
+    func unlock() {
+        condition.lock()
+        precondition(owner === Thread.current)
+        recursionDepth -= 1
+        if recursionDepth == 0 {
+            owner = nil
+            condition.signal()
+        }
+        condition.unlock()
+    }
+}
+
+private final class BlockingAddressKeyedArchiver: NSKeyedArchiver {
+    let addressEncodingStarted = DispatchSemaphore(value: 0)
+    let continueAddressEncoding = DispatchSemaphore(value: 0)
+
+    private var shouldBlockAddressEncoding = true
+
+    override func encode(_ objv: Any?, forKey key: String) {
+        if key == "address" && shouldBlockAddressEncoding {
+            shouldBlockAddressEncoding = false
+            addressEncodingStarted.signal()
+            continueAddressEncoding.wait()
+        }
+        super.encode(objv, forKey: key)
+    }
+}
+
+private final class BlockingAddressChangeRecorder: OSModelChangedHandler {
+    let firstNotificationStarted = DispatchSemaphore(value: 0)
+    let releaseFirstNotification = DispatchSemaphore(value: 0)
+    let subsequentNotificationReceived = DispatchSemaphore(value: 0)
+
+    private let lock = NSLock()
+    private var shouldBlockNextNotification = true
+    private var recordedValues: [String] = []
+
+    var values: [String] {
+        lock.withLock {
+            recordedValues
+        }
+    }
+
+    func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
+        guard args.property == "address", let value = args.newValue as? String else {
+            return
+        }
+
+        let shouldBlock = lock.withLock {
+            let shouldBlock = shouldBlockNextNotification
+            shouldBlockNextNotification = false
+            return shouldBlock
+        }
+
+        if shouldBlock {
+            firstNotificationStarted.signal()
+            releaseFirstNotification.wait()
+        }
+
+        lock.withLock {
+            recordedValues.append(value)
+        }
+
+        if !shouldBlock {
+            subsequentNotificationReceived.signal()
+        }
+    }
+}
+
 final class UserConcurrencyTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -277,6 +376,84 @@ final class UserConcurrencyTests: XCTestCase {
             // 2. Clear the aliases
             identityModel.clearData()
         }
+    }
+
+    func testEncodingSubscriptionModel_withConcurrentMutation_usesConsistentSnapshot() throws {
+        /* Setup */
+        let subscriptionModel = OSSubscriptionModel(
+            type: .email,
+            address: "initial-address",
+            subscriptionId: "initial-subscription-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+        let archiver = BlockingAddressKeyedArchiver(requiringSecureCoding: false)
+        let encodingFinished = expectation(description: "Encoding finished")
+
+        /* When */
+        DispatchQueue.global().async {
+            archiver.encode(subscriptionModel, forKey: NSKeyedArchiveRootObjectKey)
+            archiver.finishEncoding()
+            encodingFinished.fulfill()
+        }
+        XCTAssertEqual(archiver.addressEncodingStarted.wait(timeout: .now() + 1), .success)
+
+        subscriptionModel.address = "updated-address"
+        subscriptionModel.subscriptionId = "updated-subscription-id"
+        archiver.continueAddressEncoding.signal()
+        wait(for: [encodingFinished], timeout: 2)
+
+        /* Then */
+        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: archiver.encodedData)
+        unarchiver.requiresSecureCoding = false
+        defer { unarchiver.finishDecoding() }
+        let decodedModel = try XCTUnwrap(
+            unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSSubscriptionModel
+        )
+        XCTAssertEqual(decodedModel.address, "initial-address")
+        XCTAssertEqual(decodedModel.subscriptionId, "initial-subscription-id")
+    }
+
+    func testConcurrentSubscriptionChangesNotifyInMutationOrder() throws {
+        /* Setup */
+        let changeNotifier = OSEventProducer<OSModelChangedHandler>()
+        let recorder = BlockingAddressChangeRecorder()
+        let mutationLock = ContentionSignalingRecursiveLock()
+        changeNotifier.subscribe(recorder)
+        let subscriptionModel = OSSubscriptionModel(
+            type: .email,
+            address: "initial-address",
+            subscriptionId: "subscription-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: changeNotifier,
+            mutationLock: mutationLock
+        )
+        let firstSetterFinished = expectation(description: "First setter finished")
+        let secondSetterFinished = expectation(description: "Second setter finished")
+
+        /* When */
+        DispatchQueue.global().async {
+            subscriptionModel.address = "address-a"
+            firstSetterFinished.fulfill()
+        }
+        XCTAssertEqual(recorder.firstNotificationStarted.wait(timeout: .now() + 1), .success)
+
+        DispatchQueue.global().async {
+            subscriptionModel.address = "address-b"
+            secondSetterFinished.fulfill()
+        }
+        XCTAssertEqual(mutationLock.contentionStarted.wait(timeout: .now() + 1), .success)
+
+        // The second setter reached the lock but must wait until the first mutation and notification complete.
+        XCTAssertEqual(recorder.subsequentNotificationReceived.wait(timeout: .now() + 0.1), .timedOut)
+        recorder.releaseFirstNotification.signal()
+        wait(for: [firstSetterFinished, secondSetterFinished], timeout: 2)
+
+        /* Then */
+        XCTAssertEqual(recorder.values, ["address-a", "address-b"])
+        XCTAssertEqual(subscriptionModel.address, "address-b")
     }
 
     func testConcurrentStart() throws {
