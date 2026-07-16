@@ -91,7 +91,7 @@ jobs:
             OUTPUT=$(pod trunk push "$podspec" --allow-warnings 2>&1) && { echo "$OUTPUT"; return; }
             echo "$OUTPUT"
             echo "$OUTPUT" | grep -q "Unable to accept duplicate entry" || exit 1
-            echo "⏭️  SKIPPED: $podspec already on Trunk (duplicate) — treating as no-op"
+            echo "::warning::$podspec already on Trunk (duplicate) — skipped"
           }
 
           push_podspec OneSignal.podspec
