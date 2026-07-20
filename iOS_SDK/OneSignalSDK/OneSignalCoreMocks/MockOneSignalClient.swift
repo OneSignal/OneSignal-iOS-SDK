@@ -36,9 +36,15 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public var lastHTTPRequest: OneSignalRequest?
     public var networkRequestCount = 0
     public var executedRequests: [OneSignalRequest] = []
+    /// Requests that have entered `execute` (including those still held / delayed).
+    public private(set) var startedRequests: [OneSignalRequest] = []
     public var executeInstantaneously = false
     /// Set to true to make it unnecessary to setup mock responses for every request possible
     public var fireSuccessForAllRequests = false
+    /// When true, `execute` records the request but does not complete until `releaseHeldResponses()`.
+    public var holdResponses = false
+
+    private var heldExecutions: [(request: OneSignalRequest, onSuccess: OSResultSuccessBlock, onFailure: OSClientFailureBlock)] = []
 
     var remoteParamsResponse: [String: Any]?
     var shouldUseProvisionalAuthorization = false // new in iOS 12 (aka Direct to History)
@@ -84,6 +90,9 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         lastHTTPRequest = nil
         networkRequestCount = 0
         executedRequests.removeAll()
+        startedRequests.removeAll()
+        heldExecutions.removeAll()
+        holdResponses = false
         executeInstantaneously = true
         remoteParamsResponse = nil
         shouldUseProvisionalAuthorization = false
@@ -93,12 +102,38 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSClientFailureBlock) {
         print("🧪 MockOneSignalClient execute called")
 
+        // Check hold + enqueue under one lock so releaseHeldResponses can't miss a callback mid-hold.
+        let shouldHold = lock.withLock { () -> Bool in
+            startedRequests.append(request)
+            guard holdResponses else {
+                return false
+            }
+            heldExecutions.append((request, successBlock, failureBlock))
+            return true
+        }
+        if shouldHold {
+            return
+        }
+
         if executeInstantaneously {
             finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         } else {
             executionQueue.asyncAfter(deadline: .now() + .milliseconds(50)) {
                 self.finishExecutingRequest(request, onSuccess: successBlock, onFailure: failureBlock)
             }
+        }
+    }
+
+    /// Completes every request currently held by `holdResponses`, and stops holding further executes.
+    public func releaseHeldResponses() {
+        let held: [(request: OneSignalRequest, onSuccess: OSResultSuccessBlock, onFailure: OSClientFailureBlock)] = lock.withLock {
+            holdResponses = false
+            let copy = heldExecutions
+            heldExecutions.removeAll()
+            return copy
+        }
+        for item in held {
+            finishExecutingRequest(item.request, onSuccess: item.onSuccess, onFailure: item.onFailure)
         }
     }
 
