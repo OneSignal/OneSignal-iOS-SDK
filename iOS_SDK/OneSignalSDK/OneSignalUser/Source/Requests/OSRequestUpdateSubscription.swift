@@ -47,38 +47,34 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
            let appId = OneSignalIdentifiers.currentAppId
         {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
+            // Refresh so a stale snapshot queued earlier can't overwrite newer local state.
+            refreshParametersFromLiveModel()
             return true
         } else {
             return false
         }
     }
 
-    // TODO: just need the sub model and send it
-    // But the model may be outdated or not sync with the subscriptionObject
-    init(subscriptionObject: [String: Any], subscriptionModel: OSSubscriptionModel) {
-        self.subscriptionModel = subscriptionModel
-        self.stringDescription = "OSRequestUpdateSubscription with subscriptionObject: \(subscriptionObject)"
-        super.init()
-
-        // Rename "address" key as "token", if it exists
-        var subscriptionParams = subscriptionObject
-        subscriptionParams.removeValue(forKey: "address")
-        subscriptionParams.removeValue(forKey: "notificationTypes")
+    /// Rebuild the PATCH body from the current subscription model.
+    func refreshParametersFromLiveModel() {
+        var subscriptionParams: [String: Any] = [:]
         subscriptionParams["token"] = subscriptionModel.address
         subscriptionParams["device_os"] = subscriptionModel.deviceOs
         subscriptionParams["sdk"] = subscriptionModel.sdk
         subscriptionParams["app_version"] = subscriptionModel.appVersion
-
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
         if subscriptionModel.notificationTypes != -1 {
             subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
         }
-
         subscriptionParams["enabled"] = subscriptionModel.enabled
-        // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
-        // May use subscriptionObject, but enabled and notification_types should be sent together...
-
         self.parameters = ["subscription": subscriptionParams]
+    }
+
+    init(subscriptionModel: OSSubscriptionModel) {
+        self.subscriptionModel = subscriptionModel
+        self.stringDescription = "OSRequestUpdateSubscription with model: \(subscriptionModel.modelId)"
+        super.init()
+        refreshParametersFromLiveModel()
         self.method = PATCH
     }
 
