@@ -419,14 +419,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 self.updateRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-                self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
-                if inBackground {
-                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                }
-            }
 
-            if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
-                if let rywToken = response?["ryw_token"] as? String
+                if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
+                    if let rywToken = response?["ryw_token"] as? String
                     {
                         let rywDelay = response?["ryw_delay"] as? NSNumber
                         OSConsistencyManager.shared.setRywTokenAndDelay(
@@ -438,6 +433,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                         // handle a potential regression where ryw_token is no longer returned by API
                         OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
                     }
+                }
+
+                self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
+                if inBackground {
+                    OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
+                }
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
