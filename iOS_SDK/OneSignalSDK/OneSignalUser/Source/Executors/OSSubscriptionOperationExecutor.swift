@@ -211,10 +211,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     self.removeRequestQueue.append(request)
 
                 case OS_UPDATE_SUBSCRIPTION_DELTA:
-                    let request = OSRequestUpdateSubscription(
-                        subscriptionObject: [delta.property: delta.value],
-                        subscriptionModel: subModel
-                    )
+                    // Keep at most one unsent UpdateSubscription per subscription (last wins).
+                    let modelId = subModel.modelId
+                    self.updateRequestQueue.removeAll { request in
+                        !request.sentToClient && request.subscriptionModel.modelId == modelId
+                    }
+                    let request = OSRequestUpdateSubscription(subscriptionModel: subModel)
                     self.updateRequestQueue.append(request)
 
                 default:
