@@ -133,6 +133,119 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         XCTAssertEqual(updateRequests.count, 1, "Unsent updates for the same subscription should be coalesced")
     }
 
+    /**
+     An UpdateSubscription already on the wire must not race a follow-up PATCH.
+     The follow-up stays queued until the in-flight request completes, then sends live state.
+     */
+    func testInFlightUpdateBlocksFollowUpUntilCompleteThenSendsLiveState() throws {
+        let client = MockOneSignalClient()
+        client.holdResponses = true
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
+        let identityModelId = UUID().uuidString
+
+        executor.enqueueDelta(OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: identityModelId,
+            model: model,
+            property: "notificationTypes",
+            value: promptedNeverAnswered
+        ))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+
+        XCTAssertEqual(client.startedRequests.count, 1, "First UpdateSubscription should be in flight")
+        let firstPayload = try XCTUnwrap(
+            (client.startedRequests[0] as? OSRequestUpdateSubscription)?.parameters?["subscription"] as? [String: Any]
+        )
+        XCTAssertEqual(firstPayload["notification_types"] as? Int, promptedNeverAnswered)
+        XCTAssertEqual(firstPayload["enabled"] as? Bool, false)
+
+        // Permission granted while first PATCH is still in flight.
+        model.notificationTypes = subscribedNotificationTypes
+        XCTAssertTrue(model.enabled)
+
+        executor.enqueueDelta(OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: identityModelId,
+            model: model,
+            property: "notificationTypes",
+            value: subscribedNotificationTypes
+        ))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+
+        XCTAssertEqual(client.startedRequests.count, 1, "Follow-up must wait for in-flight UpdateSubscription")
+
+        client.holdResponses = false
+        client.releaseHeldResponses()
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        XCTAssertEqual(client.startedRequests.count, 2, "Pending follow-up should send after in-flight completes")
+        let secondPayload = try XCTUnwrap(
+            (client.startedRequests[1] as? OSRequestUpdateSubscription)?.parameters?["subscription"] as? [String: Any]
+        )
+        XCTAssertEqual(secondPayload["notification_types"] as? Int, subscribedNotificationTypes)
+        XCTAssertEqual(secondPayload["enabled"] as? Bool, true)
+    }
+
+    /**
+     A retryable failure (e.g. 500/timeout) must not leave the single-flight gate locked.
+     The failed request becomes resendable and later updates for the model still go out.
+     */
+    func testRetryableFailureDoesNotBlockSubsequentUpdates() throws {
+        let client = MockOneSignalClient()
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
+        let identityModelId = UUID().uuidString
+
+        // Fail the first update with a retryable error (mock responses are keyed by request description).
+        let requestKey = "OSRequestUpdateSubscription with model: \(model.modelId)"
+        client.setMockFailureResponseForRequest(
+            request: requestKey,
+            error: OneSignalClientError(code: 500, message: "retryable", responseHeaders: nil, response: nil, underlyingError: nil)
+        )
+
+        executor.enqueueDelta(OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: identityModelId,
+            model: model,
+            property: "notificationTypes",
+            value: promptedNeverAnswered
+        ))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        XCTAssertEqual(client.executedRequests.count, 1, "First update should have been attempted and failed retryably")
+
+        // Server recovers; user accepts permission.
+        client.setMockResponseForRequest(request: requestKey, response: [:])
+        model.notificationTypes = subscribedNotificationTypes
+        XCTAssertTrue(model.enabled)
+
+        executor.enqueueDelta(OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: identityModelId,
+            model: model,
+            property: "notificationTypes",
+            value: subscribedNotificationTypes
+        ))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        let updateRequests = client.executedRequests.compactMap { $0 as? OSRequestUpdateSubscription }
+        XCTAssertEqual(updateRequests.count, 2, "Follow-up update must still send after a retryable failure")
+        let lastPayload = try XCTUnwrap(updateRequests.last?.parameters?["subscription"] as? [String: Any])
+        XCTAssertEqual(lastPayload["notification_types"] as? Int, subscribedNotificationTypes)
+        XCTAssertEqual(lastPayload["enabled"] as? Bool, true)
+    }
+
     // MARK: - Helpers
 
     private func makePushSubscriptionModel(notificationTypes: Int, subscriptionId: String?) -> OSSubscriptionModel {

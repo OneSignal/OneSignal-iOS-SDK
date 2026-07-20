@@ -397,6 +397,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
+        // Single-flight: don't send a second UpdateSubscription for the same model while one is in flight.
+        // A later coalesced request stays queued and is drained when the in-flight one finishes.
+        let modelId = request.subscriptionModel.modelId
+        guard !updateRequestQueue.contains(where: { $0 !== request && $0.sentToClient && $0.subscriptionModel.modelId == modelId }) else {
+            return
+        }
         guard request.prepareForExecution(newRecordsState: newRecordsState) else {
             return
         }
@@ -413,6 +419,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             self.dispatchQueue.async {
                 self.updateRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
@@ -440,11 +447,27 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                    self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
+                } else {
+                    // Make the request eligible for the next flush
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
         }
+    }
+
+}
+
+extension OSSubscriptionOperationExecutor {
+    /// Sends the oldest unsent UpdateSubscription for `modelId`, if any. Caller must be on `dispatchQueue`.
+    private func executeNextPendingUpdateSubscription(for modelId: String, inBackground: Bool) {
+        let pending = updateRequestQueue.filter { !$0.sentToClient && $0.subscriptionModel.modelId == modelId }
+        guard let next = pending.min(by: { $0.timestamp < $1.timestamp }) else {
+            return
+        }
+        executeUpdateSubscriptionRequest(next, inBackground: inBackground)
     }
 }
