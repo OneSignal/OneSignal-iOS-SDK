@@ -102,14 +102,16 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public func execute(_ request: OneSignalRequest, onSuccess successBlock: @escaping OSResultSuccessBlock, onFailure failureBlock: @escaping OSClientFailureBlock) {
         print("🧪 MockOneSignalClient execute called")
 
-        lock.withLock {
+        // Check hold + enqueue under one lock so releaseHeldResponses can't miss a callback mid-hold.
+        let shouldHold = lock.withLock { () -> Bool in
             startedRequests.append(request)
-        }
-
-        if holdResponses {
-            lock.withLock {
-                heldExecutions.append((request, successBlock, failureBlock))
+            guard holdResponses else {
+                return false
             }
+            heldExecutions.append((request, successBlock, failureBlock))
+            return true
+        }
+        if shouldHold {
             return
         }
 
@@ -122,9 +124,10 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         }
     }
 
-    /// Completes every request currently held by `holdResponses`.
+    /// Completes every request currently held by `holdResponses`, and stops holding further executes.
     public func releaseHeldResponses() {
         let held: [(request: OneSignalRequest, onSuccess: OSResultSuccessBlock, onFailure: OSClientFailureBlock)] = lock.withLock {
+            holdResponses = false
             let copy = heldExecutions
             heldExecutions.removeAll()
             return copy

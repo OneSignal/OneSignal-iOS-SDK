@@ -180,7 +180,6 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
 
         XCTAssertEqual(client.startedRequests.count, 1, "Follow-up must wait for in-flight UpdateSubscription")
 
-        client.holdResponses = false
         client.releaseHeldResponses()
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
