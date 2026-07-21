@@ -400,6 +400,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     let oneSignalInAppMessages = NSClassFromString(ONE_SIGNAL_IN_APP_MESSAGES_CLASS_NAME);
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(start)]) {
         [oneSignalInAppMessages performSelector:@selector(start)];
+    } else {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalInAppMessages not found. In-App Messages will be unavailable. Add the OneSignalInAppMessages module if you intend to use them."];
     }
 }
 
