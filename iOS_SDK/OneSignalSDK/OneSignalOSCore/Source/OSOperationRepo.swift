@@ -151,16 +151,17 @@ public class OSOperationRepo: NSObject {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
         }
 
-        var index = 0
+        // Don't mutate deltaQueue while iterating — rebuild with unmatched deltas only.
+        var unmatched: [OSDelta] = []
         for delta in self.deltaQueue {
             if let executor = self.deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
-                self.deltaQueue.remove(at: index)
             } else {
-                // keep in queue if no executor matches, we may not have the executor available yet
-                index += 1
+                // Keep if no executor matches yet (module may not have started).
+                unmatched.append(delta)
             }
         }
+        self.deltaQueue = unmatched
 
         // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
