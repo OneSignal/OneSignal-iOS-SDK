@@ -345,86 +345,6 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    var deviceOs: String {
-        get {
-            stateLock.withLock {
-                state.deviceOs
-            }
-        }
-        set {
-            withMutationLock {
-                guard update(\.deviceOs, to: newValue) != nil else {
-                    return
-                }
-                self.set(property: "deviceOs", newValue: newValue)
-            }
-        }
-    }
-
-    var sdk: String {
-        get {
-            stateLock.withLock {
-                state.sdk
-            }
-        }
-        set {
-            withMutationLock {
-                guard update(\.sdk, to: newValue) != nil else {
-                    return
-                }
-                self.set(property: "sdk", newValue: newValue)
-            }
-        }
-    }
-
-    var deviceModel: String? {
-        get {
-            stateLock.withLock {
-                state.deviceModel
-            }
-        }
-        set {
-            withMutationLock {
-                guard update(\.deviceModel, to: newValue) != nil else {
-                    return
-                }
-                self.set(property: "deviceModel", newValue: newValue)
-            }
-        }
-    }
-
-    var appVersion: String? {
-        get {
-            stateLock.withLock {
-                state.appVersion
-            }
-        }
-        set {
-            withMutationLock {
-                guard update(\.appVersion, to: newValue) != nil else {
-                    return
-                }
-                self.set(property: "appVersion", newValue: newValue)
-            }
-        }
-    }
-
-    var netType: Int? {
-        get {
-            stateLock.withLock {
-                state.netType
-            }
-        }
-        set {
-            withMutationLock {
-                guard update(\.netType, to: newValue) != nil else {
-                    return
-                }
-                self.set(property: "netType", newValue: newValue)
-            }
-        }
-    }
-
     // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
     init(type: OSSubscriptionType,
          address: String?,
@@ -571,6 +491,90 @@ class OSSubscriptionModel: OSModel {
             json["notification_types"] = state.notificationTypes
         }
         return json
+    }
+}
+
+// MARK: - Subscription Metadata
+
+extension OSSubscriptionModel {
+    var deviceOs: String {
+        get {
+            stateLock.withLock {
+                state.deviceOs
+            }
+        }
+        set {
+            withMutationLock {
+                guard update(\.deviceOs, to: newValue) != nil else {
+                    return
+                }
+                self.set(property: "deviceOs", newValue: newValue)
+            }
+        }
+    }
+
+    var sdk: String {
+        get {
+            stateLock.withLock {
+                state.sdk
+            }
+        }
+        set {
+            withMutationLock {
+                guard update(\.sdk, to: newValue) != nil else {
+                    return
+                }
+                self.set(property: "sdk", newValue: newValue)
+            }
+        }
+    }
+
+    var deviceModel: String? {
+        get {
+            stateLock.withLock {
+                state.deviceModel
+            }
+        }
+        set {
+            withMutationLock {
+                guard update(\.deviceModel, to: newValue) != nil else {
+                    return
+                }
+                self.set(property: "deviceModel", newValue: newValue)
+            }
+        }
+    }
+
+    var appVersion: String? {
+        get {
+            stateLock.withLock {
+                state.appVersion
+            }
+        }
+        set {
+            withMutationLock {
+                guard update(\.appVersion, to: newValue) != nil else {
+                    return
+                }
+                self.set(property: "appVersion", newValue: newValue)
+            }
+        }
+    }
+
+    var netType: Int? {
+        get {
+            stateLock.withLock {
+                state.netType
+            }
+        }
+        set {
+            withMutationLock {
+                guard update(\.netType, to: newValue) != nil else {
+                    return
+                }
+                self.set(property: "netType", newValue: newValue)
+            }
+        }
     }
 }
 
