@@ -248,4 +248,65 @@ final class OneSignalUserTests: XCTestCase {
         // The confirmed tags from the 202 response are merged back into the local model
         XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.getTags(), tags)
     }
+
+    // MARK: - Atomic current user access
+
+    /**
+     A callback that acts on the current user must keep acting on the user it checked, even if a
+     `login()` makes a different user current right afterwards. Swapping the user between the check
+     and the mutation reproduces that interleaving.
+     */
+    func testCurrentUser_matching_isTheUserMutated_whenTheUserChangesRightAfterTheCheck() throws {
+        /* Setup */
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let userA = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+
+        /* When */
+        let checkedUser = manager.currentUser(matching: userA.identityModel.modelId)
+        // A concurrent login switches the current user before the response is applied
+        let userB = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        checkedUser?.propertiesModel.hydrate(["language": "language-for-user-a"])
+
+        /* Then */
+        // The response's data went to the user it was for, and the new current user is untouched
+        XCTAssertEqual(userA.propertiesModel.language, "language-for-user-a")
+        XCTAssertNil(userB.propertiesModel.language)
+        XCTAssertEqual(manager._user?.identityModel.externalId, userB_EUID)
+    }
+
+    /// The common path: the request's user is still current, so it is returned to be mutated.
+    func testCurrentUser_matching_returnsTheCurrentUser() throws {
+        /* Setup */
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+
+        /* Then */
+        XCTAssertEqual(manager.currentUser(matching: user.identityModel.modelId)?.identityModel.externalId, userA_EUID)
+    }
+
+    /// A response for a user that is no longer current must not be applied at all.
+    func testCurrentUser_matching_isNilWhenTheUserIsNoLongerCurrent() throws {
+        /* Setup */
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let userA = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID)
+        let userB = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+
+        /* Then */
+        XCTAssertNil(manager.currentUser(matching: userA.identityModel.modelId))
+        XCTAssertNotNil(manager.currentUser(matching: userB.identityModel.modelId))
+    }
+
+    /// With no current user, there is nothing for a late response to act on.
+    func testCurrentUser_matching_isNilWhenThereIsNoUser() throws {
+        /* Setup */
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let identityModel = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
+
+        /* Then */
+        XCTAssertNil(manager._user)
+        XCTAssertNil(manager.currentUser(matching: identityModel.modelId))
+    }
 }

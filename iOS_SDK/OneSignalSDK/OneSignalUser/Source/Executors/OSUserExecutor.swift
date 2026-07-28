@@ -397,8 +397,7 @@ extension OSUserExecutor {
 
                 self.removeFromQueue(request)
 
-                if let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
-                    OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
+                if let userInstance = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) {
                     // Generate a Create User request, if it's still the current user
                     self.createUser(userInstance)
                 } else {
@@ -412,8 +411,8 @@ extension OSUserExecutor {
             } else if responseType == .missing {
                 self.removeFromQueue(request)
                 self.executePendingRequests()
-                // Logout if the user in the SDK is the same
-                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate)
+                // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
+                guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil
                 else {
                     return
                 }
@@ -448,15 +447,12 @@ extension OSUserExecutor {
         OneSignalCoreImpl.sharedClient().execute(request) { response in
             self.removeFromQueue(request)
 
-            // A fetch for a user that is no longer current is stale
-            guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel) else {
-                self.executePendingRequests()
-                return
-            }
-
-            if let response = response {
+            // A fetch for a user that is no longer current is stale. A login can land while this
+            // response is in flight, so the clear must apply to the user the response is for.
+            if let user = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId),
+               let response = response {
                 // Clear local data in preparation for hydration
-                OneSignalUserManagerImpl.sharedInstance.clearUserData()
+                OneSignalUserManagerImpl.sharedInstance.clearUserData(user)
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
                 // If this is a on-new-session's fetch user call, check that the subscription still exists
@@ -485,8 +481,8 @@ extension OSUserExecutor {
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .missing {
                 self.removeFromQueue(request)
-                // Logout if the user in the SDK is the same
-                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
+                guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                 else {
                     return
                 }
@@ -541,14 +537,14 @@ extension OSUserExecutor {
             }
         }
 
-        // Check if the current user is the same as the one in the request
+        // Hydrate onto the user this response is for
         // If user has changed, don't hydrate, except for push subscription above
-        guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(identityModel) else {
+        guard let user = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: identityModel.modelId) else {
             return
         }
 
         if let propertiesObject = parsePropertiesObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance._user?.propertiesModel.hydrate(propertiesObject)
+            user.propertiesModel.hydrate(propertiesObject)
         }
 
         // Now parse email and sms subscriptions
