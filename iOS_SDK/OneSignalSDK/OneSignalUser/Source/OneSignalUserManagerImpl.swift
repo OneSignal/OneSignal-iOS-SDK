@@ -422,27 +422,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Returns if the OSIdentityModel passed in belongs to the current user. This method is used in deciding whether or not to hydrate via a server response, for example.
-     */
-    func isCurrentUser(_ identityModel: OSIdentityModel) -> Bool {
-        return self.identityModelStore.getModel(modelId: identityModel.modelId) != nil
-    }
-
-    func isCurrentUser(_ externalId: String) -> Bool {
-        guard let userInstance = _user, !externalId.isEmpty else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "isCurrentUser called with empty externalId or no user instance")
-            return false
-        }
-
-        return userInstance.identityModel.externalId == externalId
-    }
-
-    /**
      Returns the current user only if it is still the user that `modelId` identifies.
 
-     Use this, not `isCurrentUser`, when the caller will then act on that user, and act on the
-     instance returned. It is read once here, so a concurrent `login()`/`logout()` cannot land
-     between the check and the use and apply one user's data to another.
+     Act on the instance returned. It is read once here, so a concurrent `login()`/`logout()` cannot
+     land between the check and the use and apply one user's data to another.
      */
     func currentUser(matching modelId: String) -> OSUserInternal? {
         guard let user = _user, user.identityModel.modelId == modelId else {

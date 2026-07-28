@@ -222,8 +222,8 @@ final class UserExecutorTests: XCTestCase {
     }
 
     /**
-     The normal new-session Fetch User for the *current* user must still clear stale local data before hydrating
-     from the response, so the `isCurrentUser` guard added for the race above does not regress the common path.
+     A Fetch User for the *current* user must still clear stale local data before hydrating from the
+     response, so guarding against the race above does not regress the common path.
      */
     func testFetchUser_forCurrentUser_stillClearsStaleData() {
         /* Setup */

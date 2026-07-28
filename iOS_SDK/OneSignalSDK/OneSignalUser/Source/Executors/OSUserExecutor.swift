@@ -120,7 +120,7 @@ class OSUserExecutor {
             // Translate the last request into a Create User request, if the current user is the same
             if let request = transferSubscriptionRequestQueue.last,
                let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
-               OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.aliasId) {
+               userInstance.identityModel.externalId == request.aliasId {
                 createUser(userInstance)
             }
         }
@@ -251,7 +251,7 @@ extension OSUserExecutor {
 
                 // If this user already exists and we logged into an external_id, fetch the user data
                 // Fetch the user only if its the current user and non-anonymous
-                if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
+                if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil,
                    let identity = request.parameters?["identity"] as? [String: String],
                    let onesignalId = request.identityModel.onesignalId,
                    identity[OS_EXTERNAL_ID] != nil {
@@ -320,7 +320,7 @@ extension OSUserExecutor {
                 request.identityModel.hydrate(identityObject)
 
                 // Fetch this user's data if it is the current user
-                guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                 else {
                     self.executePendingRequests()
                     return
@@ -382,7 +382,7 @@ extension OSUserExecutor {
             request.identityModelToUpdate.hydrate(aliases)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
-            if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModelToUpdate) {
+            if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil {
                 // Add onesignal ID to new records because an immediate fetch may not return the newly-applied external ID
                 self.newRecordsState.add(onesignalId, true)
                 self.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModelToUpdate)
