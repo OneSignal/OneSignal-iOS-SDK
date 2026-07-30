@@ -82,6 +82,7 @@
 		3C30FE362F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */; };
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
+		3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */; };
 		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1351,6 +1352,7 @@
 		3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarlyTriggerTrackingTests.swift; sourceTree = "<group>"; };
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
+		3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoFlushTests.swift; sourceTree = "<group>"; };
 		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
@@ -2525,6 +2527,7 @@
 			isa = PBXGroup;
 			children = (
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
+				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -4546,6 +4549,7 @@
 				5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */,
 				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
+				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
