@@ -647,7 +647,8 @@ static BOOL _isInAppMessagingPaused = false;
                                                        withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                       withMessageId:message.messageId
                                                          withPageId:pageId
-                                                       forVariantId:message.variantId];
+                                                       forVariantId:message.variantId
+                                                        withEventId:[NSUUID UUID].UUIDString];
 
     [OneSignalCoreImpl.sharedClient executeRequest:metricsRequest
                                        onSuccess:^(NSDictionary *result) {
@@ -683,10 +684,14 @@ static BOOL _isInAppMessagingPaused = false;
     [self.impressionedInAppMessages addObject:message.messageId];
     
     // Create the request and attach a payload to it
+    // Per-occurrence event_id so turbine can dedup at-least-once retries. The
+    // request object is reused across client reattempts, so this id is stable
+    // across them (NOTP-1520).
     let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignalIdentifiers.currentAppId
                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                   withMessageId:message.messageId
-                                                   forVariantId:message.variantId];
+                                                   forVariantId:message.variantId
+                                                    withEventId:[NSUUID UUID].UUIDString];
     
     [OneSignalCoreImpl.sharedClient executeRequest:metricsRequest
                                        onSuccess:^(NSDictionary *result) {
@@ -1098,7 +1103,8 @@ static BOOL _isInAppMessagingPaused = false;
                                                     withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
-                                                      withAction:action];
+                                                      withAction:action
+                                                     withEventId:[NSUUID UUID].UUIDString];
 
    [OneSignalCoreImpl.sharedClient executeRequest:metricsRequest
                                       onSuccess:^(NSDictionary *result) {

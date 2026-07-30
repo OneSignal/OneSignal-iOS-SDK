@@ -33,11 +33,11 @@
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId withEventId:(NSString * _Nonnull)eventId;
 @end
 
 @interface OSRequestInAppMessagePageViewed : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withPageId:(NSString * _Nonnull)pageId forVariantId:(NSString * _Nonnull)variantId;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withPageId:(NSString * _Nonnull)pageId forVariantId:(NSString * _Nonnull)variantId withEventId:(NSString * _Nonnull)eventId;
 @end
 
 @interface OSRequestLoadInAppMessageContent : OneSignalRequest
@@ -53,5 +53,6 @@
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageClickResult * _Nonnull)action;
+                     withAction:(OSInAppMessageClickResult * _Nonnull)action
+                       withEventId:(NSString * _Nonnull)eventId;
 @end

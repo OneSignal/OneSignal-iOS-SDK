@@ -65,7 +65,8 @@
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
-                      forVariantId:(NSString *)variantId {
+                      forVariantId:(NSString *)variantId
+                       withEventId:(NSString *)eventId {
     let request = [OSRequestInAppMessageViewed new];
 
     let params = [NSMutableDictionary new];
@@ -73,6 +74,7 @@
     params[@"player_id"] = playerId;
     params[@"app_id"] = appId;
     params[@"variant_id"] = variantId;
+    params[@"event_id"] = eventId;
 
     request.parameters = params;
     request.method = POST;
@@ -87,7 +89,8 @@
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                         withPageId:(NSString * _Nonnull)pageId
-                      forVariantId:(NSString *)variantId {
+                      forVariantId:(NSString *)variantId
+                       withEventId:(NSString *)eventId {
     let request = [OSRequestInAppMessagePageViewed new];
 
     let params = [NSMutableDictionary new];
@@ -96,6 +99,7 @@
     params[@"app_id"] = appId;
     params[@"variant_id"] = variantId;
     params[@"page_id"] = pageId;
+    params[@"event_id"] = eventId;
 
     request.parameters = params;
     request.method = POST;
@@ -110,7 +114,8 @@
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageClickResult * _Nonnull)action {
+                     withAction:(OSInAppMessageClickResult * _Nonnull)action
+                       withEventId:(NSString * _Nonnull)eventId {
     let request = [OSRequestInAppMessageClicked new];
 
     let params = [NSMutableDictionary new];
@@ -120,6 +125,7 @@
     params[@"click_id"] = action.clickId ?: @"";
     params[@"variant_id"] = variantId;
     params[@"first_click"] = @(action.firstClick);
+    params[@"event_id"] = eventId;
 
     request.parameters = params;
     request.method = POST;

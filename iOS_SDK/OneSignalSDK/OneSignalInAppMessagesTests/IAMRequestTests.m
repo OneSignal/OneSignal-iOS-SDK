@@ -85,7 +85,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                                 withAppId:testAppId
                                 withPlayerId:testSubscriptionId
                                 withMessageId:testMessageId
-                                forVariantId:testVariantId];
+                                forVariantId:testVariantId
+                                withEventId:@"test_event_id"];
     NSString *correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/impression", testMessageId]);
 
     XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
@@ -93,7 +94,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
        @"device_type": @0,
        @"player_id": testSubscriptionId,
        @"app_id": testAppId,
-       @"variant_id": testVariantId
+       @"variant_id": testVariantId,
+       @"event_id": @"test_event_id"
     }));
 }
 
@@ -102,11 +104,13 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                                 withAppId:testAppId
                                 withPlayerId:nil
                                 withMessageId:testMessageId
-                                forVariantId:nil];
+                                forVariantId:nil
+                                withEventId:@"test_event_id"];
 
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
        @"device_type": @0,
-       @"app_id": testAppId
+       @"app_id": testAppId,
+       @"event_id": @"test_event_id"
     }));
 }
 
@@ -116,7 +120,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                     withPlayerId:testSubscriptionId
                     withMessageId:testMessageId
                     withPageId:testPageId
-                    forVariantId:testVariantId];
+                    forVariantId:testVariantId
+                    withEventId:@"test_event_id"];
     NSString *correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/pageImpression", testMessageId]);
 
     XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
@@ -125,7 +130,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
        @"player_id": testSubscriptionId,
        @"app_id": testAppId,
        @"variant_id": testVariantId,
-       @"page_id": testPageId
+       @"page_id": testPageId,
+       @"event_id": @"test_event_id"
     }));
 }
 
@@ -135,11 +141,13 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                     withPlayerId:nil
                     withMessageId:testMessageId
                     withPageId:nil
-                    forVariantId:nil];
+                    forVariantId:nil
+                    withEventId:@"test_event_id"];
 
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
        @"device_type": @0,
        @"app_id": testAppId,
+       @"event_id": @"test_event_id"
     }));
 }
 
@@ -149,7 +157,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                    withPlayerId:testSubscriptionId
                    withMessageId:testMessageId
                    forVariantId:testVariantId
-                   withAction:testClickResult];
+                   withAction:testClickResult
+                   withEventId:@"test_event_id"];
     NSString *correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testMessageId]);
 
     XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
@@ -159,7 +168,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
        @"player_id": testSubscriptionId,
        @"click_id": testClickResult.clickId ?: @"",
        @"variant_id": testVariantId,
-       @"first_click": @(testClickResult.firstClick)
+       @"first_click": @(testClickResult.firstClick),
+       @"event_id": @"test_event_id"
    }));
 }
 
@@ -169,13 +179,15 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                    withPlayerId:nil
                    withMessageId:testMessageId
                    forVariantId:nil
-                   withAction:testClickResult];
+                   withAction:testClickResult
+                   withEventId:@"test_event_id"];
 
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
        @"app_id": testAppId,
        @"device_type": @0,
        @"click_id": testClickResult.clickId ?: @"",
-       @"first_click": @(testClickResult.firstClick)
+       @"first_click": @(testClickResult.firstClick),
+       @"event_id": @"test_event_id"
    }));
 }
 
