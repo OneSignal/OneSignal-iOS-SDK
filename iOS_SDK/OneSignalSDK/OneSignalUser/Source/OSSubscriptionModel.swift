@@ -98,14 +98,59 @@ enum OSSubscriptionType: String {
  Internal subscription model.
  */
 class OSSubscriptionModel: OSModel {
-    var type: OSSubscriptionType
+    /**
+     The stored properties of this model, accessed only while holding `stateLock`.
+     */
+    private struct State {
+        var type: OSSubscriptionType
+        var address: String?
+        var subscriptionId: String?
+        var reachable: Bool
+        var isDisabled: Bool
+        var notificationTypes: Int
+        var testType: Int?
+        var deviceOs: String
+        var sdk: String
+        var deviceModel: String?
+        var appVersion: String?
+        var netType: Int?
+    }
+
+    /**
+     Guards `state` only. Held just for raw reads and writes of the stored values (never while firing
+     change events, notifying observers, or writing to UserDefaults) so the re-entrant archive path
+     (setter -> model store save -> `encode` on the same thread) and callouts into app code cannot deadlock.
+     */
+    private let stateLock = NSLock()
+    private var state: State
+
+    /// An atomic copy of the full state.
+    private func snapshot() -> State {
+        stateLock.withLock { state }
+    }
+
+    /// Atomically writes `newValue` and returns the value it replaced.
+    private func swapValue<Value>(_ keyPath: WritableKeyPath<State, Value>, to newValue: Value) -> Value {
+        stateLock.withLock {
+            let oldValue = state[keyPath: keyPath]
+            state[keyPath: keyPath] = newValue
+            return oldValue
+        }
+    }
+
+    var type: OSSubscriptionType {
+        get { stateLock.withLock { state.type } }
+        set { stateLock.withLock { state.type = newValue } }
+    }
 
     var address: String? { // This is token on push subs so must remain Optional
-        didSet {
-            guard address != oldValue else {
+        get { stateLock.withLock { state.address } }
+        set {
+            let oldValue = swapValue(\.address, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "address", newValue: address)
+            self.set(property: "address", newValue: newValue)
 
             guard self.type == .push else {
                 return
@@ -123,21 +168,23 @@ class OSSubscriptionModel: OSModel {
      Setting the subscription ID to null will serve as a "reset" and will later hydrate a value from a user create rquest.
      */
     var subscriptionId: String? {
-        didSet {
-            guard subscriptionId != oldValue else {
+        get { stateLock.withLock { state.subscriptionId } }
+        set {
+            let oldValue = swapValue(\.subscriptionId, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
 
             // If the ID has changed, don't trigger a server call, since it can be set to null
-            self.set(property: "subscriptionId", newValue: subscriptionId, preventServerUpdate: true)
+            self.set(property: "subscriptionId", newValue: newValue, preventServerUpdate: true)
 
             guard self.type == .push else {
                 return
             }
 
             // Cache the subscriptionId to UserDefaults for routine reads, and the OSResilientStorage mirror 
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
-            OSResilientStorage.setString(subscriptionId ?? "", forKey: OSResilientStorage.keySubscriptionId)
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: newValue)
+            OSResilientStorage.setString(newValue ?? "", forKey: OSResilientStorage.keySubscriptionId)
 
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
@@ -146,32 +193,41 @@ class OSSubscriptionModel: OSModel {
     // Internal property to send to server, not meant for outside access
     var enabled: Bool { // Does not consider subscription_id in the calculation
         get {
-            return calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
+            let state = snapshot()
+            return calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
         }
     }
 
     var optedIn: Bool {
         // optedIn = permission + userPreference
         get {
-            return calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
+            let state = snapshot()
+            return calculateIsOptedIn(reachable: state.reachable, isDisabled: state.isDisabled)
         }
     }
 
     // Push Subscription Only
     // Initialize to be -1, so not to deal with unwrapping every time, and simplifies caching
-    var notificationTypes = -1 {
-        didSet {
-            guard self.type == .push && notificationTypes != oldValue else {
+    var notificationTypes: Int {
+        get { stateLock.withLock { state.notificationTypes } }
+        set {
+            let (oldValue, isDisabled) = stateLock.withLock {
+                let oldValue = state.notificationTypes
+                state.notificationTypes = newValue
+                return (oldValue, state.isDisabled)
+            }
+            guard self.type == .push && newValue != oldValue else {
                 return
             }
 
             // If _isDisabled is set, this supersedes as the value to send to server.
-            if _isDisabled && notificationTypes != -2 {
-                notificationTypes = -2
+            // Pin to -2 without firing a change event, matching the didSet-within-didSet behavior this replaced.
+            if isDisabled && newValue != -2 {
+                stateLock.withLock { state.notificationTypes = -2 }
                 return
             }
-            _reachable = notificationTypes > 0
-            self.set(property: "notificationTypes", newValue: notificationTypes)
+            _reachable = newValue > 0
+            self.set(property: "notificationTypes", newValue: newValue)
         }
     }
 
@@ -182,8 +238,10 @@ class OSSubscriptionModel: OSModel {
      Note that this property reflects the `reachable` property of a permission state. As provisional permission is considered to be `optedIn` and `enabled`.
      */
     var _reachable: Bool {
-        didSet {
-            guard self.type == .push && _reachable != oldValue else {
+        get { stateLock.withLock { state.reachable } }
+        set {
+            let oldValue = swapValue(\.reachable, to: newValue)
+            guard self.type == .push && newValue != oldValue else {
                 return
             }
             firePushSubscriptionChanged(.reachable(oldValue))
@@ -192,8 +250,10 @@ class OSSubscriptionModel: OSModel {
 
     // Set by the app developer when they call User.pushSubscription.optOut()
     var _isDisabled: Bool { // Default to false for all subscriptions
-        didSet {
-            guard self.type == .push && _isDisabled != oldValue else {
+        get { stateLock.withLock { state.isDisabled } }
+        set {
+            let oldValue = swapValue(\.isDisabled, to: newValue)
+            guard self.type == .push && newValue != oldValue else {
                 return
             }
             firePushSubscriptionChanged(.isDisabled(oldValue))
@@ -203,56 +263,68 @@ class OSSubscriptionModel: OSModel {
 
     // Properties for push subscription
     var testType: Int? {
-        didSet {
-            guard testType != oldValue else {
+        get { stateLock.withLock { state.testType } }
+        set {
+            let oldValue = swapValue(\.testType, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "testType", newValue: testType)
+            self.set(property: "testType", newValue: newValue)
         }
     }
 
-    var deviceOs = UIDevice.current.systemVersion {
-        didSet {
-            guard deviceOs != oldValue else {
+    var deviceOs: String {
+        get { stateLock.withLock { state.deviceOs } }
+        set {
+            let oldValue = swapValue(\.deviceOs, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "deviceOs", newValue: deviceOs)
+            self.set(property: "deviceOs", newValue: newValue)
         }
     }
 
-    var sdk = ONESIGNAL_VERSION {
-        didSet {
-            guard sdk != oldValue else {
+    var sdk: String {
+        get { stateLock.withLock { state.sdk } }
+        set {
+            let oldValue = swapValue(\.sdk, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "sdk", newValue: sdk)
+            self.set(property: "sdk", newValue: newValue)
         }
     }
 
-    var deviceModel: String? = OSDeviceUtils.getDeviceVariant() {
-        didSet {
-            guard deviceModel != oldValue else {
+    var deviceModel: String? {
+        get { stateLock.withLock { state.deviceModel } }
+        set {
+            let oldValue = swapValue(\.deviceModel, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "deviceModel", newValue: deviceModel)
+            self.set(property: "deviceModel", newValue: newValue)
         }
     }
 
-    var appVersion: String? = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        didSet {
-            guard appVersion != oldValue else {
+    var appVersion: String? {
+        get { stateLock.withLock { state.appVersion } }
+        set {
+            let oldValue = swapValue(\.appVersion, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "appVersion", newValue: appVersion)
+            self.set(property: "appVersion", newValue: newValue)
         }
     }
 
-    var netType: Int? = OSNetworkingUtils.getNetType() as? Int {
-        didSet {
-            guard netType != oldValue else {
+    var netType: Int? {
+        get { stateLock.withLock { state.netType } }
+        set {
+            let oldValue = swapValue(\.netType, to: newValue)
+            guard newValue != oldValue else {
                 return
             }
-            self.set(property: "netType", newValue: netType)
+            self.set(property: "netType", newValue: newValue)
         }
     }
 
@@ -263,50 +335,64 @@ class OSSubscriptionModel: OSModel {
          reachable: Bool,
          isDisabled: Bool,
          changeNotifier: OSEventProducer<OSModelChangedHandler>) {
-        self.type = type
-        self.address = address
-        self.subscriptionId = subscriptionId
-        _reachable = reachable
-        _isDisabled = isDisabled
+        var testType: Int?
+        var notificationTypes = -1
 
         // Set test_type if subscription model is PUSH, and update notificationTypes
         if type == .push {
             let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
             #if targetEnvironment(simulator)
             if releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown {
-                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
             }
             #endif
             // Workaround to unsure how to extract the Int value in 1 step...
             if releaseMode == .UIApplicationReleaseDev {
-                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
             }
             if releaseMode == .UIApplicationReleaseAdHoc {
-                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
             }
             if releaseMode == .UIApplicationReleaseWildcard {
-                self.testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
             }
-            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
+            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(isDisabled))
         }
+
+        self.state = State(
+            type: type,
+            address: address,
+            subscriptionId: subscriptionId,
+            reachable: reachable,
+            isDisabled: isDisabled,
+            notificationTypes: notificationTypes,
+            testType: testType,
+            deviceOs: UIDevice.current.systemVersion,
+            sdk: ONESIGNAL_VERSION,
+            deviceModel: OSDeviceUtils.getDeviceVariant(),
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+            netType: OSNetworkingUtils.getNetType() as? Int
+        )
 
         super.init(changeNotifier: changeNotifier)
     }
 
     override func encode(with coder: NSCoder) {
+        // Encode from one consistent snapshot; other threads may mutate this model mid-archive.
+        let state = snapshot()
         super.encode(with: coder)
-        coder.encode(type.rawValue, forKey: "type") // Encodes as String
-        coder.encode(address, forKey: "address")
-        coder.encode(subscriptionId, forKey: "subscriptionId")
-        coder.encode(_reachable, forKey: "_reachable")
-        coder.encode(_isDisabled, forKey: "_isDisabled")
-        coder.encode(notificationTypes, forKey: "notificationTypes")
-        coder.encode(testType, forKey: "testType")
-        coder.encode(deviceOs, forKey: "deviceOs")
-        coder.encode(sdk, forKey: "sdk")
-        coder.encode(deviceModel, forKey: "deviceModel")
-        coder.encode(appVersion, forKey: "appVersion")
-        coder.encode(netType, forKey: "netType")
+        coder.encode(state.type.rawValue, forKey: "type") // Encodes as String
+        coder.encode(state.address, forKey: "address")
+        coder.encode(state.subscriptionId, forKey: "subscriptionId")
+        coder.encode(state.reachable, forKey: "_reachable")
+        coder.encode(state.isDisabled, forKey: "_isDisabled")
+        coder.encode(state.notificationTypes, forKey: "notificationTypes")
+        coder.encode(state.testType, forKey: "testType")
+        coder.encode(state.deviceOs, forKey: "deviceOs")
+        coder.encode(state.sdk, forKey: "sdk")
+        coder.encode(state.deviceModel, forKey: "deviceModel")
+        coder.encode(state.appVersion, forKey: "appVersion")
+        coder.encode(state.netType, forKey: "netType")
     }
 
     required init?(coder: NSCoder) {
@@ -317,18 +403,20 @@ class OSSubscriptionModel: OSModel {
             // Log error
             return nil
         }
-        self.type = type
-        self.address = coder.decodeObject(forKey: "address") as? String
-        self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
-        self._reachable = coder.decodeBool(forKey: "_reachable")
-        self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
-        self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
-        self.testType = coder.decodeObject(forKey: "testType") as? Int
-        self.deviceOs = coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion
-        self.sdk = coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION
-        self.deviceModel = coder.decodeObject(forKey: "deviceModel") as? String
-        self.appVersion = coder.decodeObject(forKey: "appVersion") as? String
-        self.netType = coder.decodeObject(forKey: "netType") as? Int
+        self.state = State(
+            type: type,
+            address: coder.decodeObject(forKey: "address") as? String,
+            subscriptionId: coder.decodeObject(forKey: "subscriptionId") as? String,
+            reachable: coder.decodeBool(forKey: "_reachable"),
+            isDisabled: coder.decodeBool(forKey: "_isDisabled"),
+            notificationTypes: coder.decodeInteger(forKey: "notificationTypes"),
+            testType: coder.decodeObject(forKey: "testType") as? Int,
+            deviceOs: coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion,
+            sdk: coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION,
+            deviceModel: coder.decodeObject(forKey: "deviceModel") as? String,
+            appVersion: coder.decodeObject(forKey: "appVersion") as? String,
+            netType: coder.decodeObject(forKey: "netType") as? Int
+        )
 
         super.init(coder: coder)
     }
@@ -364,20 +452,21 @@ class OSSubscriptionModel: OSModel {
 
     // Using snake_case so we can use this in request bodies
     public func jsonRepresentation() -> [String: Any] {
+        let state = snapshot()
         var json: [String: Any] = [:]
-        json["id"] = self.subscriptionId
-        json["type"] = self.type.rawValue
-        json["token"] = self.address
-        json["enabled"] = self.enabled
-        json["test_type"] = self.testType
-        json["device_os"] = self.deviceOs
-        json["sdk"] = self.sdk
-        json["device_model"] = self.deviceModel
-        json["app_version"] = self.appVersion
-        json["net_type"] = self.netType
+        json["id"] = state.subscriptionId
+        json["type"] = state.type.rawValue
+        json["token"] = state.address
+        json["enabled"] = calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
+        json["test_type"] = state.testType
+        json["device_os"] = state.deviceOs
+        json["sdk"] = state.sdk
+        json["device_model"] = state.deviceModel
+        json["app_version"] = state.appVersion
+        json["net_type"] = state.netType
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if self.notificationTypes != -1 {
-            json["notification_types"] = self.notificationTypes
+        if state.notificationTypes != -1 {
+            json["notification_types"] = state.notificationTypes
         }
         return json
     }
@@ -387,9 +476,10 @@ class OSSubscriptionModel: OSModel {
 extension OSSubscriptionModel {
     // Only used for the push subscription model
     var currentPushSubscriptionState: OSPushSubscriptionState {
-        return OSPushSubscriptionState(id: self.subscriptionId,
-                                       token: self.address,
-                                       optedIn: self.optedIn
+        let state = snapshot()
+        return OSPushSubscriptionState(id: state.subscriptionId,
+                                       token: state.address,
+                                       optedIn: calculateIsOptedIn(reachable: state.reachable, isDisabled: state.isDisabled)
         )
     }
 

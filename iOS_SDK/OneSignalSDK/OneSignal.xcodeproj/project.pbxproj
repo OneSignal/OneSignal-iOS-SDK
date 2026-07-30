@@ -164,6 +164,7 @@
 		3CA8B8822BEC2FCB0010ADA1 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; };
 		3CA8B8832BEC2FCB0010ADA1 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */; };
+		3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */; };
 		3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */; };
 		3CB331682F281679000E1801 /* CustomEventsIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */; };
 		3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */; };
@@ -1405,6 +1406,7 @@
 		3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestUpdateProperties.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequest.swift; sourceTree = "<group>"; };
 		3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionUpdateRaceTests.swift; sourceTree = "<group>"; };
+		3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionModelConcurrencyTests.swift; sourceTree = "<group>"; };
 		3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTests.swift; sourceTree = "<group>"; };
 		3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEventsIntegrationTests.swift; sourceTree = "<group>"; };
 		3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCustomEventsExecutorTests.swift; sourceTree = "<group>"; };
@@ -2361,6 +2363,7 @@
 				3CDE664A2BFC2A55006DA114 /* OneSignalUserTests-Bridging-Header.h */,
 				3CF11E3E2C6D61AC002856F5 /* Executors */,
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
+				3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */,
 				3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */,
 				3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
@@ -4472,6 +4475,7 @@
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
+				3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,
 				3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */,
