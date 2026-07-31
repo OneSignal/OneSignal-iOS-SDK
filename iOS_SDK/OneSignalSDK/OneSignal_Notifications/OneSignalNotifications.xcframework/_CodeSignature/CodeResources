@@ -34,7 +34,7 @@
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		rKhMTdUJ39/4yhUJhj8zGHhvIJQ=
+		7KBGupvND+TSrIaGP+9042vVv50=
 		</data>
 		<key>ios-arm64/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/DWARF/OneSignalNotifications</key>
 		<data>
-		w/EKTqfsGk7eUkqFWxqcPvDoxpw=
+		WEPOxfuGTJitblA8AtHR/rqJ+uA=
 		</data>
 		<key>ios-arm64/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>
 		<data>
@@ -82,7 +82,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/OneSignalNotifications</key>
 		<data>
-		cd64LzD4LF3vJIFym1bpeWJLnpY=
+		dwY9QmWitdGVz9zqcfdWfw12cC4=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
 		<data>
@@ -102,7 +102,7 @@
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/DWARF/OneSignalNotifications</key>
 		<data>
-		Dk+jAMawRn+lekYpSY8TsXfq1D0=
+		Lfz3dSGTSzFP/HgAwr2hdL22FyY=
 		</data>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>
 		<data>
@@ -142,7 +142,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/OneSignalNotifications</key>
 		<data>
-		/KnBeHlJ9c26ajpyvdsQnU1afRA=
+		zrts1njWk6o1r9ixwoPC/WWSghE=
 		</data>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -158,7 +158,7 @@
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/DWARF/OneSignalNotifications</key>
 		<data>
-		NxSeomNZF6nRiePAqiHvlvNicss=
+		+riOq0y97+Ix5CO6s7/d/E6EcXw=
 		</data>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>
 		<data>
@@ -252,11 +252,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			rKhMTdUJ39/4yhUJhj8zGHhvIJQ=
+			7KBGupvND+TSrIaGP+9042vVv50=
 			</data>
 			<key>hash2</key>
 			<data>
-			dx9Dvd2XCIFyKBYb44uw+H3SO8SENsEmLkeooGKVz+A=
+			e2D2uVfGE18SoU7jdul7bqCKqtjxzJGOgt5FuIIv78Y=
 			</data>
 		</dict>
 		<key>ios-arm64/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
@@ -296,11 +296,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			w/EKTqfsGk7eUkqFWxqcPvDoxpw=
+			WEPOxfuGTJitblA8AtHR/rqJ+uA=
 			</data>
 			<key>hash2</key>
 			<data>
-			5CG6ROlWfsOgSnVsWXQIX+Ggl4jtxqVgaIvxxNbeLF8=
+			eRbLVx7xpIMNPz7XigbNblq2/vEeoZf6L0XMb/BeNP4=
 			</data>
 		</dict>
 		<key>ios-arm64/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>
@@ -404,11 +404,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			cd64LzD4LF3vJIFym1bpeWJLnpY=
+			dwY9QmWitdGVz9zqcfdWfw12cC4=
 			</data>
 			<key>hash2</key>
 			<data>
-			r24PA/yK9XION1UiJi6wxCKQo9dMSNAJRmVFdEIdLpI=
+			5r9dvy9R41LEM8fcLjxWWec+o1b4e4PMfnWKMc2mDBk=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/OneSignalNotifications.framework/Versions/A/Resources/Info.plist</key>
@@ -464,11 +464,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Dk+jAMawRn+lekYpSY8TsXfq1D0=
+			Lfz3dSGTSzFP/HgAwr2hdL22FyY=
 			</data>
 			<key>hash2</key>
 			<data>
-			cqyO2Nf0LDynP2aZq5giZefDHVmSY57DgRqsXf5vXxc=
+			ZrE0IWyYOLY/HJ9z9GZHFibvM9ML/J+aEPiHDib0+hQ=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-maccatalyst/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>
@@ -574,11 +574,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			/KnBeHlJ9c26ajpyvdsQnU1afRA=
+			zrts1njWk6o1r9ixwoPC/WWSghE=
 			</data>
 			<key>hash2</key>
 			<data>
-			jr5UcJOAQIPvag8n1jzqRGWSybFHOTN8vOOOkxlK7vs=
+			PWAuaqJLR4cyOg7ulNeVmXy+tf3JD/Lau8HnI0yAHfg=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/OneSignalNotifications.framework/PrivacyInfo.xcprivacy</key>
@@ -618,11 +618,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			NxSeomNZF6nRiePAqiHvlvNicss=
+			+riOq0y97+Ix5CO6s7/d/E6EcXw=
 			</data>
 			<key>hash2</key>
 			<data>
-			xVcIFAyU0K6VHzPhNE6hP7TqaMIp/8hXOMuGiHOxCIM=
+			OFMMB10+2XhccgVI+k0/JRhrXR7iGaaf8BUGAO6yYIo=
 			</data>
 		</dict>
 		<key>ios-arm64_x86_64-simulator/dSYMs/OneSignalNotifications.framework.dSYM/Contents/Resources/Relocations/aarch64/OneSignalNotifications.yml</key>

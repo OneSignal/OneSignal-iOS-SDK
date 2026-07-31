@@ -7766,17 +7766,10 @@
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "IntegerLiteral",
-      "offset": 6404,
-      "length": 1,
-      "value": "0"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "IntegerLiteral",
-      "offset": 6755,
-      "length": 1,
-      "value": "1"
+      "kind": "Array",
+      "offset": 6419,
+      "length": 2,
+      "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSEventProducer.swift",
