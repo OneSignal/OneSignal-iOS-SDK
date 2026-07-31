@@ -422,10 +422,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Returns the current user only if it is still the user that `modelId` identifies.
-
-     Act on the instance returned. It is read once here, so a concurrent `login()`/`logout()` cannot
-     land between the check and the use and apply one user's data to another.
+     Act on the instance returned: the current user is read once here, so a concurrent
+     `login()`/`logout()` can't land between the check and the use. Its identity and properties
+     models are safe to mutate; the shared model stores are not scoped to a user.
      */
     func currentUser(matching modelId: String) -> OSUserInternal? {
         guard let user = _user, user.identityModel.modelId == modelId else {
