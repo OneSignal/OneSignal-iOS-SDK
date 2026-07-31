@@ -257,11 +257,11 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
             // Re-assert the tags the server just confirmed by merging them back into the local model,
             // to remedy a concurrent FetchUser whose response is missing the just-written tags
-            if OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel),
+            if let user = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId),
                let properties = response?["properties"] as? [String: Any],
                let confirmedTags = properties["tags"] as? [String: String],
                !confirmedTags.isEmpty {
-                OneSignalUserManagerImpl.sharedInstance._user?.propertiesModel.mergeConfirmedTags(confirmedTags)
+                user.propertiesModel.mergeConfirmedTags(confirmedTags)
             }
 
             if let onesignalId = request.identityModel.onesignalId {
@@ -287,8 +287,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
-                    // Logout if the user in the SDK is the same
-                    guard OneSignalUserManagerImpl.sharedInstance.isCurrentUser(request.identityModel)
+                    // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
+                    guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                     else {
                         if inBackground {
                             OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)

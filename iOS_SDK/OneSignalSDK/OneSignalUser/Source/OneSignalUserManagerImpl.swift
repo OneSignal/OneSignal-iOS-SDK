@@ -149,7 +149,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return createNewUser(externalId: nil, token: nil)
     }
 
-    var _user: OSUserInternal?
+    /// Guards `_user`. Held only across a single read or write; holding it while callers mutate
+    /// models would re-enter the model stores and operation repo, and could deadlock.
+    private let userLock = NSLock()
+
+    private var _userStorage: OSUserInternal?
+
+    var _user: OSUserInternal? {
+        get { userLock.withLock { _userStorage } }
+        set { userLock.withLock { _userStorage = newValue } }
+    }
 
     // This is a user instance to operate on when there is no app_id and/or privacy consent yet, effectively no-op.
     // The models are not added to any model stores.
@@ -413,27 +422,26 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Returns if the OSIdentityModel passed in belongs to the current user. This method is used in deciding whether or not to hydrate via a server response, for example.
+     Act on the instance returned: the current user is read once here, so a concurrent
+     `login()`/`logout()` can't land between the check and the use. Its identity and properties
+     models are safe to mutate; the shared model stores are not scoped to a user.
      */
-    func isCurrentUser(_ identityModel: OSIdentityModel) -> Bool {
-        return self.identityModelStore.getModel(modelId: identityModel.modelId) != nil
-    }
-
-    func isCurrentUser(_ externalId: String) -> Bool {
-        guard let userInstance = _user, !externalId.isEmpty else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "isCurrentUser called with empty externalId or no user instance")
-            return false
+    func currentUser(matching modelId: String) -> OSUserInternal? {
+        guard let user = _user, user.identityModel.modelId == modelId else {
+            return nil
         }
-
-        return userInstance.identityModel.externalId == externalId
+        return user
     }
+
     /**
-     Clears the existing user's data in preparation for hydration via a fetch user call.
+     Clears the passed-in user's data in preparation for hydration via a fetch user call.
+
+     Operates on the given user so a concurrent login can't redirect the clear onto a different one.
      */
-    func clearUserData() {
+    func clearUserData(_ user: OSUserInternal) {
         // Identity and property models should still be the same instances, but with data cleared
-        _user?.identityModel.clearData()
-        _user?.propertiesModel.clearData()
+        user.identityModel.clearData()
+        user.propertiesModel.clearData()
 
         // Subscription model store should be cleared completely
         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
