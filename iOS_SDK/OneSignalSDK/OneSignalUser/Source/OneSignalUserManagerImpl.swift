@@ -131,6 +131,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
+    // Composition root for Identity Verification; executors and the repo take these as deps.
+    let featureManager = OSFeatureManager()
+    let jwtConfig = OSUserJwtConfig()
+    let identityVerificationService: OSIdentityVerificationService
+
     private let startQueue = DispatchQueue(label: "com.onesignal.user.start")
     var hasCalledStart = false
 
@@ -167,8 +172,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
         pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: true, changeNotifier: OSEventProducer()))
 
-    @objc public var requiresUserAuth = false
-
     // User State Observer
     private var _userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState>?
     var userStateChangesObserver: OSObservable<OSUserStateObserver, OSUserChangedState> {
@@ -203,6 +206,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var customEventsExecutor: OSCustomEventsExecutor?
 
     private override init() {
+        self.identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
@@ -233,6 +237,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             propertiesModelStore.refresh()
             subscriptionModelStore.refresh()
             pushSubscriptionModelStore.refresh()
+            // Same prewarm gap as the stores: init may have read UserDefaults while it was locked.
+            jwtConfig.refreshIfUnknown()
 
             OSNotificationsManager.delegate = self
 
@@ -589,6 +595,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
             user.identityModel.jwtBearerToken = newToken
         }
+    }
+}
+
+// MARK: - Identity Verification
+
+extension OneSignalUserManagerImpl {
+    /// Applies `jwt_required` from a remote-params response.
+    @objc
+    public func hydrateJwtRequirement(_ required: Bool) {
+        jwtConfig.hydrate(requiresUserAuth: required)
     }
 }
 
