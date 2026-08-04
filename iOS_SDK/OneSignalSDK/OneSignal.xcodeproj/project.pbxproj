@@ -3525,8 +3525,6 @@
 				3C60BB9E2ECF860600C765F7 /* PBXTargetDependency */,
 			);
 			name = OneSignalInAppMessagesMocks;
-			packageProductDependencies = (
-			);
 			productName = OneSignalInAppMessagesMocks;
 			productReference = 3C70221C2ECF124B001768C6 /* OneSignalInAppMessagesMocks.framework */;
 			productType = "com.apple.product-type.framework";
@@ -7719,6 +7717,14 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_TESTABILITY = YES;
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -7739,6 +7745,16 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64/OneSignalKMP.framework/OneSignalKMP",
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator/OneSignalKMP.framework/OneSignalKMP",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8103,6 +8119,14 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalCoreFramework/Info.plist;
@@ -8120,6 +8144,16 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64/OneSignalKMP.framework/OneSignalKMP",
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator/OneSignalKMP.framework/OneSignalKMP",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8166,6 +8200,14 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_TESTABILITY = YES;
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -8189,6 +8231,16 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = "";
+				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64/OneSignalKMP.framework/OneSignalKMP",
+				);
+				"OTHER_LDFLAGS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"-force_load",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator/OneSignalKMP.framework/OneSignalKMP",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
