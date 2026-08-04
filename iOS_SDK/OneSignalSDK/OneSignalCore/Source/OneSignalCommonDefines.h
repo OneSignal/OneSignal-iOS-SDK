@@ -77,6 +77,8 @@
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
+#define OSUD_SDK_FEATURE_FLAGS                                              @"OSUD_SDK_FEATURE_FLAGS"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
@@ -135,7 +137,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth"
+#define IOS_JWT_REQUIRED @"jwt_required"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
