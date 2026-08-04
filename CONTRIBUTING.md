@@ -9,6 +9,25 @@ If your proposed contribution is a small bug fix, please feel free to create you
 
 If your contribution would _break_ or _change_ the functionality of the SDK, please reach out to us on (contact) before you put in a lot of effort into a change we may not be able to use. We try our best to make sure that the SDK remains stable so that developers do not have to continually change their code, however some breaking changes _are_ desirable, so please get in touch to discuss your idea before you put in a lot of effort.
 
+#### Shared KMP dependency
+
+The iOS SDK pins `OneSignal-KMP-SDK` as a git submodule. Initialize it after cloning
+or switching branches:
+
+```bash
+git submodule update --init --recursive
+```
+
+Build the static KMP XCFramework before opening the Xcode project:
+
+```bash
+iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh
+```
+
+`OneSignalCore` links the generated device and simulator slices internally. KMP
+releases are updated by advancing the submodule gitlink to a tagged commit; do not
+edit files inside the detached submodule checkout.
+
 #### Before Submitting A Bug Report
 Before creating bug reports, please check this list of steps to follow.
 
