@@ -29,6 +29,7 @@
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
+#import "OSRemoteLoggingController.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalJailbreakDetection.h"
@@ -137,6 +138,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
+    [OSRemoteLoggingController reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -735,6 +737,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
+        [OSRemoteLoggingController configure];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
             let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
