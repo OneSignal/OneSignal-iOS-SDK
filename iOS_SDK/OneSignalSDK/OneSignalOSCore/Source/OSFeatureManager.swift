@@ -43,6 +43,11 @@ public protocol OSFeatureManagerProtocol: AnyObject {
  cached so a launch that has not yet fetched remote config keeps the last known values.
  */
 public final class OSFeatureManager: OSFeatureManagerProtocol {
+    /// Shared for the same reason as `OSUserJwtConfig.shared`, and under the same rule: only
+    /// `OneSignalUserManagerImpl` references it today, and `OneSignal.m` will once remote params
+    /// deliver flag keys. Everything below them is handed the feature manager when it is created.
+    public static let shared = OSFeatureManager()
+
     private let lock = NSLock()
     private var enabledKeys: Set<String>
 
@@ -64,6 +69,20 @@ public final class OSFeatureManager: OSFeatureManagerProtocol {
         lock.withLock {
             enabledKeys = canonical
             OneSignalUserDefaults.initShared().saveObject(forKey: OSUD_SDK_FEATURE_FLAGS, withValue: Array(canonical))
+        }
+    }
+
+    /**
+     Re-reads the cached keys while none are known, closing the same prewarm gap as
+     `OSUserJwtConfig.refreshIfUnknown`. An app with every flag off reads the cache a second time, which
+     is cheaper than keeping enough state to tell that case apart from a read that came back empty.
+     */
+    public func refreshIfEmpty() {
+        lock.withLock {
+            guard enabledKeys.isEmpty else {
+                return
+            }
+            enabledKeys = OSFeatureManager.cachedKeys()
         }
     }
 

@@ -88,6 +88,24 @@ final class OSFeatureManagerTests: XCTestCase {
         XCTAssertFalse(OSFeatureManager().isEnabled(.identityVerification))
     }
 
+    func testRefreshAdoptsCachedKeysThatTheInitialReadMissed() {
+        let featureManager = OSFeatureManager()
+        OSFeatureManager().setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+
+        featureManager.refreshIfEmpty()
+
+        XCTAssertTrue(featureManager.isEnabled(.identityVerification))
+    }
+
+    func testRefreshLeavesKeysThatAreAlreadyKnownAlone() {
+        let featureManager = OSFeatureManager(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        OSFeatureManager().setEnabledFeatureKeys([])
+
+        featureManager.refreshIfEmpty()
+
+        XCTAssertTrue(featureManager.isEnabled(.identityVerification))
+    }
+
     func testKeysPassedToTheInitializerBypassTheCache() {
         OSFeatureManager().setEnabledFeatureKeys([])
 
