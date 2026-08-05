@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 
 /**
  This class stores all Identity Models that are being used during an app session.
@@ -50,6 +51,31 @@ class OSIdentityModelRepo {
     func get(modelId: String) -> OSIdentityModel? {
         lock.withLock {
             return models[modelId]
+        }
+    }
+
+    func get(externalId: String) -> OSIdentityModel? {
+        lock.withLock {
+            return models.values.first { $0.externalId == externalId }
+        }
+    }
+
+    /**
+     Repeated logins as the same user each create an Identity Model, so update them all.
+     This can be optimized in the future to re-use an Identity Model if multiple logins are made for the same user.
+     */
+    func updateJwtToken(externalId: String, token: String) {
+        // Write outside the lock: setting the token fires the model's change notifier synchronously
+        // into listeners that take locks of their own.
+        let matchingModels: [OSIdentityModel] = lock.withLock {
+            models.values.filter { $0.externalId == externalId }
+        }
+        guard !matchingModels.isEmpty else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.updateJwtToken called for unknown external ID \(externalId)")
+            return
+        }
+        for model in matchingModels {
+            model.jwtBearerToken = token
         }
     }
 }

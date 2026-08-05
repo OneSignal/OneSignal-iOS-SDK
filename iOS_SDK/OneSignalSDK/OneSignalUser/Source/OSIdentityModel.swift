@@ -38,12 +38,55 @@ class OSIdentityModel: OSModel {
         return internalGetAlias(OS_EXTERNAL_ID)
     }
 
-    // All access to aliases should go through helper methods with locking
+    // All access to aliases and the JWT bearer token must go through the lock
     var aliases: [String: String] = [:]
-    private let aliasesLock = NSRecursiveLock()
+    private let lock = NSRecursiveLock()
 
-    // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    // MARK: - JWT
+
+    private var jwtBearerTokenLocked: String?
+    public var jwtBearerToken: String? {
+        get {
+            lock.withLock { jwtBearerTokenLocked }
+        }
+        set {
+            // Notify outside the lock: the change notifier fires synchronously into listeners that
+            // take locks of their own.
+            let changed = lock.withLock {
+                guard newValue != jwtBearerTokenLocked else { return false }
+                jwtBearerTokenLocked = newValue
+                return true
+            }
+            if changed {
+                self.set(property: OS_JWT_BEARER_TOKEN, newValue: newValue)
+            }
+        }
+    }
+
+    /// Returns the bearer token if it is valid, otherwise nil, snapshots once
+    func getValidJwt() -> String? {
+        let token = jwtBearerToken
+        guard let token = token, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
+            return nil
+        }
+        return token
+    }
+
+    /// Returns`true` if the transition occurred, `false` if the token was already invalid, so it returns
+    /// `true` only for the caller that lands the transition, so a burst of concurrent failure responses
+    /// asks the app for a new token once between them.
+    @discardableResult
+    func invalidateJwtBearerToken() -> Bool {
+        let changed = lock.withLock {
+            guard jwtBearerTokenLocked != OS_JWT_TOKEN_INVALID else { return false }
+            jwtBearerTokenLocked = OS_JWT_TOKEN_INVALID
+            return true
+        }
+        if changed {
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: OS_JWT_TOKEN_INVALID)
+        }
+        return changed
+    }
 
     // MARK: - Initialization
 
@@ -54,9 +97,10 @@ class OSIdentityModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        aliasesLock.withLock {
+        lock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
+            coder.encode(jwtBearerTokenLocked, forKey: OS_JWT_BEARER_TOKEN)
         }
     }
 
@@ -66,19 +110,20 @@ class OSIdentityModel: OSModel {
             // log error
             return nil
         }
+        self.jwtBearerTokenLocked = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
         self.aliases = aliases
     }
 
     /** Threadsafe getter for an alias */
     private func internalGetAlias(_ label: String) -> String? {
-        aliasesLock.withLock {
+        lock.withLock {
             return self.aliases[label]
         }
     }
 
     /** Threadsafe setter or removal for aliases */
     private func internalAddAliases(_ aliases: [String: String]) {
-        aliasesLock.withLock {
+        lock.withLock {
             for (label, id) in aliases {
                 // Remove the alias if the ID field is ""
                 self.aliases[label] = id.isEmpty ? nil : id
@@ -91,7 +136,7 @@ class OSIdentityModel: OSModel {
      Called to clear the model's data in preparation for hydration via a fetch user call.
      */
     func clearData() {
-        aliasesLock.withLock {
+        lock.withLock {
             self.aliases = [:]
         }
     }
