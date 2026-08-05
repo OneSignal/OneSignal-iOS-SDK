@@ -225,6 +225,10 @@
 		3CF0AC4130224A0000C73958 /* OSAliasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4030224A0000C73958 /* OSAliasPair.swift */; };
 		3CF0AC4330224A1000C73958 /* OSUserJwtInvalidatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4230224A1000C73958 /* OSUserJwtInvalidatedEvent.swift */; };
 		3CF0AC4530224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4430224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift */; };
+		3CF0AC4730224A3000C73958 /* MockUserJwtInvalidatedListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4630224A3000C73958 /* MockUserJwtInvalidatedListener.swift */; };
+		3CF0AC4930224A4000C73958 /* OSIdentityModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4830224A4000C73958 /* OSIdentityModelTests.swift */; };
+		3CF0AC4B30224A5000C73958 /* OSIdentityModelRepoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4A30224A5000C73958 /* OSIdentityModelRepoTests.swift */; };
+		3CF0AC4D30224A6000C73958 /* UserJwtApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4C30224A6000C73958 /* UserJwtApiTests.swift */; };
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
@@ -1464,6 +1468,10 @@
 		3CF0AC4030224A0000C73958 /* OSAliasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
 		3CF0AC4230224A1000C73958 /* OSUserJwtInvalidatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtInvalidatedEvent.swift; sourceTree = "<group>"; };
 		3CF0AC4430224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Jwt.swift"; sourceTree = "<group>"; };
+		3CF0AC4630224A3000C73958 /* MockUserJwtInvalidatedListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUserJwtInvalidatedListener.swift; sourceTree = "<group>"; };
+		3CF0AC4830224A4000C73958 /* OSIdentityModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelTests.swift; sourceTree = "<group>"; };
+		3CF0AC4A30224A5000C73958 /* OSIdentityModelRepoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelRepoTests.swift; sourceTree = "<group>"; };
+		3CF0AC4C30224A6000C73958 /* UserJwtApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJwtApiTests.swift; sourceTree = "<group>"; };
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
@@ -2375,6 +2383,7 @@
 				3C87066F2BDE0957000D8CD2 /* MockUserRequests.swift */,
 				3C8706712BDEE076000D8CD2 /* MockUserDefines.swift */,
 				3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */,
+				3CF0AC4630224A3000C73958 /* MockUserJwtInvalidatedListener.swift */,
 			);
 			path = OneSignalUserMocks;
 			sourceTree = "<group>";
@@ -2390,6 +2399,9 @@
 				3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
 				3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */,
+				3CF0AC4830224A4000C73958 /* OSIdentityModelTests.swift */,
+				3CF0AC4A30224A5000C73958 /* OSIdentityModelRepoTests.swift */,
+				3CF0AC4C30224A6000C73958 /* UserJwtApiTests.swift */,
 			);
 			path = OneSignalUserTests;
 			sourceTree = "<group>";
@@ -4522,6 +4534,7 @@
 				3C8706702BDE0957000D8CD2 /* MockUserRequests.swift in Sources */,
 				3C8706722BDEE076000D8CD2 /* MockUserDefines.swift in Sources */,
 				3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */,
+				3CF0AC4730224A3000C73958 /* MockUserJwtInvalidatedListener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4538,6 +4551,9 @@
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,
 				3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */,
 				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
+				3CF0AC4930224A4000C73958 /* OSIdentityModelTests.swift in Sources */,
+				3CF0AC4B30224A5000C73958 /* OSIdentityModelRepoTests.swift in Sources */,
+				3CF0AC4D30224A6000C73958 /* UserJwtApiTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

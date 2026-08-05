@@ -116,6 +116,16 @@ public final class OSUserJwtConfig: NSObject {
         lock.withLock { onHydrated = handler }
     }
 
+    /**
+     Test seam. The shared instance outlives a test case, so a test
+     that hydrates the requirement has to hand the next one an unhydrated config, and `hydrate` can
+     only reach `on` or `off`. Leaves the hydrated handler alone: the Identity Verification service
+     that registered it is built once and lives as long as the process.
+     */
+    func resetRequirementToUnknownForTests() {
+        lock.withLock { _requirement = .unknown }
+    }
+
     private static func cachedRequirement() -> OSRequiresUserAuth {
         let rawValue = OneSignalUserDefaults.initShared().getSavedInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION,
                                                                          defaultValue: OSRequiresUserAuth.unknown.rawValue)
