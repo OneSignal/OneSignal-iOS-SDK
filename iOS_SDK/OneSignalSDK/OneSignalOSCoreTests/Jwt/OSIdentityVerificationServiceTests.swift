@@ -147,6 +147,26 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
         XCTAssertEqual(callCount, 0)
     }
 
+    func testAHandlerRegisteredAfterHydrationRunsImmediately() {
+        let service = makeService()
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        var requirement: OSRequiresUserAuth?
+        service.setOnJwtConfigHydratedHandler { requirement = $0 }
+
+        // Remote params can return before the repo subscribes, and that hydration does not come again
+        XCTAssertEqual(requirement, .on)
+    }
+
+    func testAHandlerRegisteredBeforeRemoteParamsWaitsForThem() {
+        let service = makeService()
+        var callCount = 0
+
+        service.setOnJwtConfigHydratedHandler { _ in callCount += 1 }
+
+        XCTAssertEqual(callCount, 0)
+    }
+
     func testHydratingAfterTheServiceIsReleasedIsANoOp() {
         var service: OSIdentityVerificationService? = makeService()
         var callCount = 0

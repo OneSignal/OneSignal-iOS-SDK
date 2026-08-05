@@ -73,11 +73,18 @@ public final class OSIdentityVerificationService {
 
     /**
      Fires on every remote-params hydration, including when the requirement is unchanged — deferred work
-     waits on that. Injected as a callback so this type does not depend on the operation repo (that would
-     cycle).
+     waits on that. A handler registered once the requirement is already known runs right away: remote
+     params can land before the operation repo starts, and the hydration it missed is not repeated.
+     Injected as a callback so this type does not depend on the operation repo (that would cycle).
      */
     public func setOnJwtConfigHydratedHandler(_ handler: ((OSRequiresUserAuth) -> Void)?) {
         handlerLock.withLock { onJwtConfigHydrated = handler }
+
+        let alreadyKnown = jwtConfig.requirement
+        guard alreadyKnown != .unknown, let handler = handler else {
+            return
+        }
+        handler(alreadyKnown)
     }
 
     private func fireJwtConfigHydrated(_ requirement: OSRequiresUserAuth) {
@@ -86,5 +93,3 @@ public final class OSIdentityVerificationService {
         handler?(requirement)
     }
 }
-
-// TODO: JWT test callbacks, is it ok that we subscribe to the config on init? We should make sure to capture the callbacks and not miss them? 
