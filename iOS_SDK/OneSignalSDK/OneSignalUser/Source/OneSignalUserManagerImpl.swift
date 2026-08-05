@@ -131,9 +131,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
-    // Composition root for Identity Verification; executors and the repo take these as deps.
-    let featureManager = OSFeatureManager()
-    let jwtConfig = OSUserJwtConfig()
+    // Shared instances: remote params hydrate them before this class is started, and a
+    // fresh instance here would read none of it.
+    let featureManager = OSFeatureManager.shared
+    let jwtConfig = OSUserJwtConfig.shared
     let identityVerificationService: OSIdentityVerificationService
 
     private let startQueue = DispatchQueue(label: "com.onesignal.user.start")
@@ -239,6 +240,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             pushSubscriptionModelStore.refresh()
             // Same prewarm gap as the stores: init may have read UserDefaults while it was locked.
             jwtConfig.refreshIfUnknown()
+            featureManager.refreshIfEmpty()
 
             OSNotificationsManager.delegate = self
 
@@ -595,16 +597,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
             user.identityModel.jwtBearerToken = newToken
         }
-    }
-}
-
-// MARK: - Identity Verification
-
-extension OneSignalUserManagerImpl {
-    /// Applies `jwt_required` from a remote-params response.
-    @objc
-    public func hydrateJwtRequirement(_ required: Bool) {
-        jwtConfig.hydrate(requiresUserAuth: required)
     }
 }
 

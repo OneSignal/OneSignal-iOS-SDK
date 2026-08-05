@@ -81,4 +81,15 @@ final class OSUserJwtConfigTests: XCTestCase {
 
         XCTAssertEqual(jwtConfig.requirement, .off)
     }
+
+    func testHydrateCachesTheRequirementEvenWhenTheValueIsUnchanged() {
+        let jwtConfig = OSUserJwtConfig()
+        jwtConfig.hydrate(requiresUserAuth: true)
+        // Stands in for a write that locked storage dropped, leaving memory and disk out of step
+        clearCachedRequirement()
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(OSUserJwtConfig().requirement, .on)
+    }
 }

@@ -665,6 +665,9 @@ static BOOL ComputeInitialStorageReadable(void) {
         [sharedUserDefaults removeValueForKey:OSUD_RECEIVE_RECEIPTS_ENABLED];
         [sharedUserDefaults removeValueForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY];
 
+        [sharedUserDefaults removeValueForKey:OSUD_USE_IDENTITY_VERIFICATION];
+        [sharedUserDefaults removeValueForKey:OSUD_SDK_FEATURE_FLAGS];
+
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
             OSResilientStorage.keySubscriptionId: @"",
@@ -717,8 +720,13 @@ static BOOL ComputeInitialStorageReadable(void) {
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
-        // Absent key means Identity Verification is off for this app.
-        [OneSignalUserManagerImpl.sharedInstance hydrateJwtRequirement:[result[IOS_JWT_REQUIRED] boolValue]];
+        // A response that omits the key means Identity Verification is off for this app; an empty
+        // response answers nothing, so the cached requirement stands
+        if (result != nil) {
+            id jwtRequired = result[IOS_JWT_REQUIRED];
+            BOOL requiresUserAuth = jwtRequired != (id)[NSNull null] && [jwtRequired boolValue];
+            [OSUserJwtConfig.shared hydrateWithRequiresUserAuth:requiresUserAuth];
+        }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];

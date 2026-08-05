@@ -45,7 +45,20 @@ public enum OSRequiresUserAuth: Int {
  Deliberately knows nothing about gating: `OSIdentityVerificationService` makes every such decision
  and is the only observer here.
  */
-public final class OSUserJwtConfig {
+@objc(OSUserJwtConfig)
+public final class OSUserJwtConfig: NSObject {
+    /**
+     Remote params hydrate the requirement from `OneSignal.m`, which runs before the User Manager is
+     started, and keeps running in sessions where it never starts at all because consent is pending.
+     Reaching the requirement through a shared instance keeps that path from constructing the User
+     Manager just to hand over a boolean.
+
+     Only `OneSignal.m` and `OneSignalUserManagerImpl` should reference this. Everything below them —
+     the operation repo, the executors, the request layer — is handed the config when it is created,
+     which keeps the shared instance contained to the two places that cannot avoid it.
+     */
+    @objc public static let shared = OSUserJwtConfig()
+
     private let lock = NSLock()
     private var _requirement: OSRequiresUserAuth
     private var onHydrated: ((OSRequiresUserAuth) -> Void)?
@@ -54,24 +67,27 @@ public final class OSUserJwtConfig {
         return lock.withLock { _requirement }
     }
 
-    public init() {
+    public override init() {
         _requirement = OSUserJwtConfig.cachedRequirement()
+        super.init()
     }
 
     /**
      Applies the requirement carried by a successful remote params response. A response that omits
      `jwt_required` means the app has Identity Verification off, so callers pass `false` for it rather
-     than leaving the requirement unknown.
+     than leaving the requirement unknown. A response with no body at all answers nothing, so callers
+     skip this and leave the cached requirement in place.
      */
+    @objc
     public func hydrate(requiresUserAuth: Bool) {
         let hydrated: OSRequiresUserAuth = requiresUserAuth ? .on : .off
         // Keep the log and the handler out of the lock; either can re-enter and read the requirement.
         let (previous, handler) = lock.withLock { () -> (OSRequiresUserAuth, ((OSRequiresUserAuth) -> Void)?) in
             let previous = _requirement
-            if previous != hydrated {
-                _requirement = hydrated
-                OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: hydrated.rawValue)
-            }
+            _requirement = hydrated
+            // Written even when the value is unchanged, so a launch whose write was dropped by locked
+            // storage still ends up with the requirement on disk.
+            OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: hydrated.rawValue)
             return (previous, onHydrated)
         }
         if previous != hydrated {
