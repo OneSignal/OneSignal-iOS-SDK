@@ -37,6 +37,7 @@ import OneSignalNotifications
     var User: OSUser { get }
     func login(externalId: String, token: String?)
     func logout()
+    func updateUserJwt(externalId: String, token: String)
     // Location
     func setLocation(latitude: Float, longitude: Float)
     // Purchase Tracking
@@ -177,6 +178,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _userStateChangesObserver = userStateChangesObserver
 
         return userStateChangesObserver
+    }
+
+    // JWT Invalidated Observer
+    private var _userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>?
+    var userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
+        if let observer = _userJwtInvalidatedObserver {
+            return observer
+        }
+        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:)))
+        _userJwtInvalidatedObserver = userJwtInvalidatedObserver
+
+        return userJwtInvalidatedObserver
     }
 
     // Model Stores

@@ -179,6 +179,18 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
 }
 
++ (void)addUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener {
+    [OneSignalUserManagerImpl.sharedInstance addUserJwtInvalidatedListener:listener];
+}
+
++ (void)removeUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener {
+    [OneSignalUserManagerImpl.sharedInstance removeUserJwtInvalidatedListener:listener];
+}
+
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    [OneSignalUserManagerImpl.sharedInstance updateUserJwtWithExternalId:externalId token:token];
+}
+
 + (void)logout {
     [OneSignalUserManagerImpl.sharedInstance logout];
 }

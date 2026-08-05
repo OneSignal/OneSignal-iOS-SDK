@@ -223,6 +223,8 @@
 		3CF0AC3C3022492C00C73958 /* OSUserJwtConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC3B3022492C00C73958 /* OSUserJwtConfigTests.swift */; };
 		3CF0AC3E302249B200C73958 /* OSIdentityVerificationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC3D302249B200C73958 /* OSIdentityVerificationServiceTests.swift */; };
 		3CF0AC4130224A0000C73958 /* OSAliasPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4030224A0000C73958 /* OSAliasPair.swift */; };
+		3CF0AC4330224A1000C73958 /* OSUserJwtInvalidatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4230224A1000C73958 /* OSUserJwtInvalidatedEvent.swift */; };
+		3CF0AC4530224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF0AC4430224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift */; };
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
@@ -1460,6 +1462,8 @@
 		3CF0AC3B3022492C00C73958 /* OSUserJwtConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfigTests.swift; sourceTree = "<group>"; };
 		3CF0AC3D302249B200C73958 /* OSIdentityVerificationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityVerificationServiceTests.swift; sourceTree = "<group>"; };
 		3CF0AC4030224A0000C73958 /* OSAliasPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
+		3CF0AC4230224A1000C73958 /* OSUserJwtInvalidatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserJwtInvalidatedEvent.swift; sourceTree = "<group>"; };
+		3CF0AC4430224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Jwt.swift"; sourceTree = "<group>"; };
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
@@ -2763,6 +2767,8 @@
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
 				3C0EF49D28A1DBCB00E5434B /* OSUserInternalImpl.swift */,
 				DE69E1AA282ED8790090BB3D /* OneSignalUserManagerImpl.swift */,
+				3CF0AC4430224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift */,
+				3CF0AC4230224A1000C73958 /* OSUserJwtInvalidatedEvent.swift */,
 				3C277D7D2BD76E0000857606 /* OSIdentityModelRepo.swift */,
 				3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */,
 				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
@@ -4700,6 +4706,8 @@
 			files = (
 				3CE795F928DB99B500736BD4 /* OSSubscriptionModelStoreListener.swift in Sources */,
 				DE69E1AC282ED87A0090BB3D /* OneSignalUserManagerImpl.swift in Sources */,
+				3CF0AC4530224A2000C73958 /* OneSignalUserManagerImpl+Jwt.swift in Sources */,
+				3CF0AC4330224A1000C73958 /* OSUserJwtInvalidatedEvent.swift in Sources */,
 				3C9AD6CF2B228B7800BC1540 /* OSRequestAddAliases.swift in Sources */,
 				3C9AD6D32B228BB000BC1540 /* OSRequestUpdateProperties.swift in Sources */,
 				3C9AD6CD2B228B6300BC1540 /* OSRequestFetchUser.swift in Sources */,
