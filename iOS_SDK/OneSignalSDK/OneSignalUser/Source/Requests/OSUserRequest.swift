@@ -34,15 +34,6 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
 }
 
 internal extension OneSignalRequest {
-    func addJWTHeader(identityModel: OSIdentityModel) {
-//        guard let token = identityModel.jwtBearerToken else {
-//            return
-//        }
-//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-//        additionalHeaders["Authorization"] = "Bearer \(token)"
-//        self.additionalHeaders = additionalHeaders
-    }
-
     /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
     func addPushSubscriptionIdToAdditionalHeaders() -> Bool {
         if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {

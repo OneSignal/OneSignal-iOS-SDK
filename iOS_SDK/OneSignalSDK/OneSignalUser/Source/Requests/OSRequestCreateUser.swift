@@ -60,7 +60,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         }
 
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
-        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
         return true
     }

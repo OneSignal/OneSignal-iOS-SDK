@@ -53,7 +53,6 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
            newRecordsState.canAccess(onesignalId),
            let appId = OneSignalIdentifiers.currentAppId
         {
-            self.addJWTHeader(identityModel: identityModelToIdentify)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {

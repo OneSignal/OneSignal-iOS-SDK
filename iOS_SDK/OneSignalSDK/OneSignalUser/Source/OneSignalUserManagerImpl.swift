@@ -84,10 +84,6 @@ import OneSignalNotifications
      */
     func trackEvent(name: String, properties: [String: Any]?)
     // ^ TODO: After alpha feedback, confirm value type for properties dict
-    // JWT Token Expire
-    typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
-    typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
-    func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler)
 }
 
 /**
@@ -139,8 +135,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private let startQueue = DispatchQueue(label: "com.onesignal.user.start")
     var hasCalledStart = false
-
-    private var jwtExpiredHandler: OSJwtExpiredHandler?
 
     var user: OSUserInternal {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -586,18 +580,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         updatePropertiesDeltas(property: .purchases, value: purchases)
     }
-
-    private func fireJwtExpired() {
-        guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
-            return
-        }
-        jwtExpiredHandler(externalId) { [self] (newToken) in
-            guard user.identityModel.externalId == externalId else {
-                return
-            }
-            user.identityModel.jwtBearerToken = newToken
-        }
-    }
 }
 
 // MARK: - Sessions
@@ -673,10 +655,6 @@ extension OneSignalUserManagerImpl {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    public func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler) {
-        jwtExpiredHandler = expiredHandler
-    }
-
     public var User: OSUser {
         start()
         return self

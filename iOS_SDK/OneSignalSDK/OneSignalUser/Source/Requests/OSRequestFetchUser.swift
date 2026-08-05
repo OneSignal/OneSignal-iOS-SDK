@@ -51,7 +51,6 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(aliasLabel): \(aliasId) yet.")
             return false
         }
-        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
         return true
     }
