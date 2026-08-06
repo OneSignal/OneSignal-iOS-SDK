@@ -28,6 +28,7 @@
 import Foundation
 import OneSignalCore
 import OneSignalKMP
+@testable import OneSignalOSCore
 import XCTest
 
 final class OSLoggerAdaptersTests: XCTestCase {
@@ -133,8 +134,12 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertEqual(listener.levels, [.LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG])
     }
 
-    func testPlatformProviderReturnsStableInstallIdAndPlatformMetadata() {
-        let provider = OSLoggerPlatformProvider()
+    func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
+        let provider = OSLoggerPlatformProvider(
+            onesignalIdProvider: { "onesignal-id" },
+            pushSubscriptionIdProvider: { "subscription-id" },
+            appStateProvider: { "foreground" }
+        )
         var firstInstallId: String?
         var secondInstallId: String?
 
@@ -143,6 +148,9 @@ final class OSLoggerAdaptersTests: XCTestCase {
 
         XCTAssertFalse(firstInstallId?.isEmpty ?? true)
         XCTAssertEqual(firstInstallId, secondInstallId)
+        XCTAssertEqual(provider.onesignalId, "onesignal-id")
+        XCTAssertEqual(provider.pushSubscriptionId, "subscription-id")
+        XCTAssertEqual(provider.appState, "foreground")
         XCTAssertEqual(provider.sdkBase, "ios")
         XCTAssertFalse(provider.appPackageId.isEmpty)
         XCTAssertFalse(provider.osVersion.isEmpty)
