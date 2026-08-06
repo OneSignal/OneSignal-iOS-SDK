@@ -48,8 +48,12 @@ extension OneSignalUserManagerImpl {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
             return
         }
-        // The token itself stays out of the log; it is a bearer credential.
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.updateUserJwt called for externalId: \(externalId)")
+        guard !externalId.isEmpty, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.updateUserJwt called with empty externalId or an unusable token. This is not allowed.")
+            return
+        }
+        // TODO: omit the token from this log before shipping — keep for testing.
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: \(token)")
 
         identityModelRepo.updateJwtToken(externalId: externalId, token: token)
     }
@@ -60,12 +64,7 @@ extension OneSignalUserManagerImpl {
         guard identityVerificationService.ivBehaviorActive else {
             return
         }
-        guard let identityModel = identityModelRepo.get(externalId: externalId) else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "Unable to find identity model for externalId: \(externalId)")
-            return
-        }
-
-        if identityModel.invalidateJwtBearerToken() {
+        if identityModelRepo.invalidateJwtToken(externalId: externalId) {
             userJwtInvalidatedObserver.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId))
         }
     }

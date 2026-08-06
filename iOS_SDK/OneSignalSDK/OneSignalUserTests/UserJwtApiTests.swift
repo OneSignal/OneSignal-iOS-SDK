@@ -86,6 +86,26 @@ final class UserJwtApiTests: XCTestCase {
         XCTAssertNil(user.identityModel.jwtBearerToken)
     }
 
+    /// An empty token reads as no token at all, so it would leave the user unable to sign a request
+    /// and unable to be asked for another one.
+    func testUpdateUserJwtWithAnEmptyTokenLeavesThePreviousTokenInPlace() {
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+        user.identityModel.jwtBearerToken = "token-a"
+
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: "user-a", token: "")
+
+        XCTAssertEqual(user.identityModel.getValidJwt(), "token-a")
+    }
+
+    /// Storing the sentinel would look like an already-invalidated token, so the app is never asked again.
+    func testUpdateUserJwtWithTheInvalidSentinelIsRejected() {
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: "user-a", token: OS_JWT_TOKEN_INVALID)
+
+        XCTAssertNil(user.identityModel.jwtBearerToken)
+    }
+
     // MARK: - invalidateJwtForExternalId
 
     func testInvalidatingAJwtParksTheTokenAndNotifiesTheApp() {
@@ -110,6 +130,23 @@ final class UserJwtApiTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
         drainMainQueue()
 
+        XCTAssertEqual(listener.invalidatedExternalIds, ["user-a"])
+    }
+
+    /// Repeated logins as the same user leave more than one Identity Model carrying that external ID.
+    /// Every one has to be parked, but the app only needs to be asked for a replacement once.
+    func testInvalidatingAJwtParksEveryModelForThatUserAndNotifiesOnce() {
+        OSUserJwtConfig.shared.hydrate(requiresUserAuth: true)
+        let first = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+        let second = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+        first.identityModel.jwtBearerToken = "token-a"
+        second.identityModel.jwtBearerToken = "token-a"
+
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        drainMainQueue()
+
+        XCTAssertNil(first.identityModel.getValidJwt())
+        XCTAssertNil(second.identityModel.getValidJwt())
         XCTAssertEqual(listener.invalidatedExternalIds, ["user-a"])
     }
 

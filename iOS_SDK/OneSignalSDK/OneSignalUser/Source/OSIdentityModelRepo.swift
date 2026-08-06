@@ -65,17 +65,34 @@ class OSIdentityModelRepo {
      This can be optimized in the future to re-use an Identity Model if multiple logins are made for the same user.
      */
     func updateJwtToken(externalId: String, token: String) {
-        // Write outside the lock: setting the token fires the model's change notifier synchronously
-        // into listeners that take locks of their own.
-        let matchingModels: [OSIdentityModel] = lock.withLock {
-            models.values.filter { $0.externalId == externalId }
-        }
+        let matchingModels = modelsMatching(externalId: externalId)
         guard !matchingModels.isEmpty else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.updateJwtToken called for unknown external ID \(externalId)")
             return
         }
         for model in matchingModels {
             model.jwtBearerToken = token
+        }
+    }
+
+    /**
+     Invalidates the token on every Identity Model with this external ID, since repeated logins as the
+     same user each create one. Returns `true` if any made the transition, so the app is asked once.
+     */
+    func invalidateJwtToken(externalId: String) -> Bool {
+        let matchingModels = modelsMatching(externalId: externalId)
+        guard !matchingModels.isEmpty else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.invalidateJwtToken called for unknown external ID \(externalId)")
+            return false
+        }
+        return matchingModels.map { $0.invalidateJwtBearerToken() }.contains(true)
+    }
+
+    /// Snapshot before touching the tokens: writing one fires the model's change notifier
+    /// synchronously into listeners that take locks of their own.
+    private func modelsMatching(externalId: String) -> [OSIdentityModel] {
+        lock.withLock {
+            models.values.filter { $0.externalId == externalId }
         }
     }
 }
