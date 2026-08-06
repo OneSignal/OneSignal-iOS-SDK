@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Kotlin/Native does not produce a Mac Catalyst framework slice.
+#if !targetEnvironment(macCatalyst)
+
 import Darwin
 import Foundation
 import OneSignalCore
@@ -185,12 +188,11 @@ final class OSLoggerFileStore: ILogFileStore {
                 close(descriptor)
             }
         }
-        try fileManager.setAttributes(
-            [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
-            ofItemAtPath: temporaryURL.path
-        )
-
         do {
+            try fileManager.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: temporaryURL.path
+            )
             try data.withUnsafeBytes { rawBuffer in
                 guard var pointer = rawBuffer.baseAddress else {
                     return
@@ -234,3 +236,5 @@ final class OSLoggerFileStore: ILogFileStore {
         }
     }
 }
+
+#endif

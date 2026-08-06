@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Kotlin/Native does not produce a Mac Catalyst framework slice.
+#if !targetEnvironment(macCatalyst)
+
 import Foundation
 @_implementationOnly import OneSignalKMP
 
@@ -155,3 +158,5 @@ final class OSLoggerHttpSender: ILogHttpSender {
         String(body.prefix(maximumDiagnosticBodyLength))
     }
 }
+
+#endif

@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+// Kotlin/Native does not produce a Mac Catalyst framework slice.
+#if !targetEnvironment(macCatalyst)
+
 import Darwin
 import Foundation
 import OneSignalCore
@@ -36,7 +39,8 @@ import UIKit
 /// Mutable SDK state is injected by the composition layer because
 /// `OneSignalUser` depends on `OneSignalOSCore`; importing it here would create
 /// a circular module dependency. Providers must be safe to invoke from arbitrary
-/// threads, including synchronously from a crash handler.
+/// threads, including synchronously from a crash handler. Construct this adapter
+/// on the main thread because its static device metadata comes from `UIDevice`.
 final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     typealias IdentifierProvider = () -> String?
     typealias InstallIdProvider = () -> String
@@ -57,6 +61,9 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         /// completing its durable write.
         static let minimumFileAgeMillis: Int64 = 5_000
     }
+
+    private static let processStartedAtUptime =
+        processStartUptime() ?? ProcessInfo.processInfo.systemUptime
 
     private let installIdProvider: InstallIdProvider
     private let onesignalIdProvider: IdentifierProvider
@@ -124,7 +131,10 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
     var processUptime: Int64 {
-        Int64(ProcessInfo.processInfo.systemUptime * 1_000)
+        Self.processUptimeMillis(
+            systemUptime: ProcessInfo.processInfo.systemUptime,
+            processStartUptime: Self.processStartedAtUptime
+        )
     }
 
     var currentThreadName: String {
@@ -185,4 +195,51 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         return String(cString: value)
     }
 
+    static func processUptimeMillis(
+        systemUptime: TimeInterval,
+        processStartUptime: TimeInterval
+    ) -> Int64 {
+        Int64(max(0, systemUptime - processStartUptime) * 1_000)
+    }
+
+    private static func processStartUptime() -> TimeInterval? {
+        var processInfo = kinfo_proc()
+        var processInfoSize = MemoryLayout<kinfo_proc>.stride
+        var processName = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        guard sysctl(
+            &processName,
+            u_int(processName.count),
+            &processInfo,
+            &processInfoSize,
+            nil,
+            0
+        ) == 0 else {
+            return nil
+        }
+
+        var bootTime = timeval()
+        var bootTimeSize = MemoryLayout<timeval>.stride
+        var bootName = [CTL_KERN, KERN_BOOTTIME]
+        guard sysctl(
+            &bootName,
+            u_int(bootName.count),
+            &bootTime,
+            &bootTimeSize,
+            nil,
+            0
+        ) == 0 else {
+            return nil
+        }
+
+        let processStart = timeInterval(processInfo.kp_proc.p_starttime)
+        let systemBoot = timeInterval(bootTime)
+        return max(0, processStart - systemBoot)
+    }
+
+    private static func timeInterval(_ value: timeval) -> TimeInterval {
+        TimeInterval(value.tv_sec) + TimeInterval(value.tv_usec) / 1_000_000
+    }
+
 }
+
+#endif

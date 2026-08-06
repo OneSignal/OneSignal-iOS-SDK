@@ -180,16 +180,40 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertEqual(listener.levels, [.LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG])
     }
 
-    func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
-        let provider = OSLoggerPlatformProvider(
-            installIdProvider: { "install-id" },
-            onesignalIdProvider: { "onesignal-id" },
-            pushSubscriptionIdProvider: { "subscription-id" },
-            appStateProvider: { "foreground" },
-            featureFlagsProvider: { ["feature"] },
-            remoteLogLevelProvider: { "warn" },
-            exporterLoggingEnabledProvider: { true }
+    func testKmpPipelineInvokesSwiftAdapters() throws {
+        let listener = LoggerAdapterListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
+        let logger = OSLoggerAdapter()
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
         )
+        let reporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: telemetry,
+            logger: logger
+        )
+        let crash = CrashData(
+            threadName: "test",
+            exceptionType: "TestError",
+            exceptionMessage: "test message",
+            stacktrace: "test stack"
+        )
+
+        _ = try reporter.saveNonFatal(crash: crash)
+
+        XCTAssertEqual(listener.levels, [.LL_INFO, .LL_INFO])
+        XCTAssertEqual(
+            try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
+                .filter { $0.hasSuffix(".otlp") }
+                .count,
+            1
+        )
+    }
+
+    func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
+        let provider = makePlatformProvider()
         var firstInstallId: String?
         var secondInstallId: String?
 
@@ -210,6 +234,35 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(provider.processUptime, 0)
     }
 
+    func testProcessUptimeUsesProcessStartAndClampsClockMismatch() {
+        XCTAssertEqual(
+            OSLoggerPlatformProvider.processUptimeMillis(
+                systemUptime: 100,
+                processStartUptime: 95
+            ),
+            5_000
+        )
+        XCTAssertEqual(
+            OSLoggerPlatformProvider.processUptimeMillis(
+                systemUptime: 95,
+                processStartUptime: 100
+            ),
+            0
+        )
+    }
+
+    private func makePlatformProvider() -> OSLoggerPlatformProvider {
+        OSLoggerPlatformProvider(
+            installIdProvider: { "install-id" },
+            onesignalIdProvider: { "onesignal-id" },
+            pushSubscriptionIdProvider: { "subscription-id" },
+            appStateProvider: { "foreground" },
+            featureFlagsProvider: { ["feature"] },
+            remoteLogLevelProvider: { "warn" },
+            exporterLoggingEnabledProvider: { true }
+        )
+    }
+
     private func makeKotlinBytes(_ bytes: [UInt8]) -> KotlinByteArray {
         AppleByteArrayInterop.shared.toByteArray(data: Data(bytes))
     }
@@ -223,7 +276,7 @@ private final class LoggerAdapterListener: NSObject, OSLogListener {
     }
 }
 
-private final class TestLogger: ILogger {
+private final class TestLogger: NSObject, ILogger {
     var warnings: [String] = []
 
     func error(message: String) {}
