@@ -29,9 +29,10 @@ import Foundation
 @_implementationOnly import OneSignalKMP
 
 /// Sends the KMP logger's encoded OTLP requests using the native URL loading system.
-final class OSLogHttpSender: ILogHttpSender {
+final class OSLoggerHttpSender: ILogHttpSender {
     private static let requestTimeout: TimeInterval = 10
     private static let transportFailureStatusCode: Int32 = -1
+    private static let maximumDiagnosticBodyLength = 500
     private static let defaultSession: URLSession = {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = requestTimeout
@@ -44,17 +45,31 @@ final class OSLogHttpSender: ILogHttpSender {
         @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Void
 
-    init(session: URLSession = OSLogHttpSender.defaultSession) {
+    init(
+        session: URLSession = OSLoggerHttpSender.defaultSession,
+        logger: ILogger = OSLoggerAdapter(),
+        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+    ) {
         self.requestSender = { request, completion in
             session.dataTask(with: request, completionHandler: completion).resume()
         }
+        self.logger = logger
+        self.isDiagnosticsEnabled = isDiagnosticsEnabled
     }
 
-    init(requestSender: @escaping RequestSender) {
+    init(
+        requestSender: @escaping RequestSender,
+        logger: ILogger = OSLoggerAdapter(),
+        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+    ) {
         self.requestSender = requestSender
+        self.logger = logger
+        self.isDiagnosticsEnabled = isDiagnosticsEnabled
     }
 
     private let requestSender: RequestSender
+    private let logger: ILogger
+    private let isDiagnosticsEnabled: () -> Bool
 
     func send(
         request: LogHttpRequest,
@@ -75,11 +90,16 @@ final class OSLogHttpSender: ILogHttpSender {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.httpBody = request.body.data
-        request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
         urlRequest.setValue(request.contentType, forHTTPHeaderField: "Content-Type")
+        request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 
-        requestSender(urlRequest) { _, response, error in
+        requestSender(urlRequest) { data, response, error in
             if let error = error {
+                if self.isDiagnosticsEnabled() {
+                    self.logger.warn(
+                        message: "OSLoggerHttpSender: POST \(request.url) failed: \(error.localizedDescription)"
+                    )
+                }
                 completionHandler(
                     LogHttpResponse(
                         success: false,
@@ -103,14 +123,35 @@ final class OSLogHttpSender: ILogHttpSender {
                 return
             }
 
+            let success = (200...299).contains(response.statusCode)
+            let responseBody = data.flatMap { String(data: $0, encoding: .utf8) }
+            if self.isDiagnosticsEnabled() {
+                if success {
+                    self.logger.debug(
+                        message: "OSLoggerHttpSender: POST \(request.url) -> \(response.statusCode) OK "
+                            + "(\(request.body.size)B)"
+                    )
+                } else {
+                    self.logger.warn(
+                        message: "OSLoggerHttpSender: POST \(request.url) -> \(response.statusCode) "
+                            + "(ct=\(request.contentType), \(request.body.size)B) "
+                            + "body=\(responseBody.map(Self.truncatedDiagnosticBody) ?? "nil")"
+                    )
+                }
+            }
+
             completionHandler(
                 LogHttpResponse(
-                    success: (200...299).contains(response.statusCode),
+                    success: success,
                     statusCode: Int32(response.statusCode),
-                    message: nil
+                    message: success ? nil : responseBody
                 ),
                 nil
             )
         }
+    }
+
+    private static func truncatedDiagnosticBody(_ body: String) -> String {
+        String(body.prefix(maximumDiagnosticBodyLength))
     }
 }

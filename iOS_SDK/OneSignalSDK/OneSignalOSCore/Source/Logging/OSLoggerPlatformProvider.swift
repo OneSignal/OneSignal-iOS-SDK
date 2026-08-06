@@ -33,21 +33,23 @@ import UIKit
 
 /// Supplies iOS SDK state and platform metadata to the shared logger.
 ///
-/// User identifiers are injected by the composition layer because
+/// Mutable SDK state is injected by the composition layer because
 /// `OneSignalUser` depends on `OneSignalOSCore`; importing it here would create
-/// a circular module dependency.
+/// a circular module dependency. Providers must be safe to invoke from arbitrary
+/// threads, including synchronously from a crash handler.
 final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     typealias IdentifierProvider = () -> String?
+    typealias InstallIdProvider = () -> String
     typealias AppStateProvider = () -> String
+    typealias FeatureFlagsProvider = () -> [String]
+    typealias LogLevelProvider = () -> String?
+    typealias BoolProvider = () -> Bool
 
     private enum Constants {
-        static let installIdKey = "PREFS_OS_INSTALL_ID"
         static let sdkBase = "ios"
         static let deviceManufacturer = "Apple"
         static let unknown = "unknown"
         static let osBuildName = "kern.osversion"
-        static let loggingConfigKey = "logging_config"
-        static let logLevelKey = "log_level"
         static let disabledLogLevel = "NONE"
         static let crashDirectoryComponents = ["onesignal", "logger", "crashes"]
 
@@ -56,33 +58,36 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         static let minimumFileAgeMillis: Int64 = 5_000
     }
 
-    private static let processStartedAt = processStartDate()
+    private let installIdProvider: InstallIdProvider
     private let onesignalIdProvider: IdentifierProvider
     private let pushSubscriptionIdProvider: IdentifierProvider
     private let appStateProvider: AppStateProvider
+    private let featureFlagsProvider: FeatureFlagsProvider
+    private let remoteLogLevelProvider: LogLevelProvider
+    private let exporterLoggingEnabledProvider: BoolProvider
 
     init(
+        installIdProvider: @escaping InstallIdProvider,
         onesignalIdProvider: @escaping IdentifierProvider,
         pushSubscriptionIdProvider: @escaping IdentifierProvider,
-        appStateProvider: @escaping AppStateProvider
+        appStateProvider: @escaping AppStateProvider,
+        featureFlagsProvider: @escaping FeatureFlagsProvider,
+        remoteLogLevelProvider: @escaping LogLevelProvider,
+        exporterLoggingEnabledProvider: @escaping BoolProvider
     ) {
+        self.installIdProvider = installIdProvider
         self.onesignalIdProvider = onesignalIdProvider
         self.pushSubscriptionIdProvider = pushSubscriptionIdProvider
         self.appStateProvider = appStateProvider
+        self.featureFlagsProvider = featureFlagsProvider
+        self.remoteLogLevelProvider = remoteLogLevelProvider
+        self.exporterLoggingEnabledProvider = exporterLoggingEnabledProvider
     }
 
-    private lazy var installId: String = {
-        let defaults = OneSignalUserDefaults.initShared()
-        if let saved = defaults.getSavedString(forKey: Constants.installIdKey, defaultValue: nil) {
-            return saved
-        }
-        let generated = UUID().uuidString
-        defaults.saveString(forKey: Constants.installIdKey, withValue: generated)
-        return generated
-    }()
-
+    /// The completion must run inline because crash reporting blocks the
+    /// crashing thread until this value is returned.
     func getInstallId(completionHandler: @escaping (String?, Error?) -> Void) {
-        completionHandler(installId, nil)
+        completionHandler(installIdProvider(), nil)
     }
 
     let sdkBase = Constants.sdkBase
@@ -98,7 +103,9 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     let osBuildId = OSLoggerPlatformProvider.systemValue(named: Constants.osBuildName)
     let sdkWrapper = OneSignalWrapper.sdkType
     let sdkWrapperVersion = OneSignalWrapper.sdkVersion
-    let enabledFeatureFlags: [String] = []
+    var enabledFeatureFlags: [String] {
+        featureFlagsProvider()
+    }
 
     var appId: String? {
         OneSignalIdentifiers.currentAppId
@@ -117,7 +124,7 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
     var processUptime: Int64 {
-        Int64(max(0, Date().timeIntervalSince(Self.processStartedAt) * 1_000))
+        Int64(ProcessInfo.processInfo.systemUptime * 1_000)
     }
 
     var currentThreadName: String {
@@ -128,9 +135,11 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
             return "main"
         }
         var name = [CChar](repeating: 0, count: 64)
-        return pthread_getname_np(pthread_self(), &name, name.count) == 0
-            ? String(cString: name)
-            : Constants.unknown
+        guard pthread_getname_np(pthread_self(), &name, name.count) == 0 else {
+            return Constants.unknown
+        }
+        let threadName = String(cString: name)
+        return threadName.isEmpty ? Constants.unknown : threadName
     }
 
     let crashStoragePath: String = {
@@ -151,13 +160,12 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
     var remoteLogLevel: String? {
-        let config =
-            OSRemoteParamController.shared().remoteParams[Constants.loggingConfigKey]
-            as? [String: Any]
-        return (config?[Constants.logLevelKey] as? String)?.uppercased()
+        remoteLogLevelProvider()?.uppercased()
     }
 
-    let isExporterLoggingEnabled = false
+    var isExporterLoggingEnabled: Bool {
+        exporterLoggingEnabledProvider()
+    }
 
     var appIdForHeaders: String {
         appId ?? ""
@@ -177,16 +185,4 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         return String(cString: value)
     }
 
-    private static func processStartDate() -> Date {
-        var processInfo = kinfo_proc()
-        var size = MemoryLayout<kinfo_proc>.stride
-        var name = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
-        guard sysctl(&name, u_int(name.count), &processInfo, &size, nil, 0) == 0 else {
-            return Date()
-        }
-        let start = processInfo.kp_proc.p_starttime
-        return Date(
-            timeIntervalSince1970: TimeInterval(start.tv_sec) + TimeInterval(start.tv_usec) / 1_000_000
-        )
-    }
 }

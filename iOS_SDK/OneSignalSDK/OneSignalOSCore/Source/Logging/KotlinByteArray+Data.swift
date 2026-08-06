@@ -30,14 +30,12 @@ import Foundation
 
 extension KotlinByteArray {
     var data: Data {
-        Data((0..<size).map { UInt8(bitPattern: get(index: $0)) })
+        AppleByteArrayInterop.shared.toNSData(bytes: self)
     }
 }
 
 extension Data {
     var kotlinByteArray: KotlinByteArray {
-        KotlinByteArray(size: Int32(count)) { index in
-            KotlinByte(value: Int8(bitPattern: self[Int(index.int32Value)]))
-        }
+        AppleByteArrayInterop.shared.toByteArray(data: self)
     }
 }

@@ -35,10 +35,11 @@ import OneSignalCore
 /// Writes are synchronous and durable because fatal handlers may terminate the
 /// process immediately after `save` returns. Directory scans and cleanup run on
 /// a utility queue to keep disk I/O off the caller.
-final class OSLogFileStore: ILogFileStore {
-    /// Distinguishes files owned by the KMP logger from legacy crash artifacts
-    /// that may share the migration directory.
+final class OSLoggerFileStore: ILogFileStore {
+    /// Complete records use `.otlp`; interrupted durable writes leave
+    /// `.otlp.tmp` files that are safe to reap after the minimum-age gate.
     private static let ownedFileSuffix = ".otlp"
+    private static let temporaryFileSuffix = ".otlp.tmp"
     private static let queueLabel = "com.onesignal.logger.file-store"
 
     private let rootURL: URL
@@ -52,6 +53,9 @@ final class OSLogFileStore: ILogFileStore {
     }
 
     func save(bytes: KotlinByteArray) -> Bool {
+        guard bytes.size > 0 else {
+            return false
+        }
         do {
             try createRootDirectory()
             let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
@@ -74,7 +78,7 @@ final class OSLogFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLogFileStore listReadable failed: \(error.localizedDescription)"
+                    message: "OSLoggerFileStore listReadable failed: \(error.localizedDescription)"
                 )
                 completionHandler([], nil)
             }
@@ -96,7 +100,7 @@ final class OSLogFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLogFileStore delete failed: \(error.localizedDescription)"
+                    message: "OSLoggerFileStore delete failed: \(error.localizedDescription)"
                 )
             }
             completionHandler(nil)
@@ -110,7 +114,8 @@ final class OSLogFileStore: ILogFileStore {
         ioQueue.async {
             var deleted = 0
             do {
-                for url in try self.fileURLs() where !url.lastPathComponent.hasSuffix(Self.ownedFileSuffix) {
+                for url in try self.fileURLs()
+                    where url.lastPathComponent.hasSuffix(Self.temporaryFileSuffix) {
                     guard try self.isOldEnough(url, minAgeMillis: minAgeMillis) else {
                         continue
                     }
@@ -120,7 +125,7 @@ final class OSLogFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLogFileStore cleanup failed: \(error.localizedDescription)"
+                    message: "OSLoggerFileStore cleanup failed: \(error.localizedDescription)"
                 )
             }
             completionHandler(KotlinInt(int: Int32(deleted)), nil)
@@ -180,6 +185,10 @@ final class OSLogFileStore: ILogFileStore {
                 close(descriptor)
             }
         }
+        try fileManager.setAttributes(
+            [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+            ofItemAtPath: temporaryURL.path
+        )
 
         do {
             try data.withUnsafeBytes { rawBuffer in
@@ -189,6 +198,9 @@ final class OSLogFileStore: ILogFileStore {
                 var remaining = rawBuffer.count
                 while remaining > 0 {
                     let count = Darwin.write(descriptor, pointer, remaining)
+                    if count < 0 && errno == EINTR {
+                        continue
+                    }
                     guard count > 0 else {
                         throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
                     }

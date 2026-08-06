@@ -70,8 +70,8 @@
 		3C14E3A12AFAE461006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
 		3C14E3B02FAE54C006ED053 /* OSLoggerAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3A92FAE54C006ED053 /* OSLoggerAdapter.swift */; };
-		3C14E3B12FAE54C006ED053 /* OSLogHttpSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AA2FAE54C006ED053 /* OSLogHttpSender.swift */; };
-		3C14E3B22FAE54C006ED053 /* OSLogFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AB2FAE54C006ED053 /* OSLogFileStore.swift */; };
+		3C14E3B12FAE54C006ED053 /* OSLoggerHttpSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AA2FAE54C006ED053 /* OSLoggerHttpSender.swift */; };
+		3C14E3B22FAE54C006ED053 /* OSLoggerFileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AB2FAE54C006ED053 /* OSLoggerFileStore.swift */; };
 		3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */; };
 		3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */; };
 		3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */; };
@@ -1784,8 +1784,8 @@
 		DEBAAEB72A4381AE00BF2C1C /* OSInAppMessageMigrationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageMigrationController.m; sourceTree = "<group>"; };
 		DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftInterface.swift; sourceTree = "<group>"; };
 		3C14E3A92FAE54C006ED053 /* OSLoggerAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdapter.swift; sourceTree = "<group>"; };
-		3C14E3AA2FAE54C006ED053 /* OSLogHttpSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogHttpSender.swift; sourceTree = "<group>"; };
-		3C14E3AB2FAE54C006ED053 /* OSLogFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogFileStore.swift; sourceTree = "<group>"; };
+		3C14E3AA2FAE54C006ED053 /* OSLoggerHttpSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerHttpSender.swift; sourceTree = "<group>"; };
+		3C14E3AB2FAE54C006ED053 /* OSLoggerFileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerFileStore.swift; sourceTree = "<group>"; };
 		3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerPlatformProvider.swift; sourceTree = "<group>"; };
 		3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KotlinByteArray+Data.swift"; sourceTree = "<group>"; };
 		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
@@ -2281,8 +2281,8 @@
 			isa = PBXGroup;
 			children = (
 				3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */,
-				3C14E3AB2FAE54C006ED053 /* OSLogFileStore.swift */,
-				3C14E3AA2FAE54C006ED053 /* OSLogHttpSender.swift */,
+				3C14E3AB2FAE54C006ED053 /* OSLoggerFileStore.swift */,
+				3C14E3AA2FAE54C006ED053 /* OSLoggerHttpSender.swift */,
 				3C14E3A92FAE54C006ED053 /* OSLoggerAdapter.swift */,
 				3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */,
 			);
@@ -4419,9 +4419,9 @@
 			files = (
 				3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */,
 				DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */,
-				3C14E3B22FAE54C006ED053 /* OSLogFileStore.swift in Sources */,
+				3C14E3B22FAE54C006ED053 /* OSLoggerFileStore.swift in Sources */,
 				5BC1DE602C90B83900CA8807 /* OSConsistencyKeyEnum.swift in Sources */,
-				3C14E3B12FAE54C006ED053 /* OSLogHttpSender.swift in Sources */,
+				3C14E3B12FAE54C006ED053 /* OSLoggerHttpSender.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C14E3B02FAE54C006ED053 /* OSLoggerAdapter.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,

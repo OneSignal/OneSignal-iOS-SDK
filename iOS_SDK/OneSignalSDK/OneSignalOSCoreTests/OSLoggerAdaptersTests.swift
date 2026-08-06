@@ -45,7 +45,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 
     func testFileStoreSynchronouslySavesAndListsPayload() throws {
-        let store = OSLogFileStore(rootPath: temporaryDirectory.path)
+        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
         let payload = makeKotlinBytes([1, 2, 3, 255])
 
         XCTAssertTrue(store.save(bytes: payload))
@@ -64,18 +64,21 @@ final class OSLoggerAdaptersTests: XCTestCase {
         wait(for: [listed], timeout: 2)
     }
 
-    func testFileStoreDeletesOnlyOldUnrecognizedEntries() throws {
-        let store = OSLogFileStore(rootPath: temporaryDirectory.path)
+    func testFileStoreDeletesOnlyInterruptedTemporaryWrites() throws {
+        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
         XCTAssertTrue(store.save(bytes: makeKotlinBytes([1])))
 
-        let foreignURL = temporaryDirectory.appendingPathComponent("legacy-crash")
+        let temporaryURL = temporaryDirectory.appendingPathComponent("interrupted.otlp.tmp")
+        try Data([2]).write(to: temporaryURL)
+        let foreignURL = temporaryDirectory.appendingPathComponent("unowned")
         try Data([2]).write(to: foreignURL)
 
-        let cleaned = expectation(description: "cleans foreign payload")
+        let cleaned = expectation(description: "cleans interrupted write")
         store.deleteUnrecognizedEntries(minAgeMillis: 0) { count, error in
             XCTAssertNil(error)
             XCTAssertEqual(count?.int32Value, 1)
-            XCTAssertFalse(FileManager.default.fileExists(atPath: foreignURL.path))
+            XCTAssertFalse(FileManager.default.fileExists(atPath: temporaryURL.path))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: foreignURL.path))
             cleaned.fulfill()
         }
         wait(for: [cleaned], timeout: 2)
@@ -88,11 +91,17 @@ final class OSLoggerAdaptersTests: XCTestCase {
         )
     }
 
+    func testFileStoreRejectsEmptyPayload() {
+        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
+
+        XCTAssertFalse(store.save(bytes: makeKotlinBytes([])))
+    }
+
     func testHttpSenderPostsEncodedBytesAndPassesHeaders() {
         let sent = expectation(description: "sends payload")
-        let sender = OSLogHttpSender { request, completion in
+        let sender = OSLoggerHttpSender { request, completion in
             XCTAssertEqual(request.httpMethod, "POST")
-            XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/x-protobuf")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/custom")
             XCTAssertEqual(request.value(forHTTPHeaderField: "SDK-Version"), "onesignal/ios/test")
             XCTAssertEqual(request.httpBody, Data([4, 5, 6]))
             let response = HTTPURLResponse(
@@ -106,7 +115,10 @@ final class OSLoggerAdaptersTests: XCTestCase {
 
         let request = LogHttpRequest(
             url: "https://example.com/sdk/log",
-            headers: ["SDK-Version": "onesignal/ios/test"],
+            headers: [
+                "Content-Type": "application/custom",
+                "SDK-Version": "onesignal/ios/test"
+            ],
             contentType: "application/x-protobuf",
             body: makeKotlinBytes([4, 5, 6])
         )
@@ -114,6 +126,40 @@ final class OSLoggerAdaptersTests: XCTestCase {
             XCTAssertNil(error)
             XCTAssertEqual(response?.statusCode, 202)
             XCTAssertTrue(response?.success == true)
+            sent.fulfill()
+        }
+
+        wait(for: [sent], timeout: 2)
+    }
+
+    func testHttpSenderReturnsAndLogsFailureBodyWhenDiagnosticsEnabled() {
+        let logger = TestLogger()
+        let sender = OSLoggerHttpSender(
+            requestSender: { request, completion in
+                let response = HTTPURLResponse(
+                    url: request.url!,
+                    statusCode: 403,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+                completion(Data("denied".utf8), response, nil)
+            },
+            logger: logger,
+            isDiagnosticsEnabled: { true }
+        )
+        let request = LogHttpRequest(
+            url: "https://example.com/sdk/log",
+            headers: [:],
+            contentType: "application/x-protobuf",
+            body: makeKotlinBytes([1])
+        )
+        let sent = expectation(description: "returns failed response")
+
+        sender.send(request: request) { response, error in
+            XCTAssertNil(error)
+            XCTAssertEqual(response?.statusCode, 403)
+            XCTAssertEqual(response?.message, "denied")
+            XCTAssertEqual(logger.warnings.count, 1)
             sent.fulfill()
         }
 
@@ -136,9 +182,13 @@ final class OSLoggerAdaptersTests: XCTestCase {
 
     func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
         let provider = OSLoggerPlatformProvider(
+            installIdProvider: { "install-id" },
             onesignalIdProvider: { "onesignal-id" },
             pushSubscriptionIdProvider: { "subscription-id" },
-            appStateProvider: { "foreground" }
+            appStateProvider: { "foreground" },
+            featureFlagsProvider: { ["feature"] },
+            remoteLogLevelProvider: { "warn" },
+            exporterLoggingEnabledProvider: { true }
         )
         var firstInstallId: String?
         var secondInstallId: String?
@@ -146,11 +196,14 @@ final class OSLoggerAdaptersTests: XCTestCase {
         provider.getInstallId { value, _ in firstInstallId = value }
         provider.getInstallId { value, _ in secondInstallId = value }
 
-        XCTAssertFalse(firstInstallId?.isEmpty ?? true)
+        XCTAssertEqual(firstInstallId, "install-id")
         XCTAssertEqual(firstInstallId, secondInstallId)
         XCTAssertEqual(provider.onesignalId, "onesignal-id")
         XCTAssertEqual(provider.pushSubscriptionId, "subscription-id")
         XCTAssertEqual(provider.appState, "foreground")
+        XCTAssertEqual(provider.enabledFeatureFlags, ["feature"])
+        XCTAssertEqual(provider.remoteLogLevel, "WARN")
+        XCTAssertTrue(provider.isExporterLoggingEnabled)
         XCTAssertEqual(provider.sdkBase, "ios")
         XCTAssertFalse(provider.appPackageId.isEmpty)
         XCTAssertFalse(provider.osVersion.isEmpty)
@@ -158,9 +211,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 
     private func makeKotlinBytes(_ bytes: [UInt8]) -> KotlinByteArray {
-        KotlinByteArray(size: Int32(bytes.count)) { index in
-            KotlinByte(value: Int8(bitPattern: bytes[Int(index.int32Value)]))
-        }
+        AppleByteArrayInterop.shared.toByteArray(data: Data(bytes))
     }
 }
 
@@ -172,8 +223,22 @@ private final class LoggerAdapterListener: NSObject, OSLogListener {
     }
 }
 
+private final class TestLogger: ILogger {
+    var warnings: [String] = []
+
+    func error(message: String) {}
+
+    func warn(message: String) {
+        warnings.append(message)
+    }
+
+    func info(message: String) {}
+
+    func debug(message: String) {}
+}
+
 private extension KotlinByteArray {
     var bytes: [UInt8] {
-        (0..<size).map { UInt8(bitPattern: get(index: $0)) }
+        Array(AppleByteArrayInterop.shared.toNSData(bytes: self))
     }
 }
