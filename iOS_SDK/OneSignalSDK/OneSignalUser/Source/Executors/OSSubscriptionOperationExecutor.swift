@@ -199,8 +199,10 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     /**
-     Drops add/remove subscription work for anonymous users. Push subscription updates are kept —
-     they do not use User JWT.
+     Drops add and remove subscription work for anonymous users. Updates are kept, and `updateRequestQueue`
+     is deliberately not purged: an update is only ever the device's own push subscription, which has to
+     keep reporting its token and device state with or without an identified user. See the exemption in
+     `OSOperationRepo.shouldDropAnonymousDelta` for what that rests on.
      */
     func removeOperationsWithoutExternalId() {
         self.dispatchQueue.async {

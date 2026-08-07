@@ -139,6 +139,43 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
     }
 
+    /**
+     The push subscription has no owner to sign for before login or after logout, and its updates still
+     have to go out, so `OS_UPDATE_SUBSCRIPTION_DELTA` survives the enqueue drop.
+     */
+    func testAnonymousSubscriptionUpdatesAreExemptFromTheEnqueueDrop() {
+        jwtConfig.hydrate(requiresUserAuth: true)
+        let repo = makeRepo()
+        repo.paused = true
+
+        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "token"))
+        repo.enqueueDelta(makeDelta(externalId: nil, property: "anonymous"))
+        repo.enqueueDelta(makeDelta(externalId: "user-1", property: "identified"))
+
+        // The identified Delta is the sync point; the queue is serial.
+        waitUntil("identified delta enqueued") { repo.snapshotDeltaQueue().count == 2 }
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["token", "identified"])
+    }
+
+    /// Same exemption for a Delta restored from a previous session, which never passes through enqueue.
+    func testAnonymousSubscriptionUpdatesAreExemptFromTheFlushDrop() {
+        OSOperationRepoTestEnvironment.seedCachedDeltaQueue([
+            OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "token"),
+            makeDelta(externalId: nil, property: "anonymous")
+        ])
+
+        let repo = makeRepo()
+        let executor = MockOperationExecutor(supportedDeltas: [OS_UPDATE_SUBSCRIPTION_DELTA, deltaName])
+        let processed = expectation(description: "processDeltaQueue")
+        executor.onProcessDeltaQueue = { processed.fulfill() }
+        repo.addExecutor(executor)
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        wait(for: [processed], timeout: 2.0)
+        XCTAssertEqual(executor.enqueued.map(\.property), ["token"])
+    }
+
     /// The rollout flag alone must not suppress; only `jwt_required` turns it on.
     func testAnonymousDeltasSurviveWhenTheFlagIsOnButTheAppDoesNotRequireAuth() {
         featureManager = OSFeatureManager(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
