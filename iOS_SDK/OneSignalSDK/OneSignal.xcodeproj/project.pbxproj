@@ -69,6 +69,12 @@
 		3C14E39F2AFAE39B006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E39E2AFAE39B006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A12AFAE461006ED053 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C14E3A02AFAE461006ED053 /* PrivacyInfo.xcprivacy */; };
 		3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */; };
+		3C14E3B02FAE54C006ED053 /* IOSLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3A92FAE54C006ED053 /* IOSLogger.swift */; };
+		3C14E3B12FAE54C006ED053 /* OneSignalLogHttpSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AA2FAE54C006ED053 /* OneSignalLogHttpSender.swift */; };
+		3C14E3B22FAE54C006ED053 /* FileLogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AB2FAE54C006ED053 /* FileLogStore.swift */; };
+		3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */; };
+		3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */; };
+		3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */; };
 		3C19C6322E919F0C00D6731E /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */; };
 		3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */; };
 		3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */; };
@@ -1777,6 +1783,12 @@
 		DEBAAEB62A4381AE00BF2C1C /* OSInAppMessageMigrationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageMigrationController.h; sourceTree = "<group>"; };
 		DEBAAEB72A4381AE00BF2C1C /* OSInAppMessageMigrationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageMigrationController.m; sourceTree = "<group>"; };
 		DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalSwiftInterface.swift; sourceTree = "<group>"; };
+		3C14E3A92FAE54C006ED053 /* IOSLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSLogger.swift; sourceTree = "<group>"; };
+		3C14E3AA2FAE54C006ED053 /* OneSignalLogHttpSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalLogHttpSender.swift; sourceTree = "<group>"; };
+		3C14E3AB2FAE54C006ED053 /* FileLogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogStore.swift; sourceTree = "<group>"; };
+		3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerPlatformProvider.swift; sourceTree = "<group>"; };
+		3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KotlinByteArray+Data.swift"; sourceTree = "<group>"; };
+		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -2242,6 +2254,7 @@
 			isa = PBXGroup;
 			children = (
 				5BC1DE652C90BC9F00CA8807 /* Consistency */,
+				3C14E3AF2FAE54C006ED053 /* Logging */,
 				3C115163289A259500565C41 /* OneSignalOSCore.h */,
 				3C115188289ADEA300565C41 /* OSModelStore.swift */,
 				3C5C6FFB2FCB8DED00102E2C /* OneSignalIdentifiers.swift */,
@@ -2262,6 +2275,18 @@
 				DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		3C14E3AF2FAE54C006ED053 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */,
+				3C14E3AB2FAE54C006ED053 /* FileLogStore.swift */,
+				3C14E3AA2FAE54C006ED053 /* OneSignalLogHttpSender.swift */,
+				3C14E3A92FAE54C006ED053 /* IOSLogger.swift */,
+				3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */,
+			);
+			path = Logging;
 			sourceTree = "<group>";
 		};
 		3C70222A2ECF126B001768C6 /* OneSignalInAppMessagesMocks */ = {
@@ -2531,6 +2556,7 @@
 			children = (
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
+				3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -4391,9 +4417,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */,
 				DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */,
+				3C14E3B22FAE54C006ED053 /* FileLogStore.swift in Sources */,
 				5BC1DE602C90B83900CA8807 /* OSConsistencyKeyEnum.swift in Sources */,
+				3C14E3B12FAE54C006ED053 /* OneSignalLogHttpSender.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
+				3C14E3B02FAE54C006ED053 /* IOSLogger.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				5BC1DE5E2C90B80E00CA8807 /* OSCondition.swift in Sources */,
@@ -4414,6 +4444,7 @@
 				DEFB3E672BB735B500E65DAD /* OSStubLiveActivities.swift in Sources */,
 				5BC1DE622C90B85A00CA8807 /* OSIamFetchOffsetKey.swift in Sources */,
 				3C11518D289AF5E800565C41 /* OSModelChangedHandler.swift in Sources */,
+				3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */,
 				3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4552,6 +4583,7 @@
 				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
+				3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5378,6 +5410,14 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -5438,6 +5478,14 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -6928,6 +6976,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -6974,6 +7030,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -7028,6 +7092,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -7119,6 +7191,14 @@
 		CA2951B72167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -7145,6 +7225,14 @@
 		CA2951B82167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -7190,6 +7278,14 @@
 		CA2951B92167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -7299,6 +7395,14 @@
 		CA2951C32167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -7325,6 +7429,14 @@
 		CA2951C42167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = YES;
@@ -7372,6 +7484,14 @@
 		CA2951C52167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -7481,6 +7601,14 @@
 		DE3D8F3928C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -7507,6 +7635,14 @@
 		DE3D8F3A28C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = YES;
@@ -7554,6 +7690,14 @@
 		DE3D8F3B28C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -9061,6 +9205,14 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"$(SRCROOT)/../../OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-simulator",
+				);
 				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
