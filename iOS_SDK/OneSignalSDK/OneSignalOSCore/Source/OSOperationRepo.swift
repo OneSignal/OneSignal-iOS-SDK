@@ -37,11 +37,16 @@ import OneSignalCore
 public class OSOperationRepo: NSObject {
     private let identityVerificationService: OSIdentityVerificationService
 
+    /**
+     Serial, and the only place `deltaQueue`, the executor registry, and the two start flags may be
+     touched once this instance is handed out — `init` runs before anything else can reach it. Every
+     private method here assumes it is already running on this queue.
+     Non-private so test helpers can synchronize with it.
+     */
+    let dispatchQueue = DispatchQueue(label: "OneSignal.OSOperationRepo", target: .global())
+
     private var hasCalledStart = false
     private var hasBegunObserving = false
-
-    // Serial: synchronizes `deltaQueue` and flush.
-    private let dispatchQueue = DispatchQueue(label: "OneSignal.OSOperationRepo", target: .global())
 
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
@@ -80,14 +85,20 @@ public class OSOperationRepo: NSObject {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo uncached deltaQueue: \(cached)")
     }
 
-    /**
-     Starts the poller. While `requirement` is unknown, returns without setting `hasCalledStart` so
-     hydration can call `start()` again once remote params answer.
-     */
     public func start() {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
+        dispatchQueue.async {
+            self.startPolling()
+        }
+    }
+
+    /**
+     While `requirement` is unknown, returns without setting `hasCalledStart` so hydration can call
+     `start()` again once remote params answer.
+     */
+    private func startPolling() {
         guard !hasCalledStart else {
             return
         }
@@ -125,13 +136,14 @@ public class OSOperationRepo: NSObject {
     /**
      Runs on every hydration, including an unchanged value — deferred work is waiting on it.
 
-     Hop onto `dispatchQueue`: a handler registered when the requirement is already cached fires
-     synchronously from inside `start()`, which can already be on this queue during a flush.
+     Hop onto `dispatchQueue`: `hydrate` calls this from whichever thread received remote params, and a
+     handler registered when the requirement is already cached fires synchronously from inside
+     `startPolling()`, where the hop defers this until that call finishes.
      */
     private func onJwtConfigHydrated() {
         dispatchQueue.async {
             // Flush now rather than wait out a poll interval for work held since launch.
-            self.start()
+            self.startPolling()
             self.flushDeltaQueue()
         }
     }
@@ -143,14 +155,20 @@ public class OSOperationRepo: NSObject {
         }
     }
 
+    /**
+     Registers before starting rather than after: once remote params are cached, `startPolling()` fires
+     the hydration handler synchronously and that flush reads the registry being written here.
+     */
     public func addExecutor(_ executor: OSOperationExecutor) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
-        executors.append(executor)
-        for delta in executor.supportedDeltas {
-            deltasToExecutorMap[delta] = executor
+        dispatchQueue.async {
+            self.executors.append(executor)
+            for delta in executor.supportedDeltas {
+                self.deltasToExecutorMap[delta] = executor
+            }
+            self.startPolling()
         }
     }
 
@@ -165,15 +183,16 @@ public class OSOperationRepo: NSObject {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
-        start()
-
-        // Drop here too so it is never persisted; flush still covers deltas restored from cache.
-        guard !shouldDropAnonymousDelta(delta, ivActive: shouldDropAnonymousDeltas) else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
-            return
-        }
 
         self.dispatchQueue.async {
+            self.startPolling()
+
+            // Drop here too so it is never persisted; flush still covers deltas restored from cache.
+            guard !self.shouldDropAnonymousDelta(delta, ivActive: self.shouldDropAnonymousDeltas) else {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
+                return
+            }
+
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
             self.deltaQueue.append(delta)
 
@@ -214,7 +233,7 @@ public class OSOperationRepo: NSObject {
         }
 
         // Before the requirement gate so a first flush still registers the hydration handler.
-        self.start()
+        self.startPolling()
 
         /*
          Hold until `requirement` is known. `newCodePathsRun` / `ivBehaviorActive` both read false while

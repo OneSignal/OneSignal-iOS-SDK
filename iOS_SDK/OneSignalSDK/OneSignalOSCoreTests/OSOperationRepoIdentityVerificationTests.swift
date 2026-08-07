@@ -63,20 +63,20 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "a"))
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "b"))
-        waitUntil("both deltas enqueued") { repo.deltaQueue.count == 2 }
+        waitUntil("both deltas enqueued") { repo.snapshotDeltaQueue().count == 2 }
 
         repo.addFlushDeltaQueueToDispatchQueue()
 
         wait(for: [notProcessed], timeout: 0.5)
         XCTAssertTrue(executor.enqueued.isEmpty)
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["a", "b"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["a", "b"])
     }
 
     /// Enqueue still persists while unknown; only flush waits.
     func testDeltasEnqueuedWhileTheRequirementIsUnknownArePersisted() {
         let repo = makeRepo()
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "a"))
-        waitUntil("delta enqueued") { repo.deltaQueue.count == 1 }
+        waitUntil("delta enqueued") { repo.snapshotDeltaQueue().count == 1 }
 
         let cached = OSOperationRepoTestEnvironment.cachedDeltaQueue()
         XCTAssertEqual(cached?.map(\.property), ["a"])
@@ -91,13 +91,13 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         repo.addExecutor(executor)
 
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "a"))
-        waitUntil("delta enqueued") { repo.deltaQueue.count == 1 }
+        waitUntil("delta enqueued") { repo.snapshotDeltaQueue().count == 1 }
 
         jwtConfig.hydrate(requiresUserAuth: false)
 
         wait(for: [processed], timeout: 2.0)
         XCTAssertEqual(executor.enqueued.map(\.property), ["a"])
-        XCTAssertTrue(repo.deltaQueue.isEmpty)
+        XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
     }
 
     // MARK: - Anonymous suppression
@@ -113,8 +113,8 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "identified"))
 
         // Identified Delta is the sync point; the queue is serial.
-        waitUntil("identified delta enqueued") { repo.deltaQueue.count == 1 }
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["identified"])
+        waitUntil("identified delta enqueued") { repo.snapshotDeltaQueue().count == 1 }
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["identified"])
     }
 
     /// Flush must drop restored anonymous Deltas; they never pass through enqueue.
@@ -125,7 +125,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         ])
 
         let repo = makeRepo()
-        XCTAssertEqual(repo.deltaQueue.count, 2, "the repo should restore both Deltas before judging them")
+        XCTAssertEqual(repo.snapshotDeltaQueue().count, 2, "the repo should restore both Deltas before judging them")
 
         let executor = MockOperationExecutor(supportedDeltas: [deltaName])
         let processed = expectation(description: "processDeltaQueue")
@@ -136,7 +136,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         wait(for: [processed], timeout: 2.0)
         XCTAssertEqual(executor.enqueued.map(\.property), ["identified"])
-        XCTAssertTrue(repo.deltaQueue.isEmpty)
+        XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
     }
 
     /// The rollout flag alone must not suppress; only `jwt_required` turns it on.
@@ -150,7 +150,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         repo.addExecutor(executor)
 
         repo.enqueueDelta(makeDelta(externalId: nil, property: "anonymous"))
-        waitUntil("delta enqueued") { repo.deltaQueue.count == 1 }
+        waitUntil("delta enqueued") { repo.snapshotDeltaQueue().count == 1 }
 
         jwtConfig.hydrate(requiresUserAuth: false)
 
@@ -176,7 +176,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         jwtConfig.hydrate(requiresUserAuth: true)
 
         wait(for: [processed], timeout: 2.0)
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["identified"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["identified"])
 
         let cached = OSOperationRepoTestEnvironment.cachedDeltaQueue()
         XCTAssertEqual(cached?.map(\.property), ["identified"], "the drop has to survive a restart")
@@ -207,7 +207,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         jwtConfig.hydrate(requiresUserAuth: false)
 
         wait(for: [processed], timeout: 2.0)
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["anonymous"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["anonymous"])
         XCTAssertEqual(executor.removeOperationsWithoutExternalIdCallCount, 0)
     }
 

@@ -48,9 +48,11 @@ extension OSOperationRepo {
      Leaves `hasCalledStart` alone so the next `start()` does not schedule a second poller.
      */
     public func reset() {
-        deltaQueue.removeAll()
-        executors.removeAll()
-        deltasToExecutorMap.removeAll()
+        dispatchQueue.sync {
+            deltaQueue.removeAll()
+            executors.removeAll()
+            deltasToExecutorMap.removeAll()
+        }
         paused = false
     }
 }

@@ -70,6 +70,16 @@ enum OSOperationRepoTestEnvironment {
     }
 }
 
+extension OSOperationRepo {
+    /**
+     The queue as of right now. Tests poll it while the repo appends on its own queue, so reading
+     `deltaQueue` directly is a data race even when only the count is wanted.
+     */
+    func snapshotDeltaQueue() -> [OSDelta] {
+        return dispatchQueue.sync { deltaQueue }
+    }
+}
+
 /// Records what the Operation Repo hands it, so tests can assert on routing rather than on requests.
 final class MockOperationExecutor: OSOperationExecutor {
     let supportedDeltas: [String]

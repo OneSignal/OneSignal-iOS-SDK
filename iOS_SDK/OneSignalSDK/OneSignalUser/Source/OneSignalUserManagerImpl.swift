@@ -279,7 +279,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
             self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
-            operationRepo.start()
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
@@ -294,6 +293,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             operationRepo.addExecutor(propertyExecutor)
             operationRepo.addExecutor(subscriptionExecutor)
             operationRepo.addExecutor(customEventsExecutor)
+
+            // After the executors: a cached requirement makes `start()` flush right away, and the
+            // Deltas restored at launch can only route once the map above is populated.
+            operationRepo.start()
 
             // Path 2. There is a legacy player to migrate
             if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {

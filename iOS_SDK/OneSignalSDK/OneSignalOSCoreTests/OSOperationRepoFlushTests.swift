@@ -69,14 +69,14 @@ final class OSOperationRepoFlushTests: XCTestCase {
 
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "a"))
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "b"))
-        waitUntil("both deltas enqueued") { self.repo.deltaQueue.count == 2 }
+        waitUntil("both deltas enqueued") { self.repo.snapshotDeltaQueue().count == 2 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
         wait(for: [processExpectation], timeout: 2.0)
 
         XCTAssertEqual(executor.enqueued.map(\.property), ["a", "b"])
-        XCTAssertTrue(repo.deltaQueue.isEmpty)
+        XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
     }
 
     func testFlush_keepsUnmatchedDeltasInRepoQueue() {
@@ -88,14 +88,14 @@ final class OSOperationRepoFlushTests: XCTestCase {
 
         repo.enqueueDelta(makeDelta(name: unknownDelta, property: "a"))
         repo.enqueueDelta(makeDelta(name: unknownDelta, property: "b"))
-        waitUntil("both deltas enqueued") { self.repo.deltaQueue.count == 2 }
+        waitUntil("both deltas enqueued") { self.repo.snapshotDeltaQueue().count == 2 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
         wait(for: [processExpectation], timeout: 2.0)
 
         XCTAssertTrue(executor.enqueued.isEmpty)
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["a", "b"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["a", "b"])
     }
 
     func testFlush_routesMatchedAndPreservesUnmatchedOrder() {
@@ -111,14 +111,39 @@ final class OSOperationRepoFlushTests: XCTestCase {
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-2"))
         repo.enqueueDelta(makeDelta(name: unknownDelta, property: "unknown-2"))
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-3"))
-        waitUntil("all deltas enqueued") { self.repo.deltaQueue.count == 5 }
+        waitUntil("all deltas enqueued") { self.repo.snapshotDeltaQueue().count == 5 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
         wait(for: [processExpectation], timeout: 2.0)
 
         XCTAssertEqual(executor.enqueued.map(\.property), ["known-1", "known-2", "known-3"])
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["unknown-1", "unknown-2"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["unknown-1", "unknown-2"])
+    }
+
+    /**
+     Registration used to write the executor list and the name map on the caller's thread, where a
+     flush or another registration could tear them. Every executor added concurrently has to end up
+     routable.
+     */
+    func testEveryExecutorRegisteredConcurrentlyIsRoutable() {
+        let names = (0..<50).map { "concurrent_delta_\($0)" }
+        let executors = names.map { MockOperationExecutor(supportedDeltas: [$0]) }
+
+        DispatchQueue.concurrentPerform(iterations: executors.count) { index in
+            self.repo.addExecutor(executors[index])
+        }
+
+        for name in names {
+            repo.enqueueDelta(makeDelta(name: name, property: name))
+        }
+        waitUntil("all deltas enqueued") { self.repo.snapshotDeltaQueue().count == names.count }
+
+        repo.paused = false
+        repo.addFlushDeltaQueueToDispatchQueue()
+
+        waitUntil("all deltas routed") { self.repo.snapshotDeltaQueue().isEmpty }
+        XCTAssertEqual(executors.map { $0.enqueued.map(\.property) }, names.map { [$0] })
     }
 
     // MARK: - Helpers
