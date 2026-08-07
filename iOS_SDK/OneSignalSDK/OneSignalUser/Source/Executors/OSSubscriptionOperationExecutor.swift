@@ -145,13 +145,30 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
+                    continue
                 }
+                request.identityModel = liveIdentityModel(request.identityModel)
             }
             self.updateRequestQueue = updateRequestQueue
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
         }
+    }
+
+    /**
+     Returns the repo's instance for this Identity Model, registering the decoded one if missing,
+     so every request for a user shares one instance.
+     */
+    private func liveIdentityModel(_ identityModel: OSIdentityModel?) -> OSIdentityModel? {
+        guard let identityModel = identityModel else {
+            return nil
+        }
+        if let modelInRepo = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(identityModel.modelId) {
+            return modelInRepo
+        }
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
+        return identityModel
     }
 
     /**
@@ -192,10 +209,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     continue
                 }
 
+                let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
+
                 switch delta.name {
                 case OS_ADD_SUBSCRIPTION_DELTA:
                     // Only create the request if the identity model exists
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
+                    if let identityModel = identityModel {
                         let request = OSRequestCreateSubscription(
                             subscriptionModel: subModel,
                             identityModel: identityModel
@@ -216,7 +235,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     self.updateRequestQueue.removeAll { request in
                         !request.sentToClient && request.subscriptionModel.modelId == modelId
                     }
-                    let request = OSRequestUpdateSubscription(subscriptionModel: subModel)
+                    let request = OSRequestUpdateSubscription(subscriptionModel: subModel, identityModel: identityModel)
                     self.updateRequestQueue.append(request)
 
                 default:
@@ -420,7 +439,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 self.updateRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
-                if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
+                if let onesignalId = request.identityModel?.onesignalId {
                     if let rywToken = response?["ryw_token"] as? String
                     {
                         let rywDelay = response?["ryw_delay"] as? NSNumber

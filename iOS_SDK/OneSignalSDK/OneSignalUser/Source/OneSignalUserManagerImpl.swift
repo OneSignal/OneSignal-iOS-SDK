@@ -641,6 +641,7 @@ extension OneSignalUserManagerImpl {
         let delta = OSDelta(
             name: OS_UPDATE_PROPERTIES_DELTA,
             identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: propertiesModel,
             property: property.rawValue,
             value: value
@@ -860,6 +861,7 @@ extension OneSignalUserManagerImpl: OSUser {
         let delta = OSDelta(
             name: OS_CUSTOM_EVENT_DELTA,
             identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: identityModel,
             property: name,
             value: processedProperties

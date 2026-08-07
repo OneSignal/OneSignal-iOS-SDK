@@ -39,6 +39,10 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     }
 
     var subscriptionModel: OSSubscriptionModel
+    /// The user this update was made for; used to file the response's RYW token under their
+    /// `onesignal_id`. `nil` drops the token. Held as the model because that ID may not exist
+    /// yet when the request is built.
+    var identityModel: OSIdentityModel?
 
     // Need the subscription_id
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
@@ -70,8 +74,9 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         self.parameters = ["subscription": subscriptionParams]
     }
 
-    init(subscriptionModel: OSSubscriptionModel) {
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel?) {
         self.subscriptionModel = subscriptionModel
+        self.identityModel = identityModel
         self.stringDescription = "OSRequestUpdateSubscription with model: \(subscriptionModel.modelId)"
         super.init()
         refreshParametersFromLiveModel()
@@ -80,6 +85,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
+        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -96,6 +102,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel = subscriptionModel
+        self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
         self.stringDescription = "OSRequestUpdateSubscription with parameters: \(parameters)"
         super.init()
         self.parameters = parameters

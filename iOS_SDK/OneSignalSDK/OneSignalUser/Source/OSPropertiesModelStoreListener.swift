@@ -51,9 +51,11 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property) or no user instance")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_UPDATE_PROPERTIES_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: args.model,
             property: args.property,
             value: args.newValue

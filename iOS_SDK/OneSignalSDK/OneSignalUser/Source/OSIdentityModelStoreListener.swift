@@ -50,6 +50,7 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         // TODO: Let users call addAliases with "" IDs? If so, this will change...
         guard
+            let identityModel = args.model as? OSIdentityModel,
             let aliasesDict = args.newValue as? [String: String],
             let (_, id) = aliasesDict.first
         else {
@@ -60,8 +61,9 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
 
         return OSDelta(
             name: name,
-            identityModelId: args.model.modelId,
-            model: args.model,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
+            model: identityModel,
             property: args.property,
             value: args.newValue
         )
