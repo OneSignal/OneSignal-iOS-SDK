@@ -34,7 +34,7 @@ import OneSignalCore
 
 /// Routes diagnostic messages from the shared logger through the iOS SDK's
 /// existing logging pipeline.
-final class OSLoggerAdapter: ILogger {
+final class IOSLogger: ILogger {
     func error(message: String) {
         OneSignalLog.onesignalLog(.LL_ERROR, message: message)
     }

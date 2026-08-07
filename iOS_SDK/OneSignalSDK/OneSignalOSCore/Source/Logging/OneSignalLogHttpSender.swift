@@ -32,7 +32,7 @@ import Foundation
 @_implementationOnly import OneSignalKMP
 
 /// Sends the KMP logger's encoded OTLP requests using the native URL loading system.
-final class OSLoggerHttpSender: ILogHttpSender {
+final class OneSignalLogHttpSender: ILogHttpSender {
     private static let requestTimeout: TimeInterval = 10
     private static let transportFailureStatusCode: Int32 = -1
     private static let maximumDiagnosticBodyLength = 500
@@ -49,8 +49,8 @@ final class OSLoggerHttpSender: ILogHttpSender {
     ) -> Void
 
     init(
-        session: URLSession = OSLoggerHttpSender.defaultSession,
-        logger: ILogger = OSLoggerAdapter(),
+        session: URLSession = OneSignalLogHttpSender.defaultSession,
+        logger: ILogger = IOSLogger(),
         isDiagnosticsEnabled: @escaping () -> Bool = { false }
     ) {
         self.requestSender = { request, completion in
@@ -62,7 +62,7 @@ final class OSLoggerHttpSender: ILogHttpSender {
 
     init(
         requestSender: @escaping RequestSender,
-        logger: ILogger = OSLoggerAdapter(),
+        logger: ILogger = IOSLogger(),
         isDiagnosticsEnabled: @escaping () -> Bool = { false }
     ) {
         self.requestSender = requestSender
@@ -100,7 +100,7 @@ final class OSLoggerHttpSender: ILogHttpSender {
             if let error = error {
                 if self.isDiagnosticsEnabled() {
                     self.logger.warn(
-                        message: "OSLoggerHttpSender: POST \(request.url) failed: \(error.localizedDescription)"
+                        message: "OneSignalLogHttpSender: POST \(request.url) failed: \(error.localizedDescription)"
                     )
                 }
                 completionHandler(
@@ -131,12 +131,12 @@ final class OSLoggerHttpSender: ILogHttpSender {
             if self.isDiagnosticsEnabled() {
                 if success {
                     self.logger.debug(
-                        message: "OSLoggerHttpSender: POST \(request.url) -> \(response.statusCode) OK "
+                        message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) OK "
                             + "(\(request.body.size)B)"
                     )
                 } else {
                     self.logger.warn(
-                        message: "OSLoggerHttpSender: POST \(request.url) -> \(response.statusCode) "
+                        message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) "
                             + "(ct=\(request.contentType), \(request.body.size)B) "
                             + "body=\(responseBody.map(Self.truncatedDiagnosticBody) ?? "nil")"
                     )

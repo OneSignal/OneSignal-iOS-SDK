@@ -38,7 +38,7 @@ import OneSignalCore
 /// Writes are synchronous and durable because fatal handlers may terminate the
 /// process immediately after `save` returns. Directory scans and cleanup run on
 /// a utility queue to keep disk I/O off the caller.
-final class OSLoggerFileStore: ILogFileStore {
+final class FileLogStore: ILogFileStore {
     /// Complete records use `.otlp`; interrupted durable writes leave
     /// `.otlp.tmp` files that are safe to reap after the minimum-age gate.
     private static let ownedFileSuffix = ".otlp"
@@ -81,7 +81,7 @@ final class OSLoggerFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLoggerFileStore listReadable failed: \(error.localizedDescription)"
+                    message: "FileLogStore listReadable failed: \(error.localizedDescription)"
                 )
                 completionHandler([], nil)
             }
@@ -103,7 +103,7 @@ final class OSLoggerFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLoggerFileStore delete failed: \(error.localizedDescription)"
+                    message: "FileLogStore delete failed: \(error.localizedDescription)"
                 )
             }
             completionHandler(nil)
@@ -128,7 +128,7 @@ final class OSLoggerFileStore: ILogFileStore {
             } catch {
                 OneSignalLog.onesignalLog(
                     .LL_WARN,
-                    message: "OSLoggerFileStore cleanup failed: \(error.localizedDescription)"
+                    message: "FileLogStore cleanup failed: \(error.localizedDescription)"
                 )
             }
             completionHandler(KotlinInt(int: Int32(deleted)), nil)

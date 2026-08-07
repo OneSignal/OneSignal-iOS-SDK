@@ -45,7 +45,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 
     func testFileStoreSynchronouslySavesAndListsPayload() throws {
-        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
         let payload = makeKotlinBytes([1, 2, 3, 255])
 
         XCTAssertTrue(store.save(bytes: payload))
@@ -65,7 +65,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 
     func testFileStoreDeletesOnlyInterruptedTemporaryWrites() throws {
-        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
         XCTAssertTrue(store.save(bytes: makeKotlinBytes([1])))
 
         let temporaryURL = temporaryDirectory.appendingPathComponent("interrupted.otlp.tmp")
@@ -92,14 +92,14 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 
     func testFileStoreRejectsEmptyPayload() {
-        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
 
         XCTAssertFalse(store.save(bytes: makeKotlinBytes([])))
     }
 
     func testHttpSenderPostsEncodedBytesAndPassesHeaders() {
         let sent = expectation(description: "sends payload")
-        let sender = OSLoggerHttpSender { request, completion in
+        let sender = OneSignalLogHttpSender { request, completion in
             XCTAssertEqual(request.httpMethod, "POST")
             XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/custom")
             XCTAssertEqual(request.value(forHTTPHeaderField: "SDK-Version"), "onesignal/ios/test")
@@ -134,7 +134,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
 
     func testHttpSenderReturnsAndLogsFailureBodyWhenDiagnosticsEnabled() {
         let logger = TestLogger()
-        let sender = OSLoggerHttpSender(
+        let sender = OneSignalLogHttpSender(
             requestSender: { request, completion in
                 let response = HTTPURLResponse(
                     url: request.url!,
@@ -171,7 +171,7 @@ final class OSLoggerAdaptersTests: XCTestCase {
         OneSignalLog.debug().__add(listener)
         defer { OneSignalLog.debug().__remove(listener) }
 
-        let logger = OSLoggerAdapter()
+        let logger = IOSLogger()
         logger.error(message: "error")
         logger.warn(message: "warn")
         logger.info(message: "info")
@@ -184,8 +184,8 @@ final class OSLoggerAdaptersTests: XCTestCase {
         let listener = LoggerAdapterListener()
         OneSignalLog.debug().__add(listener)
         defer { OneSignalLog.debug().__remove(listener) }
-        let store = OSLoggerFileStore(rootPath: temporaryDirectory.path)
-        let logger = OSLoggerAdapter()
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let logger = IOSLogger()
         let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
             platformProvider: makePlatformProvider(),
             fileStore: store
