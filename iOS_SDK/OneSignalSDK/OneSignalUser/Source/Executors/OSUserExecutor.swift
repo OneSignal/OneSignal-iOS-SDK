@@ -58,27 +58,30 @@ class OSUserExecutor {
     }
 
     /**
-     Drops a Create User with no `external_id` and Fetch Identity By Subscription. An Identify User carries
-     the `external_id` it applies and stays. Runs on every send because `refreshIfUnknown` can raise
-     `requirement` with no event; reads the live model because this executor sends nothing while
-     `requirement` is unknown.
+     Drops a Create User with no `external_id`, Fetch Identity By Subscription, and a restored Identify
+     User (an adopting app must call `login` again with a token). An Identify User from this session is
+     that `login` and stays. Runs on every send because `refreshIfUnknown` can raise `requirement` with
+     no event; reads the live model because this executor sends nothing while `requirement` is unknown.
      */
-    private func removeAnonymousRequests() {
+    private func removeInvalidRequests() {
         guard identityVerificationService.ivBehaviorActive else {
             return
         }
-        let remaining = userRequestQueue.filter { !isAnonymousUnderIdentityVerification($0) }
+        let remaining = userRequestQueue.filter { !isInvalidUnderIdentityVerification($0) }
         guard remaining.count != userRequestQueue.count else {
             return
         }
-        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor dropped \(userRequestQueue.count - remaining.count) anonymous Requests, Identity Verification is required")
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor dropped \(userRequestQueue.count - remaining.count) Requests, Identity Verification is required")
         userRequestQueue = remaining
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
     }
 
-    private func isAnonymousUnderIdentityVerification(_ request: OSUserRequest) -> Bool {
+    private func isInvalidUnderIdentityVerification(_ request: OSUserRequest) -> Bool {
         if let createUser = request as? OSRequestCreateUser {
             return createUser.identityModel.externalId == nil
+        }
+        if let identifyUser = request as? OSRequestIdentifyUser {
+            return identifyUser.restoredFromCache
         }
         return request is OSRequestFetchIdentityBySubscription
     }
@@ -203,7 +206,7 @@ class OSUserExecutor {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(self.userRequestQueue.count) Requests until the Identity Verification requirement is known")
             return
         }
-        removeAnonymousRequests()
+        removeInvalidRequests()
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(self.userRequestQueue)")
 

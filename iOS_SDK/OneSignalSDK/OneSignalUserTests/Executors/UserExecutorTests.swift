@@ -299,19 +299,25 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
     }
 
-    /// Cached Identify User survives the anonymous purge — it carries an `external_id`.
-    func testCachedIdentifyUserSurvivesTheAnonymousPurge() {
+    /// Restored Identify User is dropped when Identity Verification is required.
+    func testRestoredIdentifyUserIsDroppedWhenIdentityVerificationIsRequired() {
         /* Setup */
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
-        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
-        cacheUserRequests([OSRequestIdentifyUser(
-            aliasLabel: OS_EXTERNAL_ID,
-            aliasId: userA_EUID,
-            identityModelToIdentify: anonIdentityModel,
-            identityModelToUpdate: newIdentityModel
-        )])
+        cacheUserRequests([makeIdentifyUserRequest()])
+
+        /* When */
+        let mocks = Mocks { MockUserRequests.setDefaultIdentifyUserResponses(with: $0, externalId: userA_EUID, conflicted: false) }
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+    }
+
+    /// Same restored Identify User goes out when Identity Verification is off.
+    func testRestoredIdentifyUserIsSentWhenIdentityVerificationIsOff() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        cacheUserRequests([makeIdentifyUserRequest()])
 
         /* When */
         let mocks = Mocks { MockUserRequests.setDefaultIdentifyUserResponses(with: $0, externalId: userA_EUID, conflicted: false) }
@@ -321,8 +327,36 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
     }
 
+    /// In-session Identify User still goes out under Identity Verification — it is the current `login`.
+    func testInSessionIdentifyUserIsSentWhenIdentityVerificationIsRequired() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let mocks = Mocks()
+        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
+
+        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
+        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
+
+        /* When */
+        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+    }
+
     private func cacheUserRequests(_ requests: [OSUserRequest]) {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: requests)
+    }
+
+    private func makeIdentifyUserRequest() -> OSRequestIdentifyUser {
+        return OSRequestIdentifyUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: userA_EUID,
+            identityModelToIdentify: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
+            identityModelToUpdate: OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        )
     }
 
     private func makeAnonymousCreateUserRequest() -> OSRequestCreateUser {

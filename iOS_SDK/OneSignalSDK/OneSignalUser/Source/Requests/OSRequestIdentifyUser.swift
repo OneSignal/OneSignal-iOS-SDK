@@ -47,6 +47,12 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let aliasLabel: String
     let aliasId: String
 
+    /**
+     True when decoded from cache. Identity Verification drops restored Identify Users; one built in this
+     session is the current `login` and stays. Not encoded — `init?(coder:)` sets it.
+     */
+    let restoredFromCache: Bool
+
     /// requires a `onesignal_id` to send this request
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let onesignalId = identityModelToIdentify.onesignalId,
@@ -75,6 +81,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.restoredFromCache = false
         self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
@@ -108,6 +115,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.restoredFromCache = true
         self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.timestamp = timestamp
