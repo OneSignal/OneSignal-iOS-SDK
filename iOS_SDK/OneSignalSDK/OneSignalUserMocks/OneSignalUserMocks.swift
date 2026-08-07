@@ -37,6 +37,8 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
+        // Drop the previous test's handler before the hydrate below, or leftover Requests hydrate shared models.
+        OneSignalUserManagerImpl.sharedInstance.identityVerificationService.removeOnJwtConfigHydratedHandler(for: .userExecutor)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.reset()
         OSCoreMocks.resetSharedJwtConfig()
         // Hydrate `off` so the Operation Repo's unknown-requirement deferral does not stall non-IV tests.

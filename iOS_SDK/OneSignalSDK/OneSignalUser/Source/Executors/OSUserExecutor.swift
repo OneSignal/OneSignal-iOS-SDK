@@ -36,17 +36,51 @@ import OneSignalOSCore
 class OSUserExecutor {
     var userRequestQueue: [OSUserRequest] = []
     private let newRecordsState: OSNewRecordsState
+    private let identityVerificationService: OSIdentityVerificationService
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
     /// The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, identityVerificationService: OSIdentityVerificationService) {
         self.newRecordsState = newRecordsState
+        self.identityVerificationService = identityVerificationService
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
+
+        identityVerificationService.addOnJwtConfigHydratedHandler(for: .userExecutor) { [weak self] _ in
+            // Including an unchanged value: Requests held while `requirement` was unknown wait on this.
+            self?.executePendingRequests()
+        }
+
         executePendingRequests()
+    }
+
+    /**
+     Drops a Create User with no `external_id` and Fetch Identity By Subscription. An Identify User carries
+     the `external_id` it applies and stays. Runs on every send because `refreshIfUnknown` can raise
+     `requirement` with no event; reads the live model because this executor sends nothing while
+     `requirement` is unknown.
+     */
+    private func removeAnonymousRequests() {
+        guard identityVerificationService.ivBehaviorActive else {
+            return
+        }
+        let remaining = userRequestQueue.filter { !isAnonymousUnderIdentityVerification($0) }
+        guard remaining.count != userRequestQueue.count else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor dropped \(userRequestQueue.count - remaining.count) anonymous Requests, Identity Verification is required")
+        userRequestQueue = remaining
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+    }
+
+    private func isAnonymousUnderIdentityVerification(_ request: OSUserRequest) -> Bool {
+        if let createUser = request as? OSRequestCreateUser {
+            return createUser.identityModel.externalId == nil
+        }
+        return request is OSRequestFetchIdentityBySubscription
     }
 
     /// Read in requests from the cache, do not read in FetchUser requests as this is not needed.
@@ -164,6 +198,13 @@ class OSUserExecutor {
     }
 
     private func _executePendingRequests() {
+        // Hold until known: a Create User sent now would go out unsigned if `requirement` later becomes on.
+        guard identityVerificationService.requirement != .unknown else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(self.userRequestQueue.count) Requests until the Identity Verification requirement is known")
+            return
+        }
+        removeAnonymousRequests()
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(self.userRequestQueue)")
 
         for request in self.userRequestQueue {

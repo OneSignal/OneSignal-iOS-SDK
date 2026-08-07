@@ -117,7 +117,7 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     func testTheHandlerRunsForEveryHydration() {
         let service = makeService()
         var requirements: [OSRequiresUserAuth] = []
-        service.setOnJwtConfigHydratedHandler { requirements.append($0) }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { requirements.append($0) }
 
         jwtConfig.hydrate(requiresUserAuth: true)
         jwtConfig.hydrate(requiresUserAuth: true)
@@ -129,18 +129,18 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     func testTheHandlerReceivesTheHydratedRequirement() {
         let service = makeService()
         var requirement: OSRequiresUserAuth?
-        service.setOnJwtConfigHydratedHandler { requirement = $0 }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { requirement = $0 }
 
         jwtConfig.hydrate(requiresUserAuth: false)
 
         XCTAssertEqual(requirement, .off)
     }
 
-    func testClearingTheHandlerStopsTheCallbacks() {
+    func testRemovingTheHandlerStopsTheCallbacks() {
         let service = makeService()
         var callCount = 0
-        service.setOnJwtConfigHydratedHandler { _ in callCount += 1 }
-        service.setOnJwtConfigHydratedHandler(nil)
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in callCount += 1 }
+        service.removeOnJwtConfigHydratedHandler(for: .operationRepo)
 
         jwtConfig.hydrate(requiresUserAuth: true)
 
@@ -152,7 +152,7 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
         jwtConfig.hydrate(requiresUserAuth: true)
 
         var requirement: OSRequiresUserAuth?
-        service.setOnJwtConfigHydratedHandler { requirement = $0 }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { requirement = $0 }
 
         // Remote params can return before the repo subscribes, and that hydration does not come again
         XCTAssertEqual(requirement, .on)
@@ -162,7 +162,7 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
         let service = makeService()
         var callCount = 0
 
-        service.setOnJwtConfigHydratedHandler { _ in callCount += 1 }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in callCount += 1 }
 
         XCTAssertEqual(callCount, 0)
     }
@@ -170,11 +170,76 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     func testHydratingAfterTheServiceIsReleasedIsANoOp() {
         var service: OSIdentityVerificationService? = makeService()
         var callCount = 0
-        service?.setOnJwtConfigHydratedHandler { _ in callCount += 1 }
+        service?.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in callCount += 1 }
         service = nil
 
         jwtConfig.hydrate(requiresUserAuth: true)
 
         XCTAssertEqual(callCount, 0)
+    }
+
+    // MARK: - Multiple observers
+
+    /// The User executor and the operation repo both wait on hydration; neither may displace the other.
+    func testEveryObserverIsNotified() {
+        let service = makeService()
+        var notified: [OSJwtConfigHydratedObserver] = []
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in notified.append(.userExecutor) }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in notified.append(.operationRepo) }
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(notified, [.userExecutor, .operationRepo])
+    }
+
+    /// Registration order, so a held Create User goes out before Deltas that need its `onesignal_id`.
+    func testObserversAreNotifiedInRegistrationOrder() {
+        let service = makeService()
+        var notified: [OSJwtConfigHydratedObserver] = []
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in notified.append(.operationRepo) }
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in notified.append(.userExecutor) }
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(notified, [.operationRepo, .userExecutor])
+    }
+
+    /// A rebuilt observer replaces its own registration rather than leaving the old closure behind.
+    func testReRegisteringTheSameObserverReplacesIt() {
+        let service = makeService()
+        var firstCallCount = 0
+        var secondCallCount = 0
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in firstCallCount += 1 }
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in secondCallCount += 1 }
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(firstCallCount, 0)
+        XCTAssertEqual(secondCallCount, 1)
+    }
+
+    /// Replacing keeps the original position, so ordering does not shift under a rebuild.
+    func testReplacingAnObserverKeepsItsPosition() {
+        let service = makeService()
+        var notified: [String] = []
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in notified.append("user-executor-original") }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in notified.append("operation-repo") }
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in notified.append("user-executor-replacement") }
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(notified, ["user-executor-replacement", "operation-repo"])
+    }
+
+    func testRemovingOneObserverLeavesTheOther() {
+        let service = makeService()
+        var notified: [OSJwtConfigHydratedObserver] = []
+        service.addOnJwtConfigHydratedHandler(for: .userExecutor) { _ in notified.append(.userExecutor) }
+        service.addOnJwtConfigHydratedHandler(for: .operationRepo) { _ in notified.append(.operationRepo) }
+        service.removeOnJwtConfigHydratedHandler(for: .userExecutor)
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(notified, [.operationRepo])
     }
 }

@@ -128,7 +128,7 @@ public class OSOperationRepo: NSObject {
                                                object: nil)
 
         // Callback rather than a repo dependency, which would cycle.
-        identityVerificationService.setOnJwtConfigHydratedHandler { [weak self] _ in
+        identityVerificationService.addOnJwtConfigHydratedHandler(for: .operationRepo) { [weak self] _ in
             self?.onJwtConfigHydrated()
         }
     }

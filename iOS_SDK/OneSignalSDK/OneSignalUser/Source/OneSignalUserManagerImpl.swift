@@ -278,7 +278,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
-            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
+            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService)
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)

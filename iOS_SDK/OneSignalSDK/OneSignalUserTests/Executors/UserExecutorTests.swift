@@ -39,9 +39,11 @@ private class Mocks {
     let newRecordsState = MockNewRecordsState()
     let userExecutor: OSUserExecutor
 
-    init() {
+    /// Stub before building the executor so a seeded Request cache cannot race the init-time send.
+    init(stubResponses: (MockOneSignalClient) -> Void = { _ in }) {
         OneSignalCoreImpl.setSharedClient(client)
-        userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
+        stubResponses(client)
+        userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService)
     }
 
     func createUserInstance(externalId: String) -> OSUserInternal {
@@ -243,5 +245,93 @@ final class UserExecutorTests: XCTestCase {
         // clearUserData() ran for the current user: the stale alias is gone and server aliases are hydrated.
         XCTAssertNil(currentUser.identityModel.aliases["stale_label"])
         XCTAssertEqual(currentUser.identityModel.externalId, userA_EUID)
+    }
+
+    // MARK: - Identity Verification
+
+    /// Cached Create User with no `external_id` must not go out once Identity Verification is required.
+    func testAnonymousCachedCreateUserIsDroppedWhenIdentityVerificationIsRequired() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        cacheUserRequests([makeAnonymousCreateUserRequest()])
+
+        /* When */
+        let mocks = Mocks()
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// Same restored Create User goes out when Identity Verification is off.
+    func testAnonymousCachedCreateUserIsSentWhenIdentityVerificationIsOff() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        cacheUserRequests([makeAnonymousCreateUserRequest()])
+
+        /* When */
+        let mocks = Mocks { MockUserRequests.setDefaultCreateAnonUserResponses(with: $0) }
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// Nothing is sent while `requirement` is unknown; hydration releases the held Requests.
+    func testRequestsAreHeldUntilTheRequirementIsKnown() {
+        /* Setup */
+        OSCoreMocks.resetSharedJwtConfig()
+        let mocks = Mocks()
+        MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID)
+
+        /* When */
+        mocks.userExecutor.createUser(mocks.createUserInstance(externalId: userA_EUID))
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+
+        /* When the requirement arrives */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// Cached Identify User survives the anonymous purge — it carries an `external_id`.
+    func testCachedIdentifyUserSurvivesTheAnonymousPurge() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
+        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
+        cacheUserRequests([OSRequestIdentifyUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: userA_EUID,
+            identityModelToIdentify: anonIdentityModel,
+            identityModelToUpdate: newIdentityModel
+        )])
+
+        /* When */
+        let mocks = Mocks { MockUserRequests.setDefaultIdentifyUserResponses(with: $0, externalId: userA_EUID, conflicted: false) }
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+    }
+
+    private func cacheUserRequests(_ requests: [OSUserRequest]) {
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: requests)
+    }
+
+    private func makeAnonymousCreateUserRequest() -> OSRequestCreateUser {
+        let pushModel = OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
+        return OSRequestCreateUser(
+            identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
+            propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
+            pushSubscriptionModel: pushModel,
+            originalPushToken: nil
+        )
     }
 }

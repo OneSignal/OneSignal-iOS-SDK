@@ -213,7 +213,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState())
+        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState(), identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService)
 
         /* When */
 

@@ -28,6 +28,12 @@
 import Foundation
 import OneSignalCore
 
+/// Who is waiting on hydration. Keyed so re-registering replaces rather than stacking a duplicate.
+public enum OSJwtConfigHydratedObserver {
+    case userExecutor
+    case operationRepo
+}
+
 /**
  Decides Identity Verification gating from the rollout feature flag and the app's `jwt_required`
  setting.
@@ -45,7 +51,8 @@ public final class OSIdentityVerificationService {
     private let jwtConfig: OSUserJwtConfig
 
     private let handlerLock = NSLock()
-    private var onJwtConfigHydrated: ((OSRequiresUserAuth) -> Void)?
+    // Ordered by registration: User executor's held Create User before Deltas that need its onesignal_id.
+    private var jwtConfigHydratedHandlers: [(observer: OSJwtConfigHydratedObserver, handler: (OSRequiresUserAuth) -> Void)] = []
 
     /// The raw `jwt_required` value, including `unknown` before remote params arrive.
     public var requirement: OSRequiresUserAuth {
@@ -72,24 +79,36 @@ public final class OSIdentityVerificationService {
     }
 
     /**
-     Fires on every remote-params hydration, including when the requirement is unchanged — deferred work
-     waits on that. A handler registered once the requirement is already known runs right away: remote
-     params can land before the operation repo starts, and the hydration it missed is not repeated.
-     Injected as a callback so this type does not depend on the operation repo (that would cycle).
+     Fires on every hydration, including an unchanged value — deferred work waits on that. A handler
+     registered after `requirement` is already known runs immediately, since that hydration is not repeated.
      */
-    public func setOnJwtConfigHydratedHandler(_ handler: ((OSRequiresUserAuth) -> Void)?) {
-        handlerLock.withLock { onJwtConfigHydrated = handler }
+    public func addOnJwtConfigHydratedHandler(for observer: OSJwtConfigHydratedObserver, _ handler: @escaping (OSRequiresUserAuth) -> Void) {
+        handlerLock.withLock {
+            if let index = jwtConfigHydratedHandlers.firstIndex(where: { $0.observer == observer }) {
+                jwtConfigHydratedHandlers[index] = (observer, handler)
+            } else {
+                jwtConfigHydratedHandlers.append((observer, handler))
+            }
+        }
 
         let alreadyKnown = jwtConfig.requirement
-        guard alreadyKnown != .unknown, let handler = handler else {
+        guard alreadyKnown != .unknown else {
             return
         }
         handler(alreadyKnown)
     }
 
+    public func removeOnJwtConfigHydratedHandler(for observer: OSJwtConfigHydratedObserver) {
+        handlerLock.withLock {
+            jwtConfigHydratedHandlers.removeAll { $0.observer == observer }
+        }
+    }
+
     private func fireJwtConfigHydrated(_ requirement: OSRequiresUserAuth) {
-        // Snapshot instead of calling under the lock: the handler runs repo work that takes locks of its own.
-        let handler = handlerLock.withLock { onJwtConfigHydrated }
-        handler?(requirement)
+        // Snapshot: a handler can register another, and handlers take locks of their own.
+        let handlers = handlerLock.withLock { jwtConfigHydratedHandlers }
+        for entry in handlers {
+            entry.handler(requirement)
+        }
     }
 }
