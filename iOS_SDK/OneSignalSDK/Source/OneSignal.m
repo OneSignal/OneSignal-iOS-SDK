@@ -656,6 +656,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
+        [OSRemoteLoggingController reset];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
@@ -700,9 +701,16 @@ static BOOL ComputeInitialStorageReadable(void) {
 
 + (void)setConsentGiven:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
+    if (!granted) {
+        [OSRemoteLoggingController reset];
+    }
     
-    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
+    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil) {
+        if (granted) {
+            [OSRemoteLoggingController configure];
+        }
         return;
+    }
     // Try to init again using delayed params
     [self initialize:_delayedInitParameters.appId withLaunchOptions:_delayedInitParameters.launchOptions];
     delayedInitializationForPrivacyConsent = false;
@@ -737,7 +745,6 @@ static BOOL ComputeInitialStorageReadable(void) {
         }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
-        [OSRemoteLoggingController configure];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
             let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
@@ -750,6 +757,11 @@ static BOOL ComputeInitialStorageReadable(void) {
             BOOL required = [result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
             [[OSRemoteParamController sharedController] savePrivacyConsentRequired:required];
             [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+        }
+        if ([OSPrivacyConsentController requiresUserPrivacyConsent]) {
+            [OSRemoteLoggingController reset];
+        } else {
+            [OSRemoteLoggingController configure];
         }
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])

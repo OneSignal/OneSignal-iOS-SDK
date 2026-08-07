@@ -32,7 +32,7 @@ public protocol OSRemoteLoggerProtocol: AnyObject {
     var crashStoragePath: String { get }
 
     func log(level: String, message: String)
-    func forceFlush()
+    func forceFlush(completion: @escaping () -> Void)
     func shutdown()
 }
 
@@ -95,8 +95,8 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
     }
 
-    public func forceFlush() {
-        telemetry.forceFlush(completionHandler: { _ in })
+    public func forceFlush(completion: @escaping () -> Void) {
+        telemetry.forceFlush(completionHandler: { _ in completion() })
     }
 
     public func shutdown() {
@@ -121,7 +121,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     public let crashStoragePath = "unavailable"
 
     public func log(level: String, message: String) {}
-    public func forceFlush() {}
+    public func forceFlush(completion: @escaping () -> Void) {
+        completion()
+    }
     public func shutdown() {}
 }
 

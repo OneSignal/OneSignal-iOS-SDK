@@ -32,6 +32,14 @@ import UIKit
 import XCTest
 
 final class OSRemoteLoggingControllerTests: XCTestCase {
+    private var controllers: [OSRemoteLoggingController] = []
+
+    override func tearDown() {
+        controllers.forEach { $0.shutdown() }
+        controllers.removeAll()
+        super.tearDown()
+    }
+
     func testConfigurationRequiresFeatureFlagAndRemoteLevel() {
         let levelOnly = OSRemoteLoggingConfiguration(
             remoteParams: ["logging_config": ["log_level": "WARN"]]
@@ -39,13 +47,13 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         XCTAssertFalse(levelOnly.isRemoteLoggingEnabled)
 
         let flagOnly = OSRemoteLoggingConfiguration(
-            remoteParams: ["sdk_custom_logging": true]
+            remoteParams: ["sdk_remote_feature_flags": ["sdk_custom_logging"]]
         )
         XCTAssertFalse(flagOnly.isRemoteLoggingEnabled)
 
         let enabled = OSRemoteLoggingConfiguration(
             remoteParams: [
-                "sdk_custom_logging": true,
+                "sdk_remote_feature_flags": ["sdk_custom_logging"],
                 "logging_config": ["log_level": "warn"]
             ]
         )
@@ -54,13 +62,13 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         XCTAssertTrue(enabled.allows(.LL_WARN))
         XCTAssertFalse(enabled.allows(.LL_INFO))
 
-        let enabledFromFlagList = OSRemoteLoggingConfiguration(
+        let invalidLevel = OSRemoteLoggingConfiguration(
             remoteParams: [
                 "sdk_remote_feature_flags": ["sdk_custom_logging"],
-                "logging_config": ["log_level": "ERROR"]
+                "logging_config": ["log_level": "OFF"]
             ]
         )
-        XCTAssertTrue(enabledFromFlagList.isRemoteLoggingEnabled)
+        XCTAssertFalse(invalidLevel.isRemoteLoggingEnabled)
     }
 
     func testControllerRoutesLogsAndFlushesOnBackground() {
@@ -68,14 +76,22 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         let telemetry = RemoteTelemetrySpy()
         telemetry.emitExpectation = expectation(description: "routes matching log")
         telemetry.flushExpectation = expectation(description: "flushes on background")
-        let controller = OSRemoteLoggingController(
+        let backgroundTaskEnded = expectation(description: "ends background task after flush")
+        var startedTask: String?
+        var endedTask: String?
+        let controller = makeController(
             notificationCenter: notificationCenter,
+            beginBackgroundTask: { startedTask = $0 },
+            endBackgroundTask: {
+                endedTask = $0
+                backgroundTaskEnded.fulfill()
+            },
             remoteLoggerFactory: { _ in telemetry }
         )
 
         controller.configure(
             remoteParams: [
-                "sdk_custom_logging": true,
+                "sdk_remote_feature_flags": ["sdk_custom_logging"],
                 "logging_config": ["log_level": "ERROR"]
             ]
         )
@@ -83,12 +99,104 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         OneSignalLog.onesignalLog(.LL_ERROR, message: "uploaded")
         notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
 
-        wait(for: [telemetry.emitExpectation!, telemetry.flushExpectation!], timeout: 2)
-        controller.shutdown()
+        wait(
+            for: [telemetry.emitExpectation!, telemetry.flushExpectation!, backgroundTaskEnded],
+            timeout: 2
+        )
 
         XCTAssertEqual(telemetry.messages, ["uploaded"])
         XCTAssertEqual(telemetry.levels, ["ERROR"])
+        XCTAssertEqual(endedTask, startedTask)
+    }
+
+    func testWarnUsesRawMessageWithoutConsolePrefix() {
+        let telemetry = RemoteTelemetrySpy()
+        telemetry.emitExpectation = expectation(description: "routes warning")
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+        controller.configure(remoteParams: Self.remoteParams(level: "WARN"))
+
+        OneSignalLog.onesignalLog(.LL_WARN, message: "warning body")
+
+        wait(for: [telemetry.emitExpectation!], timeout: 2)
+        XCTAssertEqual(telemetry.messages, ["warning body"])
+        XCTAssertEqual(telemetry.levels, ["WARN"])
+    }
+
+    func testDisablingConfigurationStopsRemoteLogging() {
+        let telemetry = RemoteTelemetrySpy()
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+        controller.configure(remoteParams: [:])
+        telemetry.emitExpectation = expectation(description: "does not route after disable")
+        telemetry.emitExpectation?.isInverted = true
+
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "not uploaded")
+
+        wait(for: [telemetry.emitExpectation!], timeout: 0.2)
         XCTAssertEqual(telemetry.shutdownCount, 1)
+        XCTAssertTrue(telemetry.messages.isEmpty)
+    }
+
+    func testTerminationFlushesBeforeShutdown() {
+        let notificationCenter = NotificationCenter()
+        let telemetry = RemoteTelemetrySpy()
+        telemetry.flushExpectation = expectation(description: "flushes on termination")
+        telemetry.shutdownExpectation = expectation(description: "shuts down after flush")
+        let controller = makeController(
+            notificationCenter: notificationCenter,
+            remoteLoggerFactory: { _ in telemetry }
+        )
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+
+        notificationCenter.post(name: UIApplication.willTerminateNotification, object: nil)
+
+        wait(for: [telemetry.flushExpectation!, telemetry.shutdownExpectation!], timeout: 2)
+        XCTAssertEqual(telemetry.shutdownCount, 1)
+    }
+
+    func testSceneAppsObserveOnlySceneLifecycle() {
+        let notificationCenter = NotificationCenter()
+        let telemetry = RemoteTelemetrySpy()
+        let controller = makeController(
+            notificationCenter: notificationCenter,
+            usesScenes: { true },
+            remoteLoggerFactory: { _ in telemetry }
+        )
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+        telemetry.flushExpectation = expectation(description: "ignores application background")
+        telemetry.flushExpectation?.isInverted = true
+
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        wait(for: [telemetry.flushExpectation!], timeout: 0.2)
+
+        telemetry.flushExpectation = expectation(description: "flushes on scene background")
+        notificationCenter.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        wait(for: [telemetry.flushExpectation!], timeout: 2)
+    }
+
+    private func makeController(
+        notificationCenter: NotificationCenter = NotificationCenter(),
+        usesScenes: @escaping () -> Bool = { false },
+        beginBackgroundTask: @escaping (String) -> Void = { _ in },
+        endBackgroundTask: @escaping (String) -> Void = { _ in },
+        remoteLoggerFactory: @escaping OSRemoteLoggingController.RemoteLoggerFactory
+    ) -> OSRemoteLoggingController {
+        let controller = OSRemoteLoggingController(
+            notificationCenter: notificationCenter,
+            usesScenes: usesScenes,
+            beginBackgroundTask: beginBackgroundTask,
+            endBackgroundTask: endBackgroundTask,
+            remoteLoggerFactory: remoteLoggerFactory
+        )
+        controllers.append(controller)
+        return controller
+    }
+
+    private static func remoteParams(level: String) -> [String: Any] {
+        [
+            "sdk_remote_feature_flags": ["sdk_custom_logging"],
+            "logging_config": ["log_level": level]
+        ]
     }
 }
 
@@ -96,6 +204,7 @@ private final class RemoteTelemetrySpy: OSRemoteLoggerProtocol {
     private let lock = NSLock()
     var emitExpectation: XCTestExpectation?
     var flushExpectation: XCTestExpectation?
+    var shutdownExpectation: XCTestExpectation?
     let kmpVersion = "test"
     let crashStoragePath = "/test"
     private(set) var levels: [String] = []
@@ -110,13 +219,15 @@ private final class RemoteTelemetrySpy: OSRemoteLoggerProtocol {
         emitExpectation?.fulfill()
     }
 
-    func forceFlush() {
+    func forceFlush(completion: @escaping () -> Void) {
         flushExpectation?.fulfill()
+        completion()
     }
 
     func shutdown() {
         lock.lock()
         shutdownCount += 1
         lock.unlock()
+        shutdownExpectation?.fulfill()
     }
 }

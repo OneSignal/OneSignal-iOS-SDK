@@ -34,12 +34,16 @@ import UIKit
 struct OSRemoteLoggingConfiguration {
     static let featureFlagName = "SDK_CUSTOM_LOGGING"
     private static let featureFlagKey = "sdk_custom_logging"
+    private static let featureFlagsKey = "sdk_remote_feature_flags"
+    private static let loggingConfigKey = "logging_config"
+    private static let logLevelKey = "log_level"
 
     let isFeatureEnabled: Bool
     let logLevel: String?
+    private let threshold: ONE_S_LOG_LEVEL?
 
     var isRemoteLoggingEnabled: Bool {
-        isFeatureEnabled && logLevel != nil && logLevel != "NONE"
+        isFeatureEnabled && threshold != nil && threshold != .LL_NONE
     }
 
     static var current: OSRemoteLoggingConfiguration {
@@ -48,23 +52,21 @@ struct OSRemoteLoggingConfiguration {
     }
 
     init(remoteParams: [String: Any]) {
-        let loggingConfig = remoteParams["logging_config"] as? [String: Any]
-        let featureFlags = remoteParams["feature_flags"] as? [String: Any]
-        let enabledFlagNames =
-            (remoteParams["sdk_remote_feature_flags"] as? [String])
-            ?? (remoteParams["sdkRemoteFeatureFlags"] as? [String])
-            ?? (remoteParams["feature_flags"] as? [String])
-            ?? []
-        isFeatureEnabled =
-            Self.boolValue(remoteParams[Self.featureFlagKey])
-            ?? Self.boolValue(featureFlags?[Self.featureFlagKey])
-            ?? Self.boolValue(loggingConfig?[Self.featureFlagKey])
-            ?? enabledFlagNames.contains { $0.caseInsensitiveCompare(Self.featureFlagKey) == .orderedSame }
-        logLevel = (loggingConfig?["log_level"] as? String)?.uppercased()
+        let loggingConfig = remoteParams[Self.loggingConfigKey] as? [String: Any]
+        let enabledFlagNames = remoteParams[Self.featureFlagsKey] as? [String] ?? []
+        let parsedThreshold = (loggingConfig?[Self.logLevelKey] as? String)
+            .map { $0.uppercased() }
+            .flatMap(Self.oneSignalLevel)
+
+        isFeatureEnabled = enabledFlagNames.contains {
+            $0.caseInsensitiveCompare(Self.featureFlagKey) == .orderedSame
+        }
+        threshold = parsedThreshold
+        logLevel = parsedThreshold.map(Self.levelName)
     }
 
     func allows(_ level: ONE_S_LOG_LEVEL) -> Bool {
-        guard isRemoteLoggingEnabled, let threshold = logLevel.flatMap(Self.oneSignalLevel) else {
+        guard isRemoteLoggingEnabled, let threshold else {
             return false
         }
         return level != .LL_NONE && level.rawValue <= threshold.rawValue
@@ -108,25 +110,6 @@ struct OSRemoteLoggingConfiguration {
         }
     }
 
-    private static func boolValue(_ value: Any?) -> Bool? {
-        if let value = value as? Bool {
-            return value
-        }
-        if let value = value as? NSNumber {
-            return value.boolValue
-        }
-        if let value = value as? String {
-            switch value.lowercased() {
-            case "true", "1":
-                return true
-            case "false", "0":
-                return false
-            default:
-                return nil
-            }
-        }
-        return nil
-    }
 }
 
 @objc(OSRemoteLoggingController)
@@ -135,6 +118,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
 
     private static let shared = OSRemoteLoggingController()
     private static let installIdKey = "PREFS_OS_INSTALL_ID"
+    private static let backgroundTaskPrefix = "com.onesignal.logger.flush."
     private static let installId: String = {
         let defaults = OneSignalUserDefaults.initShared()
         if let saved = defaults.getSavedString(forKey: installIdKey, defaultValue: nil) {
@@ -149,6 +133,9 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     private let appStateLock = NSLock()
     private let notificationCenter: NotificationCenter
     private let remoteLoggerFactory: RemoteLoggerFactory
+    private let usesScenes: () -> Bool
+    private let beginBackgroundTask: (String) -> Void
+    private let endBackgroundTask: (String) -> Void
     private var configuration = OSRemoteLoggingConfiguration(remoteParams: [:])
     private var remoteLogger: OSRemoteLoggerProtocol?
     private var appState = "unknown"
@@ -157,6 +144,9 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
 
     init(
         notificationCenter: NotificationCenter = .default,
+        usesScenes: @escaping () -> Bool = { OSBundleUtils.isAppUsingUIScene() },
+        beginBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.beginBackgroundTask,
+        endBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.endBackgroundTask,
         remoteLoggerFactory: @escaping RemoteLoggerFactory = { providers in
             OSRemoteLogger(
                 installIdProvider: providers.installId,
@@ -170,6 +160,9 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         }
     ) {
         self.notificationCenter = notificationCenter
+        self.usesScenes = usesScenes
+        self.beginBackgroundTask = beginBackgroundTask
+        self.endBackgroundTask = endBackgroundTask
         self.remoteLoggerFactory = remoteLoggerFactory
         super.init()
     }
@@ -200,9 +193,13 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         }
     }
 
-    func forceFlush() {
+    func forceFlush(completion: @escaping () -> Void = {}) {
         stateQueue.async { [weak self] in
-            self?.remoteLogger?.forceFlush()
+            guard let remoteLogger = self?.remoteLogger else {
+                completion()
+                return
+            }
+            remoteLogger.forceFlush(completion: completion)
         }
     }
 
@@ -215,19 +212,23 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     private func configure(with newConfiguration: OSRemoteLoggingConfiguration) {
         updateAppState(Self.currentApplicationState())
         stateQueue.sync {
+            let previousLogLevel = self.configuration.logLevel
             self.configuration = newConfiguration
             guard newConfiguration.isRemoteLoggingEnabled else {
                 self.stopRemoteLogging()
-                self.logStartupDiagnostic(activePath: "local")
                 return
             }
 
+            if previousLogLevel != newConfiguration.logLevel {
+                self.stopRemoteLogging()
+            }
+
             if self.remoteLogger == nil {
-                self.remoteLogger = self.remoteLoggerFactory(self.makeProviders())
+                self.remoteLogger = self.remoteLoggerFactory(self.makeProviders(configuration: newConfiguration))
+                self.logStartupDiagnostic()
                 OneSignalLog.debug().__add(self)
                 self.isListening = true
                 self.registerLifecycleObservers()
-                self.logStartupDiagnostic(activePath: "kmp")
             }
         }
     }
@@ -245,47 +246,48 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     }
 
     private func registerLifecycleObservers() {
-        observe(UIApplication.didBecomeActiveNotification, appState: "foreground")
-        observe(Notification.Name("UISceneDidActivateNotification"), appState: "foreground")
-        observe(UIApplication.willResignActiveNotification, appState: "unknown")
-        observe(Notification.Name("UISceneWillDeactivateNotification"), appState: "unknown")
-        observe(UIApplication.didEnterBackgroundNotification, appState: "background", flush: true)
-        observe(Notification.Name("UISceneDidEnterBackgroundNotification"), appState: "background", flush: true)
+        if usesScenes() {
+            observe(Notification.Name("UISceneDidActivateNotification"), appState: "foreground")
+            observe(Notification.Name("UISceneWillDeactivateNotification"), appState: "unknown")
+            observe(Notification.Name("UISceneDidEnterBackgroundNotification"), appState: "background", flush: true)
+        } else {
+            observe(UIApplication.didBecomeActiveNotification, appState: "foreground")
+            observe(UIApplication.willResignActiveNotification, appState: "unknown")
+            observe(UIApplication.didEnterBackgroundNotification, appState: "background", flush: true)
+        }
         notificationTokens.append(
             notificationCenter.addObserver(
                 forName: UIApplication.willTerminateNotification,
                 object: nil,
                 queue: nil
             ) { [weak self] _ in
-                self?.shutdown()
+                self?.flushForLifecycle(shutdownAfterFlush: true)
             }
         )
     }
 
-    private func logStartupDiagnostic(activePath: String) {
+    private func logStartupDiagnostic() {
         let kmpVersion = remoteLogger?.kmpVersion ?? "unavailable"
         let crashStoragePath = remoteLogger?.crashStoragePath ?? "unavailable"
         OneSignalLog.onesignalLog(
             .LL_WARN,
             message: "OneSignal logging initialized: sdk=\(ONESIGNAL_VERSION), "
-                + "kmp=\(kmpVersion), path=\(activePath), "
+                + "kmp=\(kmpVersion), path=kmp, "
                 + "\(OSRemoteLoggingConfiguration.featureFlagName)=\(configuration.isFeatureEnabled), "
                 + "crash_dir=\(crashStoragePath)"
         )
     }
 
-    private func makeProviders() -> OSRemoteLoggerProviders {
+    private func makeProviders(configuration: OSRemoteLoggingConfiguration) -> OSRemoteLoggerProviders {
         OSRemoteLoggerProviders(
             installId: { Self.installId },
             onesignalId: { OneSignalUserManagerImpl.sharedInstance.onesignalId },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
             featureFlags: {
-                OSRemoteLoggingConfiguration.current.isFeatureEnabled
-                    ? [OSRemoteLoggingConfiguration.featureFlagName]
-                    : []
+                configuration.isFeatureEnabled ? [OSRemoteLoggingConfiguration.featureFlagName] : []
             },
-            remoteLogLevel: { OSRemoteLoggingConfiguration.current.logLevel },
+            remoteLogLevel: { configuration.logLevel },
             exporterLoggingEnabled: { false }
         )
     }
@@ -311,10 +313,34 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
             notificationCenter.addObserver(forName: name, object: nil, queue: nil) { [weak self] _ in
                 self?.updateAppState(appState)
                 if flush {
-                    self?.forceFlush()
+                    self?.flushForLifecycle(shutdownAfterFlush: false)
                 }
             }
         )
+    }
+
+    private func flushForLifecycle(shutdownAfterFlush: Bool) {
+        let taskIdentifier = Self.backgroundTaskPrefix + UUID().uuidString
+        let endBackgroundTask = self.endBackgroundTask
+        beginBackgroundTask(taskIdentifier)
+        stateQueue.async { [weak self] in
+            guard let self, let remoteLogger = self.remoteLogger else {
+                endBackgroundTask(taskIdentifier)
+                return
+            }
+            remoteLogger.forceFlush { [weak self] in
+                guard let self else {
+                    endBackgroundTask(taskIdentifier)
+                    return
+                }
+                self.stateQueue.async {
+                    if shutdownAfterFlush {
+                        self.stopRemoteLogging()
+                    }
+                    endBackgroundTask(taskIdentifier)
+                }
+            }
+        }
     }
 
     private static func currentApplicationState() -> String {
@@ -335,10 +361,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     }
 
     private func message(from event: OneSignalLogEvent) -> String {
-        let prefix = "\(OSRemoteLoggingConfiguration.levelName(event.level)): "
-        return event.entry.hasPrefix(prefix)
-            ? String(event.entry.dropFirst(prefix.count))
-            : event.entry
+        event.message
     }
 }
 
