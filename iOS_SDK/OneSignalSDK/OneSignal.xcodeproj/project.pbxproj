@@ -83,6 +83,7 @@
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
 		3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */; };
+		3C773572A159442149ECBF86 /* OSDeltaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C773571A159442149ECBF86 /* OSDeltaTests.swift */; };
 		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -184,6 +185,7 @@
 		3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */; };
 		3CC063EF2B6D7FE8002BB07F /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */; };
+		3C9452A6C80FAA4ED283C62F /* DeltaOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C9452A5C80FAA4ED283C62F /* DeltaOwnershipTests.swift */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CC9A6362AFA26E7008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */; };
 		3CCC48042FCD619400D77E94 /* OSResilientStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCC48032FCD619400D77E94 /* OSResilientStorage.swift */; };
@@ -1367,6 +1369,7 @@
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoFlushTests.swift; sourceTree = "<group>"; };
+		3C773571A159442149ECBF86 /* OSDeltaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDeltaTests.swift; sourceTree = "<group>"; };
 		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
@@ -1440,6 +1443,7 @@
 		3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalUserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserTests.swift; sourceTree = "<group>"; };
 		3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConcurrencyTests.swift; sourceTree = "<group>"; };
+		3C9452A5C80FAA4ED283C62F /* DeltaOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeltaOwnershipTests.swift; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CCC48032FCD619400D77E94 /* OSResilientStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSResilientStorage.swift; sourceTree = "<group>"; };
@@ -2396,6 +2400,7 @@
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
 				3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */,
 				3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */,
+				3C9452A5C80FAA4ED283C62F /* DeltaOwnershipTests.swift */,
 				3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */,
 				3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */,
 				3CDE664B2BFC2A56006DA114 /* OneSignalUserObjcTests.m */,
@@ -2592,6 +2597,7 @@
 				3CF0AC373022489400C73958 /* Feature */,
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
+				3C773571A159442149ECBF86 /* OSDeltaTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -4548,6 +4554,7 @@
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
+				3C9452A6C80FAA4ED283C62F /* DeltaOwnershipTests.swift in Sources */,
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,
 				3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */,
 				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
@@ -4627,6 +4634,7 @@
 				3CF0AC3C3022492C00C73958 /* OSUserJwtConfigTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
+				3C773572A159442149ECBF86 /* OSDeltaTests.swift in Sources */,
 				3CF0AC3E302249B200C73958 /* OSIdentityVerificationServiceTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
