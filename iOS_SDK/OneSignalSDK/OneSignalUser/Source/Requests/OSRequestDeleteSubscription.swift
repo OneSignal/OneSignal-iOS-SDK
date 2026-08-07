@@ -41,9 +41,13 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     }
 
     var subscriptionModel: OSSubscriptionModel
-    /// Owning user; optional so pre-ownership caches still decode. Missing ownership is treated as
-    /// anonymous when Identity Verification purges unsigned work.
-    var identityModel: OSIdentityModel?
+
+    /**
+     See the ownership convention in `OSUserRequest.swift`. Removing an email or SMS subscription is a
+     deliberate action on one user, so an anonymous one is dropped under Identity Verification even
+     though the endpoint is addressed by subscription ID and takes no user JWT.
+     */
+    let ownerExternalId: String?
 
     // Need the subscription_id
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
@@ -58,9 +62,9 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel?) {
+    init(subscriptionModel: OSSubscriptionModel, ownerExternalId: String?) {
         self.subscriptionModel = subscriptionModel
-        self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = DELETE
@@ -68,7 +72,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
-        coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -83,7 +87,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel = subscriptionModel
-        self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)

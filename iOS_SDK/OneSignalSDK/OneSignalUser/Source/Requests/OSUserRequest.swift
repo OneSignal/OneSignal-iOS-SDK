@@ -33,6 +33,19 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool
 }
 
+/*
+ Ownership convention: a Request that Identity Verification can purge stores `ownerExternalId`, the
+ owner's `external_id` as of when the Request was built, and the purge judges it by that rather than
+ by its `identityModel`.
+
+ The live model cannot answer the question. `clearUserData` empties an Identity Model's aliases before
+ a fetch response hydrates them, so for that window an identified user reads as anonymous and a purge
+ running alongside it would delete signed work. The stamp also matches how `OSDelta` carries
+ `externalId`, which keeps a Delta and the Request built from it judged the same way.
+
+ nil means anonymous, including for caches written before ownership was stamped.
+ */
+
 internal extension OneSignalRequest {
     /** Returns if the `OneSignal-Subscription-Id` header was added successfully. */
     func addPushSubscriptionIdToAdditionalHeaders() -> Bool {

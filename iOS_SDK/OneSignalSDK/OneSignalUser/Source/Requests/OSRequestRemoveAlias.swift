@@ -38,6 +38,9 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     let labelToRemove: String
     var identityModel: OSIdentityModel
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
@@ -50,9 +53,10 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(labelToRemove: String, identityModel: OSIdentityModel) {
+    init(labelToRemove: String, identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.labelToRemove = labelToRemove
         self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "OSRequestRemoveAlias with aliasLabel: \(labelToRemove)"
         super.init()
         self.method = DELETE
@@ -61,6 +65,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     func encode(with coder: NSCoder) {
         coder.encode(labelToRemove, forKey: "labelToRemove")
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
     }
@@ -77,6 +82,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         }
         self.labelToRemove = labelToRemove
         self.identityModel = identityModel
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "OSRequestRemoveAlias with aliasLabel: \(labelToRemove)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)

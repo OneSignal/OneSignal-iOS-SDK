@@ -43,6 +43,9 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
     var identityModel: OSIdentityModel
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     // Need the onesignal_id of the user
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let onesignalId = identityModel.onesignalId,
@@ -56,9 +59,10 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
@@ -68,6 +72,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -86,6 +91,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = parameters

@@ -135,14 +135,14 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
 
-            let remainingAdd = self.addRequestQueue.filter { $0.identityModel.externalId != nil }
+            let remainingAdd = self.addRequestQueue.filter { $0.ownerExternalId != nil }
             if remainingAdd.count != self.addRequestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.addRequestQueue.count - remainingAdd.count) anonymous add Requests, Identity Verification is required")
                 self.addRequestQueue = remainingAdd
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
             }
 
-            let remainingRemove = self.removeRequestQueue.filter { $0.identityModel.externalId != nil }
+            let remainingRemove = self.removeRequestQueue.filter { $0.ownerExternalId != nil }
             if remainingRemove.count != self.removeRequestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.removeRequestQueue.count - remainingRemove.count) anonymous remove Requests, Identity Verification is required")
                 self.removeRequestQueue = remainingRemove
@@ -166,12 +166,12 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
                 switch delta.name {
                 case OS_ADD_ALIAS_DELTA:
-                    let request = OSRequestAddAliases(aliases: aliases, identityModel: model)
+                    let request = OSRequestAddAliases(aliases: aliases, identityModel: model, ownerExternalId: delta.externalId)
                     self.addRequestQueue.append(request)
 
                 case OS_REMOVE_ALIAS_DELTA:
                     for (label, _) in aliases {
-                        let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
+                        let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model, ownerExternalId: delta.externalId)
                         self.removeRequestQueue.append(request)
                     }
 

@@ -37,6 +37,9 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
 
     var identityModel: OSIdentityModel
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
@@ -50,8 +53,9 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(events: [[String: Any]], identityModel: OSIdentityModel) {
+    init(events: [[String: Any]], identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestCustomEvents with events: \(events)>"
         super.init()
         self.parameters = [
@@ -62,6 +66,7 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -78,6 +83,7 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestCustomEvents with parameters: \(parameters)>"
         super.init()
         self.parameters = parameters

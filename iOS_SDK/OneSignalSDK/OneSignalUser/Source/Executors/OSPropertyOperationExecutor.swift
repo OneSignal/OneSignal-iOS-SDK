@@ -35,6 +35,11 @@ private struct OSCombinedProperties {
     var location: OSLocationPoint?
     var refreshDeviceMetadata = false
 
+    /// Carried from the Deltas so the Request inherits their stamped owner. The Deltas combined here
+    /// share one Identity Model; the last one wins if that model gained an `external_id` partway, which
+    /// keeps the combined work rather than dropping it.
+    var ownerExternalId: String?
+
     // Items of Properties Deltas
     var sessionTime: Int = 0
     var sessionCount: Int = 0
@@ -138,7 +143,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
 
-            let remainingRequests = self.updateRequestQueue.filter { $0.identityModel.externalId != nil }
+            let remainingRequests = self.updateRequestQueue.filter { $0.ownerExternalId != nil }
             if remainingRequests.count != self.updateRequestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor dropped \(self.updateRequestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
                 self.updateRequestQueue = remainingRequests
@@ -186,7 +191,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 }
                 let request = OSRequestUpdateProperties(
                     params: properties.jsonRepresentation(),
-                    identityModel: identityModel
+                    identityModel: identityModel,
+                    ownerExternalId: properties.ownerExternalId
                 )
                 self.updateRequestQueue.append(request)
             }
@@ -204,6 +210,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     /// Helper method to combine the information in an `OSDelta` to the existing `OSCombinedProperties` so far.
     private func combineProperties(existing: OSCombinedProperties?, delta: OSDelta) -> OSCombinedProperties {
         var combinedProperties = existing ?? OSCombinedProperties()
+        combinedProperties.ownerExternalId = delta.externalId
 
         guard let property = OSPropertiesSupportedProperty(rawValue: delta.property) else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.combineProperties dropped unsupported property: \(delta.property)")

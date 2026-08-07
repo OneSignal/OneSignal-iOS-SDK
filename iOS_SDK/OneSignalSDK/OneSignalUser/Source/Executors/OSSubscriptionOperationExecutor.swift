@@ -124,14 +124,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     removeRequestQueue.remove(at: index)
                     continue
                 }
-
-                if let cachedIdentity = request.identityModel {
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(cachedIdentity.modelId) {
-                        request.identityModel = identityModel
-                    } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(cachedIdentity)
-                    }
-                }
             }
             self.removeRequestQueue = removeRequestQueue
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
@@ -221,14 +213,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
 
-            let remainingAdd = self.addRequestQueue.filter { $0.identityModel.externalId != nil }
+            let remainingAdd = self.addRequestQueue.filter { $0.ownerExternalId != nil }
             if remainingAdd.count != self.addRequestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.addRequestQueue.count - remainingAdd.count) anonymous add Requests, Identity Verification is required")
                 self.addRequestQueue = remainingAdd
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
             }
 
-            let remainingRemove = self.removeRequestQueue.filter { $0.identityModel?.externalId != nil }
+            let remainingRemove = self.removeRequestQueue.filter { $0.ownerExternalId != nil }
             if remainingRemove.count != self.removeRequestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.removeRequestQueue.count - remainingRemove.count) anonymous remove Requests, Identity Verification is required")
                 self.removeRequestQueue = remainingRemove
@@ -257,7 +249,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     if let identityModel = identityModel {
                         let request = OSRequestCreateSubscription(
                             subscriptionModel: subModel,
-                            identityModel: identityModel
+                            identityModel: identityModel,
+                            ownerExternalId: delta.externalId
                         )
                         self.addRequestQueue.append(request)
                     } else {
@@ -266,7 +259,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
                     let request = OSRequestDeleteSubscription(
                         subscriptionModel: subModel,
-                        identityModel: identityModel
+                        ownerExternalId: delta.externalId
                     )
                     self.removeRequestQueue.append(request)
 
@@ -300,7 +293,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
     // Bypasses the operation repo to create a push subscription request
     func createPushSubscription(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
-        let request = OSRequestCreateSubscription(subscriptionModel: subscriptionModel, identityModel: identityModel)
+        // No Delta to inherit ownership from, so read the owner directly.
+        let request = OSRequestCreateSubscription(
+            subscriptionModel: subscriptionModel,
+            identityModel: identityModel,
+            ownerExternalId: identityModel.externalId
+        )
         self.dispatchQueue.async {
             self.addRequestQueue.append(request)
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)

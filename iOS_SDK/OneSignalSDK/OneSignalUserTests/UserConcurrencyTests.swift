@@ -106,8 +106,8 @@ final class UserConcurrencyTests: XCTestCase {
             OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), identityModel: nil), inBackground: false)
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), identityModel: nil), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
         }
 
         // 4. Run background threads
@@ -145,8 +145,8 @@ final class UserConcurrencyTests: XCTestCase {
             OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
-            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
         }
 
         // 4. Run background threads
@@ -186,7 +186,7 @@ final class UserConcurrencyTests: XCTestCase {
             OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
+            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel, ownerExternalId: identityModel.externalId), inBackground: false)
         }
 
         // 4. Run background threads

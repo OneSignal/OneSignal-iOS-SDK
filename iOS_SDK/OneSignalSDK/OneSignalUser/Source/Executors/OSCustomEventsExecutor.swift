@@ -125,7 +125,7 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
 
-            let remainingRequests = self.requestQueue.filter { $0.identityModel.externalId != nil }
+            let remainingRequests = self.requestQueue.filter { $0.ownerExternalId != nil }
             if remainingRequests.count != self.requestQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.requestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
                 self.requestQueue = remainingRequests
@@ -145,8 +145,8 @@ class OSCustomEventsExecutor: OSOperationExecutor {
             }
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor processDeltaQueue with queue: \(self.deltaQueue)")
 
-            // Holds mapping of identity model ID to the events for it
-            var combinedEvents: [String: [[String: Any]]] = [:]
+            // Holds mapping of identity model ID to the events for it, with the owner the Deltas stamped
+            var combinedEvents: [String: (events: [[String: Any]], ownerExternalId: String?)] = [:]
 
             // 1. Combine the events for every distinct user
             for (index, delta) in self.deltaQueue.enumerated().reversed() {
@@ -172,20 +172,21 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                     EventConstants.payload: self.addSdkMetadata(properties: properties)
                 ]
 
-                combinedEvents[identityModel.modelId, default: []].append(event)
+                combinedEvents[identityModel.modelId, default: ([], delta.externalId)].events.append(event)
                 self.deltaQueue.remove(at: index)
             }
 
             // 2. Turn each user's events into a Request
-            for (modelId, events) in combinedEvents {
+            for (modelId, combined) in combinedEvents {
                 guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId)
                 else {
                     // This should never happen as we already checked this during Deltas processing above
                     continue
                 }
                 let request = OSRequestCustomEvents(
-                    events: events,
-                    identityModel: identityModel
+                    events: combined.events,
+                    identityModel: identityModel,
+                    ownerExternalId: combined.ownerExternalId
                 )
                 self.requestQueue.append(request)
             }
@@ -234,7 +235,8 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
                 let request = OSRequestCustomEvents(
                     events: [event],
-                    identityModel: identityModel
+                    identityModel: identityModel,
+                    ownerExternalId: delta.externalId
                 )
                 self.requestQueue.append(request)
             }
