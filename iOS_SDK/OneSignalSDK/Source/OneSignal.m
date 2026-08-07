@@ -29,6 +29,7 @@
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
+#import "OSRemoteLoggingController.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalJailbreakDetection.h"
@@ -137,6 +138,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
+    [OSRemoteLoggingController reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -654,6 +656,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
+        [OSRemoteLoggingController reset];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
@@ -698,9 +701,16 @@ static BOOL ComputeInitialStorageReadable(void) {
 
 + (void)setConsentGiven:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
+    if (!granted) {
+        [OSRemoteLoggingController reset];
+    }
     
-    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
+    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil) {
+        if (granted) {
+            [OSRemoteLoggingController configure];
+        }
         return;
+    }
     // Try to init again using delayed params
     [self initialize:_delayedInitParameters.appId withLaunchOptions:_delayedInitParameters.launchOptions];
     delayedInitializationForPrivacyConsent = false;
@@ -747,6 +757,11 @@ static BOOL ComputeInitialStorageReadable(void) {
             BOOL required = [result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
             [[OSRemoteParamController sharedController] savePrivacyConsentRequired:required];
             [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+        }
+        if ([OSPrivacyConsentController requiresUserPrivacyConsent]) {
+            [OSRemoteLoggingController reset];
+        } else {
+            [OSRemoteLoggingController configure];
         }
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])

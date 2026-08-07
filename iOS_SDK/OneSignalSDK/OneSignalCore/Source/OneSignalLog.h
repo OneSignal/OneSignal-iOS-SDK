@@ -39,6 +39,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 @interface OneSignalLogEvent : NSObject
 @property(readonly)ONE_S_LOG_LEVEL level;
 @property(readonly, nonnull)NSString *entry;
+@property(readonly, nonnull)NSString *message;
 @end
 
 @protocol OSLogListener <NSObject>
