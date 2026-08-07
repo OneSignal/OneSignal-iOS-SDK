@@ -319,7 +319,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
 
         // Increase flush interval to allow all the updates to batch
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.pollIntervalMilliseconds = 300
         // Wait to let any pending flushes in the Operation Repo to run
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.3)
 

@@ -52,11 +52,11 @@ final class DeltaOwnershipTests: XCTestCase {
         // rebuilding the user underneath them.
         manager.hasCalledStart = true
         // Deltas have to stay in the repo queue long enough to be inspected.
-        OSOperationRepo.sharedInstance.paused = true
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
     }
 
     override func tearDownWithError() throws {
-        OSOperationRepo.sharedInstance.paused = false
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         OneSignalCoreMocks.clearUserDefaults()
     }
 
@@ -256,6 +256,6 @@ final class DeltaOwnershipTests: XCTestCase {
     }
 
     private func queuedDelta(named name: String, property: String) -> OSDelta? {
-        return OSOperationRepo.sharedInstance.deltaQueue.first { $0.name == name && $0.property == property }
+        return OneSignalUserManagerImpl.sharedInstance.operationRepo.deltaQueue.first { $0.name == name && $0.property == property }
     }
 }

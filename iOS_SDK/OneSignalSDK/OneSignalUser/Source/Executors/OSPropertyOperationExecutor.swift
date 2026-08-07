@@ -129,6 +129,18 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
+    func removeDeltasWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remaining = self.deltaQueue.filter { $0.externalId != nil }
+            guard remaining.count != self.deltaQueue.count else {
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
+            self.deltaQueue = remaining
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
+    }
+
     /// The `deltaQueue` should only contain updates for one user.
     /// Even when login -> addTag -> login -> addTag are called in immediate succession.
     func processDeltaQueue(inBackground: Bool) {

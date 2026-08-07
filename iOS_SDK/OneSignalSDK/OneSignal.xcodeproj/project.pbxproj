@@ -83,6 +83,8 @@
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
 		3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */; };
+		BB4290DBBF99C8223940DECB /* OSOperationRepoIdentityVerificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C340D03063E9198274A48C8B /* OSOperationRepoIdentityVerificationTests.swift */; };
+		70BA069337C40AD9BD61099C /* OSOperationRepoTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CBB2A43F6773065F8ABBEC /* OSOperationRepoTestSupport.swift */; };
 		3C773572A159442149ECBF86 /* OSDeltaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C773571A159442149ECBF86 /* OSDeltaTests.swift */; };
 		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
@@ -1369,6 +1371,8 @@
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoFlushTests.swift; sourceTree = "<group>"; };
+		C340D03063E9198274A48C8B /* OSOperationRepoIdentityVerificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoIdentityVerificationTests.swift; sourceTree = "<group>"; };
+		B2CBB2A43F6773065F8ABBEC /* OSOperationRepoTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoTestSupport.swift; sourceTree = "<group>"; };
 		3C773571A159442149ECBF86 /* OSDeltaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDeltaTests.swift; sourceTree = "<group>"; };
 		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
@@ -2597,6 +2601,8 @@
 				3CF0AC373022489400C73958 /* Feature */,
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
+				C340D03063E9198274A48C8B /* OSOperationRepoIdentityVerificationTests.swift */,
+				B2CBB2A43F6773065F8ABBEC /* OSOperationRepoTestSupport.swift */,
 				3C773571A159442149ECBF86 /* OSDeltaTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
@@ -4634,6 +4640,8 @@
 				3CF0AC3C3022492C00C73958 /* OSUserJwtConfigTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
+				BB4290DBBF99C8223940DECB /* OSOperationRepoIdentityVerificationTests.swift in Sources */,
+				70BA069337C40AD9BD61099C /* OSOperationRepoTestSupport.swift in Sources */,
 				3C773572A159442149ECBF86 /* OSDeltaTests.swift in Sources */,
 				3CF0AC3E302249B200C73958 /* OSIdentityVerificationServiceTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,

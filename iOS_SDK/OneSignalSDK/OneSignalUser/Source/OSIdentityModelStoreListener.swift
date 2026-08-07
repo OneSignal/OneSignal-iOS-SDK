@@ -31,9 +31,11 @@ import OneSignalOSCore
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSIdentityModel>) {
+    required init(store: OSModelStore<OSIdentityModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {

@@ -116,6 +116,18 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 
+    func removeDeltasWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remaining = self.deltaQueue.filter { $0.externalId != nil }
+            guard remaining.count != self.deltaQueue.count else {
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
+            self.deltaQueue = remaining
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
+    }
+
     /// The `deltaQueue` can contain events for multiple users. They will remain as Deltas if there is no onesignal ID yet for its user.
     /// This method will be used in an upcoming release that combine multiple events.
     func processDeltaQueueWithBatching(inBackground: Bool) {

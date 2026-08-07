@@ -29,17 +29,20 @@ import Foundation
 import OneSignalCore
 
 /**
- The OSOperationRepo is a static singleton.
- OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
+ Enqueues OSDeltas from model-store observers and routes them to executors.
+
+ Also owns Identity Verification decisions for queued work: hold flushes until `requirement` is known,
+ and drop anonymous Deltas while IV is active (no `external_id` means nothing to sign with).
  */
 public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo()
-    private var hasCalledStart = false
+    private let identityVerificationService: OSIdentityVerificationService
 
-    // The Operation Repo dispatch queue, serial. This synchronizes access to `deltaQueue` and flushing behavior.
+    private var hasCalledStart = false
+    private var hasBegunObserving = false
+
+    // Serial: synchronizes `deltaQueue` and flush.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSOperationRepo", target: .global())
 
-    // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
     var deltaQueue: [OSDelta] = [] // non-private for unit test access
@@ -48,10 +51,38 @@ public class OSOperationRepo: NSObject {
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
 
+    // Uncache in init so an enqueue before start cannot persist over a previous session's queue.
+    public init(identityVerificationService: OSIdentityVerificationService) {
+        self.identityVerificationService = identityVerificationService
+        super.init()
+        uncacheDeltaQueue()
+    }
+
     /**
-     Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
-     If everything starts up on initialize(), order can matter, ideally not but it can.
-     Likely call init on this from oneSignal but exeuctors can come from diff modules.
+     Re-reads the cache while the in-memory queue is still empty. `init` can run during prewarm before
+     first unlock, when UserDefaults silently returns nothing — same gap as `OSModelStore.refresh`.
+     */
+    public func refreshIfEmpty() {
+        dispatchQueue.async {
+            guard self.deltaQueue.isEmpty else {
+                return
+            }
+            self.uncacheDeltaQueue()
+        }
+    }
+
+    private func uncacheDeltaQueue() {
+        guard let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo is unable to uncache the OSDelta queue.")
+            return
+        }
+        deltaQueue = cached
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo uncached deltaQueue: \(cached)")
+    }
+
+    /**
+     Starts the poller. Returns without latching while `requirement` is unknown so hydration can
+     drive `start()` again once remote params answer.
      */
     public func start() {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -60,23 +91,49 @@ public class OSOperationRepo: NSObject {
         guard !hasCalledStart else {
             return
         }
+
+        beginObserving()
+
+        guard identityVerificationService.requirement != .unknown else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo.start() deferred until the Identity Verification requirement is known")
+            return
+        }
         hasCalledStart = true
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo calling start()")
-        // register as user observer
+        pollFlushQueue()
+    }
+
+    // Subscribe ahead of the requirement gate so a never-hydrated session still hears late hydration.
+    private func beginObserving() {
+        guard !hasBegunObserving else {
+            return
+        }
+        hasBegunObserving = true
+
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(self.addFlushDeltaQueueToDispatchQueue),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE),
                                                object: nil)
-        // Read the Deltas from cache, if any...
-        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
-            self.deltaQueue = deltaQueue
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo.start() with deltaQueue: \(deltaQueue)")
-        } else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo.start() is unable to uncache the OSDelta queue.")
-        }
 
-        pollFlushQueue()
+        // Callback rather than a repo dependency, which would cycle.
+        identityVerificationService.setOnJwtConfigHydratedHandler { [weak self] _ in
+            self?.onJwtConfigHydrated()
+        }
+    }
+
+    /**
+     Runs on every hydration, including an unchanged value — deferred work is waiting on it.
+
+     Hop onto `dispatchQueue`: a handler registered when the requirement is already cached fires
+     synchronously from inside `start()`, which can already be on this queue during a flush.
+     */
+    private func onJwtConfigHydrated() {
+        dispatchQueue.async {
+            // Flush now rather than wait out a poll interval for work held since launch.
+            self.start()
+            self.flushDeltaQueue()
+        }
     }
 
     private func pollFlushQueue() {
@@ -86,9 +143,6 @@ public class OSOperationRepo: NSObject {
         }
     }
 
-    /**
-     Add and start an executor.
-     */
     public func addExecutor(_ executor: OSOperationExecutor) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
@@ -103,7 +157,7 @@ public class OSOperationRepo: NSObject {
     /**
      Enqueueing is driven by model changes and called manually by the User Manager to
      add session time, session count and purchase data.
-     
+
      // TODO: We can make this method internal once there is no manual adding of a Delta except through stores.
      This can happen when session data and purchase data use the model / store / listener infrastructure.
      */
@@ -112,11 +166,17 @@ public class OSOperationRepo: NSObject {
             return
         }
         start()
+
+        // Drop here too so it is never persisted; flush still covers deltas restored from cache.
+        guard !(shouldDropAnonymousDeltas && delta.externalId == nil) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
+            return
+        }
+
         self.dispatchQueue.async {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
             self.deltaQueue.append(delta)
 
-            // Persist the deltas (including new delta) to storage
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
 
             if flush {
@@ -131,6 +191,16 @@ public class OSOperationRepo: NSObject {
         }
     }
 
+    /**
+     Anonymous Deltas can never be signed, so drop them while IV is active.
+
+     `newCodePathsRun` is redundant today (`ivBehaviorActive` implies it) but keeps the rollout flag
+     as a kill switch on every new path, matching Android.
+     */
+    private var shouldDropAnonymousDeltas: Bool {
+        return identityVerificationService.newCodePathsRun && identityVerificationService.ivBehaviorActive
+    }
+
     private func flushDeltaQueue(inBackground: Bool = false) {
         guard !paused else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo not flushing queue due to being paused")
@@ -141,29 +211,58 @@ public class OSOperationRepo: NSObject {
             return
         }
 
+        // Before the requirement gate so a first flush still registers the hydration handler.
+        self.start()
+
+        /*
+         Hold until `requirement` is known. `newCodePathsRun` / `ivBehaviorActive` both read false while
+         it is unknown, so gating on them would skip the deferral for apps that require auth without
+         the rollout flag.
+         */
+        guard identityVerificationService.requirement != .unknown else {
+            let heldCount = self.deltaQueue.count
+            if heldCount > 0 {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo holding \(heldCount) Deltas until the requirement is known")
+            }
+            return
+        }
+
         if inBackground {
             OSBackgroundTaskManager.beginBackgroundTask(OPERATION_REPO_BACKGROUND_TASK)
         }
-
-        self.start()
 
         if !self.deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue in background: \(inBackground) with queue: \(self.deltaQueue)")
         }
 
+        // Snapshot once so every Delta in this pass sees the same gate values.
+        let dropAnonymous = shouldDropAnonymousDeltas
+
         var unmatched: [OSDelta] = []
         for delta in self.deltaQueue {
-            if let executor = self.deltasToExecutorMap[delta.name] {
+            if dropAnonymous, delta.externalId == nil {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
+            } else if let executor = self.deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
             } else {
                 // Keep if no executor matches yet (module may not have started).
                 unmatched.append(delta)
             }
         }
-        self.deltaQueue = unmatched
+        // Persist only when the queue changed: a no-op write before `refreshIfEmpty` can clobber a
+        // cache that prewarm failed to read.
+        if unmatched.count != self.deltaQueue.count {
+            self.deltaQueue = unmatched
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
 
-        // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        if dropAnonymous {
+            // Executor caches hold deltas handed out last session; `refreshIfUnknown` can arm IV
+            // with no hydration event, so drive the purge from every suppressing flush.
+            for executor in self.executors {
+                executor.removeDeltasWithoutExternalId()
+            }
+        }
 
         for executor in self.executors {
             executor.cacheDeltaQueue()

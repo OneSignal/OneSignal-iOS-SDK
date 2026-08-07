@@ -37,8 +37,10 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
-        OSCoreMocks.resetOperationRepo()
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.reset()
         OSCoreMocks.resetSharedJwtConfig()
+        // Hydrate `off` so the Operation Repo's unknown-requirement deferral does not stall non-IV tests.
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 

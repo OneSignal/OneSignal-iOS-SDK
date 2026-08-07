@@ -31,9 +31,11 @@ import OneSignalOSCore
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSPropertiesModel>) {
+    required init(store: OSModelStore<OSPropertiesModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {

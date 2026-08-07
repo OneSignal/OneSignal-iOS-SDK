@@ -33,12 +33,9 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 /**
- Covers the public JWT surface on the User Manager: storing a token supplied by the app, and telling
- the app when the token it supplied stopped being accepted.
-
- These go through `OneSignalUserManagerImpl.sharedInstance` because the JWT config and the Identity
- Verification service it reads are shared instances. `OneSignalUserMocks.reset()` puts the shared
- requirement back to unhydrated between tests.
+ Public JWT surface on the User Manager: store a token, and tell the app when it stopped being accepted.
+ Goes through `sharedInstance` because the JWT config and IV service are shared; `OneSignalUserMocks.reset()`
+ leaves the requirement at `off`, so IV tests hydrate it on.
  */
 final class UserJwtApiTests: XCTestCase {
 

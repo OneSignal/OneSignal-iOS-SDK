@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2026 OneSignal
+ Copyright 2025 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -37,17 +37,26 @@ final class OSOperationRepoFlushTests: XCTestCase {
     private let knownDelta = "test_known_delta"
     private let unknownDelta = "test_unknown_delta"
 
+    private var jwtConfig = OSUserJwtConfig()
+    private var repo: OSOperationRepo!
+
     override func setUp() {
         super.setUp()
         OneSignalIdentifiers.currentAppId = "test-app-id"
-        resetOperationRepo()
-        // Pause so the poller (started by addExecutor/start) cannot flush mid-setup.
-        OSOperationRepo.sharedInstance.paused = true
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 60_000
+        OSOperationRepoTestEnvironment.clearCache()
+
+        jwtConfig = OSUserJwtConfig()
+        // Hydrate `off` before building the repo so routing tests are not held by unknown-requirement.
+        jwtConfig.hydrate(requiresUserAuth: false)
+        repo = OSOperationRepoTestEnvironment.makeRepo(jwtConfig: jwtConfig)
+
+        // Pause so addExecutor/start cannot flush mid-setup.
+        repo.paused = true
+        repo.pollIntervalMilliseconds = 60_000
     }
 
     override func tearDown() {
-        resetOperationRepo()
+        OSOperationRepoTestEnvironment.clearCache()
         super.tearDown()
     }
 
@@ -56,14 +65,11 @@ final class OSOperationRepoFlushTests: XCTestCase {
         let processExpectation = expectation(description: "processDeltaQueue")
         executor.onProcessDeltaQueue = { processExpectation.fulfill() }
 
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
-        let deltaA = makeDelta(name: knownDelta, property: "a")
-        let deltaB = makeDelta(name: knownDelta, property: "b")
-        repo.enqueueDelta(deltaA)
-        repo.enqueueDelta(deltaB)
-        waitUntil("both deltas enqueued") { repo.deltaQueue.count == 2 }
+        repo.enqueueDelta(makeDelta(name: knownDelta, property: "a"))
+        repo.enqueueDelta(makeDelta(name: knownDelta, property: "b"))
+        waitUntil("both deltas enqueued") { self.repo.deltaQueue.count == 2 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
@@ -78,14 +84,11 @@ final class OSOperationRepoFlushTests: XCTestCase {
         let processExpectation = expectation(description: "processDeltaQueue")
         executor.onProcessDeltaQueue = { processExpectation.fulfill() }
 
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
-        let deltaA = makeDelta(name: unknownDelta, property: "a")
-        let deltaB = makeDelta(name: unknownDelta, property: "b")
-        repo.enqueueDelta(deltaA)
-        repo.enqueueDelta(deltaB)
-        waitUntil("both deltas enqueued") { repo.deltaQueue.count == 2 }
+        repo.enqueueDelta(makeDelta(name: unknownDelta, property: "a"))
+        repo.enqueueDelta(makeDelta(name: unknownDelta, property: "b"))
+        waitUntil("both deltas enqueued") { self.repo.deltaQueue.count == 2 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
@@ -100,7 +103,6 @@ final class OSOperationRepoFlushTests: XCTestCase {
         let processExpectation = expectation(description: "processDeltaQueue")
         executor.onProcessDeltaQueue = { processExpectation.fulfill() }
 
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
         // Interleaved matched/unmatched: assert dispatch order and retained queue order.
@@ -109,7 +111,7 @@ final class OSOperationRepoFlushTests: XCTestCase {
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-2"))
         repo.enqueueDelta(makeDelta(name: unknownDelta, property: "unknown-2"))
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-3"))
-        waitUntil("all deltas enqueued") { repo.deltaQueue.count == 5 }
+        waitUntil("all deltas enqueued") { self.repo.deltaQueue.count == 5 }
 
         repo.paused = false
         repo.addFlushDeltaQueueToDispatchQueue()
@@ -121,61 +123,7 @@ final class OSOperationRepoFlushTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func resetOperationRepo() {
-        let repo = OSOperationRepo.sharedInstance
-        repo.deltaQueue.removeAll()
-        repo.executors.removeAll()
-        repo.deltasToExecutorMap.removeAll()
-        repo.paused = false
-    }
-
     private func makeDelta(name: String, property: String) -> OSDelta {
-        OSDelta(
-            name: name,
-            identityModelId: UUID().uuidString,
-            externalId: nil,
-            model: OSModel(changeNotifier: OSEventProducer()),
-            property: property,
-            value: property
-        )
-    }
-
-    private func waitUntil(
-        _ description: String,
-        timeout: TimeInterval = 2.0,
-        file: StaticString = #filePath,
-        line: UInt = #line,
-        _ condition: @escaping () -> Bool
-    ) {
-        let exp = expectation(description: description)
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            if condition() {
-                timer.invalidate()
-                exp.fulfill()
-            }
-        }
-        let result = XCTWaiter.wait(for: [exp], timeout: timeout)
-        timer.invalidate()
-        XCTAssertEqual(result, .completed, "Timed out waiting for: \(description)", file: file, line: line)
-    }
-}
-
-private final class MockOperationExecutor: OSOperationExecutor {
-    let supportedDeltas: [String]
-    private(set) var enqueued: [OSDelta] = []
-    var onProcessDeltaQueue: (() -> Void)?
-
-    init(supportedDeltas: [String]) {
-        self.supportedDeltas = supportedDeltas
-    }
-
-    func enqueueDelta(_ delta: OSDelta) {
-        enqueued.append(delta)
-    }
-
-    func cacheDeltaQueue() {}
-
-    func processDeltaQueue(inBackground: Bool) {
-        onProcessDeltaQueue?()
+        OSOperationRepoTestEnvironment.makeDelta(name: name, externalId: nil, property: property)
     }
 }

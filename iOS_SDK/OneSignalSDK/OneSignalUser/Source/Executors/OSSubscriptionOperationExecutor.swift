@@ -197,6 +197,18 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 
+    func removeDeltasWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remaining = self.deltaQueue.filter { $0.externalId != nil }
+            guard remaining.count != self.deltaQueue.count else {
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
+            self.deltaQueue = remaining
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
+    }
+
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
