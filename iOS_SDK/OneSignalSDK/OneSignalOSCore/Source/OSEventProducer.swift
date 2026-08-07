@@ -29,24 +29,30 @@ import Foundation
 import OneSignalCore
 
 public class OSEventProducer<THandler>: NSObject {
-    // Not an array as there is at most 1 subsriber per OSEventProducer anyway
-    var subscriber: THandler?
+    private var subscribers: [String: THandler] = [:]
+    private let lock = NSLock()
 
-    public func subscribe(_ handler: THandler) {
-        // TODO: UM do we want to synchronize on subscribers
-        subscriber = handler // TODO: UM style, implicit or explicit self?
+    /// Subscribing under a key another observer already holds replaces it, so each observer of a
+    /// producer needs a key of its own or it will silently displace the other.
+    public func subscribe(_ handler: THandler, key: String) {
+        lock.withLock {
+            subscribers[key] = handler
+        }
     }
 
-    public func unsubscribe(_ handler: THandler) {
+    public func unsubscribe(_ handler: THandler, key: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.unsubscribe() called with handler: \(handler)")
-        // TODO: UM do we want to synchronize on subscribers
-        subscriber = nil
+        lock.withLock {
+            subscribers.removeValue(forKey: key)
+        }
     }
 
+    /// Callbacks run outside the lock, so a handler is free to subscribe, unsubscribe, or fire
+    /// again; the trade is that it sees the subscriber set as of the start of this fire.
     public func fire(callback: (THandler) -> Void) {
-        // dump(subscribers) -> uncomment for more verbose log during testing
-        if let subscriber = subscriber {
-            callback(subscriber)
+        let handlers = lock.withLock { Array(subscribers.values) }
+        for handler in handlers {
+            callback(handler)
         }
     }
 }

@@ -46,12 +46,18 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
 }
 
 extension OSModelStoreListener {
+    /// The store keys itself under `storeKey` on each model's notifier; the postfix keeps the two
+    /// distinguishable in `unsubscribe` logs.
+    fileprivate var subscriberKey: String {
+        return store.storeKey + OS_MODEL_STORE_LISTENER_POSTFIX
+    }
+
     public func start() {
-        store.changeSubscription.subscribe(self)
+        store.changeSubscription.subscribe(self, key: subscriberKey)
     }
 
     public func close() {
-        store.changeSubscription.unsubscribe(self)
+        store.changeSubscription.unsubscribe(self, key: subscriberKey)
     }
 
     public func onAdded(_ model: OSModel) {

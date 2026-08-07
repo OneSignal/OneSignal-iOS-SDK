@@ -339,6 +339,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY                                @"OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY"
 #define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
 
+// OSEventProducer subscriber keys. In-memory only; a store and its listener share a store key.
+#define OS_MODEL_STORE_LISTENER_POSTFIX                                     @"_LISTENER"
+
 // Deltas
 #define OS_ADD_ALIAS_DELTA                                                  @"OS_ADD_ALIAS_DELTA"
 #define OS_REMOVE_ALIAS_DELTA                                               @"OS_REMOVE_ALIAS_DELTA"

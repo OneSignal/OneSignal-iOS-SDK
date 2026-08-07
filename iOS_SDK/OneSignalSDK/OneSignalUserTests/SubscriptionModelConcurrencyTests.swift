@@ -157,7 +157,7 @@ final class SubscriptionModelConcurrencyTests: XCTestCase {
             changeNotifier: changeNotifier
         )
         let recorder = ChangeRecorder()
-        changeNotifier.subscribe(recorder)
+        changeNotifier.subscribe(recorder, key: "test-recorder")
 
         /* When */
         pushModel.notificationTypes = 15
