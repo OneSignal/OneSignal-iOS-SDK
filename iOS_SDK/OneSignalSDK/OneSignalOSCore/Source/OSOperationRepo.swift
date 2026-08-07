@@ -81,8 +81,8 @@ public class OSOperationRepo: NSObject {
     }
 
     /**
-     Starts the poller. Returns without latching while `requirement` is unknown so hydration can
-     drive `start()` again once remote params answer.
+     Starts the poller. While `requirement` is unknown, returns without setting `hasCalledStart` so
+     hydration can call `start()` again once remote params answer.
      */
     public func start() {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -168,7 +168,7 @@ public class OSOperationRepo: NSObject {
         start()
 
         // Drop here too so it is never persisted; flush still covers deltas restored from cache.
-        guard !(shouldDropAnonymousDeltas && delta.externalId == nil) else {
+        guard !shouldDropAnonymousDelta(delta, ivActive: shouldDropAnonymousDeltas) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
             return
         }
@@ -193,12 +193,14 @@ public class OSOperationRepo: NSObject {
 
     /**
      Anonymous Deltas can never be signed, so drop them while IV is active.
-
-     `newCodePathsRun` is redundant today (`ivBehaviorActive` implies it) but keeps the rollout flag
-     as a kill switch on every new path, matching Android.
+     Push subscription updates are exempt: they do not use User JWT.
      */
     private var shouldDropAnonymousDeltas: Bool {
-        return identityVerificationService.newCodePathsRun && identityVerificationService.ivBehaviorActive
+        return identityVerificationService.ivBehaviorActive
+    }
+
+    private func shouldDropAnonymousDelta(_ delta: OSDelta, ivActive: Bool) -> Bool {
+        return ivActive && delta.externalId == nil && delta.name != OS_UPDATE_SUBSCRIPTION_DELTA
     }
 
     private func flushDeltaQueue(inBackground: Bool = false) {
@@ -216,8 +218,7 @@ public class OSOperationRepo: NSObject {
 
         /*
          Hold until `requirement` is known. `newCodePathsRun` / `ivBehaviorActive` both read false while
-         it is unknown, so gating on them would skip the deferral for apps that require auth without
-         the rollout flag.
+         it is unknown.
          */
         guard identityVerificationService.requirement != .unknown else {
             let heldCount = self.deltaQueue.count
@@ -240,7 +241,7 @@ public class OSOperationRepo: NSObject {
 
         var unmatched: [OSDelta] = []
         for delta in self.deltaQueue {
-            if dropAnonymous, delta.externalId == nil {
+            if shouldDropAnonymousDelta(delta, ivActive: dropAnonymous) {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo dropping anonymous Delta, Identity Verification is required: \(delta)")
             } else if let executor = self.deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
@@ -257,10 +258,8 @@ public class OSOperationRepo: NSObject {
         }
 
         if dropAnonymous {
-            // Executor caches hold deltas handed out last session; `refreshIfUnknown` can arm IV
-            // with no hydration event, so drive the purge from every suppressing flush.
             for executor in self.executors {
-                executor.removeDeltasWithoutExternalId()
+                executor.removeOperationsWithoutExternalId()
             }
         }
 

@@ -126,15 +126,28 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
     }
 
-    func removeDeltasWithoutExternalId() {
+    func removeOperationsWithoutExternalId() {
         self.dispatchQueue.async {
-            let remaining = self.deltaQueue.filter { $0.externalId != nil }
-            guard remaining.count != self.deltaQueue.count else {
-                return
+            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
-            self.deltaQueue = remaining
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            let remainingAdd = self.addRequestQueue.filter { $0.identityModel.externalId != nil }
+            if remainingAdd.count != self.addRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.addRequestQueue.count - remainingAdd.count) anonymous add Requests, Identity Verification is required")
+                self.addRequestQueue = remainingAdd
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            }
+
+            let remainingRemove = self.removeRequestQueue.filter { $0.identityModel.externalId != nil }
+            if remainingRemove.count != self.removeRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor dropped \(self.removeRequestQueue.count - remainingRemove.count) anonymous remove Requests, Identity Verification is required")
+                self.removeRequestQueue = remainingRemove
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            }
         }
     }
 

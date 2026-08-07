@@ -190,7 +190,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         jwtConfig.hydrate(requiresUserAuth: true)
 
-        waitUntil("executor asked to purge") { executor.removeDeltasWithoutExternalIdCallCount >= 1 }
+        waitUntil("executor asked to purge") { executor.removeOperationsWithoutExternalIdCallCount >= 1 }
     }
 
     func testFlushingWhileAuthIsNotRequiredLeavesAnonymousDeltasAlone() {
@@ -208,7 +208,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         wait(for: [processed], timeout: 2.0)
         XCTAssertEqual(repo.deltaQueue.map(\.property), ["anonymous"])
-        XCTAssertEqual(executor.removeDeltasWithoutExternalIdCallCount, 0)
+        XCTAssertEqual(executor.removeOperationsWithoutExternalIdCallCount, 0)
     }
 
     // MARK: - Helpers

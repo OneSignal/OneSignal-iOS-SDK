@@ -116,15 +116,21 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 
-    func removeDeltasWithoutExternalId() {
+    func removeOperationsWithoutExternalId() {
         self.dispatchQueue.async {
-            let remaining = self.deltaQueue.filter { $0.externalId != nil }
-            guard remaining.count != self.deltaQueue.count else {
-                return
+            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
             }
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
-            self.deltaQueue = remaining
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+
+            let remainingRequests = self.requestQueue.filter { $0.identityModel.externalId != nil }
+            if remainingRequests.count != self.requestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.requestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
+                self.requestQueue = remainingRequests
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            }
         }
     }
 

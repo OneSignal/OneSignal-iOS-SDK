@@ -74,7 +74,7 @@ enum OSOperationRepoTestEnvironment {
 final class MockOperationExecutor: OSOperationExecutor {
     let supportedDeltas: [String]
     private(set) var enqueued: [OSDelta] = []
-    private(set) var removeDeltasWithoutExternalIdCallCount = 0
+    private(set) var removeOperationsWithoutExternalIdCallCount = 0
     var onProcessDeltaQueue: (() -> Void)?
 
     init(supportedDeltas: [String]) {
@@ -91,8 +91,8 @@ final class MockOperationExecutor: OSOperationExecutor {
         onProcessDeltaQueue?()
     }
 
-    func removeDeltasWithoutExternalId() {
-        removeDeltasWithoutExternalIdCallCount += 1
+    func removeOperationsWithoutExternalId() {
+        removeOperationsWithoutExternalIdCallCount += 1
     }
 }
 

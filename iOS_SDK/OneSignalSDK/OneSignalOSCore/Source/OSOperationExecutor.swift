@@ -38,8 +38,8 @@ public protocol OSOperationExecutor {
     func processDeltaQueue(inBackground: Bool)
 
     /**
-     Drop queued Deltas with no `externalId`. Driven by `OSOperationRepo` so the policy stays there;
-     only the storage is per-executor (restored from this executor's own cache).
+     Drop queued Deltas and Requests that belong to an anonymous user. Driven by `OSOperationRepo`
+     so the policy stays there; only the storage is per-executor.
      */
-    func removeDeltasWithoutExternalId()
+    func removeOperationsWithoutExternalId()
 }

@@ -122,6 +122,15 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
+                    continue
+                }
+
+                if let cachedIdentity = request.identityModel {
+                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(cachedIdentity.modelId) {
+                        request.identityModel = identityModel
+                    } else if request.prepareForExecution(newRecordsState: newRecordsState) {
+                        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(cachedIdentity)
+                    }
                 }
             }
             self.removeRequestQueue = removeRequestQueue
@@ -197,15 +206,34 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 
-    func removeDeltasWithoutExternalId() {
+    /**
+     Drops add/remove subscription work for anonymous users. Push subscription updates are kept —
+     they do not use User JWT.
+     */
+    func removeOperationsWithoutExternalId() {
         self.dispatchQueue.async {
-            let remaining = self.deltaQueue.filter { $0.externalId != nil }
-            guard remaining.count != self.deltaQueue.count else {
-                return
+            let remainingDeltas = self.deltaQueue.filter {
+                $0.externalId != nil || $0.name == OS_UPDATE_SUBSCRIPTION_DELTA
             }
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.deltaQueue.count - remaining.count) anonymous Deltas, Identity Verification is required")
-            self.deltaQueue = remaining
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
+
+            let remainingAdd = self.addRequestQueue.filter { $0.identityModel.externalId != nil }
+            if remainingAdd.count != self.addRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.addRequestQueue.count - remainingAdd.count) anonymous add Requests, Identity Verification is required")
+                self.addRequestQueue = remainingAdd
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            }
+
+            let remainingRemove = self.removeRequestQueue.filter { $0.identityModel?.externalId != nil }
+            if remainingRemove.count != self.removeRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.removeRequestQueue.count - remainingRemove.count) anonymous remove Requests, Identity Verification is required")
+                self.removeRequestQueue = remainingRemove
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            }
         }
     }
 
@@ -237,7 +265,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     }
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
                     let request = OSRequestDeleteSubscription(
-                        subscriptionModel: subModel
+                        subscriptionModel: subModel,
+                        identityModel: identityModel
                     )
                     self.removeRequestQueue.append(request)
 
