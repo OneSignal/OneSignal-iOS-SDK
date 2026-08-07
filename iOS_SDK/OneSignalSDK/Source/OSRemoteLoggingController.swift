@@ -137,6 +137,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     private let beginBackgroundTask: (String) -> Void
     private let endBackgroundTask: (String) -> Void
     private var configuration = OSRemoteLoggingConfiguration(remoteParams: [:])
+    private var configurationGeneration = 0
     private var remoteLogger: OSRemoteLoggerProtocol?
     private var appState = "unknown"
     private var notificationTokens: [NSObjectProtocol] = []
@@ -205,13 +206,17 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
 
     func shutdown() {
         stateQueue.sync {
+            configurationGeneration += 1
             stopRemoteLogging()
         }
     }
 
     private func configure(with newConfiguration: OSRemoteLoggingConfiguration) {
         updateAppState(Self.currentApplicationState())
+        var startGeneration: Int?
         stateQueue.sync {
+            self.configurationGeneration += 1
+            let generation = self.configurationGeneration
             let previousLogLevel = self.configuration.logLevel
             self.configuration = newConfiguration
             guard newConfiguration.isRemoteLoggingEnabled else {
@@ -224,12 +229,42 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
             }
 
             if self.remoteLogger == nil {
-                self.remoteLogger = self.remoteLoggerFactory(self.makeProviders(configuration: newConfiguration))
-                self.logStartupDiagnostic()
-                OneSignalLog.debug().__add(self)
-                self.isListening = true
-                self.registerLifecycleObservers()
+                startGeneration = generation
             }
+        }
+
+        guard let startGeneration else {
+            return
+        }
+
+        let providers = makeProviders(configuration: newConfiguration)
+        let newRemoteLogger = Self.onMain {
+            remoteLoggerFactory(providers)
+        }
+        var installed = false
+        stateQueue.sync {
+            guard self.configurationGeneration == startGeneration,
+                  self.configuration.matches(newConfiguration),
+                  self.remoteLogger == nil else {
+                return
+            }
+            self.remoteLogger = newRemoteLogger
+            installed = true
+        }
+        guard installed else {
+            newRemoteLogger.shutdown()
+            return
+        }
+
+        logStartupDiagnostic(remoteLogger: newRemoteLogger, configuration: newConfiguration)
+        stateQueue.sync {
+            guard self.remoteLogger === newRemoteLogger,
+                  self.configuration.matches(newConfiguration) else {
+                return
+            }
+            OneSignalLog.debug().__add(self)
+            self.isListening = true
+            self.registerLifecycleObservers()
         }
     }
 
@@ -266,15 +301,16 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         )
     }
 
-    private func logStartupDiagnostic() {
-        let kmpVersion = remoteLogger?.kmpVersion ?? "unavailable"
-        let crashStoragePath = remoteLogger?.crashStoragePath ?? "unavailable"
+    private func logStartupDiagnostic(
+        remoteLogger: OSRemoteLoggerProtocol,
+        configuration: OSRemoteLoggingConfiguration
+    ) {
         OneSignalLog.onesignalLog(
             .LL_WARN,
             message: "OneSignal logging initialized: sdk=\(ONESIGNAL_VERSION), "
-                + "kmp=\(kmpVersion), path=kmp, "
+                + "kmp=\(remoteLogger.kmpVersion), path=kmp, "
                 + "\(OSRemoteLoggingConfiguration.featureFlagName)=\(configuration.isFeatureEnabled), "
-                + "crash_dir=\(crashStoragePath)"
+                + "crash_dir=\(remoteLogger.crashStoragePath)"
         )
     }
 
@@ -360,8 +396,21 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         }
     }
 
+    private static func onMain<T>(_ work: () -> T) -> T {
+        if Thread.isMainThread {
+            return work()
+        }
+        return DispatchQueue.main.sync(execute: work)
+    }
+
     private func message(from event: OneSignalLogEvent) -> String {
         event.message
+    }
+}
+
+private extension OSRemoteLoggingConfiguration {
+    func matches(_ other: OSRemoteLoggingConfiguration) -> Bool {
+        isFeatureEnabled == other.isFeatureEnabled && logLevel == other.logLevel
     }
 }
 

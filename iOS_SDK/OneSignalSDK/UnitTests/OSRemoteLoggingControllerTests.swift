@@ -174,6 +174,41 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         wait(for: [telemetry.flushExpectation!], timeout: 2)
     }
 
+    func testConstructsRemoteLoggerOnMainWhenConfiguredInBackground() {
+        let constructed = expectation(description: "constructs logger on main")
+        let configured = expectation(description: "finishes background configuration")
+        let telemetry = RemoteTelemetrySpy()
+        let controller = makeController { _ in
+            XCTAssertTrue(Thread.isMainThread)
+            constructed.fulfill()
+            return telemetry
+        }
+
+        DispatchQueue.global().async {
+            controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+            configured.fulfill()
+        }
+
+        wait(for: [constructed, configured], timeout: 2)
+    }
+
+    func testStartupDiagnosticCanResetControllerWithoutDeadlock() {
+        let reset = expectation(description: "resets from startup diagnostic listener")
+        let telemetry = RemoteTelemetrySpy()
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+        let listener = ReentrantLogListener {
+            controller.shutdown()
+            reset.fulfill()
+        }
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+
+        wait(for: [reset], timeout: 2)
+        XCTAssertEqual(telemetry.shutdownCount, 1)
+    }
+
     private func makeController(
         notificationCenter: NotificationCenter = NotificationCenter(),
         usesScenes: @escaping () -> Bool = { false },
@@ -197,6 +232,21 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
             "sdk_remote_feature_flags": ["sdk_custom_logging"],
             "logging_config": ["log_level": level]
         ]
+    }
+}
+
+private final class ReentrantLogListener: NSObject, OSLogListener {
+    private let onLog: () -> Void
+
+    init(onLog: @escaping () -> Void) {
+        self.onLog = onLog
+    }
+
+    func onLogEvent(_ event: OneSignalLogEvent) {
+        guard event.message.hasPrefix("OneSignal logging initialized:") else {
+            return
+        }
+        onLog()
     }
 }
 
