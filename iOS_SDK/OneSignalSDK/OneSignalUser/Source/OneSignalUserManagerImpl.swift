@@ -285,6 +285,22 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             // TODO: Update the push sub model with any new state from NotificationsManager
 
+            /*
+             The internal disable is otherwise only cleared by `login`, so an app that turns Identity
+             Verification off while logged out would leave the push subscription silenced until the next
+             one. Sends an update, unlike the login path: nothing else will tell the server.
+
+             Registered before the User executor's handler so anything it sends on this hydration already
+             carries the restored subscription — a Create User response hydrates `enabled` back onto the
+             app's own opt-in, which would make the silencing permanent.
+             */
+            identityVerificationService.addOnJwtConfigHydratedHandler(for: .userManager) { [weak self] requirement in
+                guard requirement == .off else {
+                    return
+                }
+                self?.pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabledInternally = false
+            }
+
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
             self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService, auth: requestAuth)
@@ -362,15 +378,30 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
+        // Ungated: a subscription internally disabled by a previous logout has to come back even if
+        // Identity Verification has since been turned off.
+        pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.clearDisabledInternallyForLogin()
+
         // Logging into an identified user from an anonymous user
-        if let user = _user, user.isAnonymous {
-            user.identityModel.jwtBearerToken = token
-            identifyUser(externalId: externalId, currentUser: user)
+        if let user = _user, user.isAnonymous, canPromoteAnonymousUser {
+            identifyUser(externalId: externalId, currentUser: user, token: token)
         } else {
             // Logging into identified -> anon, identified -> identified, or nil -> identified
             _ = createNewUser(externalId: externalId, token: token)
         }
 
+    }
+
+    /**
+     Whether `login` may promote the current anonymous user with Identify User instead of creating a new one.
+
+     Identify User adds an `external_id` to a user that has none, and under Identity Verification no such
+     user is ever sent to the server, so every login has to create its user instead. While the requirement is
+     unknown this still promotes: the queue is held until it is known, and `OSUserExecutor` then turns the
+     promotion into the Create User it should have been if the app turns out to require auth.
+     */
+    private var canPromoteAnonymousUser: Bool {
+        return !identityVerificationService.ivBehaviorActive
     }
 
     /**
@@ -408,6 +439,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.createNewUser: not creating new user due to logging into the same user.)")
+                // Re-logging in is how an app hands over a replacement token, so take it and let anything
+                // held for want of one go out.
+                if let externalId = externalId, let token = token {
+                    storeJwt(externalId: externalId, token: token)
+                }
                 return user
             }
         }
@@ -432,7 +468,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      1. This externalId already exists on another user. We create a new SDK user and fetch that user's information.
      2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
      */
-    private func identifyUser(externalId: String, currentUser: OSUserInternal) {
+    private func identifyUser(externalId: String, currentUser: OSUserInternal, token: String?) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
@@ -444,6 +480,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
+        // The token belongs on the model that carries `external_id`: the Fetch User this leads to is signed
+        // with it, as is the Create User this becomes if the requirement turns out to be on.
+        newUser.identityModel.jwtBearerToken = token
 
         // Now proceed to identify the previous user
         userExecutor!.identifyUser(
@@ -491,7 +530,29 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.User logout called, but the user is currently anonymous, so not logging out.")
             return
         }
+        /*
+         The replacement anonymous user is never created on the server under Identity Verification, so two
+         things it would otherwise have done have to happen here: stop reporting the push subscription, which
+         still carries the logged-out user's subscription ID, and tell observers that nobody is signed in.
+
+         Only the app's own `logout()`. `_logout()` also runs as 404 recovery, where the SDK is replacing a
+         user the server no longer has and the subscription should keep reporting.
+
+         Read once: hydration could flip it mid-logout and leave these two disagreeing.
+         */
+        let underIdentityVerification = identityVerificationService.ivBehaviorActive
+
+        if underIdentityVerification {
+            // Before the switch, so the unsubscribe is stamped with the outgoing user. Stamped anonymous it
+            // would be dropped for having no `external_id`, and the server would never hear about it.
+            user.pushSubscriptionModel._isDisabledInternally = true
+        }
+
         _logout()
+
+        if underIdentityVerification {
+            OSUserStateSnapshot.fireUserStateChanged(newOnesignalId: nil, newExternalId: nil)
+        }
     }
 
     public func _logout() {
