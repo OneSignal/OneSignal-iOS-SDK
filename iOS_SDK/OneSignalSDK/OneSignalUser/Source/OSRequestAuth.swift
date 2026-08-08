@@ -62,11 +62,41 @@ protocol OSRequestAuthorizing: AnyObject {
      existing non-retryable handling.
      */
     func handleUnauthorized(_ request: OSUserRequest) -> Bool
+
+    /**
+     The same alias and token decision for a user-scoped call that does not travel through the Request
+     queues, currently the in-app message fetch. Pass the ids of the user the call is for.
+
+     Returns nil when it cannot be sent yet, having asked the app for a token if that is what is missing.
+     */
+    func authorization(onesignalId: String?, externalId: String?) -> OSUserRequestAuthorization?
+}
+
+/**
+ How another module should address and sign one user-scoped call.
+
+ `alias` nil means address it the way it was addressed before Identity Verification: no user in the
+ path and nothing to sign with.
+ */
+@objc(OSUserRequestAuthorization)
+public final class OSUserRequestAuthorization: NSObject {
+    @objc public let alias: OSAliasPair?
+    /// Merge into the request's headers. Empty unless the call is signed.
+    @objc public let headers: [String: String]
+    /// What `headers` signs with, to hand back to `invalidateJwtForExternalId` if the server rejects it.
+    @objc public let token: String?
+
+    fileprivate init(alias: OSAliasPair?, headers: [String: String] = [:], token: String? = nil) {
+        self.alias = alias
+        self.headers = headers
+        self.token = token
+    }
 }
 
 final class OSRequestAuth: OSRequestAuthorizing {
     private static let authorizationHeader = "Authorization"
     private static let bearerPrefix = "Bearer "
+    private static let legacyAddressing = OSUserRequestAuthorization(alias: nil)
 
     private let identityVerificationService: OSIdentityVerificationService
     private let jwt: OSUserJwtProviding
@@ -134,6 +164,39 @@ final class OSRequestAuth: OSRequestAuthorizing {
         removeBearer(from: request)
         request.sentToClient = false
         return true
+    }
+
+    func authorization(onesignalId: String?, externalId: String?) -> OSUserRequestAuthorization? {
+        guard identityVerificationService.newCodePathsRun else {
+            return Self.legacyAddressing
+        }
+        // Which alias the call should carry is not decided yet, and an unsigned call on behalf of an app
+        // that turns out to require auth is rejected. Callers reattempt on hydration.
+        guard identityVerificationService.requirement != .unknown else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding a user-scoped call until the requirement is known")
+            return nil
+        }
+        guard ivBehaviorActive else {
+            // Nothing to address the call to until the server assigns an `onesignal_id`.
+            guard let onesignalId = onesignalId else {
+                return nil
+            }
+            return OSUserRequestAuthorization(alias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
+        }
+        // Under Identity Verification there is nothing the server will serve for a device with no
+        // identified user, so this waits for a login rather than falling back to `onesignal_id`.
+        guard let externalId = externalId else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding a user-scoped call until a user is identified")
+            return nil
+        }
+        guard let token = jwt.validJwt(externalId: externalId) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding a user-scoped call until \(externalId) has a token")
+            jwt.askForToken(externalId: externalId)
+            return nil
+        }
+        return OSUserRequestAuthorization(alias: OSAliasPair(OS_EXTERNAL_ID, externalId),
+                                          headers: [Self.authorizationHeader: Self.bearerPrefix + token],
+                                          token: token)
     }
 
     private func setBearer(_ token: String, on request: OneSignalRequest) {

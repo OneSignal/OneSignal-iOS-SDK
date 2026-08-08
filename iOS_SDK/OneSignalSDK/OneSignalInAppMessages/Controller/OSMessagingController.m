@@ -146,8 +146,12 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
 
 @property (nonatomic) BOOL calledLoadTags;
 
-/// set when we attempt getInAppMessagesFromServer and no onesignal ID is available yet
-@property (strong, nonatomic, nullable) NSString *shouldFetchOnUserChangeWithSubscriptionID;
+/**
+ Set when a fetch could not go out: no onesignal ID yet, or Identity Verification has not answered what
+ the call should be addressed and signed with. Read through `takeDeferredFetchSubscriptionId`, since a
+ user change, a hydration and a new token can all arrive at once and only one of them should refetch.
+ */
+@property (strong, nonatomic, nullable) NSString *deferredFetchSubscriptionId;
 
 /// Tracks whether the first IAM fetch has completed since this cold start
 @property (nonatomic) BOOL hasCompletedFirstFetch;
@@ -242,6 +246,10 @@ static BOOL _isInAppMessagingPaused = false;
         _isInAppMessagingPaused = false;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleIAMPreview:) name:ONESIGNAL_POST_PREVIEW_IAM object:nil];
+        // A deferred fetch waits on how to address it and what to sign it with; hydration answers the
+        // first, a supplied token the second.
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(retryDeferredFetch) name:OS_ON_JWT_CONFIG_HYDRATED object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(retryDeferredFetch) name:OS_ON_USER_JWT_UPDATED object:nil];
     }
     
     return self;
@@ -269,7 +277,16 @@ static BOOL _isInAppMessagingPaused = false;
         // NOTE: Check for subscription ID above first, before checking for OneSignal ID next
         if (!onesignalId) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to no OneSignal ID, will reattempt"];
-            self.shouldFetchOnUserChangeWithSubscriptionID = subscriptionId;
+            [self deferFetchWithSubscriptionId:subscriptionId];
+            return;
+        }
+
+        // Resolved before the read-your-write wait, which can hold this thread for as long as it takes
+        // the user requests to come back.
+        OSUserRequestAuthorization *authorization = [OneSignalUserManagerImpl.sharedInstance authorizationForCurrentUser];
+        if (!authorization) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to Identity Verification, will reattempt"];
+            [self deferFetchWithSubscriptionId:subscriptionId];
             return;
         }
 
@@ -288,6 +305,7 @@ static BOOL _isInAppMessagingPaused = false;
             
             // Initial request
             [self attemptFetchWithRetries:subscriptionId
+                            authorization:authorization
                                  rywData:rywData
                                  attempts:@0 // Starting with 0 attempts
                                retryLimit:nil]; // Retry limit to be set dynamically on first failure
@@ -295,8 +313,46 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
+- (void)deferFetchWithSubscriptionId:(NSString *)subscriptionId {
+    @synchronized (self) {
+        self.deferredFetchSubscriptionId = subscriptionId;
+    }
+}
+
+/// The deferred subscription ID, if there is one, taken so that two signals arriving together refetch once.
+- (NSString * _Nullable)takeDeferredFetchSubscriptionId {
+    @synchronized (self) {
+        NSString *subscriptionId = self.deferredFetchSubscriptionId;
+        self.deferredFetchSubscriptionId = nil;
+        return subscriptionId;
+    }
+}
+
+- (void)retryDeferredFetch {
+    NSString *subscriptionId = [self takeDeferredFetchSubscriptionId];
+    if (subscriptionId) {
+        [self getInAppMessagesFromServer:subscriptionId];
+    }
+}
+
+/**
+ Parks the fetch before invalidating, because invalidating tells the app its token was rejected and the
+ app can hand back a replacement from inside that call — which refetches, and finds nothing parked if
+ this runs the other way around.
+ */
+- (void)handleUnauthorizedFetch:(OSUserRequestAuthorization *)authorization subscriptionId:(NSString *)subscriptionId {
+    // An unsigned fetch has no token to replace, so there would be nothing different to reattempt with.
+    if (!authorization.alias || !authorization.token) {
+        return;
+    }
+    [self deferFetchWithSubscriptionId:subscriptionId];
+    [OneSignalUserManagerImpl.sharedInstance invalidateJwtForExternalIdWithExternalId:authorization.alias.id
+                                                                       rejectedToken:authorization.token];
+}
+
 
 - (void)attemptFetchWithRetries:(NSString *)subscriptionId
+                  authorization:(OSUserRequestAuthorization *)authorization
                        rywData:(OSReadYourWriteData *)rywData
                        attempts:(NSNumber *)attempts
                      retryLimit:(NSNumber *)retryLimit {
@@ -306,6 +362,8 @@ static BOOL _isInAppMessagingPaused = false;
 
     // Create the request with the current attempt count
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                    withAlias:authorization.alias
+                                                                    withUserHeaders:authorization.headers
                                                                     withSessionDuration:sessionDuration
                                                                     withRetryCount:attempts
                                                                     withRywToken:rywToken];
@@ -348,13 +406,16 @@ static BOOL _isInAppMessagingPaused = false;
                 NSInteger nextAttempt = [attempts integerValue] + 1; // Increment attempts
                 [self retryAfterDelay:retryAfter
                          subscriptionId:subscriptionId
+                          authorization:authorization
                                 rywData:rywData
                                attempts:@(nextAttempt)
                              retryLimit:blockRetryLimit];
             } else {
                 // Final attempt without rywToken
-                [self fetchInAppMessagesWithoutToken:subscriptionId];
+                [self fetchInAppMessagesWithoutToken:subscriptionId authorization:authorization];
             }
+        } else if ([OSNetworkingUtils getResponseStatusType:error.code] == OSResponseStatusUnauthorized) {
+            [self handleUnauthorizedFetch:authorization subscriptionId:subscriptionId];
         } else if (error.code >= 500 && error.code <= 599) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Server error, skipping retries"];
         }
@@ -363,6 +424,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)retryAfterDelay:(NSInteger)retryAfter
          subscriptionId:(NSString *)subscriptionId
+          authorization:(OSUserRequestAuthorization *)authorization
                rywData:(OSReadYourWriteData *)rywData
                attempts:(NSNumber *)attempts
              retryLimit:(NSNumber *)retryLimit {
@@ -370,16 +432,20 @@ static BOOL _isInAppMessagingPaused = false;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryAfter * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self attemptFetchWithRetries:subscriptionId
+                        authorization:authorization
                              rywData:rywData
                              attempts:attempts
                            retryLimit:retryLimit];
     });
 }
 
-- (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId {
+- (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId
+                         authorization:(OSUserRequestAuthorization *)authorization {
     NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
+                                                                        withAlias:authorization.alias
+                                                                        withUserHeaders:authorization.headers
                                                                       withSessionDuration:sessionDuration
                                                                       withRetryCount:nil
                                                                       withRywToken:nil]; // No retries for the final attempt
@@ -404,6 +470,9 @@ static BOOL _isInAppMessagingPaused = false;
         });
     } onFailure:^(OneSignalClientError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.description]];
+        if ([OSNetworkingUtils getResponseStatusType:error.code] == OSResponseStatusUnauthorized) {
+            [self handleUnauthorizedFetch:authorization subscriptionId:subscriptionId];
+        }
     }];
 }
 
@@ -1237,11 +1306,9 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)onUserStateDidChangeWithState:(OSUserChangedState * _Nonnull)state {
-    if (state.current.onesignalId != nil && self.shouldFetchOnUserChangeWithSubscriptionID) {
+    if (state.current.onesignalId != nil) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onUserStateDidChangeWithState: changed to new valid onesignal id"];
-        NSString *subscriptionID = self.shouldFetchOnUserChangeWithSubscriptionID;
-        self.shouldFetchOnUserChangeWithSubscriptionID = nil;
-        [self getInAppMessagesFromServer:subscriptionID];
+        [self retryDeferredFetch];
     }
 }
 

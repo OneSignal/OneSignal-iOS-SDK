@@ -75,17 +75,20 @@ final class OSUserJwtRepo: OSUserJwtProviding {
 
     /**
      Stores a token supplied by the app, and lets this user be asked again if it is ever rejected.
+     Returns `false` for a token that was not stored, so callers do not go looking for held work to release.
 
      An unusable token is ignored rather than stored: it would replace a good token with nothing to sign
      with, and clearing the ask for it would have the SDK and the app trade asks and replies on every flush.
      */
-    func updateJwt(externalId: String, token: String) {
+    @discardableResult
+    func updateJwt(externalId: String, token: String) -> Bool {
         guard !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserJwtRepo.updateJwt ignored an unusable token for \(externalId)")
-            return
+            return false
         }
         identityModelRepo.updateJwtToken(externalId: externalId, token: token)
         lock.withLock { _ = askedForToken.remove(externalId) }
+        return true
     }
 
     @discardableResult

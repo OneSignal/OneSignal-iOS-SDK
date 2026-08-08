@@ -146,7 +146,7 @@ final class OSUserJwtRepoTests: XCTestCase {
         addModel(externalId: "user-a", token: "token-a")
         _ = repo.invalidateJwt(externalId: "user-a", rejectedToken: "token-a")
 
-        repo.updateJwt(externalId: "user-a", token: "")
+        XCTAssertFalse(repo.updateJwt(externalId: "user-a", token: ""))
 
         XCTAssertFalse(repo.askForToken(externalId: "user-a"))
         XCTAssertEqual(asked, ["user-a"])
@@ -156,7 +156,7 @@ final class OSUserJwtRepoTests: XCTestCase {
     func testTheInvalidSentinelIsIgnored() {
         let model = addModel(externalId: "user-a", token: "token-a")
 
-        repo.updateJwt(externalId: "user-a", token: OS_JWT_TOKEN_INVALID)
+        XCTAssertFalse(repo.updateJwt(externalId: "user-a", token: OS_JWT_TOKEN_INVALID))
 
         XCTAssertEqual(model.getValidJwt(), "token-a")
     }

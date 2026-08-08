@@ -295,6 +295,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
              app's own opt-in, which would make the silencing permanent.
              */
             identityVerificationService.addOnJwtConfigHydratedHandler(for: .userManager) { [weak self] requirement in
+                // Tells work that does not travel through the Repo, such as the in-app message fetch,
+                // that how to address a user-scoped call is now decided.
+                NotificationCenter.default.post(name: Notification.Name(OS_ON_JWT_CONFIG_HYDRATED), object: nil)
                 guard requirement == .off else {
                     return
                 }
@@ -563,15 +566,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     /**
      Stores a token for `externalId` and flushes, so work held for want of one goes out now rather than
-     after a poll interval.
+     after a poll interval. Work that does not travel through the Repo listens for the notification.
      */
     func storeJwt(externalId: String, token: String) {
-        userJwtRepo.updateJwt(externalId: externalId, token: token)
-
-        guard identityVerificationService.newCodePathsRun else {
+        guard userJwtRepo.updateJwt(externalId: externalId, token: token),
+              identityVerificationService.newCodePathsRun
+        else {
             return
         }
         operationRepo.addFlushDeltaQueueToDispatchQueue()
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
     }
 
     @objc

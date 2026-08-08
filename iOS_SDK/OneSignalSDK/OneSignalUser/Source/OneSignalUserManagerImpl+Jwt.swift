@@ -59,6 +59,25 @@ extension OneSignalUserManagerImpl {
     }
 
     /**
+     How another module should address and sign a user-scoped call for the current user, decided in one
+     read so the alias and the token cannot come from different users.
+
+     Returns nil when the call cannot be sent yet — the requirement is still unknown, nobody is logged in
+     under Identity Verification, or the app owes a token, which this asks for. Callers reattempt when
+     `OS_ON_JWT_CONFIG_HYDRATED` or `OS_ON_USER_JWT_UPDATED` is posted.
+     */
+    @objc
+    public func authorizationForCurrentUser() -> OSUserRequestAuthorization? {
+        // `_user` rather than `user`, which would create a guest user for a caller that only reads.
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil),
+              let identityModel = _user?.identityModel
+        else {
+            return nil
+        }
+        return requestAuth.authorization(onesignalId: identityModel.onesignalId, externalId: identityModel.externalId)
+    }
+
+    /**
      Parks `rejectedToken` and asks the app to mint a replacement. Pass the token the failing request
      was signed with: a replacement supplied while that request was in flight is left alone.
      */

@@ -101,7 +101,12 @@ final class OSRequestAuthTests: XCTestCase {
 
     private func makeAuth(requiresUserAuth: Bool) -> OSRequestAuth {
         jwtConfig.hydrate(requiresUserAuth: requiresUserAuth)
-        let service = OSIdentityVerificationService(featureManager: OSFeatureManager(enabledKeys: []), jwtConfig: jwtConfig)
+        return makeAuth(enabledKeys: [])
+    }
+
+    /// For the cases that turn on the rollout flag, or leave the requirement unhydrated, or both.
+    private func makeAuth(enabledKeys: Set<String>) -> OSRequestAuth {
+        let service = OSIdentityVerificationService(featureManager: OSFeatureManager(enabledKeys: enabledKeys), jwtConfig: jwtConfig)
         return OSRequestAuth(identityVerificationService: service, jwt: jwt)
     }
 
@@ -251,5 +256,68 @@ final class OSRequestAuthTests: XCTestCase {
         XCTAssertFalse(auth.handleUnauthorized(request))
         XCTAssertTrue(jwt.invalidatedCalls.isEmpty)
         XCTAssertTrue(request.sentToClient)
+    }
+
+    // MARK: - authorization, for callers outside the Request queues
+
+    /// The in-app message fetch addressed the subscription on its own before Identity Verification.
+    func testAuthorizationCarriesNoUserWhileTheNewCodePathsAreOff() {
+        let auth = makeAuth(requiresUserAuth: false)
+        jwt.tokens["user-a"] = "token-a"
+
+        let authorization = auth.authorization(onesignalId: "osid-a", externalId: "user-a")
+
+        XCTAssertNotNil(authorization)
+        XCTAssertNil(authorization?.alias)
+        XCTAssertEqual(authorization?.headers, [:])
+        XCTAssertNil(authorization?.token)
+    }
+
+    func testAuthorizationAddressesTheOnesignalIdWhileIdentityVerificationIsOff() {
+        jwtConfig.hydrate(requiresUserAuth: false)
+        let auth = makeAuth(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        jwt.tokens["user-a"] = "token-a"
+
+        let authorization = auth.authorization(onesignalId: "osid-a", externalId: "user-a")
+
+        XCTAssertEqual(authorization?.alias?.label, OS_ONESIGNAL_ID)
+        XCTAssertEqual(authorization?.alias?.id, "osid-a")
+        XCTAssertEqual(authorization?.headers, [:])
+        XCTAssertNil(authorization?.token)
+    }
+
+    func testAuthorizationAddressesTheExternalIdAndSignsWhileIdentityVerificationIsOn() {
+        let auth = makeAuth(requiresUserAuth: true)
+        jwt.tokens["user-a"] = "token-a"
+
+        let authorization = auth.authorization(onesignalId: "osid-a", externalId: "user-a")
+
+        XCTAssertEqual(authorization?.alias?.label, OS_EXTERNAL_ID)
+        XCTAssertEqual(authorization?.alias?.id, "user-a")
+        XCTAssertEqual(authorization?.headers, ["Authorization": "Bearer token-a"])
+        XCTAssertEqual(authorization?.token, "token-a")
+    }
+
+    /// nil is the defer signal: an unsigned call would be rejected if the app turns out to require auth.
+    func testAuthorizationDefersWhileTheRequirementIsUnknown() {
+        let auth = makeAuth(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+
+        XCTAssertNil(auth.authorization(onesignalId: "osid-a", externalId: "user-a"))
+        XCTAssertTrue(jwt.askedFor.isEmpty)
+    }
+
+    /// Under Identity Verification the server has nothing to serve a device with no identified user.
+    func testAuthorizationDefersWhileNobodyIsLoggedIn() {
+        let auth = makeAuth(requiresUserAuth: true)
+
+        XCTAssertNil(auth.authorization(onesignalId: "osid-a", externalId: nil))
+        XCTAssertTrue(jwt.askedFor.isEmpty)
+    }
+
+    func testAuthorizationDefersAndAsksWhenTheUserHasNoToken() {
+        let auth = makeAuth(requiresUserAuth: true)
+
+        XCTAssertNil(auth.authorization(onesignalId: "osid-a", externalId: "user-a"))
+        XCTAssertEqual(jwt.askedFor, ["user-a"])
     }
 }

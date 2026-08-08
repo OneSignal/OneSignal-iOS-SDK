@@ -330,6 +330,11 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
 #define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
 
+// Posted when work held for want of an answer can be reattempted: the requirement hydrated, or the app
+// supplied a token. Listeners re-read the current state rather than take anything from the post.
+#define OS_ON_JWT_CONFIG_HYDRATED                                           @"OS_ON_JWT_CONFIG_HYDRATED"
+#define OS_ON_USER_JWT_UPDATED                                              @"OS_ON_USER_JWT_UPDATED"
+
 // Models and Model Stores
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
