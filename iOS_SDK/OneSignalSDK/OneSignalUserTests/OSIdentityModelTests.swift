@@ -78,30 +78,37 @@ final class OSIdentityModelTests: XCTestCase {
         XCTAssertEqual(makeModel(token: token).getValidJwt(), token)
     }
 
-    // MARK: - invalidateJwtBearerToken()
+    // MARK: - invalidateJwtBearerToken(rejectedToken:)
 
     func testInvalidateReturnsTrueOnFirstTransitionAndSetsInvalidSentinel() {
         let model = makeModel(token: "valid-token")
 
-        XCTAssertTrue(model.invalidateJwtBearerToken())
+        XCTAssertTrue(model.invalidateJwtBearerToken(rejectedToken: "valid-token"))
         XCTAssertEqual(model.jwtBearerToken, OS_JWT_TOKEN_INVALID)
     }
 
     /// Two requests can be rejected at once; only one of them should tell the app to mint a token.
     func testInvalidateReturnsFalseWhenAlreadyInvalid() {
         let model = makeModel(token: "valid-token")
-        _ = model.invalidateJwtBearerToken()
+        _ = model.invalidateJwtBearerToken(rejectedToken: "valid-token")
 
-        XCTAssertFalse(model.invalidateJwtBearerToken())
+        XCTAssertFalse(model.invalidateJwtBearerToken(rejectedToken: "valid-token"))
         XCTAssertEqual(model.jwtBearerToken, OS_JWT_TOKEN_INVALID)
     }
 
-    /// nil to INVALID is still a real transition, so the caller fires the invalidated event once.
-    func testInvalidateReturnsTrueWhenStartingFromNil() {
+    /// The app can supply a replacement while the rejected request is still in flight.
+    func testInvalidateLeavesAReplacementTokenAlone() {
+        let model = makeModel(token: "replacement-token")
+
+        XCTAssertFalse(model.invalidateJwtBearerToken(rejectedToken: "stale-token"))
+        XCTAssertEqual(model.jwtBearerToken, "replacement-token")
+    }
+
+    func testInvalidateDoesNothingWhenThereIsNoToken() {
         let model = makeModel(token: nil)
 
-        XCTAssertTrue(model.invalidateJwtBearerToken())
-        XCTAssertEqual(model.jwtBearerToken, OS_JWT_TOKEN_INVALID)
+        XCTAssertFalse(model.invalidateJwtBearerToken(rejectedToken: "stale-token"))
+        XCTAssertNil(model.jwtBearerToken)
     }
 
     // MARK: - Persistence
@@ -129,7 +136,7 @@ final class OSIdentityModelTests: XCTestCase {
 
     func testTheInvalidSentinelIsWhatPersists() throws {
         let model = makeModel(token: "valid-token")
-        model.invalidateJwtBearerToken()
+        model.invalidateJwtBearerToken(rejectedToken: "valid-token")
 
         let decoded = try archiveThenUnarchive(model)
 

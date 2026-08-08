@@ -70,12 +70,14 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private var deltaQueue: [OSDelta] = []
     private var updateRequestQueue: [OSRequestUpdateProperties] = []
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         uncacheDeltas()
@@ -105,8 +107,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The identity model exist in the repo, set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
+                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
@@ -260,7 +262,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -323,6 +325,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})

@@ -183,7 +183,7 @@ final class DeltaOwnershipTests: XCTestCase {
     func testUpdateSubscriptionRequestIsBoundToTheDeltasOwner() throws {
         let client = executingClient()
         let user = newUser(externalId: userA)
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
 
         executor.enqueueDelta(subscriptionUpdateDelta(owner: user.identityModel))
         executor.processDeltaQueue(inBackground: false)
@@ -198,7 +198,7 @@ final class DeltaOwnershipTests: XCTestCase {
         let client = executingClient()
         newUser(externalId: userB)
         let unknownOwner = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA], changeNotifier: OSEventProducer())
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
 
         executor.enqueueDelta(subscriptionUpdateDelta(owner: unknownOwner))
         executor.processDeltaQueue(inBackground: false)

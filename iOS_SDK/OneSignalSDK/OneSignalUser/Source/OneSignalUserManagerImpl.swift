@@ -201,6 +201,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let pushSubscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY)
 
     // These must be initialized in init()
+    let userJwtRepo: OSUserJwtRepo
+    let requestAuth: OSRequestAuthorizing
     let operationRepo: OSOperationRepo
     let identityModelStoreListener: OSIdentityModelStoreListener
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
@@ -217,7 +219,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private override init() {
         let identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
         let operationRepo = OSOperationRepo(identityVerificationService: identityVerificationService)
+        // Goes through `sharedInstance` rather than capturing self: the observer it notifies is created
+        // lazily and must not be touched during init.
+        let userJwtRepo = OSUserJwtRepo(identityModelRepo: identityModelRepo) { externalId in
+            OneSignalUserManagerImpl.sharedInstance.userJwtInvalidatedObserver.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId))
+        }
         self.identityVerificationService = identityVerificationService
+        self.userJwtRepo = userJwtRepo
+        self.requestAuth = OSRequestAuth(identityVerificationService: identityVerificationService, jwt: userJwtRepo)
         self.operationRepo = operationRepo
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore, operationRepo: operationRepo)
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore, operationRepo: operationRepo)
@@ -278,13 +287,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
-            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService)
+            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService, auth: requestAuth)
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
-            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
-            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
-            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
-            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
+            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
@@ -489,6 +498,19 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         prepareForNewUser()
         _user = nil
         createUserIfNil()
+    }
+
+    /**
+     Stores a token for `externalId` and flushes, so work held for want of one goes out now rather than
+     after a poll interval.
+     */
+    func storeJwt(externalId: String, token: String) {
+        userJwtRepo.updateJwt(externalId: externalId, token: token)
+
+        guard identityVerificationService.newCodePathsRun else {
+            return
+        }
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
     }
 
     @objc

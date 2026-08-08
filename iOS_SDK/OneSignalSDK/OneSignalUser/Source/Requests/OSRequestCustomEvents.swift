@@ -40,16 +40,33 @@ class OSRequestCustomEvents: OneSignalRequest, OSUserRequest {
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
 
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           auth.authorize(self)
         {
             _ = self.addPushSubscriptionIdToAdditionalHeaders()
+            if auth.ivBehaviorActive, let externalId = ownerExternalId {
+                addExternalIdToEvents(externalId)
+            }
             self.path = "apps/\(appId)/custom_events"
             return true
         } else {
             return false
+        }
+    }
+
+    /// The path is app-scoped, so the owner rides in each event's body rather than in the path.
+    /// Written at send time rather than at init so a cached payload cannot outlive the gate.
+    private func addExternalIdToEvents(_ externalId: String) {
+        guard let events = self.parameters?["events"] as? [[String: Any]] else {
+            return
+        }
+        self.parameters?["events"] = events.map { event in
+            var event = event
+            event[OS_EXTERNAL_ID] = externalId
+            return event
         }
     }
 

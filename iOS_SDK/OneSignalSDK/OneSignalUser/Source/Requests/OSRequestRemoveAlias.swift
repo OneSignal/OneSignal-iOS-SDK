@@ -41,12 +41,13 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
 
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
         {
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity/\(labelToRemove)"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/identity/\(labelToRemove)"
             return true
         } else {
             return false

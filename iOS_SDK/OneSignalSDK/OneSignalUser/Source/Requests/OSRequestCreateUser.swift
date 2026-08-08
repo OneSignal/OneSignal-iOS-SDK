@@ -45,8 +45,11 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    var ownerExternalId: String? { return identityModel.externalId }
+
     /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the create user request due to null app ID.")
             return false
@@ -56,6 +59,12 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
            !newRecordsState.canAccess(subscriptionId)
         {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request yet.")
+            return false
+        }
+
+        // The path is app-scoped and the identity object already names the user, so there is no
+        // alias to swap — only the token.
+        guard auth.authorize(self) else {
             return false
         }
 

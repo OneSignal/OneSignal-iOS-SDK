@@ -122,22 +122,33 @@ final class OSIdentityModelRepoTests: XCTestCase {
 
     func testUpdateJwtTokenReplacesTheInvalidSentinel() {
         let userA = addModel(externalId: "user-a")
-        userA.invalidateJwtBearerToken()
+        userA.invalidateJwtBearerToken(rejectedToken: "token-a")
 
         repo.updateJwtToken(externalId: "user-a", token: "fresh-token")
 
         XCTAssertEqual(userA.getValidJwt(), "fresh-token")
     }
 
-    // MARK: - invalidateJwtToken
+    // MARK: - validJwt
 
-    func testInvalidateJwtTokenParksTheTokenAndReportsTheTransition() {
+    func testValidJwtReturnsTheStoredToken() {
         let userA = addModel(externalId: "user-a")
         userA.jwtBearerToken = "token-a"
 
-        XCTAssertTrue(repo.invalidateJwtToken(externalId: "user-a"))
-        XCTAssertNil(userA.getValidJwt())
+        XCTAssertEqual(repo.validJwt(externalId: "user-a"), "token-a")
     }
+
+    func testValidJwtIsNilForAnUnknownExternalIdAndForAParkedToken() {
+        let userA = addModel(externalId: "user-a")
+        userA.jwtBearerToken = "token-a"
+
+        XCTAssertNil(repo.validJwt(externalId: "user-b"))
+
+        repo.invalidateJwtToken(externalId: "user-a", rejectedToken: "token-a")
+        XCTAssertNil(repo.validJwt(externalId: "user-a"))
+    }
+
+    // MARK: - invalidateJwtToken
 
     /// A model left unparked would keep signing requests with a token the server already rejected.
     func testInvalidateJwtTokenParksEveryModelWithThatExternalId() {
@@ -146,51 +157,42 @@ final class OSIdentityModelRepoTests: XCTestCase {
         first.jwtBearerToken = "token-a"
         second.jwtBearerToken = "token-a"
 
-        XCTAssertTrue(repo.invalidateJwtToken(externalId: "user-a"))
+        repo.invalidateJwtToken(externalId: "user-a", rejectedToken: "token-a")
 
         XCTAssertNil(first.getValidJwt())
         XCTAssertNil(second.getValidJwt())
     }
 
-    /// The first call reports the transition; parking the rest must not report a second one.
-    func testInvalidateJwtTokenReportsNoTransitionWhenEveryModelIsAlreadyInvalid() {
-        let first = addModel(externalId: "user-a")
-        let second = addModel(externalId: "user-a")
-        first.jwtBearerToken = "token-a"
-        second.jwtBearerToken = "token-a"
-        _ = repo.invalidateJwtToken(externalId: "user-a")
+    /// A login that landed while the rejected request was in flight leaves a newer token behind.
+    func testInvalidateJwtTokenLeavesAModelHoldingADifferentToken() {
+        let stale = addModel(externalId: "user-a")
+        let fresh = addModel(externalId: "user-a")
+        stale.jwtBearerToken = "token-a"
+        fresh.jwtBearerToken = "token-b"
 
-        XCTAssertFalse(repo.invalidateJwtToken(externalId: "user-a"))
-    }
+        repo.invalidateJwtToken(externalId: "user-a", rejectedToken: "token-a")
 
-    /// A model added after the others were parked still has a live token, so the app is asked again.
-    func testInvalidateJwtTokenReportsATransitionWhenOnlyOneModelIsStillValid() {
-        let first = addModel(externalId: "user-a")
-        first.jwtBearerToken = "token-a"
-        _ = repo.invalidateJwtToken(externalId: "user-a")
-        let second = addModel(externalId: "user-a")
-        second.jwtBearerToken = "token-a"
-
-        XCTAssertTrue(repo.invalidateJwtToken(externalId: "user-a"))
-        XCTAssertNil(second.getValidJwt())
+        XCTAssertNil(stale.getValidJwt())
+        XCTAssertEqual(fresh.getValidJwt(), "token-b")
     }
 
     func testInvalidateJwtTokenLeavesOtherUsersAlone() {
         let userA = addModel(externalId: "user-a")
         let userB = addModel(externalId: "user-b")
         userA.jwtBearerToken = "token-a"
-        userB.jwtBearerToken = "token-b"
+        userB.jwtBearerToken = "token-a"
 
-        _ = repo.invalidateJwtToken(externalId: "user-a")
+        repo.invalidateJwtToken(externalId: "user-a", rejectedToken: "token-a")
 
-        XCTAssertEqual(userB.getValidJwt(), "token-b")
+        XCTAssertEqual(userB.getValidJwt(), "token-a")
     }
 
-    func testInvalidateJwtTokenForAnUnknownExternalIdReportsNoTransition() {
+    func testInvalidateJwtTokenForAnUnknownExternalIdChangesNothing() {
         let userA = addModel(externalId: "user-a")
         userA.jwtBearerToken = "token-a"
 
-        XCTAssertFalse(repo.invalidateJwtToken(externalId: "user-b"))
+        repo.invalidateJwtToken(externalId: "user-b", rejectedToken: "token-a")
+
         XCTAssertEqual(userA.getValidJwt(), "token-a")
     }
 }

@@ -86,8 +86,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
     func testHydratingTheRequirementReleasesHeldDeltasImmediately() {
         let repo = makeRepo()
         let executor = MockOperationExecutor(supportedDeltas: [deltaName])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         repo.enqueueDelta(makeDelta(externalId: "user-1", property: "a"))
@@ -128,8 +127,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         XCTAssertEqual(repo.snapshotDeltaQueue().count, 2, "the repo should restore both Deltas before judging them")
 
         let executor = MockOperationExecutor(supportedDeltas: [deltaName])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         jwtConfig.hydrate(requiresUserAuth: true)
@@ -140,40 +138,38 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
     }
 
     /**
-     The push subscription has no owner to sign for before login or after logout, and its updates still
-     have to go out, so `OS_UPDATE_SUBSCRIPTION_DELTA` survives the enqueue drop.
+     The device's own push subscription is not exempt: with no identified user there is nothing the server
+     will accept for it. `logout()` stamps its unsubscribe with the outgoing user so that one survives.
      */
-    func testAnonymousSubscriptionUpdatesAreExemptFromTheEnqueueDrop() {
+    func testAnonymousSubscriptionUpdatesAreDroppedAtEnqueue() {
         jwtConfig.hydrate(requiresUserAuth: true)
         let repo = makeRepo()
         repo.paused = true
 
-        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "token"))
-        repo.enqueueDelta(makeDelta(externalId: nil, property: "anonymous"))
-        repo.enqueueDelta(makeDelta(externalId: "user-1", property: "identified"))
+        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "anonymous"))
+        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: "user-1", property: "identified"))
 
         // The identified Delta is the sync point; the queue is serial.
-        waitUntil("identified delta enqueued") { repo.snapshotDeltaQueue().count == 2 }
-        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["token", "identified"])
+        waitUntil("identified delta enqueued") { repo.snapshotDeltaQueue().count == 1 }
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["identified"])
     }
 
-    /// Same exemption for a Delta restored from a previous session, which never passes through enqueue.
-    func testAnonymousSubscriptionUpdatesAreExemptFromTheFlushDrop() {
+    /// Same for a Delta restored from a previous session, which never passes through enqueue.
+    func testAnonymousSubscriptionUpdatesAreDroppedAtFlush() {
         OSOperationRepoTestEnvironment.seedCachedDeltaQueue([
-            OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "token"),
-            makeDelta(externalId: nil, property: "anonymous")
+            OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: nil, property: "anonymous"),
+            OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SUBSCRIPTION_DELTA, externalId: "user-1", property: "identified")
         ])
 
         let repo = makeRepo()
-        let executor = MockOperationExecutor(supportedDeltas: [OS_UPDATE_SUBSCRIPTION_DELTA, deltaName])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let executor = MockOperationExecutor(supportedDeltas: [OS_UPDATE_SUBSCRIPTION_DELTA])
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         jwtConfig.hydrate(requiresUserAuth: true)
 
         wait(for: [processed], timeout: 2.0)
-        XCTAssertEqual(executor.enqueued.map(\.property), ["token"])
+        XCTAssertEqual(executor.enqueued.map(\.property), ["identified"])
     }
 
     /// The rollout flag alone must not suppress; only `jwt_required` turns it on.
@@ -182,8 +178,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         let repo = makeRepo()
         let executor = MockOperationExecutor(supportedDeltas: [deltaName])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         repo.enqueueDelta(makeDelta(externalId: nil, property: "anonymous"))
@@ -206,8 +201,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         let repo = makeRepo()
         let executor = MockOperationExecutor(supportedDeltas: ["some_other_delta"])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         jwtConfig.hydrate(requiresUserAuth: true)
@@ -237,8 +231,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
         let repo = makeRepo()
         let executor = MockOperationExecutor(supportedDeltas: ["some_other_delta"])
-        let processed = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processed.fulfill() }
+        let processed = flushExpectation(on: executor)
         repo.addExecutor(executor)
 
         jwtConfig.hydrate(requiresUserAuth: false)
@@ -249,6 +242,18 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
     }
 
     // MARK: - Helpers
+
+    /**
+     Fulfills once the executor is asked to process. Repeats are allowed: a handler that registers while
+     `hydrate` is running is delivered both by the fire and by `addOnJwtConfigHydratedHandler`'s catch-up,
+     so the same hydration can flush twice. These tests assert on what the flush did, not on how many ran.
+     */
+    private func flushExpectation(on executor: MockOperationExecutor) -> XCTestExpectation {
+        let processed = expectation(description: "processDeltaQueue")
+        processed.assertForOverFulfill = false
+        executor.onProcessDeltaQueue = { processed.fulfill() }
+        return processed
+    }
 
     private func makeRepo() -> OSOperationRepo {
         return OSOperationRepoTestEnvironment.makeRepo(jwtConfig: jwtConfig, featureManager: featureManager)

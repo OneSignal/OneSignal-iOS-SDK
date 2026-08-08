@@ -43,7 +43,7 @@ private class Mocks {
     init(stubResponses: (MockOneSignalClient) -> Void = { _ in }) {
         OneSignalCoreImpl.setSharedClient(client)
         stubResponses(client)
-        userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService)
+        userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService, auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
     }
 
     func createUserInstance(externalId: String) -> OSUserInternal {
@@ -299,7 +299,8 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
     }
 
-    /// Restored Identify User is dropped when Identity Verification is required.
+    /// Identify User promotes an anonymous user, which Identity Verification does not allow. A restored one
+    /// belongs to a user a later `login` has already replaced, so there is no login left to carry over.
     func testRestoredIdentifyUserIsDroppedWhenIdentityVerificationIsRequired() {
         /* Setup */
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
@@ -311,6 +312,7 @@ final class UserExecutorTests: XCTestCase {
 
         /* Then */
         XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
     }
 
     /// Same restored Identify User goes out when Identity Verification is off.
@@ -327,23 +329,46 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
     }
 
-    /// In-session Identify User still goes out under Identity Verification — it is the current `login`.
-    func testInSessionIdentifyUserIsSentWhenIdentityVerificationIsRequired() {
+    /// `login` promotes while the requirement is still unknown, so turning out to require auth must not
+    /// strand that login: it becomes the Create User it would have been.
+    func testInSessionIdentifyUserBecomesACreateUserWhenIdentityVerificationIsRequired() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let mocks = Mocks()
+        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
+        MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID)
+
+        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        user.identityModel.jwtBearerToken = "token-a"
+
+        /* When */
+        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: user.identityModel)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// A promotion whose user a later `login` has already replaced has no login left to carry over.
+    func testInSessionIdentifyUserForAReplacedUserIsDroppedWhenIdentityVerificationIsRequired() {
         /* Setup */
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         let mocks = Mocks()
         MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
 
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
+        let replacedIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: nil)
 
         /* When */
-        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
+        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: replacedIdentityModel)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
-        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
     }
 
     private func cacheUserRequests(_ requests: [OSUserRequest]) {

@@ -47,12 +47,13 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     let ownerExternalId: String?
 
     // Need the onesignal_id of the user
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
         {
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/subscriptions"
             return true
         } else {
             return false

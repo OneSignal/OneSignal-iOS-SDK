@@ -216,18 +216,12 @@ public class OSOperationRepo: NSObject {
     }
 
     /**
-     `OS_UPDATE_SUBSCRIPTION_DELTA` is exempt. In practice it is only ever the device's own push
-     subscription — nothing updates an email or SMS subscription model — and that channel exists before
-     any login and outlives every logout, so its token and device state have to keep flowing whether or
-     not a user is identified. Its endpoint is addressed by subscription ID and takes no user JWT.
-
-     That leaves the exemption resting on the invariant that email and SMS subscriptions are only ever
-     added and removed, never updated. Should an update path for them appear, this has to narrow to the
-     push type, which the repo cannot see from here: `OSSubscriptionModel` lives in OneSignalUser, so
-     the Delta would have to carry the distinction the way it carries `externalId`.
+     Includes the device's own push subscription: under Identity Verification a device with no identified
+     user has nothing the server will accept for it. `logout()` silences that subscription before switching
+     users, so its unsubscribe is stamped with the outgoing user and survives this.
      */
     private func shouldDropAnonymousDelta(_ delta: OSDelta, ivActive: Bool) -> Bool {
-        return ivActive && delta.externalId == nil && delta.name != OS_UPDATE_SUBSCRIPTION_DELTA
+        return ivActive && delta.externalId == nil
     }
 
     private func flushDeltaQueue(inBackground: Bool = false) {

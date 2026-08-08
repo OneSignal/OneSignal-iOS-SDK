@@ -72,13 +72,13 @@ class OSIdentityModel: OSModel {
         return token
     }
 
-    /// Returns`true` if the transition occurred, `false` if the token was already invalid, so it returns
-    /// `true` only for the caller that lands the transition, so a burst of concurrent failure responses
-    /// asks the app for a new token once between them.
+    /// Returns `true` if the transition occurred, `false` if `rejectedToken` is no longer the stored
+    /// token. Comparing against the rejected token rather than the sentinel is what keeps a failure
+    /// response that was already in flight from parking the replacement supplied after it left.
     @discardableResult
-    func invalidateJwtBearerToken() -> Bool {
+    func invalidateJwtBearerToken(rejectedToken: String) -> Bool {
         let changed = lock.withLock {
-            guard jwtBearerTokenLocked != OS_JWT_TOKEN_INVALID else { return false }
+            guard jwtBearerTokenLocked == rejectedToken else { return false }
             jwtBearerTokenLocked = OS_JWT_TOKEN_INVALID
             return true
         }
@@ -165,14 +165,20 @@ class OSIdentityModel: OSModel {
         let newExternalId = remoteAliases[OS_EXTERNAL_ID]
 
         internalAddAliases(remoteAliases)
-        fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
+        OSUserStateSnapshot.fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
+}
 
-    /**
-     Fires the user observer if `onesignal_id` OR `external_id` has changed from the previous snapshot (previous hydration).
-     */
-    private func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
-        let prevOnesignalId  = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
+/**
+ Owns the last user state the app was told about, so the observer only hears real changes.
+
+ Hydration is the usual source, but `logout` under Identity Verification also reports here: it creates
+ no user on the server, so there is no hydration to carry the news that nobody is signed in.
+ */
+enum OSUserStateSnapshot {
+    /// Fires the user observer if `onesignal_id` OR `external_id` differs from the last reported pair.
+    static func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
+        let prevOnesignalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
         let prevExternalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_EXTERNAL_ID, defaultValue: nil)
 
         guard prevOnesignalId != newOnesignalId || prevExternalId != newExternalId else {

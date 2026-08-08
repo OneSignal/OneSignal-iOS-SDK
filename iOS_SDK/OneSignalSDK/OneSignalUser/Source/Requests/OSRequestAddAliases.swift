@@ -42,12 +42,13 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     let ownerExternalId: String?
 
     /// requires a `onesignal_id` to send this request
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
         {
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/identity"
             return true
         } else {
             return false

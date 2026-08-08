@@ -75,17 +75,30 @@ class OSIdentityModelRepo {
         }
     }
 
+    /// The token this user can currently sign with, or nil if there is none.
+    func validJwt(externalId: String) -> String? {
+        return modelsMatching(externalId: externalId).lazy.compactMap { $0.getValidJwt() }.first
+    }
+
     /**
      Invalidates the token on every Identity Model with this external ID, since repeated logins as the
-     same user each create one. Returns `true` if any made the transition, so the app is asked once.
+     same user each create one. Only the models still holding `rejectedToken` transition, so a
+     replacement that landed while the rejected request was in flight survives.
+
+     Returns `false` if no Identity Model carries this external ID, in which case there was nothing
+     to park and nothing to tell the app about.
      */
-    func invalidateJwtToken(externalId: String) -> Bool {
+    @discardableResult
+    func invalidateJwtToken(externalId: String, rejectedToken: String) -> Bool {
         let matchingModels = modelsMatching(externalId: externalId)
         guard !matchingModels.isEmpty else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.invalidateJwtToken called for unknown external ID \(externalId)")
             return false
         }
-        return matchingModels.map { $0.invalidateJwtBearerToken() }.contains(true)
+        for model in matchingModels {
+            model.invalidateJwtBearerToken(rejectedToken: rejectedToken)
+        }
+        return true
     }
 
     /// Snapshot before touching the tokens: writing one fires the model's change notifier

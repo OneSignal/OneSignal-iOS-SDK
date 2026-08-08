@@ -32,6 +32,7 @@ import OneSignalCore
 public enum OSJwtConfigHydratedObserver {
     case userExecutor
     case operationRepo
+    case userManager
 }
 
 /**

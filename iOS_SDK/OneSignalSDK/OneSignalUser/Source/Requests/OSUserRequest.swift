@@ -30,13 +30,21 @@ import OneSignalOSCore
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
     var sentToClient: Bool { get set }
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool
+
+    /// The user this Request belongs to; also selects its token. See the ownership convention below.
+    var ownerExternalId: String? { get }
+
+    /// Builds the path and resolves authorization. `false` leaves the Request queued, whether it is
+    /// waiting on a record it cannot address yet or on a token it cannot sign with yet. A caller deciding
+    /// whether to *discard* a cached Request must not read `false` as permanent: an owned Request becomes
+    /// sendable once `updateUserJwt` supplies its token.
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool
 }
 
 /*
  Ownership convention: a Request that Identity Verification can purge stores `ownerExternalId`, the
- owner's `external_id` as of when the Request was built, and the purge judges it by that rather than
- by its `identityModel`.
+ owner's `external_id` as of when the Request was built, and both the purge and the token lookup
+ judge it by that rather than by its `identityModel`.
 
  The live model cannot answer the question. `clearUserData` empties an Identity Model's aliases before
  a fetch response hydrates them, so for that window an identified user reads as anonymous and a purge
@@ -44,6 +52,14 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
  `externalId`, which keeps a Delta and the Request built from it judged the same way.
 
  nil means anonymous, including for caches written before ownership was stamped.
+
+ Create User and Fetch User are not built from a Delta and the purge does not consider them, so they
+ read the owner off their Identity Model. Nothing is in flight when a purge runs, and the User
+ executor sends nothing while the requirement is unknown, so the live read is sound there.
+
+ Three Requests are nil by construction and so are never signed: Identify User and Fetch Identity By
+ Subscription both address a user that has no `external_id` yet, and Update Subscription is the
+ device's own push subscription. Each says why at its declaration.
  */
 
 internal extension OneSignalRequest {

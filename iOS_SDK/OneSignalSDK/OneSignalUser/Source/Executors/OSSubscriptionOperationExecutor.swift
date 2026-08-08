@@ -37,12 +37,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     private var updateRequestQueue: [OSRequestUpdateSubscription] = []
     private var subscriptionModels: [String: OSSubscriptionModel] = [:]
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -91,8 +93,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // b. The request can be sent, add the model to the repo
+                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // b. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // c. The model do not exist AND this request cannot be sent, drop this Request
@@ -118,8 +120,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 3. The model does not exist AND this request cannot be sent, drop this Request
+                } else if request.ownerExternalId == nil,
+                          !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 3. The model does not exist AND no token can arrive to make this sendable, drop it
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
                     continue
@@ -142,7 +145,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
+                } else if !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
@@ -199,16 +202,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     /**
-     Drops add and remove subscription work for anonymous users. Updates are kept, and `updateRequestQueue`
-     is deliberately not purged: an update is only ever the device's own push subscription, which has to
-     keep reporting its token and device state with or without an identified user. See the exemption in
-     `OSOperationRepo.shouldDropAnonymousDelta` for what that rests on.
+     Drops anonymous Deltas and add/remove Requests. `updateRequestQueue` is not purged: an Update
+     Subscription is addressed by subscription ID and never signed, so it has no owner to purge by, and
+     `logout()`'s unsubscribe travels in that queue.
      */
     func removeOperationsWithoutExternalId() {
         self.dispatchQueue.async {
-            let remainingDeltas = self.deltaQueue.filter {
-                $0.externalId != nil || $0.name == OS_UPDATE_SUBSCRIPTION_DELTA
-            }
+            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
             if remainingDeltas.count != self.deltaQueue.count {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
                 self.deltaQueue = remainingDeltas
@@ -335,7 +335,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -398,6 +398,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
@@ -414,7 +416,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -440,7 +442,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -463,7 +467,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !updateRequestQueue.contains(where: { $0 !== request && $0.sentToClient && $0.subscriptionModel.modelId == modelId }) else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true

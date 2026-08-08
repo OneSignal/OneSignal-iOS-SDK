@@ -48,18 +48,22 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let aliasId: String
 
     /**
-     True when decoded from cache. Identity Verification drops restored Identify Users; one built in this
-     session is the current `login` and stays. Not encoded — `init?(coder:)` sets it.
+     Always nil, so this Request is never signed. It adds an `external_id` to an anonymous user, and
+     Identity Verification does not allow anonymous users — `login` goes straight to Create User
+     instead, and the purge drops any that are already queued.
      */
-    let restoredFromCache: Bool
+    var ownerExternalId: String? { return nil }
 
-    /// requires a `onesignal_id` to send this request
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
-        if let onesignalId = identityModelToIdentify.onesignalId,
+    /// Requires a `onesignal_id`, and refuses outright once Identity Verification is active: there is no
+    /// signed way to promote an anonymous user, so this can only sit until the purge reshapes it.
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
+        if !auth.ivBehaviorActive,
+           let onesignalId = identityModelToIdentify.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
         {
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)/identity"
             return true
         } else {
             // self.path is non-nil, so set to empty string
@@ -81,7 +85,6 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.restoredFromCache = false
         self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
@@ -115,7 +118,6 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.restoredFromCache = true
         self.stringDescription = "<OSRequestIdentifyUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.timestamp = timestamp

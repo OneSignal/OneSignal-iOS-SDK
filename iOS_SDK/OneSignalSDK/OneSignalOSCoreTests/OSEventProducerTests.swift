@@ -25,9 +25,7 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import XCTest
-import OneSignalCore
 @testable import OneSignalOSCore
 
 private class Handler {

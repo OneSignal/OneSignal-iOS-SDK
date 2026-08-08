@@ -42,13 +42,14 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     // TODO: Decide if addPushSubscriptionIdToAdditionalHeadersIfNeeded should block.
     // Note Android adds it to requests, if the push sub ID exists
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId))
         {
             _ = self.addPushSubscriptionIdToAdditionalHeaders()
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(alias.id)"
             return true
         } else {
             return false

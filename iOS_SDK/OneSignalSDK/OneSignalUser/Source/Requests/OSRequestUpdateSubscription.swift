@@ -44,11 +44,21 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     /// yet when the request is built.
     var identityModel: OSIdentityModel?
 
+    /**
+     Always nil, so this Request is never signed. Its path names a subscription rather than a user and the
+     endpoint ignores the token, while owning it would stall the device's push token and notification types
+     behind an identified user whose token went invalid.
+
+     The Delta it comes from is owned, which is what decides whether the update survives the anonymous purge.
+     */
+    var ownerExternalId: String? { return nil }
+
     // Need the subscription_id
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId,
            newRecordsState.canAccess(subscriptionId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           auth.authorize(self)
         {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             // Refresh so a stale snapshot queued earlier can't overwrite newer local state.
@@ -66,11 +76,12 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         subscriptionParams["device_os"] = subscriptionModel.deviceOs
         subscriptionParams["sdk"] = subscriptionModel.sdk
         subscriptionParams["app_version"] = subscriptionModel.appVersion
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if subscriptionModel.notificationTypes != -1 {
-            subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+
+        let enablement = subscriptionModel.reportedEnablement()
+        subscriptionParams["enabled"] = enablement.enabled
+        if let notificationTypes = enablement.notificationTypes {
+            subscriptionParams["notification_types"] = notificationTypes
         }
-        subscriptionParams["enabled"] = subscriptionModel.enabled
         self.parameters = ["subscription": subscriptionParams]
     }
 

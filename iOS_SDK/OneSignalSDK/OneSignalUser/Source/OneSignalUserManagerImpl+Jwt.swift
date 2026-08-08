@@ -55,17 +55,18 @@ extension OneSignalUserManagerImpl {
         // TODO: omit the token from this log before shipping — keep for testing.
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: \(token)")
 
-        identityModelRepo.updateJwtToken(externalId: externalId, token: token)
+        storeJwt(externalId: externalId, token: token)
     }
 
-    /// Parks the user's token and asks the app to mint a replacement.
+    /**
+     Parks `rejectedToken` and asks the app to mint a replacement. Pass the token the failing request
+     was signed with: a replacement supplied while that request was in flight is left alone.
+     */
     @objc
-    public func invalidateJwtForExternalId(externalId: String) {
+    public func invalidateJwtForExternalId(externalId: String, rejectedToken: String) {
         guard identityVerificationService.ivBehaviorActive else {
             return
         }
-        if identityModelRepo.invalidateJwtToken(externalId: externalId) {
-            userJwtInvalidatedObserver.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId))
-        }
+        userJwtRepo.invalidateJwt(externalId: externalId, rejectedToken: rejectedToken)
     }
 }

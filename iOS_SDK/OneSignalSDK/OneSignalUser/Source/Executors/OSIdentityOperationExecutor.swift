@@ -35,12 +35,14 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     private var addRequestQueue: [OSRequestAddAliases] = []
     private var removeRequestQueue: [OSRequestRemoveAlias] = []
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheAddAliasRequests()
@@ -74,9 +76,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's models
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
-                      OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
+                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
+                    OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
@@ -97,8 +99,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
+                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
@@ -218,7 +220,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -259,6 +261,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
@@ -275,7 +279,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -301,7 +305,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor holding \(request) for a new token")
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
                     self.removeRequestQueue.removeAll(where: { $0 == request})

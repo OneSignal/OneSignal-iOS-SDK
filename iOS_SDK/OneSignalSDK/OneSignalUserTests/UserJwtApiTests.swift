@@ -110,7 +110,7 @@ final class UserJwtApiTests: XCTestCase {
         let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
         user.identityModel.jwtBearerToken = "token-a"
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertNil(user.identityModel.getValidJwt())
@@ -123,8 +123,8 @@ final class UserJwtApiTests: XCTestCase {
         let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
         user.identityModel.jwtBearerToken = "token-a"
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertEqual(listener.invalidatedExternalIds, ["user-a"])
@@ -139,7 +139,7 @@ final class UserJwtApiTests: XCTestCase {
         first.identityModel.jwtBearerToken = "token-a"
         second.identityModel.jwtBearerToken = "token-a"
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertNil(first.identityModel.getValidJwt())
@@ -152,7 +152,7 @@ final class UserJwtApiTests: XCTestCase {
         let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
         user.identityModel.jwtBearerToken = "token-a"
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertEqual(user.identityModel.getValidJwt(), "token-a")
@@ -164,7 +164,7 @@ final class UserJwtApiTests: XCTestCase {
         let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
         user.identityModel.jwtBearerToken = "token-a"
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertEqual(user.identityModel.getValidJwt(), "token-a")
@@ -175,7 +175,7 @@ final class UserJwtApiTests: XCTestCase {
         OSUserJwtConfig.shared.hydrate(requiresUserAuth: true)
         OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-b")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-b", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertTrue(listener.invalidatedExternalIds.isEmpty)
@@ -187,7 +187,7 @@ final class UserJwtApiTests: XCTestCase {
         user.identityModel.jwtBearerToken = "token-a"
         OneSignalUserManagerImpl.sharedInstance.removeUserJwtInvalidatedListener(listener)
 
-        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a")
+        OneSignalUserManagerImpl.sharedInstance.invalidateJwtForExternalId(externalId: "user-a", rejectedToken: "token-a")
         drainMainQueue()
 
         XCTAssertTrue(listener.invalidatedExternalIds.isEmpty)

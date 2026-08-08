@@ -92,7 +92,7 @@ final class UserConcurrencyTests: XCTestCase {
         )
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
@@ -131,7 +131,7 @@ final class UserConcurrencyTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
         MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
 
-        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
@@ -172,7 +172,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
 
-        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
@@ -213,7 +213,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState(), identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService)
+        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState(), identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService, auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
 
         /* When */
 
