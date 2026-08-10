@@ -245,13 +245,14 @@ class OSUserExecutor {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(self.userRequestQueue)")
 
         var awaitingToken = false
+        var executed = false
 
         for request in self.userRequestQueue {
             // Return as soon as we reach an un-executable request
             guard request.prepareForExecution(newRecordsState: self.newRecordsState, auth: self.auth)
             else {
-                // Only the app can end this wait, and it may never come; a login for another user behind
-                // this one must not be stranded by it, so step over it and keep polling for its token.
+                // Only the app can end this wait (`updateUserJwt` → `storeJwt`); do not poll for it.
+                // A login for another user behind this one must not be stranded, so step over it.
                 if self.auth.awaitsToken(request) {
                     awaitingToken = true
                     continue
@@ -262,6 +263,7 @@ class OSUserExecutor {
             }
 
             // One Request per pass; its response re-enters here for the next.
+            executed = true
             if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let fetchIdentityRequest = request as? OSRequestFetchIdentityBySubscription {
                 self.executeFetchIdentityBySubscriptionRequest(fetchIdentityRequest)
                 break
@@ -279,9 +281,9 @@ class OSUserExecutor {
             }
         }
 
-        if awaitingToken {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor stepped over Requests waiting for a token: \(self.userRequestQueue)")
-            executePendingRequests(withDelay: true)
+        // Wait-only pass: `storeJwt` / hydrate / a later enqueue wakes us. Do not reschedule.
+        if awaitingToken, !executed {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor has Requests waiting for a token")
         }
     }
 }
@@ -384,6 +386,9 @@ extension OSUserExecutor {
                 // Held rather than paused: `updateUserJwt` resumes work by flushing, which a paused Repo drops.
                 // Ordering does not need the pause — every Request for this user waits on an `onesignal_id`.
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
+                // A replacement token supplied while this was in flight has already released what it could;
+                // re-enter so that token is used now rather than waiting on another wake.
+                self.executePendingRequests()
             } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo

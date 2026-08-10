@@ -197,12 +197,16 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         executionQueue.sync {}
     }
 
+    // A request has one outcome: whichever of these was called for it last. Otherwise a test could not
+    // override a default its setUp registered, nor let a retry succeed after the first attempt failed.
     public func setMockResponseForRequest(request: String, response: [String: Any]) {
         mockResponses[request] = response
+        mockFailureResponses.removeValue(forKey: request)
     }
 
     public func setMockFailureResponseForRequest(request: String, error: OneSignalClientError) {
         mockFailureResponses[request] = error
+        mockResponses.removeValue(forKey: request)
     }
 }
 

@@ -565,16 +565,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Stores a token for `externalId` and flushes, so work held for want of one goes out now rather than
-     after a poll interval. Work that does not travel through the Repo listens for the notification.
+     Stores a token for `externalId` and releases everything held for want of one, so it goes out now:
+     the Repo's Deltas, the User executor's own queue (which is not Repo-driven), and — over the
+     notification — the work that travels through neither.
      */
     func storeJwt(externalId: String, token: String) {
-        guard userJwtRepo.updateJwt(externalId: externalId, token: token),
-              identityVerificationService.newCodePathsRun
-        else {
+        guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
+        guard identityVerificationService.newCodePathsRun else {
             return
         }
         operationRepo.addFlushDeltaQueueToDispatchQueue()
+        userExecutor?.executePendingRequests()
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
     }
 

@@ -226,6 +226,30 @@ final class UserJwtLifecycleTests: XCTestCase {
         XCTAssertNil(OneSignalUserManagerImpl.sharedInstance.userJwtRepo.validJwt(externalId: userA_EUID))
     }
 
+    /// Nothing else will send the held Create User: it is not a Delta, so the Repo flush does not reach it,
+    /// and the hold leaves no attempt in flight whose response would drive the queue on.
+    func testUpdateUserJwtSendsTheCreateUserThatARejectedTokenHeld() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        client.setMockFailureResponseForRequest(
+            request: "<OSRequestCreateUser with external_id: \(userA_EUID)>",
+            error: OneSignalClientError(code: 401, message: "unauthorized", responseHeaders: nil, response: nil, underlyingError: nil)
+        )
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
+
+        // The token the app mints in answer to the invalidated event, which the server accepts.
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userA_EUID)
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: "token-b")
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        // The same Request re-signed and accepted, so it carries the replacement token and leaves the queue.
+        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 2))
+        XCTAssertEqual(executedCreateUserAuthorization(), "Bearer token-b")
+        XCTAssertFalse(queuedCreateUserExternalIds().contains(userA_EUID))
+    }
+
     /// A failure the token cannot fix still stops the queue, since the user will never exist this session.
     func testACreateUserThatFailsForAnotherReasonStillPausesTheRepo() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)

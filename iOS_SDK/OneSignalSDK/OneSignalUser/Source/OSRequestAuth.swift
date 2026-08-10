@@ -45,8 +45,8 @@ protocol OSRequestAuthorizing: AnyObject {
      `onesignal_id` for everything except a Fetch User that was built to read some other alias.
 
      Returns nil when Identity Verification is in effect but the owner has no usable token. That parks the
-     Request in the queue it already sits in and asks the app for one; the next flush after `updateUserJwt`,
-     or after the requirement turns off, resolves it and sends.
+     Request in the queue it already sits in and asks the app for one; `updateUserJwt` (via `storeJwt`)
+     wakes the executor, or the requirement turning off resolves it and sends.
      */
     func authorizeUserScoped(_ request: OSUserRequest, legacyAlias: OSAliasPair) -> OSAliasPair?
 
@@ -165,8 +165,10 @@ final class OSRequestAuth: OSRequestAuthorizing {
      SDK holding none with nothing to reject. The repo keeps this to one ask per external ID per session.
      */
     private func park(_ request: OSUserRequest, ownedBy externalId: String) {
-        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding \(request) until \(externalId) has a token")
-        jwt.askForToken(externalId: externalId)
+        // Log only on the ask that reaches the app; later prepareForExecution retries stay quiet.
+        if jwt.askForToken(externalId: externalId) {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding \(request) until \(externalId) has a token")
+        }
     }
 
     func handleUnauthorized(_ request: OSUserRequest) -> Bool {
