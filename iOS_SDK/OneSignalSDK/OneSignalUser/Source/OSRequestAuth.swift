@@ -55,6 +55,15 @@ protocol OSRequestAuthorizing: AnyObject {
     func authorize(_ request: OSUserRequest) -> Bool
 
     /**
+     Returns `true` if the Request's owner has no token to sign with, which is why the two methods above
+     parked it. Reads only: it does not ask the app for a token, so call it after one of them has.
+
+     Lets a caller that stops at its first unsendable Request tell "nothing can send until the app hands
+     over a token for this user" from "not addressable yet", which resolves on its own.
+     */
+    func awaitsToken(_ request: OSUserRequest) -> Bool
+
+    /**
      Parks the token an unauthorized response rejected and clears `sentToClient` so the Request is
      re-signed on a later flush.
 
@@ -141,6 +150,13 @@ final class OSRequestAuth: OSRequestAuthorizing {
         }
         setBearer(token, on: request)
         return true
+    }
+
+    func awaitsToken(_ request: OSUserRequest) -> Bool {
+        guard ivBehaviorActive, let externalId = request.ownerExternalId else {
+            return false
+        }
+        return jwt.validJwt(externalId: externalId) == nil
     }
 
     /**

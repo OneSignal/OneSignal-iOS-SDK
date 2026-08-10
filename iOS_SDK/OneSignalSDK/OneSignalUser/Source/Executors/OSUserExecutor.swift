@@ -244,30 +244,44 @@ class OSUserExecutor {
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(self.userRequestQueue)")
 
+        var awaitingToken = false
+
         for request in self.userRequestQueue {
             // Return as soon as we reach an un-executable request
             guard request.prepareForExecution(newRecordsState: self.newRecordsState, auth: self.auth)
             else {
+                // Only the app can end this wait, and it may never come; a login for another user behind
+                // this one must not be stranded by it, so step over it and keep polling for its token.
+                if self.auth.awaitsToken(request) {
+                    awaitingToken = true
+                    continue
+                }
                 OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
                 executePendingRequests(withDelay: true)
                 return
             }
 
+            // One Request per pass; its response re-enters here for the next.
             if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let fetchIdentityRequest = request as? OSRequestFetchIdentityBySubscription {
                 self.executeFetchIdentityBySubscriptionRequest(fetchIdentityRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
                 self.executeCreateUserRequest(createUserRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
                 self.executeIdentifyUserRequest(identifyUserRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestFetchUser.self), let fetchUserRequest = request as? OSRequestFetchUser {
                 self.executeFetchUserRequest(fetchUserRequest)
-                return
+                break
             } else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor met incompatible Request type that cannot be executed.")
             }
+        }
+
+        if awaitingToken {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor stepped over Requests waiting for a token: \(self.userRequestQueue)")
+            executePendingRequests(withDelay: true)
         }
     }
 }
@@ -298,11 +312,20 @@ extension OSUserExecutor {
             return
         }
 
-        // Hook up push subscription model if exists, it may be updated with a subscription_id, etc.
-        if let modelId = request.pushSubscriptionModel?.modelId,
-           let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
-            request.pushSubscriptionModel = pushSubscriptionModel
-            request.updatePushSubscriptionModel(pushSubscriptionModel)
+        if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil {
+            // Refresh so a subscription_id / token that landed after enqueue is included.
+            if let modelId = request.pushSubscriptionModel?.modelId,
+               let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
+                request.pushSubscriptionModel = pushSubscriptionModel
+                request.updatePushSubscriptionModel(pushSubscriptionModel)
+            }
+        } else if request.identityModel.externalId != nil {
+            // Identified but not current: omit push so a parked Create User can't transfer the device
+            // subscription after another login took it. Keep push for anonymous creates — the server
+            // requires a subscription, and with IV off those requests don't sit behind a later user.
+            request.parameters?.removeValue(forKey: "subscriptions")
+            request.pushSubscriptionModel = nil
+            request.originalPushToken = nil
         }
 
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth)

@@ -71,14 +71,66 @@ final class UserExecutorTests: XCTestCase {
         /* Setup */
         let mocks = Mocks()
         MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID, subscriptionId: "push-sub-id")
+        let user = mocks.createUserInstance(externalId: userA_EUID)
+        // Current so Create User keeps push; otherwise a prior-user create omits subscriptions.
+        OneSignalUserManagerImpl.sharedInstance._user = user
 
         /* When */
-        mocks.userExecutor.createUser(mocks.createUserInstance(externalId: userA_EUID))
+        mocks.userExecutor.createUser(user)
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then */
         XCTAssertTrue(mocks.newRecordsState.contains(userA_OSID))
         XCTAssertTrue(mocks.newRecordsState.contains("push-sub-id"))
+    }
+
+    /// A Create User for a prior login must not include the device push subscription, which the
+    /// current user now owns — sending it would transfer that push on the server.
+    func testCreateUser_forPriorIdentifiedUser_omitsPushSubscription() {
+        /* Setup */
+        let mocks = Mocks()
+        MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID, subscriptionId: "push-sub-id")
+
+        let sharedPush = OSSubscriptionModel(
+            type: .push,
+            address: "test-push-token",
+            subscriptionId: "shared-push-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+        let priorIdentity = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        let priorProperties = OSPropertiesModel(changeNotifier: OSEventProducer())
+        let priorCreate = OSRequestCreateUser(
+            identityModel: priorIdentity,
+            propertiesModel: priorProperties,
+            pushSubscriptionModel: sharedPush,
+            originalPushToken: sharedPush.address
+        )
+        XCTAssertNotNil(priorCreate.parameters?["subscriptions"])
+
+        // Device push now belongs to the current user (B); the parked create still holds the same model.
+        let currentUser = mocks.createUserInstance(externalId: userB_EUID)
+        currentUser.pushSubscriptionModel.subscriptionId = "shared-push-id"
+        OneSignalUserManagerImpl.sharedInstance._user = currentUser
+        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.add(
+            id: OS_PUSH_SUBSCRIPTION_MODEL_KEY,
+            model: sharedPush,
+            hydrating: false
+        )
+
+        /* When */
+        mocks.userExecutor.executeCreateUserRequest(priorCreate)
+        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+
+        /* Then */
+        guard let sent = mocks.client.executedRequests.compactMap({ $0 as? OSRequestCreateUser }).first else {
+            XCTFail("Expected Create User to be sent")
+            return
+        }
+        XCTAssertNil(sent.parameters?["subscriptions"], "Must not transfer the current user's push to a prior Create User")
+        XCTAssertFalse(mocks.newRecordsState.contains("push-sub-id"))
+        XCTAssertFalse(mocks.newRecordsState.contains("shared-push-id"))
     }
 
     func testCreateUser_withoutPushSubscription_doesNot_addToNewRecords() {
