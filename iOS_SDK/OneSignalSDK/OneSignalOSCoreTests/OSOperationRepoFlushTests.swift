@@ -138,25 +138,6 @@ final class OSOperationRepoFlushTests: XCTestCase {
             value: property
         )
     }
-
-    private func waitUntil(
-        _ description: String,
-        timeout: TimeInterval = 2.0,
-        file: StaticString = #filePath,
-        line: UInt = #line,
-        _ condition: @escaping () -> Bool
-    ) {
-        let exp = expectation(description: description)
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            if condition() {
-                timer.invalidate()
-                exp.fulfill()
-            }
-        }
-        let result = XCTWaiter.wait(for: [exp], timeout: timeout)
-        timer.invalidate()
-        XCTAssertEqual(result, .completed, "Timed out waiting for: \(description)", file: file, line: line)
-    }
 }
 
 private final class MockOperationExecutor: OSOperationExecutor {

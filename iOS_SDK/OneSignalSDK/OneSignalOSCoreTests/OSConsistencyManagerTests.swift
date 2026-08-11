@@ -8,19 +8,23 @@
 
 import Foundation
 import XCTest
-import OneSignalOSCore
+@testable import OneSignalOSCore
 
 class OSConsistencyManagerTests: XCTestCase {
     var consistencyManager: OSConsistencyManager!
+    private var defaultWaitTimeout: DispatchTimeInterval!
 
     override func setUp() {
         super.setUp()
         // Use the shared instance of OSConsistencyManager
         consistencyManager = OSConsistencyManager.shared
+        defaultWaitTimeout = OSConsistencyManager.waitTimeout
     }
 
     override func tearDown() {
+        OSConsistencyManager.waitTimeout = defaultWaitTimeout
         consistencyManager.reset()
+        OSIamFetchReadyCondition.reset()
         super.tearDown()
     }
 
@@ -92,35 +96,28 @@ class OSConsistencyManagerTests: XCTestCase {
 
     // Test: registerCondition does not complete when condition is not met
     func testRegisterConditionDoesNotCompleteWhenConditionIsNotMet() {
-        // Given a condition that will never be met
-        let condition = TestUnmetCondition()
+        OSConsistencyManager.waitTimeout = .milliseconds(500)
         let id = "test_id"
-        let rywDelay = 500 as NSNumber
+        let returned = expectation(description: "waiter returned")
+        var rywData: OSReadYourWriteData?
 
-       // Start on a background queue to simulate async behavior
-       DispatchQueue.global().async {
-           // Register the condition asynchronously
-           let rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+        DispatchQueue.global().async {
+            rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: id)
+            returned.fulfill()
+        }
+        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-           // Since the condition will never be met, rywToken should remain nil
-           XCTAssertNil(rywData)
-
-           // Set an unrelated token to verify that the unmet condition still doesn't complete
-           self.consistencyManager.setRywTokenAndDelay(
+        // A token for another id must not release this waiter
+        consistencyManager.setRywTokenAndDelay(
             id: "unrelated_id",
             key: OSIamFetchOffsetKey.userUpdate,
-            value: OSReadYourWriteData(rywToken: "unrelated", rywDelay: rywDelay)
-           )
+            value: OSReadYourWriteData(rywToken: "unrelated", rywDelay: 500)
+        )
+        XCTAssertEqual(consistencyManager.waiterCount, 1)
 
-           // newest token should still be nil as the condition is not met
-           XCTAssertNil(rywData)
-       }
-
-       // Use a short delay to let the async behavior complete without waiting indefinitely
-       DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-           XCTAssertTrue(true) // Simulate some async action completing without hanging
-       }
-   }
+        wait(for: [returned], timeout: 2.0)
+        XCTAssertNil(rywData)
+    }
 
     func testSetRywTokenWithoutAnyCondition() {
         // Given
@@ -281,6 +278,64 @@ class OSConsistencyManagerTests: XCTestCase {
         let rywData = consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
         XCTAssertEqual(rywData?.rywToken, "456")
+    }
+
+    // MARK: - Releasing waiters
+
+    /**
+     The fallback for a response that carried no `ryw_token`: the caller knows only the condition id,
+     while the waiter registered under the user's id, so resolving has to reach across the index.
+     */
+    func testResolvingByConditionIdReleasesAWaiterRegisteredUnderAnotherId() {
+        let returned = expectation(description: "waiter returned")
+        DispatchQueue.global().async {
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
+            returned.fulfill()
+        }
+        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
+
+        consistencyManager.resolveConditionsWithID(id: TestUnmetCondition.CONDITIONID)
+
+        wait(for: [returned], timeout: 2.0)
+        XCTAssertEqual(consistencyManager.waiterCount, 0)
+    }
+
+    func testResolvingADifferentConditionLeavesTheWaiterWaiting() {
+        OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let returned = expectation(description: "waiter returned")
+        DispatchQueue.global().async {
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
+            returned.fulfill()
+        }
+        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
+
+        consistencyManager.resolveConditionsWithID(id: "SomeOtherCondition")
+
+        XCTAssertEqual(consistencyManager.waiterCount, 1)
+        // Let it time out rather than leaving the thread blocked past the end of the test.
+        wait(for: [returned], timeout: 2.0)
+    }
+
+    /// A condition nothing ever meets must not hold its thread for the life of the process.
+    func testAWaiterGivesUpWhenItsConditionIsNeverMet() {
+        OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let returned = expectation(description: "waiter returned")
+        var rywData: OSReadYourWriteData?
+        DispatchQueue.global().async {
+            rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
+            returned.fulfill()
+        }
+
+        wait(for: [returned], timeout: 2.0)
+        XCTAssertNil(rywData)
+        XCTAssertEqual(consistencyManager.waiterCount, 0, "a waiter that gave up has to deregister")
+    }
+}
+
+extension OSConsistencyManager {
+    /// Waiters registered right now. Tests poll it while the manager mutates on its own queue.
+    var waiterCount: Int {
+        return queue.sync { indexedConditions.values.reduce(0) { $0 + $1.count } }
     }
 }
 
