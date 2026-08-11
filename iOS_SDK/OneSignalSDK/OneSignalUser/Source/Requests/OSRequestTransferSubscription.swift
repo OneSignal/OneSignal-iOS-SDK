@@ -43,7 +43,9 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     let aliasLabel: String
     let aliasId: String
 
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    var ownerExternalId: String? { return nil }
+
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         return false
     }
 
