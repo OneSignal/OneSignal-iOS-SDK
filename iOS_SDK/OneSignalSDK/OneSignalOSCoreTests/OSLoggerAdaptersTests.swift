@@ -212,6 +212,57 @@ final class OSLoggerAdaptersTests: XCTestCase {
         )
     }
 
+    func testCrashHandlerSynchronouslyPersistsUncaughtException() throws {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let logger = IOSLogger()
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let reporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: telemetry,
+            logger: logger
+        )
+        let handler = OSLogCrashHandler(reporter: reporter)
+        let exception = NSException(
+            name: NSExceptionName("TestException"),
+            reason: "test crash",
+            userInfo: nil
+        )
+
+        handler.handle(
+            exception: exception,
+            stackSymbols: ["0 OneSignalCore 0x000000 OneSignalExample + 1"]
+        )
+
+        XCTAssertEqual(
+            try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
+                .filter { $0.hasSuffix(".otlp") }
+                .count,
+            1
+        )
+    }
+
+    func testCrashHandlerIgnoresCrashWithoutOneSignalFrames() throws {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let reporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: telemetry,
+            logger: IOSLogger()
+        )
+        let handler = OSLogCrashHandler(reporter: reporter)
+
+        handler.handle(
+            exception: NSException(name: NSExceptionName("HostException"), reason: nil),
+            stackSymbols: ["0 ExampleApp 0x000000 AppDelegate + 1"]
+        )
+
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
+    }
+
     func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
         let provider = makePlatformProvider()
         var firstInstallId: String?

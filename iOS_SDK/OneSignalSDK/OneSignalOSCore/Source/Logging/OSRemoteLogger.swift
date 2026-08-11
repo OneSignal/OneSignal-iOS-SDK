@@ -56,6 +56,8 @@ public protocol OSStructuredRemoteLoggerProtocol: OSRemoteLoggerProtocol {
 public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let telemetry: ILogTelemetryRemote
     private let platformProvider: OSLoggerPlatformProvider
+    private let crashHandler: ILogCrashHandler
+    private let crashUploader: LogCrashUploader
 
     public init(
         installIdProvider: @escaping () -> String,
@@ -76,14 +78,41 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             exporterLoggingEnabledProvider: exporterLoggingEnabledProvider
         )
         let logger = IOSLogger()
-        self.platformProvider = provider
-        self.telemetry = LoggerFactory.shared.createRemoteTelemetry(
+        let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
+        let remoteTelemetry = LoggerFactory.shared.createRemoteTelemetry(
             platformProvider: provider,
             httpSender: OneSignalLogHttpSender(
                 logger: logger,
                 isDiagnosticsEnabled: exporterLoggingEnabledProvider
             )
         )
+        let crashTelemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: provider,
+            fileStore: fileStore
+        )
+        let crashReporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: crashTelemetry,
+            logger: logger
+        )
+        let crashHandler = OSLogCrashHandler(reporter: crashReporter)
+        let crashUploader = LoggerFactory.shared.createCrashUploader(
+            platformProvider: provider,
+            remote: remoteTelemetry,
+            fileStore: fileStore,
+            logger: logger
+        )
+
+        self.platformProvider = provider
+        self.telemetry = remoteTelemetry
+        self.crashHandler = crashHandler
+        self.crashUploader = crashUploader
+
+        crashHandler.initialize()
+        crashUploader.start { error in
+            if let error {
+                logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+            }
+        }
     }
 
     public var kmpVersion: String {
@@ -127,6 +156,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     }
 
     public func shutdown() {
+        crashHandler.unregister()
         telemetry.shutdown()
     }
 }
