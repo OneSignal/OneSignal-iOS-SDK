@@ -25,22 +25,27 @@
  THE SOFTWARE.
  */
 
-import OneSignalOSCore
+import Foundation
+import XCTest
 
-public class ConsistencyManagerTestHelpers {
-    /// Clears both halves of the read-your-write state: the manager's tokens and waiters, and the
-    /// per-id conditions, which otherwise carry a raised subscription bar into the next test.
-    public static func reset() {
-        OSConsistencyManager.shared.reset()
-        OSIamFetchReadyCondition.reset()
-    }
-
-    /// Unblocks the Consistency Manager, which allows fetching of IAMs for example.
-    public static func setDefaultRywToken(id: String) {
-        let key = OSIamFetchOffsetKey.userUpdate
-        let rywToken = "123"
-        let rywDelay: NSNumber = 0
-        let rywData = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
-        OSConsistencyManager.shared.setRywTokenAndDelay(id: id, key: key, value: rywData)
+extension XCTestCase {
+    /// Polls: the work runs on a private queue with no completion to hook.
+    func waitUntil(
+        _ description: String,
+        timeout: TimeInterval = 2.0,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ condition: @escaping () -> Bool
+    ) {
+        let exp = expectation(description: description)
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
+            if condition() {
+                timer.invalidate()
+                exp.fulfill()
+            }
+        }
+        let result = XCTWaiter.wait(for: [exp], timeout: timeout)
+        timer.invalidate()
+        XCTAssertEqual(result, .completed, "Timed out waiting for: \(description)", file: file, line: line)
     }
 }
