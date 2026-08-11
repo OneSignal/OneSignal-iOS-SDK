@@ -79,6 +79,8 @@
 // Remote SDK feature flags (Turbine GET apps/{app_id}/sdk/features/{platform}/{sdk_version})
 #define OSUD_SDK_REMOTE_FEATURE_FLAGS                                       @"OSUD_SDK_REMOTE_FEATURE_FLAGS"
 #define OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA                               @"OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA"
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
+#define OSUD_SDK_FEATURE_FLAGS                                              @"OSUD_SDK_FEATURE_FLAGS"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
@@ -132,7 +134,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth"
+#define IOS_JWT_REQUIRED @"jwt_required"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
@@ -320,6 +322,15 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // OSID and EID snapshots during hydration
 #define OS_SNAPSHOT_ONESIGNAL_ID                                            @"OS_SNAPSHOT_ONESIGNAL_ID"
 #define OS_SNAPSHOT_EXTERNAL_ID                                             @"OS_SNAPSHOT_EXTERNAL_ID"
+
+/* Identity Verification */
+#define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
+#define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
+
+// Posted when work held for want of an answer can be reattempted: the requirement hydrated, or the app
+// supplied a token. Listeners re-read the current state rather than take anything from the post.
+#define OS_ON_JWT_CONFIG_HYDRATED                                           @"OS_ON_JWT_CONFIG_HYDRATED"
+#define OS_ON_USER_JWT_UPDATED                                              @"OS_ON_USER_JWT_UPDATED"
 
 // Models and Model Stores
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"

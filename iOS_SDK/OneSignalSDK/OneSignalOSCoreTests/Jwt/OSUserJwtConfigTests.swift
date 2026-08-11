@@ -1,0 +1,95 @@
+/*
+ Modified MIT License
+
+ Copyright 2026 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import Foundation
+import XCTest
+import OneSignalCore
+@testable import OneSignalOSCore
+
+final class OSUserJwtConfigTests: XCTestCase {
+
+    override func setUp() {
+        super.setUp()
+        clearCachedRequirement()
+    }
+
+    override func tearDown() {
+        clearCachedRequirement()
+        super.tearDown()
+    }
+
+    private func clearCachedRequirement() {
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
+    }
+
+    private func cacheRequirement(_ requirement: OSRequiresUserAuth) {
+        OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: requirement.rawValue)
+    }
+
+    func testRequirementIsUnknownUntilRemoteParamsAreRead() {
+        XCTAssertEqual(OSUserJwtConfig().requirement, .unknown)
+    }
+
+    func testHydratedRequirementIsReadBackOnTheNextLaunch() {
+        OSUserJwtConfig().hydrate(requiresUserAuth: true)
+        XCTAssertEqual(OSUserJwtConfig().requirement, .on)
+
+        // `off` has to be cached as its own value, not as the absence of one
+        OSUserJwtConfig().hydrate(requiresUserAuth: false)
+        XCTAssertEqual(OSUserJwtConfig().requirement, .off)
+    }
+
+    func testRefreshAdoptsACachedRequirementThatTheInitialReadMissed() {
+        let jwtConfig = OSUserJwtConfig()
+        cacheRequirement(.on)
+
+        jwtConfig.refreshIfUnknown()
+
+        XCTAssertEqual(jwtConfig.requirement, .on)
+    }
+
+    func testRefreshLeavesAKnownRequirementAlone() {
+        let jwtConfig = OSUserJwtConfig()
+        jwtConfig.hydrate(requiresUserAuth: false)
+        cacheRequirement(.on)
+
+        jwtConfig.refreshIfUnknown()
+
+        XCTAssertEqual(jwtConfig.requirement, .off)
+    }
+
+    func testHydrateCachesTheRequirementEvenWhenTheValueIsUnchanged() {
+        let jwtConfig = OSUserJwtConfig()
+        jwtConfig.hydrate(requiresUserAuth: true)
+        // Stands in for a write that locked storage dropped, leaving memory and disk out of step
+        clearCachedRequirement()
+
+        jwtConfig.hydrate(requiresUserAuth: true)
+
+        XCTAssertEqual(OSUserJwtConfig().requirement, .on)
+    }
+}
