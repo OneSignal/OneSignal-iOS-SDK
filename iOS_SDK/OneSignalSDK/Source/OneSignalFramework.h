@@ -52,6 +52,7 @@
 // Forward declarations for Objective-C++ compatibility
 @protocol OSUser;
 @protocol OSLiveActivities;
+@protocol OSUserJwtInvalidatedListener;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -71,6 +72,10 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
++ (void)addUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener NS_REFINED_FOR_SWIFT;
++ (void)removeUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener NS_REFINED_FOR_SWIFT;
++ (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token
+NS_SWIFT_NAME(updateUserJwt(externalId:token:));
 + (void)logout;
 
 #pragma mark Notifications
