@@ -1,21 +1,21 @@
 /*
  Modified MIT License
- 
- Copyright 2024 OneSignal
- 
+
+ Copyright 2026 OneSignal
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  1. The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  2. All copies of substantial portions of the Software may only be used in connection
  with services provided by OneSignal.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,36 +25,24 @@
  THE SOFTWARE.
  */
 
-import Foundation
-import OneSignalCore
-@testable import OneSignalOSCore
+/**
+ Tells the app that the JWT it supplied for `externalId` is no longer accepted, so it should mint a
+ fresh one and hand it back through `OneSignal.updateUserJwt(externalId:token:)`.
+ */
+@objc public class OSUserJwtInvalidatedEvent: NSObject {
+    @objc public let externalId: String
 
-@objc
-public class OSCoreMocks: NSObject {
-    public static func resetOperationRepo() {
-        OSOperationRepo.sharedInstance.reset()
+    init(externalId: String) {
+        self.externalId = externalId
     }
 
-    /// Puts the shared JWT config back to unhydrated.
-    public static func resetSharedJwtConfig() {
-        OSUserJwtConfig.shared.resetRequirementToUnknownForTests()
-    }
-
-    /// Hydrates the shared JWT config. Non-IV tests hydrate `false` so the Operation Repo will flush.
-    public static func hydrateSharedJwtConfig(requiresUserAuth: Bool) {
-        OSUserJwtConfig.shared.hydrate(requiresUserAuth: requiresUserAuth)
+    @objc public func jsonRepresentation() -> NSDictionary {
+        return [
+            "externalId": externalId
+        ]
     }
 }
 
-extension OSOperationRepo {
-    /**
-     The Operation Repo needs to reset between tests until we dependency inject the Operation Repo,
-     to prevent state from carrying over between tests.
-     */
-    func reset() {
-        deltaQueue.removeAll()
-        executors.removeAll()
-        deltasToExecutorMap.removeAll()
-        paused = false
-    }
+@objc public protocol OSUserJwtInvalidatedListener {
+    @objc func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent)
 }

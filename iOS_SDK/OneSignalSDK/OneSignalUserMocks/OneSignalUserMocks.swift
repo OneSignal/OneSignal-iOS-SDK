@@ -45,6 +45,9 @@ public class OneSignalUserMocks: NSObject {
         ])
         _ = OSResilientStorage.snapshot()
         OSCoreMocks.resetOperationRepo()
+        OSCoreMocks.resetSharedJwtConfig()
+        // Hydrate `off` so the Operation Repo's unknown-requirement deferral does not stall non-IV tests.
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 
@@ -66,6 +69,14 @@ extension OSIdentityModelRepo {
     }
 }
 
+extension OSUserJwtRepo {
+    /// Clears which external IDs have already been asked for a token, which lives for a session in
+    /// production and would otherwise silence the invalidated event in the next test.
+    func reset() {
+        lock.withLock { askedForToken.removeAll() }
+    }
+}
+
 extension OneSignalUserManagerImpl {
     /**
      User Manager needs to reset between tests until we dependency inject the User Manager.
@@ -74,6 +85,7 @@ extension OneSignalUserManagerImpl {
      */
     func reset() {
         identityModelRepo.reset()
+        userJwtRepo.reset()
 
         // Model store listeners unsubscribe to their models
         // User Manager start() will subscribe them
