@@ -296,6 +296,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
              app's own opt-in, which would make the silencing permanent.
              */
             identityVerificationService.addOnJwtConfigHydratedHandler(for: .userManager) { [weak self] requirement in
+                // Tells work that does not travel through the Repo, such as the in-app message fetch,
+                // that how to address a user-scoped call is now decided.
+                NotificationCenter.default.post(name: Notification.Name(OS_ON_JWT_CONFIG_HYDRATED), object: nil)
                 guard requirement == .off else {
                     return
                 }
