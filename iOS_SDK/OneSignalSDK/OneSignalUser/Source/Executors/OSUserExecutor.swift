@@ -36,17 +36,88 @@ import OneSignalOSCore
 class OSUserExecutor {
     var userRequestQueue: [OSUserRequest] = []
     private let newRecordsState: OSNewRecordsState
+    private let identityVerificationService: OSIdentityVerificationService
+    private let auth: OSRequestAuthorizing
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
     /// The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, identityVerificationService: OSIdentityVerificationService, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.identityVerificationService = identityVerificationService
+        self.auth = auth
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
+
+        identityVerificationService.addOnJwtConfigHydratedHandler(for: .userExecutor) { [weak self] _ in
+            // Including an unchanged value: Requests held while `requirement` was unknown wait on this.
+            self?.executePendingRequests()
+        }
+
         executePendingRequests()
+    }
+
+    /**
+     Reshapes the queue once `requirement` is known, so nothing that cannot be signed is sent: a Create User
+     with no `external_id` and every Fetch Identity By Subscription are dropped, and an Identify User — a
+     `login` that promoted an anonymous user while the requirement was still unknown — becomes the Create
+     User that login would have made, or is dropped if a later `login` has superseded it.
+
+     Runs on every send because `refreshIfUnknown` can raise `requirement` with no event; reads the live
+     model because this executor sends nothing while `requirement` is unknown.
+     */
+    private func reshapeInvalidRequests() {
+        guard identityVerificationService.ivBehaviorActive else {
+            return
+        }
+
+        var reshaped: [OSUserRequest] = []
+        var changed = false
+
+        for request in userRequestQueue {
+            if let identifyUser = request as? OSRequestIdentifyUser {
+                changed = true
+                if let createUser = promotionAsCreateUser(identifyUser) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor replaced \(identifyUser) with \(createUser), Identity Verification is required")
+                    reshaped.append(createUser)
+                } else {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor dropped \(identifyUser), Identity Verification is required")
+                }
+            } else if isInvalidUnderIdentityVerification(request) {
+                changed = true
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor dropped \(request), Identity Verification is required")
+            } else {
+                reshaped.append(request)
+            }
+        }
+
+        guard changed else {
+            return
+        }
+        userRequestQueue = reshaped
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+    }
+
+    /// The Create User the promoting `login` would have made, or nil if that user is no longer the current one.
+    private func promotionAsCreateUser(_ request: OSRequestIdentifyUser) -> OSRequestCreateUser? {
+        guard let user = OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) else {
+            return nil
+        }
+        return OSRequestCreateUser(
+            identityModel: user.identityModel,
+            propertiesModel: user.propertiesModel,
+            pushSubscriptionModel: user.pushSubscriptionModel,
+            originalPushToken: user.pushSubscriptionModel.address
+        )
+    }
+
+    private func isInvalidUnderIdentityVerification(_ request: OSUserRequest) -> Bool {
+        if let createUser = request as? OSRequestCreateUser {
+            return createUser.identityModel.externalId == nil
+        }
+        return request is OSRequestFetchIdentityBySubscription
     }
 
     /// Read in requests from the cache, do not read in FetchUser requests as this is not needed.
@@ -94,7 +165,7 @@ class OSUserExecutor {
                         // 3. Both models don't exist yet
                         // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
                         // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
-                        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+                        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
                             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
                             continue
                         }
@@ -164,32 +235,55 @@ class OSUserExecutor {
     }
 
     private func _executePendingRequests() {
+        // Hold until known: a Create User sent now would go out unsigned if `requirement` later becomes on.
+        guard identityVerificationService.requirement != .unknown else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(self.userRequestQueue.count) Requests until the Identity Verification requirement is known")
+            return
+        }
+        reshapeInvalidRequests()
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserExecutor.executePendingRequests called with queue \(self.userRequestQueue)")
+
+        var awaitingToken = false
+        var executed = false
 
         for request in self.userRequestQueue {
             // Return as soon as we reach an un-executable request
-            guard request.prepareForExecution(newRecordsState: self.newRecordsState)
+            guard request.prepareForExecution(newRecordsState: self.newRecordsState, auth: self.auth)
             else {
+                // Only the app can end this wait (`updateUserJwt` → `storeJwt`); do not poll for it.
+                // A login for another user behind this one must not be stranded, so step over it.
+                if self.auth.awaitsToken(request) {
+                    awaitingToken = true
+                    continue
+                }
                 OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executePendingRequests() is blocked by unexecutable request \(request)")
                 executePendingRequests(withDelay: true)
                 return
             }
 
+            // One Request per pass; its response re-enters here for the next.
+            executed = true
             if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let fetchIdentityRequest = request as? OSRequestFetchIdentityBySubscription {
                 self.executeFetchIdentityBySubscriptionRequest(fetchIdentityRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestCreateUser.self), let createUserRequest = request as? OSRequestCreateUser {
                 self.executeCreateUserRequest(createUserRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
                 self.executeIdentifyUserRequest(identifyUserRequest)
-                return
+                break
             } else if request.isKind(of: OSRequestFetchUser.self), let fetchUserRequest = request as? OSRequestFetchUser {
                 self.executeFetchUserRequest(fetchUserRequest)
-                return
+                break
             } else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor met incompatible Request type that cannot be executed.")
             }
+        }
+
+        // Wait-only pass: `storeJwt` / hydrate / a later enqueue wakes us. Do not reschedule.
+        if awaitingToken, !executed {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor has Requests waiting for a token")
         }
     }
 }
@@ -220,14 +314,23 @@ extension OSUserExecutor {
             return
         }
 
-        // Hook up push subscription model if exists, it may be updated with a subscription_id, etc.
-        if let modelId = request.pushSubscriptionModel?.modelId,
-           let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
-            request.pushSubscriptionModel = pushSubscriptionModel
-            request.updatePushSubscriptionModel(pushSubscriptionModel)
+        if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil {
+            // Refresh so a subscription_id / token that landed after enqueue is included.
+            if let modelId = request.pushSubscriptionModel?.modelId,
+               let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModelStore.getModel(modelId: modelId) {
+                request.pushSubscriptionModel = pushSubscriptionModel
+                request.updatePushSubscriptionModel(pushSubscriptionModel)
+            }
+        } else if request.identityModel.externalId != nil {
+            // Identified but not current: omit push so a parked Create User can't transfer the device
+            // subscription after another login took it. Keep push for anonymous creates — the server
+            // requires a subscription, and with IV off those requests don't sit behind a later user.
+            request.parameters?.removeValue(forKey: "subscriptions")
+            request.pushSubscriptionModel = nil
+            request.originalPushToken = nil
         }
 
-        guard request.prepareForExecution(newRecordsState: newRecordsState)
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth)
         else {
             executePendingRequests(withDelay: true)
             return
@@ -240,13 +343,12 @@ extension OSUserExecutor {
 
             // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
-                let shouldAddNewRecords = request.pushSubscriptionModel != nil
                 // Parse the response for any data we need to update
                 self.parseFetchUserResponse(
                     response: response,
                     identityModel: request.identityModel,
                     originalPushToken: request.originalPushToken,
-                    addNewRecords: shouldAddNewRecords
+                    addNewRecords: request.addsNewRecords
                 )
 
                 // If this user already exists and we logged into an external_id, fetch the user data
@@ -275,15 +377,22 @@ extension OSUserExecutor {
                     }
                 }
             }
-            OSOperationRepo.sharedInstance.paused = false
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-            if responseType != .retryable {
+            if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                // Held rather than paused: `updateUserJwt` resumes work by flushing, which a paused Repo drops.
+                // Ordering does not need the pause — every Request for this user waits on an `onesignal_id`.
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
+                // A replacement token supplied while this was in flight has already released what it could;
+                // re-enter so that token is used now rather than waiting on another wake.
+                self.executePendingRequests()
+            } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
                 // We will retry this request on a new session
-                OSOperationRepo.sharedInstance.paused = true
+                OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                 request.sentToClient = false
             }
         }
@@ -305,7 +414,7 @@ extension OSUserExecutor {
         }
 
         // newRecordsState is unused for this request
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             executePendingRequests(withDelay: true)
             return
         }
@@ -358,7 +467,7 @@ extension OSUserExecutor {
             return
         }
 
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             executePendingRequests(withDelay: true)
             return
         }
@@ -437,7 +546,7 @@ extension OSUserExecutor {
             return
         }
 
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             executePendingRequests(withDelay: true)
             return
         }
@@ -489,6 +598,8 @@ extension OSUserExecutor {
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
+            } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
             } else if responseType != .retryable {
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)

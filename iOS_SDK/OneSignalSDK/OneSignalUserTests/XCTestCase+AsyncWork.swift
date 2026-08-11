@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2026 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -14,7 +14,7 @@
  all copies or substantial portions of the Software.
 
  2. All copies of substantial portions of the Software may only be used in connection
- with services provided by OneSignal.
+with services provided by OneSignal.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,21 +25,22 @@
  THE SOFTWARE.
  */
 
-import OneSignalCore
+import XCTest
 
-/**
- Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
- */
-public protocol OSOperationExecutor {
-    var supportedDeltas: [String] { get }
-
-    func enqueueDelta(_ delta: OSDelta)
-    func cacheDeltaQueue()
-    func processDeltaQueue(inBackground: Bool)
-
+extension XCTestCase {
     /**
-     Drop queued Deltas and Requests that belong to an anonymous user. Driven by `OSOperationRepo`
-     so the policy stays there; only the storage is per-executor.
+     Gives queued async work a chance to run, for assertions that something did *not* happen.
+
+     An absence has no condition to poll, so proving one needs either a fixed wait or a
+     deterministic drain of whatever drives the work. Use `OneSignalCoreMocks.waitUntil`
+     anywhere a condition does exist: it returns as soon as the condition holds and it fails
+     the test with a message when it never does.
+
+     Waits through `XCTWaiter` rather than sleeping, so the run loop keeps pumping and work
+     dispatched to the main queue can actually run.
      */
-    func removeOperationsWithoutExternalId()
+    func allowAsyncWorkToRun(seconds: Double = 0.5) {
+        let unfulfilled = XCTestExpectation(description: "Allow \(seconds)s for async work")
+        _ = XCTWaiter.wait(for: [unfulfilled], timeout: seconds)
+    }
 }

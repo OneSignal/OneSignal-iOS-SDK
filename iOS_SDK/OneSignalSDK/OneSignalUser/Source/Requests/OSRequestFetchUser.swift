@@ -44,15 +44,19 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let aliasId: String
     let onNewSession: Bool
 
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    /// See the ownership convention in `OSUserRequest.swift`.
+    var ownerExternalId: String? { return identityModel.externalId }
+
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         guard let appId = OneSignalIdentifiers.currentAppId,
-              newRecordsState.canAccess(aliasId)
+              newRecordsState.canAccess(aliasId),
+              let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(aliasLabel, aliasId)),
+              let encodedAliasId = OSUrlPath.segment(alias.id)
         else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the fetch user request for \(aliasLabel): \(aliasId) yet.")
             return false
         }
-        self.addJWTHeader(identityModel: identityModel)
-        self.path = "apps/\(appId)/users/by/\(aliasLabel)/\(aliasId)"
+        self.path = "apps/\(appId)/users/by/\(alias.label)/\(encodedAliasId)"
         return true
     }
 

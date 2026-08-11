@@ -31,10 +31,6 @@ import OneSignalCore
 
 @objc
 public class OSCoreMocks: NSObject {
-    public static func resetOperationRepo() {
-        OSOperationRepo.sharedInstance.reset()
-    }
-
     /// Puts the shared JWT config back to unhydrated.
     public static func resetSharedJwtConfig() {
         OSUserJwtConfig.shared.resetRequirementToUnknownForTests()
@@ -48,13 +44,15 @@ public class OSCoreMocks: NSObject {
 
 extension OSOperationRepo {
     /**
-     The Operation Repo needs to reset between tests until we dependency inject the Operation Repo,
-     to prevent state from carrying over between tests.
+     Clears queue state between tests that reach the repo through the User Manager singleton.
+     Leaves `hasCalledStart` alone so the next `start()` does not schedule a second poller.
      */
-    func reset() {
-        deltaQueue.removeAll()
-        executors.removeAll()
-        deltasToExecutorMap.removeAll()
+    public func reset() {
+        dispatchQueue.sync {
+            deltaQueue.removeAll()
+            executors.removeAll()
+            deltasToExecutorMap.removeAll()
+        }
         paused = false
     }
 }
