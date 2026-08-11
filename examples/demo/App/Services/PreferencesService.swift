@@ -28,9 +28,9 @@
 import Foundation
 
 /// `UserDefaults`-backed cache for state the demo restores across cold launches:
-/// consent flags, IAM paused, location shared, and the last-logged-in external
-/// user id. Mirrors the Capacitor demo's `PreferencesService` so the iOS demo
-/// re-feeds these into the SDK during initialization.
+/// consent flags, IAM paused, location shared, the last-logged-in external user id,
+/// the Identity Verification toggle, and the demo REST JWT. The JWT is only for the
+/// demo's `/users` fetch — it is not automatically passed to `login` / `updateUserJwt`.
 final class PreferencesService {
 
     static let shared = PreferencesService()
@@ -47,6 +47,8 @@ final class PreferencesService {
         static let iamPaused       = "onesignal.demo.iamPaused"
         static let locationShared  = "onesignal.demo.locationShared"
         static let externalUserId  = "onesignal.demo.externalUserId"
+        static let useIdentityVerification = "onesignal.demo.useIdentityVerification"
+        static let sessionJwtToken = "onesignal.demo.sessionJwtToken"
     }
 
     // MARK: - Consent
@@ -81,6 +83,26 @@ final class PreferencesService {
             defaults.set(value, forKey: Key.externalUserId)
         } else {
             defaults.removeObject(forKey: Key.externalUserId)
+        }
+    }
+
+    // MARK: - Identity Verification (demo REST fetch)
+
+    func getUseIdentityVerification() -> Bool { defaults.bool(forKey: Key.useIdentityVerification) }
+    func setUseIdentityVerification(_ value: Bool) { defaults.set(value, forKey: Key.useIdentityVerification) }
+
+    func getSessionJwtToken() -> String? {
+        guard let value = defaults.string(forKey: Key.sessionJwtToken), !value.isEmpty else {
+            return nil
+        }
+        return value
+    }
+
+    func setSessionJwtToken(_ value: String?) {
+        if let value = value, !value.isEmpty {
+            defaults.set(value, forKey: Key.sessionJwtToken)
+        } else {
+            defaults.removeObject(forKey: Key.sessionJwtToken)
         }
     }
 }
