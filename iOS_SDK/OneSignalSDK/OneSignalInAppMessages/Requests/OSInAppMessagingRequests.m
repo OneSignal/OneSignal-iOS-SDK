@@ -35,13 +35,15 @@
 }
 
 + (instancetype _Nonnull)   withSubscriptionId:(NSString * _Nonnull)subscriptionId
+                            withAlias:(OSAliasPair * _Nullable)alias
+                            withUserHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)userHeaders
                             withSessionDuration:(NSNumber * _Nonnull)sessionDuration
                             withRetryCount:(NSNumber *)retryCount
                             withRywToken:(NSString *)rywToken
 {
     let request = [OSRequestGetInAppMessages new];
     request.method = GET;
-    let headers = [NSMutableDictionary new];
+    NSMutableDictionary *headers = userHeaders ? [userHeaders mutableCopy] : [NSMutableDictionary new];
     
     if (sessionDuration != nil) {
         // convert to ms & round
@@ -56,7 +58,17 @@
     request.additionalHeaders = headers;
 
     NSString *appId = OneSignalIdentifiers.currentAppId;
-    request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
+    if (alias) {
+        // Encode so an app-chosen external_id cannot change which endpoint the path names.
+        NSString *encodedAliasId = [OSUrlPath segment:alias.id];
+        if (!encodedAliasId) {
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OSRequestGetInAppMessages: cannot encode alias id for path"];
+            return request;
+        }
+        request.path = [NSString stringWithFormat:@"apps/%@/users/by/%@/%@/subscriptions/%@/iams", appId, alias.label, encodedAliasId, subscriptionId];
+    } else {
+        request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
+    }
     return request;
 }
 @end

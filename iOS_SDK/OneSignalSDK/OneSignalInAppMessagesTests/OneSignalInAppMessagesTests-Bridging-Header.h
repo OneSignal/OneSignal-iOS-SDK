@@ -14,6 +14,7 @@
 @property (strong, nonatomic, nonnull) NSMutableDictionary *redisplayedInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageInternal *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nullable) NSString *deferredFetchSubscriptionId;
 + (void)start;
 + (void)removeInstance;
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message;

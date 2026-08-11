@@ -71,7 +71,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
      - IAM fetch should be deferred
      
      Expected:
-     - shouldFetchOnUserChangeWithSubscriptionID property is set with the subscription ID
+     - deferredFetchSubscriptionId property is set with the subscription ID
      - No IAM fetch actually occurs
      */
     func testStoresSubscriptionIDWhenOneSignalIDUnavailable() throws {
@@ -84,21 +84,19 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         /* Execute */
         OneSignalInAppMessages.getFromServer(testSubscriptionId)
         OneSignalCoreMocks.waitUntil("Deferred IAM subscription ID was not stored") {
-            OSMessagingController.sharedInstance()
-                .value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as? String == self.testSubscriptionId
+            OSMessagingController.sharedInstance().deferredFetchSubscriptionId == self.testSubscriptionId
         }
 
         /* Verify */
         // The controller should have stored the subscription ID for retry
-        let shouldFetchOnUserChangeWithSubscriptionID = OSMessagingController.sharedInstance().value(forKey: "shouldFetchOnUserChangeWithSubscriptionID")
-        XCTAssertEqual(shouldFetchOnUserChangeWithSubscriptionID as! String, testSubscriptionId)
+        XCTAssertEqual(OSMessagingController.sharedInstance().deferredFetchSubscriptionId, testSubscriptionId)
 
         // Verify no IAM request was actually made (since we don't have OneSignal ID)
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 0))
     }
 
     /**
-     Test that when user state changes with a valid OneSignal ID and shouldFetchOnUserChangeWithSubscriptionID is set, it retries the fetch.
+     Test that when user state changes with a valid OneSignal ID and deferredFetchSubscriptionId is set, it retries the fetch.
      
      Scenario:
      - IAM fetch was previously deferred due to missing OneSignal ID
@@ -107,7 +105,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
      
      Expected:
      - IAM fetch is retried with the stored subscription ID
-     - shouldFetchOnUserChangeWithSubscriptionID is cleared
+     - deferredFetchSubscriptionId is cleared
      */
     func testRetriesFetchWhenUserStateChangesWithValidOneSignalID() throws {
         /* Setup */
@@ -130,11 +128,11 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         // First attempt: Try to fetch IAMs without OneSignal ID (should be deferred)
         OneSignalInAppMessages.getFromServer(testSubscriptionId)
         OneSignalCoreMocks.waitUntil("Deferred IAM subscription ID was not stored") {
-            controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as? String == self.testSubscriptionId
+            controller.deferredFetchSubscriptionId == self.testSubscriptionId
         }
 
         // Verify the subscription ID was stored and no IAM fetch occurred
-        XCTAssertEqual(controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as! String, testSubscriptionId)
+        XCTAssertEqual(controller.deferredFetchSubscriptionId, testSubscriptionId)
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 0))
 
         // Now let the login succeed, receive onesignal ID which fires user state observer
@@ -143,7 +141,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.userExecutor?.executePendingRequests()
         OneSignalCoreMocks.waitUntil("Deferred IAM fetch was not retried") {
             client.hasCompletedRequestOfType(OSRequestGetInAppMessages.self)
-                && controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") == nil
+                && controller.deferredFetchSubscriptionId == nil
         }
 
         /* Verify */
@@ -151,21 +149,21 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1))
 
         // The stored subscription ID should be cleared after successful retry
-        XCTAssertNil(controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID"))
+        XCTAssertNil(controller.deferredFetchSubscriptionId)
     }
 
     /**
-     Test that when user state changes but shouldFetchOnUserChangeWithSubscriptionID is not set, it does nothing.
-     
+     Test that logging in refetches in-app messages for the user signing in.
+
      Scenario:
-     - Normal user state change occurs
-     - No deferred fetch was pending
-     
+     - A user's in-app messages have already been fetched
+     - The app logs in as someone else
+
      Expected:
-     - No retry logic is triggered
-     - Normal operation continues
+     - A second fetch goes out once the new user has a OneSignal ID, so the previous user's messages are
+       not what gets evaluated
      */
-    func testDoesNothingWhenNoRetryPending() throws {
+    func testLoginRefetchesInAppMessagesForTheIncomingUser() throws {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
@@ -187,18 +185,17 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         /* Verify */
         // IAM is fetched and no retry is pending
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1))
-        XCTAssertNil(controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID"))
+        XCTAssertNil(controller.deferredFetchSubscriptionId)
 
         /* Execute */
-        // Trigger a normal user state change by login
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: testExternalId)
         OneSignalUserManagerImpl.sharedInstance.login(externalId: testExternalId, token: nil)
-        OneSignalCoreMocks.waitUntil("Identify user request did not complete") {
-            client.hasCompletedRequestOfType(OSRequestIdentifyUser.self)
+        OneSignalCoreMocks.waitUntil("IAM fetch for the incoming user did not complete") {
+            client.hasCompletedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 2)
         }
 
         /* Verify */
-        // Does not fetch IAMs again
-        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1))
+        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 2))
+        XCTAssertNil(controller.deferredFetchSubscriptionId)
     }
 }
