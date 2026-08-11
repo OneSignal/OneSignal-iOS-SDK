@@ -43,23 +43,28 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     var subscriptionModel: OSSubscriptionModel
     var identityModel: OSIdentityModel
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     // Need the onesignal_id of the user
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId)),
+           let aliasId = OSUrlPath.segment(alias.id)
         {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasId)/subscriptions"
             return true
         } else {
             return false
         }
     }
 
-    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = ["subscription": subscriptionModel.jsonRepresentation()]
@@ -69,6 +74,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -87,6 +93,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestCreateSubscription with token: \(subscriptionModel.address ?? "nil")>"
         super.init()
         self.parameters = parameters

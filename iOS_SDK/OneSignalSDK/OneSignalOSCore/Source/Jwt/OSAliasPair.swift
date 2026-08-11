@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2026 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,21 +25,16 @@
  THE SOFTWARE.
  */
 
-import OneSignalCore
-
 /**
- Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
+ Requests address a user by one alias or the other depending on Identity Verification: `external_id`
+ when it is active, `onesignal_id` otherwise.
  */
-public protocol OSOperationExecutor {
-    var supportedDeltas: [String] { get }
+@objc public class OSAliasPair: NSObject {
+    @objc public let label: String
+    @objc public let id: String
 
-    func enqueueDelta(_ delta: OSDelta)
-    func cacheDeltaQueue()
-    func processDeltaQueue(inBackground: Bool)
-
-    /**
-     Drop queued Deltas and Requests that belong to an anonymous user. Driven by `OSOperationRepo`
-     so the policy stays there; only the storage is per-executor.
-     */
-    func removeOperationsWithoutExternalId()
+    public init(_ label: String, _ id: String) {
+        self.label = label
+        self.id = id
+    }
 }

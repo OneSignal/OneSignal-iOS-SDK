@@ -45,8 +45,20 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
 
+    /**
+     Whether the response's IDs should enter `newRecordsState`.
+
+     `true` for a real create; `false` for the Identify-409 recovery Create, which only hydrates the
+     `onesignal_id` of a user that already exists. Stamped at init so stripping push later cannot
+     flip a real create into the recovery path.
+     */
+    let addsNewRecords: Bool
+
+    /// See the ownership convention in `OSUserRequest.swift`.
+    var ownerExternalId: String? { return identityModel.externalId }
+
     /// Checks if the subscription ID can be accessed, if a subscription is being included in the request
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "Cannot generate the create user request due to null app ID.")
             return false
@@ -59,8 +71,13 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             return false
         }
 
+        // The path is app-scoped and the identity object already names the user, so there is no
+        // alias to swap — only the token.
+        guard auth.authorize(self) else {
+            return false
+        }
+
         _ = self.addPushSubscriptionIdToAdditionalHeaders()
-        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
         return true
     }
@@ -79,6 +96,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
         self.originalPushToken = originalPushToken
+        self.addsNewRecords = true
         self.stringDescription = "<OSRequestCreateUser with external_id: \(identityModel.externalId ?? "nil")>"
         super.init()
 
@@ -104,6 +122,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     init(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
         self.identityModel = identityModel
+        self.addsNewRecords = false
         self.stringDescription = "<OSRequestCreateUser with \(aliasLabel): \(aliasId)>"
         super.init()
         self.parameters = [
@@ -117,6 +136,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
         coder.encode(originalPushToken, forKey: "originalPushToken")
+        coder.encode(addsNewRecords, forKey: "addsNewRecords")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -135,6 +155,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel
         self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
+        self.addsNewRecords = coder.decodeBool(forKey: "addsNewRecords")
         self.stringDescription = "<OSRequestCreateUser with external_id: \(identityModel.externalId ?? "nil")>"
         super.init()
         self.parameters = parameters

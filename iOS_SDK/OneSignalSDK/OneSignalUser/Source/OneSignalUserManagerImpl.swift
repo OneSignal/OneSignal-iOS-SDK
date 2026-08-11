@@ -128,10 +128,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
-    // Injected into the model store listeners so a Delta is enqueued against a known repo rather
-    // than reaching for the singleton. A later PR replaces this with an owned instance.
-    let operationRepo = OSOperationRepo.sharedInstance
-
     // Shared instances: remote params hydrate them before this class is started, and a
     // fresh instance here would read none of it.
     let featureManager = OSFeatureManager.shared
@@ -206,6 +202,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     // These must be initialized in init()
     let userJwtRepo: OSUserJwtRepo
+    let requestAuth: OSRequestAuthorizing
+    let operationRepo: OSOperationRepo
     let identityModelStoreListener: OSIdentityModelStoreListener
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
@@ -220,6 +218,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private override init() {
         let identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
+        let operationRepo = OSOperationRepo(identityVerificationService: identityVerificationService)
         // Goes through `sharedInstance` rather than capturing self: the observer it notifies is created
         // lazily and must not be touched during init.
         let userJwtRepo = OSUserJwtRepo(identityModelRepo: identityModelRepo) { externalId in
@@ -227,6 +226,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         self.identityVerificationService = identityVerificationService
         self.userJwtRepo = userJwtRepo
+        self.requestAuth = OSRequestAuth(identityVerificationService: identityVerificationService, jwt: userJwtRepo)
+        self.operationRepo = operationRepo
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore, operationRepo: operationRepo)
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore, operationRepo: operationRepo)
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore, operationRepo: operationRepo)
@@ -260,6 +261,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Same prewarm gap as the stores: init may have read UserDefaults while it was locked.
             jwtConfig.refreshIfUnknown()
             featureManager.refreshIfEmpty()
+            operationRepo.refreshIfEmpty()
 
             OSNotificationsManager.delegate = self
 
@@ -283,24 +285,44 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             // TODO: Update the push sub model with any new state from NotificationsManager
 
+            /*
+             Clears an internal disable that Identity Verification no longer needs: either the app turned
+             the requirement off while logged out, or `logout` guessed on while it was still unknown.
+             `login` is otherwise the only clear, and would leave the subscription silenced until the next
+             one. Sends an update, unlike the login path: nothing else will tell the server.
+
+             Registered before the User executor's handler so anything it sends on this hydration already
+             carries the restored subscription — a Create User response hydrates `enabled` back onto the
+             app's own opt-in, which would make the silencing permanent.
+             */
+            identityVerificationService.addOnJwtConfigHydratedHandler(for: .userManager) { [weak self] requirement in
+                guard requirement == .off else {
+                    return
+                }
+                self?.pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabledInternally = false
+            }
+
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
-            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState)
-            OSOperationRepo.sharedInstance.start()
+            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService, auth: requestAuth)
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
-            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState)
-            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState)
-            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState)
-            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
+            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
             self.customEventsExecutor = customEventsExecutor
-            OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
-            OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
-            OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
-            OSOperationRepo.sharedInstance.addExecutor(customEventsExecutor)
+            operationRepo.addExecutor(identityExecutor)
+            operationRepo.addExecutor(propertyExecutor)
+            operationRepo.addExecutor(subscriptionExecutor)
+            operationRepo.addExecutor(customEventsExecutor)
+
+            // After the executors: a cached requirement makes `start()` flush right away, and the
+            // Deltas restored at launch can only route once the map above is populated.
+            operationRepo.start()
 
             // Path 2. There is a legacy player to migrate
             if let legacyPlayerId = OneSignalUserDefaults.initShared().getSavedString(forKey: OSUD_LEGACY_PLAYER_ID, defaultValue: nil) {
@@ -357,15 +379,30 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
+        // Ungated: a subscription internally disabled by a previous logout has to come back even if
+        // Identity Verification has since been turned off.
+        pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.clearDisabledInternallyForLogin()
+
         // Logging into an identified user from an anonymous user
-        if let user = _user, user.isAnonymous {
-            user.identityModel.jwtBearerToken = token
-            identifyUser(externalId: externalId, currentUser: user)
+        if let user = _user, user.isAnonymous, canPromoteAnonymousUser {
+            identifyUser(externalId: externalId, currentUser: user, token: token)
         } else {
             // Logging into identified -> anon, identified -> identified, or nil -> identified
             _ = createNewUser(externalId: externalId, token: token)
         }
 
+    }
+
+    /**
+     Whether `login` may promote the current anonymous user with Identify User instead of creating a new one.
+
+     Identify User adds an `external_id` to a user that has none, and under Identity Verification no such
+     user is ever sent to the server, so every login has to create its user instead. While the requirement is
+     unknown this still promotes: the queue is held until it is known, and `OSUserExecutor` then turns the
+     promotion into the Create User it should have been if the app turns out to require auth.
+     */
+    private var canPromoteAnonymousUser: Bool {
+        return !identityVerificationService.ivBehaviorActive
     }
 
     /**
@@ -403,6 +440,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.createNewUser: not creating new user due to logging into the same user.)")
+                // Re-logging in is how an app hands over a replacement token, so take it and let anything
+                // held for want of one go out.
+                if let externalId = externalId, let token = token {
+                    storeJwt(externalId: externalId, token: token)
+                }
                 return user
             }
         }
@@ -415,7 +457,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
-        newUser.identityModel.jwtBearerToken = token
+        if let externalId = externalId, let token = token {
+            storeJwt(externalId: externalId, token: token)
+        }
         userExecutor!.createUser(newUser)
         return newUser
     }
@@ -427,7 +471,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      1. This externalId already exists on another user. We create a new SDK user and fetch that user's information.
      2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
      */
-    private func identifyUser(externalId: String, currentUser: OSUserInternal) {
+    private func identifyUser(externalId: String, currentUser: OSUserInternal, token: String?) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
@@ -439,6 +483,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
+        // The token belongs on the model that carries `external_id`: the Fetch User this leads to is signed
+        // with it, as is the Create User this becomes if the requirement turns out to be on.
+        if let token = token {
+            storeJwt(externalId: externalId, token: token)
+        }
 
         // Now proceed to identify the previous user
         userExecutor!.identifyUser(
@@ -486,7 +535,30 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.User logout called, but the user is currently anonymous, so not logging out.")
             return
         }
+        /*
+         The replacement anonymous user is never created on the server under Identity Verification, so two
+         things it would otherwise have done have to happen here: stop reporting the push subscription, which
+         still carries the logged-out user's subscription ID, and tell observers that nobody is signed in.
+
+         Only the app's own `logout()`. `_logout()` also runs as 404 recovery, where the SDK is replacing a
+         user the server no longer has and the subscription should keep reporting.
+
+         While the requirement is still unknown, guess on: the wrong guess over-silences until hydrate-to-off
+         restores reporting, and the other guess would keep delivering the logged-out user's pushes. Read
+         once so hydration cannot flip the two sides mid-logout.
+         */
+        let shouldSilenceForLogout = identityVerificationService.requirement != .off
+
+        if shouldSilenceForLogout {
+            // Before the switch, so the unsubscribe is stamped with the outgoing user.
+            user.pushSubscriptionModel._isDisabledInternally = true
+        }
+
         _logout()
+
+        if shouldSilenceForLogout {
+            OSUserStateSnapshot.fireUserStateChanged(newOnesignalId: nil, newExternalId: nil)
+        }
     }
 
     public func _logout() {
@@ -496,16 +568,23 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Stores a token for `externalId`, so that the pending ask for this user is cleared and a later
-     rejection can ask again.
+     Stores a token for `externalId` and releases everything held for want of one, so it goes out now:
+     the Repo's Deltas, the User executor's own queue (which is not Repo-driven), and — over the
+     notification — the work that travels through neither.
 
-     Every app-supplied token arrives here, from `login` as well as `updateUserJwt`.
+     Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
+     ask for this user is cleared and a later rejection can ask again.
      */
     func storeJwt(externalId: String, token: String) {
         guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
             return
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
+        guard identityVerificationService.newCodePathsRun else {
+            return
+        }
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
+        userExecutor?.executePendingRequests()
     }
 
     @objc
@@ -618,7 +697,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         updatePropertiesDeltas(property: .purchases, value: purchases)
     }
-
 }
 
 // MARK: - Sessions
@@ -633,7 +711,7 @@ extension OneSignalUserManagerImpl {
         start()
 
         userExecutor!.executePendingRequests()
-        OSOperationRepo.sharedInstance.paused = false
+        operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
 
         // Fetch the user's data if there is a onesignal_id
@@ -672,7 +750,7 @@ extension OneSignalUserManagerImpl {
             property: property.rawValue,
             value: value
         )
-        OSOperationRepo.sharedInstance.enqueueDelta(delta, flush: flush)
+        operationRepo.enqueueDelta(delta, flush: flush)
     }
 
     /// Time processors forward the session time to this method.
@@ -690,7 +768,7 @@ extension OneSignalUserManagerImpl {
      */
     @objc
     public func runBackgroundTasks() {
-        OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue(inBackground: true)
+        operationRepo.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
 
@@ -897,7 +975,7 @@ extension OneSignalUserManagerImpl: OSUser {
             property: name,
             value: processedProperties
         )
-        OSOperationRepo.sharedInstance.enqueueDelta(delta)
+        operationRepo.enqueueDelta(delta)
     }
 }
 
