@@ -50,7 +50,12 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
             return false
         }
 
-        self.path = "notifications/\(key)/report_received"
+        guard let notificationId = OSUrlPath.segment(self.key) else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate notification id to url encoded string.")
+            return false
+        }
+
+        self.path = "notifications/\(notificationId)/report_received"
         self.parameters = [
             "app_id": appId,
             "player_id": subscriptionId,

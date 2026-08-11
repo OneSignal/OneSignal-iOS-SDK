@@ -50,7 +50,7 @@ class OSRequestLiveActivityClicked: OneSignalRequest, OSLiveActivityRequest {
             return false
         }
 
-        guard let activityType = self.activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+        guard let activityType = OSUrlPath.segment(self.activityType) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot translate activity type to url encoded string.")
             return false
         }

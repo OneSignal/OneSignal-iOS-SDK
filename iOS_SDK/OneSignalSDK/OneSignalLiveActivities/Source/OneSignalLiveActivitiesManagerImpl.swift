@@ -67,7 +67,8 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     public static func setPushToStartToken(_ activityType: String, withToken: String) throws {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities setStartToken called with activityType: \(activityType) token: \(withToken)")
 
-        guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+        // Checked here so the app hears about an unusable type; the Request does the encoding.
+        guard OSUrlPath.segment(activityType) != nil else {
             throw LiveActivitiesError.invalidActivityType("Cannot translate activity type to url encoded string.")
         }
 
@@ -79,11 +80,12 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     public static func removePushToStartToken(_ activityType: String) throws {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities removeStartToken called with activityType: \(activityType)")
 
-        guard let activityType = activityType.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlUserAllowed) else {
+        // Checked here so the app hears about an unusable type; the Request does the encoding.
+        guard OSUrlPath.segment(activityType) != nil else {
             throw LiveActivitiesError.invalidActivityType("Cannot translate activity type to url encoded string.")
         }
 
-        _executor.append(OSRequestRemoveStartToken(key: "\(activityType)"))
+        _executor.append(OSRequestRemoveStartToken(key: activityType))
     }
 
     @available(iOS 17.2, *)

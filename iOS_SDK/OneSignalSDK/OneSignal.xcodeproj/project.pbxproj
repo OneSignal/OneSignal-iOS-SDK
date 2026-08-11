@@ -650,6 +650,7 @@
 		DEFB3E632BB731BD00E65DAD /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEFB3E622BB731BD00E65DAD /* ActivityKit.framework */; platformFilter = ios; };
 		DEFB3E652BB7346D00E65DAD /* OSLiveActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFB3E642BB7346D00E65DAD /* OSLiveActivities.swift */; };
 		DEFB3E672BB735B500E65DAD /* OSStubLiveActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */; };
+		E60E007D11D4EAFF3C3B04E6 /* OSUrlPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B319FBDEF1D3E8C097C51BC /* OSUrlPath.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1329,6 +1330,7 @@
 		16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSTimeZoneOverrider.h; sourceTree = "<group>"; };
 		1AF75EAC1E8567FD0097B315 /* NSString+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OneSignal.h"; sourceTree = "<group>"; };
 		1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OneSignal.m"; sourceTree = "<group>"; };
+		1B319FBDEF1D3E8C097C51BC /* OSUrlPath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSUrlPath.swift; sourceTree = "<group>"; };
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3C01518E2C2E298E0079E076 /* OneSignalInAppMessagesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalInAppMessagesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2273,6 +2275,7 @@
 				4710EA522B8FCFB200435356 /* OSDispatchQueue.swift */,
 				DEFB3E642BB7346D00E65DAD /* OSLiveActivities.swift */,
 				DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */,
+				1B319FBDEF1D3E8C097C51BC /* OSUrlPath.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -4446,6 +4449,7 @@
 				3C11518D289AF5E800565C41 /* OSModelChangedHandler.swift in Sources */,
 				3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */,
 				3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */,
+				E60E007D11D4EAFF3C3B04E6 /* OSUrlPath.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
