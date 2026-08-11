@@ -31,9 +31,11 @@ import OneSignalOSCore
 
 class OSSubscriptionModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSSubscriptionModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSSubscriptionModel>) {
+    required init(store: OSModelStore<OSSubscriptionModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
@@ -41,9 +43,11 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_ADD_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -58,9 +62,11 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getRemoveModelDelta has no user instance")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -78,14 +84,16 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getUpdateModelDelta has no user instance")
             return nil
         }
-        if let onesignalId = userInstance.identityModel.onesignalId {
+        let identityModel = userInstance.identityModel
+        if let onesignalId = identityModel.onesignalId {
             let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             condition.setSubscriptionUpdatePending(value: true)
         }
 
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: args.model,
             property: args.property,
             value: args.newValue
