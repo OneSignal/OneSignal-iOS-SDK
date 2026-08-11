@@ -128,6 +128,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
+    // Injected into the model store listeners so a Delta is enqueued against a known repo rather
+    // than reaching for the singleton. A later PR replaces this with an owned instance.
+    let operationRepo = OSOperationRepo.sharedInstance
+
     // Hydrated before this class is started, jwtConfig by remote params and featureManager by
     // OSFeatureFlagsRefreshService, so a fresh instance here would read none of it.
     let featureManager = OSFeatureManager.shared
@@ -223,10 +227,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         self.identityVerificationService = identityVerificationService
         self.userJwtRepo = userJwtRepo
-        self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
-        self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
-        self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
-        self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore)
+        self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore, operationRepo: operationRepo)
+        self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore, operationRepo: operationRepo)
+        self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore, operationRepo: operationRepo)
+        self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
     }
 
@@ -662,6 +666,7 @@ extension OneSignalUserManagerImpl {
         let delta = OSDelta(
             name: OS_UPDATE_PROPERTIES_DELTA,
             identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: propertiesModel,
             property: property.rawValue,
             value: value
@@ -886,6 +891,7 @@ extension OneSignalUserManagerImpl: OSUser {
         let delta = OSDelta(
             name: OS_CUSTOM_EVENT_DELTA,
             identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: identityModel,
             property: name,
             value: processedProperties
