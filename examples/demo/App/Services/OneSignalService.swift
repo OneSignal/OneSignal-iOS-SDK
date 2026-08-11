@@ -96,15 +96,38 @@ final class OneSignalService {
 
     // MARK: - User
 
-    func login(externalId: String) {
+    func login(externalId: String, jwtToken: String? = nil) {
         prefs.setExternalUserId(externalId)
-        OneSignal.login(externalId)
+        // Persist for the demo REST fetch only; cold start does not call login/updateUserJwt with it.
+        prefs.setSessionJwtToken(jwtToken)
+        if let jwtToken = jwtToken {
+            OneSignal.login(externalId: externalId, token: jwtToken)
+        } else {
+            OneSignal.login(externalId)
+        }
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        prefs.setSessionJwtToken(token)
+        OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
     func logout() {
         prefs.setExternalUserId(nil)
+        prefs.setSessionJwtToken(nil)
         OneSignal.logout()
     }
+
+    // MARK: - Identity Verification (demo REST fetch)
+
+    /// Demo toggle for addressing the REST user fetch by `external_id`. Persisted across launches.
+    var useIdentityVerification: Bool {
+        get { prefs.getUseIdentityVerification() }
+        set { prefs.setUseIdentityVerification(newValue) }
+    }
+
+    /// JWT from the last login / updateUserJwt. Used by the demo REST fetch only — not auto-fed to the SDK on cold start.
+    var sessionJwtToken: String? { prefs.getSessionJwtToken() }
 
     // MARK: - Aliases
 
@@ -220,6 +243,14 @@ final class OneSignalService {
 
     func addPermissionObserver(_ observer: OSNotificationPermissionObserver) {
         OneSignal.Notifications.addPermissionObserver(observer)
+    }
+
+    func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        OneSignal.addUserJwtInvalidatedListener(listener)
+    }
+
+    func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        OneSignal.removeUserJwtInvalidatedListener(listener)
     }
 
     func addNotificationClickListener(_ listener: OSNotificationClickListener) {
