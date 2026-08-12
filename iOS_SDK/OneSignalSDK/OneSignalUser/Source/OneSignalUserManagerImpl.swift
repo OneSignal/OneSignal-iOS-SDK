@@ -394,18 +394,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     /**
-     Whether `login` may promote the current anonymous user with Identify User instead of creating a new one.
-
-     Identify User adds an `external_id` to a user that has none, and under Identity Verification no such
-     user is ever sent to the server, so every login has to create its user instead. While the requirement is
-     unknown this still promotes: the queue is held until it is known, and `OSUserExecutor` then turns the
-     promotion into the Create User it should have been if the app turns out to require auth.
-     */
-    private var canPromoteAnonymousUser: Bool {
-        return !identityVerificationService.ivBehaviorActive
-    }
-
-    /**
      Converting a 3.x player to a 5.x user. There is a cached legacy player, so we will create the user based on the legacy player ID.
      */
     private func createUserFromLegacyPlayer(_ playerId: String) {
@@ -566,27 +554,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _user = nil
         createUserIfNil()
     }
+}
 
-    /**
-     Stores a token for `externalId` and releases everything held for want of one, so it goes out now:
-     the Repo's Deltas, the User executor's own queue (which is not Repo-driven), and — over the
-     notification — the work that travels through neither.
+// MARK: - User setup helpers
 
-     Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
-     ask for this user is cleared and a later rejection can ask again.
-     */
-    func storeJwt(externalId: String, token: String) {
-        guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
-            return
-        }
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
-        guard identityVerificationService.newCodePathsRun else {
-            return
-        }
-        operationRepo.addFlushDeltaQueueToDispatchQueue()
-        userExecutor?.executePendingRequests()
-    }
-
+extension OneSignalUserManagerImpl {
     @objc
     public func clearAllModelsFromStores() {
         prepareForNewUser()
@@ -771,7 +743,6 @@ extension OneSignalUserManagerImpl {
         operationRepo.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
-
 extension OneSignalUserManagerImpl: OSUser {
     public var User: OSUser {
         start()
@@ -976,77 +947,6 @@ extension OneSignalUserManagerImpl: OSUser {
             value: processedProperties
         )
         operationRepo.enqueueDelta(delta)
-    }
-}
-
-extension OneSignalUserManagerImpl {
-    @objc
-    public class OSPushSubscriptionImpl: NSObject, OSPushSubscription {
-
-        let pushSubscriptionModelStore: OSModelStore<OSSubscriptionModel>
-
-        private var _pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>?
-        var pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState> {
-            if let observer = _pushSubscriptionStateChangesObserver {
-                return observer
-            }
-            let pushSubscriptionStateChangesObserver = OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionChangedState>(change: #selector(OSPushSubscriptionObserver.onPushSubscriptionDidChange(state:)))
-            _pushSubscriptionStateChangesObserver = pushSubscriptionStateChangesObserver
-
-            return pushSubscriptionStateChangesObserver
-        }
-
-        init(pushSubscriptionModelStore: OSModelStore<OSSubscriptionModel>) {
-            self.pushSubscriptionModelStore = pushSubscriptionModelStore
-        }
-
-        public func addObserver(_ observer: OSPushSubscriptionObserver) {
-            // This is a method in the User namespace that doesn't require privacy consent first
-            self.pushSubscriptionStateChangesObserver.addObserver(observer)
-        }
-
-        public func removeObserver(_ observer: OSPushSubscriptionObserver) {
-            self.pushSubscriptionStateChangesObserver.removeObserver(observer)
-        }
-
-        public var id: String? {
-            guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.id") else {
-                return nil
-            }
-            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.subscriptionId
-        }
-
-        public var token: String? {
-            guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.token") else {
-                return nil
-            }
-            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.address
-        }
-
-        public var optedIn: Bool {
-            guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
-                return false
-            }
-            return pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.optedIn ?? false
-        }
-
-        /**
-         Enable the push subscription, and prompts if needed. `optedIn` can still be `false` after `optIn()` is called if permission is not granted.
-         */
-        public func optIn() {
-            guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optIn") else {
-                return
-            }
-            pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabled = false
-            OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
-        }
-
-        public func optOut() {
-            guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optOut") else {
-                return
-            }
-            pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabled = true
-        }
     }
 }
 

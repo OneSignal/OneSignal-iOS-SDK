@@ -426,6 +426,7 @@
 		D465D9B81F58B242ADF14874 /* OSIdentityModelRepoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DE5BB0EDD3964C20C5169F /* OSIdentityModelRepoTests.swift */; };
 		DAF9C81134248FCDB0C12E5B /* OSUserJwtInvalidatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2FC6C922FF8104F3197DD4 /* OSUserJwtInvalidatedEvent.swift */; };
 		DD2A89A8052E2D1912B0038B /* OSIamFetchReadyConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B19D1EC31C0750F13065A /* OSIamFetchReadyConditionTests.swift */; };
+		DDE652EF2123473B808F8CCA /* OSPushSubscriptionImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78603AF16454A648A96DF7B /* OSPushSubscriptionImpl.swift */; };
 		DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
@@ -1907,6 +1908,7 @@
 		DEFB3E622BB731BD00E65DAD /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
 		DEFB3E642BB7346D00E65DAD /* OSLiveActivities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivities.swift; sourceTree = "<group>"; };
 		DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSStubLiveActivities.swift; sourceTree = "<group>"; };
+		E78603AF16454A648A96DF7B /* OSPushSubscriptionImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSPushSubscriptionImpl.swift; sourceTree = "<group>"; };
 		E9376A4957E9090C748BCB18 /* OSUserJwtConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfigTests.swift; sourceTree = "<group>"; };
 		F4855B81F170253FB0C1749D /* OSIdentityVerificationServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIdentityVerificationServiceTests.swift; sourceTree = "<group>"; };
 		F83E7BF2B518EA8B0B51B276 /* OSAliasPair.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSAliasPair.swift; sourceTree = "<group>"; };
@@ -2891,6 +2893,7 @@
 				2F2FC6C922FF8104F3197DD4 /* OSUserJwtInvalidatedEvent.swift */,
 				6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */,
 				4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */,
+				E78603AF16454A648A96DF7B /* OSPushSubscriptionImpl.swift */,
 				9BF72AAEB5284C97B864A1A8 /* OSRequestAuth.swift */,
 			);
 			path = Source;
@@ -4882,6 +4885,7 @@
 				DAF9C81134248FCDB0C12E5B /* OSUserJwtInvalidatedEvent.swift in Sources */,
 				FD1F1FCA05D555623DD53B54 /* OSUserJwtRepo.swift in Sources */,
 				257E219608960B8545199057 /* OneSignalUserManagerImpl+Jwt.swift in Sources */,
+				DDE652EF2123473B808F8CCA /* OSPushSubscriptionImpl.swift in Sources */,
 				32601EF1960CD92605D1ABF9 /* OSRequestAuth.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

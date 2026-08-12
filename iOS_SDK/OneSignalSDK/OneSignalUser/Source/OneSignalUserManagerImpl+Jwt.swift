@@ -34,6 +34,38 @@ import OneSignalOSCore
  */
 extension OneSignalUserManagerImpl {
     /**
+     Whether `login` may promote the current anonymous user with Identify User instead of creating a new one.
+
+     Identify User adds an `external_id` to a user that has none, and under Identity Verification no such
+     user is ever sent to the server, so every login has to create its user instead. While the requirement is
+     unknown this still promotes: the queue is held until it is known, and `OSUserExecutor` then turns the
+     promotion into the Create User it should have been if the app turns out to require auth.
+     */
+    var canPromoteAnonymousUser: Bool {
+        return !identityVerificationService.ivBehaviorActive
+    }
+
+    /**
+     Stores a token for `externalId` and releases everything held for want of one, so it goes out now:
+     the Repo's Deltas, the User executor's own queue (which is not Repo-driven), and — over the
+     notification — the work that travels through neither.
+
+     Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
+     ask for this user is cleared and a later rejection can ask again.
+     */
+    func storeJwt(externalId: String, token: String) {
+        guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
+        guard identityVerificationService.newCodePathsRun else {
+            return
+        }
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
+        userExecutor?.executePendingRequests()
+    }
+
+    /**
      Replays any ask that already fired this session, so a listener registered after `start` or `login`
      still hears who currently owes a token.
      */
