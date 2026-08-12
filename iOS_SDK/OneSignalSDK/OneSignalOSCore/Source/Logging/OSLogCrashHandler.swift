@@ -30,7 +30,6 @@
 
 import Darwin
 import Foundation
-import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
 private typealias OSExceptionHandler = @convention(c) (NSException) -> Void
@@ -39,12 +38,43 @@ private func osLogUncaughtExceptionHandler(_ exception: NSException) {
     OSLogCrashHandler.handleActive(exception)
 }
 
+final class OSCrashLogger: ILogger {
+    func error(message: String) {
+        NSLog("[OneSignal crash] ERROR: %@", message)
+    }
+
+    func warn(message: String) {
+        NSLog("[OneSignal crash] WARN: %@", message)
+    }
+
+    func info(message: String) {
+        NSLog("[OneSignal crash] INFO: %@", message)
+    }
+
+    func debug(message: String) {
+        NSLog("[OneSignal crash] DEBUG: %@", message)
+    }
+}
+
 /// Captures uncaught Objective-C exceptions through the synchronous KMP crash
 /// reporter before forwarding to the handler that was previously installed.
 ///
 /// POSIX signals are intentionally not intercepted because Swift, Foundation,
 /// Kotlin/Native, and the durable file store are not async-signal-safe.
 final class OSLogCrashHandler: ILogCrashHandler {
+    private static let oneSignalModules: Set<String> = [
+        "OneSignal",
+        "OneSignalCore",
+        "OneSignalExtension",
+        "OneSignalFramework",
+        "OneSignalInAppMessages",
+        "OneSignalLiveActivities",
+        "OneSignalLocation",
+        "OneSignalNotifications",
+        "OneSignalOSCore",
+        "OneSignalOutcomes",
+        "OneSignalUser"
+    ]
     private static let registryLock = NSLock()
     private static let handlingThreadKey = "com.onesignal.logger.handling-exception"
     private static var active: OSLogCrashHandler?
@@ -122,12 +152,9 @@ final class OSLogCrashHandler: ILogCrashHandler {
             stacktrace: stacktrace
         )
         do {
-            _ = try reporter.saveCrash(crash: crash)
+            try reporter.saveCrash(crash: crash)
         } catch {
-            OneSignalLog.onesignalLog(
-                .LL_ERROR,
-                message: "Unable to persist fatal crash: \(error.localizedDescription)"
-            )
+            NSLog("[OneSignal crash] Unable to persist fatal crash: %@", error.localizedDescription)
         }
     }
 
@@ -170,7 +197,13 @@ final class OSLogCrashHandler: ILogCrashHandler {
     }
 
     static func isOneSignalAtFault(_ stackSymbols: [String]) -> Bool {
-        stackSymbols.contains { $0.localizedCaseInsensitiveContains("OneSignal") }
+        stackSymbols.contains { frame in
+            let fields = frame.split(whereSeparator: { $0.isWhitespace })
+            guard fields.count > 1 else {
+                return false
+            }
+            return oneSignalModules.contains(String(fields[1]))
+        }
     }
 }
 

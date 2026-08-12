@@ -48,6 +48,10 @@ public protocol OSStructuredRemoteLoggerProtocol: OSRemoteLoggerProtocol {
     )
 }
 
+public extension OSRemoteLoggerProtocol {
+    func start() {}
+}
+
 #if !targetEnvironment(macCatalyst)
 
 @_implementationOnly import OneSignalKMP
@@ -55,12 +59,23 @@ public protocol OSStructuredRemoteLoggerProtocol: OSRemoteLoggerProtocol {
 private final class OSRemoteLoggerLifecycle {
     private let lock = NSLock()
     private var isStarted = false
+    private var isShuttingDown = false
     private var isShutdown = false
 
-    var isActive: Bool {
+    var canStartUploader: Bool {
         lock.lock()
         defer { lock.unlock() }
-        return isStarted && !isShutdown
+        return isStarted && !isShuttingDown && !isShutdown
+    }
+
+    func performIfTransportActive(_ work: () -> Void) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isStarted, !isShutdown else {
+            return false
+        }
+        work()
+        return true
     }
 
     func start() -> Bool {
@@ -73,14 +88,20 @@ private final class OSRemoteLoggerLifecycle {
         return true
     }
 
-    func shutdown() -> Bool {
+    func beginShutdown() -> Bool {
         lock.lock()
         defer { lock.unlock() }
-        guard !isShutdown else {
+        guard !isShuttingDown, !isShutdown else {
             return false
         }
-        isShutdown = true
+        isShuttingDown = true
         return true
+    }
+
+    func finishShutdown() {
+        lock.lock()
+        isShutdown = true
+        lock.unlock()
     }
 }
 
@@ -112,7 +133,19 @@ final class OSCrashUploaderCoordinator {
     func cancel(owner: UUID) {
         lock.lock()
         pendingUploads.removeAll { $0.owner == owner }
+        guard activeOwner == owner else {
+            lock.unlock()
+            return
+        }
+        guard !pendingUploads.isEmpty else {
+            activeOwner = nil
+            lock.unlock()
+            return
+        }
+        let next = pendingUploads.removeFirst()
+        activeOwner = next.owner
         lock.unlock()
+        next.start()
     }
 
     func finish(owner: UUID) {
@@ -164,6 +197,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             exporterLoggingEnabledProvider: exporterLoggingEnabledProvider
         )
         let logger = IOSLogger()
+        let crashLogger = OSCrashLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
         let remoteTelemetry = LoggerFactory.shared.createRemoteTelemetry(
@@ -171,7 +205,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             httpSender: OneSignalLogHttpSender(
                 logger: logger,
                 isDiagnosticsEnabled: exporterLoggingEnabledProvider,
-                isEnabled: { lifecycle.isActive }
+                executeIfEnabled: { work in
+                    lifecycle.performIfTransportActive(work)
+                }
             )
         )
         let crashTelemetry = LoggerFactory.shared.createCrashLocalTelemetry(
@@ -180,7 +216,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
         let crashReporter = LoggerFactory.shared.createCrashReporter(
             crashTelemetry: crashTelemetry,
-            logger: logger
+            logger: crashLogger
         )
         let crashHandler = OSLogCrashHandler(reporter: crashReporter)
         let crashUploader = LoggerFactory.shared.createCrashUploader(
@@ -209,7 +245,12 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let owner = uploaderOwner
         let crashUploader = self.crashUploader
         let logger = self.logger
+        let lifecycle = self.lifecycle
         OSCrashUploaderCoordinator.shared.enqueue(owner: owner) {
+            guard lifecycle.canStartUploader else {
+                OSCrashUploaderCoordinator.shared.finish(owner: owner)
+                return
+            }
             crashUploader.start { error in
                 if let error {
                     logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
@@ -262,13 +303,14 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     public func shutdown() {
         lifecycleOperationLock.lock()
         defer { lifecycleOperationLock.unlock() }
-        guard lifecycle.shutdown() else {
+        guard lifecycle.beginShutdown() else {
             return
         }
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
         telemetry.shutdown()
+        lifecycle.finishShutdown()
     }
 }
 
