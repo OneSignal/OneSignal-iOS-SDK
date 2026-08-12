@@ -84,15 +84,15 @@ public final class OSIdentityVerificationService {
      registered after `requirement` is already known runs immediately, since that hydration is not repeated.
      */
     public func addOnJwtConfigHydratedHandler(for observer: OSJwtConfigHydratedObserver, _ handler: @escaping (OSRequiresUserAuth) -> Void) {
-        handlerLock.withLock {
+        let alreadyKnown = handlerLock.withLock { () -> OSRequiresUserAuth in
             if let index = jwtConfigHydratedHandlers.firstIndex(where: { $0.observer == observer }) {
                 jwtConfigHydratedHandlers[index] = (observer, handler)
             } else {
                 jwtConfigHydratedHandlers.append((observer, handler))
             }
+            return jwtConfig.requirement
         }
 
-        let alreadyKnown = jwtConfig.requirement
         guard alreadyKnown != .unknown else {
             return
         }
