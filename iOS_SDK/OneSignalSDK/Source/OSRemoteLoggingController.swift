@@ -39,8 +39,11 @@ struct OSRemoteLoggingConfiguration {
     private static let logLevelKey = "log_level"
 
     let isFeatureEnabled: Bool
-    let logLevel: String?
     private let threshold: ONE_S_LOG_LEVEL?
+
+    var logLevel: String? {
+        threshold.map(Self.levelName)
+    }
 
     var isRemoteLoggingEnabled: Bool {
         isFeatureEnabled && threshold != nil && threshold != .LL_NONE
@@ -62,7 +65,6 @@ struct OSRemoteLoggingConfiguration {
             $0.caseInsensitiveCompare(Self.featureFlagKey) == .orderedSame
         }
         threshold = parsedThreshold
-        logLevel = parsedThreshold.map(Self.levelName)
     }
 
     func allows(_ level: ONE_S_LOG_LEVEL) -> Bool {
