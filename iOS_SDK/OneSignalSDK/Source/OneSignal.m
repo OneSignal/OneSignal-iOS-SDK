@@ -573,6 +573,8 @@ static BOOL ComputeInitialStorageReadable(void) {
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
+    [OSRemoteLoggingController configureFromCache];
+
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", OneSignalIdentifiers.currentAppId]];
 
     [self setupProtectedDataObserverOnce];
@@ -587,8 +589,6 @@ static BOOL ComputeInitialStorageReadable(void) {
     OSBackgroundTaskManager.taskHandler = [OSBackgroundTaskHandlerImpl new];
 
     [self registerForAPNsToken];
-
-    [OSRemoteLoggingController configureFromCache];
 
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
