@@ -32,13 +32,9 @@ import OneSignalUser
 import UIKit
 
 struct OSRemoteLoggingConfiguration {
-    static let featureFlagName = "SDK_CUSTOM_LOGGING"
-    private static let featureFlagKey = "sdk_custom_logging"
-    private static let featureFlagsKey = "sdk_remote_feature_flags"
     private static let loggingConfigKey = "logging_config"
     private static let logLevelKey = "log_level"
 
-    let isFeatureEnabled: Bool
     private let threshold: ONE_S_LOG_LEVEL?
 
     var logLevel: String? {
@@ -46,7 +42,7 @@ struct OSRemoteLoggingConfiguration {
     }
 
     var isRemoteLoggingEnabled: Bool {
-        isFeatureEnabled && threshold != nil && threshold != .LL_NONE
+        threshold != nil && threshold != .LL_NONE
     }
 
     static var current: OSRemoteLoggingConfiguration {
@@ -56,14 +52,10 @@ struct OSRemoteLoggingConfiguration {
 
     init(remoteParams: [String: Any]) {
         let loggingConfig = remoteParams[Self.loggingConfigKey] as? [String: Any]
-        let enabledFlagNames = remoteParams[Self.featureFlagsKey] as? [String] ?? []
         let parsedThreshold = (loggingConfig?[Self.logLevelKey] as? String)
             .map { $0.uppercased() }
             .flatMap(Self.oneSignalLevel)
 
-        isFeatureEnabled = enabledFlagNames.contains {
-            $0.caseInsensitiveCompare(Self.featureFlagKey) == .orderedSame
-        }
         threshold = parsedThreshold
     }
 
@@ -258,7 +250,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
             return
         }
 
-        logStartupDiagnostic(remoteLogger: newRemoteLogger, configuration: newConfiguration)
+        logStartupDiagnostic(remoteLogger: newRemoteLogger)
         stateQueue.sync {
             guard self.remoteLogger === newRemoteLogger,
                   self.configuration.matches(newConfiguration) else {
@@ -303,15 +295,11 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         )
     }
 
-    private func logStartupDiagnostic(
-        remoteLogger: OSRemoteLoggerProtocol,
-        configuration: OSRemoteLoggingConfiguration
-    ) {
+    private func logStartupDiagnostic(remoteLogger: OSRemoteLoggerProtocol) {
         OneSignalLog.onesignalLog(
             .LL_WARN,
             message: "OneSignal logging initialized: sdk=\(ONESIGNAL_VERSION), "
                 + "kmp=\(remoteLogger.kmpVersion), path=kmp, "
-                + "\(OSRemoteLoggingConfiguration.featureFlagName)=\(configuration.isFeatureEnabled), "
                 + "crash_dir=\(remoteLogger.crashStoragePath)"
         )
     }
@@ -322,9 +310,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
             onesignalId: { OneSignalUserManagerImpl.sharedInstance.onesignalId },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
-            featureFlags: {
-                configuration.isFeatureEnabled ? [OSRemoteLoggingConfiguration.featureFlagName] : []
-            },
+            featureFlags: { [] },
             remoteLogLevel: { configuration.logLevel },
             exporterLoggingEnabled: { false }
         )
@@ -415,7 +401,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
 
 private extension OSRemoteLoggingConfiguration {
     func matches(_ other: OSRemoteLoggingConfiguration) -> Bool {
-        isFeatureEnabled == other.isFeatureEnabled && logLevel == other.logLevel
+        logLevel == other.logLevel
     }
 }
 

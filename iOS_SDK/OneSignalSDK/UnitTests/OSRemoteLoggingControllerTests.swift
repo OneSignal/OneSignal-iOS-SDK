@@ -40,22 +40,9 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         super.tearDown()
     }
 
-    func testConfigurationRequiresFeatureFlagAndRemoteLevel() {
-        let levelOnly = OSRemoteLoggingConfiguration(
-            remoteParams: ["logging_config": ["log_level": "WARN"]]
-        )
-        XCTAssertFalse(levelOnly.isRemoteLoggingEnabled)
-
-        let flagOnly = OSRemoteLoggingConfiguration(
-            remoteParams: ["sdk_remote_feature_flags": ["sdk_custom_logging"]]
-        )
-        XCTAssertFalse(flagOnly.isRemoteLoggingEnabled)
-
+    func testConfigurationUsesRemoteLogLevel() {
         let enabled = OSRemoteLoggingConfiguration(
-            remoteParams: [
-                "sdk_remote_feature_flags": ["sdk_custom_logging"],
-                "logging_config": ["log_level": "warn"]
-            ]
+            remoteParams: ["logging_config": ["log_level": "warn"]]
         )
         XCTAssertTrue(enabled.isRemoteLoggingEnabled)
         XCTAssertTrue(enabled.allows(.LL_ERROR))
@@ -63,10 +50,7 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         XCTAssertFalse(enabled.allows(.LL_INFO))
 
         let invalidLevel = OSRemoteLoggingConfiguration(
-            remoteParams: [
-                "sdk_remote_feature_flags": ["sdk_custom_logging"],
-                "logging_config": ["log_level": "OFF"]
-            ]
+            remoteParams: ["logging_config": ["log_level": "OFF"]]
         )
         XCTAssertFalse(invalidLevel.isRemoteLoggingEnabled)
     }
@@ -90,10 +74,7 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         )
 
         controller.configure(
-            remoteParams: [
-                "sdk_remote_feature_flags": ["sdk_custom_logging"],
-                "logging_config": ["log_level": "ERROR"]
-            ]
+            remoteParams: ["logging_config": ["log_level": "ERROR"]]
         )
         OneSignalLog.onesignalLog(.LL_INFO, message: "not uploaded")
         OneSignalLog.onesignalLog(.LL_ERROR, message: "uploaded")
@@ -228,10 +209,7 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
     }
 
     private static func remoteParams(level: String) -> [String: Any] {
-        [
-            "sdk_remote_feature_flags": ["sdk_custom_logging"],
-            "logging_config": ["log_level": level]
-        ]
+        ["logging_config": ["log_level": level]]
     }
 }
 
