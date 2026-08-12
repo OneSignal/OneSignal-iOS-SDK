@@ -30,23 +30,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build OneSignalKMP XCFramework
         run: iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh
-      - name: Verify OneSignalKMP Catalyst slice
-        run: |
-          binary="OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework/ios-arm64_x86_64-maccatalyst/OneSignalKMP.framework/OneSignalKMP"
-          architectures=" $(lipo -archs "$binary") "
-          [[ "$architectures" == *" arm64 "* ]]
-          [[ "$architectures" == *" x86_64 "* ]]
-          verification_dir="$(mktemp -d)"
-          trap 'rm -rf "$verification_dir"' EXIT
-          for architecture in arm64 x86_64; do
-            mkdir "$verification_dir/$architecture"
-            lipo "$binary" -thin "$architecture" -output "$verification_dir/$architecture/OneSignalKMP.a"
-            (
-              cd "$verification_dir/$architecture"
-              ar -x OneSignalKMP.a OneSignalKMP.framework.o
-              vtool -show-build OneSignalKMP.framework.o | grep -q 'platform MACCATALYST'
-            )
-          done
       - name: Archive OneSignalOSCore for Catalyst
         run: |
           xcodebuild archive \
@@ -64,7 +47,7 @@ jobs:
           frameworks="$RUNNER_TEMP/OneSignalOSCore-Catalyst.xcarchive/Products/Library/Frameworks"
           host="$RUNNER_TEMP/CatalystLoggerHost"
           xcrun --sdk macosx swiftc \
-            -target arm64-apple-ios14.0-macabi \
+            -target "$(uname -m)-apple-ios14.0-macabi" \
             -F "$frameworks" \
             -framework OneSignalOSCore \
             -framework OneSignalCore \

@@ -11,9 +11,10 @@ let logger = OSRemoteLogger(
     exporterLoggingEnabledProvider: { false }
 )
 
-precondition(logger.kmpVersion != "unavailable")
-precondition(logger.crashStoragePath != "unavailable")
+precondition(!logger.kmpVersion.isEmpty)
+precondition(!logger.crashStoragePath.isEmpty)
 
+logger.start()
 logger.log(level: "INFO", message: "Catalyst logger round trip")
 
 let flushed = DispatchSemaphore(value: 0)

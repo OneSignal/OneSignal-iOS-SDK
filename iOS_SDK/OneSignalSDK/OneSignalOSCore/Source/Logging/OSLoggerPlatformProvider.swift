@@ -109,7 +109,13 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     let sdkWrapperVersion = OneSignalWrapper.sdkVersion
     let kotlinVersion: String? = nil
     let swiftVersion: String? = nil
-    let additionalVersionAttributes: [String: String] = [:]
+    let additionalVersionAttributes: [String: String] = {
+        #if targetEnvironment(macCatalyst)
+        return ["apple_platform": "mac_catalyst"]
+        #else
+        return [:]
+        #endif
+    }()
     var enabledFeatureFlags: [String] {
         featureFlagsProvider()
     }
