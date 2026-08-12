@@ -140,7 +140,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         wait(for: [returned], timeout: 2.0)
     }
 
-    /// A missing token for one user must not clear another user's raised subscription bar.
+    /// Resolving user B leaves user A's subscription bar raised.
     func testResolvingOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
         let manager = OSConsistencyManager.shared
         let conditionA = OSIamFetchReadyCondition.sharedInstance(withId: userA)
@@ -164,7 +164,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
                       "user B's bar comes down with its own resolve")
     }
 
-    /// Timing out must lower the bar, or every later fetch for that id pays another full wait.
+    /// After a timeout, a later fetch for the same id is released by the user token alone.
     func testTimingOutLowersTheSubscriptionBar() {
         OSConsistencyManager.waitTimeout = .milliseconds(200)
         let manager = OSConsistencyManager.shared
