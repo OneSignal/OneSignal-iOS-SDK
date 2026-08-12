@@ -243,7 +243,7 @@ private final class ReentrantLogListener: NSObject, OSLogListener {
     }
 
     func onLogEvent(_ event: OneSignalLogEvent) {
-        guard event.message.hasPrefix("OneSignal logging initialized:") else {
+        guard event.entry.contains("OneSignal logging initialized:") else {
             return
         }
         onLog()

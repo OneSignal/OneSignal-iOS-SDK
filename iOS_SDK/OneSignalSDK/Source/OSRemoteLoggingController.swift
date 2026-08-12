@@ -404,7 +404,10 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     }
 
     private func message(from event: OneSignalLogEvent) -> String {
-        event.message
+        guard let separator = event.entry.range(of: ": ") else {
+            return event.entry
+        }
+        return String(event.entry[separator.upperBound...])
     }
 }
 

@@ -31,10 +31,9 @@
 #import "OSCopyOnWriteSet.h"
 
 @implementation OneSignalLogEvent
-- (instancetype)initWithLevel:(ONE_S_LOG_LEVEL)level entry:(NSString*)entry message:(NSString*)message {
+- (instancetype)initWithLevel:(ONE_S_LOG_LEVEL)level entry:(NSString*)entry {
     _level = level;
     _entry = entry;
-    _message = message;
     return self;
 }
 @end
@@ -116,11 +115,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners.allObjects) {
         if ([listener respondsToSelector:@selector(onLogEvent:)]) {
-            OneSignalLogEvent *event = [[OneSignalLogEvent alloc]
-                initWithLevel:logLevel
-                entry:[levelString stringByAppendingString:message]
-                message:message
-            ];
+            OneSignalLogEvent *event = [[OneSignalLogEvent alloc] initWithLevel:logLevel entry:[levelString stringByAppendingString:message]];
             [listener onLogEvent:event];
         }
     }
