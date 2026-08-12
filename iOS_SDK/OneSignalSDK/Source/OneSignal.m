@@ -798,7 +798,11 @@ static BOOL ComputeInitialStorageReadable(void) {
 
     } onFailure:^(OneSignalClientError *error) {
         _didCallDownloadParameters = false;
-        [self scheduleDownloadIOSParamsRetryWithAppId:appId];
+        if ([OSNetworkingUtils getResponseStatusType:error.code] == OSResponseStatusRetryable) {
+            [self scheduleDownloadIOSParamsRetryWithAppId:appId];
+        } else {
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Could not download iOS parameters (HTTP %ld); not retrying this session.", (long)error.code]];
+        }
     }];
 }
 
