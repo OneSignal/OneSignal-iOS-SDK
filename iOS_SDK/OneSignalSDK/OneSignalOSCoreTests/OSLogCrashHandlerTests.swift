@@ -92,6 +92,19 @@ final class OSLogCrashHandlerTests: XCTestCase {
         )
     }
 
+    func testIgnoresOneSignalCallbackBelowHostThrowingFrame() {
+        XCTAssertFalse(
+            OSLogCrashHandler.isOneSignalAtFault(
+                [
+                    "0 CoreFoundation 0x000000 __exceptionPreprocess + 1",
+                    "1 libobjc.A.dylib 0x000000 objc_exception_throw + 1",
+                    "2 ExampleApp 0x000000 HostCallback + 1",
+                    "3 OneSignalCore 0x000000 OneSignalCallback + 1"
+                ]
+            )
+        )
+    }
+
     func testDoesNotReplaceHostSignalHandler() {
         let handler = makeCrashHandler()
         let originalHandler = Darwin.signal(SIGABRT, osLogCrashTestSignalHandler)

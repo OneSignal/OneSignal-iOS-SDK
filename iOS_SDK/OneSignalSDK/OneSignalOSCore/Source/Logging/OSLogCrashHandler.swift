@@ -75,6 +75,11 @@ final class OSLogCrashHandler: ILogCrashHandler {
         "OneSignalOutcomes",
         "OneSignalUser"
     ]
+    private static let exceptionRuntimeModules: Set<String> = [
+        "CoreFoundation",
+        "libobjc",
+        "libobjc.A.dylib"
+    ]
     private static let registryLock = NSLock()
     private static let handlingThreadKey = "com.onesignal.logger.handling-exception"
     private static var active: OSLogCrashHandler?
@@ -197,13 +202,24 @@ final class OSLogCrashHandler: ILogCrashHandler {
     }
 
     static func isOneSignalAtFault(_ stackSymbols: [String]) -> Bool {
-        stackSymbols.contains { frame in
-            let fields = frame.split(whereSeparator: { $0.isWhitespace })
-            guard fields.count > 1 else {
-                return false
+        for frame in stackSymbols {
+            guard let module = moduleName(from: frame) else {
+                continue
             }
-            return oneSignalModules.contains(String(fields[1]))
+            if exceptionRuntimeModules.contains(module) {
+                continue
+            }
+            return oneSignalModules.contains(module)
         }
+        return false
+    }
+
+    private static func moduleName(from frame: String) -> String? {
+        let fields = frame.split(whereSeparator: { $0.isWhitespace })
+        guard fields.count > 1 else {
+            return nil
+        }
+        return String(fields[1])
     }
 }
 
