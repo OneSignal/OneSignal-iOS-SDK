@@ -110,10 +110,24 @@ final class DeltaOwnershipTests: XCTestCase {
         XCTAssertEqual(delta.identityModelId, first.identityModel.modelId)
     }
 
+    /// Stale properties model after a switch: drop rather than stamp the new current user.
+    func testPropertiesUpdateDeltaIsDroppedWhenTheChangedModelIsNotTheCurrentUser() throws {
+        let first = newUser(externalId: userA)
+        newUser(externalId: userB)
+
+        let delta = manager.propertiesModelStoreListener.getUpdateModelDelta(
+            OSModelChangedArgs(model: first.propertiesModel, property: "tags", newValue: ["tag": "value"])
+        )
+
+        XCTAssertNil(delta)
+    }
+
     func testSubscriptionAddDeltaCarriesTheOwningUsersExternalId() throws {
         let user = newUser(externalId: userA)
+        let model = emailSubscriptionModel()
+        manager.subscriptionModelStore.add(id: emailAddress, model: model, hydrating: true)
 
-        let delta = try XCTUnwrap(manager.subscriptionModelStoreListener.getAddModelDelta(emailSubscriptionModel()))
+        let delta = try XCTUnwrap(manager.subscriptionModelStoreListener.getAddModelDelta(model))
 
         XCTAssertEqual(delta.externalId, userA)
         XCTAssertEqual(delta.identityModelId, user.identityModel.modelId)
@@ -137,6 +151,18 @@ final class DeltaOwnershipTests: XCTestCase {
 
         XCTAssertEqual(delta.externalId, userA)
         XCTAssertEqual(delta.identityModelId, user.identityModel.modelId)
+    }
+
+    /// Email/SMS models are cleared on switch but stay subscribed; refuse to stamp the new user.
+    func testSubscriptionAddDeltaIsDroppedWhenTheChangedModelIsNotInTheCurrentStore() throws {
+        newUser(externalId: userA)
+        let model = emailSubscriptionModel()
+        manager.subscriptionModelStore.add(id: emailAddress, model: model, hydrating: true)
+        // What makes the model stale is the store clear, which setNewInternalUser does not do.
+        manager.clearAllModelsFromStores()
+        newUser(externalId: userB)
+
+        XCTAssertNil(manager.subscriptionModelStoreListener.getAddModelDelta(model))
     }
 
     // MARK: - Deltas the User Manager enqueues itself
