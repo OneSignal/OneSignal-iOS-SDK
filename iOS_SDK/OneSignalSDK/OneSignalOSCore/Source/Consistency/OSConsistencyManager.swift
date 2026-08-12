@@ -80,8 +80,15 @@ import OneSignalCore
         }
         if semaphore.wait(timeout: .now() + OSConsistencyManager.waitTimeout) == .timedOut {
             OneSignalLog.onesignalLog(.LL_WARN, message: "OSConsistencyManager timed out waiting on \(condition.conditionId) for id: \(id)")
-            // Deregister, or the entry outlives the wait and the next token signals nobody.
             queue.sync {
+                // Still registered? Then this timeout owns the clear. A concurrent met-path release
+                // already ran onConditionSatisfied and removed the entry.
+                guard self.indexedConditions[id]?.contains(where: { $0.1 === semaphore }) == true else {
+                    return
+                }
+                // Lower any bar the condition raised for this wait; otherwise later fetches for this
+                // id keep paying the full timeout for a subscription token that is never coming.
+                condition.onConditionSatisfied?()
                 self.indexedConditions[id]?.removeAll { $0.1 === semaphore }
             }
         }
@@ -91,21 +98,22 @@ import OneSignalCore
     }
 
     /**
-     Releases every waiter on `conditionId`, whichever id it registered under. Callers reach for this when
-     a response came back with no `ryw_token` at all, which leaves the waiter with nothing left to wait for.
+     Releases waiters on `conditionId` that registered under `id` (e.g. onesignalId). Callers reach for
+     this when a response for that user came back with no `ryw_token`, which leaves those waiters with
+     nothing left to wait for. Scoped to `id` so a missing token for one user cannot unblock — or clear
+     the subscription bar of — another.
      */
-    @objc public func resolveConditionsWithID(id conditionId: String) {
+    @objc(resolveConditionsWithConditionId:forId:)
+    public func resolveConditions(conditionId: String, forId id: String) {
         queue.sync {
-            for indexId in Array(self.indexedConditions.keys) {
-                guard let waiters = self.indexedConditions[indexId] else {
-                    continue
-                }
-                for (condition, semaphore) in waiters where condition.conditionId == conditionId {
-                    OneSignalLog.onesignalLog(.LL_INFO, message: "Condition \(conditionId) resolved for id: \(indexId)")
-                    self.release(condition, semaphore)
-                }
-                self.indexedConditions[indexId] = waiters.filter { $0.0.conditionId != conditionId }
+            guard let waiters = self.indexedConditions[id] else {
+                return
             }
+            for (condition, semaphore) in waiters where condition.conditionId == conditionId {
+                OneSignalLog.onesignalLog(.LL_INFO, message: "Condition \(conditionId) resolved for id: \(id)")
+                self.release(condition, semaphore)
+            }
+            self.indexedConditions[id] = waiters.filter { $0.0.conditionId != conditionId }
         }
     }
 

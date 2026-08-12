@@ -282,11 +282,8 @@ class OSConsistencyManagerTests: XCTestCase {
 
     // MARK: - Releasing waiters
 
-    /**
-     The fallback for a response that carried no `ryw_token`: the caller knows only the condition id,
-     while the waiter registered under the user's id, so resolving has to reach across the index.
-     */
-    func testResolvingByConditionIdReleasesAWaiterRegisteredUnderAnotherId() {
+    /// A response with no `ryw_token` releases waiters for that user only.
+    func testResolvingByConditionIdReleasesWaitersForThatId() {
         let returned = expectation(description: "waiter returned")
         DispatchQueue.global().async {
             _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
@@ -294,10 +291,36 @@ class OSConsistencyManagerTests: XCTestCase {
         }
         waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-        consistencyManager.resolveConditionsWithID(id: TestUnmetCondition.CONDITIONID)
+        consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: "onesignal-id")
 
         wait(for: [returned], timeout: 2.0)
         XCTAssertEqual(consistencyManager.waiterCount, 0)
+    }
+
+    /// A missing token for one user must not unblock a wait registered under another.
+    func testResolvingOneIdLeavesAnotherIdsWaiterWaiting() {
+        OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let userA = "onesignal-id-a"
+        let userB = "onesignal-id-b"
+
+        let aReturned = expectation(description: "user A waiter returned")
+        let bReturned = expectation(description: "user B waiter returned")
+        DispatchQueue.global().async {
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: userA)
+            aReturned.fulfill()
+        }
+        DispatchQueue.global().async {
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: userB)
+            bReturned.fulfill()
+        }
+        waitUntil("both waiters registered") { self.consistencyManager.waiterCount == 2 }
+
+        consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: userB)
+
+        wait(for: [bReturned], timeout: 2.0)
+        XCTAssertEqual(consistencyManager.waiterCount, 1, "user A's waiter must still be registered")
+        // Let A time out rather than leaving the thread blocked past the end of the test.
+        wait(for: [aReturned], timeout: 2.0)
     }
 
     func testResolvingADifferentConditionLeavesTheWaiterWaiting() {
@@ -309,7 +332,7 @@ class OSConsistencyManagerTests: XCTestCase {
         }
         waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-        consistencyManager.resolveConditionsWithID(id: "SomeOtherCondition")
+        consistencyManager.resolveConditions(conditionId: "SomeOtherCondition", forId: "onesignal-id")
 
         XCTAssertEqual(consistencyManager.waiterCount, 1)
         // Let it time out rather than leaving the thread blocked past the end of the test.

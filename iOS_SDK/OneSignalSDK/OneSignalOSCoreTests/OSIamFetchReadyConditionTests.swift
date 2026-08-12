@@ -125,7 +125,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         wait(for: [secondReturned], timeout: 2.0)
     }
 
-    /// The `ryw_token`-missing fallback the executors call, which names the condition rather than the user.
+    /// The `ryw_token`-missing fallback the executors call for that user.
     func testResolvingTheConditionReleasesTheFetch() {
         let manager = OSConsistencyManager.shared
         let returned = expectation(description: "fetch released")
@@ -135,9 +135,57 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         }
         waitUntil("fetch waiting") { manager.waiterCount == 1 }
 
-        manager.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userA)
 
         wait(for: [returned], timeout: 2.0)
+    }
+
+    /// A missing token for one user must not clear another user's raised subscription bar.
+    func testResolvingOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
+        let manager = OSConsistencyManager.shared
+        let conditionA = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        let conditionB = OSIamFetchReadyCondition.sharedInstance(withId: userB)
+        conditionA.setSubscriptionUpdatePending(value: true)
+        conditionB.setSubscriptionUpdatePending(value: true)
+
+        let bReturned = expectation(description: "user B fetch released")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(conditionB, forId: self.userB)
+            bReturned.fulfill()
+        }
+        waitUntil("user B waiting") { manager.waiterCount == 1 }
+
+        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userB)
+        wait(for: [bReturned], timeout: 2.0)
+
+        XCTAssertFalse(conditionA.isMet(indexedTokens: [userA: userUpdateToken()]),
+                       "user A's subscription bar must still be up")
+        XCTAssertTrue(conditionB.isMet(indexedTokens: [userB: userUpdateToken()]),
+                      "user B's bar comes down with its own resolve")
+    }
+
+    /// Timing out must lower the bar, or every later fetch for that id pays another full wait.
+    func testTimingOutLowersTheSubscriptionBar() {
+        OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        condition.setSubscriptionUpdatePending(value: true)
+
+        let firstReturned = expectation(description: "first fetch timed out")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            firstReturned.fulfill()
+        }
+        wait(for: [firstReturned], timeout: 2.0)
+
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("100"))
+
+        let secondReturned = expectation(description: "second fetch released by user token alone")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            secondReturned.fulfill()
+        }
+        wait(for: [secondReturned], timeout: 2.0)
     }
 
     // MARK: - Helpers
