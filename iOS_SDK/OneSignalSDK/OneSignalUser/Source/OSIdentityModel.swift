@@ -58,7 +58,7 @@ class OSIdentityModel: OSModel {
                 return true
             }
             if changed {
-                self.set(property: OS_JWT_BEARER_TOKEN, newValue: newValue)
+                self.set(property: OS_JWT_BEARER_TOKEN, newValue: newValue, preventServerUpdate: true)
             }
         }
     }
@@ -83,7 +83,7 @@ class OSIdentityModel: OSModel {
             return true
         }
         if changed {
-            self.set(property: OS_JWT_BEARER_TOKEN, newValue: OS_JWT_TOKEN_INVALID)
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: OS_JWT_TOKEN_INVALID, preventServerUpdate: true)
         }
         return changed
     }
