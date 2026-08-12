@@ -81,13 +81,11 @@ import OneSignalCore
         if semaphore.wait(timeout: .now() + OSConsistencyManager.waitTimeout) == .timedOut {
             OneSignalLog.onesignalLog(.LL_WARN, message: "OSConsistencyManager timed out waiting on \(condition.conditionId) for id: \(id)")
             queue.sync {
-                // Still registered? Then this timeout owns the clear. A concurrent met-path release
-                // already ran onConditionSatisfied and removed the entry.
+                // Skip if a met-path release already removed this waiter.
                 guard self.indexedConditions[id]?.contains(where: { $0.1 === semaphore }) == true else {
                     return
                 }
-                // Lower any bar the condition raised for this wait; otherwise later fetches for this
-                // id keep paying the full timeout for a subscription token that is never coming.
+                // Clear so later fetches for this id are not held to a subscription token that never arrives.
                 condition.onConditionSatisfied?()
                 self.indexedConditions[id]?.removeAll { $0.1 === semaphore }
             }
@@ -98,10 +96,8 @@ import OneSignalCore
     }
 
     /**
-     Releases waiters on `conditionId` that registered under `id` (e.g. onesignalId). Callers reach for
-     this when a response for that user came back with no `ryw_token`, which leaves those waiters with
-     nothing left to wait for. Scoped to `id` so a missing token for one user cannot unblock — or clear
-     the subscription bar of — another.
+     Releases waiters on `conditionId` registered under `id` (e.g. onesignalId). Used when that user's
+     response carried no `ryw_token`, so those waiters have nothing left to wait for.
      */
     @objc(resolveConditionsWithConditionId:forId:)
     public func resolveConditions(conditionId: String, forId id: String) {
