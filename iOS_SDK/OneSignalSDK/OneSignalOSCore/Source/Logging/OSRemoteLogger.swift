@@ -52,8 +52,6 @@ public extension OSRemoteLoggerProtocol {
     func start() {}
 }
 
-#if !targetEnvironment(macCatalyst)
-
 @_implementationOnly import OneSignalKMP
 
 private final class OSRemoteLoggerLifecycle {
@@ -305,39 +303,3 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
 @_spi(OneSignalInternal)
 extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
-
-#else
-
-public final class OSRemoteLogger: OSRemoteLoggerProtocol {
-    public init(
-        installIdProvider: @escaping () -> String,
-        onesignalIdProvider: @escaping () -> String?,
-        pushSubscriptionIdProvider: @escaping () -> String?,
-        appStateProvider: @escaping () -> String,
-        featureFlagsProvider: @escaping () -> [String],
-        remoteLogLevelProvider: @escaping () -> String?,
-        exporterLoggingEnabledProvider: @escaping () -> Bool
-    ) {}
-
-    public let kmpVersion = "unavailable"
-    public let crashStoragePath = "unavailable"
-
-    public func start() {}
-    public func log(level: String, message: String) {}
-    public func log(
-        level: String,
-        message: String,
-        exceptionType: String?,
-        exceptionMessage: String?,
-        exceptionStacktrace: String?
-    ) {}
-    public func forceFlush(completion: @escaping () -> Void) {
-        completion()
-    }
-    public func shutdown() {}
-}
-
-@_spi(OneSignalInternal)
-extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
-
-#endif

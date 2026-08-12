@@ -25,9 +25,6 @@
  THE SOFTWARE.
  */
 
-// Kotlin/Native does not produce a Mac Catalyst framework slice.
-#if !targetEnvironment(macCatalyst)
-
 import Foundation
 import OneSignalCore
 @_implementationOnly import OneSignalKMP
@@ -51,5 +48,3 @@ final class IOSLogger: ILogger {
         OneSignalLog.onesignalLog(.LL_DEBUG, message: message)
     }
 }
-
-#endif

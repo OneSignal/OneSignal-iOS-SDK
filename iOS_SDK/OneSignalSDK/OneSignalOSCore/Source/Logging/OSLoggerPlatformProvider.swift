@@ -25,9 +25,6 @@
  THE SOFTWARE.
  */
 
-// Kotlin/Native does not produce a Mac Catalyst framework slice.
-#if !targetEnvironment(macCatalyst)
-
 import Darwin
 import Foundation
 import OneSignalCore
@@ -110,6 +107,9 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     let osBuildId = OSLoggerPlatformProvider.systemValue(named: Constants.osBuildName)
     let sdkWrapper = OneSignalWrapper.sdkType
     let sdkWrapperVersion = OneSignalWrapper.sdkVersion
+    let kotlinVersion: String? = nil
+    let swiftVersion: String? = nil
+    let additionalVersionAttributes: [String: String] = [:]
     var enabledFeatureFlags: [String] {
         featureFlagsProvider()
     }
@@ -241,5 +241,3 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
 }
-
-#endif

@@ -25,9 +25,6 @@
  THE SOFTWARE.
  */
 
-// Kotlin/Native does not produce a Mac Catalyst framework slice.
-#if !targetEnvironment(macCatalyst)
-
 import Darwin
 import Foundation
 import OneSignalCore
@@ -306,5 +303,3 @@ final class OSLogCrashHandler: ILogCrashHandler {
         return String(symbol[moduleNameStart..<moduleNameEnd])
     }
 }
-
-#endif

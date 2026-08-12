@@ -25,9 +25,6 @@
  THE SOFTWARE.
  */
 
-// Kotlin/Native does not produce a Mac Catalyst framework slice.
-#if !targetEnvironment(macCatalyst)
-
 import Foundation
 @_implementationOnly import OneSignalKMP
 
@@ -36,11 +33,8 @@ extension KotlinByteArray {
         AppleByteArrayInterop.shared.toNSData(bytes: self)
     }
 }
-
 extension Data {
     var kotlinByteArray: KotlinByteArray {
         AppleByteArrayInterop.shared.toByteArray(data: self)
     }
 }
-
-#endif
