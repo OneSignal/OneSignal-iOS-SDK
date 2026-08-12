@@ -107,10 +107,13 @@ struct OSRemoteLoggingConfiguration {
 }
 
 @objc(OSRemoteLoggingController)
-final class OSRemoteLoggingController: NSObject, OSLogListener {
+final class OSRemoteLoggingController: NSObject {
     typealias RemoteLoggerFactory = (OSRemoteLoggerProviders) -> OSRemoteLoggerProtocol
 
     private static let shared = OSRemoteLoggingController()
+    private static let internalLogNotification = Notification.Name("com.onesignal.internal.log")
+    private static let internalLogLevelKey = "level"
+    private static let internalLogMessageKey = "message"
     private static let installIdKey = "PREFS_OS_INSTALL_ID"
     private static let cachedConfigurationKey = "PREFS_OS_REMOTE_LOGGING_CONFIGURATION"
     private static let cachedAppIdKey = "app_id"
@@ -129,6 +132,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     private let stateQueue = DispatchQueue(label: "com.onesignal.logger.remote-lifecycle")
     private let appStateLock = NSLock()
     private let notificationCenter: NotificationCenter
+    private let logNotificationCenter: NotificationCenter
     private let remoteLoggerFactory: RemoteLoggerFactory
     private let usesScenes: () -> Bool
     private let beginBackgroundTask: (String) -> Void
@@ -138,10 +142,11 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     private var remoteLogger: OSRemoteLoggerProtocol?
     private var appState = "unknown"
     private var notificationTokens: [NSObjectProtocol] = []
-    private var isListening = false
+    private var logObserverToken: NSObjectProtocol?
 
     init(
         notificationCenter: NotificationCenter = .default,
+        logNotificationCenter: NotificationCenter = .default,
         usesScenes: @escaping () -> Bool = { OSBundleUtils.isAppUsingUIScene() },
         beginBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.beginBackgroundTask,
         endBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.endBackgroundTask,
@@ -158,6 +163,7 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         }
     ) {
         self.notificationCenter = notificationCenter
+        self.logNotificationCenter = logNotificationCenter
         self.usesScenes = usesScenes
         self.beginBackgroundTask = beginBackgroundTask
         self.endBackgroundTask = endBackgroundTask
@@ -209,16 +215,16 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         configure(with: OSRemoteLoggingConfiguration(remoteParams: remoteParams))
     }
 
-    func onLogEvent(_ event: OneSignalLogEvent) {
+    private func onInternalLog(level: ONE_S_LOG_LEVEL, message: String) {
         stateQueue.async { [weak self] in
             guard let self,
-                  self.configuration.allows(event.level),
+                  self.configuration.allows(level),
                   let remoteLogger = self.remoteLogger else {
                 return
             }
             remoteLogger.log(
-                level: OSRemoteLoggingConfiguration.levelName(event.level),
-                message: self.message(from: event)
+                level: OSRemoteLoggingConfiguration.levelName(level),
+                message: message
             )
         }
     }
@@ -291,16 +297,15 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
                   self.configuration.matches(newConfiguration) else {
                 return
             }
-            OneSignalLog.debug().__add(self)
-            self.isListening = true
+            self.registerLogSink()
             self.registerLifecycleObservers()
         }
     }
 
     private func stopRemoteLogging() {
-        if isListening {
-            OneSignalLog.debug().__remove(self)
-            isListening = false
+        if let logObserverToken {
+            logNotificationCenter.removeObserver(logObserverToken)
+            self.logObserverToken = nil
         }
         notificationTokens.forEach(notificationCenter.removeObserver)
         notificationTokens.removeAll()
@@ -328,6 +333,21 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
                 self?.flushForLifecycle(shutdownAfterFlush: true)
             }
         )
+    }
+
+    private func registerLogSink() {
+        logObserverToken = logNotificationCenter.addObserver(
+            forName: Self.internalLogNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            guard let rawLevel = notification.userInfo?[Self.internalLogLevelKey] as? NSNumber,
+                  let level = ONE_S_LOG_LEVEL(rawValue: rawLevel.uintValue),
+                  let message = notification.userInfo?[Self.internalLogMessageKey] as? String else {
+                return
+            }
+            self?.onInternalLog(level: level, message: message)
+        }
     }
 
     private func logStartupDiagnostic(remoteLogger: OSRemoteLoggerProtocol) {
@@ -426,12 +446,6 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
         return DispatchQueue.main.sync(execute: work)
     }
 
-    private func message(from event: OneSignalLogEvent) -> String {
-        guard let separator = event.entry.range(of: ": ") else {
-            return event.entry
-        }
-        return String(event.entry[separator.upperBound...])
-    }
 }
 
 private extension OSRemoteLoggingConfiguration {

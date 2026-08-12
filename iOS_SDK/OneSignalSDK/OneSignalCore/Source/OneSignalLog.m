@@ -42,6 +42,9 @@
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
+static NSString * const OSInternalLogNotification = @"com.onesignal.internal.log";
+static NSString * const OSInternalLogLevelKey = @"level";
+static NSString * const OSInternalLogMessageKey = @"message";
 
 + (Class<OSDebug>)Debug {
     return self;
@@ -112,6 +115,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (logLevel <= _alertLogLevel) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
+
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:OSInternalLogNotification
+        object:nil
+        userInfo:@{
+            OSInternalLogLevelKey: @(logLevel),
+            OSInternalLogMessageKey: message
+        }];
 
     for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners.allObjects) {
         if ([listener respondsToSelector:@selector(onLogEvent:)]) {
