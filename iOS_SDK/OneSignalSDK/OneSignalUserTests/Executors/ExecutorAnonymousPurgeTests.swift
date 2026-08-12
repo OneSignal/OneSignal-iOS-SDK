@@ -60,6 +60,8 @@ final class ExecutorAnonymousPurgeTests: XCTestCase {
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
         newRecordsState = MockNewRecordsState()
+        // Presence is the hold: the production timer is a no-op under TEST.
+        newRecordsState.holdWhilePresent = true
 
         // The purge only ever runs because the requirement came back requiring auth.
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
