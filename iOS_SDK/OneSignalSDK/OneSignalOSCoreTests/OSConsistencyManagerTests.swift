@@ -307,7 +307,7 @@ class OSConsistencyManagerTests: XCTestCase {
         XCTAssertEqual(consistencyManager.waiterCount, 0)
     }
 
-    /// A missing token for one user must not unblock a wait registered under another.
+    /// Resolving user B leaves user A's waiter registered.
     func testResolvingOneIdLeavesAnotherIdsWaiterWaiting() {
         OSConsistencyManager.waitTimeout = .milliseconds(200)
         let userA = "onesignal-id-a"
@@ -329,7 +329,7 @@ class OSConsistencyManagerTests: XCTestCase {
 
         wait(for: [bReturned], timeout: 2.0)
         XCTAssertEqual(consistencyManager.waiterCount, 1, "user A's waiter must still be registered")
-        // Let A time out rather than leaving the thread blocked past the end of the test.
+        // Drain A's timeout so the thread is not left blocked after the test.
         wait(for: [aReturned], timeout: 2.0)
     }
 
@@ -345,7 +345,7 @@ class OSConsistencyManagerTests: XCTestCase {
         consistencyManager.resolveConditions(conditionId: "SomeOtherCondition", forId: "onesignal-id")
 
         XCTAssertEqual(consistencyManager.waiterCount, 1)
-        // Let it time out rather than leaving the thread blocked past the end of the test.
+        // Drain the timeout so the thread is not left blocked after the test.
         wait(for: [returned], timeout: 2.0)
     }
 
