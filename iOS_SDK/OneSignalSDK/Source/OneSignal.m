@@ -587,7 +587,9 @@ static BOOL ComputeInitialStorageReadable(void) {
     OSBackgroundTaskManager.taskHandler = [OSBackgroundTaskHandlerImpl new];
 
     [self registerForAPNsToken];
-    
+
+    [OSRemoteLoggingController configureFromCache];
+
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && OneSignalIdentifiers.currentAppId && OneSignalIdentifiers.currentAppId != (id)[NSNull null])

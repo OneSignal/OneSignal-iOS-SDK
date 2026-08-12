@@ -112,6 +112,9 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
 
     private static let shared = OSRemoteLoggingController()
     private static let installIdKey = "PREFS_OS_INSTALL_ID"
+    private static let cachedConfigurationKey = "PREFS_OS_REMOTE_LOGGING_CONFIGURATION"
+    private static let cachedAppIdKey = "app_id"
+    private static let cachedLogLevelKey = "log_level"
     private static let backgroundTaskPrefix = "com.onesignal.logger.flush."
     private static let installId: String = {
         let defaults = OneSignalUserDefaults.initShared()
@@ -163,11 +166,43 @@ final class OSRemoteLoggingController: NSObject, OSLogListener {
     }
 
     @objc class func configure() {
-        shared.configure(with: .current)
+        let configuration = OSRemoteLoggingConfiguration.current
+        cache(configuration: configuration)
+        shared.configure(with: configuration)
+    }
+
+    @objc class func configureFromCache() {
+        guard let appId = OneSignalIdentifiers.currentAppId,
+              let cached = OneSignalUserDefaults.initStandard().getSavedDictionary(
+                forKey: cachedConfigurationKey,
+                defaultValue: nil
+              ),
+              cached[cachedAppIdKey] as? String == appId else {
+            return
+        }
+        let logLevel = cached[cachedLogLevelKey] as? String
+        let remoteParams = logLevel.map {
+            ["logging_config": ["log_level": $0]]
+        } ?? [:]
+        shared.configure(with: OSRemoteLoggingConfiguration(remoteParams: remoteParams))
     }
 
     @objc class func reset() {
         shared.shutdown()
+    }
+
+    private class func cache(configuration: OSRemoteLoggingConfiguration) {
+        guard let appId = OneSignalIdentifiers.currentAppId else {
+            return
+        }
+        var cached: [String: Any] = [cachedAppIdKey: appId]
+        if let logLevel = configuration.logLevel {
+            cached[cachedLogLevelKey] = logLevel
+        }
+        OneSignalUserDefaults.initStandard().saveDictionary(
+            forKey: cachedConfigurationKey,
+            withValue: cached
+        )
     }
 
     func configure(remoteParams: [String: Any]) {

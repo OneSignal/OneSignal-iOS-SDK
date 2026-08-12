@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSRemoteLoggingController : NSObject
 
 + (void)configure;
++ (void)configureFromCache;
 + (void)reset;
 
 @end
