@@ -295,6 +295,7 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
             return
         }
 
+        newRemoteLogger.start()
         logStartupDiagnostic(remoteLogger: newRemoteLogger)
         stateQueue.sync {
             guard self.remoteLogger === newRemoteLogger,

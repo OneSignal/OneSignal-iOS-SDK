@@ -25,6 +25,7 @@
  THE SOFTWARE.
  */
 
+import Darwin
 import Foundation
 import OneSignalCore
 import OneSignalKMP
@@ -166,6 +167,31 @@ final class OSLoggerAdaptersTests: XCTestCase {
         wait(for: [sent], timeout: 2)
     }
 
+    func testHttpSenderDoesNotStartRequestWhenDisabled() {
+        var requestStarted = false
+        let sender = OneSignalLogHttpSender(
+            requestSender: { _, _ in requestStarted = true },
+            isEnabled: { false }
+        )
+        let request = LogHttpRequest(
+            url: "https://example.com/sdk/log",
+            headers: [:],
+            contentType: "application/x-protobuf",
+            body: makeKotlinBytes([1])
+        )
+        let sent = expectation(description: "returns disabled response")
+
+        sender.send(request: request) { response, error in
+            XCTAssertNil(error)
+            XCTAssertFalse(response?.success == true)
+            XCTAssertEqual(response?.message, "Remote logging is disabled")
+            sent.fulfill()
+        }
+
+        wait(for: [sent], timeout: 2)
+        XCTAssertFalse(requestStarted)
+    }
+
     func testLoggerDelegatesToOneSignalLog() {
         let listener = LoggerAdapterListener()
         OneSignalLog.debug().__add(listener)
@@ -263,6 +289,129 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
     }
 
+    func testCrashHandlerDoesNotReplaceHostSignalHandler() {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let reporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: telemetry,
+            logger: IOSLogger()
+        )
+        let handler = OSLogCrashHandler(reporter: reporter)
+        let originalHandler = Darwin.signal(SIGABRT, osLoggerAdaptersTestSignalHandler)
+        defer { Darwin.signal(SIGABRT, originalHandler) }
+
+        handler.initialize()
+        defer { handler.unregister() }
+        let installedHandler = Darwin.signal(SIGABRT, osLoggerAdaptersTestSignalHandler)
+        Darwin.signal(SIGABRT, installedHandler)
+
+        XCTAssertEqual(
+            signalHandlerAddress(installedHandler),
+            signalHandlerAddress(osLoggerAdaptersTestSignalHandler)
+        )
+    }
+
+    func testCrashHandlerRestoresPreviousExceptionHandler() {
+        let handler = makeCrashHandler()
+        let originalHandler = NSGetUncaughtExceptionHandler()
+        NSSetUncaughtExceptionHandler(osLoggerAdaptersTestExceptionHandler)
+        defer { NSSetUncaughtExceptionHandler(originalHandler) }
+
+        handler.initialize()
+        handler.unregister()
+
+        XCTAssertEqual(
+            exceptionHandlerAddress(NSGetUncaughtExceptionHandler()),
+            exceptionHandlerAddress(osLoggerAdaptersTestExceptionHandler)
+        )
+    }
+
+    func testCrashHandlerPreservesHandlerInstalledAfterIt() {
+        let handler = makeCrashHandler()
+        let originalHandler = NSGetUncaughtExceptionHandler()
+        defer { NSSetUncaughtExceptionHandler(originalHandler) }
+        handler.initialize()
+
+        NSSetUncaughtExceptionHandler(osLoggerAdaptersReplacementExceptionHandler)
+        handler.unregister()
+
+        XCTAssertEqual(
+            exceptionHandlerAddress(NSGetUncaughtExceptionHandler()),
+            exceptionHandlerAddress(osLoggerAdaptersReplacementExceptionHandler)
+        )
+    }
+
+    func testCrashHandlerForwardsInFlightCallbackAfterUnregister() {
+        resetExceptionHandlerCallCount()
+        let handler = makeCrashHandler()
+        let originalHandler = NSGetUncaughtExceptionHandler()
+        NSSetUncaughtExceptionHandler(osLoggerAdaptersCountingExceptionHandler)
+        defer { NSSetUncaughtExceptionHandler(originalHandler) }
+        handler.initialize()
+        handler.unregister()
+
+        OSLogCrashHandler.handleActive(
+            NSException(name: NSExceptionName("InFlightException"), reason: nil)
+        )
+
+        XCTAssertEqual(exceptionHandlerCallCount(), 1)
+    }
+
+    func testCrashHandlerStopsReentrantPreviousHandler() {
+        resetExceptionHandlerCallCount()
+        let handler = makeCrashHandler()
+        let originalHandler = NSGetUncaughtExceptionHandler()
+        NSSetUncaughtExceptionHandler(osLoggerAdaptersReentrantExceptionHandler)
+        defer { NSSetUncaughtExceptionHandler(originalHandler) }
+        handler.initialize()
+        defer { handler.unregister() }
+
+        OSLogCrashHandler.handleActive(
+            NSException(name: NSExceptionName("ReentrantException"), reason: nil)
+        )
+
+        XCTAssertEqual(exceptionHandlerCallCount(), 1)
+    }
+
+    func testCrashUploaderCoordinatorSerializesUploaders() {
+        let coordinator = OSCrashUploaderCoordinator()
+        let firstOwner = UUID()
+        let secondOwner = UUID()
+        var started: [String] = []
+
+        coordinator.enqueue(owner: firstOwner) {
+            started.append("first")
+        }
+        coordinator.enqueue(owner: secondOwner) {
+            started.append("second")
+        }
+
+        XCTAssertEqual(started, ["first"])
+        coordinator.finish(owner: firstOwner)
+        XCTAssertEqual(started, ["first", "second"])
+    }
+
+    func testCrashUploaderCoordinatorCancelsPendingUploader() {
+        let coordinator = OSCrashUploaderCoordinator()
+        let firstOwner = UUID()
+        let secondOwner = UUID()
+        var started: [String] = []
+
+        coordinator.enqueue(owner: firstOwner) {
+            started.append("first")
+        }
+        coordinator.enqueue(owner: secondOwner) {
+            started.append("second")
+        }
+        coordinator.cancel(owner: secondOwner)
+        coordinator.finish(owner: firstOwner)
+
+        XCTAssertEqual(started, ["first"])
+    }
+
     func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {
         let provider = makePlatformProvider()
         var firstInstallId: String?
@@ -314,9 +463,61 @@ final class OSLoggerAdaptersTests: XCTestCase {
         )
     }
 
+    private func makeCrashHandler() -> OSLogCrashHandler {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let reporter = LoggerFactory.shared.createCrashReporter(
+            crashTelemetry: telemetry,
+            logger: IOSLogger()
+        )
+        return OSLogCrashHandler(reporter: reporter)
+    }
+
     private func makeKotlinBytes(_ bytes: [UInt8]) -> KotlinByteArray {
         AppleByteArrayInterop.shared.toByteArray(data: Data(bytes))
     }
+}
+
+private typealias TestSignalHandler = @convention(c) (Int32) -> Void
+private typealias TestExceptionHandler = @convention(c) (NSException) -> Void
+private let exceptionHandlerCallLock = NSLock()
+private var exceptionHandlerCalls = 0
+
+private func osLoggerAdaptersTestSignalHandler(_: Int32) {}
+private func osLoggerAdaptersTestExceptionHandler(_: NSException) {}
+private func osLoggerAdaptersReplacementExceptionHandler(_: NSException) {}
+private func osLoggerAdaptersCountingExceptionHandler(_: NSException) {
+    exceptionHandlerCallLock.lock()
+    exceptionHandlerCalls += 1
+    exceptionHandlerCallLock.unlock()
+}
+
+private func osLoggerAdaptersReentrantExceptionHandler(_ exception: NSException) {
+    osLoggerAdaptersCountingExceptionHandler(exception)
+    OSLogCrashHandler.handleActive(exception)
+}
+
+private func resetExceptionHandlerCallCount() {
+    exceptionHandlerCallLock.lock()
+    exceptionHandlerCalls = 0
+    exceptionHandlerCallLock.unlock()
+}
+
+private func exceptionHandlerCallCount() -> Int {
+    exceptionHandlerCallLock.lock()
+    defer { exceptionHandlerCallLock.unlock() }
+    return exceptionHandlerCalls
+}
+
+private func signalHandlerAddress(_ handler: TestSignalHandler?) -> UInt {
+    handler.map { unsafeBitCast($0, to: UInt.self) } ?? 0
+}
+
+private func exceptionHandlerAddress(_ handler: TestExceptionHandler?) -> UInt {
+    handler.map { unsafeBitCast($0, to: UInt.self) } ?? 0
 }
 
 private final class LoggerAdapterListener: NSObject, OSLogListener {

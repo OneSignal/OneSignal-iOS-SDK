@@ -33,91 +33,64 @@ import Foundation
 import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
-private typealias OSSignalHandler = @convention(c) (Int32) -> Void
 private typealias OSExceptionHandler = @convention(c) (NSException) -> Void
 
 private func osLogUncaughtExceptionHandler(_ exception: NSException) {
-    OSLogCrashHandler.active?.handle(exception: exception)
+    OSLogCrashHandler.handleActive(exception)
 }
 
-private func osLogSignalHandler(_ signalNumber: Int32) {
-    OSLogCrashHandler.active?.handle(signalNumber: signalNumber)
-}
-
-/// Captures native fatal failures and persists them through the synchronous KMP
-/// crash reporter before forwarding to the handler that was previously installed.
+/// Captures uncaught Objective-C exceptions through the synchronous KMP crash
+/// reporter before forwarding to the handler that was previously installed.
+///
+/// POSIX signals are intentionally not intercepted because Swift, Foundation,
+/// Kotlin/Native, and the durable file store are not async-signal-safe.
 final class OSLogCrashHandler: ILogCrashHandler {
-    fileprivate static var active: OSLogCrashHandler?
-
-    private static let handledSignals = [
-        SIGABRT,
-        SIGILL,
-        SIGSEGV,
-        SIGFPE,
-        SIGBUS,
-        SIGPIPE,
-        SIGTRAP
-    ]
+    private static let registryLock = NSLock()
+    private static let handlingThreadKey = "com.onesignal.logger.handling-exception"
+    private static var active: OSLogCrashHandler?
+    private static var inactivePreviousHandler: OSExceptionHandler?
 
     private let reporter: ILogCrashReporter
     private var previousExceptionHandler: OSExceptionHandler?
-    private var previousSignalHandlers: [Int32: OSSignalHandler] = [:]
     private var isInitialized = false
-    private var didCaptureFatal = false
 
     init(reporter: ILogCrashReporter) {
         self.reporter = reporter
     }
 
     func initialize() {
+        Self.registryLock.lock()
+        defer { Self.registryLock.unlock() }
         guard !isInitialized else {
+            return
+        }
+        guard Self.active == nil else {
             return
         }
 
         previousExceptionHandler = NSGetUncaughtExceptionHandler()
-        NSSetUncaughtExceptionHandler(osLogUncaughtExceptionHandler)
-        for signalNumber in Self.handledSignals {
-            if let previousHandler = Darwin.signal(signalNumber, osLogSignalHandler) {
-                let previousAddress = Self.signalHandlerAddress(previousHandler)
-                if previousAddress == Self.signalHandlerAddress(SIG_ERR) {
-                    continue
-                }
-                if previousAddress == Self.signalHandlerAddress(SIG_IGN) {
-                    Darwin.signal(signalNumber, previousHandler)
-                    continue
-                }
-                previousSignalHandlers[signalNumber] = previousHandler
-            }
-        }
+        Self.inactivePreviousHandler = previousExceptionHandler
         Self.active = self
+        NSSetUncaughtExceptionHandler(osLogUncaughtExceptionHandler)
         isInitialized = true
     }
 
     func unregister() {
+        Self.registryLock.lock()
+        defer { Self.registryLock.unlock() }
         guard isInitialized else {
             return
         }
 
+        let isCurrentHandler = Self.exceptionHandlerAddress(NSGetUncaughtExceptionHandler())
+            == Self.exceptionHandlerAddress(osLogUncaughtExceptionHandler)
+        if Self.active === self, isCurrentHandler {
+            NSSetUncaughtExceptionHandler(previousExceptionHandler)
+        }
         if Self.active === self {
             Self.active = nil
         }
-        if Self.exceptionHandlerAddress(NSGetUncaughtExceptionHandler())
-            == Self.exceptionHandlerAddress(osLogUncaughtExceptionHandler) {
-            NSSetUncaughtExceptionHandler(previousExceptionHandler)
-        }
-        for (signalNumber, previousHandler) in previousSignalHandlers {
-            guard let currentHandler = Darwin.signal(signalNumber, previousHandler) else {
-                continue
-            }
-            if Self.signalHandlerAddress(currentHandler)
-                != Self.signalHandlerAddress(osLogSignalHandler) {
-                Darwin.signal(signalNumber, currentHandler)
-            }
-        }
-        previousSignalHandlers.removeAll()
-        previousExceptionHandler = nil
         isInitialized = false
-        didCaptureFatal = false
     }
 
     func handle(exception: NSException) {
@@ -137,36 +110,11 @@ final class OSLogCrashHandler: ILogCrashHandler {
         previousExceptionHandler?(exception)
     }
 
-    fileprivate func handle(signalNumber: Int32) {
-        // Swift, Foundation, and Kotlin/Native are not async-signal-safe after an
-        // arbitrary memory fault. Persisting here is necessarily best effort.
-        // An uncaught NSException normally terminates with SIGABRT after its
-        // exception handler runs. Avoid recording the same fatal failure twice.
-        let stackSymbols = Thread.callStackSymbols
-        if !didCaptureFatal && Self.isOneSignalAtFault(stackSymbols) {
-            let signalDescription = String(cString: strsignal(signalNumber))
-            capture(
-                exceptionType: "Signal \(signalNumber)",
-                exceptionMessage: signalDescription,
-                stacktrace: stackSymbols.joined(separator: "\n")
-            )
-        }
-
-        let previousHandler = previousSignalHandlers[signalNumber] ?? SIG_DFL!
-        Darwin.signal(signalNumber, previousHandler)
-        if Self.isCustomSignalHandler(previousHandler) {
-            previousHandler(signalNumber)
-        } else if Self.signalHandlerAddress(previousHandler) != Self.signalHandlerAddress(SIG_IGN) {
-            Darwin.raise(signalNumber)
-        }
-    }
-
     private func capture(
         exceptionType: String,
         exceptionMessage: String,
         stacktrace: String
     ) {
-        didCaptureFatal = true
         let crash = CrashData(
             threadName: Self.currentThreadName,
             exceptionType: exceptionType,
@@ -198,20 +146,27 @@ final class OSLogCrashHandler: ILogCrashHandler {
         return threadName.isEmpty ? "unknown" : threadName
     }
 
-    private static func isCustomSignalHandler(_ handler: OSSignalHandler) -> Bool {
-        let address = signalHandlerAddress(handler)
-        return address != signalHandlerAddress(SIG_DFL!)
-            && address != signalHandlerAddress(SIG_IGN)
-            && address != signalHandlerAddress(SIG_ERR)
-            && address != signalHandlerAddress(osLogSignalHandler)
-    }
-
-    private static func signalHandlerAddress(_ handler: OSSignalHandler) -> UInt {
-        unsafeBitCast(handler, to: UInt.self)
-    }
-
     private static func exceptionHandlerAddress(_ handler: OSExceptionHandler?) -> UInt {
         handler.map { unsafeBitCast($0, to: UInt.self) } ?? 0
+    }
+
+    static func handleActive(_ exception: NSException) {
+        let threadDictionary = Thread.current.threadDictionary
+        guard threadDictionary[handlingThreadKey] == nil else {
+            return
+        }
+        threadDictionary[handlingThreadKey] = true
+        defer { threadDictionary.removeObject(forKey: handlingThreadKey) }
+
+        registryLock.lock()
+        let handler = active
+        let previousHandler = inactivePreviousHandler
+        registryLock.unlock()
+        if let handler {
+            handler.handle(exception: exception)
+        } else {
+            previousHandler?(exception)
+        }
     }
 
     static func isOneSignalAtFault(_ stackSymbols: [String]) -> Bool {

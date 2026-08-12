@@ -31,6 +31,7 @@ public protocol OSRemoteLoggerProtocol: AnyObject {
     var kmpVersion: String { get }
     var crashStoragePath: String { get }
 
+    func start()
     func log(level: String, message: String)
     func forceFlush(completion: @escaping () -> Void)
     func shutdown()
@@ -51,6 +52,87 @@ public protocol OSStructuredRemoteLoggerProtocol: OSRemoteLoggerProtocol {
 
 @_implementationOnly import OneSignalKMP
 
+private final class OSRemoteLoggerLifecycle {
+    private let lock = NSLock()
+    private var isStarted = false
+    private var isShutdown = false
+
+    var isActive: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return isStarted && !isShutdown
+    }
+
+    func start() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isStarted, !isShutdown else {
+            return false
+        }
+        isStarted = true
+        return true
+    }
+
+    func shutdown() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard !isShutdown else {
+            return false
+        }
+        isShutdown = true
+        return true
+    }
+}
+
+final class OSCrashUploaderCoordinator {
+    static let shared = OSCrashUploaderCoordinator()
+
+    private struct PendingUpload {
+        let owner: UUID
+        let start: () -> Void
+    }
+
+    private let lock = NSLock()
+    private var activeOwner: UUID?
+    private var pendingUploads: [PendingUpload] = []
+
+    func enqueue(owner: UUID, start: @escaping () -> Void) {
+        lock.lock()
+        if activeOwner == nil {
+            activeOwner = owner
+            lock.unlock()
+            start()
+            return
+        }
+        pendingUploads.removeAll { $0.owner == owner }
+        pendingUploads.append(PendingUpload(owner: owner, start: start))
+        lock.unlock()
+    }
+
+    func cancel(owner: UUID) {
+        lock.lock()
+        pendingUploads.removeAll { $0.owner == owner }
+        lock.unlock()
+    }
+
+    func finish(owner: UUID) {
+        lock.lock()
+        guard activeOwner == owner else {
+            lock.unlock()
+            return
+        }
+        guard !pendingUploads.isEmpty else {
+            activeOwner = nil
+            lock.unlock()
+            return
+        }
+        let next = pendingUploads.removeFirst()
+        activeOwner = next.owner
+        lock.unlock()
+        next.start()
+    }
+}
+
 /// Owns the KMP-specific logger composition while exposing a platform-neutral
 /// lifecycle API to the umbrella framework.
 public final class OSRemoteLogger: OSRemoteLoggerProtocol {
@@ -58,6 +140,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let platformProvider: OSLoggerPlatformProvider
     private let crashHandler: ILogCrashHandler
     private let crashUploader: LogCrashUploader
+    private let logger: IOSLogger
+    private let lifecycle: OSRemoteLoggerLifecycle
+    private let lifecycleOperationLock = NSLock()
+    private let uploaderOwner = UUID()
 
     public init(
         installIdProvider: @escaping () -> String,
@@ -78,12 +164,14 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             exporterLoggingEnabledProvider: exporterLoggingEnabledProvider
         )
         let logger = IOSLogger()
+        let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
         let remoteTelemetry = LoggerFactory.shared.createRemoteTelemetry(
             platformProvider: provider,
             httpSender: OneSignalLogHttpSender(
                 logger: logger,
-                isDiagnosticsEnabled: exporterLoggingEnabledProvider
+                isDiagnosticsEnabled: exporterLoggingEnabledProvider,
+                isEnabled: { lifecycle.isActive }
             )
         )
         let crashTelemetry = LoggerFactory.shared.createCrashLocalTelemetry(
@@ -106,11 +194,27 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         self.telemetry = remoteTelemetry
         self.crashHandler = crashHandler
         self.crashUploader = crashUploader
+        self.logger = logger
+        self.lifecycle = lifecycle
+    }
+
+    public func start() {
+        lifecycleOperationLock.lock()
+        defer { lifecycleOperationLock.unlock() }
+        guard lifecycle.start() else {
+            return
+        }
 
         crashHandler.initialize()
-        crashUploader.start { error in
-            if let error {
-                logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+        let owner = uploaderOwner
+        let crashUploader = self.crashUploader
+        let logger = self.logger
+        OSCrashUploaderCoordinator.shared.enqueue(owner: owner) {
+            crashUploader.start { error in
+                if let error {
+                    logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+                }
+                OSCrashUploaderCoordinator.shared.finish(owner: owner)
             }
         }
     }
@@ -156,6 +260,13 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     }
 
     public func shutdown() {
+        lifecycleOperationLock.lock()
+        defer { lifecycleOperationLock.unlock() }
+        guard lifecycle.shutdown() else {
+            return
+        }
+
+        OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
         telemetry.shutdown()
     }
@@ -180,6 +291,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     public let kmpVersion = "unavailable"
     public let crashStoragePath = "unavailable"
 
+    public func start() {}
     public func log(level: String, message: String) {}
     public func log(
         level: String,

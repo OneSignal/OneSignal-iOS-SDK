@@ -51,33 +51,49 @@ final class OneSignalLogHttpSender: ILogHttpSender {
     init(
         session: URLSession = OneSignalLogHttpSender.defaultSession,
         logger: ILogger = IOSLogger(),
-        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+        isDiagnosticsEnabled: @escaping () -> Bool = { false },
+        isEnabled: @escaping () -> Bool = { true }
     ) {
         self.requestSender = { request, completion in
             session.dataTask(with: request, completionHandler: completion).resume()
         }
         self.logger = logger
         self.isDiagnosticsEnabled = isDiagnosticsEnabled
+        self.isEnabled = isEnabled
     }
 
     init(
         requestSender: @escaping RequestSender,
         logger: ILogger = IOSLogger(),
-        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+        isDiagnosticsEnabled: @escaping () -> Bool = { false },
+        isEnabled: @escaping () -> Bool = { true }
     ) {
         self.requestSender = requestSender
         self.logger = logger
         self.isDiagnosticsEnabled = isDiagnosticsEnabled
+        self.isEnabled = isEnabled
     }
 
     private let requestSender: RequestSender
     private let logger: ILogger
     private let isDiagnosticsEnabled: () -> Bool
+    private let isEnabled: () -> Bool
 
     func send(
         request: LogHttpRequest,
         completionHandler: @escaping (LogHttpResponse?, Error?) -> Void
     ) {
+        guard isEnabled() else {
+            completionHandler(
+                LogHttpResponse(
+                    success: false,
+                    statusCode: Self.transportFailureStatusCode,
+                    message: "Remote logging is disabled"
+                ),
+                nil
+            )
+            return
+        }
         guard let url = URL(string: request.url) else {
             completionHandler(
                 LogHttpResponse(
