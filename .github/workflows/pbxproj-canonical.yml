@@ -1,0 +1,39 @@
+name: pbxproj canonical
+
+on:
+  pull_request:
+    paths:
+      - "iOS_SDK/OneSignalSDK/OneSignal.xcodeproj/**"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - ".github/workflows/pbxproj-canonical.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "iOS_SDK/OneSignalSDK/OneSignal.xcodeproj/**"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - ".github/workflows/pbxproj-canonical.yml"
+
+jobs:
+  check:
+    name: OneSignal.xcodeproj is gem-canonical
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Ensure OneSignal.xcodeproj save is a no-op
+        run: |
+          bundle exec ruby -e 'require "xcodeproj"; Xcodeproj::Project.open("iOS_SDK/OneSignalSDK/OneSignal.xcodeproj").save'
+          if ! git diff --exit-code -- iOS_SDK/OneSignalSDK/OneSignal.xcodeproj; then
+            echo "::error::OneSignal.xcodeproj is not canonical for the pinned xcodeproj gem. Open and save with: bundle exec ruby -e 'require \"xcodeproj\"; Xcodeproj::Project.open(\"iOS_SDK/OneSignalSDK/OneSignal.xcodeproj\").save'"
+            exit 1
+          fi
