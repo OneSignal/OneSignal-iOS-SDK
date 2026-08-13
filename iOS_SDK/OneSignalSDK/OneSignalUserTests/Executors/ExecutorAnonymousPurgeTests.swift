@@ -39,6 +39,9 @@ import OneSignalUserMocks
  Only ownership is judged: a Delta or Request carries the `external_id` of the user it was built for, and
  one carrying none can never be signed. The auth layer refuses to send those, so the purge is what keeps
  them from sitting in the queues unsendable for the rest of the session.
+
+ Uncache also drops an owned Request whose identity model is gone, unless Identity Verification is on:
+ without it that Request can never become sendable.
  */
 final class ExecutorAnonymousPurgeTests: XCTestCase {
     private let anonymousOSID = "test-anonymous-onesignal-id"
@@ -382,5 +385,43 @@ final class ExecutorAnonymousPurgeTests: XCTestCase {
 
     private func subscriptionDelta(_ name: String, for identityModel: OSIdentityModel, subscription: OSSubscriptionModel) -> OSDelta {
         return delta(name, for: identityModel, model: subscription, property: "optedIn", value: true)
+    }
+
+    // MARK: - Uncache of owned Requests
+
+    /// Without Identity Verification, an owned Request whose identity model is gone can never become sendable.
+    func testAnOwnedRequestWhoseModelIsGoneIsDroppedWhenIdentityVerificationIsOff() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        let modelId = cacheOwnedPropertyUpdateWithNoIdentityModelInRepo()
+
+        _ = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: auth)
+
+        XCTAssertEqual(cachedRequestOwners(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, of: OSRequestUpdateProperties.self), [])
+        XCTAssertNil(OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId))
+    }
+
+    /// The same Request is kept: a token can still arrive for its owner.
+    func testAnOwnedRequestWhoseModelIsGoneIsKeptWhenIdentityVerificationIsOn() {
+        let modelId = cacheOwnedPropertyUpdateWithNoIdentityModelInRepo()
+
+        _ = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: auth)
+
+        XCTAssertEqual(cachedRequestOwners(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, of: OSRequestUpdateProperties.self), [userA_EUID])
+        XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId))
+    }
+
+    /// No `onesignal_id`, so `prepareForExecution` fails.
+    private func cacheOwnedPropertyUpdateWithNoIdentityModelInRepo() -> String {
+        let orphan = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        let request = OSRequestUpdateProperties(
+            params: ["properties": ["language": "en"]],
+            identityModel: orphan,
+            ownerExternalId: userA_EUID
+        )
+        OneSignalUserDefaults.initShared().saveCodeableData(
+            forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
+            withValue: [request]
+        )
+        return orphan.modelId
     }
 }
