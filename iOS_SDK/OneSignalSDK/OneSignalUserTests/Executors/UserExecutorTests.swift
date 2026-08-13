@@ -506,3 +506,67 @@ final class UserExecutorTests: XCTestCase {
         )
     }
 }
+
+/// Upgrade decode of `addsNewRecords` on a cached Create User.
+final class OSRequestCreateUserArchiveTests: XCTestCase {
+
+    func testAddsNewRecordsSurvivesAnArchiveRoundTrip() throws {
+        XCTAssertTrue(try archiveThenUnarchive(makeCreateWithPush()).addsNewRecords)
+        XCTAssertFalse(try archiveThenUnarchive(makeRecoveryCreate()).addsNewRecords)
+    }
+
+    /// Omitting the key cools down, even when the body has no push subscription.
+    func testOmittingAddsNewRecordsDecodesAsTrue() throws {
+        XCTAssertTrue(try decodeOmittingAddsNewRecords(makeCreateWithPush()).addsNewRecords)
+        XCTAssertTrue(try decodeOmittingAddsNewRecords(makeRecoveryCreate()).addsNewRecords)
+    }
+
+    private func makeCreateWithPush() -> OSRequestCreateUser {
+        OSRequestCreateUser(
+            identityModel: OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer()),
+            propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
+            pushSubscriptionModel: OSSubscriptionModel(
+                type: .push,
+                address: "",
+                subscriptionId: "test-subscription-id",
+                reachable: false,
+                isDisabled: false,
+                changeNotifier: OSEventProducer()
+            ),
+            originalPushToken: nil
+        )
+    }
+
+    private func makeRecoveryCreate() -> OSRequestCreateUser {
+        OSRequestCreateUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: userA_EUID,
+            identityModel: OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        )
+    }
+
+    private func archiveThenUnarchive(_ request: OSRequestCreateUser) throws -> OSRequestCreateUser {
+        let data = try NSKeyedArchiver.archivedData(withRootObject: request, requiringSecureCoding: false)
+        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data)
+        unarchiver.requiresSecureCoding = false
+        defer { unarchiver.finishDecoding() }
+        return try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSRequestCreateUser)
+    }
+
+    /// Encodes the same fields as `OSRequestCreateUser.encode`, without `addsNewRecords`.
+    private func decodeOmittingAddsNewRecords(_ request: OSRequestCreateUser) throws -> OSRequestCreateUser {
+        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+        archiver.encode(request.identityModel, forKey: "identityModel")
+        archiver.encode(request.pushSubscriptionModel, forKey: "pushSubscriptionModel")
+        archiver.encode(request.originalPushToken, forKey: "originalPushToken")
+        archiver.encode(request.parameters, forKey: "parameters")
+        archiver.encode(request.method.rawValue, forKey: "method")
+        archiver.encode(request.timestamp, forKey: "timestamp")
+        archiver.finishEncoding()
+
+        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: archiver.encodedData)
+        unarchiver.requiresSecureCoding = false
+        defer { unarchiver.finishDecoding() }
+        return try XCTUnwrap(OSRequestCreateUser(coder: unarchiver))
+    }
+}

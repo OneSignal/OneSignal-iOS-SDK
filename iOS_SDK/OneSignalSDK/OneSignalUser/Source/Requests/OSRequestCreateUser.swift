@@ -155,7 +155,10 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel
         self.originalPushToken = coder.decodeObject(forKey: "originalPushToken") as? String
-        self.addsNewRecords = coder.decodeBool(forKey: "addsNewRecords")
+        // Safe if the key was never written: extra cool-down, not a skipped one.
+        self.addsNewRecords = coder.containsValue(forKey: "addsNewRecords")
+            ? coder.decodeBool(forKey: "addsNewRecords")
+            : true
         self.stringDescription = "<OSRequestCreateUser with external_id: \(identityModel.externalId ?? "nil")>"
         super.init()
         self.parameters = parameters
