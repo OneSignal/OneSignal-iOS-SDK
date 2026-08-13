@@ -443,6 +443,7 @@
 		DE7D1832270279D9002D3A5D /* OSNotificationClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183427027A73002D3A5D /* OneSignalLog.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183327027A73002D3A5D /* OneSignalLog.m */; };
 		DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183527027AA0002D3A5D /* OneSignalLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A7B30D5F3E124B58A41C9D20 /* OneSignalLogInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183827027CC4002D3A5D /* OneSignalAttachmentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183A27027CD7002D3A5D /* OneSignalAttachmentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */; };
 		DE7D183B27027EFC002D3A5D /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
@@ -1694,6 +1695,7 @@
 		DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSNotificationClasses.h; sourceTree = "<group>"; };
 		DE7D183327027A73002D3A5D /* OneSignalLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLog.m; sourceTree = "<group>"; };
 		DE7D183527027AA0002D3A5D /* OneSignalLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLog.h; sourceTree = "<group>"; };
+		C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLogInternal.h; sourceTree = "<group>"; };
 		DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalAttachmentHandler.h; sourceTree = "<group>"; };
 		DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalAttachmentHandler.m; sourceTree = "<group>"; };
 		DE7D1842270283B9002D3A5D /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk/System/Library/Frameworks/UserNotifications.framework; sourceTree = DEVELOPER_DIR; };
@@ -2828,6 +2830,7 @@
 				4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */,
 				DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */,
 				DE7D183527027AA0002D3A5D /* OneSignalLog.h */,
+				C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */,
 				DE7D183327027A73002D3A5D /* OneSignalLog.m */,
 				3CCF44BC299B17290021964D /* OneSignalWrapper.h */,
 				3CCF44BD299B17290021964D /* OneSignalWrapper.m */,
@@ -3386,6 +3389,7 @@
 				DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */,
 				3CE8CC4E2911ADD1000DB0D3 /* OSDeviceUtils.h in Headers */,
 				DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */,
+				A7B30D5F3E124B58A41C9D20 /* OneSignalLogInternal.h in Headers */,
 				3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */,
 				3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */,
 				DE7D182D270273B0002D3A5D /* OSNotification.h in Headers */,

@@ -36,6 +36,17 @@ public protocol OSRemoteLoggerProtocol: AnyObject {
     func shutdown()
 }
 
+@_spi(OneSignalInternal)
+public protocol OSStructuredRemoteLoggerProtocol: OSRemoteLoggerProtocol {
+    func log(
+        level: String,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    )
+}
+
 #if !targetEnvironment(macCatalyst)
 
 @_implementationOnly import OneSignalKMP
@@ -84,13 +95,29 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     }
 
     public func log(level: String, message: String) {
-        LogLoggingHelper.shared.log(
-            telemetry: telemetry,
+        log(
             level: level,
             message: message,
             exceptionType: nil,
             exceptionMessage: nil,
-            exceptionStacktrace: nil,
+            exceptionStacktrace: nil
+        )
+    }
+
+    public func log(
+        level: String,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    ) {
+        LogLoggingHelper.shared.log(
+            telemetry: telemetry,
+            level: level,
+            message: message,
+            exceptionType: exceptionType,
+            exceptionMessage: exceptionMessage,
+            exceptionStacktrace: exceptionStacktrace,
             completionHandler: { _ in }
         )
     }
@@ -103,6 +130,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         telemetry.shutdown()
     }
 }
+
+@_spi(OneSignalInternal)
+extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
 
 #else
 
@@ -121,10 +151,20 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     public let crashStoragePath = "unavailable"
 
     public func log(level: String, message: String) {}
+    public func log(
+        level: String,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    ) {}
     public func forceFlush(completion: @escaping () -> Void) {
         completion()
     }
     public func shutdown() {}
 }
+
+@_spi(OneSignalInternal)
+extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
 
 #endif

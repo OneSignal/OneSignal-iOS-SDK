@@ -27,7 +27,7 @@
 
 import Foundation
 import OneSignalCore
-import OneSignalOSCore
+@_spi(OneSignalInternal) import OneSignalOSCore
 import UIKit
 import XCTest
 
@@ -101,6 +101,26 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         wait(for: [telemetry.emitExpectation!], timeout: 2)
         XCTAssertEqual(telemetry.messages, ["warning body"])
         XCTAssertEqual(telemetry.levels, ["WARN"])
+    }
+
+    func testInternalSinkForwardsStructuredExceptionFields() {
+        let telemetry = RemoteTelemetrySpy()
+        telemetry.emitExpectation = expectation(description: "routes structured exception")
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+
+        controller.captureLog(
+            with: .LL_ERROR,
+            message: "failed",
+            exceptionType: "ExampleError",
+            exceptionMessage: "details",
+            exceptionStacktrace: "frame"
+        )
+
+        wait(for: [telemetry.emitExpectation!], timeout: 2)
+        XCTAssertEqual(telemetry.exceptionTypes, ["ExampleError"])
+        XCTAssertEqual(telemetry.exceptionMessages, ["details"])
+        XCTAssertEqual(telemetry.exceptionStacktraces, ["frame"])
     }
 
     func testDisablingConfigurationStopsRemoteLogging() {
@@ -228,7 +248,7 @@ private final class ReentrantLogListener: NSObject, OSLogListener {
     }
 }
 
-private final class RemoteTelemetrySpy: OSRemoteLoggerProtocol {
+private final class RemoteTelemetrySpy: OSStructuredRemoteLoggerProtocol {
     private let lock = NSLock()
     var emitExpectation: XCTestExpectation?
     var flushExpectation: XCTestExpectation?
@@ -237,12 +257,34 @@ private final class RemoteTelemetrySpy: OSRemoteLoggerProtocol {
     let crashStoragePath = "/test"
     private(set) var levels: [String] = []
     private(set) var messages: [String] = []
+    private(set) var exceptionTypes: [String?] = []
+    private(set) var exceptionMessages: [String?] = []
+    private(set) var exceptionStacktraces: [String?] = []
     private(set) var shutdownCount = 0
 
     func log(level: String, message: String) {
+        log(
+            level: level,
+            message: message,
+            exceptionType: nil,
+            exceptionMessage: nil,
+            exceptionStacktrace: nil
+        )
+    }
+
+    func log(
+        level: String,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    ) {
         lock.lock()
         levels.append(level)
         messages.append(message)
+        exceptionTypes.append(exceptionType)
+        exceptionMessages.append(exceptionMessage)
+        exceptionStacktraces.append(exceptionStacktrace)
         lock.unlock()
         emitExpectation?.fulfill()
     }

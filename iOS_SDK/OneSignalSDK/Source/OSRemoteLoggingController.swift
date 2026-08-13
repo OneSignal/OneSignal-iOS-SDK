@@ -27,8 +27,8 @@
 
 import Foundation
 import OneSignalCore
-import OneSignalOSCore
-import OneSignalUser
+@_spi(OneSignalInternal) import OneSignalOSCore
+@_spi(OneSignalInternal) import OneSignalUser
 import UIKit
 
 struct OSRemoteLoggingConfiguration {
@@ -107,13 +107,10 @@ struct OSRemoteLoggingConfiguration {
 }
 
 @objc(OSRemoteLoggingController)
-final class OSRemoteLoggingController: NSObject {
-    typealias RemoteLoggerFactory = (OSRemoteLoggerProviders) -> OSRemoteLoggerProtocol
+final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
+    typealias RemoteLoggerFactory = (OSRemoteLoggerProviders) -> OSStructuredRemoteLoggerProtocol
 
     private static let shared = OSRemoteLoggingController()
-    private static let internalLogNotification = Notification.Name("com.onesignal.internal.log")
-    private static let internalLogLevelKey = "level"
-    private static let internalLogMessageKey = "message"
     private static let installIdKey = "PREFS_OS_INSTALL_ID"
     private static let cachedConfigurationKey = "PREFS_OS_REMOTE_LOGGING_CONFIGURATION"
     private static let cachedAppIdKey = "app_id"
@@ -132,21 +129,18 @@ final class OSRemoteLoggingController: NSObject {
     private let stateQueue = DispatchQueue(label: "com.onesignal.logger.remote-lifecycle")
     private let appStateLock = NSLock()
     private let notificationCenter: NotificationCenter
-    private let logNotificationCenter: NotificationCenter
     private let remoteLoggerFactory: RemoteLoggerFactory
     private let usesScenes: () -> Bool
     private let beginBackgroundTask: (String) -> Void
     private let endBackgroundTask: (String) -> Void
     private var configuration = OSRemoteLoggingConfiguration(remoteParams: [:])
     private var configurationGeneration = 0
-    private var remoteLogger: OSRemoteLoggerProtocol?
+    private var remoteLogger: OSStructuredRemoteLoggerProtocol?
     private var appState = "unknown"
     private var notificationTokens: [NSObjectProtocol] = []
-    private var logObserverToken: NSObjectProtocol?
 
     init(
         notificationCenter: NotificationCenter = .default,
-        logNotificationCenter: NotificationCenter = .default,
         usesScenes: @escaping () -> Bool = { OSBundleUtils.isAppUsingUIScene() },
         beginBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.beginBackgroundTask,
         endBackgroundTask: @escaping (String) -> Void = OSBackgroundTaskManager.endBackgroundTask,
@@ -163,7 +157,6 @@ final class OSRemoteLoggingController: NSObject {
         }
     ) {
         self.notificationCenter = notificationCenter
-        self.logNotificationCenter = logNotificationCenter
         self.usesScenes = usesScenes
         self.beginBackgroundTask = beginBackgroundTask
         self.endBackgroundTask = endBackgroundTask
@@ -215,7 +208,13 @@ final class OSRemoteLoggingController: NSObject {
         configure(with: OSRemoteLoggingConfiguration(remoteParams: remoteParams))
     }
 
-    private func onInternalLog(level: ONE_S_LOG_LEVEL, message: String) {
+    func captureLog(
+        with level: ONE_S_LOG_LEVEL,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    ) {
         stateQueue.async { [weak self] in
             guard let self,
                   self.configuration.allows(level),
@@ -224,7 +223,10 @@ final class OSRemoteLoggingController: NSObject {
             }
             remoteLogger.log(
                 level: OSRemoteLoggingConfiguration.levelName(level),
-                message: message
+                message: message,
+                exceptionType: exceptionType,
+                exceptionMessage: exceptionMessage,
+                exceptionStacktrace: exceptionStacktrace
             )
         }
     }
@@ -297,16 +299,13 @@ final class OSRemoteLoggingController: NSObject {
                   self.configuration.matches(newConfiguration) else {
                 return
             }
-            self.registerLogSink()
+            OneSignalLog.__setInternalLogSink(self)
             self.registerLifecycleObservers()
         }
     }
 
     private func stopRemoteLogging() {
-        if let logObserverToken {
-            logNotificationCenter.removeObserver(logObserverToken)
-            self.logObserverToken = nil
-        }
+        OneSignalLog.__removeInternalLogSink(self)
         notificationTokens.forEach(notificationCenter.removeObserver)
         notificationTokens.removeAll()
         let activeRemoteLogger = remoteLogger
@@ -335,22 +334,7 @@ final class OSRemoteLoggingController: NSObject {
         )
     }
 
-    private func registerLogSink() {
-        logObserverToken = logNotificationCenter.addObserver(
-            forName: Self.internalLogNotification,
-            object: nil,
-            queue: nil
-        ) { [weak self] notification in
-            guard let rawLevel = notification.userInfo?[Self.internalLogLevelKey] as? NSNumber,
-                  let level = ONE_S_LOG_LEVEL(rawValue: rawLevel.uintValue),
-                  let message = notification.userInfo?[Self.internalLogMessageKey] as? String else {
-                return
-            }
-            self?.onInternalLog(level: level, message: message)
-        }
-    }
-
-    private func logStartupDiagnostic(remoteLogger: OSRemoteLoggerProtocol) {
+    private func logStartupDiagnostic(remoteLogger: OSStructuredRemoteLoggerProtocol) {
         OneSignalLog.onesignalLog(
             .LL_WARN,
             message: "OneSignal logging initialized: sdk=\(ONESIGNAL_VERSION), "
@@ -362,12 +346,7 @@ final class OSRemoteLoggingController: NSObject {
     private func makeProviders(configuration: OSRemoteLoggingConfiguration) -> OSRemoteLoggerProviders {
         OSRemoteLoggerProviders(
             installId: { Self.installId },
-            onesignalId: {
-                OneSignalUserDefaults.initShared().getSavedString(
-                    forKey: OS_SNAPSHOT_ONESIGNAL_ID,
-                    defaultValue: nil
-                )
-            },
+            onesignalId: { OneSignalUserManagerImpl.sharedInstance.internalOnesignalId },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
             featureFlags: { [] },

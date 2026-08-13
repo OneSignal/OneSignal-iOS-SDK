@@ -43,6 +43,22 @@ class TestLogListener: NSObject, OSLogListener {
     }
 }
 
+private final class TestInternalLogSink: NSObject, OSInternalLogSink {
+    var levels: [ONE_S_LOG_LEVEL] = []
+    var messages: [String] = []
+
+    func captureLog(
+        with level: ONE_S_LOG_LEVEL,
+        message: String,
+        exceptionType: String?,
+        exceptionMessage: String?,
+        exceptionStacktrace: String?
+    ) {
+        levels.append(level)
+        messages.append(message)
+    }
+}
+
 final class LoggingTests: XCTestCase {
     override func setUpWithError() throws {
         OneSignalLog.setLogLevel(.LL_NONE)
@@ -140,5 +156,17 @@ final class LoggingTests: XCTestCase {
 
         // Then
         XCTAssertEqual(calls, ["DEBUG: test"])
+    }
+
+    func testInternalSinkReceivesRawLogAndCanBeRemoved() {
+        let sink = TestInternalLogSink()
+        OneSignalLog.__setInternalLogSink(sink)
+
+        OneSignalLog.onesignalLog(.LL_WARN, message: "raw message")
+        OneSignalLog.__removeInternalLogSink(sink)
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "not captured")
+
+        XCTAssertEqual(sink.levels, [.LL_WARN])
+        XCTAssertEqual(sink.messages, ["raw message"])
     }
 }
