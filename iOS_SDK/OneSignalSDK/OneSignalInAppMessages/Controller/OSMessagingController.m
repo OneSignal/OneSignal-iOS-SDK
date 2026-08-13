@@ -294,12 +294,8 @@ static BOOL _isInAppMessagingPaused = false;
             return;
         }
 
-        // Resolved before the read-your-write wait, which can hold this thread for as long as it takes
-        // the user requests to come back.
-        OSUserRequestAuthorization *authorization = [OneSignalUserManagerImpl.sharedInstance authorizationForCurrentUser];
-        if (!authorization) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to Identity Verification, will reattempt"];
-            [self deferFetchWithSubscriptionId:subscriptionId];
+        // Park before the wait when the fetch cannot go out; attemptFetchWithRetries reads again after.
+        if (![self authorizationForFetchOrDefer:subscriptionId]) {
             return;
         }
 
@@ -318,7 +314,6 @@ static BOOL _isInAppMessagingPaused = false;
             
             // Initial request
             [self attemptFetchWithRetries:subscriptionId
-                            authorization:authorization
                                  rywData:rywData
                                  attempts:@0 // Starting with 0 attempts
                                retryLimit:nil // Retry limit to be set dynamically on first failure
@@ -410,6 +405,22 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+/// How to address and sign this fetch. Nil means it is parked until hydration or a token.
+- (OSUserRequestAuthorization *)authorizationForFetchOrDefer:(NSString *)subscriptionId {
+    OSUserRequestAuthorization *authorization = [OneSignalUserManagerImpl.sharedInstance authorizationForCurrentUser];
+    if (authorization) {
+        return authorization;
+    }
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Failed to get in app messages due to Identity Verification, will reattempt"];
+    [self deferFetchWithSubscriptionId:subscriptionId];
+    // OS_ON_USER_JWT_UPDATED can fire before deferredFetchSubscriptionId is set.
+    authorization = [OneSignalUserManagerImpl.sharedInstance authorizationForCurrentUser];
+    if (authorization) {
+        [self takeDeferredFetchSubscriptionId];
+    }
+    return authorization;
+}
+
 /**
  Parks the fetch for a later token to reattempt, without reporting the one it was signed with.
 
@@ -422,18 +433,28 @@ static BOOL _isInAppMessagingPaused = false;
     if (!authorization.token) {
         return;
     }
+    OSUserRequestAuthorization *current = [OneSignalUserManagerImpl.sharedInstance authorizationForCurrentUser];
+    if (current.token.length && ![current.token isEqualToString:authorization.token]) {
+        // OS_ON_USER_JWT_UPDATED already fired with nothing parked.
+        [self getInAppMessagesFromServer:subscriptionId];
+        return;
+    }
     [self deferFetchWithSubscriptionId:subscriptionId];
 }
 
 
 - (void)attemptFetchWithRetries:(NSString *)subscriptionId
-                  authorization:(OSUserRequestAuthorization *)authorization
                        rywData:(OSReadYourWriteData *)rywData
                        attempts:(NSNumber *)attempts
                      retryLimit:(NSNumber *)retryLimit
                  userGeneration:(NSUInteger)generation {
     if (![self isCurrentUserGeneration:generation]) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Abandoning an in app message fetch for a previous user"];
+        return;
+    }
+
+    OSUserRequestAuthorization *authorization = [self authorizationForFetchOrDefer:subscriptionId];
+    if (!authorization) {
         return;
     }
 
@@ -496,14 +517,13 @@ static BOOL _isInAppMessagingPaused = false;
                 NSInteger nextAttempt = [attempts integerValue] + 1; // Increment attempts
                 [self retryAfterDelay:retryAfter
                          subscriptionId:subscriptionId
-                          authorization:authorization
                                 rywData:rywData
                                attempts:@(nextAttempt)
                              retryLimit:blockRetryLimit
                          userGeneration:generation];
             } else {
                 // Final attempt without rywToken
-                [self fetchInAppMessagesWithoutToken:subscriptionId authorization:authorization userGeneration:generation];
+                [self fetchInAppMessagesWithoutToken:subscriptionId userGeneration:generation];
             }
         } else if ([OSNetworkingUtils getResponseStatusType:error.code] == OSResponseStatusUnauthorized) {
             [self handleUnauthorizedFetch:authorization subscriptionId:subscriptionId];
@@ -515,7 +535,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)retryAfterDelay:(NSInteger)retryAfter
          subscriptionId:(NSString *)subscriptionId
-          authorization:(OSUserRequestAuthorization *)authorization
                rywData:(OSReadYourWriteData *)rywData
                attempts:(NSNumber *)attempts
              retryLimit:(NSNumber *)retryLimit
@@ -524,7 +543,6 @@ static BOOL _isInAppMessagingPaused = false;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(retryAfter * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         [self attemptFetchWithRetries:subscriptionId
-                        authorization:authorization
                              rywData:rywData
                              attempts:attempts
                            retryLimit:retryLimit
@@ -533,8 +551,17 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)fetchInAppMessagesWithoutToken:(NSString *)subscriptionId
-                         authorization:(OSUserRequestAuthorization *)authorization
                         userGeneration:(NSUInteger)generation {
+    if (![self isCurrentUserGeneration:generation]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Abandoning an in app message fetch for a previous user"];
+        return;
+    }
+
+    OSUserRequestAuthorization *authorization = [self authorizationForFetchOrDefer:subscriptionId];
+    if (!authorization) {
+        return;
+    }
+
     NSNumber *sessionDuration = @([OSSessionManager.sharedSessionManager getTimeFocusedElapsed]);
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId
