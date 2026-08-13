@@ -83,6 +83,13 @@ protocol OSRequestAuthorizing: AnyObject {
     func authorization(onesignalId: String?, externalId: String?) -> OSUserRequestAuthorization?
 }
 
+extension OSRequestAuthorizing {
+    /// Returns `true` when `ivBehaviorActive` and the Request has an owner, so a token can still arrive for an uncached Request whose identity model is gone.
+    func keepUncachedOwned(_ request: OSUserRequest) -> Bool {
+        ivBehaviorActive && request.ownerExternalId != nil
+    }
+}
+
 /**
  How another module should address and sign one user-scoped call.
 

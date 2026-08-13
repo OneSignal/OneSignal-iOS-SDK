@@ -93,8 +93,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
-                    // b. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // b. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // c. The model do not exist AND this request cannot be sent, drop this Request
@@ -120,7 +120,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if request.ownerExternalId == nil,
+                } else if !auth.keepUncachedOwned(request),
                           !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                     // 3. The model does not exist AND no token can arrive to make this sendable, drop it
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
