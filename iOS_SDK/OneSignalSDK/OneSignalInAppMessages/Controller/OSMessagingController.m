@@ -153,8 +153,8 @@ static NSInteger const IAM_FETCH_DELAY_BUFFER = 0.5;        // Fallback value if
  */
 @property (strong, nonatomic, nullable) NSString *deferredFetchSubscriptionId;
 
-/// Bumped on every login and logout. A fetch carries the value it started with, so a response that
-/// arrives after the user changed is discarded instead of showing one user's messages to another.
+/// Bumped on login and logout while `newCodePathsRun`. A fetch carries the value it started with, so a
+/// response that arrives after the user changed is discarded instead of showing one user's messages to another.
 @property (nonatomic) NSUInteger userGeneration;
 
 /// Tracks whether the first IAM fetch has completed since this cold start
@@ -340,10 +340,13 @@ static BOOL _isInAppMessagingPaused = false;
 
 /**
  Drops the outgoing user's in-app messages and invalidates any fetch still in flight for them, then
- queues one for whoever is signing in. The new user's fetch goes out from `onUserStateDidChange`, once
- there is a `onesignal_id` to address it by.
+ queues one for whoever is signing in. Only while `newCodePathsRun`. The new user's fetch goes out
+ from `onUserStateDidChange`, once there is a `onesignal_id` to address it by.
  */
 - (void)onUserWillChange {
+    if (!OneSignalUserManagerImpl.sharedInstance.newCodePathsRun) {
+        return;
+    }
     @synchronized (self) {
         self.userGeneration += 1;
     }
@@ -351,7 +354,36 @@ static BOOL _isInAppMessagingPaused = false;
     // On main, where every other write to `messages` happens.
     dispatch_async(dispatch_get_main_queue(), ^{
         self.messages = @[];
+        [self dismissOutgoingUserInAppMessages];
     });
+}
+
+/// Leaves preview IAMs; dismisses a showing non-preview so it cannot stay up under the next user.
+- (void)dismissOutgoingUserInAppMessages {
+    BOOL shouldDismiss = NO;
+    @synchronized (self.messageDisplayQueue) {
+        OSInAppMessageInternal *showing = nil;
+        if (self.isInAppMessageShowing && self.messageDisplayQueue.count > 0) {
+            OSInAppMessageInternal *first = self.messageDisplayQueue.firstObject;
+            if (!first.isPreview) {
+                showing = first;
+            }
+        }
+        NSMutableArray<OSInAppMessageInternal *> *kept = [NSMutableArray new];
+        if (showing) {
+            [kept addObject:showing];
+        }
+        for (OSInAppMessageInternal *message in self.messageDisplayQueue) {
+            if (message.isPreview) {
+                [kept addObject:message];
+            }
+        }
+        [self.messageDisplayQueue setArray:kept];
+        shouldDismiss = showing != nil;
+    }
+    if (shouldDismiss) {
+        [self.viewController dismissCurrentInAppMessage];
+    }
 }
 
 - (void)deferFetchWithSubscriptionId:(NSString *)subscriptionId {

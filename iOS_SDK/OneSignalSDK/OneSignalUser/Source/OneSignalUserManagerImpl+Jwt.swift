@@ -109,6 +109,11 @@ extension OneSignalUserManagerImpl {
         storeJwt(externalId: externalId, token: token)
     }
 
+    /// Rollout flag, or always when the app requires Identity Verification.
+    @objc public var newCodePathsRun: Bool {
+        identityVerificationService.newCodePathsRun
+    }
+
     /**
      How another module should address and sign a user-scoped call for the current user, decided in one
      read so the alias and the token cannot come from different users.

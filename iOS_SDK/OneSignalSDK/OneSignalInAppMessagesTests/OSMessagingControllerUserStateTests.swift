@@ -59,6 +59,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        OSFeatureManager.shared.setEnabledFeatureKeys([])
         OSMessagingController.removeInstance()
     }
 
@@ -156,6 +157,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
      Test that logging in refetches in-app messages for the user signing in.
 
      Scenario:
+     - Identity Verification code paths are on
      - A user's in-app messages have already been fetched
      - The app logs in as someone else
 
@@ -165,6 +167,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
      */
     func testLoginRefetchesInAppMessagesForTheIncomingUser() throws {
         /* Setup */
+        OSFeatureManager.shared.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
         OneSignalInAppMessages.start()
@@ -196,6 +199,39 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
 
         /* Verify */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 2))
+        XCTAssertNil(controller.deferredFetchSubscriptionId)
+    }
+
+    /// Without the rollout flag or `jwt_required`, a login leaves the current user's messages as they were.
+    func testLoginDoesNotRefetchInAppMessagesWhenIdentityVerificationCodePathsAreOff() throws {
+        let client = MockOneSignalClient()
+        OneSignalCoreImpl.setSharedClient(client)
+        OneSignalInAppMessages.start()
+        let controller = OSMessagingController.sharedInstance()
+
+        MockUserRequests.setDefaultCreateAnonUserResponses(
+            with: client,
+            onesignalId: testOneSignalId,
+            subscriptionId: testSubscriptionId
+        )
+        ConsistencyManagerTestHelpers.setDefaultRywToken(id: testOneSignalId)
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Initial IAM fetch did not complete") {
+            client.hasCompletedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1)
+        }
+
+        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1))
+
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: testExternalId)
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: testExternalId, token: nil)
+        // The claim is that no second fetch follows, so wait for the login to run out of work rather
+        // than for a fetch that should never arrive.
+        OneSignalCoreMocks.waitUntil("The login left a Request in flight") {
+            client.hasCompletedRequestOfType(OSRequestIdentifyUser.self)
+                && client.completedRequests.count == client.startedRequests.count
+        }
+
+        XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestGetInAppMessages.self, expectedCount: 1))
         XCTAssertNil(controller.deferredFetchSubscriptionId)
     }
 }
