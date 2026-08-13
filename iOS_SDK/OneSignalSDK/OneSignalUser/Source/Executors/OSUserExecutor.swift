@@ -150,29 +150,28 @@ class OSUserExecutor {
                     userRequestQueue.append(req)
 
                 } else if request.isKind(of: OSRequestIdentifyUser.self), let req = request as? OSRequestIdentifyUser {
-
-                    if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
-                       let identityModelToUpdate = getIdentityModel(req.identityModelToUpdate.modelId) {
-                        // 1. Both models exist in the repo, set it to be the Request's models
-                        req.identityModelToIdentify = identityModelToIdentify
-                        req.identityModelToUpdate = identityModelToUpdate
-                    } else if let identityModelToIdentify = getIdentityModel(req.identityModelToIdentify.modelId),
-                              getIdentityModel(req.identityModelToUpdate.modelId) == nil {
-                        // 2. A model is in the repo, the other model does not exist
-                        req.identityModelToIdentify = identityModelToIdentify
-                        addIdentityModel(req.identityModelToUpdate)
-                    } else {
-                        // 3. Both models don't exist yet
-                        // Drop the request if the identityModelToIdentify does not already exist AND the request is missing OSID
-                        // Otherwise, this request will forever fail `prepareForExecution` and block pending requests such as recovery calls to `logout` or `login`
-                        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
-                            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
-                            continue
-                        }
-                        addIdentityModel(req.identityModelToIdentify)
-                        addIdentityModel(req.identityModelToUpdate)
+                    let identifyInRepo = getIdentityModel(req.identityModelToIdentify.modelId)
+                    let updateInRepo = getIdentityModel(req.identityModelToUpdate.modelId)
+                    if let identifyInRepo {
+                        req.identityModelToIdentify = identifyInRepo
                     }
-                    userRequestQueue.append(req)
+                    if let updateInRepo {
+                        req.identityModelToUpdate = updateInRepo
+                    }
+
+                    // `prepareForExecution` is false under IV so `reshapeInvalidRequests` can promote
+                    // this login; do not treat that as a permanent drop.
+                    if auth.ivBehaviorActive || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                        if identifyInRepo == nil {
+                            addIdentityModel(req.identityModelToIdentify)
+                        }
+                        if updateInRepo == nil {
+                            addIdentityModel(req.identityModelToUpdate)
+                        }
+                        userRequestQueue.append(req)
+                    } else {
+                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
+                    }
                 }
             }
         }
