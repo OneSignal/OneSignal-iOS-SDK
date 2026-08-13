@@ -381,7 +381,7 @@ final class UserExecutorTests: XCTestCase {
     }
 
     /// Identify User promotes an anonymous user, which Identity Verification does not allow. A restored one
-    /// belongs to a user a later `login` has already replaced, so there is no login left to carry over.
+    /// whose `identityModelToUpdate` is no longer current has no login left to carry over.
     func testRestoredIdentifyUserIsDroppedWhenIdentityVerificationIsRequired() {
         /* Setup */
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
@@ -394,6 +394,33 @@ final class UserExecutorTests: XCTestCase {
         /* Then */
         XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
         XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// Cold start: the anon `identityModelToIdentify` is gone from the repo, but ToUpdate is still the
+    /// current user, so reshape must turn the restored Identify into a Create User.
+    func testRestoredIdentifyUserBecomesACreateUserWhenItIsStillTheCurrentUser() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        user.identityModel.jwtBearerToken = "token-a"
+        cacheUserRequests([
+            OSRequestIdentifyUser(
+                aliasLabel: OS_EXTERNAL_ID,
+                aliasId: userA_EUID,
+                identityModelToIdentify: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
+                identityModelToUpdate: user.identityModel
+            )
+        ])
+
+        /* When */
+        let mocks = Mocks { MockUserRequests.setDefaultCreateUserResponses(with: $0, externalId: userA_EUID) }
+        OneSignalCoreMocks.waitUntil("Restored Identify was not reshaped into a Create User") {
+            mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
     }
 
     /// Same restored Identify User goes out when Identity Verification is off.
