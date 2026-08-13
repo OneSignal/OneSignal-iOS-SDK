@@ -76,8 +76,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's models
                     request.identityModel = identityModel
-                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
-                    // 2. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model do not exist AND this request cannot be sent, drop this Request
@@ -99,8 +99,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The model exists in the repo, so set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.ownerExternalId != nil || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
-                    // 2. The Request is owned, so a token can still arrive for it, or it can be sent as is; add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
