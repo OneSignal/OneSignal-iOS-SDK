@@ -48,21 +48,33 @@ public final class OSFeatureManager: OSFeatureManagerProtocol {
     /// deliver flag keys. Everything below them is handed the feature manager when it is created.
     public static let shared = OSFeatureManager()
 
+    /**
+     Local-only test hook for forcing features ON without backend config.
+     Add keys here while testing locally, e.g. `[OSFeatureFlag.identityVerification.rawValue]`.
+     */
+    private static let localFeatureOverrides: Set<String> = []
+    // private static let localFeatureOverrides: Set<String> = [
+    //     OSFeatureFlag.identityVerification.rawValue
+    // ]
+
     private let lock = NSLock()
     private var enabledKeys: Set<String>
 
     public init() {
         enabledKeys = OSFeatureManager.cachedKeys()
+        OSFeatureManager.warnIfLocalOverrides()
     }
 
     /// Bypasses the cache so tests can force flags on.
     public init(enabledKeys: Set<String>) {
         self.enabledKeys = Set(enabledKeys.map(OSFeatureManager.canonicalize))
+        OSFeatureManager.warnIfLocalOverrides()
     }
 
     public func isEnabled(_ feature: OSFeatureFlag) -> Bool {
         return lock.withLock {
             enabledKeys.contains(feature.rawValue)
+                || OSFeatureManager.localFeatureOverrides.contains(feature.rawValue)
         }
     }
 
@@ -98,5 +110,16 @@ public final class OSFeatureManager: OSFeatureManagerProtocol {
             return []
         }
         return Set(cached.map(canonicalize))
+    }
+
+    private static func warnIfLocalOverrides() {
+        let overrides = Set(localFeatureOverrides.map(canonicalize))
+        guard !overrides.isEmpty else {
+            return
+        }
+        OneSignalLog.onesignalLog(
+            .LL_WARN,
+            message: "OSFeatureManager: local feature override enabled for testing only: \(overrides)"
+        )
     }
 }
