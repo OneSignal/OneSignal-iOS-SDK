@@ -31,6 +31,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
     @EnvironmentObject var toast: ToastPresenter
+    @State private var showSecondary = false
 
     var body: some View {
         NavigationStack {
@@ -51,6 +52,12 @@ struct ContentView: View {
                     CustomEventsSection()
                     LocationSection()
                     LiveActivitySection()
+                    ActionButton(
+                        "NEXT SCREEN",
+                        accessibilityID: "next_screen_button"
+                    ) {
+                        showSecondary = true
+                    }
                 }
                 .padding(.horizontal, OS.Spacing.pagePadding)
                 .padding(.top, OS.Spacing.pagePadding)
@@ -73,6 +80,9 @@ struct ContentView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar { toolbarContent }
+            .navigationDestination(isPresented: $showSecondary) {
+                SecondaryView()
+            }
         }
         .osCenteredDialog(
             isPresented: Binding(
