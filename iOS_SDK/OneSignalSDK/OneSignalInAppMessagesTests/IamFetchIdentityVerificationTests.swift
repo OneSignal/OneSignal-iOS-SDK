@@ -150,6 +150,10 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         return client.executedRequests.filter { $0 is OSRequestGetInAppMessages }
     }
 
+    private func startedFetches() -> [OneSignalRequest] {
+        return client.startedRequests.filter { $0 is OSRequestGetInAppMessages }
+    }
+
     private func completedFetches() -> [OneSignalRequest] {
         return client.completedRequests.filter { $0 is OSRequestGetInAppMessages }
     }
@@ -267,6 +271,38 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
 
         XCTAssertEqual(executedFetches().count, fetchesBefore + 2)
         XCTAssertEqual(lastFetchAuthorization(), "Bearer token-b")
+    }
+
+    /// A replacement that lands while the fetch is in flight is not parked: `OS_ON_USER_JWT_UPDATED`
+    /// already fired, and waiting for another would leave the fetch stuck.
+    func testARejectedFetchRefetchesWhenAReplacementTokenAlreadyLanded() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        login(token: "token-a")
+        rejectFetch(from: identifiedUserPath)
+        let startedBefore = startedFetches().count
+        let executedBefore = executedFetches().count
+
+        client.holdResponses = true
+        OneSignalInAppMessages.getFromServer(testPushSubId)
+        OneSignalCoreMocks.waitUntil("The fetch did not reach the held client") {
+            self.startedFetches().count == startedBefore + 1
+        }
+
+        XCTAssertEqual(startedFetches().count, startedBefore + 1)
+        XCTAssertEqual(executedFetches().count, executedBefore)
+
+        client.holdResponses = false
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: userA_EUID, token: "token-b")
+        client.releaseHeldResponses()
+        respondToFetch(from: identifiedUserPath)
+        OneSignalCoreMocks.waitUntil("The rejected fetch was not retried") {
+            self.executedFetches().count == executedBefore + 2
+        }
+
+        XCTAssertEqual(executedFetches().count, executedBefore + 2)
+        XCTAssertEqual(lastFetchAuthorization(), "Bearer token-b")
+        XCTAssertNil(deferredSubscriptionId())
+        XCTAssertEqual(jwtListener.invalidatedExternalIds, [])
     }
 
     /// The token the fetch was signed with stays usable, so everything else keeps going out signed.
