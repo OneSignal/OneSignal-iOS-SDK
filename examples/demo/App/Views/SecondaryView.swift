@@ -28,10 +28,10 @@
 import Foundation
 import SwiftUI
 
-/// Isolated screen for destructive crash / ANR actions, matching Android's SecondaryActivity.
+/// Isolated screen for the test-crash action, matching Android's SecondaryActivity.
 struct SecondaryView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 32) {
             Spacer()
 
             Text("Secondary Screen")
@@ -45,15 +45,6 @@ struct SecondaryView: View {
                 accessibilityID: "crash_button"
             ) {
                 triggerCrash()
-            }
-            .padding(.top, 16)
-
-            ActionButton(
-                "SIMULATE ANR (10s block)",
-                style: .outline,
-                accessibilityID: "anr_button"
-            ) {
-                triggerAnr()
             }
 
             Spacer()
@@ -79,10 +70,6 @@ struct SecondaryView: View {
             reason: "Test crash from OneSignal Demo App - \(timestamp)",
             userInfo: nil
         ).raise()
-    }
-
-    private func triggerAnr() {
-        Thread.sleep(forTimeInterval: 10)
     }
 }
 
