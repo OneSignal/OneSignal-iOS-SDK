@@ -362,7 +362,12 @@ final class OSRemoteLoggingController: NSObject {
     private func makeProviders(configuration: OSRemoteLoggingConfiguration) -> OSRemoteLoggerProviders {
         OSRemoteLoggerProviders(
             installId: { Self.installId },
-            onesignalId: { OneSignalUserManagerImpl.sharedInstance.onesignalId },
+            onesignalId: {
+                OneSignalUserDefaults.initShared().getSavedString(
+                    forKey: OS_SNAPSHOT_ONESIGNAL_ID,
+                    defaultValue: nil
+                )
+            },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
             featureFlags: { [] },
