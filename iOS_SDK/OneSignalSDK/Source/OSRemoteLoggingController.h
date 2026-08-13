@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSRemoteLoggingController : NSObject
 
 + (void)configure;
-+ (void)configureFromCache;
++ (void)configureFromCacheForAppId:(nullable NSString *)appId;
 + (void)reset;
 
 @end

@@ -247,6 +247,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 // TODO: For release, note this change in migration guide:
 // No longer reading appID from plist @"OneSignal_APPID" and @"GameThrive_APPID"
 + (void)setAppId:(nullable NSString*)newAppId {
+    [OSRemoteLoggingController configureFromCacheForAppId:newAppId ?: OneSignalIdentifiers.storedAppId];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
@@ -288,6 +289,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  Note: While this is called via `initialize`, it is also called directly from wrapper SDKs.
  */
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
+    [OSRemoteLoggingController configureFromCacheForAppId:OneSignalIdentifiers.currentAppId ?: OneSignalIdentifiers.storedAppId];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     // Don't continue if the newLaunchOptions are nil
@@ -573,8 +575,6 @@ static BOOL ComputeInitialStorageReadable(void) {
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
-    [OSRemoteLoggingController configureFromCache];
-
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"launchOptions is set and appId of %@ is set, initializing OneSignal...", OneSignalIdentifiers.currentAppId]];
 
     [self setupProtectedDataObserverOnce];

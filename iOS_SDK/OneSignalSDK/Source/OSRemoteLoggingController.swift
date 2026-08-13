@@ -170,13 +170,15 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         shared.configure(with: configuration)
     }
 
-    @objc class func configureFromCache() {
-        guard let appId = OneSignalIdentifiers.currentAppId,
+    @objc(configureFromCacheForAppId:)
+    class func configureFromCache(appId: String?) {
+        guard let appId,
               let cached = OneSignalUserDefaults.initStandard().getSavedDictionary(
                 forKey: cachedConfigurationKey,
                 defaultValue: nil
               ),
               cached[cachedAppIdKey] as? String == appId else {
+            shared.shutdown()
             return
         }
         let logLevel = cached[cachedLogLevelKey] as? String
