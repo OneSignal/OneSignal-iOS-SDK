@@ -38,6 +38,11 @@ private func osLogUncaughtExceptionHandler(_ exception: NSException) {
     OSLogCrashHandler.handleActive(exception)
 }
 
+struct OSResolvedStackFrame: Equatable {
+    let imagePath: String?
+    let symbolName: String?
+}
+
 final class OSCrashLogger: ILogger {
     func error(message: String) {
         NSLog("[OneSignal crash] ERROR: %@", message)
@@ -75,11 +80,6 @@ final class OSLogCrashHandler: ILogCrashHandler {
         "OneSignalOSCore",
         "OneSignalOutcomes",
         "OneSignalUser"
-    ]
-    private static let exceptionRuntimeModules: Set<String> = [
-        "CoreFoundation",
-        "libobjc",
-        "libobjc.A.dylib"
     ]
     private static let registryLock = NSLock()
     private static let handlingThreadKey = "com.onesignal.logger.handling-exception"
@@ -130,11 +130,19 @@ final class OSLogCrashHandler: ILogCrashHandler {
     }
 
     func handle(exception: NSException) {
-        handle(exception: exception, stackSymbols: exception.callStackSymbols)
+        handle(
+            exception: exception,
+            stackSymbols: exception.callStackSymbols,
+            resolvedFrames: Self.resolveStackFrames(exception.callStackReturnAddresses)
+        )
     }
 
-    func handle(exception: NSException, stackSymbols: [String]) {
-        guard Self.isOneSignalAtFault(stackSymbols) else {
+    func handle(
+        exception: NSException,
+        stackSymbols: [String],
+        resolvedFrames: [OSResolvedStackFrame]
+    ) {
+        guard Self.isOneSignalAtFault(resolvedFrames) else {
             previousExceptionHandler?(exception)
             return
         }
@@ -202,25 +210,79 @@ final class OSLogCrashHandler: ILogCrashHandler {
         }
     }
 
-    static func isOneSignalAtFault(_ stackSymbols: [String]) -> Bool {
-        for frame in stackSymbols {
-            guard let module = moduleName(from: frame) else {
-                continue
+    static func isOneSignalAtFault(_ frames: [OSResolvedStackFrame]) -> Bool {
+        frames.contains { frame in
+            guard let imagePath = frame.imagePath,
+                  !isSystemImage(imagePath) else {
+                return false
             }
-            if exceptionRuntimeModules.contains(module) {
-                continue
+            if oneSignalModules.contains(imageName(from: imagePath)) {
+                return true
             }
-            return oneSignalModules.contains(module)
+            guard let symbolName = frame.symbolName else {
+                return false
+            }
+            return isOneSignalSymbol(symbolName)
         }
-        return false
     }
 
-    private static func moduleName(from frame: String) -> String? {
-        let fields = frame.split(whereSeparator: { $0.isWhitespace })
-        guard fields.count > 1 else {
+    private static func resolveStackFrames(_ addresses: [NSNumber]) -> [OSResolvedStackFrame] {
+        addresses.map { address in
+            guard let pointer = UnsafeRawPointer(bitPattern: address.uintValue) else {
+                return OSResolvedStackFrame(imagePath: nil, symbolName: nil)
+            }
+            var info = Dl_info()
+            guard dladdr(pointer, &info) != 0 else {
+                return OSResolvedStackFrame(imagePath: nil, symbolName: nil)
+            }
+            return OSResolvedStackFrame(
+                imagePath: info.dli_fname.map { String(cString: $0) },
+                symbolName: info.dli_sname.map { String(cString: $0) }
+            )
+        }
+    }
+
+    private static func imageName(from path: String) -> String {
+        path.split(separator: "/").last.map(String.init) ?? path
+    }
+
+    private static func isSystemImage(_ path: String) -> Bool {
+        path.contains("/System/Library/") || path.contains("/usr/lib/")
+    }
+
+    private static func isOneSignalSymbol(_ symbol: String) -> Bool {
+        let symbolWithoutLeadingUnderscores = symbol.drop(while: { $0 == "_" })
+        if symbolWithoutLeadingUnderscores.hasPrefix("-[OneSignal")
+            || symbolWithoutLeadingUnderscores.hasPrefix("+[OneSignal")
+            || symbolWithoutLeadingUnderscores.hasPrefix("onesignal_")
+            || symbolWithoutLeadingUnderscores.contains("kfun:com.onesignal.") {
+            return true
+        }
+        guard let module = swiftModuleName(from: String(symbolWithoutLeadingUnderscores)) else {
+            return false
+        }
+        return oneSignalModules.contains(module)
+    }
+
+    private static func swiftModuleName(from symbol: String) -> String? {
+        guard symbol.hasPrefix("$s") else {
             return nil
         }
-        return String(fields[1])
+        let moduleLengthStart = symbol.index(symbol.startIndex, offsetBy: 2)
+        var moduleNameStart = moduleLengthStart
+        while moduleNameStart < symbol.endIndex, symbol[moduleNameStart].isNumber {
+            moduleNameStart = symbol.index(after: moduleNameStart)
+        }
+        guard moduleNameStart > moduleLengthStart,
+              let moduleLength = Int(symbol[moduleLengthStart..<moduleNameStart]),
+              let moduleNameEnd = symbol.index(
+                moduleNameStart,
+                offsetBy: moduleLength,
+                limitedBy: symbol.endIndex
+              ) else {
+            return nil
+        }
+        return String(symbol[moduleNameStart..<moduleNameEnd])
     }
 }
 

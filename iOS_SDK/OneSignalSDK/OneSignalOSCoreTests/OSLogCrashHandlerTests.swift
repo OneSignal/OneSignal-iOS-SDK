@@ -54,7 +54,13 @@ final class OSLogCrashHandlerTests: XCTestCase {
 
         handler.handle(
             exception: exception,
-            stackSymbols: ["0 OneSignalCore 0x000000 OneSignalExample + 1"]
+            stackSymbols: ["0 OneSignalCore 0x000000 OneSignalExample + 1"],
+            resolvedFrames: [
+                frame(
+                    "/private/var/containers/Bundle/Application/App/Frameworks/"
+                        + "OneSignalCore.framework/OneSignalCore"
+                )
+            ]
         )
 
         XCTAssertEqual(
@@ -70,49 +76,128 @@ final class OSLogCrashHandlerTests: XCTestCase {
 
         handler.handle(
             exception: NSException(name: NSExceptionName("HostException"), reason: nil),
-            stackSymbols: ["0 ExampleApp 0x000000 AppDelegate + 1"]
+            stackSymbols: ["0 ExampleApp 0x000000 AppDelegate + 1"],
+            resolvedFrames: [frame("/private/var/containers/Bundle/Application/App/ExampleApp")]
         )
 
         XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
     }
 
+    private func frame(_ imagePath: String, symbol: String? = nil) -> OSResolvedStackFrame {
+        OSResolvedStackFrame(imagePath: imagePath, symbolName: symbol)
+    }
+}
+
+final class OSLogCrashAttributionTests: XCTestCase {
     func testIgnoresOneSignalSubstringOutsideModuleField() {
         XCTAssertFalse(
-            OSLogCrashHandler.isOneSignalAtFault(
-                ["0 ExampleApp 0x000000 OneSignalNotificationCallback + 1"]
-            )
+            isOneSignal([frame(appPath, symbol: "OneSignalNotificationCallback")])
         )
     }
-
     func testRecognizesKnownOneSignalModule() {
-        XCTAssertTrue(
-            OSLogCrashHandler.isOneSignalAtFault(
-                ["0 OneSignalNotifications 0x000000 NotificationHandler + 1"]
-            )
-        )
+        XCTAssertTrue(isOneSignal([dynamicFrame("OneSignalNotifications")]))
     }
-
     func testRecognizesOneSignalKMPModule() {
+        XCTAssertTrue(isOneSignal([dynamicFrame("OneSignalKMP")]))
+    }
+    func testRecognizesOneSignalCallbackBelowHostThrowingFrame() {
         XCTAssertTrue(
-            OSLogCrashHandler.isOneSignalAtFault(
-                ["0 OneSignalKMP 0x000000 kfun:com.onesignal.logger.LogCrashReporter + 1"]
-            )
+            isOneSignal([
+                frame(appPath, symbol: "HostCallback"),
+                dynamicFrame("OneSignalCore", symbol: "OneSignalCallback")
+            ])
         )
     }
+    func testRecognizesFoundationOriginatedOneSignalCrash() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation"),
+                frame("/usr/lib/libobjc.A.dylib"),
+                frame("/System/Library/Frameworks/Foundation.framework/Foundation"),
+                dynamicFrame("OneSignalCore")
+            ])
+        )
+    }
+    func testRecognizesStaticFoundationOriginatedOneSignalCrash() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame("/System/Library/Frameworks/Foundation.framework/Foundation"),
+                frame(appPath, symbol: "-[OneSignalUserDefaults saveCodeableDataForKey:withValue:]")
+            ])
+        )
+    }
+    func testRecognizesStaticSwiftOneSignalModule() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame(appPath, symbol: "_$s13OneSignalUser19OSPropertyOperationC7execute")
+            ])
+        )
+    }
+    func testRecognizesStaticKotlinOneSignalSymbol() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame(appPath, symbol: "kfun:com.onesignal.logger.LogCrashReporter.saveCrash")
+            ])
+        )
+    }
+    func testRecognizesStaticNotificationProcessingStack() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame(appPath, symbol: "finishProcessingNotification"),
+                frame(appPath, symbol: "onesignal_Log")
+            ])
+        )
+    }
+    func testIgnoresGenericOSSymbol() {
+        XCTAssertFalse(isOneSignal([frame(appPath, symbol: "OSPropertyOperationExecutor")]))
+    }
 
-    func testIgnoresOneSignalCallbackBelowHostThrowingFrame() {
+    func testIgnoresOneSignalSymbolInSystemImage() {
         XCTAssertFalse(
-            OSLogCrashHandler.isOneSignalAtFault(
-                [
-                    "0 CoreFoundation 0x000000 __exceptionPreprocess + 1",
-                    "1 libobjc.A.dylib 0x000000 objc_exception_throw + 1",
-                    "2 ExampleApp 0x000000 HostCallback + 1",
-                    "3 OneSignalCore 0x000000 OneSignalCallback + 1"
-                ]
-            )
+            isOneSignal([frame("/usr/lib/libExample.dylib", symbol: "onesignal_Log")])
         )
     }
 
+    func testSkipsSimulatorSystemImage() {
+        XCTAssertTrue(
+            isOneSignal([
+                frame(
+                    "/Library/Developer/CoreSimulator/Volumes/iOS/RuntimeRoot/"
+                        + "System/Library/Frameworks/Foundation.framework/Foundation",
+                    symbol: "onesignal_Log"
+                ),
+                dynamicFrame("OneSignalOSCore")
+            ])
+        )
+    }
+
+    func testIgnoresUnresolvedAndEmptyStacks() {
+        XCTAssertFalse(
+            isOneSignal([OSResolvedStackFrame(imagePath: nil, symbolName: "onesignal_Log")])
+        )
+        XCTAssertFalse(isOneSignal([]))
+    }
+
+    private let appPath = "/private/var/containers/Bundle/Application/App/ExampleApp"
+
+    private func isOneSignal(_ frames: [OSResolvedStackFrame]) -> Bool {
+        OSLogCrashHandler.isOneSignalAtFault(frames)
+    }
+
+    private func frame(_ imagePath: String, symbol: String? = nil) -> OSResolvedStackFrame {
+        OSResolvedStackFrame(imagePath: imagePath, symbolName: symbol)
+    }
+
+    private func dynamicFrame(_ module: String, symbol: String? = nil) -> OSResolvedStackFrame {
+        frame(
+            "/private/var/containers/Bundle/Application/App/Frameworks/"
+                + "\(module).framework/\(module)",
+            symbol: symbol
+        )
+    }
+}
+
+extension OSLogCrashHandlerTests {
     func testDoesNotReplaceHostSignalHandler() {
         let handler = makeCrashHandler()
         let originalHandler = Darwin.signal(SIGABRT, osLogCrashTestSignalHandler)
@@ -271,6 +356,7 @@ final class OSLogCrashHandlerTests: XCTestCase {
             exporterLoggingEnabledProvider: { true }
         )
     }
+
 }
 
 private typealias TestSignalHandler = @convention(c) (Int32) -> Void
