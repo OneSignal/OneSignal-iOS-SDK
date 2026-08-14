@@ -293,22 +293,20 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 
 - (NSString *)setContentInsetsInHTML:(NSString *)html {
     NSMutableString *newHTML = [[NSMutableString alloc] initWithString:html];
-    if (@available(iOS 11, *)) {
-        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-        if (!keyWindow) {
-            return newHTML;
-        }
-        CGFloat top = keyWindow.safeAreaInsets.top;
-        CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-        CGFloat right = keyWindow.safeAreaInsets.right;
-        CGFloat left = keyWindow.safeAreaInsets.left;
-        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
-        NSString *insetsString = [NSString stringWithFormat:@"\n\n\
-                             <script> \
-                                setSafeAreaInsets(%@);\
-                             </script>",safeAreaInsetsObjectString];
-        [newHTML appendString: insetsString];
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    if (!keyWindow) {
+        return newHTML;
     }
+    CGFloat top = keyWindow.safeAreaInsets.top;
+    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
+    CGFloat right = keyWindow.safeAreaInsets.right;
+    CGFloat left = keyWindow.safeAreaInsets.left;
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+    NSString *insetsString = [NSString stringWithFormat:@"\n\n\
+                         <script> \
+                            setSafeAreaInsets(%@);\
+                         </script>",safeAreaInsetsObjectString];
+    [newHTML appendString: insetsString];
     return newHTML;
 }
 
@@ -365,19 +363,16 @@ OSInAppMessageInternal *_dismissingMessage = nil;
                    *center = self.view.centerXAnchor;
     NSLayoutDimension *height = self.view.heightAnchor;
     
-    // The safe area represents the anchors that are not obscurable by  UI such
+    // The safe area represents the anchors that are not obscurable by UI such
     // as a notch or a rounded corner on newer iOS devices like iPhone X
-    // Note that Safe Area layout guides were only introduced in iOS 11
-    if (@available(iOS 11, *)) {
-        if (!self.isFullscreen) {
-            let safeArea = self.view.safeAreaLayoutGuide;
-            top = safeArea.topAnchor;
-            bottom = safeArea.bottomAnchor;
-            leading = safeArea.leadingAnchor;
-            trailing = safeArea.trailingAnchor;
-            center = safeArea.centerXAnchor;
-            height = safeArea.heightAnchor;
-        }
+    if (!self.isFullscreen) {
+        let safeArea = self.view.safeAreaLayoutGuide;
+        top = safeArea.topAnchor;
+        bottom = safeArea.bottomAnchor;
+        leading = safeArea.leadingAnchor;
+        trailing = safeArea.trailingAnchor;
+        center = safeArea.centerXAnchor;
+        height = safeArea.heightAnchor;
     }
     
     CGRect mainBounds = [OneSignalCoreHelper getScreenBounds];
@@ -419,11 +414,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
     switch (self.message.position) {
-        case OSInAppMessageDisplayPositionTop:
-            if (@available(iOS 11, *)) {
-                UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
-                bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
-            }
+        case OSInAppMessageDisplayPositionTop: {
+            bannerHeight += self.view.window.safeAreaInsets.top + self.view.window.safeAreaInsets.bottom;
             double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
             bannerHeight += statusBarHeight;
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
@@ -434,12 +426,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
                                                                                     constant:(self.useHeightMargin ? marginSpacing : 0)];
             break;
-        case OSInAppMessageDisplayPositionBottom:
-            if (@available(iOS 11, *)) {
-                UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
-                bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
-                bannerMessageY = mainBounds.size.height - bannerHeight;
-            }
+        }
+        case OSInAppMessageDisplayPositionBottom: {
+            bannerHeight += self.view.window.safeAreaInsets.top + self.view.window.safeAreaInsets.bottom;
+            bannerMessageY = mainBounds.size.height - bannerHeight;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
@@ -448,15 +438,14 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
                                                                                        constant:(self.useHeightMargin ? -marginSpacing : 0)];
             break;
+        }
         case OSInAppMessageDisplayPositionFullScreen:
-        case OSInAppMessageDisplayPositionCenterModal:
+        case OSInAppMessageDisplayPositionCenterModal: {
             self.view.window.frame = mainBounds;
             NSLayoutAnchor *centerYanchor = self.view.centerYAnchor;
-            if (@available(iOS 11, *)) {
-                if (!self.isFullscreen) {
-                    let safeArea = self.view.safeAreaLayoutGuide;
-                    centerYanchor = safeArea.centerYAnchor;
-                }
+            if (!self.isFullscreen) {
+                let safeArea = self.view.safeAreaLayoutGuide;
+                centerYanchor = safeArea.centerYAnchor;
             }
 
             self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
@@ -464,6 +453,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
             self.messageView.transform = CGAffineTransformMakeScale(0, 0);
             break;
+        }
     }
     
     // We use different constraint priorities so that, by changing them, we can do stuff
