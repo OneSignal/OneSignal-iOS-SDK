@@ -92,6 +92,14 @@ final class OSLogCrashHandlerTests: XCTestCase {
         )
     }
 
+    func testRecognizesOneSignalKMPModule() {
+        XCTAssertTrue(
+            OSLogCrashHandler.isOneSignalAtFault(
+                ["0 OneSignalKMP 0x000000 kfun:com.onesignal.logger.LogCrashReporter + 1"]
+            )
+        )
+    }
+
     func testIgnoresOneSignalCallbackBelowHostThrowingFrame() {
         XCTAssertFalse(
             OSLogCrashHandler.isOneSignalAtFault(
@@ -219,7 +227,7 @@ final class OSLogCrashHandlerTests: XCTestCase {
         XCTAssertEqual(started, ["first"])
     }
 
-    func testUploaderCoordinatorCancelActiveStartsNext() {
+    func testUploaderCoordinatorCancelActiveWaitsForFinishBeforeStartingNext() {
         let coordinator = OSCrashUploaderCoordinator()
         let firstOwner = UUID()
         let secondOwner = UUID()
@@ -232,6 +240,8 @@ final class OSLogCrashHandlerTests: XCTestCase {
             started.append("second")
         }
         coordinator.cancel(owner: firstOwner)
+
+        XCTAssertEqual(started, ["first"])
         coordinator.finish(owner: firstOwner)
 
         XCTAssertEqual(started, ["first", "second"])

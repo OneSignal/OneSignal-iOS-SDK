@@ -133,19 +133,7 @@ final class OSCrashUploaderCoordinator {
     func cancel(owner: UUID) {
         lock.lock()
         pendingUploads.removeAll { $0.owner == owner }
-        guard activeOwner == owner else {
-            lock.unlock()
-            return
-        }
-        guard !pendingUploads.isEmpty else {
-            activeOwner = nil
-            lock.unlock()
-            return
-        }
-        let next = pendingUploads.removeFirst()
-        activeOwner = next.owner
         lock.unlock()
-        next.start()
     }
 
     func finish(owner: UUID) {
@@ -236,12 +224,13 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
     public func start() {
         lifecycleOperationLock.lock()
-        defer { lifecycleOperationLock.unlock() }
         guard lifecycle.start() else {
+            lifecycleOperationLock.unlock()
             return
         }
 
         crashHandler.initialize()
+        lifecycleOperationLock.unlock()
         let owner = uploaderOwner
         let crashUploader = self.crashUploader
         let logger = self.logger

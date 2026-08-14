@@ -68,6 +68,7 @@ final class OSLogCrashHandler: ILogCrashHandler {
         "OneSignalExtension",
         "OneSignalFramework",
         "OneSignalInAppMessages",
+        "OneSignalKMP",
         "OneSignalLiveActivities",
         "OneSignalLocation",
         "OneSignalNotifications",
