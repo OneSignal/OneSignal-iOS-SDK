@@ -59,25 +59,43 @@ public final class OSResilientStorage: NSObject {
     /// the NSE can read the same file. Falls back to the app's private
     /// Application Support directory when no App Group is entitled.
     private static func fileURL() -> URL? {
-        let fm = FileManager.default
+        let fileManager = FileManager.default
 
         let groupName = OneSignalUserDefaults.appGroupName()
-        if let container = fm.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
-            return container.appendingPathComponent(fileName)
+        if let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
+            do {
+                return try preparedFileURL(in: container, fileManager: fileManager)
+            } catch {
+                OneSignalLog.onesignalLog(
+                    .LL_WARN,
+                    message: "OSResilientStorage could not prepare the App Group container: \(error)"
+                )
+            }
         }
 
         do {
-            let support = try fm.url(
+            let support = try fileManager.url(
                 for: .applicationSupportDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
                 create: true
             )
-            return support.appendingPathComponent(fileName)
+            return try preparedFileURL(in: support, fileManager: fileManager)
         } catch {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSResilientStorage could not resolve a container URL: \(error)")
             return nil
         }
+    }
+
+    static func preparedFileURL(
+        in directory: URL,
+        fileManager: FileManager = .default
+    ) throws -> URL {
+        try fileManager.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+        )
+        return directory.appendingPathComponent(fileName)
     }
 
     /// Reads the cache file. Caller is responsible for queue-serialization.

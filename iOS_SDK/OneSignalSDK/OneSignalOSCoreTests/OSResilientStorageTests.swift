@@ -64,6 +64,18 @@ final class OSResilientStorageTests: XCTestCase {
         XCTAssertNil(OSResilientStorage.string(forKey: "never_written_\(UUID().uuidString)"))
     }
 
+    func testPreparedFileURL_createsMissingContainerForAtomicWrites() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let container = root.appendingPathComponent("group.example", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let fileURL = try OSResilientStorage.preparedFileURL(in: container)
+        try Data("value".utf8).write(to: fileURL, options: .atomic)
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
     func testSetWithNil_removesKey() {
         OSResilientStorage.setString("alpha", forKey: keyA)
         XCTAssertEqual(OSResilientStorage.string(forKey: keyA), "alpha")
