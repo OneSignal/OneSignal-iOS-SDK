@@ -27,7 +27,9 @@
 
 import Foundation
 import OneSignalFramework
+#if !targetEnvironment(macCatalyst)
 import OneSignalLiveActivities
+#endif
 
 /// Order tracking phases used by the Live Activity demo
 enum LiveActivityStatus: String, CaseIterable, Identifiable {
@@ -76,7 +78,9 @@ enum LiveActivityController {
 
     @available(iOS 16.1, *)
     static func setup() {
+        #if !targetEnvironment(macCatalyst)
         OneSignal.LiveActivities.setupDefault()
+        #endif
     }
 
     @available(iOS 16.1, *)
@@ -85,6 +89,7 @@ enum LiveActivityController {
         orderNumber: String,
         status: LiveActivityStatus
     ) {
+        #if !targetEnvironment(macCatalyst)
         let attributes: [String: Any] = [
             "orderNumber": orderNumber
         ]
@@ -98,6 +103,7 @@ enum LiveActivityController {
             attributes: attributes,
             content: content
         )
+        #endif
     }
 
     static func update(appId: String, activityId: String, status: LiveActivityStatus) async -> Bool {

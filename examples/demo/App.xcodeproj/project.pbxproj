@@ -364,7 +364,7 @@
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
 		ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
 		F46DFACB9F304B9374F3C570 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		"TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		"TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -582,10 +582,10 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
-		"TEMP_50803CDB-250B-41C8-93E2-9DF8EB2C4802" /* demo */ = {
+		"TEMP_17E43425-D1F7-4A88-B0A0-C0368CB0E171" /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */,
+				"TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */,
 			);
 			path = demo;
 			sourceTree = "<group>";
@@ -956,7 +956,7 @@
 /* Begin XCBuildConfiguration section */
 		0D2EF3911CA89837C30DB0D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -974,7 +974,7 @@
 		};
 		4A0C935808978B5A7673E412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1029,6 +1029,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1047,6 +1048,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -1055,7 +1057,7 @@
 		};
 		D0E56A85F1C385808720F94B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1077,7 +1079,7 @@
 		};
 		EB1CC3A930E09FEBECF9195D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1101,7 +1103,7 @@
 		};
 		F305A3E63851EE49DA2D190E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1124,7 +1126,7 @@
 		};
 		F5FD25168D9B32A08A468069 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_ABAB8D6F-E57E-4D74-98B6-E29157EB8D71" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
@@ -1176,6 +1178,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1201,6 +1204,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
