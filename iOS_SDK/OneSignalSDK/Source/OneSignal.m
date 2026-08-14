@@ -26,6 +26,7 @@
  */
 
 #import <stdatomic.h>
+#import <TargetConditionals.h>
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
@@ -206,6 +207,9 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (Class<OSLiveActivities>)LiveActivities {
+#if TARGET_OS_MACCATALYST
+    return [OSStubLiveActivities liveActivities];
+#else
     let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
     if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(liveActivities)]) {
         return [oneSignalLiveActivities performSelector:@selector(liveActivities)];
@@ -213,6 +217,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
         return [OSStubLiveActivities liveActivities];
     }
+#endif
 }
 
 + (Class<OSLocation>)Location {
@@ -440,12 +445,16 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)startLiveActivitiesManager {
+#if TARGET_OS_MACCATALYST
+    return;
+#else
     let oneSignalLiveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
     if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(start)]) {
         [oneSignalLiveActivities performSelector:@selector(start)];
     } else {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
     }
+#endif
 }
 
 + (void)delayInitializationForPrivacyConsent {
