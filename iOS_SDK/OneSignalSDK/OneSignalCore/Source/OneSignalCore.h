@@ -33,6 +33,7 @@
 #import <OneSignalCore/OSNotification+Internal.h>
 #import <OneSignalCore/OSNotificationClasses.h>
 #import <OneSignalCore/OneSignalLog.h>
+#import <OneSignalCore/OneSignalLogInternal.h>
 #import <OneSignalCore/NSURL+OneSignal.h>
 #import <OneSignalCore/NSString+OneSignal.h>
 #import <OneSignalCore/NSDateFormatter+OneSignal.h>

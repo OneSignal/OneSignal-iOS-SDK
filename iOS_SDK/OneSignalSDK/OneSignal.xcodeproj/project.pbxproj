@@ -75,6 +75,11 @@
 		3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */; };
 		3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */; };
 		3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */; };
+		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
+		25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
+		9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
+		ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */; };
+		7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */; };
 		3C19C6322E919F0C00D6731E /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */; };
 		3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */; };
 		3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */; };
@@ -438,6 +443,7 @@
 		DE7D1832270279D9002D3A5D /* OSNotificationClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183427027A73002D3A5D /* OneSignalLog.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183327027A73002D3A5D /* OneSignalLog.m */; };
 		DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183527027AA0002D3A5D /* OneSignalLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A7B30D5F3E124B58A41C9D20 /* OneSignalLogInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183827027CC4002D3A5D /* OneSignalAttachmentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183A27027CD7002D3A5D /* OneSignalAttachmentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */; };
 		DE7D183B27027EFC002D3A5D /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
@@ -1689,6 +1695,7 @@
 		DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSNotificationClasses.h; sourceTree = "<group>"; };
 		DE7D183327027A73002D3A5D /* OneSignalLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLog.m; sourceTree = "<group>"; };
 		DE7D183527027AA0002D3A5D /* OneSignalLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLog.h; sourceTree = "<group>"; };
+		C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLogInternal.h; sourceTree = "<group>"; };
 		DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalAttachmentHandler.h; sourceTree = "<group>"; };
 		DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalAttachmentHandler.m; sourceTree = "<group>"; };
 		DE7D1842270283B9002D3A5D /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk/System/Library/Frameworks/UserNotifications.framework; sourceTree = DEVELOPER_DIR; };
@@ -1789,6 +1796,10 @@
 		3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerPlatformProvider.swift; sourceTree = "<group>"; };
 		3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KotlinByteArray+Data.swift"; sourceTree = "<group>"; };
 		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
+		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
+		C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRemoteLoggingController.h; sourceTree = "<group>"; };
+		658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingControllerTests.swift; sourceTree = "<group>"; };
+		6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLogger.swift; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -2285,6 +2296,7 @@
 				3C14E3AA2FAE54C006ED053 /* OneSignalLogHttpSender.swift */,
 				3C14E3A92FAE54C006ED053 /* IOSLogger.swift */,
 				3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */,
+				6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -2665,6 +2677,7 @@
 				4746E2A62B86B64100D6324C /* LiveActivitiesSwiftTests.swift */,
 				4746E2AA2B8775C400D6324C /* LiveActivitiesObjcTests.m */,
 				3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */,
+				658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -2697,6 +2710,8 @@
 				3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */,
 				3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */,
 				DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */,
+				C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */,
+				8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */,
 				3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */,
 			);
 			path = Source;
@@ -2815,6 +2830,7 @@
 				4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */,
 				DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */,
 				DE7D183527027AA0002D3A5D /* OneSignalLog.h */,
+				C2F81A6D904B47E3B5A02C11 /* OneSignalLogInternal.h */,
 				DE7D183327027A73002D3A5D /* OneSignalLog.m */,
 				3CCF44BC299B17290021964D /* OneSignalWrapper.h */,
 				3CCF44BD299B17290021964D /* OneSignalWrapper.m */,
@@ -3373,6 +3389,7 @@
 				DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */,
 				3CE8CC4E2911ADD1000DB0D3 /* OSDeviceUtils.h in Headers */,
 				DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */,
+				A7B30D5F3E124B58A41C9D20 /* OneSignalLogInternal.h in Headers */,
 				3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */,
 				3CCF44BE299B17290021964D /* OneSignalWrapper.h in Headers */,
 				DE7D182D270273B0002D3A5D /* OSNotification.h in Headers */,
@@ -4379,6 +4396,7 @@
 				9124120E1E73342200E41FD7 /* OneSignal.m in Sources */,
 				9124121E1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */,
+				B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */,
 				912412471E73369600E41FD7 /* OneSignalHelper.m in Sources */,
 				CA8E19062193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				7AAA60682485D0420004FADE /* OSMigrationController.m in Sources */,
@@ -4424,6 +4442,7 @@
 				3C14E3B12FAE54C006ED053 /* OneSignalLogHttpSender.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C14E3B02FAE54C006ED053 /* IOSLogger.swift in Sources */,
+				7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				5BC1DE5E2C90B80E00CA8807 /* OSCondition.swift in Sources */,
@@ -4530,6 +4549,7 @@
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				7AECE59F23675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
 				DEC08B012947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */,
+				25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */,
 				CA1A6E7120DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				7A674F1C2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
@@ -4624,6 +4644,7 @@
 				CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */,
 				5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */,
 				3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */,
+				ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */,
 				CA8E19022193C6B0009DA223 /* InAppMessagingIntegrationTests.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				7AECE59223674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
@@ -4654,6 +4675,7 @@
 				03CCCC852835F291004BF794 /* UIApplicationDelegateSwizzlingTests.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				DEC08B022947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */,
+				9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */,
 				7A93269E25AF4F0300BBEC27 /* OSPendingCallbacks.m in Sources */,
 				7AECE59823674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				7A5A818224897693002E07C8 /* MigrationTests.m in Sources */,

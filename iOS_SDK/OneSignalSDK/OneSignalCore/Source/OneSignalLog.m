@@ -26,7 +26,9 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <os/lock.h>
 #import "OneSignalLog.h"
+#import "OneSignalLogInternal.h"
 #import "OSDialogInstanceManager.h"
 #import "OSCopyOnWriteSet.h"
 
@@ -42,6 +44,8 @@
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
+static os_unfair_lock _internalLogSinkLock = OS_UNFAIR_LOCK_INIT;
+static NSObject<OSInternalLogSink> *_internalLogSink;
 
 + (Class<OSDebug>)Debug {
     return self;
@@ -70,6 +74,20 @@ static ONE_S_LOG_LEVEL _alertLogLevel = ONE_S_LL_NONE;
 
 + (void)removeLogListener:(NSObject<OSLogListener>*_Nonnull)listener {
     [self.logListeners removeObject:listener];
+}
+
++ (void)setInternalLogSink:(NSObject<OSInternalLogSink> *)sink {
+    os_unfair_lock_lock(&_internalLogSinkLock);
+    _internalLogSink = sink;
+    os_unfair_lock_unlock(&_internalLogSinkLock);
+}
+
++ (void)removeInternalLogSink:(NSObject<OSInternalLogSink> *)sink {
+    os_unfair_lock_lock(&_internalLogSinkLock);
+    if (_internalLogSink == sink) {
+        _internalLogSink = nil;
+    }
+    os_unfair_lock_unlock(&_internalLogSinkLock);
 }
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
@@ -112,6 +130,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (logLevel <= _alertLogLevel) {
         [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
+
+    os_unfair_lock_lock(&_internalLogSinkLock);
+    NSObject<OSInternalLogSink> *internalLogSink = _internalLogSink;
+    os_unfair_lock_unlock(&_internalLogSinkLock);
+    [internalLogSink captureLogWithLevel:logLevel
+                                message:message
+                          exceptionType:nil
+                       exceptionMessage:nil
+                    exceptionStacktrace:nil];
 
     for (NSObject<OSLogListener> *listener in OneSignalLog.logListeners.allObjects) {
         if ([listener respondsToSelector:@selector(onLogEvent:)]) {

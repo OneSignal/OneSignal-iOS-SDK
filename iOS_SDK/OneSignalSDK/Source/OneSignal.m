@@ -29,6 +29,7 @@
 #import "OneSignalFramework.h"
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 #import "OneSignalInternal.h"
+#import "OSRemoteLoggingController.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalJailbreakDetection.h"
@@ -137,6 +138,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
+    [OSRemoteLoggingController reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -233,6 +235,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  Note: wrappers may call this method with a null appId.
  */
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions {
+    [OSRemoteLoggingController configureFromCacheForAppId:newAppId ?: OneSignalIdentifiers.storedAppId];
     [self setAppId:newAppId];
     [self setLaunchOptions:launchOptions];
     [self init];
@@ -283,7 +286,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  1/2 steps in OneSignal init, relying on setAppId (usage order does not matter)
  Sets the iOS sepcific app settings
  Method must be called to successfully init OneSignal
- Note: While this is called via `initialize`, it is also called directly from wrapper SDKs.
  */
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
@@ -585,7 +587,7 @@ static BOOL ComputeInitialStorageReadable(void) {
     OSBackgroundTaskManager.taskHandler = [OSBackgroundTaskHandlerImpl new];
 
     [self registerForAPNsToken];
-    
+
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && OneSignalIdentifiers.currentAppId && OneSignalIdentifiers.currentAppId != (id)[NSNull null])
@@ -654,6 +656,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
+        [OSRemoteLoggingController reset];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
@@ -735,6 +738,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         }
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
+        [OSRemoteLoggingController configure];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
             let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);

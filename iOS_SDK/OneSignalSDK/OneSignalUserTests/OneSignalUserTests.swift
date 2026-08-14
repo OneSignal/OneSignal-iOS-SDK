@@ -31,7 +31,7 @@ import OneSignalCoreMocks
 import OneSignalUserMocks
 // Testable import OSCore to allow setting a different poll flush interval
 @testable import OneSignalOSCore
-@testable import OneSignalUser
+@_spi(OneSignalInternal) @testable import OneSignalUser
 
 final class OneSignalUserTests: XCTestCase {
 
@@ -47,6 +47,15 @@ final class OneSignalUserTests: XCTestCase {
     }
 
     override func tearDownWithError() throws { }
+
+    func testInternalOnesignalIdTracksCurrentUser() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+        XCTAssertEqual(manager.internalOnesignalId, "osid-a")
+
+        OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-b", onesignalId: "osid-b")
+        XCTAssertEqual(manager.internalOnesignalId, "osid-b")
+    }
 
     // Comparable to Android test: "externalId is backed by the identity model"
     func testLoginSetsExternalId() throws {

@@ -690,7 +690,12 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "onesignalId") else {
             return nil
         }
-        return _user?.identityModel.onesignalId
+        return internalOnesignalId
+    }
+
+    @_spi(OneSignalInternal)
+    public var internalOnesignalId: String? {
+        _user?.identityModel.onesignalId
     }
 
     public func addObserver(_ observer: OSUserStateObserver) {
