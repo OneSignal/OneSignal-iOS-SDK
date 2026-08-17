@@ -48,7 +48,7 @@ final class OSCrashLogger: ILogger {
     private let write: (String) -> Void
 
     init(
-        consoleLogLevel: @escaping () -> ONE_S_LOG_LEVEL = { OneSignalLog.getLogLevel() },
+        consoleLogLevel: @escaping () -> ONE_S_LOG_LEVEL = { OneSignalLog.getLevel() },
         write: @escaping (String) -> Void = { NSLog("%@", $0) }
     ) {
         self.consoleLogLevel = consoleLogLevel
