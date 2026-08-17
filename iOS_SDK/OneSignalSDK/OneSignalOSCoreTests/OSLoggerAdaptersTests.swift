@@ -206,6 +206,46 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertEqual(listener.levels, [.LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG])
     }
 
+    func testCrashLoggerHonorsConsoleLogLevelWithoutOneSignalLog() {
+        let listener = LoggerAdapterListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        var lines: [String] = []
+        let logger = OSCrashLogger(
+            consoleLogLevel: { .LL_WARN },
+            write: { lines.append($0) }
+        )
+
+        logger.error(message: "error")
+        logger.warn(message: "warn")
+        logger.info(message: "info")
+        logger.debug(message: "debug")
+
+        XCTAssertEqual(
+            lines,
+            [
+                "[OneSignal crash] ERROR: error",
+                "[OneSignal crash] WARN: warn"
+            ]
+        )
+        XCTAssertTrue(listener.levels.isEmpty)
+    }
+
+    func testCrashLoggerSilentWhenConsoleLogLevelIsNone() {
+        var lines: [String] = []
+        let logger = OSCrashLogger(
+            consoleLogLevel: { .LL_NONE },
+            write: { lines.append($0) }
+        )
+
+        logger.error(message: "error")
+        logger.warn(message: "warn")
+        logger.info(message: "info")
+        logger.debug(message: "debug")
+
+        XCTAssertTrue(lines.isEmpty)
+    }
+
     func testKmpPipelineInvokesSwiftAdapters() throws {
         let listener = LoggerAdapterListener()
         OneSignalLog.debug().__add(listener)
@@ -236,6 +276,18 @@ final class OSLoggerAdaptersTests: XCTestCase {
                 .count,
             1
         )
+    }
+
+    func testPlatformProviderAppIdFallsBackToStoredAppIdBeforeSetAppId() {
+        let previous = OneSignalIdentifiers.currentAppId
+        defer {
+            OneSignalIdentifiers.currentAppId = previous
+            OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_APP_ID)
+        }
+        OneSignalIdentifiers.currentAppId = nil
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_APP_ID, withValue: "stored-app-id")
+
+        XCTAssertEqual(makePlatformProvider().appId, "stored-app-id")
     }
 
     func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {

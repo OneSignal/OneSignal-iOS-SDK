@@ -30,6 +30,7 @@
 
 import Darwin
 import Foundation
+import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
 private typealias OSExceptionHandler = @convention(c) (NSException) -> Void
@@ -43,21 +44,41 @@ struct OSResolvedStackFrame: Equatable {
     let symbolName: String?
 }
 
+/// Prints KMP crash-reporter diagnostics with `NSLog`. Honors the console log level
+/// without going through `OneSignalLog` (listeners, alert UI, remote sink).
 final class OSCrashLogger: ILogger {
+    private let consoleLogLevel: () -> ONE_S_LOG_LEVEL
+    private let write: (String) -> Void
+
+    init(
+        consoleLogLevel: @escaping () -> ONE_S_LOG_LEVEL = { OneSignalLog.getLogLevel() },
+        write: @escaping (String) -> Void = { NSLog("%@", $0) }
+    ) {
+        self.consoleLogLevel = consoleLogLevel
+        self.write = write
+    }
+
     func error(message: String) {
-        NSLog("[OneSignal crash] ERROR: %@", message)
+        emit(.LL_ERROR, label: "ERROR", message: message)
     }
 
     func warn(message: String) {
-        NSLog("[OneSignal crash] WARN: %@", message)
+        emit(.LL_WARN, label: "WARN", message: message)
     }
 
     func info(message: String) {
-        NSLog("[OneSignal crash] INFO: %@", message)
+        emit(.LL_INFO, label: "INFO", message: message)
     }
 
     func debug(message: String) {
-        NSLog("[OneSignal crash] DEBUG: %@", message)
+        emit(.LL_DEBUG, label: "DEBUG", message: message)
+    }
+
+    private func emit(_ level: ONE_S_LOG_LEVEL, label: String, message: String) {
+        guard level.rawValue <= consoleLogLevel().rawValue else {
+            return
+        }
+        write("[OneSignal crash] \(label): \(message)")
     }
 }
 

@@ -115,7 +115,7 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
     var appId: String? {
-        OneSignalIdentifiers.currentAppId
+        OneSignalIdentifiers.currentAppId ?? OneSignalIdentifiers.storedAppId
     }
 
     var onesignalId: String? {
