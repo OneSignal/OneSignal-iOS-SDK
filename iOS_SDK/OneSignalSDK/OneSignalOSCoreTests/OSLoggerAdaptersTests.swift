@@ -166,6 +166,32 @@ final class OSLoggerAdaptersTests: XCTestCase {
         wait(for: [sent], timeout: 2)
     }
 
+    func testHttpSenderDoesNotStartRequestWhenDisabled() {
+        var requestStarted = false
+        let sender = OneSignalLogHttpSender(
+            requestSender: { _, _ in requestStarted = true },
+            executeIfEnabled: { _ in false }
+        )
+        let request = LogHttpRequest(
+            url: "https://example.com/sdk/log",
+            headers: [:],
+            contentType: "application/x-protobuf",
+            body: makeKotlinBytes([1])
+        )
+        let sent = expectation(description: "returns disabled response")
+
+        sender.send(request: request) { response, error in
+            XCTAssertNil(error)
+            XCTAssertFalse(response?.success == true)
+            XCTAssertEqual(response?.statusCode, -2)
+            XCTAssertEqual(response?.message, "Remote logging is disabled")
+            sent.fulfill()
+        }
+
+        wait(for: [sent], timeout: 2)
+        XCTAssertFalse(requestStarted)
+    }
+
     func testLoggerDelegatesToOneSignalLog() {
         let listener = LoggerAdapterListener()
         OneSignalLog.debug().__add(listener)
@@ -178,6 +204,46 @@ final class OSLoggerAdaptersTests: XCTestCase {
         logger.debug(message: "debug")
 
         XCTAssertEqual(listener.levels, [.LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG])
+    }
+
+    func testCrashLoggerHonorsConsoleLogLevelWithoutOneSignalLog() {
+        let listener = LoggerAdapterListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        var lines: [String] = []
+        let logger = OSCrashLogger(
+            consoleLogLevel: { .LL_WARN },
+            write: { lines.append($0) }
+        )
+
+        logger.error(message: "error")
+        logger.warn(message: "warn")
+        logger.info(message: "info")
+        logger.debug(message: "debug")
+
+        XCTAssertEqual(
+            lines,
+            [
+                "[OneSignal crash] ERROR: error",
+                "[OneSignal crash] WARN: warn"
+            ]
+        )
+        XCTAssertTrue(listener.levels.isEmpty)
+    }
+
+    func testCrashLoggerSilentWhenConsoleLogLevelIsNone() {
+        var lines: [String] = []
+        let logger = OSCrashLogger(
+            consoleLogLevel: { .LL_NONE },
+            write: { lines.append($0) }
+        )
+
+        logger.error(message: "error")
+        logger.warn(message: "warn")
+        logger.info(message: "info")
+        logger.debug(message: "debug")
+
+        XCTAssertTrue(lines.isEmpty)
     }
 
     func testKmpPipelineInvokesSwiftAdapters() throws {
@@ -210,6 +276,18 @@ final class OSLoggerAdaptersTests: XCTestCase {
                 .count,
             1
         )
+    }
+
+    func testPlatformProviderAppIdFallsBackToStoredAppIdBeforeSetAppId() {
+        let previous = OneSignalIdentifiers.currentAppId
+        defer {
+            OneSignalIdentifiers.currentAppId = previous
+            OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_APP_ID)
+        }
+        OneSignalIdentifiers.currentAppId = nil
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_APP_ID, withValue: "stored-app-id")
+
+        XCTAssertEqual(makePlatformProvider().appId, "stored-app-id")
     }
 
     func testPlatformProviderReturnsInjectedIdentifiersAndPlatformMetadata() {

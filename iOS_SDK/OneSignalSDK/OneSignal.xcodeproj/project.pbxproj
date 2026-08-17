@@ -75,11 +75,13 @@
 		3C14E3B32FAE54C006ED053 /* OSLoggerPlatformProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */; };
 		3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */; };
 		3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */; };
+		C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */; };
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */; };
 		7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */; };
+		698F58A488FCE503DFD5247F /* OSLogCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */; };
 		3C19C6322E919F0C00D6731E /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */; };
 		3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */; };
 		3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */; };
@@ -1796,10 +1798,12 @@
 		3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerPlatformProvider.swift; sourceTree = "<group>"; };
 		3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KotlinByteArray+Data.swift"; sourceTree = "<group>"; };
 		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
+		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
 		C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRemoteLoggingController.h; sourceTree = "<group>"; };
 		658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingControllerTests.swift; sourceTree = "<group>"; };
 		6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLogger.swift; sourceTree = "<group>"; };
+		ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandler.swift; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -2295,6 +2299,7 @@
 				3C14E3AB2FAE54C006ED053 /* FileLogStore.swift */,
 				3C14E3AA2FAE54C006ED053 /* OneSignalLogHttpSender.swift */,
 				3C14E3A92FAE54C006ED053 /* IOSLogger.swift */,
+				ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */,
 				3C14E3AC2FAE54C006ED053 /* OSLoggerPlatformProvider.swift */,
 				6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */,
 			);
@@ -2569,6 +2574,7 @@
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
 				3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */,
+				3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -4442,6 +4448,7 @@
 				3C14E3B12FAE54C006ED053 /* OneSignalLogHttpSender.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C14E3B02FAE54C006ED053 /* IOSLogger.swift in Sources */,
+				698F58A488FCE503DFD5247F /* OSLogCrashHandler.swift in Sources */,
 				7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
@@ -4604,6 +4611,7 @@
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
 				3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */,
+				C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

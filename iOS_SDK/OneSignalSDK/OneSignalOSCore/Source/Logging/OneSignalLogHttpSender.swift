@@ -35,6 +35,7 @@ import Foundation
 final class OneSignalLogHttpSender: ILogHttpSender {
     private static let requestTimeout: TimeInterval = 10
     private static let transportFailureStatusCode: Int32 = -1
+    private static let disabledStatusCode: Int32 = -2
     private static let maximumDiagnosticBodyLength = 500
     private static let defaultSession: URLSession = {
         let configuration = URLSessionConfiguration.default
@@ -51,28 +52,39 @@ final class OneSignalLogHttpSender: ILogHttpSender {
     init(
         session: URLSession = OneSignalLogHttpSender.defaultSession,
         logger: ILogger = IOSLogger(),
-        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+        isDiagnosticsEnabled: @escaping () -> Bool = { false },
+        executeIfEnabled: @escaping (@escaping () -> Void) -> Bool = { work in
+            work()
+            return true
+        }
     ) {
         self.requestSender = { request, completion in
             session.dataTask(with: request, completionHandler: completion).resume()
         }
         self.logger = logger
         self.isDiagnosticsEnabled = isDiagnosticsEnabled
+        self.executeIfEnabled = executeIfEnabled
     }
 
     init(
         requestSender: @escaping RequestSender,
         logger: ILogger = IOSLogger(),
-        isDiagnosticsEnabled: @escaping () -> Bool = { false }
+        isDiagnosticsEnabled: @escaping () -> Bool = { false },
+        executeIfEnabled: @escaping (@escaping () -> Void) -> Bool = { work in
+            work()
+            return true
+        }
     ) {
         self.requestSender = requestSender
         self.logger = logger
         self.isDiagnosticsEnabled = isDiagnosticsEnabled
+        self.executeIfEnabled = executeIfEnabled
     }
 
     private let requestSender: RequestSender
     private let logger: ILogger
     private let isDiagnosticsEnabled: () -> Bool
+    private let executeIfEnabled: (@escaping () -> Void) -> Bool
 
     func send(
         request: LogHttpRequest,
@@ -96,60 +108,97 @@ final class OneSignalLogHttpSender: ILogHttpSender {
         urlRequest.setValue(request.contentType, forHTTPHeaderField: "Content-Type")
         request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 
-        requestSender(urlRequest) { data, response, error in
-            if let error = error {
-                if self.isDiagnosticsEnabled() {
-                    self.logger.warn(
-                        message: "OneSignalLogHttpSender: POST \(request.url) failed: \(error.localizedDescription)"
-                    )
-                }
-                completionHandler(
-                    LogHttpResponse(
-                        success: false,
-                        statusCode: Self.transportFailureStatusCode,
-                        message: error.localizedDescription
-                    ),
-                    nil
+        let didStart = executeIfEnabled {
+            self.requestSender(urlRequest) { data, response, error in
+                self.handleResponse(
+                    data: data,
+                    response: response,
+                    error: error,
+                    request: request,
+                    completionHandler: completionHandler
                 )
-                return
             }
-
-            guard let response = response as? HTTPURLResponse else {
-                completionHandler(
-                    LogHttpResponse(
-                        success: false,
-                        statusCode: Self.transportFailureStatusCode,
-                        message: "Missing HTTP response"
-                    ),
-                    nil
-                )
-                return
-            }
-
-            let success = (200...299).contains(response.statusCode)
-            let responseBody = data.flatMap { String(data: $0, encoding: .utf8) }
-            if self.isDiagnosticsEnabled() {
-                if success {
-                    self.logger.debug(
-                        message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) OK "
-                            + "(\(request.body.size)B)"
-                    )
-                } else {
-                    self.logger.warn(
-                        message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) "
-                            + "(ct=\(request.contentType), \(request.body.size)B) "
-                            + "body=\(responseBody.map(Self.truncatedDiagnosticBody) ?? "nil")"
-                    )
-                }
-            }
-
+        }
+        if !didStart {
             completionHandler(
                 LogHttpResponse(
-                    success: success,
-                    statusCode: Int32(response.statusCode),
-                    message: success ? nil : responseBody
+                    success: false,
+                    statusCode: Self.disabledStatusCode,
+                    message: "Remote logging is disabled"
                 ),
                 nil
+            )
+        }
+    }
+
+    private func handleResponse(
+        data: Data?,
+        response: URLResponse?,
+        error: Error?,
+        request: LogHttpRequest,
+        completionHandler: @escaping (LogHttpResponse?, Error?) -> Void
+    ) {
+        if let error = error {
+            if isDiagnosticsEnabled() {
+                logger.warn(
+                    message: "OneSignalLogHttpSender: POST \(request.url) failed: \(error.localizedDescription)"
+                )
+            }
+            completionHandler(
+                LogHttpResponse(
+                    success: false,
+                    statusCode: Self.transportFailureStatusCode,
+                    message: error.localizedDescription
+                ),
+                nil
+            )
+            return
+        }
+
+        guard let response = response as? HTTPURLResponse else {
+            completionHandler(
+                LogHttpResponse(
+                    success: false,
+                    statusCode: Self.transportFailureStatusCode,
+                    message: "Missing HTTP response"
+                ),
+                nil
+            )
+            return
+        }
+
+        let success = (200...299).contains(response.statusCode)
+        let responseBody = data.flatMap { String(data: $0, encoding: .utf8) }
+        logDiagnostic(response: response, request: request, success: success, responseBody: responseBody)
+        completionHandler(
+            LogHttpResponse(
+                success: success,
+                statusCode: Int32(response.statusCode),
+                message: success ? nil : responseBody
+            ),
+            nil
+        )
+    }
+
+    private func logDiagnostic(
+        response: HTTPURLResponse,
+        request: LogHttpRequest,
+        success: Bool,
+        responseBody: String?
+    ) {
+        guard isDiagnosticsEnabled() else {
+            return
+        }
+        if success {
+            logger.debug(
+                message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) OK "
+                    + "(\(request.body.size)B)"
+            )
+        } else {
+            logger.warn(
+                message: "OneSignalLogHttpSender: POST \(request.url) -> \(response.statusCode) "
+                    + "(ct=\(request.contentType), \(request.body.size)B) "
+                    + "body=\(responseBody.map(Self.truncatedDiagnosticBody) ?? "nil")"
             )
         }
     }

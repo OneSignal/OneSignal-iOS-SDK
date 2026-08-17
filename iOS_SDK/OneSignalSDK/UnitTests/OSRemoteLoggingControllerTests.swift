@@ -193,6 +193,27 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         wait(for: [constructed, configured], timeout: 2)
     }
 
+    func testStartsOnlyLoggerThatWinsReentrantConfiguration() {
+        var controller: OSRemoteLoggingController!
+        var loggers: [RemoteTelemetrySpy] = []
+        var didReenter = false
+        controller = makeController { _ in
+            let logger = RemoteTelemetrySpy()
+            loggers.append(logger)
+            if !didReenter {
+                didReenter = true
+                controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+            }
+            return logger
+        }
+
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+
+        XCTAssertEqual(loggers.count, 2)
+        XCTAssertEqual(loggers.map(\.startCount).reduce(0, +), 1)
+        XCTAssertEqual(loggers.map(\.shutdownCount).reduce(0, +), 1)
+    }
+
     func testStartupDiagnosticCanResetControllerWithoutDeadlock() {
         let reset = expectation(description: "resets from startup diagnostic listener")
         let telemetry = RemoteTelemetrySpy()
@@ -260,7 +281,14 @@ private final class RemoteTelemetrySpy: OSStructuredRemoteLoggerProtocol {
     private(set) var exceptionTypes: [String?] = []
     private(set) var exceptionMessages: [String?] = []
     private(set) var exceptionStacktraces: [String?] = []
+    private(set) var startCount = 0
     private(set) var shutdownCount = 0
+
+    func start() {
+        lock.lock()
+        startCount += 1
+        lock.unlock()
+    }
 
     func log(level: String, message: String) {
         log(
