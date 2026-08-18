@@ -41,19 +41,6 @@ struct OSResolvedStackFrame: Equatable {
     let symbolName: String?
 }
 
-@_spi(OneSignalTesting)
-public enum OSCrashTest {
-    /// Raises from OneSignalOSCore so the production attribution path recognizes the crash.
-    @inline(never)
-    public static func raiseException(reason: String) {
-        NSException(
-            name: NSExceptionName("RuntimeException"),
-            reason: reason,
-            userInfo: nil
-        ).raise()
-    }
-}
-
 /// Prints KMP crash-reporter diagnostics with `NSLog`. Honors the console log level
 /// without going through `OneSignalLog` (listeners, alert UI, remote sink).
 final class OSCrashLogger: ILogger {

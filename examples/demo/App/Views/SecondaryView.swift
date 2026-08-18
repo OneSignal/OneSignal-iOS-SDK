@@ -26,7 +26,7 @@
  */
 
 import Foundation
-@_spi(OneSignalTesting) import OneSignalOSCore
+@_spi(OneSignalTesting) import OneSignalFramework
 import SwiftUI
 
 /// Isolated screen for the test-crash action, matching Android's SecondaryActivity.
