@@ -8,6 +8,9 @@ Pod::Spec.new do |s|
   
   s.source           = { :git => "https://github.com/OneSignal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
   s.platform         = :ios, "11.0"
+  s.pod_target_xcconfig = {
+    'IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]' => '14.0'
+  }
   s.requires_arc     = true
   s.default_subspec = "OneSignalComplete"
     

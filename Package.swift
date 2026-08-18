@@ -1,10 +1,14 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "OneSignalFramework", // Package name MUST be on line 7 for release automation
+    platforms: [
+        .iOS(.v11),
+        .macCatalyst(.v14),
+    ],
     products: [
         .library(
             name: "OneSignalFramework",
