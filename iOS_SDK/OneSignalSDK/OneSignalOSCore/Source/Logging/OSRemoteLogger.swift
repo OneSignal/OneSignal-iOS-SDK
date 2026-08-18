@@ -52,8 +52,6 @@ public extension OSRemoteLoggerProtocol {
     func start() {}
 }
 
-#if !targetEnvironment(macCatalyst)
-
 @_implementationOnly import OneSignalKMP
 
 private final class OSRemoteLoggerLifecycle {
@@ -157,6 +155,12 @@ final class OSCrashUploaderCoordinator {
 /// Owns the KMP-specific logger composition while exposing a platform-neutral
 /// lifecycle API to the umbrella framework.
 public final class OSRemoteLogger: OSRemoteLoggerProtocol {
+    @_spi(OneSignalInternal)
+    public typealias RequestSender = (
+        URLRequest,
+        @escaping (Data?, URLResponse?, Error?) -> Void
+    ) -> Void
+
     private let telemetry: ILogTelemetryRemote
     private let platformProvider: OSLoggerPlatformProvider
     private let crashHandler: ILogCrashHandler
@@ -166,7 +170,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
-    public init(
+    public convenience init(
         installIdProvider: @escaping () -> String,
         onesignalIdProvider: @escaping () -> String?,
         pushSubscriptionIdProvider: @escaping () -> String?,
@@ -174,6 +178,51 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         featureFlagsProvider: @escaping () -> [String],
         remoteLogLevelProvider: @escaping () -> String?,
         exporterLoggingEnabledProvider: @escaping () -> Bool
+    ) {
+        self.init(
+            installIdProvider: installIdProvider,
+            onesignalIdProvider: onesignalIdProvider,
+            pushSubscriptionIdProvider: pushSubscriptionIdProvider,
+            appStateProvider: appStateProvider,
+            featureFlagsProvider: featureFlagsProvider,
+            remoteLogLevelProvider: remoteLogLevelProvider,
+            exporterLoggingEnabledProvider: exporterLoggingEnabledProvider,
+            requestSenderOverride: nil
+        )
+    }
+
+    @_spi(OneSignalInternal)
+    public convenience init(
+        installIdProvider: @escaping () -> String,
+        onesignalIdProvider: @escaping () -> String?,
+        pushSubscriptionIdProvider: @escaping () -> String?,
+        appStateProvider: @escaping () -> String,
+        featureFlagsProvider: @escaping () -> [String],
+        remoteLogLevelProvider: @escaping () -> String?,
+        exporterLoggingEnabledProvider: @escaping () -> Bool,
+        requestSender: @escaping RequestSender
+    ) {
+        self.init(
+            installIdProvider: installIdProvider,
+            onesignalIdProvider: onesignalIdProvider,
+            pushSubscriptionIdProvider: pushSubscriptionIdProvider,
+            appStateProvider: appStateProvider,
+            featureFlagsProvider: featureFlagsProvider,
+            remoteLogLevelProvider: remoteLogLevelProvider,
+            exporterLoggingEnabledProvider: exporterLoggingEnabledProvider,
+            requestSenderOverride: requestSender
+        )
+    }
+
+    private init(
+        installIdProvider: @escaping () -> String,
+        onesignalIdProvider: @escaping () -> String?,
+        pushSubscriptionIdProvider: @escaping () -> String?,
+        appStateProvider: @escaping () -> String,
+        featureFlagsProvider: @escaping () -> [String],
+        remoteLogLevelProvider: @escaping () -> String?,
+        exporterLoggingEnabledProvider: @escaping () -> Bool,
+        requestSenderOverride: RequestSender?
     ) {
         let provider = OSLoggerPlatformProvider(
             installIdProvider: installIdProvider,
@@ -188,15 +237,15 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let crashLogger = OSCrashLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
+        let httpSender = Self.makeHttpSender(
+            requestSender: requestSenderOverride,
+            logger: logger,
+            isDiagnosticsEnabled: exporterLoggingEnabledProvider,
+            lifecycle: lifecycle
+        )
         let remoteTelemetry = LoggerFactory.shared.createRemoteTelemetry(
             platformProvider: provider,
-            httpSender: OneSignalLogHttpSender(
-                logger: logger,
-                isDiagnosticsEnabled: exporterLoggingEnabledProvider,
-                executeIfEnabled: { work in
-                    lifecycle.performIfTransportActive(work)
-                }
-            )
+            httpSender: httpSender
         )
         let crashTelemetry = LoggerFactory.shared.createCrashLocalTelemetry(
             platformProvider: provider,
@@ -220,6 +269,30 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         self.crashUploader = crashUploader
         self.logger = logger
         self.lifecycle = lifecycle
+    }
+
+    private static func makeHttpSender(
+        requestSender: RequestSender?,
+        logger: ILogger,
+        isDiagnosticsEnabled: @escaping () -> Bool,
+        lifecycle: OSRemoteLoggerLifecycle
+    ) -> OneSignalLogHttpSender {
+        let executeIfEnabled: (@escaping () -> Void) -> Bool = { work in
+            lifecycle.performIfTransportActive(work)
+        }
+        if let requestSender {
+            return OneSignalLogHttpSender(
+                requestSender: requestSender,
+                logger: logger,
+                isDiagnosticsEnabled: isDiagnosticsEnabled,
+                executeIfEnabled: executeIfEnabled
+            )
+        }
+        return OneSignalLogHttpSender(
+            logger: logger,
+            isDiagnosticsEnabled: isDiagnosticsEnabled,
+            executeIfEnabled: executeIfEnabled
+        )
     }
 
     public func start() {
@@ -305,39 +378,3 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
 @_spi(OneSignalInternal)
 extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
-
-#else
-
-public final class OSRemoteLogger: OSRemoteLoggerProtocol {
-    public init(
-        installIdProvider: @escaping () -> String,
-        onesignalIdProvider: @escaping () -> String?,
-        pushSubscriptionIdProvider: @escaping () -> String?,
-        appStateProvider: @escaping () -> String,
-        featureFlagsProvider: @escaping () -> [String],
-        remoteLogLevelProvider: @escaping () -> String?,
-        exporterLoggingEnabledProvider: @escaping () -> Bool
-    ) {}
-
-    public let kmpVersion = "unavailable"
-    public let crashStoragePath = "unavailable"
-
-    public func start() {}
-    public func log(level: String, message: String) {}
-    public func log(
-        level: String,
-        message: String,
-        exceptionType: String?,
-        exceptionMessage: String?,
-        exceptionStacktrace: String?
-    ) {}
-    public func forceFlush(completion: @escaping () -> Void) {
-        completion()
-    }
-    public func shutdown() {}
-}
-
-@_spi(OneSignalInternal)
-extension OSRemoteLogger: OSStructuredRemoteLoggerProtocol {}
-
-#endif

@@ -30,6 +30,33 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build OneSignalKMP XCFramework
         run: iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh
+      - name: Archive OneSignalFramework for Catalyst
+        run: |
+          xcodebuild archive \
+            -scheme OneSignalFramework \
+            -configuration Release \
+            -project iOS_SDK/OneSignalSDK/OneSignal.xcodeproj \
+            -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+            -archivePath "$RUNNER_TEMP/OneSignalFramework-Catalyst.xcarchive" \
+            SKIP_INSTALL=NO \
+            BUILD_LIBRARY_FOR_DISTRIBUTION=YES \
+            CODE_SIGN_IDENTITY= \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Run KMP logger Catalyst host
+        run: |
+          frameworks="$RUNNER_TEMP/OneSignalFramework-Catalyst.xcarchive/Products/Library/Frameworks"
+          host="$RUNNER_TEMP/CatalystLoggerHost"
+          xcrun --sdk macosx swiftc \
+            -target "$(uname -m)-apple-ios14.0-macabi" \
+            -F "$frameworks" \
+            -framework OneSignalOSCore \
+            -framework OneSignalCore \
+            -Xlinker -rpath \
+            -Xlinker "$frameworks" \
+            iOS_SDK/OneSignalSDK/CatalystLoggerHost/main.swift \
+            -o "$host"
+          DYLD_FRAMEWORK_PATH="$frameworks" "$host"
       - name: Set Default Scheme
         run: |
           default="UnitTestApp"
