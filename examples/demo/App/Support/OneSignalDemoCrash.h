@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OneSignalDemoCrash : NSObject
 
+/// The OneSignal-prefixed class and non-inlined method preserve a frame recognized
+/// by the crash handler's static-symbol attribution.
 + (void)raiseExceptionWithReason:(NSString *)reason __attribute__((noinline));
 
 @end
