@@ -26,7 +26,7 @@
  */
 
 import Foundation
-import OneSignalOSCore
+@_spi(OneSignalTesting) import OneSignalOSCore
 import SwiftUI
 
 /// Isolated screen for the test-crash action, matching Android's SecondaryActivity.
@@ -61,17 +61,15 @@ struct SecondaryView: View {
     }
 
     /// NSException reaches the SDK uncaught-exception handler. Swift `fatalError` is a POSIX
-    /// signal, which that handler does not intercept. The marker is required because this
-    /// exception is raised from app code, so no OneSignal frame appears on the stack.
+    /// signal, which that handler does not intercept.
     private func triggerCrash() {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let timestamp = formatter.string(from: Date())
-        NSException(
-            name: NSExceptionName("RuntimeException"),
-            reason: "Test crash from OneSignal Demo App - \(timestamp)",
-            userInfo: [OSCrashTestMarker.userInfoKey: true]
-        ).raise()
+        OSCrashTest.raiseException(
+            reason: "Test crash from OneSignal Demo App - \(timestamp)"
+        )
     }
 }
 
