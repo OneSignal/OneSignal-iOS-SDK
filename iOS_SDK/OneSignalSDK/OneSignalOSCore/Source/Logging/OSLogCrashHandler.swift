@@ -41,6 +41,15 @@ struct OSResolvedStackFrame: Equatable {
     let symbolName: String?
 }
 
+/// Opts an exception into crash reporting that stack attribution would otherwise reject.
+///
+/// Demo and integration apps raise their test crash from their own code, so no OneSignal
+/// frame appears on the stack. Setting this key to `true` in `NSException.userInfo` is the
+/// supported way to bypass attribution for those synthetic crashes.
+public enum OSCrashTestMarker {
+    public static let userInfoKey = "com.onesignal.crash.test"
+}
+
 /// Prints KMP crash-reporter diagnostics with `NSLog`. Honors the console log level
 /// without going through `OneSignalLog` (listeners, alert UI, remote sink).
 final class OSCrashLogger: ILogger {
@@ -160,7 +169,7 @@ final class OSLogCrashHandler: ILogCrashHandler {
         stackSymbols: [String],
         resolvedFrames: [OSResolvedStackFrame]
     ) {
-        guard Self.isOneSignalAtFault(resolvedFrames) else {
+        guard Self.isMarkedTestCrash(exception) || Self.isOneSignalAtFault(resolvedFrames) else {
             previousExceptionHandler?(exception)
             return
         }
@@ -226,6 +235,10 @@ final class OSLogCrashHandler: ILogCrashHandler {
         } else {
             previousHandler?(exception)
         }
+    }
+
+    static func isMarkedTestCrash(_ exception: NSException) -> Bool {
+        exception.userInfo?[OSCrashTestMarker.userInfoKey] as? Bool == true
     }
 
     static func isOneSignalAtFault(_ frames: [OSResolvedStackFrame]) -> Bool {

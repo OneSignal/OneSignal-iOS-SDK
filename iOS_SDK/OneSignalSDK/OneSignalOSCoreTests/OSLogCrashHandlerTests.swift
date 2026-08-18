@@ -83,6 +83,43 @@ final class OSLogCrashHandlerTests: XCTestCase {
         XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
     }
 
+    func testPersistsMarkedTestCrashWithoutOneSignalModule() throws {
+        let handler = makeCrashHandler()
+
+        handler.handle(
+            exception: NSException(
+                name: NSExceptionName("RuntimeException"),
+                reason: nil,
+                userInfo: [OSCrashTestMarker.userInfoKey: true]
+            ),
+            stackSymbols: ["0 ExampleApp 0x000000 SecondaryView.triggerCrash + 1"],
+            resolvedFrames: [frame("/private/var/containers/Bundle/Application/App/ExampleApp")]
+        )
+
+        XCTAssertEqual(
+            try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
+                .filter { $0.hasSuffix(".otlp") }
+                .count,
+            1
+        )
+    }
+
+    func testIgnoresUnmarkedHostCrashSharingTheMarkerKey() throws {
+        let handler = makeCrashHandler()
+
+        handler.handle(
+            exception: NSException(
+                name: NSExceptionName("RuntimeException"),
+                reason: nil,
+                userInfo: [OSCrashTestMarker.userInfoKey: false]
+            ),
+            stackSymbols: ["0 ExampleApp 0x000000 SecondaryView.triggerCrash + 1"],
+            resolvedFrames: [frame("/private/var/containers/Bundle/Application/App/ExampleApp")]
+        )
+
+        XCTAssertTrue(try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path).isEmpty)
+    }
+
     private func frame(_ imagePath: String, symbol: String? = nil) -> OSResolvedStackFrame {
         OSResolvedStackFrame(imagePath: imagePath, symbolName: symbol)
     }
