@@ -25,7 +25,10 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
+
 void DumpObjcMethods(Class clz);
 BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
 void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL new);
 void swizzleExistingSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector);
+NSException * _Nullable OSCatchException(void (^block)(void));

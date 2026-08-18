@@ -28,6 +28,15 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
+NSException *OSCatchException(void (^block)(void)) {
+    @try {
+        block();
+    } @catch (NSException *exception) {
+        return exception;
+    }
+    return nil;
+}
+
 // Just for debugging
 void DumpObjcMethods(Class clz) {
     unsigned int methodCount = 0;
