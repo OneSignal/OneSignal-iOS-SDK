@@ -32,19 +32,6 @@ import OneSignalOutcomes
 import OneSignalNotifications
 import OneSignalCore
 
-@_spi(OneSignalTesting)
-public enum OSCrashTest {
-    /// Raises from OneSignalFramework so the production attribution path recognizes the crash.
-    @inline(never)
-    public static func raiseException(reason: String) {
-        NSException(
-            name: NSExceptionName("RuntimeException"),
-            reason: reason,
-            userInfo: nil
-        ).raise()
-    }
-}
-
 public extension OneSignal {
     static var User: OSUser {
         return __user()

@@ -26,7 +26,6 @@
  */
 
 import Foundation
-@_spi(OneSignalTesting) import OneSignalFramework
 import SwiftUI
 
 /// Isolated screen for the test-crash action, matching Android's SecondaryActivity.
@@ -67,8 +66,8 @@ struct SecondaryView: View {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "MMM dd, yyyy HH:mm:ss"
         let timestamp = formatter.string(from: Date())
-        OSCrashTest.raiseException(
-            reason: "Test crash from OneSignal Demo App - \(timestamp)"
+        OneSignalDemoCrash.raiseException(
+            withReason: "Test crash from OneSignal Demo App - \(timestamp)"
         )
     }
 }

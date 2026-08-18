@@ -76,12 +76,10 @@
 		3C14E3B42FAE54C006ED053 /* KotlinByteArray+Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */; };
 		3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */; };
 		C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */; };
-		A0F0E53FDE87E8ABDC1DE05D /* OSCrashTestAttributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F0E53FDE87E8ABDC1DE05E /* OSCrashTestAttributionTests.swift */; };
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */; };
-		A0F0E53FDE87E8ABDC1DE05B /* OSCrashTestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F0E53FDE87E8ABDC1DE05C /* OSCrashTestTests.swift */; };
 		7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */; };
 		698F58A488FCE503DFD5247F /* OSLogCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */; };
 		3C19C6322E919F0C00D6731E /* OSRequestLiveActivityClicked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C19C6312E919F0C00D6731E /* OSRequestLiveActivityClicked.swift */; };
@@ -1801,11 +1799,9 @@
 		3C14E3AD2FAE54C006ED053 /* KotlinByteArray+Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KotlinByteArray+Data.swift"; sourceTree = "<group>"; };
 		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
 		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
-		A0F0E53FDE87E8ABDC1DE05E /* OSCrashTestAttributionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCrashTestAttributionTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
 		C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRemoteLoggingController.h; sourceTree = "<group>"; };
 		658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingControllerTests.swift; sourceTree = "<group>"; };
-		A0F0E53FDE87E8ABDC1DE05C /* OSCrashTestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCrashTestTests.swift; sourceTree = "<group>"; };
 		6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLogger.swift; sourceTree = "<group>"; };
 		ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandler.swift; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2579,7 +2575,6 @@
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
 				3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */,
 				3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */,
-				A0F0E53FDE87E8ABDC1DE05E /* OSCrashTestAttributionTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -2689,7 +2684,6 @@
 				4746E2AA2B8775C400D6324C /* LiveActivitiesObjcTests.m */,
 				3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */,
 				658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */,
-				A0F0E53FDE87E8ABDC1DE05C /* OSCrashTestTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -4618,7 +4612,6 @@
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
 				3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */,
 				C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */,
-				A0F0E53FDE87E8ABDC1DE05D /* OSCrashTestAttributionTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4660,7 +4653,6 @@
 				5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */,
 				3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */,
 				ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */,
-				A0F0E53FDE87E8ABDC1DE05B /* OSCrashTestTests.swift in Sources */,
 				CA8E19022193C6B0009DA223 /* InAppMessagingIntegrationTests.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				7AECE59223674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,

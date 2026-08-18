@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2026 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,12 @@
  * THE SOFTWARE.
  */
 
-void DumpObjcMethods(Class clz);
-BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
-void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL new);
-void swizzleExistingSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector);
+#import "OneSignalDemoCrash.h"
+
+@implementation OneSignalDemoCrash
+
++ (void)raiseExceptionWithReason:(NSString *)reason {
+    [NSException raise:@"RuntimeException" format:@"%@", reason];
+}
+
+@end
