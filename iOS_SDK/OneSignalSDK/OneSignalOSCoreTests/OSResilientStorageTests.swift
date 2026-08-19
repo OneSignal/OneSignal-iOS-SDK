@@ -31,6 +31,10 @@ import XCTest
 
 final class OSResilientStorageTests: XCTestCase {
 
+    private enum TestError: Error {
+        case preparationFailed
+    }
+
     /// Test keys. We avoid the real key constants so collisions with anything written by
     /// other tests / fixtures during the same simulator session can't bleed into assertions.
     private let keyA = "test_key_a"
@@ -74,6 +78,22 @@ final class OSResilientStorageTests: XCTestCase {
         try Data("value".utf8).write(to: fileURL, options: .atomic)
 
         XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
+    func testResolveFileURL_doesNotFallBackWhenGroupPreparationFails() {
+        var applicationSupportWasRequested = false
+
+        let fileURL = OSResilientStorage.resolveFileURL(
+            groupContainer: URL(fileURLWithPath: "/group"),
+            applicationSupportDirectory: {
+                applicationSupportWasRequested = true
+                return URL(fileURLWithPath: "/application-support")
+            },
+            prepare: { _ in throw TestError.preparationFailed }
+        )
+
+        XCTAssertNil(fileURL)
+        XCTAssertFalse(applicationSupportWasRequested)
     }
 
     func testSetWithNil_removesKey() {

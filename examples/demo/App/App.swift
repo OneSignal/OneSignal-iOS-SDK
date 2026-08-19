@@ -27,7 +27,9 @@
 
 import SwiftUI
 import OneSignalFramework
+#if !targetEnvironment(macCatalyst)
 import OneSignalLiveActivities
+#endif
 
 @main
 struct App: SwiftUI.App {

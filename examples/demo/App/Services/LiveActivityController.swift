@@ -107,6 +107,9 @@ enum LiveActivityController {
     }
 
     static func update(appId: String, activityId: String, status: LiveActivityStatus) async -> Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
         let payload: [String: Any] = [
             "event": "update",
             "name": "Live Activity Update",
@@ -120,9 +123,13 @@ enum LiveActivityController {
             ]
         ]
         return await postLiveActivity(appId: appId, activityId: activityId, payload: payload)
+        #endif
     }
 
     static func end(appId: String, activityId: String) async -> Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
         let payload: [String: Any] = [
             "event": "end",
             "name": "End Live Activity",
@@ -133,9 +140,16 @@ enum LiveActivityController {
             ]
         ]
         return await postLiveActivity(appId: appId, activityId: activityId, payload: payload)
+        #endif
     }
 
-    static var hasApiKey: Bool { SecretsConfig.hasApiKey }
+    static var hasApiKey: Bool {
+        #if targetEnvironment(macCatalyst)
+        false
+        #else
+        SecretsConfig.hasApiKey
+        #endif
+    }
 
     private static func postLiveActivity(appId: String, activityId: String, payload: [String: Any]) async -> Bool {
         guard let key = SecretsConfig.apiKey else { return false }

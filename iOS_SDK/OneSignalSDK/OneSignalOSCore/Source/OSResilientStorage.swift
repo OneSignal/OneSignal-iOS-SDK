@@ -62,25 +62,44 @@ public final class OSResilientStorage: NSObject {
         let fileManager = FileManager.default
 
         let groupName = OneSignalUserDefaults.appGroupName()
-        if let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
+        let groupContainer = fileManager.containerURL(
+            forSecurityApplicationGroupIdentifier: groupName
+        )
+        return resolveFileURL(
+            groupContainer: groupContainer,
+            applicationSupportDirectory: {
+                try fileManager.url(
+                    for: .applicationSupportDirectory,
+                    in: .userDomainMask,
+                    appropriateFor: nil,
+                    create: true
+                )
+            },
+            prepare: {
+                try preparedFileURL(in: $0, fileManager: fileManager)
+            }
+        )
+    }
+
+    static func resolveFileURL(
+        groupContainer: URL?,
+        applicationSupportDirectory: () throws -> URL,
+        prepare: (URL) throws -> URL
+    ) -> URL? {
+        if let groupContainer {
             do {
-                return try preparedFileURL(in: container, fileManager: fileManager)
+                return try prepare(groupContainer)
             } catch {
                 OneSignalLog.onesignalLog(
-                    .LL_WARN,
+                    .LL_ERROR,
                     message: "OSResilientStorage could not prepare the App Group container: \(error)"
                 )
+                return nil
             }
         }
 
         do {
-            let support = try fileManager.url(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true
-            )
-            return try preparedFileURL(in: support, fileManager: fileManager)
+            return try prepare(applicationSupportDirectory())
         } catch {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSResilientStorage could not resolve a container URL: \(error)")
             return nil

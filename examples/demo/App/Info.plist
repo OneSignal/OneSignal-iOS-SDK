@@ -26,6 +26,8 @@
 	<string>This app uses your location to personalize notifications and content.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app uses your location to personalize notifications and content even when the app is in the background.</string>
+	<key>OneSignal_app_groups_key</key>
+	<string>group.com.onesignal.example.onesignal</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
