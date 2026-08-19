@@ -61,15 +61,27 @@ final class OneSignalNotificationsTests: XCTestCase {
         }
     }
 
+    private func setBadgeCountAndWait(_ count: Int) {
+        let badgeSet = expectation(description: "Badge set")
+        setBadgeCount(count) {
+            badgeSet.fulfill()
+        }
+        wait(for: [badgeSet], timeout: 5)
+    }
+
+    private func waitForCachedBadgeCount(_ count: Int) {
+        let badgeUpdated = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in self.getCachedBadgeCount() == count },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [badgeUpdated], timeout: 5), .completed)
+    }
+
     func testClearBadgesWhenAppEntersForeground() throws {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.startSwizzling()
         // Set badge count > 0
-        let expectation = self.expectation(description: "Badge set")
-        setBadgeCount(1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 0.5)
+        setBadgeCountAndWait(1)
 
         // Verify badge was set
         XCTAssertEqual(getCachedBadgeCount(), 1)
@@ -79,8 +91,7 @@ final class OneSignalNotificationsTests: XCTestCase {
         // Foreground the app
         OneSignalCoreMocks.foregroundApp()
 
-        // Wait for async badge clearing on iOS 16+
-        Thread.sleep(forTimeInterval: 0.1)
+        waitForCachedBadgeCount(0)
 
         // Ensure that badge count == 0
         XCTAssertEqual(getCachedBadgeCount(), 0)
@@ -90,11 +101,7 @@ final class OneSignalNotificationsTests: XCTestCase {
         // NotificationManager Start to register lifecycle listener
         OSNotificationsManager.startSwizzling()
         // Set badge count > 0
-        let expectation = self.expectation(description: "Badge set")
-        setBadgeCount(1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 0.5)
+        setBadgeCountAndWait(1)
 
         // Verify badge was set
         XCTAssertEqual(getCachedBadgeCount(), 1)
