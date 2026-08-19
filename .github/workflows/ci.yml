@@ -8,28 +8,138 @@ on:
       - '.github/**'
       - 'README.md'
 
+env:
+  KMP_XCFRAMEWORK_PATH: OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework
+  XCODE_DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+
 jobs:
-  build:
-    name: Build and Test using any available iPhone simulator
+  lint:
+    name: Swift Lint
+    runs-on: macos-15-large
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+      - name: Run Swift Lint
+        run: swiftlint
+
+  kmp-xcframework:
+    name: Build OneSignalKMP XCFramework
     runs-on: macos-15-large
 
     steps:
       - name: Select Xcode Version
-        run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s "$XCODE_DEVELOPER_DIR"
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Create KMP cache key
+        id: kmp
+        run: |
+          kmp_sha="$(git rev-parse HEAD:OneSignal-KMP-SDK)"
+          xcode_hash="$(xcodebuild -version | shasum -a 256 | awk '{print $1}')"
+          echo "cache-key=kmp-xcframework-${{ runner.os }}-${{ runner.arch }}-${xcode_hash}-${kmp_sha}" >> "$GITHUB_OUTPUT"
+      - name: Restore OneSignalKMP XCFramework
+        id: kmp-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.KMP_XCFRAMEWORK_PATH }}
+          key: ${{ steps.kmp.outputs.cache-key }}
       - name: Setup JDK 17
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
       - name: Setup Gradle
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
         uses: gradle/actions/setup-gradle@v4
-      - name: Build OneSignalKMP XCFramework
-        run: iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh
+      - name: Assemble OneSignalKMP XCFramework
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        run: |
+          iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh \
+            :kmp:assembleOneSignalKMPReleaseXCFramework
+      - name: Save OneSignalKMP XCFramework
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.KMP_XCFRAMEWORK_PATH }}
+          key: ${{ steps.kmp.outputs.cache-key }}
+      - name: Package OneSignalKMP XCFramework
+        run: |
+          tar -czf "$RUNNER_TEMP/OneSignalKMP.xcframework.tar.gz" \
+            -C "$(dirname "$KMP_XCFRAMEWORK_PATH")" \
+            "$(basename "$KMP_XCFRAMEWORK_PATH")"
+      - name: Upload OneSignalKMP XCFramework
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneSignalKMP-XCFramework
+          path: ${{ runner.temp }}/OneSignalKMP.xcframework.tar.gz
+          retention-days: 1
+
+  ios-simulator:
+    name: Build and Test using any available iPhone simulator
+    runs-on: macos-15-large
+    needs: kmp-xcframework
+
+    steps:
+      - name: Select Xcode Version
+        run: sudo xcode-select -s "$XCODE_DEVELOPER_DIR"
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+      - name: Download OneSignalKMP XCFramework
+        uses: actions/download-artifact@v4
+        with:
+          name: OneSignalKMP-XCFramework
+          path: ${{ runner.temp }}
+      - name: Extract OneSignalKMP XCFramework
+        run: |
+          mkdir -p "$(dirname "$KMP_XCFRAMEWORK_PATH")"
+          tar -xzf "$RUNNER_TEMP/OneSignalKMP.xcframework.tar.gz" \
+            -C "$(dirname "$KMP_XCFRAMEWORK_PATH")"
+      - name: Build
+        env:
+          scheme: ${{ 'UnitTestApp' }}
+          platform: ${{ 'iOS Simulator' }}
+          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
+          filetype_parameter: ${{ 'project' }}
+        run: |
+          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+      - name: Test
+        env:
+          scheme: ${{ 'UnitTestApp' }}
+          test_plan: ${{ 'UnitTestApp_TestPlan_Reduced' }}
+          platform: ${{ 'iOS Simulator' }}
+          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
+          filetype_parameter: ${{ 'project' }}
+        run: |
+          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          xcodebuild test-without-building -scheme "$scheme" -testPlan "$test_plan" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+
+  catalyst:
+    name: KMP logger Mac Catalyst integration
+    runs-on: macos-15-large
+    needs: kmp-xcframework
+
+    steps:
+      - name: Select Xcode Version
+        run: sudo xcode-select -s "$XCODE_DEVELOPER_DIR"
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v4
+      - name: Download OneSignalKMP XCFramework
+        uses: actions/download-artifact@v4
+        with:
+          name: OneSignalKMP-XCFramework
+          path: ${{ runner.temp }}
+      - name: Extract OneSignalKMP XCFramework
+        run: |
+          mkdir -p "$(dirname "$KMP_XCFRAMEWORK_PATH")"
+          tar -xzf "$RUNNER_TEMP/OneSignalKMP.xcframework.tar.gz" \
+            -C "$(dirname "$KMP_XCFRAMEWORK_PATH")"
       - name: Archive OneSignalFramework for Catalyst
         run: |
           xcodebuild archive \
@@ -57,32 +167,3 @@ jobs:
             iOS_SDK/OneSignalSDK/CatalystLoggerHost/main.swift \
             -o "$host"
           DYLD_FRAMEWORK_PATH="$frameworks" "$host"
-      - name: Set Default Scheme
-        run: |
-          default="UnitTestApp"
-          echo $default | cat >default
-          echo Using default scheme: $default
-      - name: Run Swift Lint
-        run: |
-          swiftlint
-      - name: Build
-        env:
-          scheme: ${{ 'UnitTestApp' }}
-          platform: ${{ 'iOS Simulator' }}
-          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
-          filetype_parameter: ${{ 'project' }}
-        run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-      - name: Test
-        env:
-          scheme: ${{ 'UnitTestApp' }}
-          test_plan: ${{ 'UnitTestApp_TestPlan_Reduced' }}
-          platform: ${{ 'iOS Simulator' }}
-          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
-          filetype_parameter: ${{ 'project' }}
-        run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          xcodebuild test-without-building -scheme "$scheme" -testPlan "$test_plan" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
