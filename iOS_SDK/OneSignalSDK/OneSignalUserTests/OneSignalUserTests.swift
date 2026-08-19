@@ -275,12 +275,13 @@ final class OneSignalUserTests: XCTestCase {
         let checkedUser = manager.currentUser(matching: userA.identityModel.modelId)
         // A concurrent login switches the current user before the response is applied
         let userB = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        let userBLanguage = userB.propertiesModel.language
         checkedUser?.propertiesModel.hydrate(["language": "language-for-user-a"])
 
         /* Then */
         // The response's data went to the user it was for, and the new current user is untouched
         XCTAssertEqual(userA.propertiesModel.language, "language-for-user-a")
-        XCTAssertNil(userB.propertiesModel.language)
+        XCTAssertEqual(userB.propertiesModel.language, userBLanguage)
         XCTAssertEqual(manager._user?.identityModel.externalId, userB_EUID)
     }
 

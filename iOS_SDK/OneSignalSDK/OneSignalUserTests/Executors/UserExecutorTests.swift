@@ -107,10 +107,9 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-
-        // The current user needs to be the same, set it in the user manager
-        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
+        let newIdentityModel = OneSignalUserMocks
+            .setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+            .identityModel
         mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
 
         OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
