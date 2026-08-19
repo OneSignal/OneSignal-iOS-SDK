@@ -50,6 +50,20 @@ public class OneSignalCoreMocks: NSObject {
         _ = XCTWaiter.wait(for: [expectation], timeout: seconds)
     }
 
+    public static func waitUntil(
+        _ description: String,
+        timeout: TimeInterval = 5,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        condition: @escaping () -> Bool
+    ) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !condition() && Date() < deadline {
+            RunLoop.current.run(until: min(deadline, Date().addingTimeInterval(0.01)))
+        }
+        XCTAssertTrue(condition(), description, file: file, line: line)
+    }
+
     @objc public static func backgroundApp() {
         if OSBundleUtils.isAppUsingUIScene() {
             if #available(iOS 13.0, *) {

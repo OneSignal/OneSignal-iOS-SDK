@@ -131,8 +131,10 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_a", id: "id_a")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("User hydration did not complete") {
+            OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
+        }
 
         /* Then */
 
@@ -198,8 +200,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
      */
     func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch() throws {
         /* Setup */
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
 
@@ -245,8 +245,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
-        // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        OneSignalCoreMocks.waitUntil("Logged-out user updates were not sent") {
+            client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/subscriptions",
+                contains: ["subscription": ["token": "email_b@example.com"]]
+            )
+        }
 
         /* Then */
 
@@ -328,8 +332,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // Increase flush interval to allow all the updates to batch
         OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-        // Wait to let any pending flushes in the Operation Repo to run
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.3)
+        OSOperationRepo.sharedInstance.flushAndWait()
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
@@ -376,8 +379,34 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+        OneSignalCoreMocks.waitUntil("User B updates and hydration did not complete") {
+            client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+                contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
+            )
+                && client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
+                    contains: ["identity": ["alias_a": "id_a"]]
+                )
+                && client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
+                    contains: ["subscription": ["token": "email_a@example.com"]]
+                )
+                && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+                contains: ["properties": ["language": "lang_b", "tags": tagsUserB]]
+            )
+                && client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/identity",
+                    contains: ["identity": ["alias_b": "id_b"]]
+                )
+                && client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/subscriptions",
+                    contains: ["subscription": ["token": "email_b@example.com"]]
+                )
+                && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                    .getModel(key: "remote_email@example.com") != nil
+        }
 
         /* Then */
 
