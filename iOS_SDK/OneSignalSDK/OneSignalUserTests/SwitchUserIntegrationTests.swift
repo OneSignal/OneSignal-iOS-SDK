@@ -116,6 +116,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // Returns mocked user data to test hydration
         MockUserRequests.setDefaultFetchUserResponseForHydration(with: client, externalId: userA_EUID)
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        OSOperationRepo.sharedInstance.paused = true
+
         /* When */
 
         // 1. Anonymous user
@@ -131,9 +137,11 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_a", id: "id_a")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
-        OneSignalCoreMocks.waitUntil("User hydration did not complete") {
-            OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
-                .getModel(key: "remote_email@example.com") != nil
+        OSOperationRepo.sharedInstance.paused = false
+        OSOperationRepo.sharedInstance.flushAndWait()
+
+        OneSignalCoreMocks.waitUntil("User A updates and hydration did not complete") {
+            self.userAUpdatesAndHydrationCompleted(client, tagsUserA)
         }
 
         /* Then */
@@ -465,6 +473,27 @@ final class SwitchUserIntegrationTests: XCTestCase {
             && client.onlyOneRequest(
                 contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/subscriptions",
                 contains: ["subscription": ["token": "email_b@example.com"]]
+            )
+            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
+    }
+
+    private func userAUpdatesAndHydrationCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String]
+    ) -> Bool {
+        client.allRequestsHandled
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+                contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
+                contains: ["identity": ["alias_a": "id_a"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
+                contains: ["subscription": ["token": "email_a@example.com"]]
             )
             && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
                 .getModel(key: "remote_email@example.com") != nil
