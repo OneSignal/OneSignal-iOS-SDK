@@ -123,16 +123,15 @@ jobs:
       - name: Build
         env:
           scheme: ${{ 'UnitTestApp' }}
-          platform: ${{ 'iOS Simulator' }}
           file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
           filetype_parameter: ${{ 'project' }}
-          device_id: ${{ steps.simulator.outputs.device-id }}
         run: |
           xcodebuild build-for-testing \
             -scheme "$scheme" \
             -"$filetype_parameter" "$file_to_build" \
-            -destination "platform=$platform,id=$device_id,arch=arm64" \
+            -destination "generic/platform=iOS Simulator" \
             -enableCodeCoverage NO \
+            ARCHS=arm64 \
             ONLY_ACTIVE_ARCH=YES
       - name: Wait for simulator boot
         env:
