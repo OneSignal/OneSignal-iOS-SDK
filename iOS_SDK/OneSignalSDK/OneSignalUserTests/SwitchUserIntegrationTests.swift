@@ -231,6 +231,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_b": "id_b"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_b@example.com")
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        OSOperationRepo.sharedInstance.paused = true
+
         /* When */
 
         // 1. Anonymous user starts
@@ -253,11 +259,11 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
+        OSOperationRepo.sharedInstance.paused = false
+        OSOperationRepo.sharedInstance.flushAndWait()
+
         OneSignalCoreMocks.waitUntil("Logged-out user updates were not sent") {
-            client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)/subscriptions",
-                contains: ["subscription": ["token": "email_b@example.com"]]
-            )
+            self.userUpdatesCompleted(client, tagsUserA, tagsUserB, anonUserOSID)
         }
 
         /* Then */
@@ -450,6 +456,17 @@ final class SwitchUserIntegrationTests: XCTestCase {
         _ tagsUserA: [String: String],
         _ tagsUserB: [String: String]
     ) -> Bool {
+        userUpdatesCompleted(client, tagsUserA, tagsUserB, userB_OSID)
+            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
+    }
+
+    private func userUpdatesCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String],
+        _ tagsUserB: [String: String],
+        _ userBOneSignalId: String
+    ) -> Bool {
         client.onlyOneRequest(
             contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
             contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
@@ -463,19 +480,17 @@ final class SwitchUserIntegrationTests: XCTestCase {
                 contains: ["subscription": ["token": "email_a@example.com"]]
             )
             && client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)",
                 contains: ["properties": ["language": "lang_b", "tags": tagsUserB]]
             )
             && client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/identity",
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)/identity",
                 contains: ["identity": ["alias_b": "id_b"]]
             )
             && client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/subscriptions",
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)/subscriptions",
                 contains: ["subscription": ["token": "email_b@example.com"]]
             )
-            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
-                .getModel(key: "remote_email@example.com") != nil
     }
 
     private func userAUpdatesAndHydrationCompleted(
