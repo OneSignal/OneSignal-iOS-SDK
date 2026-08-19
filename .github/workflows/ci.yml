@@ -99,16 +99,27 @@ jobs:
           mkdir -p "$(dirname "$KMP_XCFRAMEWORK_PATH")"
           tar -xzf "$RUNNER_TEMP/OneSignalKMP.xcframework.tar.gz" \
             -C "$(dirname "$KMP_XCFRAMEWORK_PATH")"
+      - name: Select iPhone simulator
+        id: simulator
+        run: |
+          runtime_id="$(xcrun simctl list runtimes available --json | jq -r \
+            '[.runtimes[] | select(.platform == "iOS")] | sort_by(.version | split(".") | map(tonumber)) | last.identifier')"
+          device_id="$(xcrun simctl list devices available --json | jq -r --arg runtime "$runtime_id" \
+            '.devices[$runtime] | map(select(.name | startswith("iPhone"))) | first.udid')"
+          if [[ -z "$device_id" || "$device_id" == "null" ]]; then
+            echo "No available iPhone simulator found" >&2
+            exit 1
+          fi
+          echo "device-id=$device_id" >> "$GITHUB_OUTPUT"
       - name: Build
         env:
           scheme: ${{ 'UnitTestApp' }}
           platform: ${{ 'iOS Simulator' }}
           file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
           filetype_parameter: ${{ 'project' }}
+          device_id: ${{ steps.simulator.outputs.device-id }}
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,id=$device_id"
       - name: Test
         env:
           scheme: ${{ 'UnitTestApp' }}
@@ -116,10 +127,9 @@ jobs:
           platform: ${{ 'iOS Simulator' }}
           file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
           filetype_parameter: ${{ 'project' }}
+          device_id: ${{ steps.simulator.outputs.device-id }}
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          xcodebuild test-without-building -scheme "$scheme" -testPlan "$test_plan" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+          xcodebuild test-without-building -scheme "$scheme" -testPlan "$test_plan" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,id=$device_id"
 
   catalyst:
     name: KMP logger Mac Catalyst integration
