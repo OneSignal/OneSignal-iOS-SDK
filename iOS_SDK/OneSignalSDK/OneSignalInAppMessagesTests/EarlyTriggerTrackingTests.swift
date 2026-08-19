@@ -92,7 +92,11 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         /* Execute */
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let fetchCompleted = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in controller.hasCompletedFirstFetch },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [fetchCompleted], timeout: 2), .completed)
 
         /* Verify */
         XCTAssertTrue(controller.hasCompletedFirstFetch)

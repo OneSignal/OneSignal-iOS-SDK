@@ -49,15 +49,11 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
 
     override func tearDownWithError() throws { }
 
-    // Subscribes a user, then resets the client so tests assert only on the requests they make.
     private func setUpSubscribedUser() -> MockOneSignalClient {
         let mockClient = MockOneSignalClient()
+        mockClient.executeInstantaneously = true
         OneSignalCoreImpl.setSharedClient(mockClient)
-        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: "my-subscription-id")
-        OneSignalUserManagerImpl.sharedInstance.start()
-        // Wait for any user setup requests to complete
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
-        mockClient.reset()
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: "my-subscription-id")
         return mockClient
     }
 
