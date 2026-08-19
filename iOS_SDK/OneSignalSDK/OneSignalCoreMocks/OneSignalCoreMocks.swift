@@ -43,13 +43,6 @@ public class OneSignalCoreMocks: NSObject {
         }
     }
 
-    /** Wait specified number of seconds for any async methods to run */
-    @objc
-    public static func waitForBackgroundThreads(seconds: Double) {
-        let expectation = XCTestExpectation(description: "Wait for \(seconds) seconds")
-        _ = XCTWaiter.wait(for: [expectation], timeout: seconds)
-    }
-
     public static func waitUntil(
         _ description: String,
         timeout: TimeInterval = 5,
@@ -57,11 +50,23 @@ public class OneSignalCoreMocks: NSObject {
         line: UInt = #line,
         condition: @escaping () -> Bool
     ) {
+        XCTAssertTrue(waitForCondition(timeout: timeout, condition), description, file: file, line: line)
+    }
+
+    @objc(waitUntilWithTimeout:condition:)
+    public static func waitUntilForObjC(
+        timeout: TimeInterval,
+        condition: @escaping @convention(block) () -> Bool
+    ) -> Bool {
+        waitForCondition(timeout: timeout, condition)
+    }
+
+    private static func waitForCondition(timeout: TimeInterval, _ condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while !condition() && Date() < deadline {
             RunLoop.current.run(until: min(deadline, Date().addingTimeInterval(0.01)))
         }
-        XCTAssertTrue(condition(), description, file: file, line: line)
+        return condition()
     }
 
     @objc public static func backgroundApp() {

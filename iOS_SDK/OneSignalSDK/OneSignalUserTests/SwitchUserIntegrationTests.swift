@@ -380,32 +380,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
         OneSignalCoreMocks.waitUntil("User B updates and hydration did not complete") {
-            client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
-                contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
-            )
-                && client.onlyOneRequest(
-                    contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
-                    contains: ["identity": ["alias_a": "id_a"]]
-                )
-                && client.onlyOneRequest(
-                    contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
-                    contains: ["subscription": ["token": "email_a@example.com"]]
-                )
-                && client.onlyOneRequest(
-                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
-                contains: ["properties": ["language": "lang_b", "tags": tagsUserB]]
-            )
-                && client.onlyOneRequest(
-                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/identity",
-                    contains: ["identity": ["alias_b": "id_b"]]
-                )
-                && client.onlyOneRequest(
-                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/subscriptions",
-                    contains: ["subscription": ["token": "email_b@example.com"]]
-                )
-                && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
-                    .getModel(key: "remote_email@example.com") != nil
+            self.userUpdatesAndHydrationCompleted(client, tagsUserA, tagsUserB)
         }
 
         /* Then */
@@ -460,5 +435,38 @@ final class SwitchUserIntegrationTests: XCTestCase {
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.getTags()["remote_tag"])
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.user.identityModel.aliases["remote_alias"])
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModel(key: "remote_email@example.com"))
+    }
+
+    private func userUpdatesAndHydrationCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String],
+        _ tagsUserB: [String: String]
+    ) -> Bool {
+        client.onlyOneRequest(
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+            contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
+        )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
+                contains: ["identity": ["alias_a": "id_a"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
+                contains: ["subscription": ["token": "email_a@example.com"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+                contains: ["properties": ["language": "lang_b", "tags": tagsUserB]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/identity",
+                contains: ["identity": ["alias_b": "id_b"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)/subscriptions",
+                contains: ["subscription": ["token": "email_b@example.com"]]
+            )
+            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
     }
 }
