@@ -118,6 +118,7 @@ jobs:
           filetype_parameter: ${{ 'project' }}
         run: |
           xcodebuild build-for-testing \
+            -quiet \
             -scheme "$scheme" \
             -"$filetype_parameter" "$file_to_build" \
             -destination "generic/platform=iOS Simulator" \
@@ -147,6 +148,7 @@ jobs:
           device_id: ${{ steps.simulator.outputs.device-id }}
         run: |
           xcodebuild test-without-building \
+            -quiet \
             -scheme "$scheme" \
             -testPlan "$test_plan" \
             -"$filetype_parameter" "$file_to_build" \
