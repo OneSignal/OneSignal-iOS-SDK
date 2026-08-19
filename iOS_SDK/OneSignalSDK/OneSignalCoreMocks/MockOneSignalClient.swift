@@ -214,9 +214,10 @@ extension MockOneSignalClient {
      */
     @objc
     public func onlyOneRequest(contains path: String, contains payload: [String: Any]) -> Bool {
+        let requests = lock.withLock { executedRequests }
         var found = false
 
-        for request in executedRequests {
+        for request in requests {
             guard let params = request.parameters as? NSDictionary  else {
                 continue
             }
@@ -238,7 +239,8 @@ extension MockOneSignalClient {
     }
 
     public func hasExecutedRequestOfType(_ type: AnyClass, expectedCount: Int? = nil) -> Bool {
-        let matchingCount = executedRequests.filter { request in
+        let requests = lock.withLock { executedRequests }
+        let matchingCount = requests.filter { request in
             request.isKind(of: type)
         }.count
 

@@ -157,7 +157,11 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         mocks.userExecutor.identifyUser(externalId: userB_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let userCreated = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in mocks.newRecordsState.contains(userB_OSID) },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [userCreated], timeout: 5), .completed)
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))

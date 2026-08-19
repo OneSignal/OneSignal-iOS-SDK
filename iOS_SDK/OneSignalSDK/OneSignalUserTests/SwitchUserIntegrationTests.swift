@@ -50,8 +50,16 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
         OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_b", value: "value_b")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let userBTagsSent = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in
+                client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+                    contains: ["properties": ["tags": tagsUserB]]
+                )
+            },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [userBTagsSent], timeout: 5), .completed)
 
         /* Then */
 
