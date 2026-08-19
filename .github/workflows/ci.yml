@@ -20,7 +20,9 @@ jobs:
       - name: Checkout OneSignal-iOS-SDK
         uses: actions/checkout@v7
       - name: Run Swift Lint
-        run: swiftlint
+        uses: cirruslabs/swiftlint-action@v1
+        with:
+          version: latest
 
   kmp-xcframework:
     name: Build OneSignalKMP XCFramework
