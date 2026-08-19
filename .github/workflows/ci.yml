@@ -8,6 +8,10 @@ on:
       - '.github/**'
       - 'README.md'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   KMP_XCFRAMEWORK_PATH: OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework
 
