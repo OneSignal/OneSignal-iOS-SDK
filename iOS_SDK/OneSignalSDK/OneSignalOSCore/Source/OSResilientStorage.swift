@@ -71,59 +71,22 @@ public final class OSResilientStorage: NSObject {
         let fileManager = FileManager.default
 
         let groupName = OneSignalUserDefaults.appGroupName()
-        let groupContainer = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: groupName
-        )
-        return resolveFileURL(
-            groupContainer: groupContainer,
-            applicationSupportDirectory: {
-                try fileManager.url(
-                    for: .applicationSupportDirectory,
-                    in: .userDomainMask,
-                    appropriateFor: nil,
-                    create: true
-                )
-            },
-            prepare: {
-                try preparedFileURL(in: $0, fileManager: fileManager)
-            }
-        )
-    }
-
-    static func resolveFileURL(
-        groupContainer: URL?,
-        applicationSupportDirectory: () throws -> URL,
-        prepare: (URL) throws -> URL
-    ) -> URL? {
-        if let groupContainer {
-            do {
-                return try prepare(groupContainer)
-            } catch {
-                OneSignalLog.onesignalLog(
-                    .LL_ERROR,
-                    message: "OSResilientStorage could not prepare the App Group container: \(error)"
-                )
-                return nil
-            }
+        if let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
+            return container.appendingPathComponent(fileName)
         }
 
         do {
-            return try prepare(applicationSupportDirectory())
+            let support = try fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            return support.appendingPathComponent(fileName)
         } catch {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSResilientStorage could not resolve a container URL: \(error)")
             return nil
         }
-    }
-
-    static func preparedFileURL(
-        in directory: URL,
-        fileManager: FileManager = .default
-    ) throws -> URL {
-        try fileManager.createDirectory(
-            at: directory,
-            withIntermediateDirectories: true
-        )
-        return directory.appendingPathComponent(fileName)
     }
 
     /// Reads the cache file. Caller is responsible for queue-serialization.

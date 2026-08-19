@@ -27,9 +27,10 @@
 
 import Foundation
 import OneSignalFramework
-#if !targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
+// Live Activities are unavailable on Mac Catalyst.
+#else
 import OneSignalLiveActivities
-#endif
 
 /// Order tracking phases used by the Live Activity demo
 enum LiveActivityStatus: String, CaseIterable, Identifiable {
@@ -78,9 +79,7 @@ enum LiveActivityController {
 
     @available(iOS 16.1, *)
     static func setup() {
-        #if !targetEnvironment(macCatalyst)
         OneSignal.LiveActivities.setupDefault()
-        #endif
     }
 
     @available(iOS 16.1, *)
@@ -89,7 +88,6 @@ enum LiveActivityController {
         orderNumber: String,
         status: LiveActivityStatus
     ) {
-        #if !targetEnvironment(macCatalyst)
         let attributes: [String: Any] = [
             "orderNumber": orderNumber
         ]
@@ -103,13 +101,9 @@ enum LiveActivityController {
             attributes: attributes,
             content: content
         )
-        #endif
     }
 
     static func update(appId: String, activityId: String, status: LiveActivityStatus) async -> Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
         let payload: [String: Any] = [
             "event": "update",
             "name": "Live Activity Update",
@@ -123,13 +117,9 @@ enum LiveActivityController {
             ]
         ]
         return await postLiveActivity(appId: appId, activityId: activityId, payload: payload)
-        #endif
     }
 
     static func end(appId: String, activityId: String) async -> Bool {
-        #if targetEnvironment(macCatalyst)
-        return false
-        #else
         let payload: [String: Any] = [
             "event": "end",
             "name": "End Live Activity",
@@ -140,16 +130,9 @@ enum LiveActivityController {
             ]
         ]
         return await postLiveActivity(appId: appId, activityId: activityId, payload: payload)
-        #endif
     }
 
-    static var hasApiKey: Bool {
-        #if targetEnvironment(macCatalyst)
-        false
-        #else
-        SecretsConfig.hasApiKey
-        #endif
-    }
+    static var hasApiKey: Bool { SecretsConfig.hasApiKey }
 
     private static func postLiveActivity(appId: String, activityId: String, payload: [String: Any]) async -> Bool {
         guard let key = SecretsConfig.apiKey else { return false }
@@ -171,3 +154,4 @@ enum LiveActivityController {
         }
     }
 }
+#endif

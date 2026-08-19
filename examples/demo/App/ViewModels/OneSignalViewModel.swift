@@ -389,6 +389,7 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - Live Activities
 
+    #if !targetEnvironment(macCatalyst)
     func startLiveActivity(activityId: String, orderNumber: String, status: LiveActivityStatus) {
         let trimmedId = activityId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty else { return }
@@ -423,6 +424,7 @@ final class OneSignalViewModel: ObservableObject {
             )
         }
     }
+    #endif
 
     // MARK: - Tooltips
 

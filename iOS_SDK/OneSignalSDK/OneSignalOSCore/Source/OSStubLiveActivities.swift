@@ -37,10 +37,8 @@ public class OSStubLiveActivities: NSObject, OSLiveActivities {
     }
 
     private static func logUnavailable() {
-        #if !targetEnvironment(macCatalyst)
         let message = "OneSignalLiveActivities not found. In order to use OneSignal's " +
             "LiveActivities features the OneSignalLiveActivities module must be added."
         OneSignalLog.onesignalLog(.LL_ERROR, message: message)
-        #endif
     }
 }
