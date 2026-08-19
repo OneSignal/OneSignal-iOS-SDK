@@ -153,6 +153,7 @@ jobs:
             -testPlan "$test_plan" \
             -"$filetype_parameter" "$file_to_build" \
             -destination "platform=$platform,id=$device_id,arch=arm64" \
+            -maximum-parallel-testing-workers 1 \
             -enableCodeCoverage NO
 
   catalyst:
