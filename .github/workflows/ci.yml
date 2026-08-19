@@ -15,7 +15,7 @@ env:
 jobs:
   lint:
     name: Swift Lint
-    runs-on: macos-15-large
+    runs-on: macos-latest
 
     steps:
       - name: Checkout OneSignal-iOS-SDK
@@ -25,7 +25,7 @@ jobs:
 
   kmp-xcframework:
     name: Build OneSignalKMP XCFramework
-    runs-on: macos-15-large
+    runs-on: macos-latest
 
     steps:
       - name: Select Xcode Version
@@ -80,7 +80,7 @@ jobs:
 
   ios-simulator:
     name: Build and Test using any available iPhone simulator
-    runs-on: macos-15-large
+    runs-on: macos-latest
     needs: kmp-xcframework
 
     steps:
@@ -122,7 +122,7 @@ jobs:
 
   catalyst:
     name: KMP logger Mac Catalyst integration
-    runs-on: macos-15-large
+    runs-on: macos-latest
     needs: kmp-xcframework
 
     steps:
