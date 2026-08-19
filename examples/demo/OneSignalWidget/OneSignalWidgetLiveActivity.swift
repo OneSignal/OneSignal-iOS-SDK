@@ -25,9 +25,48 @@
  * THE SOFTWARE.
  */
 
-import ActivityKit
 import WidgetKit
 import SwiftUI
+
+#if targetEnvironment(macCatalyst)
+private struct CatalystPlaceholderEntry: TimelineEntry {
+    let date: Date
+}
+
+private struct CatalystPlaceholderProvider: TimelineProvider {
+    func placeholder(in context: Context) -> CatalystPlaceholderEntry {
+        CatalystPlaceholderEntry(date: Date())
+    }
+
+    func getSnapshot(
+        in context: Context,
+        completion: @escaping (CatalystPlaceholderEntry) -> Void
+    ) {
+        completion(CatalystPlaceholderEntry(date: Date()))
+    }
+
+    func getTimeline(
+        in context: Context,
+        completion: @escaping (Timeline<CatalystPlaceholderEntry>) -> Void
+    ) {
+        completion(Timeline(entries: [CatalystPlaceholderEntry(date: Date())], policy: .never))
+    }
+}
+
+struct OneSignalWidgetPlaceholder: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(
+            kind: "com.onesignal.example.catalyst-placeholder",
+            provider: CatalystPlaceholderProvider()
+        ) { _ in
+            Text("OneSignal")
+        }
+        .configurationDisplayName("OneSignal")
+        .description("Live Activities are unavailable on Mac Catalyst.")
+    }
+}
+#else
+import ActivityKit
 import OneSignalLiveActivities
 
 /// Live Activity widget that renders the order tracking flow used by the demo.
@@ -173,3 +212,4 @@ struct DeliveryProgressBar: View {
         .frame(height: 6)
     }
 }
+#endif

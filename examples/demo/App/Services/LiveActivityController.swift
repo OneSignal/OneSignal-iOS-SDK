@@ -27,6 +27,9 @@
 
 import Foundation
 import OneSignalFramework
+#if targetEnvironment(macCatalyst)
+// Live Activities are unavailable on Mac Catalyst.
+#else
 import OneSignalLiveActivities
 
 /// Order tracking phases used by the Live Activity demo
@@ -151,3 +154,4 @@ enum LiveActivityController {
         }
     }
 }
+#endif

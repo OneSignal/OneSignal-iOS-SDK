@@ -66,6 +66,7 @@ struct ToggleRow: View {
             Toggle("", isOn: isOn)
                 .labelsHidden()
                 .tint(OS.Color.primary)
+                .background(OS.Color.grey500.opacity(0.35), in: Capsule())
                 .disabled(isDisabled)
                 .accessibilityIdentifier(accessibilityID)
         }

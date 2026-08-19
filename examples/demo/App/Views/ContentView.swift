@@ -51,7 +51,9 @@ struct ContentView: View {
                     TriggersSection()
                     CustomEventsSection()
                     LocationSection()
+                    #if !targetEnvironment(macCatalyst)
                     LiveActivitySection()
+                    #endif
                     ActionButton(
                         "NEXT SCREEN",
                         accessibilityID: "next_screen_button"

@@ -27,7 +27,6 @@
 
 import SwiftUI
 import OneSignalFramework
-import OneSignalLiveActivities
 
 @main
 struct App: SwiftUI.App {
@@ -62,9 +61,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         setupInAppMessageListeners()
 
         // Set up Live Activities (iOS 16.1+)
+        #if !targetEnvironment(macCatalyst)
         if #available(iOS 16.1, *) {
             LiveActivityController.setup()
         }
+        #endif
 
         return true
     }

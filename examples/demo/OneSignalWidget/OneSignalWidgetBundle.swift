@@ -31,8 +31,12 @@ import SwiftUI
 @main
 struct OneSignalWidgetBundle: WidgetBundle {
     var body: some Widget {
+        #if targetEnvironment(macCatalyst)
+        OneSignalWidgetPlaceholder()
+        #else
         if #available(iOS 16.2, *) {
             OneSignalWidgetLiveActivity()
         }
+        #endif
     }
 }

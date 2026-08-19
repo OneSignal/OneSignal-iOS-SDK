@@ -33,6 +33,7 @@ import OneSignalCore
 ///
 /// Stored in the App Group container, so it's shared across any targets (main app, NSE, etc.)
 /// configured with the same App Group entitlement. Opaque identifiers only: no PII or credentials.
+/// Accessors are no-ops on Mac Catalyst, where iOS data protection and prewarming do not apply.
 @objc(OSResilientStorage)
 public final class OSResilientStorage: NSObject {
 
@@ -50,6 +51,14 @@ public final class OSResilientStorage: NSObject {
 
     // MARK: - Internal
 
+    private static var isSupported: Bool {
+        #if targetEnvironment(macCatalyst)
+        return false
+        #else
+        return true
+        #endif
+    }
+
     private static let fileName = "onesignal_identity.json"
 
     /// Serial queue used to serialize all file reads/writes.
@@ -59,15 +68,15 @@ public final class OSResilientStorage: NSObject {
     /// the NSE can read the same file. Falls back to the app's private
     /// Application Support directory when no App Group is entitled.
     private static func fileURL() -> URL? {
-        let fm = FileManager.default
+        let fileManager = FileManager.default
 
         let groupName = OneSignalUserDefaults.appGroupName()
-        if let container = fm.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
+        if let container = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupName) {
             return container.appendingPathComponent(fileName)
         }
 
         do {
-            let support = try fm.url(
+            let support = try fileManager.url(
                 for: .applicationSupportDirectory,
                 in: .userDomainMask,
                 appropriateFor: nil,
@@ -121,6 +130,7 @@ public final class OSResilientStorage: NSObject {
 
     /// Returns the full current contents of the cache. Empty dict if absent.
     @objc public static func snapshot() -> [String: String] {
+        guard isSupported else { return [:] }
         return queue.sync { loadUnsafe() }
     }
 
@@ -133,6 +143,7 @@ public final class OSResilientStorage: NSObject {
 
     /// Atomically updates a single value. Passing nil or an empty string removes the key.
     @objc public static func setString(_ value: String?, forKey key: String) {
+        guard isSupported else { return }
         queue.async {
             var current = loadUnsafe()
             if let value = value, !value.isEmpty {
@@ -147,7 +158,7 @@ public final class OSResilientStorage: NSObject {
     /// Atomically updates multiple values, preserving keys not in `values`.
     /// An empty-string value removes the corresponding key.
     @objc public static func setStrings(_ values: [String: String]) {
-        guard !values.isEmpty else { return }
+        guard isSupported, !values.isEmpty else { return }
         queue.async {
             var current = loadUnsafe()
             for (key, value) in values {

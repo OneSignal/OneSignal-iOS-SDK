@@ -18,6 +18,8 @@ settings:
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
     GENERATE_INFOPLIST_FILE: NO
+    SUPPORTS_MACCATALYST: YES
+    DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: YES
 projectReferences:
   OneSignalSDK:
     path: ../../iOS_SDK/OneSignalSDK/OneSignal.xcodeproj

@@ -27,6 +27,9 @@
 
 import SwiftUI
 
+#if targetEnvironment(macCatalyst)
+// Live Activities are unavailable on Mac Catalyst.
+#else
 /// Live Activities (iOS 16.1+) section with activity ID + order # inputs and status cycler.
 /// Mirrors the Capacitor demo's LiveActivitySection.
 struct LiveActivitySection: View {
@@ -142,3 +145,4 @@ struct LiveActivitySection: View {
         }
     }
 }
+#endif

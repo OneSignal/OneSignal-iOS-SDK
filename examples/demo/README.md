@@ -92,7 +92,7 @@ xcodegen generate               # rewrites App.xcodeproj
 
 ### 3. Capabilities & App Group
 
-The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.example.onesignal`. If you need a different group (for example to install on a real device under your own team), change the value in both files to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
+The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.example.onesignal`. Both targets also set `OneSignal_app_groups_key` to this value because Catalyst derives a `maccatalyst.*` bundle identifier that would otherwise produce a different default group name. If you need a different group (for example to install on a real device under your own team), change the value in both entitlements and both Info.plists to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
 
 ### 4. Configure your OneSignal credentials
 
