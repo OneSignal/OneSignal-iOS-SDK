@@ -74,6 +74,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
     func testHasCompletedFirstFetch_isSetAfterFirstFetch() throws {
         /* Setup */
         let client = MockOneSignalClient()
+        client.executeInstantaneously = true
         OneSignalCoreImpl.setSharedClient(client)
         OSMessagingController.start()
         let controller = OSMessagingController.sharedInstance()
@@ -92,7 +93,11 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         /* Execute */
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let fetchCompleted = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in controller.hasCompletedFirstFetch },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [fetchCompleted], timeout: 5), .completed)
 
         /* Verify */
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -191,7 +196,9 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2.0)
+        OneSignalCoreMocks.waitUntil("Initial IAM fetch did not complete") {
+            controller.hasCompletedFirstFetch
+        }
 
         // Verify first fetch completed
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -293,7 +300,9 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Execute */
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2.0)
+        OneSignalCoreMocks.waitUntil("IAM messages were not loaded") {
+            controller.hasCompletedFirstFetch && controller.messages.count == 3
+        }
 
         /* Verify */
         // First fetch should have completed
@@ -369,7 +378,9 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Execute */
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1.0)
+        OneSignalCoreMocks.waitUntil("IAM message was not loaded") {
+            controller.hasCompletedFirstFetch && controller.messages.count == 1
+        }
 
         /* Verify */
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -439,7 +450,9 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         /* Execute */
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1.0)
+        OneSignalCoreMocks.waitUntil("IAM messages were not loaded") {
+            controller.hasCompletedFirstFetch && controller.messages.count == 2
+        }
 
         /* Verify */
         let messages = controller.messages as! [OSInAppMessageInternal]

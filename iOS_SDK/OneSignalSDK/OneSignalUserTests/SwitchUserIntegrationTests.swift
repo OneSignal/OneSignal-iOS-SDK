@@ -50,8 +50,16 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
         OneSignalUserManagerImpl.sharedInstance.addTag(key: "tag_b", value: "value_b")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let userBTagsSent = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in
+                client.onlyOneRequest(
+                    contains: "apps/test-app-id/users/by/onesignal_id/\(userB_OSID)",
+                    contains: ["properties": ["tags": tagsUserB]]
+                )
+            },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [userBTagsSent], timeout: 5), .completed)
 
         /* Then */
 
@@ -108,6 +116,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // Returns mocked user data to test hydration
         MockUserRequests.setDefaultFetchUserResponseForHydration(with: client, externalId: userA_EUID)
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        OSOperationRepo.sharedInstance.paused = true
+
         /* When */
 
         // 1. Anonymous user
@@ -123,8 +137,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_a", id: "id_a")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OSOperationRepo.sharedInstance.paused = false
+        OSOperationRepo.sharedInstance.flushAndWait()
+
+        OneSignalCoreMocks.waitUntil("User A updates and hydration did not complete") {
+            self.userAUpdatesAndHydrationCompleted(client, tagsUserA)
+        }
 
         /* Then */
 
@@ -190,8 +208,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
      */
     func testAnonUser_thenIdentifyUserWithConflict_thenLogout_sendsCorrectUpdatesWithNoFetch() throws {
         /* Setup */
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
-
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
 
@@ -215,6 +231,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         MockUserRequests.setAddAliasesResponse(with: client, aliases: ["alias_b": "id_b"])
         MockUserRequests.setAddEmailResponse(with: client, email: "email_b@example.com")
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        OSOperationRepo.sharedInstance.paused = true
+
         /* When */
 
         // 1. Anonymous user starts
@@ -237,8 +259,12 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
-        // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        OSOperationRepo.sharedInstance.paused = false
+        OSOperationRepo.sharedInstance.flushAndWait()
+
+        OneSignalCoreMocks.waitUntil("Logged-out user updates were not sent") {
+            self.userUpdatesCompleted(client, tagsUserA, tagsUserB, anonUserOSID)
+        }
 
         /* Then */
 
@@ -320,8 +346,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
 
         // Increase flush interval to allow all the updates to batch
         OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-        // Wait to let any pending flushes in the Operation Repo to run
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.3)
+        OSOperationRepo.sharedInstance.flushAndWait()
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
@@ -368,8 +393,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
-        // 3. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 2)
+        OneSignalCoreMocks.waitUntil("User B updates and hydration did not complete") {
+            self.userUpdatesAndHydrationCompleted(client, tagsUserA, tagsUserB)
+        }
 
         /* Then */
 
@@ -423,5 +449,68 @@ final class SwitchUserIntegrationTests: XCTestCase {
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.getTags()["remote_tag"])
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.user.identityModel.aliases["remote_alias"])
         XCTAssertNotNil(OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModel(key: "remote_email@example.com"))
+    }
+
+    private func userUpdatesAndHydrationCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String],
+        _ tagsUserB: [String: String]
+    ) -> Bool {
+        userUpdatesCompleted(client, tagsUserA, tagsUserB, userB_OSID)
+            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
+    }
+
+    private func userUpdatesCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String],
+        _ tagsUserB: [String: String],
+        _ userBOneSignalId: String
+    ) -> Bool {
+        client.onlyOneRequest(
+            contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+            contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
+        )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
+                contains: ["identity": ["alias_a": "id_a"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
+                contains: ["subscription": ["token": "email_a@example.com"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)",
+                contains: ["properties": ["language": "lang_b", "tags": tagsUserB]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)/identity",
+                contains: ["identity": ["alias_b": "id_b"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userBOneSignalId)/subscriptions",
+                contains: ["subscription": ["token": "email_b@example.com"]]
+            )
+    }
+
+    private func userAUpdatesAndHydrationCompleted(
+        _ client: MockOneSignalClient,
+        _ tagsUserA: [String: String]
+    ) -> Bool {
+        client.allRequestsHandled
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)",
+                contains: ["properties": ["language": "lang_a", "tags": tagsUserA]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/identity",
+                contains: ["identity": ["alias_a": "id_a"]]
+            )
+            && client.onlyOneRequest(
+                contains: "apps/test-app-id/users/by/onesignal_id/\(userA_OSID)/subscriptions",
+                contains: ["subscription": ["token": "email_a@example.com"]]
+            )
+            && OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore
+                .getModel(key: "remote_email@example.com") != nil
     }
 }

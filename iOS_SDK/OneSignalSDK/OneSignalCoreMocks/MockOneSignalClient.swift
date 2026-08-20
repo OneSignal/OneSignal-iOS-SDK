@@ -38,6 +38,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
     public var executedRequests: [OneSignalRequest] = []
     /// Requests that have entered `execute` (including those still held / delayed).
     public private(set) var startedRequests: [OneSignalRequest] = []
+    public private(set) var completedRequests: [OneSignalRequest] = []
     public var executeInstantaneously = false
     /// Set to true to make it unnecessary to setup mock responses for every request possible
     public var fireSuccessForAllRequests = false
@@ -91,6 +92,7 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         networkRequestCount = 0
         executedRequests.removeAll()
         startedRequests.removeAll()
+        completedRequests.removeAll()
         heldExecutions.removeAll()
         holdResponses = false
         executeInstantaneously = true
@@ -181,6 +183,10 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
             allRequestsHandled = false
             print("🧪 cannot find a mock response for request: \(stringifiedRequest)")
         }
+
+        lock.withLock {
+            completedRequests.append(request)
+        }
     }
 
     func didCompleteRequest(_ request: OneSignalRequest) {
@@ -214,9 +220,10 @@ extension MockOneSignalClient {
      */
     @objc
     public func onlyOneRequest(contains path: String, contains payload: [String: Any]) -> Bool {
+        let requests = lock.withLock { executedRequests }
         var found = false
 
-        for request in executedRequests {
+        for request in requests {
             guard let params = request.parameters as? NSDictionary  else {
                 continue
             }
@@ -238,7 +245,8 @@ extension MockOneSignalClient {
     }
 
     public func hasExecutedRequestOfType(_ type: AnyClass, expectedCount: Int? = nil) -> Bool {
-        let matchingCount = executedRequests.filter { request in
+        let requests = lock.withLock { executedRequests }
+        let matchingCount = requests.filter { request in
             request.isKind(of: type)
         }.count
 
@@ -247,5 +255,28 @@ extension MockOneSignalClient {
         } else {
             return matchingCount > 0
         }
+    }
+
+    public func hasCompletedRequestOfType(_ type: AnyClass, expectedCount: Int? = nil) -> Bool {
+        let matchingCount = completedRequestCount(ofType: type)
+
+        if let expectedCount {
+            return matchingCount == expectedCount
+        }
+        return matchingCount > 0
+    }
+
+    public func completedRequestCount(ofType type: AnyClass) -> Int {
+        let requests = lock.withLock { completedRequests }
+        return requests.filter { request in
+            request.isKind(of: type)
+        }.count
+    }
+
+    public func startedRequestCount(ofType type: AnyClass) -> Int {
+        let requests = lock.withLock { startedRequests }
+        return requests.filter { request in
+            request.isKind(of: type)
+        }.count
     }
 }

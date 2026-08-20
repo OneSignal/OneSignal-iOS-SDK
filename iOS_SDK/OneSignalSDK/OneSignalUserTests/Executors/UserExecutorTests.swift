@@ -72,7 +72,10 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         mocks.userExecutor.createUser(mocks.createUserInstance(externalId: userA_EUID))
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Create user response was not applied") {
+            mocks.newRecordsState.contains(userA_OSID)
+                && mocks.newRecordsState.contains("push-sub-id")
+        }
 
         /* Then */
         XCTAssertTrue(mocks.newRecordsState.contains(userA_OSID))
@@ -88,7 +91,9 @@ final class UserExecutorTests: XCTestCase {
         let identityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
         mocks.userExecutor.createUser(aliasLabel: OS_EXTERNAL_ID, aliasId: userA_EUID, identityModel: identityModel)
 
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Create user request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
@@ -107,13 +112,14 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-
-        // The current user needs to be the same, set it in the user manager
-        OneSignalUserManagerImpl.sharedInstance.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: newIdentityModel, hydrating: false)
+        let newIdentityModel = OneSignalUserMocks
+            .setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+            .identityModel
         mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
 
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Identify user response was not applied") {
+            mocks.newRecordsState.wasOverwritten(userA_OSID)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
@@ -135,7 +141,9 @@ final class UserExecutorTests: XCTestCase {
         let newIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
 
         mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Identify user request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestIdentifyUser.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
@@ -158,7 +166,11 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         mocks.userExecutor.identifyUser(externalId: userB_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        let userCreated = XCTNSPredicateExpectation(
+            predicate: NSPredicate { _, _ in mocks.newRecordsState.contains(userB_OSID) },
+            object: nil
+        )
+        XCTAssertEqual(XCTWaiter.wait(for: [userCreated], timeout: 5), .completed)
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
@@ -180,7 +192,9 @@ final class UserExecutorTests: XCTestCase {
         /* When */
         mocks.userExecutor.identifyUser(externalId: userB_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: newIdentityModel)
 
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Conflict create user request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
@@ -212,7 +226,9 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         mocks.userExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: userA_OSID, identityModel: staleIdentityModel, onNewSession: true)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Stale fetch user request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestFetchUser.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))
@@ -236,7 +252,10 @@ final class UserExecutorTests: XCTestCase {
 
         /* When */
         mocks.userExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: userA_OSID, identityModel: currentUser.identityModel, onNewSession: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Current user fetch response was not applied") {
+            currentUser.identityModel.aliases["stale_label"] == nil
+                && currentUser.identityModel.externalId == userA_EUID
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestFetchUser.self))

@@ -32,13 +32,11 @@
     /* Setup */
 
     MockOneSignalClient* client = [MockOneSignalClient new];
-
-    // 0. Purchases will be dropped if there is no user instance.
-    [OneSignalUserManagerImpl.sharedInstance start];
-
-    // 1. Set up mock responses for the anonymous user
     [MockUserRequests setDefaultCreateAnonUserResponsesWith:client onesignalId:nil subscriptionId:nil];
     [OneSignalCoreImpl setSharedClient:client];
+
+    // Purchases will be dropped if there is no user instance.
+    [OneSignalUserManagerImpl.sharedInstance start];
 
     /* When */
 
@@ -66,14 +64,14 @@
 
     [OneSignalUserManagerImpl.sharedInstance sendPurchases:arrayOfPurchases];
     
-    // Run background threads
-    [OneSignalCoreMocks waitForBackgroundThreadsWithSeconds:0.5];
-
     /* Then */
 
     NSString* path = [NSString stringWithFormat:@"apps/test-app-id/users/by/onesignal_id/%@", @"test_anon_user_onesignal_id"];
     NSDictionary *payload = [NSDictionary dictionaryWithObject:[NSDictionary dictionaryWithObject:arrayOfPurchases forKey:@"purchases"] forKey:@"deltas"];
 
+    XCTAssertTrue([OneSignalCoreMocks waitUntilWithTimeout:5 condition:^BOOL{
+        return [client onlyOneRequestWithContains:path contains:payload];
+    }]);
     XCTAssertTrue([client onlyOneRequestWithContains:path contains:payload]);
 }
 

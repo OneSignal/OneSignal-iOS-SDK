@@ -83,7 +83,10 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
 
         /* Execute */
         OneSignalInAppMessages.getFromServer(testSubscriptionId)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Deferred IAM subscription ID was not stored") {
+            OSMessagingController.sharedInstance()
+                .value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as? String == self.testSubscriptionId
+        }
 
         /* Verify */
         // The controller should have stored the subscription ID for retry
@@ -126,7 +129,9 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
 
         // First attempt: Try to fetch IAMs without OneSignal ID (should be deferred)
         OneSignalInAppMessages.getFromServer(testSubscriptionId)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Deferred IAM subscription ID was not stored") {
+            controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as? String == self.testSubscriptionId
+        }
 
         // Verify the subscription ID was stored and no IAM fetch occurred
         XCTAssertEqual(controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") as! String, testSubscriptionId)
@@ -136,7 +141,10 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: testExternalId)
         OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.first?.sentToClient = false
         OneSignalUserManagerImpl.sharedInstance.userExecutor?.executePendingRequests()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Deferred IAM fetch was not retried") {
+            client.hasCompletedRequestOfType(OSRequestGetInAppMessages.self)
+                && controller.value(forKey: "shouldFetchOnUserChangeWithSubscriptionID") == nil
+        }
 
         /* Verify */
         // The fetch should have been retried now that OneSignal ID is available
@@ -172,7 +180,9 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         )
         ConsistencyManagerTestHelpers.setDefaultRywToken(id: testOneSignalId)
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Initial IAM fetch did not complete") {
+            client.hasCompletedRequestOfType(OSRequestGetInAppMessages.self)
+        }
 
         /* Verify */
         // IAM is fetched and no retry is pending
@@ -183,7 +193,9 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
         // Trigger a normal user state change by login
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: testExternalId)
         OneSignalUserManagerImpl.sharedInstance.login(externalId: testExternalId, token: nil)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Identify user request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestIdentifyUser.self)
+        }
 
         /* Verify */
         // Does not fetch IAMs again

@@ -98,7 +98,13 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: promptedNeverAnswered
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+        OneSignalCoreMocks.waitUntil("Blocked subscription update was not cached") {
+            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
+                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
+                defaultValue: []
+            ) as? [OSRequestUpdateSubscription]
+            return requests?.count == 1
+        }
 
         XCTAssertTrue(client.executedRequests.isEmpty, "Update should still be pending without subscriptionId")
 
@@ -115,7 +121,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: subscribedNotificationTypes
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Subscription update did not complete") {
+            client.hasCompletedRequestOfType(OSRequestUpdateSubscription.self)
+        }
 
         let updateRequests = client.executedRequests.compactMap { $0 as? OSRequestUpdateSubscription }
         XCTAssertFalse(updateRequests.isEmpty, "Expected at least one UpdateSubscription after id hydration")
@@ -155,7 +163,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: promptedNeverAnswered
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+        OneSignalCoreMocks.waitUntil("First subscription update did not start") {
+            client.startedRequestCount(ofType: OSRequestUpdateSubscription.self) == 1
+        }
 
         XCTAssertEqual(client.startedRequests.count, 1, "First UpdateSubscription should be in flight")
         let firstPayload = try XCTUnwrap(
@@ -176,12 +186,20 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: subscribedNotificationTypes
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.2)
+        OneSignalCoreMocks.waitUntil("Follow-up subscription update was not queued") {
+            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
+                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
+                defaultValue: []
+            ) as? [OSRequestUpdateSubscription]
+            return requests?.count == 2
+        }
 
         XCTAssertEqual(client.startedRequests.count, 1, "Follow-up must wait for in-flight UpdateSubscription")
 
         client.releaseHeldResponses()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Follow-up subscription update did not start") {
+            client.startedRequestCount(ofType: OSRequestUpdateSubscription.self) == 2
+        }
 
         XCTAssertEqual(client.startedRequests.count, 2, "Pending follow-up should send after in-flight completes")
         let secondPayload = try XCTUnwrap(
@@ -219,7 +237,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: promptedNeverAnswered
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Retryable subscription update did not complete") {
+            client.hasCompletedRequestOfType(OSRequestUpdateSubscription.self)
+        }
 
         XCTAssertEqual(client.executedRequests.count, 1, "First update should have been attempted and failed retryably")
 
@@ -236,7 +256,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             value: subscribedNotificationTypes
         ))
         executor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Follow-up subscription update did not complete") {
+            client.hasCompletedRequestOfType(OSRequestUpdateSubscription.self, expectedCount: 2)
+        }
 
         let updateRequests = client.executedRequests.compactMap { $0 as? OSRequestUpdateSubscription }
         XCTAssertEqual(updateRequests.count, 2, "Follow-up update must still send after a retryable failure")
