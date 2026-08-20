@@ -120,11 +120,15 @@ final class OneSignalUserTests: XCTestCase {
     func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
         /* Setup */
 
-        OneSignalUserManagerImpl.sharedInstance.start()
-
         let client = MockOneSignalClient()
+        client.executeInstantaneously = true
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         OneSignalCoreImpl.setSharedClient(client)
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
 
         // Hold the queue for the batch below. Widening the poll interval instead left the test
         // dependent on where the running poller happened to be in its cycle, and a poll landing
