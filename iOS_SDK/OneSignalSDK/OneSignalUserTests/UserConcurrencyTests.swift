@@ -68,7 +68,7 @@ final class UserConcurrencyTests: XCTestCase {
         for _ in 1...4 {
             DispatchQueue.global().async {
                 print("🧪 flushDeltaQueue on thread \(Thread.current)")
-                OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+                OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
             }
         }
 
@@ -92,22 +92,22 @@ final class UserConcurrencyTests: XCTestCase {
         )
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Remove Subscription Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, externalId: nil, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_REMOVE_SUBSCRIPTION_DELTA, identityModelId: UUID().uuidString, externalId: nil, model: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), property: "email", value: "email"))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
-            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
+            executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
         }
 
         OneSignalCoreMocks.waitUntil("Concurrent subscription requests did not complete") {
@@ -132,22 +132,22 @@ final class UserConcurrencyTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
         MockUserRequests.setAddAliasesResponse(with: client, aliases: aliases)
 
-        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        let executor = OSIdentityOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Add Alias Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, externalId: nil, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_ADD_ALIAS_DELTA, identityModelId: UUID().uuidString, externalId: nil, model: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), property: "aliases", value: aliases))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
-            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
+            executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer()), ownerExternalId: nil), inBackground: false)
         }
 
         OneSignalCoreMocks.waitUntil("Concurrent identity requests did not complete") {
@@ -174,21 +174,21 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
 
-        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState())
-        OSOperationRepo.sharedInstance.addExecutor(executor)
+        let executor = OSPropertyOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.addExecutor(executor)
 
         /* When */
 
         DispatchQueue.concurrentPerform(iterations: 50) { _ in
             // 1. Enqueue Deltas to the Operation Repo
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
-            OSOperationRepo.sharedInstance.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, externalId: identityModel.externalId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.enqueueDelta(OSDelta(name: OS_UPDATE_PROPERTIES_DELTA, identityModelId: identityModel.modelId, externalId: identityModel.externalId, model: OSPropertiesModel(changeNotifier: OSEventProducer()), property: "language", value: UUID().uuidString))
 
             // 2. Flush Operation Repo
-            OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.addFlushDeltaQueueToDispatchQueue()
 
             // 3. Simulate updating the executor's request queue from a network response
-            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
+            executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel, ownerExternalId: identityModel.externalId), inBackground: false)
         }
 
         OneSignalCoreMocks.waitUntil("Concurrent property requests did not complete") {
@@ -216,7 +216,7 @@ final class UserConcurrencyTests: XCTestCase {
         let identityModel1 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
         let identityModel2 = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())
 
-        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState())
+        let userExecutor = OSUserExecutor(newRecordsState: OSNewRecordsState(), identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService, auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
 
         /* When */
 

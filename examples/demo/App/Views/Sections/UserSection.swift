@@ -27,13 +27,24 @@
 
 import SwiftUI
 
-/// Login/logout + status display, mirroring the Capacitor UserSection
+/// Login/logout + JWT / Identity Verification controls for manual testing.
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
     @State private var loginOpen = false
+    @State private var updateJwtOpen = false
 
     var body: some View {
         SectionCard(title: "USER", sectionKey: "user") {
+            ToggleRow(
+                label: "Identity Verification",
+                description: "Use external_id for API calls",
+                isOn: Binding(
+                    get: { viewModel.useIdentityVerification },
+                    set: { viewModel.setUseIdentityVerification($0) }
+                ),
+                accessibilityID: "identity_verification_toggle"
+            )
+
             ValueCard(rows: [
                 ValueCard.Row(
                     label: "Status",
@@ -64,15 +75,32 @@ struct UserSection: View {
                     viewModel.logout()
                 }
             }
+
+            ActionButton(
+                "UPDATE USER JWT",
+                style: .outline,
+                accessibilityID: "update_user_jwt_button"
+            ) {
+                updateJwtOpen = true
+            }
         }
         .osCenteredDialog(isPresented: $loginOpen) {
-            AddItemDialog(
-                itemType: .externalUserId,
-                onAdd: { _, value in
-                    viewModel.login(externalId: value)
+            LoginUserDialog(
+                onLogin: { externalId, jwt in
+                    viewModel.login(externalId: externalId, jwtToken: jwt)
                     loginOpen = false
                 },
                 onCancel: { loginOpen = false }
+            )
+        }
+        .osCenteredDialog(isPresented: $updateJwtOpen) {
+            AddItemDialog(
+                itemType: .updateUserJwt,
+                onAdd: { externalId, token in
+                    viewModel.updateUserJwt(externalId: externalId, token: token)
+                    updateJwtOpen = false
+                },
+                onCancel: { updateJwtOpen = false }
             )
         }
     }

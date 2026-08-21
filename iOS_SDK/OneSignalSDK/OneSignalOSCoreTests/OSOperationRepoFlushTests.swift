@@ -28,6 +28,7 @@
 import Foundation
 import XCTest
 import OneSignalCore
+import OneSignalCoreMocks
 @testable import OneSignalOSCore
 
 /// Covers `flushDeltaQueue` routing: matched deltas go to executors and leave the repo
@@ -37,70 +38,61 @@ final class OSOperationRepoFlushTests: XCTestCase {
     private let knownDelta = "test_known_delta"
     private let unknownDelta = "test_unknown_delta"
 
+    private var jwtConfig = OSUserJwtConfig()
+    private var repo: OSOperationRepo!
+
     override func setUp() {
         super.setUp()
         OneSignalIdentifiers.currentAppId = "test-app-id"
-        resetOperationRepo()
-        // Pause so the poller (started by addExecutor/start) cannot flush mid-setup.
-        OSOperationRepo.sharedInstance.paused = true
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 60_000
+        OSOperationRepoTestEnvironment.clearCache()
+
+        jwtConfig = OSUserJwtConfig()
+        // Hydrate `off` before building the repo so routing tests are not held by unknown-requirement.
+        jwtConfig.hydrate(requiresUserAuth: false)
+        repo = OSOperationRepoTestEnvironment.makeRepo(jwtConfig: jwtConfig)
+
+        // Pause so addExecutor/start cannot flush mid-setup.
+        repo.paused = true
+        repo.pollIntervalMilliseconds = 60_000
     }
 
     override func tearDown() {
-        resetOperationRepo()
+        OSOperationRepoTestEnvironment.clearCache()
         super.tearDown()
     }
 
     func testFlush_sendsMatchedDeltasToExecutorAndClearsRepoQueue() {
         let executor = MockOperationExecutor(supportedDeltas: [knownDelta])
-        let processExpectation = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processExpectation.fulfill() }
-
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
-        let deltaA = makeDelta(name: knownDelta, property: "a")
-        let deltaB = makeDelta(name: knownDelta, property: "b")
-        repo.enqueueDelta(deltaA)
-        repo.enqueueDelta(deltaB)
-        waitUntil("both deltas enqueued") { repo.deltaQueue.count == 2 }
+        repo.enqueueDelta(makeDelta(name: knownDelta, property: "a"))
+        repo.enqueueDelta(makeDelta(name: knownDelta, property: "b"))
+        OneSignalCoreMocks.waitUntil("both deltas enqueued") { self.repo.snapshotDeltaQueue().count == 2 }
 
         repo.paused = false
-        repo.addFlushDeltaQueueToDispatchQueue()
-        wait(for: [processExpectation], timeout: 2.0)
+        repo.flushAndWait()
 
         XCTAssertEqual(executor.enqueued.map(\.property), ["a", "b"])
-        XCTAssertTrue(repo.deltaQueue.isEmpty)
+        XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
     }
 
     func testFlush_keepsUnmatchedDeltasInRepoQueue() {
         let executor = MockOperationExecutor(supportedDeltas: [knownDelta])
-        let processExpectation = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processExpectation.fulfill() }
-
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
-        let deltaA = makeDelta(name: unknownDelta, property: "a")
-        let deltaB = makeDelta(name: unknownDelta, property: "b")
-        repo.enqueueDelta(deltaA)
-        repo.enqueueDelta(deltaB)
-        waitUntil("both deltas enqueued") { repo.deltaQueue.count == 2 }
+        repo.enqueueDelta(makeDelta(name: unknownDelta, property: "a"))
+        repo.enqueueDelta(makeDelta(name: unknownDelta, property: "b"))
+        OneSignalCoreMocks.waitUntil("both deltas enqueued") { self.repo.snapshotDeltaQueue().count == 2 }
 
         repo.paused = false
-        repo.addFlushDeltaQueueToDispatchQueue()
-        wait(for: [processExpectation], timeout: 2.0)
+        repo.flushAndWait()
 
         XCTAssertTrue(executor.enqueued.isEmpty)
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["a", "b"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["a", "b"])
     }
 
     func testFlush_routesMatchedAndPreservesUnmatchedOrder() {
         let executor = MockOperationExecutor(supportedDeltas: [knownDelta])
-        let processExpectation = expectation(description: "processDeltaQueue")
-        executor.onProcessDeltaQueue = { processExpectation.fulfill() }
-
-        let repo = OSOperationRepo.sharedInstance
         repo.addExecutor(executor)
 
         // Interleaved matched/unmatched: assert dispatch order and retained queue order.
@@ -109,72 +101,43 @@ final class OSOperationRepoFlushTests: XCTestCase {
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-2"))
         repo.enqueueDelta(makeDelta(name: unknownDelta, property: "unknown-2"))
         repo.enqueueDelta(makeDelta(name: knownDelta, property: "known-3"))
-        waitUntil("all deltas enqueued") { repo.deltaQueue.count == 5 }
+        OneSignalCoreMocks.waitUntil("all deltas enqueued") { self.repo.snapshotDeltaQueue().count == 5 }
 
         repo.paused = false
-        repo.addFlushDeltaQueueToDispatchQueue()
-        wait(for: [processExpectation], timeout: 2.0)
+        repo.flushAndWait()
 
         XCTAssertEqual(executor.enqueued.map(\.property), ["known-1", "known-2", "known-3"])
-        XCTAssertEqual(repo.deltaQueue.map(\.property), ["unknown-1", "unknown-2"])
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["unknown-1", "unknown-2"])
+    }
+
+    /**
+     Registration used to write the executor list and the name map on the caller's thread, where a
+     flush or another registration could tear them. Every executor added concurrently has to end up
+     routable.
+     */
+    func testEveryExecutorRegisteredConcurrentlyIsRoutable() {
+        let names = (0..<50).map { "concurrent_delta_\($0)" }
+        let executors = names.map { MockOperationExecutor(supportedDeltas: [$0]) }
+
+        DispatchQueue.concurrentPerform(iterations: executors.count) { index in
+            self.repo.addExecutor(executors[index])
+        }
+
+        for name in names {
+            repo.enqueueDelta(makeDelta(name: name, property: name))
+        }
+        OneSignalCoreMocks.waitUntil("all deltas enqueued") { self.repo.snapshotDeltaQueue().count == names.count }
+
+        repo.paused = false
+        repo.flushAndWait()
+
+        XCTAssertTrue(repo.snapshotDeltaQueue().isEmpty)
+        XCTAssertEqual(executors.map { $0.enqueued.map(\.property) }, names.map { [$0] })
     }
 
     // MARK: - Helpers
 
-    private func resetOperationRepo() {
-        let repo = OSOperationRepo.sharedInstance
-        repo.deltaQueue.removeAll()
-        repo.executors.removeAll()
-        repo.deltasToExecutorMap.removeAll()
-        repo.paused = false
-    }
-
     private func makeDelta(name: String, property: String) -> OSDelta {
-        OSDelta(
-            name: name,
-            identityModelId: UUID().uuidString,
-            model: OSModel(changeNotifier: OSEventProducer()),
-            property: property,
-            value: property
-        )
-    }
-
-    private func waitUntil(
-        _ description: String,
-        timeout: TimeInterval = 2.0,
-        file: StaticString = #filePath,
-        line: UInt = #line,
-        _ condition: @escaping () -> Bool
-    ) {
-        let exp = expectation(description: description)
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { timer in
-            if condition() {
-                timer.invalidate()
-                exp.fulfill()
-            }
-        }
-        let result = XCTWaiter.wait(for: [exp], timeout: timeout)
-        timer.invalidate()
-        XCTAssertEqual(result, .completed, "Timed out waiting for: \(description)", file: file, line: line)
-    }
-}
-
-private final class MockOperationExecutor: OSOperationExecutor {
-    let supportedDeltas: [String]
-    private(set) var enqueued: [OSDelta] = []
-    var onProcessDeltaQueue: (() -> Void)?
-
-    init(supportedDeltas: [String]) {
-        self.supportedDeltas = supportedDeltas
-    }
-
-    func enqueueDelta(_ delta: OSDelta) {
-        enqueued.append(delta)
-    }
-
-    func cacheDeltaQueue() {}
-
-    func processDeltaQueue(inBackground: Bool) {
-        onProcessDeltaQueue?()
+        OSOperationRepoTestEnvironment.makeDelta(name: name, externalId: nil, property: property)
     }
 }

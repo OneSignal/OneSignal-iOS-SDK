@@ -28,17 +28,31 @@
 @objc public class OSIamFetchReadyCondition: NSObject, OSCondition {
     // the id used to index the token map (e.g. onesignalId)
     private let id: String
+
+    private let stateLock = NSLock()
     private var hasSubscriptionUpdatePending: Bool = false
 
-    // Singleton shared instance initialized with default empty id
-    private static var instance: OSIamFetchReadyCondition?
+    private static let instancesLock = NSLock()
+    private static var instances: [String: OSIamFetchReadyCondition] = [:]
 
-    // Method to get or initialize the shared instance
+    /**
+     One condition per id, so a fetch waits on the same object the subscription listener armed, and a
+     fetch for a user who just switched in is not answered by the previous user's tokens.
+     */
     @objc public static func sharedInstance(withId id: String) -> OSIamFetchReadyCondition {
-        if instance == nil {
-            instance = OSIamFetchReadyCondition(id: id)
+        return instancesLock.withLock {
+            if let existing = instances[id] {
+                return existing
+            }
+            let condition = OSIamFetchReadyCondition(id: id)
+            instances[id] = condition
+            return condition
         }
-        return instance!
+    }
+
+    /// Test seam; the instances otherwise live as long as the process.
+    @objc public static func reset() {
+        instancesLock.withLock { instances = [:] }
     }
 
     // Private initializer to prevent external instantiation
@@ -53,8 +67,16 @@
         return OSIamFetchReadyCondition.CONDITIONID
     }
 
+    /// Raises the bar for the next fetch: an in-session subscription change is only readable once its
+    /// own token arrives, so waiting on the user token alone would fetch before the server can see it.
     public func setSubscriptionUpdatePending(value: Bool) {
-        hasSubscriptionUpdatePending = value
+        stateLock.withLock { hasSubscriptionUpdatePending = value }
+    }
+
+    /// The fetch this was raised for has been released, so later fetches stop waiting on a subscription
+    /// token that has no update behind it.
+    @objc public func onConditionSatisfied() {
+        setSubscriptionUpdatePending(value: false)
     }
 
     public func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
@@ -71,7 +93,7 @@
             return true
         }
 
-        if hasSubscriptionUpdatePending {
+        if stateLock.withLock({ hasSubscriptionUpdatePending }) {
             return userUpdateTokenSet && subscriptionTokenSet
         }
         return userUpdateTokenSet

@@ -35,6 +35,11 @@ private struct OSCombinedProperties {
     var location: OSLocationPoint?
     var refreshDeviceMetadata = false
 
+    /// Carried from the Deltas so the Request inherits their stamped owner. The Deltas combined here
+    /// share one Identity Model; the last one wins if that model gained an `external_id` partway, which
+    /// keeps the combined work rather than dropping it.
+    var ownerExternalId: String?
+
     // Items of Properties Deltas
     var sessionTime: Int = 0
     var sessionCount: Int = 0
@@ -65,12 +70,14 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private var deltaQueue: [OSDelta] = []
     private var updateRequestQueue: [OSRequestUpdateProperties] = []
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         uncacheDeltas()
@@ -100,8 +107,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The identity model exist in the repo, set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
@@ -126,6 +133,24 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     func cacheDeltaQueue() {
         self.dispatchQueue.async {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+        }
+    }
+
+    func removeOperationsWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
+
+            let remainingRequests = self.updateRequestQueue.filter { $0.ownerExternalId != nil }
+            if remainingRequests.count != self.updateRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor dropped \(self.updateRequestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
+                self.updateRequestQueue = remainingRequests
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+            }
         }
     }
 
@@ -168,7 +193,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 }
                 let request = OSRequestUpdateProperties(
                     params: properties.jsonRepresentation(),
-                    identityModel: identityModel
+                    identityModel: identityModel,
+                    ownerExternalId: properties.ownerExternalId
                 )
                 self.updateRequestQueue.append(request)
             }
@@ -186,6 +212,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     /// Helper method to combine the information in an `OSDelta` to the existing `OSCombinedProperties` so far.
     private func combineProperties(existing: OSCombinedProperties?, delta: OSDelta) -> OSCombinedProperties {
         var combinedProperties = existing ?? OSCombinedProperties()
+        combinedProperties.ownerExternalId = delta.externalId
 
         guard let property = OSPropertiesSupportedProperty(rawValue: delta.property) else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.combineProperties dropped unsupported property: \(delta.property)")
@@ -235,7 +262,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -276,7 +303,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     )
                 } else {
                     // handle a potential regression where ryw_token is no longer returned by API
-                    OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+                    OSConsistencyManager.shared.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: onesignalId)
                 }
             }
         } onFailure: { error in
@@ -298,6 +325,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSPropertyOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})

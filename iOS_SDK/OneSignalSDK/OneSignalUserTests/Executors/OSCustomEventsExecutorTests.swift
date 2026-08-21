@@ -40,7 +40,7 @@ private class CustomEventsMocks {
 
     init() {
         OneSignalCoreImpl.setSharedClient(client)
-        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState)
+        customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
     }
 }
 
@@ -53,6 +53,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         return OSDelta(
             name: OS_CUSTOM_EVENT_DELTA,
             identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: identityModel,
             property: name,
             value: properties ?? [:]
