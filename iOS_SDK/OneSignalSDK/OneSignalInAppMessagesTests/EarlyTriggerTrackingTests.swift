@@ -49,7 +49,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
     override func setUpWithError() throws {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
-        OSConsistencyManager.shared.reset()
+        ConsistencyManagerTestHelpers.reset()
         OSMessagingController.removeInstance()
 
         // Set up basic configuration
