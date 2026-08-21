@@ -31,81 +31,6 @@ import OneSignalCore
 @_spi(OneSignalInternal) import OneSignalUser
 import UIKit
 
-struct OSRemoteLoggingConfiguration {
-    private static let loggingConfigKey = "logging_config"
-    private static let logLevelKey = "log_level"
-
-    private let threshold: ONE_S_LOG_LEVEL?
-
-    var logLevel: String? {
-        threshold.map(Self.levelName)
-    }
-
-    var isRemoteLoggingEnabled: Bool {
-        threshold != nil && threshold != .LL_NONE
-    }
-
-    static var current: OSRemoteLoggingConfiguration {
-        let params = OSRemoteParamController.shared().remoteParams as? [String: Any] ?? [:]
-        return OSRemoteLoggingConfiguration(remoteParams: params)
-    }
-
-    init(remoteParams: [String: Any]) {
-        let loggingConfig = remoteParams[Self.loggingConfigKey] as? [String: Any]
-        let parsedThreshold = (loggingConfig?[Self.logLevelKey] as? String)
-            .map { $0.uppercased() }
-            .flatMap(Self.oneSignalLevel)
-
-        threshold = parsedThreshold
-    }
-
-    func allows(_ level: ONE_S_LOG_LEVEL) -> Bool {
-        guard isRemoteLoggingEnabled, let threshold else {
-            return false
-        }
-        return level != .LL_NONE && level.rawValue <= threshold.rawValue
-    }
-
-    static func levelName(_ level: ONE_S_LOG_LEVEL) -> String {
-        switch level {
-        case .LL_FATAL:
-            return "FATAL"
-        case .LL_ERROR:
-            return "ERROR"
-        case .LL_WARN:
-            return "WARN"
-        case .LL_INFO:
-            return "INFO"
-        case .LL_DEBUG:
-            return "DEBUG"
-        case .LL_VERBOSE:
-            return "VERBOSE"
-        default:
-            return "NONE"
-        }
-    }
-
-    private static func oneSignalLevel(_ value: String) -> ONE_S_LOG_LEVEL? {
-        switch value {
-        case "FATAL":
-            return .LL_FATAL
-        case "ERROR":
-            return .LL_ERROR
-        case "WARN", "WARNING":
-            return .LL_WARN
-        case "INFO":
-            return .LL_INFO
-        case "DEBUG":
-            return .LL_DEBUG
-        case "VERBOSE", "TRACE":
-            return .LL_VERBOSE
-        default:
-            return nil
-        }
-    }
-
-}
-
 @objc(OSRemoteLoggingController)
 final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
     typealias RemoteLoggerFactory = (OSRemoteLoggerProviders) -> OSStructuredRemoteLoggerProtocol
@@ -113,8 +38,6 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
     private static let shared = OSRemoteLoggingController()
     private static let installIdKey = "PREFS_OS_INSTALL_ID"
     private static let cachedConfigurationKey = "PREFS_OS_REMOTE_LOGGING_CONFIGURATION"
-    private static let cachedAppIdKey = "app_id"
-    private static let cachedLogLevelKey = "log_level"
     private static let backgroundTaskPrefix = "com.onesignal.logger.flush."
     private static let installId: String = {
         let defaults = OneSignalUserDefaults.initShared()
@@ -133,7 +56,7 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
     private let usesScenes: () -> Bool
     private let beginBackgroundTask: (String) -> Void
     private let endBackgroundTask: (String) -> Void
-    private var configuration = OSRemoteLoggingConfiguration(remoteParams: [:])
+    private var configuration = OSRemoteLoggingConfiguration.disabled
     private var configurationGeneration = 0
     private var remoteLogger: OSStructuredRemoteLoggerProtocol?
     private var appState = "unknown"
@@ -177,15 +100,11 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
                 forKey: cachedConfigurationKey,
                 defaultValue: nil
               ),
-              cached[cachedAppIdKey] as? String == appId else {
+              cached[OSRemoteLoggingConfiguration.cachedAppIdKey] as? String == appId else {
             shared.shutdown()
             return
         }
-        let logLevel = cached[cachedLogLevelKey] as? String
-        let remoteParams = logLevel.map {
-            ["logging_config": ["log_level": $0]]
-        } ?? [:]
-        shared.configure(with: OSRemoteLoggingConfiguration(remoteParams: remoteParams))
+        shared.configure(with: OSRemoteLoggingConfiguration(cached: cached))
     }
 
     @objc class func reset() {
@@ -196,13 +115,9 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         guard let appId = OneSignalIdentifiers.currentAppId else {
             return
         }
-        var cached: [String: Any] = [cachedAppIdKey: appId]
-        if let logLevel = configuration.logLevel {
-            cached[cachedLogLevelKey] = logLevel
-        }
         OneSignalUserDefaults.initStandard().saveDictionary(
             forKey: cachedConfigurationKey,
-            withValue: cached
+            withValue: configuration.cachePayload(appId: appId)
         )
     }
 
@@ -256,19 +171,33 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         stateQueue.sync {
             self.configurationGeneration += 1
             let generation = self.configurationGeneration
-            let previousLogLevel = self.configuration.logLevel
+            let action = OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(self.configuration),
+                new: OSRemoteLoggingConfig(newConfiguration)
+            )
             self.configuration = newConfiguration
-            guard newConfiguration.isRemoteLoggingEnabled else {
-                self.stopRemoteLogging()
-                return
-            }
 
-            if previousLogLevel != newConfiguration.logLevel {
+            switch action {
+            case .disable:
                 self.stopRemoteLogging()
-            }
-
-            if self.remoteLogger == nil {
+            case .updateLogLevel:
+                // Android rebuilds remote telemetry on a level change rather than
+                // swapping a filter on the live instance: `startLogging` shuts the
+                // previous one down before constructing a new one. Rebuilding matters
+                // for more than parity here — the platform provider handed to KMP is
+                // built alongside the logger, so keeping the old instance would go on
+                // reporting the previous level into KMP, and the crash uploader would
+                // never re-run after a level escalates away from NONE.
+                self.stopRemoteLogging()
                 startGeneration = generation
+            case .enable, .noChange:
+                guard newConfiguration.isEnabled else {
+                    self.stopRemoteLogging()
+                    break
+                }
+                if self.remoteLogger == nil {
+                    startGeneration = generation
+                }
             }
         }
 
@@ -353,7 +282,7 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
             featureFlags: { [] },
-            remoteLogLevel: { configuration.logLevel },
+            remoteLogLevel: { configuration.logLevelName },
             exporterLoggingEnabled: { false }
         )
     }
@@ -433,12 +362,6 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         return DispatchQueue.main.sync(execute: work)
     }
 
-}
-
-private extension OSRemoteLoggingConfiguration {
-    func matches(_ other: OSRemoteLoggingConfiguration) -> Bool {
-        logLevel == other.logLevel
-    }
 }
 
 struct OSRemoteLoggerProviders {

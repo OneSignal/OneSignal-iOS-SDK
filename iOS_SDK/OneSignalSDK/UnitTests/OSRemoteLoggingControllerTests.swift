@@ -44,7 +44,8 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         let enabled = OSRemoteLoggingConfiguration(
             remoteParams: ["logging_config": ["log_level": "warn"]]
         )
-        XCTAssertTrue(enabled.isRemoteLoggingEnabled)
+        XCTAssertTrue(enabled.isEnabled)
+        XCTAssertEqual(enabled.logLevel, .LL_WARN)
         XCTAssertTrue(enabled.allows(.LL_ERROR))
         XCTAssertTrue(enabled.allows(.LL_WARN))
         XCTAssertFalse(enabled.allows(.LL_INFO))
@@ -52,7 +53,137 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         let invalidLevel = OSRemoteLoggingConfiguration(
             remoteParams: ["logging_config": ["log_level": "OFF"]]
         )
-        XCTAssertFalse(invalidLevel.isRemoteLoggingEnabled)
+        XCTAssertFalse(invalidLevel.isEnabled)
+        XCTAssertNil(invalidLevel.logLevel)
+    }
+
+    func testIosParamsPayloadEnablesVerboseLevelLogging() {
+        let configuration = OSRemoteLoggingConfiguration(remoteParams: Self.iosParamsPayload)
+
+        XCTAssertTrue(configuration.isEnabled)
+        XCTAssertEqual(configuration.logLevel, .LL_VERBOSE)
+        XCTAssertEqual(configuration.logLevelName, "VERBOSE")
+
+        // VERBOSE is the most permissive level, so every severity is exported.
+        for level in [ONE_S_LOG_LEVEL.LL_FATAL, .LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG, .LL_VERBOSE] {
+            XCTAssertTrue(configuration.allows(level))
+        }
+        XCTAssertFalse(configuration.allows(.LL_NONE))
+
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(.disabled),
+                new: OSRemoteLoggingConfig(configuration)
+            ),
+            .enable(.LL_VERBOSE)
+        )
+
+        let restored = OSRemoteLoggingConfiguration(
+            cached: configuration.cachePayload(appId: "app-id")
+        )
+        XCTAssertEqual(restored.logLevel, .LL_VERBOSE)
+        XCTAssertTrue(restored.isEnabled)
+    }
+
+    func testIosParamsPayloadRoutesEverySeverityThroughController() {
+        let telemetry = RemoteTelemetrySpy()
+        telemetry.emitExpectation = expectation(description: "routes verbose from ios_params payload")
+        telemetry.emitExpectation?.expectedFulfillmentCount = 2
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+
+        controller.configure(remoteParams: Self.iosParamsPayload)
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "verbose is exported")
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "error is exported")
+
+        wait(for: [telemetry.emitExpectation!], timeout: 2)
+        XCTAssertEqual(telemetry.messages, ["verbose is exported", "error is exported"])
+        XCTAssertEqual(telemetry.levels, ["VERBOSE", "ERROR"])
+    }
+
+    func testNoneLogLevelEnablesRemoteLoggingButDoesNotSend() {
+        let none = OSRemoteLoggingConfiguration(
+            remoteParams: ["logging_config": ["log_level": "NONE"]]
+        )
+        XCTAssertTrue(none.isEnabled)
+        XCTAssertEqual(none.logLevel, .LL_NONE)
+        XCTAssertFalse(none.allows(.LL_FATAL))
+        XCTAssertFalse(none.allows(.LL_ERROR))
+    }
+
+    func testCachePersistsLogLevelAndEnabledFlag() {
+        let enabled = OSRemoteLoggingConfiguration(
+            remoteParams: ["logging_config": ["log_level": "ERROR"]]
+        )
+        let payload = enabled.cachePayload(appId: "app-id")
+        XCTAssertEqual(payload["app_id"] as? String, "app-id")
+        XCTAssertEqual(payload["log_level"] as? String, "ERROR")
+        XCTAssertEqual(payload["is_enabled"] as? Bool, true)
+
+        let restored = OSRemoteLoggingConfiguration(cached: payload)
+        XCTAssertTrue(restored.isEnabled)
+        XCTAssertEqual(restored.logLevel, .LL_ERROR)
+    }
+
+    func testLegacyCacheWithoutIsEnabledUsesLogLevelPresence() {
+        let legacyEnabled = OSRemoteLoggingConfiguration(cached: ["log_level": "WARN"])
+        XCTAssertTrue(legacyEnabled.isEnabled)
+        XCTAssertEqual(legacyEnabled.logLevel, .LL_WARN)
+
+        let legacyDisabled = OSRemoteLoggingConfiguration(cached: ["app_id": "app-id"])
+        XCTAssertFalse(legacyDisabled.isEnabled)
+        XCTAssertNil(legacyDisabled.logLevel)
+    }
+
+    func testEvaluatorMirrorsAndroidOtelConfigEvaluator() {
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: nil,
+                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_WARN)
+            ),
+            .enable(.LL_WARN)
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: nil,
+                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: nil)
+            ),
+            .enable(.LL_ERROR)
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: nil,
+                new: OSRemoteLoggingConfig.disabled
+            ),
+            .noChange
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig.disabled,
+                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_INFO)
+            ),
+            .enable(.LL_INFO)
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
+                new: OSRemoteLoggingConfig.disabled
+            ),
+            .disable
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
+                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_WARN)
+            ),
+            .updateLogLevel(old: .LL_ERROR, new: .LL_WARN)
+        )
+        XCTAssertEqual(
+            OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
+                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR)
+            ),
+            .noChange
+        )
     }
 
     func testControllerRoutesLogsAndFlushesOnBackground() {
@@ -136,6 +267,52 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         wait(for: [telemetry.emitExpectation!], timeout: 0.2)
         XCTAssertEqual(telemetry.shutdownCount, 1)
         XCTAssertTrue(telemetry.messages.isEmpty)
+    }
+
+    func testNoneLogLevelStartsLoggerButDoesNotSend() {
+        let telemetry = RemoteTelemetrySpy()
+        telemetry.emitExpectation = expectation(description: "does not route at NONE")
+        telemetry.emitExpectation?.isInverted = true
+        let controller = makeController(remoteLoggerFactory: { _ in telemetry })
+        controller.configure(remoteParams: Self.remoteParams(level: "NONE"))
+
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "not uploaded")
+
+        wait(for: [telemetry.emitExpectation!], timeout: 0.2)
+        XCTAssertEqual(telemetry.startCount, 1)
+        XCTAssertEqual(telemetry.shutdownCount, 0)
+        XCTAssertTrue(telemetry.messages.isEmpty)
+    }
+
+    func testLogLevelUpdateRebuildsLoggerWithTheNewLevel() {
+        var loggers: [RemoteTelemetrySpy] = []
+        var levelsReportedToKmp: [String?] = []
+        let controller = makeController { providers in
+            levelsReportedToKmp.append(providers.remoteLogLevel())
+            let logger = RemoteTelemetrySpy()
+            loggers.append(logger)
+            return logger
+        }
+
+        controller.configure(remoteParams: Self.remoteParams(level: "ERROR"))
+        controller.configure(remoteParams: Self.remoteParams(level: "WARN"))
+
+        // Android's updateLogLevel shuts the previous telemetry down and builds a new
+        // one. Rebuilding is what keeps the level reported into KMP in step with the
+        // configured level, which a live-instance filter swap would leave stale.
+        XCTAssertEqual(loggers.count, 2)
+        XCTAssertEqual(levelsReportedToKmp, ["ERROR", "WARN"])
+        XCTAssertEqual(loggers[0].shutdownCount, 1)
+        XCTAssertEqual(loggers[1].startCount, 1)
+
+        let current = loggers[1]
+        current.emitExpectation = expectation(description: "routes warn after level update")
+        OneSignalLog.onesignalLog(.LL_WARN, message: "uploaded")
+        OneSignalLog.onesignalLog(.LL_INFO, message: "not uploaded")
+
+        wait(for: [current.emitExpectation!], timeout: 2)
+        XCTAssertEqual(current.messages, ["uploaded"])
+        XCTAssertEqual(current.levels, ["WARN"])
     }
 
     func testTerminationFlushesBeforeShutdown() {
@@ -252,6 +429,23 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
     private static func remoteParams(level: String) -> [String: Any] {
         ["logging_config": ["log_level": level]]
     }
+
+    /// Verbatim ios_params response, so parsing stays honest about the real shape
+    /// rather than only the trimmed dictionaries the other tests use.
+    private static let iosParamsPayload: [String: Any] = [
+        "fba": true,
+        "uses_provisional_auth": true,
+        "outcomes": [
+            "direct": ["enabled": true],
+            "indirect": [
+                "notification_attribution": ["minutes_since_displayed": 1440, "limit": 10],
+                "enabled": true
+            ],
+            "unattributed": ["enabled": true]
+        ],
+        "receive_receipts_enable": true,
+        "logging_config": ["log_level": "VERBOSE"]
+    ]
 }
 
 private final class ReentrantLogListener: NSObject, OSLogListener {
