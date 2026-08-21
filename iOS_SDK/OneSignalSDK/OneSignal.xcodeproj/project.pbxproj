@@ -79,6 +79,9 @@
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
+		A91B2C3D4E5F60718293A4B5 /* OSRemoteLoggingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */; };
+		B82C3D4E5F60718293A4B5C6 /* OSRemoteLoggingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */; };
+		C73D4E5F60718293A4B5C6D7 /* OSRemoteLoggingConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */; };
 		ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */; };
 		7732574D325D34CC7C498199 /* OSRemoteLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */; };
 		698F58A488FCE503DFD5247F /* OSLogCrashHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3284210A7DF2597594778 /* OSLogCrashHandler.swift */; };
@@ -1800,6 +1803,7 @@
 		3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLoggerAdaptersTests.swift; sourceTree = "<group>"; };
 		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
+		7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingConfiguration.swift; sourceTree = "<group>"; };
 		C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRemoteLoggingController.h; sourceTree = "<group>"; };
 		658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingControllerTests.swift; sourceTree = "<group>"; };
 		6972EE491A57C79EFE56D4C8 /* OSRemoteLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLogger.swift; sourceTree = "<group>"; };
@@ -2718,6 +2722,7 @@
 				DEC08AFF2947D4E900C81DA3 /* OneSignalSwiftInterface.swift */,
 				C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */,
 				8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */,
+				7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */,
 				3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */,
 			);
 			path = Source;
@@ -4403,6 +4408,7 @@
 				9124121E1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				3C14E3A42AFAE54C006ED053 /* OneSignalSwiftInterface.swift in Sources */,
 				B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */,
+				A91B2C3D4E5F60718293A4B5 /* OSRemoteLoggingConfiguration.swift in Sources */,
 				912412471E73369600E41FD7 /* OneSignalHelper.m in Sources */,
 				CA8E19062193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				7AAA60682485D0420004FADE /* OSMigrationController.m in Sources */,
@@ -4557,6 +4563,7 @@
 				7AECE59F23675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
 				DEC08B012947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */,
 				25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */,
+				B82C3D4E5F60718293A4B5C6 /* OSRemoteLoggingConfiguration.swift in Sources */,
 				CA1A6E7120DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				7A674F1C2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
@@ -4684,6 +4691,7 @@
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				DEC08B022947D4E900C81DA3 /* OneSignalSwiftInterface.swift in Sources */,
 				9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */,
+				C73D4E5F60718293A4B5C6D7 /* OSRemoteLoggingConfiguration.swift in Sources */,
 				7A93269E25AF4F0300BBEC27 /* OSPendingCallbacks.m in Sources */,
 				7AECE59823674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				7A5A818224897693002E07C8 /* MigrationTests.m in Sources */,

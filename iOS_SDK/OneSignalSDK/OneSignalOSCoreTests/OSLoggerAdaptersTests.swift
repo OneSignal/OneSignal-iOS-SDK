@@ -44,6 +44,32 @@ final class OSLoggerAdaptersTests: XCTestCase {
         try? FileManager.default.removeItem(at: temporaryDirectory)
     }
 
+    func testLifecycleRejectsStartOnceShutdownHasBegun() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+
+        XCTAssertTrue(lifecycle.beginShutdown())
+        // The final drain is deferred, so `isShutdown` is still false at this point.
+        // Starting anyway would register a crash handler that nothing unregisters,
+        // permanently blocking every later logger from installing its own.
+        XCTAssertFalse(lifecycle.start())
+        XCTAssertFalse(lifecycle.isActive)
+    }
+
+    func testLifecycleStopsAcceptingRecordsWhenShutdownBegins() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.isActive)
+        XCTAssertTrue(lifecycle.canStartUploader)
+
+        // Gates emission, uploader start, and explicit flushes together, so the
+        // deferred drain in shutdown() is the only thing still crossing into KMP.
+        XCTAssertTrue(lifecycle.beginShutdown())
+        XCTAssertFalse(lifecycle.isActive)
+        XCTAssertFalse(lifecycle.canStartUploader)
+        XCTAssertFalse(lifecycle.start())
+    }
+
     func testFileStoreSynchronouslySavesAndListsPayload() throws {
         let store = FileLogStore(rootPath: temporaryDirectory.path)
         let payload = makeKotlinBytes([1, 2, 3, 255])
