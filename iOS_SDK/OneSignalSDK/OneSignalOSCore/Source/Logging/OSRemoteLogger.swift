@@ -54,13 +54,17 @@ public extension OSRemoteLoggerProtocol {
 
 @_implementationOnly import OneSignalKMP
 
-private final class OSRemoteLoggerLifecycle {
+final class OSRemoteLoggerLifecycle {
     private let lock = NSLock()
     private var isStarted = false
     private var isShuttingDown = false
     private var isShutdown = false
 
-    var canStartUploader: Bool {
+    var canStartUploader: Bool { canEmit }
+
+    /// Records stop being accepted the moment shutdown begins, rather than once the
+    /// final drain finishes, so teardown never lets a late log escape.
+    var canEmit: Bool {
         lock.lock()
         defer { lock.unlock() }
         return isStarted && !isShuttingDown && !isShutdown
@@ -76,10 +80,13 @@ private final class OSRemoteLoggerLifecycle {
         return true
     }
 
+    /// Rejects once shutdown has *begun*, not just once it has finished. The final
+    /// drain is asynchronous, so a logger told to shut down can otherwise still be
+    /// started afterwards and install a crash handler nothing will ever unregister.
     func start() -> Bool {
         lock.lock()
         defer { lock.unlock() }
-        guard !isStarted, !isShutdown else {
+        guard !isStarted, !isShuttingDown, !isShutdown else {
             return false
         }
         isStarted = true
@@ -170,6 +177,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
+    /// Serial so overlapping teardowns cannot stack several bounded drains at once.
+    private static let teardownQueue = DispatchQueue(label: "com.onesignal.logger.remote-teardown")
+
     public convenience init(
         installIdProvider: @escaping () -> String,
         onesignalIdProvider: @escaping () -> String?,
@@ -237,9 +247,12 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let crashLogger = OSCrashLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
+        // Console-only logger on purpose. Exporter diagnostics describe the POST that
+        // ships log records, so routing them through OneSignalLog would feed each POST
+        // back into the export queue as a new record and never settle.
         let httpSender = Self.makeHttpSender(
             requestSender: requestSenderOverride,
-            logger: logger,
+            logger: crashLogger,
             isDiagnosticsEnabled: exporterLoggingEnabledProvider,
             lifecycle: lifecycle
         )
@@ -309,16 +322,29 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let logger = self.logger
         let lifecycle = self.lifecycle
         OSCrashUploaderCoordinator.shared.enqueue(owner: owner) {
-            guard lifecycle.canStartUploader else {
-                OSCrashUploaderCoordinator.shared.finish(owner: owner)
-                return
-            }
-            crashUploader.start { error in
-                if let error {
-                    logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+            Self.onMain {
+                guard lifecycle.canStartUploader else {
+                    OSCrashUploaderCoordinator.shared.finish(owner: owner)
+                    return
                 }
-                OSCrashUploaderCoordinator.shared.finish(owner: owner)
+                crashUploader.start { error in
+                    if let error {
+                        logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+                    }
+                    OSCrashUploaderCoordinator.shared.finish(owner: owner)
+                }
             }
+        }
+    }
+
+    /// Kotlin/Native only supports calling exported `suspend` functions from the main
+    /// thread, so every crossing into KMP has to be marshalled here. Callers reach this
+    /// class from the logging controller's serial queue and from URLSession callbacks.
+    private static func onMain(_ work: @escaping () -> Void) {
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.async(execute: work)
         }
     }
 
@@ -347,32 +373,57 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         exceptionMessage: String?,
         exceptionStacktrace: String?
     ) {
-        LogLoggingHelper.shared.log(
-            telemetry: telemetry,
-            level: level,
-            message: message,
-            exceptionType: exceptionType,
-            exceptionMessage: exceptionMessage,
-            exceptionStacktrace: exceptionStacktrace,
-            completionHandler: { _ in }
-        )
+        guard lifecycle.canEmit else {
+            return
+        }
+        let telemetry = self.telemetry
+        let lifecycle = self.lifecycle
+        Self.onMain {
+            // Re-checked here because the hop is asynchronous: teardown can begin
+            // between the caller-side check above and the crossing into KMP.
+            guard lifecycle.canEmit else {
+                return
+            }
+            LogLoggingHelper.shared.log(
+                telemetry: telemetry,
+                level: level,
+                message: message,
+                exceptionType: exceptionType,
+                exceptionMessage: exceptionMessage,
+                exceptionStacktrace: exceptionStacktrace,
+                completionHandler: { _ in }
+            )
+        }
     }
 
     public func forceFlush(completion: @escaping () -> Void) {
-        telemetry.forceFlush(completionHandler: { _ in completion() })
+        let telemetry = self.telemetry
+        Self.onMain {
+            telemetry.forceFlush(completionHandler: { _ in completion() })
+        }
     }
 
     public func shutdown() {
         lifecycleOperationLock.lock()
-        defer { lifecycleOperationLock.unlock() }
         guard lifecycle.beginShutdown() else {
+            lifecycleOperationLock.unlock()
             return
         }
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
-        telemetry.shutdown()
-        lifecycle.finishShutdown()
+        lifecycleOperationLock.unlock()
+
+        // `telemetry.shutdown()` blocks for up to five seconds draining buffered
+        // records, and callers reach here from app launch and app-id changes, where
+        // that would stall the UI. `beginShutdown()` has already closed the door on
+        // new records, so the drain can finish on its own thread. Unregistering the
+        // crash handler stays synchronous above: a later logger cannot install its
+        // handler while this one is still registered.
+        Self.teardownQueue.async { [self] in
+            telemetry.shutdown()
+            lifecycle.finishShutdown()
+        }
     }
 }
 
