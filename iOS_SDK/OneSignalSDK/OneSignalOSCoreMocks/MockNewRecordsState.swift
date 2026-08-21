@@ -25,6 +25,7 @@
  THE SOFTWARE.
  */
 
+import Foundation
 @testable import OneSignalOSCore
 
 public class MockNewRecordsState: OSNewRecordsState {
@@ -33,11 +34,18 @@ public class MockNewRecordsState: OSNewRecordsState {
         let overwrite: Bool
     }
 
-    public var records: [MockNewRecord] = []
+    private let lock = NSLock()
+    private var storedRecords: [MockNewRecord] = []
+
+    public var records: [MockNewRecord] {
+        lock.withLock { storedRecords }
+    }
 
     override public func add(_ key: String, _ overwrite: Bool = false) {
         let record = MockNewRecord(key: key, overwrite: overwrite)
-        records.append(record)
+        lock.withLock {
+            storedRecords.append(record)
+        }
 
         super.add(key, overwrite)
     }

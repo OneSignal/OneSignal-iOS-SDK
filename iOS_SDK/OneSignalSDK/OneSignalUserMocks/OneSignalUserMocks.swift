@@ -37,6 +37,13 @@ public class OneSignalUserMocks: NSObject {
     // TODO: create mocked server responses to user requests
     @objc
     public static func reset() {
+        OSResilientStorage.setStrings([
+            OSResilientStorage.keyAppId: "",
+            OSResilientStorage.keySubscriptionId: "",
+            OSResilientStorage.keyReceiveReceiptsEnabled: "",
+            OSResilientStorage.keyHasPriorSession: ""
+        ])
+        _ = OSResilientStorage.snapshot()
         OSCoreMocks.resetOperationRepo()
         OneSignalUserManagerImpl.sharedInstance.reset()
     }

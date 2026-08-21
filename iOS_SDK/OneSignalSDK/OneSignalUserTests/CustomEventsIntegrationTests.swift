@@ -63,7 +63,9 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "test_event", properties: properties)
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -81,7 +83,9 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "test_event", properties: nil)
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -99,7 +103,9 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "test_event", properties: [:])
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -120,7 +126,6 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "test_event", properties: invalidProperties)
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
 
         /* Then - No request should be made */
         XCTAssertFalse(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -155,7 +160,9 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "complex_event", properties: complexProperties)
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -221,7 +228,9 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* When */
         userManager.trackEvent(name: "array_event", properties: properties)
         OSOperationRepo.sharedInstance.addFlushDeltaQueueToDispatchQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))

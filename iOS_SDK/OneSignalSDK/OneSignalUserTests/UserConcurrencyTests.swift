@@ -110,8 +110,9 @@ final class UserConcurrencyTests: XCTestCase {
             executor.executeDeleteSubscriptionRequest(OSRequestDeleteSubscription(subscriptionModel: OSSubscriptionModel(type: .email, address: nil, subscriptionId: UUID().uuidString, reachable: true, isDisabled: false, changeNotifier: OSEventProducer())), inBackground: false)
         }
 
-        // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Concurrent subscription requests did not complete") {
+            client.completedRequestCount(ofType: OSRequestDeleteSubscription.self) >= 100
+        }
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -149,8 +150,9 @@ final class UserConcurrencyTests: XCTestCase {
             executor.executeAddAliasesRequest(OSRequestAddAliases(aliases: aliases, identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: UUID().uuidString], changeNotifier: OSEventProducer())), inBackground: false)
         }
 
-        // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Concurrent identity requests did not complete") {
+            client.completedRequestCount(ofType: OSRequestAddAliases.self) >= 100
+        }
 
         /* Then */
         // Previously caused crash: signal SIGABRT - malloc: double free for ptr
@@ -189,8 +191,9 @@ final class UserConcurrencyTests: XCTestCase {
             executor.executeUpdatePropertiesRequest(OSRequestUpdateProperties(params: ["properties": ["language": UUID().uuidString], "refresh_device_metadata": false], identityModel: identityModel), inBackground: false)
         }
 
-        // 4. Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Concurrent property requests did not complete") {
+            client.completedRequestCount(ofType: OSRequestUpdateProperties.self) >= 50
+        }
 
         /* Then */
         // No crash
@@ -228,8 +231,10 @@ final class UserConcurrencyTests: XCTestCase {
             userExecutor.executeFetchUserRequest(fetchRequest)
         }
 
-        // Run background threads
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Concurrent user requests did not complete") {
+            client.completedRequestCount(ofType: OSRequestIdentifyUser.self) >= 50
+                && client.completedRequestCount(ofType: OSRequestFetchUser.self) >= 50
+        }
 
         /* Then */
         // No crash

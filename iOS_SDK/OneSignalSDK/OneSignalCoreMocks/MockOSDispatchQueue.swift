@@ -25,33 +25,43 @@
  THE SOFTWARE.
  */
 
+import Foundation
 import OneSignalOSCore
 
 public class MockDispatchQueue: OSDispatchQueue {
     let requestDispatch = DispatchQueue(label: "MockDispatchQueue")
-    var numDispatches = 0
+    private let dispatchCondition = NSCondition()
+    private var numDispatches = 0
 
     public init() {}
 
     public func async(execute work: @escaping @convention(block) () -> Void) {
         requestDispatch.async {
             work()
-            self.numDispatches += 1
+            self.recordDispatch()
         }
     }
 
     public func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
         requestDispatch.asyncAfterTime(deadline: deadline) {
             work()
-            self.numDispatches += 1
+            self.recordDispatch()
         }
     }
 
     public func waitForDispatches(_ numDispatches: Int) {
+        dispatchCondition.lock()
+        defer { dispatchCondition.unlock() }
+
         while self.numDispatches < numDispatches {
-            requestDispatch.sync {
-                Thread.sleep(forTimeInterval: TimeInterval(1))
-            }
+            dispatchCondition.wait()
         }
+    }
+
+    private func recordDispatch() {
+        dispatchCondition.lock()
+        numDispatches += 1
+        dispatchCondition.broadcast()
+        dispatchCondition.unlock()
     }
 }

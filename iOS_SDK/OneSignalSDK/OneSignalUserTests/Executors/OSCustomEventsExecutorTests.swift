@@ -85,7 +85,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -151,7 +153,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -190,7 +194,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -229,7 +235,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         mocks.customEventsExecutor.enqueueDelta(delta2)
         mocks.customEventsExecutor.enqueueDelta(delta3)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event requests did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self, expectedCount: 3)
+        }
 
         /* Then */
         // Should have 3 separate requests, one per event (no batching)
@@ -276,7 +284,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         mocks.customEventsExecutor.enqueueDelta(deltaUserA2)
         mocks.customEventsExecutor.enqueueDelta(deltaUserB1)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event requests did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self, expectedCount: 3)
+        }
 
         /* Then */
         // Should have 3 separate requests, one per event (no batching)
@@ -322,7 +332,13 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Blocked custom event delta was not cached") {
+            let deltas = OneSignalUserDefaults.initShared().getSavedCodeableData(
+                forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY,
+                defaultValue: []
+            ) as? [OSDelta]
+            return deltas?.count == 1
+        }
 
         /* Then */
         // No request should be made
@@ -342,7 +358,13 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.cacheDeltaQueue()
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.3)
+        OneSignalCoreMocks.waitUntil("Custom event delta was not cached") {
+            let deltas = OneSignalUserDefaults.initShared().getSavedCodeableData(
+                forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY,
+                defaultValue: []
+            ) as? [OSDelta]
+            return deltas?.count == 1
+        }
 
         /* Then - Verify delta is cached */
         let cachedDeltas = OneSignalUserDefaults.initShared().getSavedCodeableData(
@@ -369,7 +391,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         mocks.client.fireSuccessForAllRequests = true
 
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Uncached custom event request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
@@ -398,7 +422,9 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* When */
         mocks.customEventsExecutor.enqueueDelta(delta)
         mocks.customEventsExecutor.processDeltaQueue(inBackground: false)
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Custom event request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestCustomEvents.self)
+        }
 
         /* Then */
         guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents,

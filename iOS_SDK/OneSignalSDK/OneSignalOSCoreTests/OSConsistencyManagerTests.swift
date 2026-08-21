@@ -249,48 +249,38 @@ class OSConsistencyManagerTests: XCTestCase {
     }
 
     func testConcurrentUpdatesToTokens() {
-        let expectation = self.expectation(description: "Concurrent updates handled correctly")
-
         let id = "test_id"
-        let key = OSIamFetchOffsetKey.userUpdate
-        let rywToken1 = "123"
-        let rywToken2 = "456"
         let rywDelay = 0 as NSNumber
-        let value1 = OSReadYourWriteData(rywToken: rywToken1, rywDelay: rywDelay)
-        let value2 = OSReadYourWriteData(rywToken: rywToken2, rywDelay: rywDelay)
+        let value1 = OSReadYourWriteData(rywToken: "123", rywDelay: rywDelay)
+        let value2 = OSReadYourWriteData(rywToken: "456", rywDelay: rywDelay)
+        let updates: [(OSIamFetchOffsetKey, OSReadYourWriteData)] = [
+            (.userUpdate, value1),
+            (.subscriptionUpdate, value2)
+        ]
+        let updateGroup = DispatchGroup()
 
-        // Set up concurrent queues
-        let queue1 = DispatchQueue(label: "com.test.queue1", attributes: .concurrent)
-        let queue2 = DispatchQueue(label: "com.test.queue2", attributes: .concurrent)
-
-        // Perform concurrent token updates
-        queue1.async {
-            self.consistencyManager.setRywTokenAndDelay(
-                id: id,
-                key: key,
-                value: OSReadYourWriteData(rywToken: rywToken1, rywDelay: rywDelay)
-            )
+        for (key, value) in updates {
+            updateGroup.enter()
+            DispatchQueue.global().async {
+                self.consistencyManager.setRywTokenAndDelay(id: id, key: key, value: value)
+                updateGroup.leave()
+            }
         }
 
-        queue2.async {
-            self.consistencyManager.setRywTokenAndDelay(
-                id: id,
-                key: key,
-                value: OSReadYourWriteData(rywToken: rywToken2, rywDelay: rywDelay)
-            )
+        guard updateGroup.wait(timeout: .now() + 2) == .success else {
+            XCTFail("Concurrent token updates timed out")
+            return
         }
 
-        // Allow some time for the updates to happen
-        DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
-            // Check that the most recent value was correctly set
-            let condition = TestMetCondition(expectedTokens: [id: [NSNumber(value: key.rawValue): value2]])
-            let rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
+        let condition = TestMetCondition(expectedTokens: [
+            id: [
+                NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue): value1,
+                NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue): value2
+            ]
+        ])
+        let rywData = consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
 
-            XCTAssertEqual(rywData?.rywToken, "456")
-            expectation.fulfill()
-        }
-
-        waitForExpectations(timeout: 2.0, handler: nil)
+        XCTAssertEqual(rywData?.rywToken, "456")
     }
 }
 

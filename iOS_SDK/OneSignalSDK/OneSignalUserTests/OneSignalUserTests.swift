@@ -129,8 +129,7 @@ final class OneSignalUserTests: XCTestCase {
         // Increase flush interval to allow all the updates to batch
         OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
 
-        // Wait to let any pending flushes in the Operation Repo to run
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.1)
+        OSOperationRepo.sharedInstance.flushAndWait()
 
         /* When */
 
@@ -169,7 +168,9 @@ final class OneSignalUserTests: XCTestCase {
 
         /* Then */
 
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        OneSignalCoreMocks.waitUntil("Combined property update did not complete") {
+            client.hasCompletedRequestOfType(OSRequestUpdateProperties.self)
+        }
 
         let expectedPayload: [String: Any] = [
             "deltas": [
@@ -239,7 +240,9 @@ final class OneSignalUserTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.start()
 
         // Let the anonymous user be created so it has a OneSignal ID for the update request
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 0.5)
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
 
         /* When */
         // Tags are applied optimistically to the local model and queued as an update request
@@ -251,7 +254,9 @@ final class OneSignalUserTests: XCTestCase {
         XCTAssertTrue(OneSignalUserManagerImpl.sharedInstance.getTags().isEmpty)
 
         // Let the queued UpdateProperties request flush and its 202 echo be processed
-        OneSignalCoreMocks.waitForBackgroundThreads(seconds: 1)
+        OneSignalCoreMocks.waitUntil("Confirmed tags were not restored") {
+            OneSignalUserManagerImpl.sharedInstance.getTags() == tags
+        }
 
         /* Then */
         // The confirmed tags from the 202 response are merged back into the local model
@@ -275,12 +280,13 @@ final class OneSignalUserTests: XCTestCase {
         let checkedUser = manager.currentUser(matching: userA.identityModel.modelId)
         // A concurrent login switches the current user before the response is applied
         let userB = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        let userBLanguage = userB.propertiesModel.language
         checkedUser?.propertiesModel.hydrate(["language": "language-for-user-a"])
 
         /* Then */
         // The response's data went to the user it was for, and the new current user is untouched
         XCTAssertEqual(userA.propertiesModel.language, "language-for-user-a")
-        XCTAssertNil(userB.propertiesModel.language)
+        XCTAssertEqual(userB.propertiesModel.language, userBLanguage)
         XCTAssertEqual(manager._user?.identityModel.externalId, userB_EUID)
     }
 

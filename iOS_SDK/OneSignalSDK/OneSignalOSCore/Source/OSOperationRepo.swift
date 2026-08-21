@@ -131,6 +131,12 @@ public class OSOperationRepo: NSObject {
         }
     }
 
+    func flushAndWait() {
+        dispatchQueue.sync {
+            flushDeltaQueue()
+        }
+    }
+
     private func flushDeltaQueue(inBackground: Bool = false) {
         guard !paused else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSOperationRepo not flushing queue due to being paused")
