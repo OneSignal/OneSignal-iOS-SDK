@@ -27,6 +27,8 @@
 
 import Foundation
 import XCTest
+import OneSignalCoreMocks
+import OneSignalOSCoreMocks
 @testable import OneSignalOSCore
 
 /// Covers what an IAM fetch waits for, and for whom.
@@ -39,14 +41,12 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
     override func setUp() {
         super.setUp()
         defaultWaitTimeout = OSConsistencyManager.waitTimeout
-        OSConsistencyManager.shared.reset()
-        OSIamFetchReadyCondition.reset()
+        ConsistencyManagerTestHelpers.reset()
     }
 
     override func tearDown() {
         OSConsistencyManager.waitTimeout = defaultWaitTimeout
-        OSConsistencyManager.shared.reset()
-        OSIamFetchReadyCondition.reset()
+        ConsistencyManagerTestHelpers.reset()
         super.tearDown()
     }
 
@@ -108,7 +108,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
             _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
             firstReturned.fulfill()
         }
-        waitUntil("first fetch waiting") { manager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("first fetch waiting") { manager.waiterCount == 1 }
 
         manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("100"))
         XCTAssertEqual(manager.waiterCount, 1, "a pending subscription update still owes a token")
@@ -133,7 +133,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
             _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
             returned.fulfill()
         }
-        waitUntil("fetch waiting") { manager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("fetch waiting") { manager.waiterCount == 1 }
 
         manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userA)
 
@@ -153,7 +153,7 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
             _ = manager.getRywTokenFromAwaitableCondition(conditionB, forId: self.userB)
             bReturned.fulfill()
         }
-        waitUntil("user B waiting") { manager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("user B waiting") { manager.waiterCount == 1 }
 
         manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userB)
         wait(for: [bReturned], timeout: 2.0)

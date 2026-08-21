@@ -8,6 +8,8 @@
 
 import Foundation
 import XCTest
+import OneSignalCoreMocks
+import OneSignalOSCoreMocks
 @testable import OneSignalOSCore
 
 class OSConsistencyManagerTests: XCTestCase {
@@ -23,8 +25,7 @@ class OSConsistencyManagerTests: XCTestCase {
 
     override func tearDown() {
         OSConsistencyManager.waitTimeout = defaultWaitTimeout
-        consistencyManager.reset()
-        OSIamFetchReadyCondition.reset()
+        ConsistencyManagerTestHelpers.reset()
         super.tearDown()
     }
 
@@ -105,7 +106,7 @@ class OSConsistencyManagerTests: XCTestCase {
             rywData = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: id)
             returned.fulfill()
         }
-        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
         // A token for another id must not release this waiter
         consistencyManager.setRywTokenAndDelay(
@@ -289,7 +290,7 @@ class OSConsistencyManagerTests: XCTestCase {
             _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
             returned.fulfill()
         }
-        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
         consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: "onesignal-id")
 
@@ -313,7 +314,7 @@ class OSConsistencyManagerTests: XCTestCase {
             _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: userB)
             bReturned.fulfill()
         }
-        waitUntil("both waiters registered") { self.consistencyManager.waiterCount == 2 }
+        OneSignalCoreMocks.waitUntil("both waiters registered") { self.consistencyManager.waiterCount == 2 }
 
         consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: userB)
 
@@ -330,7 +331,7 @@ class OSConsistencyManagerTests: XCTestCase {
             _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
             returned.fulfill()
         }
-        waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
+        OneSignalCoreMocks.waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
         consistencyManager.resolveConditions(conditionId: "SomeOtherCondition", forId: "onesignal-id")
 
