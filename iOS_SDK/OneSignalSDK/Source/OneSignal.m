@@ -140,6 +140,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     [OSRemoteLoggingController reset];
+    [OSFeatureFlagsRefreshService reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -632,6 +633,7 @@ static BOOL ComputeInitialStorageReadable(void) {
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
+    [OSFeatureFlagsRefreshService start];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
     // Defer LA and IAM init during prewarm: both eagerly read UserDefaults at first access and would
@@ -666,6 +668,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
         [OSRemoteLoggingController reset];
+        [OSFeatureFlagsRefreshService reset];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 

@@ -352,7 +352,7 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
             onesignalId: { OneSignalUserManagerImpl.sharedInstance.internalOnesignalId },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
-            featureFlags: { [] },
+            featureFlags: { OSFeatureManager.shared.enabledFeatureKeys() },
             remoteLogLevel: { configuration.logLevel },
             exporterLoggingEnabled: { false }
         )
