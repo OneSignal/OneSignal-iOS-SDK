@@ -129,6 +129,16 @@ static BOOL _downloadedParameters = false;
     return _downloadedParameters;
 }
 
+/*
+ Remote params carry `jwt_required`, and the operation repo holds every queued operation until it knows
+ that value. A first launch has no cached answer to fall back on, so a params request that fails and is
+ never retried costs the app every tag, session count and event for the rest of the session. Retry with
+ a backoff, then leave it to the next session.
+ */
+static int _downloadParametersAttempts = 0;
+static const int MAX_DOWNLOAD_PARAMETERS_ATTEMPTS = 5;
+static const NSTimeInterval DOWNLOAD_PARAMETERS_RETRY_BASE_SECONDS = 5.0;
+
 static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (OneSignalReceiveReceiptsController*)receiveReceiptsController {
     if (!_receiveReceiptsController)
@@ -150,7 +160,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
-    
+    _downloadParametersAttempts = 0;
+
 //    sessionLaunchTime = [NSDate date];
 
     [OSOutcomes clearStatics];
@@ -365,6 +376,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // return if the user has not granted consent, or device-protected storage isn't readable yet
     if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil])
         return;
+
+    // A new session is a fresh chance at params after the launch attempt exhausted its retries
+    if (!_downloadedParameters && !_didCallDownloadParameters && OneSignalIdentifiers.currentAppId) {
+        _downloadParametersAttempts = 0;
+        [self downloadIOSParamsWithAppId:OneSignalIdentifiers.currentAppId];
+    }
 
     [OSOutcomes.sharedController clearOutcomes];
 
@@ -665,6 +682,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
+        _downloadParametersAttempts = 0;
         [OSRemoteLoggingController reset];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
@@ -676,6 +694,9 @@ static BOOL ComputeInitialStorageReadable(void) {
         [sharedUserDefaults removeValueForKey:OSUD_LEGACY_PLAYER_ID];
         [sharedUserDefaults removeValueForKey:OSUD_RECEIVE_RECEIPTS_ENABLED];
         [sharedUserDefaults removeValueForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY];
+
+        [sharedUserDefaults removeValueForKey:OSUD_USE_IDENTITY_VERIFICATION];
+        [sharedUserDefaults removeValueForKey:OSUD_SDK_FEATURE_FLAGS];
 
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
@@ -722,6 +743,7 @@ static BOOL ComputeInitialStorageReadable(void) {
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
+    _downloadParametersAttempts++;
     // This will be nil unless we have a cached user
     // TODO: Commented out. This will init the User Manager too early, and userId is not needed anyway.
     // NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
@@ -729,8 +751,12 @@ static BOOL ComputeInitialStorageReadable(void) {
 
     [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
+        // A response that omits the key means Identity Verification is off for this app; an empty
+        // response answers nothing, so the cached requirement stands
+        if (result != nil) {
+            id jwtRequired = result[IOS_JWT_REQUIRED];
+            BOOL requiresUserAuth = jwtRequired != (id)[NSNull null] && [jwtRequired boolValue];
+            [OSUserJwtConfig.shared hydrateWithRequiresUserAuth:requiresUserAuth];
         }
 
         if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
@@ -772,7 +798,31 @@ static BOOL ComputeInitialStorageReadable(void) {
 
     } onFailure:^(OneSignalClientError *error) {
         _didCallDownloadParameters = false;
+        if ([OSNetworkingUtils getResponseStatusType:error.code] == OSResponseStatusRetryable) {
+            [self scheduleDownloadIOSParamsRetryWithAppId:appId];
+        } else {
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Could not download iOS parameters (HTTP %ld); not retrying this session.", (long)error.code]];
+        }
     }];
+}
+
++ (void)scheduleDownloadIOSParamsRetryWithAppId:(NSString *)appId {
+    if (_downloadParametersAttempts >= MAX_DOWNLOAD_PARAMETERS_ATTEMPTS) {
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Could not download iOS parameters; retrying on the next session. Operations that wait on the Identity Verification setting stay queued until then."];
+        return;
+    }
+
+    // 5s, 10s, 20s, 40s across the remaining attempts
+    NSTimeInterval delay = DOWNLOAD_PARAMETERS_RETRY_BASE_SECONDS * (1 << MAX(_downloadParametersAttempts - 1, 0));
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Retrying the iOS parameters download in %.0f seconds", delay]];
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // A session start or a re-init may have already succeeded or have one in flight
+        if (_downloadedParameters || _didCallDownloadParameters)
+            return;
+
+        [self downloadIOSParamsWithAppId:appId];
+    });
 }
 
 //TODO: consolidate in one place. Where???
