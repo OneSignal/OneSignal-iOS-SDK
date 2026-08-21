@@ -87,14 +87,14 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         super.init()
     }
 
-    @objc class func configure() {
+    @objc static func configure() {
         let configuration = OSRemoteLoggingConfiguration.current
         cache(configuration: configuration)
         shared.configure(with: configuration)
     }
 
     @objc(configureFromCacheForAppId:)
-    class func configureFromCache(appId: String?) {
+    static func configureFromCache(appId: String?) {
         guard let appId,
               let cached = OneSignalUserDefaults.initStandard().getSavedDictionary(
                 forKey: cachedConfigurationKey,
@@ -107,11 +107,11 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         shared.configure(with: OSRemoteLoggingConfiguration(cached: cached))
     }
 
-    @objc class func reset() {
+    @objc static func reset() {
         shared.shutdown()
     }
 
-    private class func cache(configuration: OSRemoteLoggingConfiguration) {
+    private static func cache(configuration: OSRemoteLoggingConfiguration) {
         guard let appId = OneSignalIdentifiers.currentAppId else {
             return
         }
@@ -167,41 +167,7 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
 
     private func configure(with newConfiguration: OSRemoteLoggingConfiguration) {
         updateAppState(Self.currentApplicationState())
-        var startGeneration: Int?
-        stateQueue.sync {
-            self.configurationGeneration += 1
-            let generation = self.configurationGeneration
-            let action = OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(self.configuration),
-                new: OSRemoteLoggingConfig(newConfiguration)
-            )
-            self.configuration = newConfiguration
-
-            switch action {
-            case .disable:
-                self.stopRemoteLogging()
-            case .updateLogLevel:
-                // Android rebuilds remote telemetry on a level change rather than
-                // swapping a filter on the live instance: `startLogging` shuts the
-                // previous one down before constructing a new one. Rebuilding matters
-                // for more than parity here — the platform provider handed to KMP is
-                // built alongside the logger, so keeping the old instance would go on
-                // reporting the previous level into KMP, and the crash uploader would
-                // never re-run after a level escalates away from NONE.
-                self.stopRemoteLogging()
-                startGeneration = generation
-            case .enable, .noChange:
-                guard newConfiguration.isEnabled else {
-                    self.stopRemoteLogging()
-                    break
-                }
-                if self.remoteLogger == nil {
-                    startGeneration = generation
-                }
-            }
-        }
-
-        guard let startGeneration else {
+        guard let startGeneration = applyConfiguration(newConfiguration) else {
             return
         }
 
@@ -236,6 +202,46 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         }
     }
 
+    /// Applies `newConfiguration` and tears down the running logger when the evaluated
+    /// action calls for it. Returns the generation a replacement logger should be built
+    /// for, or nil when the current state already satisfies the configuration.
+    private func applyConfiguration(_ newConfiguration: OSRemoteLoggingConfiguration) -> Int? {
+        var startGeneration: Int?
+        stateQueue.sync {
+            self.configurationGeneration += 1
+            let generation = self.configurationGeneration
+            let action = OSRemoteLoggingConfigEvaluator.evaluate(
+                old: OSRemoteLoggingConfig(self.configuration),
+                new: OSRemoteLoggingConfig(newConfiguration)
+            )
+            self.configuration = newConfiguration
+
+            switch action {
+            case .disable:
+                self.stopRemoteLogging()
+            case .updateLogLevel:
+                // Android rebuilds remote telemetry on a level change rather than
+                // swapping a filter on the live instance: `startLogging` shuts the
+                // previous one down before constructing a new one. Rebuilding matters
+                // for more than parity here — the platform provider handed to KMP is
+                // built alongside the logger, so keeping the old instance would go on
+                // reporting the previous level into KMP, and the crash uploader would
+                // never re-run after a level escalates away from NONE.
+                self.stopRemoteLogging()
+                startGeneration = generation
+            case .enable, .noChange:
+                guard newConfiguration.isEnabled else {
+                    self.stopRemoteLogging()
+                    break
+                }
+                if self.remoteLogger == nil {
+                    startGeneration = generation
+                }
+            }
+        }
+        return startGeneration
+    }
+
     private func stopRemoteLogging() {
         OneSignalLog.__removeInternalLogSink(self)
         notificationTokens.forEach(notificationCenter.removeObserver)
@@ -245,7 +251,12 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
         activeRemoteLogger?.shutdown()
     }
 
-    private func registerLifecycleObservers() {
+}
+
+// MARK: - App state, lifecycle observers, and thread helpers
+
+private extension OSRemoteLoggingController {
+    func registerLifecycleObservers() {
         if usesScenes() {
             observe(Notification.Name("UISceneDidActivateNotification"), appState: "foreground")
             observe(Notification.Name("UISceneWillDeactivateNotification"), appState: "unknown")

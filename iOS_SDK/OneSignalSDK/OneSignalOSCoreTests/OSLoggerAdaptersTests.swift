@@ -52,17 +52,21 @@ final class OSLoggerAdaptersTests: XCTestCase {
         // Starting anyway would register a crash handler that nothing unregisters,
         // permanently blocking every later logger from installing its own.
         XCTAssertFalse(lifecycle.start())
-        XCTAssertFalse(lifecycle.canEmit)
+        XCTAssertFalse(lifecycle.isActive)
     }
 
     func testLifecycleStopsAcceptingRecordsWhenShutdownBegins() {
         let lifecycle = OSRemoteLoggerLifecycle()
 
         XCTAssertTrue(lifecycle.start())
-        XCTAssertTrue(lifecycle.canEmit)
+        XCTAssertTrue(lifecycle.isActive)
+        XCTAssertTrue(lifecycle.canStartUploader)
 
+        // Gates emission, uploader start, and explicit flushes together, so the
+        // deferred drain in shutdown() is the only thing still crossing into KMP.
         XCTAssertTrue(lifecycle.beginShutdown())
-        XCTAssertFalse(lifecycle.canEmit)
+        XCTAssertFalse(lifecycle.isActive)
+        XCTAssertFalse(lifecycle.canStartUploader)
         XCTAssertFalse(lifecycle.start())
     }
 

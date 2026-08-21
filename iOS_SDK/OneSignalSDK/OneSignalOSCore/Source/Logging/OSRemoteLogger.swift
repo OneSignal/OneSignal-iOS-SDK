@@ -60,11 +60,14 @@ final class OSRemoteLoggerLifecycle {
     private var isShuttingDown = false
     private var isShutdown = false
 
-    var canStartUploader: Bool { canEmit }
+    var canStartUploader: Bool { isActive }
 
-    /// Records stop being accepted the moment shutdown begins, rather than once the
-    /// final drain finishes, so teardown never lets a late log escape.
-    var canEmit: Bool {
+    /// True while the transport is usable and teardown has not begun. Gates record
+    /// emission, uploader start, and explicit flushes alike: the drain inside
+    /// `shutdown()` also crosses into KMP, and two concurrent crossings are unsafe.
+    /// Keyed on shutdown *beginning* rather than finishing, because that drain is
+    /// asynchronous.
+    var isActive: Bool {
         lock.lock()
         defer { lock.unlock() }
         return isStarted && !isShuttingDown && !isShutdown
@@ -373,7 +376,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         exceptionMessage: String?,
         exceptionStacktrace: String?
     ) {
-        guard lifecycle.canEmit else {
+        guard lifecycle.isActive else {
             return
         }
         let telemetry = self.telemetry
@@ -381,7 +384,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         Self.onMain {
             // Re-checked here because the hop is asynchronous: teardown can begin
             // between the caller-side check above and the crossing into KMP.
-            guard lifecycle.canEmit else {
+            guard lifecycle.isActive else {
                 return
             }
             LogLoggingHelper.shared.log(
@@ -398,7 +401,16 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
     public func forceFlush(completion: @escaping () -> Void) {
         let telemetry = self.telemetry
+        let lifecycle = self.lifecycle
         Self.onMain {
+            // Skipped once teardown has begun, because `shutdown()`'s deferred drain
+            // flushes the same telemetry and both would cross into KMP at once. The
+            // completion still has to run either way: callers end a background task
+            // in it, and swallowing it would leak that task.
+            guard lifecycle.isActive else {
+                completion()
+                return
+            }
             telemetry.forceFlush(completionHandler: { _ in completion() })
         }
     }
