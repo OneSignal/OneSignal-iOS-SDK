@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2022 OneSignal
+ Copyright 2026 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,21 +25,23 @@
  THE SOFTWARE.
  */
 
-import OneSignalCore
+import Foundation
 
-/**
- Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. These cannot be sent, so they are dropped..
- */
-public protocol OSOperationExecutor {
-    var supportedDeltas: [String] { get }
-
-    func enqueueDelta(_ delta: OSDelta)
-    func cacheDeltaQueue()
-    func processDeltaQueue(inBackground: Bool)
-
+/// Shared path-segment encoding for Swift and ObjC request builders.
+@objc(OSUrlPath)
+public final class OSUrlPath: NSObject {
     /**
-     Drop queued Deltas and Requests that belong to an anonymous user. Driven by `OSOperationRepo`
-     so the policy stays there; only the storage is per-executor.
+     Returns `value` percent-encoded for use as one path segment, or nil if it cannot be encoded.
+
+     `urlUserAllowed` rather than `urlPathAllowed`, which leaves `/` alone: the values the SDK
+     interpolates into a path — `external_id`, alias labels, Live Activity types — come from the app,
+     and one containing a slash, `?`, `#` or `%` would otherwise reach a different endpoint than intended.
+
+     Encode once, where the path is built. A value that has already been through this comes back with its
+     `%` escaped again.
      */
-    func removeOperationsWithoutExternalId()
+    @objc(segment:)
+    public static func segment(_ value: String) -> String? {
+        return value.addingPercentEncoding(withAllowedCharacters: .urlUserAllowed)
+    }
 }

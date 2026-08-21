@@ -37,12 +37,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     private var updateRequestQueue: [OSRequestUpdateSubscription] = []
     private var subscriptionModels: [String: OSSubscriptionModel] = [:]
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -91,8 +93,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // a. The model exist in the repo
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // b. The request can be sent, add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // b. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // c. The model do not exist AND this request cannot be sent, drop this Request
@@ -118,10 +120,12 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 3. The model does not exist AND this request cannot be sent, drop this Request
+                } else if !auth.keepUncachedOwned(request),
+                          !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 3. The model does not exist AND no token can arrive to make this sendable, drop it
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
+                    continue
                 }
             }
             self.removeRequestQueue = removeRequestQueue
@@ -141,17 +145,34 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if let subscriptionModel = subscriptionModels[request.subscriptionModel.modelId] {
                     // 2. The model exists in the dict of seen subscription models
                     request.subscriptionModel = subscriptionModel
-                } else if !request.prepareForExecution(newRecordsState: newRecordsState) {
+                } else if !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
+                    continue
                 }
+                request.identityModel = liveIdentityModel(request.identityModel)
             }
             self.updateRequestQueue = updateRequestQueue
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
         }
+    }
+
+    /**
+     Returns the repo's instance for this Identity Model, registering the decoded one if missing,
+     so every request for a user shares one instance.
+     */
+    private func liveIdentityModel(_ identityModel: OSIdentityModel?) -> OSIdentityModel? {
+        guard let identityModel = identityModel else {
+            return nil
+        }
+        if let modelInRepo = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(identityModel.modelId) {
+            return modelInRepo
+        }
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(identityModel)
+        return identityModel
     }
 
     /**
@@ -180,6 +201,39 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
     }
 
+    /**
+     Drops anonymous add/remove Deltas and Requests. Updates are kept — in practice only the device's
+     own push subscription is ever updated, and that has to keep reporting with or without an identified
+     user. See `OSOperationRepo.shouldDropAnonymousDelta` for what the exemption rests on. `logout()`'s
+     unsubscribe travels in `updateRequestQueue`, which is also left alone.
+     */
+    func removeOperationsWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remainingDeltas = self.deltaQueue.filter {
+                $0.externalId != nil || $0.name == OS_UPDATE_SUBSCRIPTION_DELTA
+            }
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
+
+            let remainingAdd = self.addRequestQueue.filter { $0.ownerExternalId != nil }
+            if remainingAdd.count != self.addRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.addRequestQueue.count - remainingAdd.count) anonymous add Requests, Identity Verification is required")
+                self.addRequestQueue = remainingAdd
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+            }
+
+            let remainingRemove = self.removeRequestQueue.filter { $0.ownerExternalId != nil }
+            if remainingRemove.count != self.removeRequestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor dropped \(self.removeRequestQueue.count - remainingRemove.count) anonymous remove Requests, Identity Verification is required")
+                self.removeRequestQueue = remainingRemove
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+            }
+        }
+    }
+
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
@@ -192,13 +246,16 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     continue
                 }
 
+                let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
+
                 switch delta.name {
                 case OS_ADD_SUBSCRIPTION_DELTA:
                     // Only create the request if the identity model exists
-                    if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) {
+                    if let identityModel = identityModel {
                         let request = OSRequestCreateSubscription(
                             subscriptionModel: subModel,
-                            identityModel: identityModel
+                            identityModel: identityModel,
+                            ownerExternalId: delta.externalId
                         )
                         self.addRequestQueue.append(request)
                     } else {
@@ -206,7 +263,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     }
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
                     let request = OSRequestDeleteSubscription(
-                        subscriptionModel: subModel
+                        subscriptionModel: subModel,
+                        ownerExternalId: delta.externalId
                     )
                     self.removeRequestQueue.append(request)
 
@@ -216,7 +274,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     self.updateRequestQueue.removeAll { request in
                         !request.sentToClient && request.subscriptionModel.modelId == modelId
                     }
-                    let request = OSRequestUpdateSubscription(subscriptionModel: subModel)
+                    let request = OSRequestUpdateSubscription(subscriptionModel: subModel, identityModel: identityModel)
                     self.updateRequestQueue.append(request)
 
                 default:
@@ -240,13 +298,20 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
     // Bypasses the operation repo to create a push subscription request
     func createPushSubscription(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
-        let request = OSRequestCreateSubscription(subscriptionModel: subscriptionModel, identityModel: identityModel)
+        // No Delta to inherit ownership from, so read the owner directly.
+        let request = OSRequestCreateSubscription(
+            subscriptionModel: subscriptionModel,
+            identityModel: identityModel,
+            ownerExternalId: identityModel.externalId
+        )
         self.dispatchQueue.async {
             self.addRequestQueue.append(request)
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
         }
     }
+}
 
+extension OSSubscriptionOperationExecutor {
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     private func processRequestQueue(inBackground: Bool) {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue + updateRequestQueue
@@ -275,7 +340,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -338,6 +403,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
+                } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
@@ -354,7 +421,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -380,7 +447,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})
@@ -403,7 +472,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard !updateRequestQueue.contains(where: { $0 !== request && $0.sentToClient && $0.subscriptionModel.modelId == modelId }) else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -420,7 +489,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 self.updateRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
-                if let onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId {
+                if let onesignalId = request.identityModel?.onesignalId {
                     if let rywToken = response?["ryw_token"] as? String
                     {
                         let rywDelay = response?["ryw_delay"] as? NSNumber

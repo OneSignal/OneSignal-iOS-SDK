@@ -44,7 +44,10 @@ public class OneSignalUserMocks: NSObject {
             OSResilientStorage.keyHasPriorSession: ""
         ])
         _ = OSResilientStorage.snapshot()
-        OSCoreMocks.resetOperationRepo()
+        // Drop the previous test's handlers before the hydrate below, or leftover Requests hydrate shared models.
+        OneSignalUserManagerImpl.sharedInstance.identityVerificationService.removeOnJwtConfigHydratedHandler(for: .userExecutor)
+        OneSignalUserManagerImpl.sharedInstance.identityVerificationService.removeOnJwtConfigHydratedHandler(for: .userManager)
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.reset()
         OSCoreMocks.resetSharedJwtConfig()
         // Hydrate `off` so the Operation Repo's unknown-requirement deferral does not stall non-IV tests.
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)

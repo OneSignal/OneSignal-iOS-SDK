@@ -59,7 +59,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
         XCTAssertFalse(model.enabled)
 
-        let request = OSRequestUpdateSubscription(subscriptionModel: model)
+        let request = OSRequestUpdateSubscription(subscriptionModel: model, identityModel: nil)
         let atInit = try XCTUnwrap(request.parameters?["subscription"] as? [String: Any])
         XCTAssertEqual(atInit["notification_types"] as? Int, promptedNeverAnswered)
         XCTAssertEqual(atInit["enabled"] as? Bool, false)
@@ -68,7 +68,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         model.notificationTypes = subscribedNotificationTypes
         XCTAssertTrue(model.enabled)
 
-        XCTAssertTrue(request.prepareForExecution(newRecordsState: OSNewRecordsState()))
+        XCTAssertTrue(request.prepareForExecution(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth))
 
         let refreshed = try XCTUnwrap(request.parameters?["subscription"] as? [String: Any])
         XCTAssertEqual(refreshed["notification_types"] as? Int, subscribedNotificationTypes)
@@ -85,7 +85,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         // Without a subscriptionId, prepareForExecution keeps the update pending.
         let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: nil)
         let identityModelId = UUID().uuidString
@@ -153,7 +153,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
         let identityModelId = UUID().uuidString
 
@@ -222,7 +222,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
         let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
         let identityModelId = UUID().uuidString
 
