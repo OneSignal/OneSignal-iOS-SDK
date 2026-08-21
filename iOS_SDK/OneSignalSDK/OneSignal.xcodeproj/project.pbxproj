@@ -304,6 +304,7 @@
 		5BC1DE602C90B83900CA8807 /* OSConsistencyKeyEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE5F2C90B83900CA8807 /* OSConsistencyKeyEnum.swift */; };
 		5BC1DE622C90B85A00CA8807 /* OSIamFetchOffsetKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE612C90B85A00CA8807 /* OSIamFetchOffsetKey.swift */; };
 		5BC1DE642C90BB9000CA8807 /* OSIamFetchReadyCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC1DE632C90BB9000CA8807 /* OSIamFetchReadyCondition.swift */; };
+		6F894909CB6D09258DCCA1C9 /* IamFetchIdentityVerificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67ECA2928D863073B785F93F /* IamFetchIdentityVerificationTests.swift */; };
 		7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A123294235DFE3B002B6CE3 /* OutcomeTests.m */; };
 		7A1232A2235E1743002B6CE3 /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411F11E73342200E41FD7 /* OneSignal.m */; };
 		7A2E90622460DA1500B3428C /* OutcomeIntegrationV2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E90612460DA1500B3428C /* OutcomeIntegrationV2Tests.m */; };
@@ -1583,6 +1584,7 @@
 		5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSConsistencyManagerTests.swift; sourceTree = "<group>"; };
 		5BFE2F960129386AFA6D5F41 /* UserJwtLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserJwtLifecycleTests.swift; sourceTree = "<group>"; };
 		6552F2A6DF7776B0582CFAEF /* OSUserJwtConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSUserJwtConfig.swift; sourceTree = "<group>"; };
+		67ECA2928D863073B785F93F /* IamFetchIdentityVerificationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IamFetchIdentityVerificationTests.swift; sourceTree = "<group>"; };
 		6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSUserJwtRepo.swift; sourceTree = "<group>"; };
 		7A123294235DFE3B002B6CE3 /* OutcomeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeTests.m; sourceTree = "<group>"; };
 		7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSSessionManager.m; sourceTree = "<group>"; };
@@ -2318,6 +2320,7 @@
 				3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */,
 				3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */,
 				3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */,
+				67ECA2928D863073B785F93F /* IamFetchIdentityVerificationTests.swift */,
 			);
 			path = OneSignalInAppMessagesTests;
 			sourceTree = "<group>";
@@ -4557,6 +4560,7 @@
 				3C7021E92ECF0CF4001768C6 /* IAMIntegrationTests.swift in Sources */,
 				3C01519C2C2E29F90079E076 /* IAMRequestTests.m in Sources */,
 				3CB35FCB2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift in Sources */,
+				6F894909CB6D09258DCCA1C9 /* IamFetchIdentityVerificationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
