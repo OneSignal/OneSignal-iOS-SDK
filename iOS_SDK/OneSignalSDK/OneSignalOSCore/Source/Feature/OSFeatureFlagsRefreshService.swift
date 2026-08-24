@@ -59,7 +59,6 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     private let store: OSFeatureFlagsStore
     private let ioQueue: OSDispatchQueue
     private let notificationCenter: NotificationCenter
-    private let usesScenes: () -> Bool
     private let appIdProvider: () -> String?
     /// Test-only override. Production tracks foreground state from lifecycle
     /// notifications, seeded by `start(isInForeground:)`, because this framework is
@@ -73,19 +72,20 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     private var pollingAppId: String?
     private var started = false
     private var notificationTokens: [NSObjectProtocol] = []
-    /// Scenes currently foregrounded. Polling only stops once the last one backgrounds,
-    /// so an iPad user backgrounding one of two windows keeps flags refreshing.
-    private var activeSceneCount = 0
     /// Defaults to false so a background launch (silent push, background fetch, prewarm)
     /// does not start polling before a focus event says otherwise.
     private var isForeground = false
+    /// Set by `stopPolling` and never cleared. Work already queued on `ioQueue` when a
+    /// reset lands would otherwise re-register observers and restart the poll loop on an
+    /// instance that `shared` has already dropped, leaving a second poller and a set of
+    /// observers that nothing can reach to remove.
+    private var invalidated = false
 
     init(
         backend: OSFeatureFlagsBackendService = OSFeatureFlagsBackendService(),
         store: OSFeatureFlagsStore = .shared,
         ioQueue: OSDispatchQueue = DispatchQueue(label: "com.onesignal.feature-flags.refresh"),
         notificationCenter: NotificationCenter = .default,
-        usesScenes: @escaping () -> Bool = { OSBundleUtils.isAppUsingUIScene() },
         appIdProvider: @escaping () -> String? = {
             OneSignalIdentifiers.currentAppId ?? OneSignalIdentifiers.storedAppId
         },
@@ -96,7 +96,6 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         self.store = store
         self.ioQueue = ioQueue
         self.notificationCenter = notificationCenter
-        self.usesScenes = usesScenes
         self.appIdProvider = appIdProvider
         self.isInForegroundOverride = isInForegroundProvider
         self.refreshInterval = refreshInterval
@@ -123,7 +122,7 @@ public final class OSFeatureFlagsRefreshService: NSObject {
 
     func startPolling() {
         ioQueue.async { [weak self] in
-            guard let self else {
+            guard let self, !self.isInvalidated() else {
                 return
             }
             self.registerLifecycleObserversIfNeeded()
@@ -131,6 +130,10 @@ public final class OSFeatureFlagsRefreshService: NSObject {
                 self.restartForegroundPolling()
             }
         }
+    }
+
+    private func isInvalidated() -> Bool {
+        stateLock.withLock { invalidated }
     }
 
     /// Seeds the tracked state. Lifecycle notifications keep it current from here on.
@@ -149,7 +152,7 @@ public final class OSFeatureFlagsRefreshService: NSObject {
 
     func onFocus() {
         ioQueue.async { [weak self] in
-            guard let self else {
+            guard let self, !self.isInvalidated() else {
                 return
             }
             self.stateLock.withLock {
@@ -172,11 +175,12 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         }
     }
 
-    private func stopPolling() {
+    func stopPolling() {
         // `reset()` reaches here on the caller's thread while `observe` may be appending
         // on ioQueue, so the token list has to move under the same lock as the rest of
         // the mutable state. Deregistration itself happens outside the lock.
         let tokens: [NSObjectProtocol] = stateLock.withLock {
+            invalidated = true
             let current = notificationTokens
             notificationTokens.removeAll()
             pollGeneration += 1
@@ -187,32 +191,30 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         tokens.forEach(notificationCenter.removeObserver)
     }
 
+    /// Deliberately app-level rather than per-scene, in both scene and non-scene apps.
+    /// UIKit posts `didEnterBackgroundNotification` only once the *last* scene backgrounds
+    /// and `didBecomeActiveNotification` when the app becomes active again, so the OS
+    /// already aggregates exactly the "is any part of this app foreground" question that
+    /// polling turns on. Tracking scenes ourselves cannot match it: we only see
+    /// activations from registration onward, so scenes already active are invisible, and
+    /// activations can repeat without an intervening background event.
     private func registerLifecycleObserversIfNeeded() {
-        let alreadyStarted = stateLock.withLock { () -> Bool in
-            if started {
+        let shouldSkip = stateLock.withLock { () -> Bool in
+            if started || invalidated {
                 return true
             }
             started = true
             return false
         }
-        guard !alreadyStarted else {
+        guard !shouldSkip else {
             return
         }
 
-        if usesScenes() {
-            observe(Notification.Name("UISceneDidActivateNotification")) { [weak self] in
-                self?.sceneDidActivate()
-            }
-            observe(Notification.Name("UISceneDidEnterBackgroundNotification")) { [weak self] in
-                self?.sceneDidBackground()
-            }
-        } else {
-            observe(UIApplication.didBecomeActiveNotification) { [weak self] in
-                self?.onFocus()
-            }
-            observe(UIApplication.didEnterBackgroundNotification) { [weak self] in
-                self?.onUnfocused()
-            }
+        observe(UIApplication.didBecomeActiveNotification) { [weak self] in
+            self?.onFocus()
+        }
+        observe(UIApplication.didEnterBackgroundNotification) { [weak self] in
+            self?.onUnfocused()
         }
     }
 
@@ -220,35 +222,29 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         let token = notificationCenter.addObserver(forName: name, object: nil, queue: nil) { _ in
             handler()
         }
-        stateLock.withLock {
+        // A reset can land between registering above and recording below. Nothing else
+        // holds this token by then, so it has to be torn down here or it outlives the
+        // service with no way to reach it.
+        let recorded = stateLock.withLock { () -> Bool in
+            guard !invalidated else {
+                return false
+            }
             notificationTokens.append(token)
+            return true
         }
-    }
-
-    private func sceneDidActivate() {
-        stateLock.withLock {
-            activeSceneCount += 1
+        if !recorded {
+            notificationCenter.removeObserver(token)
         }
-        onFocus()
-    }
-
-    /// Only the last scene leaving the foreground stops polling. The count can start
-    /// below the true number of live scenes (we only see activations after registering),
-    /// so it is floored at zero rather than trusted absolutely.
-    private func sceneDidBackground() {
-        let allScenesBackgrounded: Bool = stateLock.withLock {
-            activeSceneCount = max(0, activeSceneCount - 1)
-            return activeSceneCount == 0
-        }
-        guard allScenesBackgrounded else {
-            return
-        }
-        onUnfocused()
     }
 
     private func restartForegroundPolling() {
         let appId = appIdProvider() ?? ""
         let generation: Int = stateLock.withLock {
+            // Single atomic gate for starting a loop, so a reset that lands mid-startup
+            // cannot be overtaken by work that already passed an earlier check.
+            if invalidated {
+                return -1
+            }
             if appId.isEmpty {
                 pollGeneration += 1
                 pollingAppId = nil

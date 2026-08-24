@@ -29,6 +29,7 @@ import Foundation
 import OneSignalCore
 import OneSignalKMP
 @testable import OneSignalOSCore
+import UIKit
 import XCTest
 
 final class OSFeatureManagerTests: XCTestCase {
@@ -39,11 +40,16 @@ final class OSFeatureManagerTests: XCTestCase {
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA)
         OSFeatureManager.localFeatureOverrides = []
+        // One test drives the real singleton, so drop it either side to keep the
+        // process-wide latch from leaking between cases.
+        OSFeatureManager.reset()
         store = OSFeatureFlagsStore()
     }
 
     override func tearDown() {
         OSFeatureManager.localFeatureOverrides = []
+        OSFeatureManager.didConstructForTesting = nil
+        OSFeatureManager.reset()
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA)
         super.tearDown()
@@ -108,6 +114,32 @@ final class OSFeatureManagerTests: XCTestCase {
         store.applyRemoteFlags([], metadata: nil)
 
         XCTAssertTrue(manager.isEnabled(featureKey: FeatureFlag.sdkCustomLogging.key))
+    }
+
+    /// Construction happens outside the lock, so an app-id change can land after a
+    /// manager has read storage but before it publishes itself. Publishing it anyway
+    /// would restore exactly the `APP_STARTUP` latch the reset existed to drop.
+    func testResetDuringConstructionDiscardsTheStaleManager() {
+        OSFeatureFlagsStore.shared.applyRemoteFlags([FeatureFlag.sdkCustomLogging.key], metadata: nil)
+        OSFeatureManager.reset()
+
+        var alreadyReset = false
+        OSFeatureManager.didConstructForTesting = {
+            guard !alreadyReset else {
+                return
+            }
+            alreadyReset = true
+            OSFeatureManager.resetAndClearCachedFlags()
+        }
+        defer { OSFeatureManager.didConstructForTesting = nil }
+
+        let manager = OSFeatureManager.shared
+
+        XCTAssertTrue(alreadyReset, "the race hook must have fired")
+        XCTAssertFalse(
+            manager.isEnabled(featureKey: FeatureFlag.sdkCustomLogging.key),
+            "the published manager must not carry a latch read before the reset"
+        )
     }
 }
 
@@ -219,7 +251,6 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
         http: IFeatureFlagsHttp,
         queue: ControllableDispatchQueue,
         notificationCenter: NotificationCenter = NotificationCenter(),
-        usesScenes: @escaping () -> Bool = { false },
         appIdProvider: @escaping () -> String? = { "app-id-1" },
         isInForegroundProvider: (() -> Bool)? = { true }
     ) -> OSFeatureFlagsRefreshService {
@@ -228,7 +259,6 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
             store: store,
             ioQueue: queue,
             notificationCenter: notificationCenter,
-            usesScenes: usesScenes,
             appIdProvider: appIdProvider,
             isInForegroundProvider: isInForegroundProvider,
             refreshInterval: 10_000
@@ -380,7 +410,7 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
         XCTAssertEqual(fetches, 1, "a later focus must be able to restart polling")
     }
 
-    func testBackgroundingOneOfTwoScenesKeepsPolling() {
+    func testBecomingActiveStartsPollingAndBackgroundingStopsIt() {
         var fetches = 0
         let center = NotificationCenter()
         let queue = ControllableDispatchQueue()
@@ -388,22 +418,24 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
             http: countingHttp { fetches += 1 },
             queue: queue,
             notificationCenter: center,
-            usesScenes: { true },
             isInForegroundProvider: nil
         )
         service.startPolling()
+        XCTAssertEqual(fetches, 0, "a background launch must not fetch")
 
-        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
-        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
-        XCTAssertEqual(fetches, 1, "the second scene is deduped against the same app id")
+        center.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        XCTAssertEqual(fetches, 1)
 
-        center.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        center.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         queue.runPendingDeferredWork()
 
-        XCTAssertEqual(fetches, 2, "one scene is still foregrounded")
+        XCTAssertEqual(fetches, 1, "backgrounding cancels the scheduled poll")
     }
 
-    func testBackgroundingTheLastSceneStopsPolling() {
+    /// UIKit can post `didBecomeActive` repeatedly without an intervening background
+    /// event. A counter-based approach treated each as another live scene and then needed
+    /// as many background events to stop, so polling outlived the foreground.
+    func testRepeatedActivationStillStopsOnASingleBackgroundEvent() {
         var fetches = 0
         let center = NotificationCenter()
         let queue = ControllableDispatchQueue()
@@ -411,18 +443,76 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
             http: countingHttp { fetches += 1 },
             queue: queue,
             notificationCenter: center,
-            usesScenes: { true },
             isInForegroundProvider: nil
         )
         service.startPolling()
 
-        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
-        XCTAssertEqual(fetches, 1)
+        center.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        center.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        center.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        XCTAssertEqual(fetches, 1, "redundant activations dedupe against the same app id")
 
-        center.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        center.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
         queue.runPendingDeferredWork()
 
-        XCTAssertEqual(fetches, 1)
+        XCTAssertEqual(fetches, 1, "one background event must undo any number of activations")
+    }
+
+    func testResetStopsAnAlreadyQueuedStart() {
+        var fetches = 0
+        let queue = ControllableDispatchQueue(deferImmediateWork: true)
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: queue,
+            isInForegroundProvider: { true }
+        )
+
+        // `startPolling` is queued but has not run; the reset lands first, exactly as it
+        // would when `handleAppIdChange` fires while startup work is still in flight.
+        service.startPolling()
+        service.stopPolling()
+        queue.runPendingDeferredWork()
+
+        XCTAssertEqual(fetches, 0, "a dropped instance must not resurrect its poll loop")
+    }
+
+    func testResetLeavesNoLifecycleObserversBehind() {
+        var fetches = 0
+        let center = ObserverTrackingCenter()
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: ControllableDispatchQueue(),
+            notificationCenter: center,
+            isInForegroundProvider: { true }
+        )
+        service.startPolling()
+        XCTAssertEqual(center.liveObserverCount, 2)
+
+        service.stopPolling()
+
+        XCTAssertEqual(center.liveObserverCount, 0)
+    }
+
+    /// The reset lands between `addObserver` returning and the service recording the
+    /// token. Nothing else holds the token at that instant, so if `observe` does not tear
+    /// it down itself it outlives the service with no way left to reach it.
+    func testObserverRegisteredDuringAResetIsTornDown() {
+        var fetches = 0
+        let center = ObserverTrackingCenter()
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: ControllableDispatchQueue(),
+            notificationCenter: center,
+            isInForegroundProvider: { true }
+        )
+        center.onAddObserver = { [weak service] in
+            service?.stopPolling()
+        }
+
+        service.startPolling()
+
+        XCTAssertEqual(center.liveObserverCount, 0, "no observer may survive the reset that raced it")
+        XCTAssertEqual(fetches, 0, "and the dropped instance must not start a loop")
     }
 }
 
@@ -441,12 +531,48 @@ private final class StubFeatureFlagsHttp: IFeatureFlagsHttp {
     }
 }
 
+/// Counts observers that are currently registered, so a test can assert teardown rather
+/// than infer it, and can inject a reset into the window inside `observe`.
+private final class ObserverTrackingCenter: NotificationCenter {
+    var onAddObserver: (() -> Void)?
+    private(set) var liveObserverCount = 0
+
+    override func addObserver(
+        forName name: NSNotification.Name?,
+        object obj: Any?,
+        queue: OperationQueue?,
+        using block: @escaping (Notification) -> Void
+    ) -> NSObjectProtocol {
+        let token = super.addObserver(forName: name, object: obj, queue: queue, using: block)
+        liveObserverCount += 1
+        onAddObserver?()
+        return token
+    }
+
+    override func removeObserver(_ observer: Any) {
+        super.removeObserver(observer)
+        liveObserverCount -= 1
+    }
+}
+
 /// Runs immediate work inline and holds deferred work until a test releases it, so the
 /// self-rescheduling poll loop can be stepped without waiting out the refresh interval.
+///
+/// `deferImmediateWork` also holds `async` work, which lets a test interleave a reset
+/// ahead of already-queued startup work.
 private final class ControllableDispatchQueue: OSDispatchQueue {
+    private let deferImmediateWork: Bool
     private var deferredWork: [() -> Void] = []
 
+    init(deferImmediateWork: Bool = false) {
+        self.deferImmediateWork = deferImmediateWork
+    }
+
     func async(execute work: @escaping @convention(block) () -> Void) {
+        guard !deferImmediateWork else {
+            deferredWork.append(work)
+            return
+        }
         work()
     }
 

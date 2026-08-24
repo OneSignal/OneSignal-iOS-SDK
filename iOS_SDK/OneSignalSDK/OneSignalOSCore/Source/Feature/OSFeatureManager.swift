@@ -35,25 +35,40 @@ import OneSignalCore
 public final class OSFeatureManager: NSObject {
     private static let lock = NSLock()
     private static var _shared: OSFeatureManager?
+    /// Bumped by `reset()`. Construction happens outside the lock, so this is what tells
+    /// a builder that the state it read has since been invalidated.
+    private static var generation = 0
 
     /// Constructing this reads persisted flags and builds the KMP latch, so the first
     /// access decides which `APP_STARTUP` flags are latched for the process. Only touch
     /// it once storage is readable; see `enabledFeatureKeysIfInitialized()`.
     @objc public static var shared: OSFeatureManager {
-        if let existing = lock.withLock({ _shared }) {
-            return existing
-        }
-        // Built outside the lock on purpose: construction reads storage and logs, and
-        // logging reaches back through the feature-flag provider. Holding the lock
-        // across that would risk re-entering it on the same thread. A lost race just
-        // discards the extra instance, which has only read the store.
-        let created = OSFeatureManager()
-        return lock.withLock {
-            if let existing = _shared {
+        while true {
+            let (existing, startGeneration) = lock.withLock { (_shared, generation) }
+            if let existing {
                 return existing
             }
-            _shared = created
-            return created
+            // Built outside the lock on purpose: construction reads storage and logs, and
+            // logging reaches back through the feature-flag provider. Holding the lock
+            // across that would risk re-entering it on the same thread.
+            let created = OSFeatureManager()
+            didConstructForTesting?()
+            let published: OSFeatureManager? = lock.withLock {
+                if let existing = _shared {
+                    return existing
+                }
+                // A reset landed while we were reading storage, so this instance latched
+                // the previous app id's flags. Publishing it would restore exactly the
+                // stale latch the reset existed to drop.
+                guard generation == startGeneration else {
+                    return nil
+                }
+                _shared = created
+                return created
+            }
+            if let published {
+                return published
+            }
         }
     }
 
@@ -77,6 +92,7 @@ public final class OSFeatureManager: NSObject {
     @objc public static func reset() {
         lock.withLock {
             _shared = nil
+            generation += 1
         }
     }
 
@@ -113,4 +129,8 @@ public final class OSFeatureManager: NSObject {
 
     /// Local-only test hook for forcing features ON without backend config.
     static var localFeatureOverrides: [String] = []
+
+    /// Test-only hook, fired after construction but before publication, so a reset can be
+    /// landed inside that window deterministically.
+    static var didConstructForTesting: (() -> Void)?
 }
