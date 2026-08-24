@@ -55,6 +55,41 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertFalse(lifecycle.isActive)
     }
 
+    func testLifecycleShutdownWaitsForInFlightFlush() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.beginFlush())
+        XCTAssertTrue(lifecycle.beginShutdown())
+
+        // A flush admitted before shutdown began still holds its slot, so teardown
+        // must not proceed to the drain while it is outstanding.
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            lifecycle.waitForFlushesToDrain(timeout: 5)
+            drained.signal()
+        }
+        XCTAssertEqual(drained.wait(timeout: .now() + 0.3), .timedOut)
+
+        lifecycle.endFlush()
+        XCTAssertEqual(drained.wait(timeout: .now() + 2), .success)
+    }
+
+    func testLifecycleRefusesNewFlushOnceShutdownBegins() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.beginShutdown())
+
+        // Nothing new may cross into KMP, so the drain has a shrinking set to wait on.
+        XCTAssertFalse(lifecycle.beginFlush())
+
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            lifecycle.waitForFlushesToDrain(timeout: 5)
+            drained.signal()
+        }
+        XCTAssertEqual(drained.wait(timeout: .now() + 2), .success)
+    }
+
     func testLifecycleStopsAcceptingRecordsWhenShutdownBegins() {
         let lifecycle = OSRemoteLoggerLifecycle()
 

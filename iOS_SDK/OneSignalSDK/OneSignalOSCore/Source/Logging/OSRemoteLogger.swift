@@ -55,10 +55,12 @@ public extension OSRemoteLoggerProtocol {
 @_implementationOnly import OneSignalKMP
 
 final class OSRemoteLoggerLifecycle {
-    private let lock = NSLock()
+    /// A condition rather than a plain lock so teardown can wait on in-flight flushes.
+    private let lock = NSCondition()
     private var isStarted = false
     private var isShuttingDown = false
     private var isShutdown = false
+    private var activeFlushes = 0
 
     var canStartUploader: Bool { isActive }
 
@@ -94,6 +96,38 @@ final class OSRemoteLoggerLifecycle {
         }
         isStarted = true
         return true
+    }
+
+    /// Claims a flush slot, so teardown can tell a flush is still crossing into KMP.
+    /// Returns false once shutdown has begun, meaning the caller must not cross.
+    func beginFlush() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isStarted, !isShuttingDown, !isShutdown else {
+            return false
+        }
+        activeFlushes += 1
+        return true
+    }
+
+    func endFlush() {
+        lock.lock()
+        activeFlushes -= 1
+        if activeFlushes == 0 {
+            lock.broadcast()
+        }
+        lock.unlock()
+    }
+
+    /// Blocks until flushes admitted before shutdown began have finished, so the
+    /// teardown drain never overlaps one. `beginFlush` already refuses new flushes by
+    /// this point, so the set can only shrink. Bounded, because a wedged flush must
+    /// not stop teardown from completing.
+    func waitForFlushesToDrain(timeout: TimeInterval) {
+        let deadline = Date().addingTimeInterval(timeout)
+        lock.lock()
+        defer { lock.unlock() }
+        while activeFlushes > 0, lock.wait(until: deadline) {}
     }
 
     func beginShutdown() -> Bool {
@@ -182,6 +216,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
     /// Serial so overlapping teardowns cannot stack several bounded drains at once.
     private static let teardownQueue = DispatchQueue(label: "com.onesignal.logger.remote-teardown")
+
+    /// Matches the bound KMP puts on its own shutdown drain, so a wedged flush delays
+    /// teardown by no more than the drain itself already can.
+    private static let flushDrainTimeout: TimeInterval = 5
 
     public convenience init(
         installIdProvider: @escaping () -> String,
@@ -403,15 +441,20 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let telemetry = self.telemetry
         let lifecycle = self.lifecycle
         Self.onMain {
-            // Skipped once teardown has begun, because `shutdown()`'s deferred drain
-            // flushes the same telemetry and both would cross into KMP at once. The
-            // completion still has to run either way: callers end a background task
-            // in it, and swallowing it would leak that task.
-            guard lifecycle.isActive else {
+            // Claiming a slot rather than just testing a flag: the flush below is
+            // asynchronous, so shutdown could otherwise begin after the check passed
+            // and drain the same telemetry concurrently. `shutdown()` waits for the
+            // slot to be released. The completion still has to run on every path —
+            // callers end a background task in it, and swallowing it would leak that
+            // task.
+            guard lifecycle.beginFlush() else {
                 completion()
                 return
             }
-            telemetry.forceFlush(completionHandler: { _ in completion() })
+            telemetry.forceFlush(completionHandler: { _ in
+                lifecycle.endFlush()
+                completion()
+            })
         }
     }
 
@@ -433,6 +476,11 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         // crash handler stays synchronous above: a later logger cannot install its
         // handler while this one is still registered.
         Self.teardownQueue.async { [self] in
+            // A flush admitted just before `beginShutdown()` may still be crossing
+            // into KMP; the drain below would otherwise run alongside it. Safe to
+            // block here: this is a background queue, and the KMP completion that
+            // releases the slot resumes on main.
+            lifecycle.waitForFlushesToDrain(timeout: Self.flushDrainTimeout)
             telemetry.shutdown()
             lifecycle.finishShutdown()
         }
