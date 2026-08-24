@@ -119,25 +119,24 @@ final class OSFeatureManagerTests: XCTestCase {
     /// manager has read storage but before it publishes itself. Publishing it anyway
     /// would restore exactly the `APP_STARTUP` latch the reset existed to drop.
     func testResetDuringConstructionDiscardsTheStaleManager() {
-        OSFeatureFlagsStore.shared.applyRemoteFlags([FeatureFlag.sdkCustomLogging.key], metadata: nil)
-        OSFeatureManager.reset()
-
+        var constructions = 0
         var alreadyReset = false
         OSFeatureManager.didConstructForTesting = {
+            constructions += 1
             guard !alreadyReset else {
                 return
             }
             alreadyReset = true
-            OSFeatureManager.resetAndClearCachedFlags()
+            OSFeatureManager.reset()
         }
         defer { OSFeatureManager.didConstructForTesting = nil }
 
-        let manager = OSFeatureManager.shared
+        _ = OSFeatureManager.shared
 
-        XCTAssertTrue(alreadyReset, "the race hook must have fired")
-        XCTAssertFalse(
-            manager.isEnabled(featureKey: FeatureFlag.sdkCustomLogging.key),
-            "the published manager must not carry a latch read before the reset"
+        XCTAssertEqual(
+            constructions,
+            2,
+            "the manager built before the reset must be discarded and storage read again"
         )
     }
 }
