@@ -62,13 +62,10 @@ final class OSRemoteLoggerLifecycle {
     private var isShutdown = false
     private var activeFlushes = 0
 
-    var canStartUploader: Bool { isActive }
-
     /// True while the transport is usable and teardown has not begun. Gates record
-    /// emission, uploader start, and explicit flushes alike: the drain inside
-    /// `shutdown()` also crosses into KMP, and two concurrent crossings are unsafe.
-    /// Keyed on shutdown *beginning* rather than finishing, because that drain is
-    /// asynchronous.
+    /// emission, uploader start, and explicit flushes alike, so nothing new is accepted
+    /// once the SDK has been told to stop. Keyed on shutdown *beginning* rather than
+    /// finishing, because the final drain is asynchronous.
     var isActive: Bool {
         lock.lock()
         defer { lock.unlock() }
@@ -363,29 +360,16 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let logger = self.logger
         let lifecycle = self.lifecycle
         OSCrashUploaderCoordinator.shared.enqueue(owner: owner) {
-            Self.onMain {
-                guard lifecycle.canStartUploader else {
-                    OSCrashUploaderCoordinator.shared.finish(owner: owner)
-                    return
-                }
-                crashUploader.start { error in
-                    if let error {
-                        logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
-                    }
-                    OSCrashUploaderCoordinator.shared.finish(owner: owner)
-                }
+            guard lifecycle.isActive else {
+                OSCrashUploaderCoordinator.shared.finish(owner: owner)
+                return
             }
-        }
-    }
-
-    /// Kotlin/Native only supports calling exported `suspend` functions from the main
-    /// thread, so every crossing into KMP has to be marshalled here. Callers reach this
-    /// class from the logging controller's serial queue and from URLSession callbacks.
-    private static func onMain(_ work: @escaping () -> Void) {
-        if Thread.isMainThread {
-            work()
-        } else {
-            DispatchQueue.main.async(execute: work)
+            crashUploader.start { error in
+                if let error {
+                    logger.error(message: "LogCrashUploader failed: \(error.localizedDescription)")
+                }
+                OSCrashUploaderCoordinator.shared.finish(owner: owner)
+            }
         }
     }
 
@@ -417,45 +401,33 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         guard lifecycle.isActive else {
             return
         }
-        let telemetry = self.telemetry
-        let lifecycle = self.lifecycle
-        Self.onMain {
-            // Re-checked here because the hop is asynchronous: teardown can begin
-            // between the caller-side check above and the crossing into KMP.
-            guard lifecycle.isActive else {
-                return
-            }
-            LogLoggingHelper.shared.log(
-                telemetry: telemetry,
-                level: level,
-                message: message,
-                exceptionType: exceptionType,
-                exceptionMessage: exceptionMessage,
-                exceptionStacktrace: exceptionStacktrace,
-                completionHandler: { _ in }
-            )
-        }
+        LogLoggingHelper.shared.log(
+            telemetry: telemetry,
+            level: level,
+            message: message,
+            exceptionType: exceptionType,
+            exceptionMessage: exceptionMessage,
+            exceptionStacktrace: exceptionStacktrace,
+            completionHandler: { _ in }
+        )
     }
 
     public func forceFlush(completion: @escaping () -> Void) {
-        let telemetry = self.telemetry
-        let lifecycle = self.lifecycle
-        Self.onMain {
-            // Claiming a slot rather than just testing a flag: the flush below is
-            // asynchronous, so shutdown could otherwise begin after the check passed
-            // and drain the same telemetry concurrently. `shutdown()` waits for the
-            // slot to be released. The completion still has to run on every path —
-            // callers end a background task in it, and swallowing it would leak that
-            // task.
-            guard lifecycle.beginFlush() else {
-                completion()
-                return
-            }
-            telemetry.forceFlush(completionHandler: { _ in
-                lifecycle.endFlush()
-                completion()
-            })
+        // Claiming a slot rather than just testing a flag: the flush completes
+        // asynchronously even when started inline, so shutdown could otherwise begin
+        // after the check passed and drain the same telemetry concurrently.
+        // `shutdown()` waits for the slot to be released. The completion still has to
+        // run on every path — callers end a background task in it, and swallowing it
+        // would leak that task.
+        guard lifecycle.beginFlush() else {
+            completion()
+            return
         }
+        let lifecycle = self.lifecycle
+        telemetry.forceFlush(completionHandler: { _ in
+            lifecycle.endFlush()
+            completion()
+        })
     }
 
     public func shutdown() {

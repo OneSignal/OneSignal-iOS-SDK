@@ -95,13 +95,11 @@ final class OSLoggerAdaptersTests: XCTestCase {
 
         XCTAssertTrue(lifecycle.start())
         XCTAssertTrue(lifecycle.isActive)
-        XCTAssertTrue(lifecycle.canStartUploader)
 
-        // Gates emission, uploader start, and explicit flushes together, so the
-        // deferred drain in shutdown() is the only thing still crossing into KMP.
+        // Gates emission, uploader start, and explicit flushes together, so nothing
+        // new is accepted once the SDK has been told to stop.
         XCTAssertTrue(lifecycle.beginShutdown())
         XCTAssertFalse(lifecycle.isActive)
-        XCTAssertFalse(lifecycle.canStartUploader)
         XCTAssertFalse(lifecycle.start())
     }
 
@@ -305,6 +303,29 @@ final class OSLoggerAdaptersTests: XCTestCase {
         logger.debug(message: "debug")
 
         XCTAssertTrue(lines.isEmpty)
+    }
+
+    /// KMP #15 set `objcExportSuspendFunctionLaunchThreadRestriction=none`, lifting
+    /// Kotlin/Native's rule that exported `suspend` functions may only be called from
+    /// the main thread. Asserts that actually holds for the framework we link, so the
+    /// Swift side does not have to marshal every crossing onto main — and fails loudly
+    /// if that flag is ever dropped.
+    func testKmpSuspendCallSucceedsOffMainThread() {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let completed = expectation(description: "KMP suspend call completes off main")
+
+        DispatchQueue.global().async {
+            XCTAssertFalse(Thread.isMainThread)
+            telemetry.forceFlush { _ in
+                completed.fulfill()
+            }
+        }
+
+        wait(for: [completed], timeout: 5)
     }
 
     func testKmpPipelineInvokesSwiftAdapters() throws {
