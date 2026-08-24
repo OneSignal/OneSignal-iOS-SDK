@@ -354,8 +354,8 @@ final class OSRemoteLoggingConfigurationTests: XCTestCase {
 
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(.disabled),
-                new: OSRemoteLoggingConfig(configuration)
+                old: OSRemoteLoggingConfiguration.disabled,
+                new: configuration
             ),
             .enable(.LL_VERBOSE)
         )
@@ -432,49 +432,49 @@ final class OSRemoteLoggingConfigurationTests: XCTestCase {
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
                 old: nil,
-                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_WARN)
+                new: OSRemoteLoggingConfiguration(logLevel: .LL_WARN, isEnabled: true)
             ),
             .enable(.LL_WARN)
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
                 old: nil,
-                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: nil)
+                new: OSRemoteLoggingConfiguration(logLevel: nil, isEnabled: true)
             ),
             .enable(.LL_ERROR)
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
                 old: nil,
-                new: OSRemoteLoggingConfig.disabled
+                new: OSRemoteLoggingConfiguration.disabled
             ),
             .noChange
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig.disabled,
-                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_INFO)
+                old: OSRemoteLoggingConfiguration.disabled,
+                new: OSRemoteLoggingConfiguration(logLevel: .LL_INFO, isEnabled: true)
             ),
             .enable(.LL_INFO)
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
-                new: OSRemoteLoggingConfig.disabled
+                old: OSRemoteLoggingConfiguration(logLevel: .LL_ERROR, isEnabled: true),
+                new: OSRemoteLoggingConfiguration.disabled
             ),
             .disable
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
-                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_WARN)
+                old: OSRemoteLoggingConfiguration(logLevel: .LL_ERROR, isEnabled: true),
+                new: OSRemoteLoggingConfiguration(logLevel: .LL_WARN, isEnabled: true)
             ),
             .updateLogLevel(old: .LL_ERROR, new: .LL_WARN)
         )
         XCTAssertEqual(
             OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR),
-                new: OSRemoteLoggingConfig(isEnabled: true, logLevel: .LL_ERROR)
+                old: OSRemoteLoggingConfiguration(logLevel: .LL_ERROR, isEnabled: true),
+                new: OSRemoteLoggingConfiguration(logLevel: .LL_ERROR, isEnabled: true)
             ),
             .noChange
         )

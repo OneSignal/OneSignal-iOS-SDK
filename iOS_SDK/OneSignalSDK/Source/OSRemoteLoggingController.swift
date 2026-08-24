@@ -211,8 +211,8 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
             self.configurationGeneration += 1
             let generation = self.configurationGeneration
             let action = OSRemoteLoggingConfigEvaluator.evaluate(
-                old: OSRemoteLoggingConfig(self.configuration),
-                new: OSRemoteLoggingConfig(newConfiguration)
+                old: self.configuration,
+                new: newConfiguration
             )
             self.configuration = newConfiguration
 

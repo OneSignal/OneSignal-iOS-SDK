@@ -141,24 +141,6 @@ struct OSRemoteLoggingConfiguration: Equatable {
     }
 }
 
-/// Snapshot used by [OSRemoteLoggingConfigEvaluator], matching Android's `OtelConfig`.
-struct OSRemoteLoggingConfig: Equatable {
-    let isEnabled: Bool
-    let logLevel: ONE_S_LOG_LEVEL?
-
-    init(_ configuration: OSRemoteLoggingConfiguration) {
-        isEnabled = configuration.isEnabled
-        logLevel = configuration.logLevel
-    }
-
-    init(isEnabled: Bool, logLevel: ONE_S_LOG_LEVEL?) {
-        self.isEnabled = isEnabled
-        self.logLevel = logLevel
-    }
-
-    static let disabled = OSRemoteLoggingConfig(isEnabled: false, logLevel: nil)
-}
-
 enum OSRemoteLoggingConfigAction: Equatable {
     case noChange
     case enable(ONE_S_LOG_LEVEL)
@@ -167,10 +149,13 @@ enum OSRemoteLoggingConfigAction: Equatable {
 }
 
 /// Pure diff of old vs new remote-logging config, mirroring Android's `OtelConfigEvaluator`.
+/// Android diffs a separate `OtelConfig` snapshot because its config lives in a
+/// persistence-backed `Model`; `OSRemoteLoggingConfiguration` is already a value type,
+/// so it is diffed directly.
 enum OSRemoteLoggingConfigEvaluator {
     static func evaluate(
-        old: OSRemoteLoggingConfig?,
-        new: OSRemoteLoggingConfig
+        old: OSRemoteLoggingConfiguration?,
+        new: OSRemoteLoggingConfiguration
     ) -> OSRemoteLoggingConfigAction {
         let wasEnabled = old?.isEnabled == true
         let isNowEnabled = new.isEnabled
