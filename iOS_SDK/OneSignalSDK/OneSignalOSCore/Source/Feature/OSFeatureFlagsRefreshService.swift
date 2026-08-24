@@ -70,6 +70,9 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     private var pollingAppId: String?
     private var started = false
     private var notificationTokens: [NSObjectProtocol] = []
+    /// Scenes currently foregrounded. Polling only stops once the last one backgrounds,
+    /// so an iPad user backgrounding one of two windows keeps flags refreshing.
+    private var activeSceneCount = 0
 
     init(
         backend: OSFeatureFlagsBackendService = OSFeatureFlagsBackendService(),
@@ -143,13 +146,18 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     }
 
     private func stopPolling() {
-        notificationTokens.forEach(notificationCenter.removeObserver)
-        notificationTokens.removeAll()
-        stateLock.withLock {
+        // `reset()` reaches here on the caller's thread while `observe` may be appending
+        // on ioQueue, so the token list has to move under the same lock as the rest of
+        // the mutable state. Deregistration itself happens outside the lock.
+        let tokens: [NSObjectProtocol] = stateLock.withLock {
+            let current = notificationTokens
+            notificationTokens.removeAll()
             pollGeneration += 1
             pollingAppId = nil
             started = false
+            return current
         }
+        tokens.forEach(notificationCenter.removeObserver)
     }
 
     private func registerLifecycleObserversIfNeeded() {
@@ -165,24 +173,50 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         }
 
         if usesScenes() {
-            observe(Notification.Name("UISceneDidActivateNotification"), onFocus: true)
-            observe(Notification.Name("UISceneDidEnterBackgroundNotification"), onFocus: false)
+            observe(Notification.Name("UISceneDidActivateNotification")) { [weak self] in
+                self?.sceneDidActivate()
+            }
+            observe(Notification.Name("UISceneDidEnterBackgroundNotification")) { [weak self] in
+                self?.sceneDidBackground()
+            }
         } else {
-            observe(UIApplication.didBecomeActiveNotification, onFocus: true)
-            observe(UIApplication.didEnterBackgroundNotification, onFocus: false)
+            observe(UIApplication.didBecomeActiveNotification) { [weak self] in
+                self?.onFocus()
+            }
+            observe(UIApplication.didEnterBackgroundNotification) { [weak self] in
+                self?.onUnfocused()
+            }
         }
     }
 
-    private func observe(_ name: Notification.Name, onFocus: Bool) {
-        notificationTokens.append(
-            notificationCenter.addObserver(forName: name, object: nil, queue: nil) { [weak self] _ in
-                if onFocus {
-                    self?.onFocus()
-                } else {
-                    self?.onUnfocused()
-                }
-            }
-        )
+    private func observe(_ name: Notification.Name, handler: @escaping () -> Void) {
+        let token = notificationCenter.addObserver(forName: name, object: nil, queue: nil) { _ in
+            handler()
+        }
+        stateLock.withLock {
+            notificationTokens.append(token)
+        }
+    }
+
+    private func sceneDidActivate() {
+        stateLock.withLock {
+            activeSceneCount += 1
+        }
+        onFocus()
+    }
+
+    /// Only the last scene leaving the foreground stops polling. The count can start
+    /// below the true number of live scenes (we only see activations after registering),
+    /// so it is floored at zero rather than trusted absolutely.
+    private func sceneDidBackground() {
+        let allScenesBackgrounded: Bool = stateLock.withLock {
+            activeSceneCount = max(0, activeSceneCount - 1)
+            return activeSceneCount == 0
+        }
+        guard allScenesBackgrounded else {
+            return
+        }
+        onUnfocused()
     }
 
     private func restartForegroundPolling() {
@@ -207,11 +241,19 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     }
 
     private func poll(appId: String, generation: Int) {
-        guard isCurrentGeneration(generation), isInForegroundProvider() else {
+        guard isCurrentGeneration(generation) else {
+            return
+        }
+        // Bailing out has to release the dedupe key as well, otherwise
+        // `restartForegroundPolling` keeps matching `pollingAppId` and no later focus
+        // event can ever restart the loop for this app id.
+        guard isInForegroundProvider() else {
+            releasePollingKey(for: generation)
             return
         }
         let current = appIdProvider() ?? ""
         guard !current.isEmpty else {
+            releasePollingKey(for: generation)
             return
         }
         backend.fetchRemoteFeatureFlags(appId: current) { [weak self] outcome in
@@ -235,6 +277,16 @@ public final class OSFeatureFlagsRefreshService: NSObject {
 
     private func isCurrentGeneration(_ generation: Int) -> Bool {
         stateLock.withLock { pollGeneration == generation }
+    }
+
+    /// Clears the dedupe key only if this generation still owns it, so a newer loop
+    /// started in the meantime keeps its claim.
+    private func releasePollingKey(for generation: Int) {
+        stateLock.withLock {
+            if pollGeneration == generation {
+                pollingAppId = nil
+            }
+        }
     }
 
     private static func stringArray(_ value: Any) -> [String] {

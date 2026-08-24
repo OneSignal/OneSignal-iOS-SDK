@@ -33,7 +33,61 @@ import OneSignalCore
 /// from `OSFeatureFlagsStore` and applies activation-mode rules via `refresh`.
 @objc(OSFeatureManager)
 public final class OSFeatureManager: NSObject {
-    @objc public static let shared = OSFeatureManager()
+    private static let lock = NSLock()
+    private static var _shared: OSFeatureManager?
+
+    /// Constructing this reads persisted flags and builds the KMP latch, so the first
+    /// access decides which `APP_STARTUP` flags are latched for the process. Only touch
+    /// it once storage is readable; see `enabledFeatureKeysIfInitialized()`.
+    @objc public static var shared: OSFeatureManager {
+        if let existing = lock.withLock({ _shared }) {
+            return existing
+        }
+        // Built outside the lock on purpose: construction reads storage and logs, and
+        // logging reaches back through the feature-flag provider. Holding the lock
+        // across that would risk re-entering it on the same thread. A lost race just
+        // discards the extra instance, which has only read the store.
+        let created = OSFeatureManager()
+        return lock.withLock {
+            if let existing = _shared {
+                return existing
+            }
+            _shared = created
+            return created
+        }
+    }
+
+    /// Enabled keys *without* forcing construction, for callers that must not trigger
+    /// first-touch initialization: a crash handler (initialization takes locks and reads
+    /// UserDefaults, neither async-signal-safe) and any pre-unlock caller that would
+    /// otherwise latch `APP_STARTUP` flags from unreadable storage.
+    ///
+    /// Returns empty when the manager has not been built yet. Reading keys from an
+    /// already-built manager still takes the KMP latch's lock.
+    @objc public static func enabledFeatureKeysIfInitialized() -> [String] {
+        guard let existing = lock.withLock({ _shared }) else {
+            return []
+        }
+        return existing.enabledFeatureKeys()
+    }
+
+    /// Drops the latch and cached state so the next access re-reads storage. Required on
+    /// an app-id change: `APP_STARTUP` flags never unlatch within a process, so without
+    /// this the previous app's flags would govern the new one.
+    @objc public static func reset() {
+        lock.withLock {
+            _shared = nil
+        }
+    }
+
+    /// Drops the latch *and* discards the persisted keys. Flags are scoped to an app id
+    /// but stored unscoped, so on an app-id change the cache has to go too — otherwise
+    /// the new app runs on the old app's flags until its first successful fetch, and
+    /// never for `APP_STARTUP` flags.
+    @objc public static func resetAndClearCachedFlags() {
+        OSFeatureFlagsStore.shared.clear()
+        reset()
+    }
 
     private let impl: OSFeatureManagerImpl
 

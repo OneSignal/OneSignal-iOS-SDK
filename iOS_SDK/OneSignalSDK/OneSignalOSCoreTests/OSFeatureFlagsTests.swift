@@ -112,52 +112,53 @@ final class OSFeatureManagerTests: XCTestCase {
 }
 
 final class OSFeatureFlagsBackendServiceTests: XCTestCase {
-    func test403ForbiddenReturnsUnavailableAndIsClientError() {
-        let outcome = fetch(statusCode: 403, body: #"{"errors":["Forbidden"]}"#)
+    func test403ForbiddenReturnsUnavailableAndIsClientError() throws {
+        let outcome = try fetch(statusCode: 403, body: #"{"errors":["Forbidden"]}"#)
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.nonSuccessHttp)
         XCTAssertTrue(outcome.isClientError)
     }
 
-    func test500ServerErrorIsNotClientError() {
-        let outcome = fetch(statusCode: 500, body: "boom")
+    func test500ServerErrorIsNotClientError() throws {
+        let outcome = try fetch(statusCode: 500, body: "boom")
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.nonSuccessHttp)
         XCTAssertFalse(outcome.isClientError)
     }
 
-    func test200WithValidEmptyFeaturesArrayIsSuccess() {
-        let outcome = fetch(statusCode: 200, body: #"{"features":[]}"#)
+    func test200WithValidEmptyFeaturesArrayIsSuccess() throws {
+        let outcome = try fetch(statusCode: 200, body: #"{"features":[]}"#)
         XCTAssertTrue(outcome.isSuccess)
+        XCTAssertNotNil(outcome.result)
         XCTAssertEqual(stringArray(outcome.result?.enabledKeys), [])
     }
 
-    func test200WithNonContractJSONIsInvalidJson() {
-        let outcome = fetch(statusCode: 200, body: #"{"errors":["Forbidden"]}"#)
+    func test200WithNonContractJSONIsInvalidJson() throws {
+        let outcome = try fetch(statusCode: 200, body: #"{"errors":["Forbidden"]}"#)
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.invalidJson)
     }
 
-    func test200WithHTMLBodyIsInvalidJsonAndDoesNotThrow() {
+    func test200WithHTMLBodyIsInvalidJsonAndDoesNotThrow() throws {
         let html = "<html><head><title>Burp</title></head><body>intercepted</body></html>"
-        let outcome = fetch(statusCode: 200, body: html)
+        let outcome = try fetch(statusCode: 200, body: html)
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.invalidJson)
     }
 
-    func test200WithEmptyBodyIsUnavailable() {
-        let outcome = fetch(statusCode: 200, body: nil)
+    func test200WithEmptyBodyIsUnavailable() throws {
+        let outcome = try fetch(statusCode: 200, body: nil)
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.emptyBody)
     }
 
-    func testPathShapingAppIdReturnsInvalidAppIdWithoutHTTP() {
+    func testPathShapingAppIdReturnsInvalidAppIdWithoutHTTP() throws {
         var didGet = false
         let http = StubFeatureFlagsHttp { _, completion in
             didGet = true
             completion(FeatureFlagsHttpResponse(statusCode: 200, body: #"{"features":[]}"#), nil)
         }
-        let outcome = fetch(appId: "app/../other", http: http)
+        let outcome = try fetch(appId: "app/../other", http: http)
         XCTAssertTrue(outcome.isUnavailable)
         XCTAssertTrue(outcome.reason == RemoteFeatureFlagsUnavailableReason.invalidAppId)
         XCTAssertFalse(didGet)
@@ -172,7 +173,7 @@ final class OSFeatureFlagsBackendServiceTests: XCTestCase {
         body: String? = nil,
         appId: String = "appId",
         http: IFeatureFlagsHttp? = nil
-    ) -> RemoteFeatureFlagsFetchOutcome {
+    ) throws -> RemoteFeatureFlagsFetchOutcome {
         let transport = http ?? StubFeatureFlagsHttp { _, completion in
             completion(FeatureFlagsHttpResponse(statusCode: statusCode, body: body), nil)
         }
@@ -184,7 +185,7 @@ final class OSFeatureFlagsBackendServiceTests: XCTestCase {
             done.fulfill()
         }
         wait(for: [done], timeout: 2)
-        return try! XCTUnwrap(outcome)
+        return try XCTUnwrap(outcome)
     }
 
     private func stringArray(_ value: Any?) -> [String] {

@@ -141,6 +141,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)clearStatics {
     [OSRemoteLoggingController reset];
     [OSFeatureFlagsRefreshService reset];
+    [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -543,6 +544,7 @@ static BOOL ComputeInitialStorageReadable(void) {
             [OSNotificationsManager sendPushTokenToDelegate];
             [OneSignal startLiveActivitiesManager];
             [OneSignal startInAppMessages];
+            [OSFeatureFlagsRefreshService start];
             [OneSignal startNewSession:YES];
         };
 
@@ -633,14 +635,17 @@ static BOOL ComputeInitialStorageReadable(void) {
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
-    [OSFeatureFlagsRefreshService start];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-    // Defer LA and IAM init during prewarm: both eagerly read UserDefaults at first access and would
-    // overwrite the on-disk state with empty caches on the next save. The observer re-drives them post-unlock.
+    // Defer LA, IAM, and feature flags during prewarm: all three eagerly read UserDefaults at first access
+    // and would overwrite the on-disk state with empty caches on the next save. The observer re-drives them
+    // post-unlock. Feature flags are the least forgiving of the three: the first read also latches every
+    // APP_STARTUP flag for the process, and that latch never reopens, so an empty prewarm read would pin
+    // them off for the whole run.
     if (![OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil]) {
         [self startLiveActivitiesManager];
         [self startInAppMessages];
+        [OSFeatureFlagsRefreshService start];
     }
     [self startNewSession:YES];
     
@@ -669,6 +674,9 @@ static BOOL ComputeInitialStorageReadable(void) {
         _didCallDownloadParameters = false;
         [OSRemoteLoggingController reset];
         [OSFeatureFlagsRefreshService reset];
+        // Flags are app-scoped but stored unscoped, and APP_STARTUP flags never unlatch
+        // within a process, so both the cache and the latch have to go.
+        [OSFeatureManager resetAndClearCachedFlags];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
