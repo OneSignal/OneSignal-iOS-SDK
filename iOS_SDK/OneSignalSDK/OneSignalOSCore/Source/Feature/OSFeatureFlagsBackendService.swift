@@ -162,10 +162,12 @@ final class OSFeatureFlagsHttpAdapter: IFeatureFlagsHttp {
     }
 
     func get(relativePath: String, completionHandler: @escaping (FeatureFlagsHttpResponse?, Error?) -> Void) {
+        // `OneSignalRequest` is used for the base URL and the standard SDK headers only.
+        // Its `disableLocalCaching` flag is read by `OneSignalClient`, which this path
+        // deliberately bypasses, so cache policy is set on the session instead.
         let request = OneSignalRequest()
         request.method = GET
         request.path = relativePath
-        request.disableLocalCaching = true
         requestSender(request.urlRequest() as URLRequest) { data, response, error in
             let statusCode: Int32
             if error != nil {
@@ -175,7 +177,15 @@ final class OSFeatureFlagsHttpAdapter: IFeatureFlagsHttp {
             } else {
                 statusCode = 0
             }
-            let body = data.flatMap { String(data: $0, encoding: .utf8) }
+            // A transport failure carries no HTTP status, so forward the error text as the
+            // body. Without it every such failure logs as `status=0 body=<empty>` and
+            // offline, DNS, TLS, and timeout are indistinguishable in the field.
+            let body: String?
+            if let error {
+                body = error.localizedDescription
+            } else {
+                body = data.flatMap { String(data: $0, encoding: .utf8) }
+            }
             completionHandler(FeatureFlagsHttpResponse(statusCode: statusCode, body: body), nil)
         }
     }

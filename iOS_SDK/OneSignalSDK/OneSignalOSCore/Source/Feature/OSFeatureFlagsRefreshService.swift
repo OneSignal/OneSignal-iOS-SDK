@@ -61,7 +61,10 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     private let notificationCenter: NotificationCenter
     private let usesScenes: () -> Bool
     private let appIdProvider: () -> String?
-    private let isInForegroundProvider: () -> Bool
+    /// Test-only override. Production tracks foreground state from lifecycle
+    /// notifications, seeded by `start(isInForeground:)`, because this framework is
+    /// extension-safe and so cannot read `UIApplication.shared` to ask directly.
+    private let isInForegroundOverride: (() -> Bool)?
 
     var refreshInterval: TimeInterval
 
@@ -73,6 +76,9 @@ public final class OSFeatureFlagsRefreshService: NSObject {
     /// Scenes currently foregrounded. Polling only stops once the last one backgrounds,
     /// so an iPad user backgrounding one of two windows keeps flags refreshing.
     private var activeSceneCount = 0
+    /// Defaults to false so a background launch (silent push, background fetch, prewarm)
+    /// does not start polling before a focus event says otherwise.
+    private var isForeground = false
 
     init(
         backend: OSFeatureFlagsBackendService = OSFeatureFlagsBackendService(),
@@ -83,7 +89,7 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         appIdProvider: @escaping () -> String? = {
             OneSignalIdentifiers.currentAppId ?? OneSignalIdentifiers.storedAppId
         },
-        isInForegroundProvider: @escaping () -> Bool = { true },
+        isInForegroundProvider: (() -> Bool)? = nil,
         refreshInterval: TimeInterval = OSFeatureFlagsRefreshService.defaultRefreshInterval
     ) {
         self.backend = backend
@@ -92,14 +98,20 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         self.notificationCenter = notificationCenter
         self.usesScenes = usesScenes
         self.appIdProvider = appIdProvider
-        self.isInForegroundProvider = isInForegroundProvider
+        self.isInForegroundOverride = isInForegroundProvider
         self.refreshInterval = refreshInterval
         super.init()
     }
 
-    @objc public class func start() {
+    /// Idempotent: safe to call again once the host learns its real foreground state.
+    ///
+    /// - Parameter isInForeground: the host's current foreground state. Passing `false`
+    ///   registers the lifecycle observers but leaves polling idle until a focus event.
+    @objc public class func start(isInForeground: Bool) {
+        let service = shared
+        service.setForeground(isInForeground)
         _ = OSFeatureManager.shared
-        shared.startPolling()
+        service.startPolling()
     }
 
     @objc public class func reset() {
@@ -115,33 +127,48 @@ public final class OSFeatureFlagsRefreshService: NSObject {
                 return
             }
             self.registerLifecycleObserversIfNeeded()
-            if self.isInForegroundProvider() {
+            if self.inForeground() {
                 self.restartForegroundPolling()
             }
         }
     }
 
+    /// Seeds the tracked state. Lifecycle notifications keep it current from here on.
+    func setForeground(_ value: Bool) {
+        stateLock.withLock {
+            isForeground = value
+        }
+    }
+
+    private func inForeground() -> Bool {
+        if let isInForegroundOverride {
+            return isInForegroundOverride()
+        }
+        return stateLock.withLock { isForeground }
+    }
+
     func onFocus() {
         ioQueue.async { [weak self] in
-            self?.restartForegroundPolling()
+            guard let self else {
+                return
+            }
+            self.stateLock.withLock {
+                self.isForeground = true
+            }
+            self.restartForegroundPolling()
         }
     }
 
     func onUnfocused() {
         ioQueue.async { [weak self] in
-            self?.stateLock.withLock {
-                self?.pollGeneration += 1
-                self?.pollingAppId = nil
-            }
-        }
-    }
-
-    func notifyAppIdMayHaveChanged() {
-        ioQueue.async { [weak self] in
-            guard let self, self.isInForegroundProvider() else {
+            guard let self else {
                 return
             }
-            self.restartForegroundPolling()
+            self.stateLock.withLock {
+                self.isForeground = false
+                self.pollGeneration += 1
+                self.pollingAppId = nil
+            }
         }
     }
 
@@ -237,17 +264,17 @@ public final class OSFeatureFlagsRefreshService: NSObject {
         guard generation >= 0 else {
             return
         }
-        poll(appId: appId, generation: generation)
+        poll(generation: generation)
     }
 
-    private func poll(appId: String, generation: Int) {
+    private func poll(generation: Int) {
         guard isCurrentGeneration(generation) else {
             return
         }
         // Bailing out has to release the dedupe key as well, otherwise
         // `restartForegroundPolling` keeps matching `pollingAppId` and no later focus
         // event can ever restart the loop for this app id.
-        guard isInForegroundProvider() else {
+        guard inForeground() else {
             releasePollingKey(for: generation)
             return
         }
@@ -262,7 +289,7 @@ public final class OSFeatureFlagsRefreshService: NSObject {
             }
             self.apply(outcome)
             self.ioQueue.asyncAfterTime(deadline: .now() + self.refreshInterval) { [weak self] in
-                self?.poll(appId: current, generation: generation)
+                self?.poll(generation: generation)
             }
         }
     }

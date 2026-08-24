@@ -215,6 +215,33 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
         super.tearDown()
     }
 
+    private func makeService(
+        http: IFeatureFlagsHttp,
+        queue: ControllableDispatchQueue,
+        notificationCenter: NotificationCenter = NotificationCenter(),
+        usesScenes: @escaping () -> Bool = { false },
+        appIdProvider: @escaping () -> String? = { "app-id-1" },
+        isInForegroundProvider: (() -> Bool)? = { true }
+    ) -> OSFeatureFlagsRefreshService {
+        OSFeatureFlagsRefreshService(
+            backend: OSFeatureFlagsBackendService(http: http, sdkVersionProvider: { "050506" }),
+            store: store,
+            ioQueue: queue,
+            notificationCenter: notificationCenter,
+            usesScenes: usesScenes,
+            appIdProvider: appIdProvider,
+            isInForegroundProvider: isInForegroundProvider,
+            refreshInterval: 10_000
+        )
+    }
+
+    private func countingHttp(_ counter: @escaping () -> Void) -> StubFeatureFlagsHttp {
+        StubFeatureFlagsHttp { _, completion in
+            counter()
+            completion(FeatureFlagsHttpResponse(statusCode: 200, body: #"{"features":[]}"#), nil)
+        }
+    }
+
     func testSuccessfulFetchPersistsKeysOnTheStore() {
         let http = StubFeatureFlagsHttp { _, completion in
             completion(
@@ -225,15 +252,7 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
                 nil
             )
         }
-        let backend = OSFeatureFlagsBackendService(http: http, sdkVersionProvider: { "050506" })
-        let service = OSFeatureFlagsRefreshService(
-            backend: backend,
-            store: store,
-            ioQueue: ImmediateDispatchQueue(),
-            appIdProvider: { "app-id-1" },
-            isInForegroundProvider: { true },
-            refreshInterval: 10_000
-        )
+        let service = makeService(http: http, queue: ControllableDispatchQueue())
 
         service.startPolling()
 
@@ -245,68 +264,165 @@ final class OSFeatureFlagsRefreshServiceTests: XCTestCase {
         let http = StubFeatureFlagsHttp { _, completion in
             completion(FeatureFlagsHttpResponse(statusCode: 500, body: "boom"), nil)
         }
-        let backend = OSFeatureFlagsBackendService(http: http, sdkVersionProvider: { "050506" })
-        let service = OSFeatureFlagsRefreshService(
-            backend: backend,
-            store: store,
-            ioQueue: ImmediateDispatchQueue(),
-            appIdProvider: { "app-id-1" },
-            isInForegroundProvider: { true },
-            refreshInterval: 10_000
-        )
+        let service = makeService(http: http, queue: ControllableDispatchQueue())
 
         service.startPolling()
 
         XCTAssertEqual(store.sdkRemoteFeatureFlags, ["sdk_identity_verification"])
     }
 
-    func testSameAppIdRestartDoesNotDoubleFetch() {
+    func testSameAppIdRefocusDoesNotDoubleFetch() {
         var fetches = 0
-        let http = StubFeatureFlagsHttp { _, completion in
-            fetches += 1
-            completion(FeatureFlagsHttpResponse(statusCode: 200, body: #"{"features":[]}"#), nil)
-        }
-        let backend = OSFeatureFlagsBackendService(http: http, sdkVersionProvider: { "050506" })
-        let service = OSFeatureFlagsRefreshService(
-            backend: backend,
-            store: store,
-            ioQueue: ImmediateDispatchQueue(),
-            appIdProvider: { "app-id-1" },
-            isInForegroundProvider: { true },
-            refreshInterval: 10_000
-        )
+        let service = makeService(http: countingHttp { fetches += 1 }, queue: ControllableDispatchQueue())
 
         service.startPolling()
-        service.notifyAppIdMayHaveChanged()
+        service.onFocus()
 
         XCTAssertEqual(fetches, 1)
     }
 
-    func testAppIdChangeRefetches() {
+    func testAppIdChangeRefetchesWithTheFullTurbinePath() {
         var appId = "app-id-1"
         var fetched: [String] = []
         let http = StubFeatureFlagsHttp { path, completion in
             fetched.append(path)
             completion(FeatureFlagsHttpResponse(statusCode: 200, body: #"{"features":[]}"#), nil)
         }
-        let backend = OSFeatureFlagsBackendService(http: http, sdkVersionProvider: { "050506" })
-        let service = OSFeatureFlagsRefreshService(
-            backend: backend,
-            store: store,
-            ioQueue: ImmediateDispatchQueue(),
-            appIdProvider: { appId },
-            isInForegroundProvider: { true },
-            refreshInterval: 10_000
-        )
+        let service = makeService(http: http, queue: ControllableDispatchQueue(), appIdProvider: { appId })
 
         service.startPolling()
         service.onUnfocused()
         appId = "app-id-2"
         service.onFocus()
 
-        XCTAssertEqual(fetched.count, 2)
-        XCTAssertTrue(fetched[0].contains("app-id-1"))
-        XCTAssertTrue(fetched[1].contains("app-id-2"))
+        // Asserting the whole path, not just the app id: the platform segment is the
+        // cross-platform contract this wiring exists to keep stable.
+        XCTAssertEqual(fetched, [
+            "apps/app-id-1/sdk/features/ios/050506",
+            "apps/app-id-2/sdk/features/ios/050506"
+        ])
+    }
+
+    func testPollReschedulesItselfAfterTheRefreshInterval() {
+        var fetches = 0
+        let queue = ControllableDispatchQueue()
+        let service = makeService(http: countingHttp { fetches += 1 }, queue: queue)
+
+        service.startPolling()
+        XCTAssertEqual(fetches, 1)
+
+        queue.runPendingDeferredWork()
+
+        XCTAssertEqual(fetches, 2)
+    }
+
+    func testUnfocusCancelsTheScheduledPoll() {
+        var fetches = 0
+        let queue = ControllableDispatchQueue()
+        let service = makeService(http: countingHttp { fetches += 1 }, queue: queue)
+
+        service.startPolling()
+        XCTAssertEqual(fetches, 1)
+
+        service.onUnfocused()
+        queue.runPendingDeferredWork()
+
+        XCTAssertEqual(fetches, 1, "the queued poll belongs to a cancelled generation")
+    }
+
+    func testDoesNotPollWhileBackgrounded() {
+        var fetches = 0
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: ControllableDispatchQueue(),
+            isInForegroundProvider: { false }
+        )
+
+        service.startPolling()
+
+        XCTAssertEqual(fetches, 0)
+    }
+
+    func testDoesNotPollUntilTheHostReportsForeground() {
+        var fetches = 0
+        // No override, so the service uses its own tracked state, which starts false.
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: ControllableDispatchQueue(),
+            isInForegroundProvider: nil
+        )
+
+        service.startPolling()
+        XCTAssertEqual(fetches, 0, "a background launch must not fetch")
+
+        service.setForeground(true)
+        service.startPolling()
+
+        XCTAssertEqual(fetches, 1)
+    }
+
+    func testMomentarilyEmptyAppIdDoesNotWedgePolling() {
+        // The app id is readable when polling is armed but empty by the time the poll
+        // runs. Without releasing the dedupe key, no later focus could ever restart.
+        var appIdReads = ["app-id-1", ""]
+        var fetches = 0
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: ControllableDispatchQueue(),
+            appIdProvider: { appIdReads.isEmpty ? "app-id-1" : appIdReads.removeFirst() }
+        )
+
+        service.startPolling()
+        XCTAssertEqual(fetches, 0)
+
+        service.onFocus()
+
+        XCTAssertEqual(fetches, 1, "a later focus must be able to restart polling")
+    }
+
+    func testBackgroundingOneOfTwoScenesKeepsPolling() {
+        var fetches = 0
+        let center = NotificationCenter()
+        let queue = ControllableDispatchQueue()
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: queue,
+            notificationCenter: center,
+            usesScenes: { true },
+            isInForegroundProvider: nil
+        )
+        service.startPolling()
+
+        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
+        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
+        XCTAssertEqual(fetches, 1, "the second scene is deduped against the same app id")
+
+        center.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        queue.runPendingDeferredWork()
+
+        XCTAssertEqual(fetches, 2, "one scene is still foregrounded")
+    }
+
+    func testBackgroundingTheLastSceneStopsPolling() {
+        var fetches = 0
+        let center = NotificationCenter()
+        let queue = ControllableDispatchQueue()
+        let service = makeService(
+            http: countingHttp { fetches += 1 },
+            queue: queue,
+            notificationCenter: center,
+            usesScenes: { true },
+            isInForegroundProvider: nil
+        )
+        service.startPolling()
+
+        center.post(name: Notification.Name("UISceneDidActivateNotification"), object: nil)
+        XCTAssertEqual(fetches, 1)
+
+        center.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        queue.runPendingDeferredWork()
+
+        XCTAssertEqual(fetches, 1)
     }
 }
 
@@ -325,12 +441,24 @@ private final class StubFeatureFlagsHttp: IFeatureFlagsHttp {
     }
 }
 
-private final class ImmediateDispatchQueue: OSDispatchQueue {
+/// Runs immediate work inline and holds deferred work until a test releases it, so the
+/// self-rescheduling poll loop can be stepped without waiting out the refresh interval.
+private final class ControllableDispatchQueue: OSDispatchQueue {
+    private var deferredWork: [() -> Void] = []
+
     func async(execute work: @escaping @convention(block) () -> Void) {
         work()
     }
 
     func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
-        // Tests use a large refreshInterval and assert the first fetch only.
+        deferredWork.append(work)
+    }
+
+    /// Runs work queued so far. Work scheduled *by* that work is left for the next call,
+    /// so a single step cannot recurse forever.
+    func runPendingDeferredWork() {
+        let scheduled = deferredWork
+        deferredWork.removeAll()
+        scheduled.forEach { $0() }
     }
 }
