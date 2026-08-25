@@ -119,17 +119,9 @@ final class OneSignalUserTests: XCTestCase {
      */
     func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
         /* Setup */
-
-        OneSignalUserManagerImpl.sharedInstance.start()
-
         let client = MockOneSignalClient()
-        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        OneSignalCoreImpl.setSharedClient(client)
-
-        // Increase flush interval to allow all the updates to batch
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-
-        OSOperationRepo.sharedInstance.flushAndWait()
+        let operationRepo = OSOperationRepo.sharedInstance
+        startUserManagerWithPausedOperations(client: client, operationRepo: operationRepo)
 
         /* When */
 
@@ -168,6 +160,9 @@ final class OneSignalUserTests: XCTestCase {
 
         /* Then */
 
+        operationRepo.paused = false
+        operationRepo.flushAndWait()
+
         OneSignalCoreMocks.waitUntil("Combined property update did not complete") {
             client.hasCompletedRequestOfType(OSRequestUpdateProperties.self)
         }
@@ -198,6 +193,16 @@ final class OneSignalUserTests: XCTestCase {
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
             contains: expectedPayload)
         )
+    }
+
+    private func startUserManagerWithPausedOperations(
+        client: MockOneSignalClient,
+        operationRepo: OSOperationRepo
+    ) {
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+        operationRepo.paused = true
+        OneSignalUserManagerImpl.sharedInstance.start()
     }
 
     /**
