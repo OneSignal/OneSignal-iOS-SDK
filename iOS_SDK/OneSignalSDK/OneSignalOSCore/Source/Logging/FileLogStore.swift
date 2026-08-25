@@ -35,6 +35,12 @@ import OneSignalCore
 /// Writes are synchronous and durable because fatal handlers may terminate the
 /// process immediately after `save` returns. Directory scans and cleanup run on
 /// a utility queue to keep disk I/O off the caller.
+///
+/// This is a bounded cache, not a queue. Retention decisions — which records have aged out,
+/// which exceed the accumulation caps — come from `CrashRetention` in the shared module, so
+/// iOS and Android reclaim identically; this type contributes only the file I/O. Without
+/// those bounds a record that never uploads successfully is re-read and re-sent on every
+/// launch for the life of the install.
 final class FileLogStore: ILogFileStore {
     /// Complete records use `.otlp`; interrupted durable writes leave
     /// `.otlp.tmp` files that are safe to reap after the minimum-age gate.
@@ -56,11 +62,23 @@ final class FileLogStore: ILogFileStore {
         guard bytes.size > 0 else {
             return false
         }
+        // Refuse rather than store-then-reclaim. A record this large would either claim the
+        // whole shared budget or be deleted before it could be uploaded, so losing it loudly
+        // here beats losing it silently on a later launch.
+        guard Int64(bytes.size) <= CrashRetention.shared.maxRecordBytes else {
+            OneSignalLog.onesignalLog(
+                .LL_WARN,
+                message: "FileLogStore refusing record of \(bytes.size) bytes, over the "
+                    + "\(CrashRetention.shared.maxRecordBytes)-byte limit"
+            )
+            return false
+        }
         do {
             try createRootDirectory()
             let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
             let id = "\(timestamp)-\(UUID().uuidString)\(Self.ownedFileSuffix)"
             try writeDurably(bytes.data, to: rootURL.appendingPathComponent(id))
+            enforceAccumulationCaps(keepName: id)
             return true
         } catch {
             return false
@@ -114,12 +132,19 @@ final class FileLogStore: ILogFileStore {
         ioQueue.async {
             var deleted = 0
             do {
-                for url in try self.fileURLs()
-                    where url.lastPathComponent.hasSuffix(Self.temporaryFileSuffix) {
-                    guard try self.isOldEnough(url, minAgeMillis: minAgeMillis) else {
-                        continue
-                    }
-                    try self.fileManager.removeItem(at: url)
+                // Also the only scan that runs when remote logging is disabled, so it is the
+                // sole chance to bound a directory `listReadable` never touches.
+                _ = self.reclaim(entries: try self.directoryEntries())
+
+                // Deliberately narrower than the shared `selectUnrecognized`, which reaps any
+                // non-owned file. iOS never ran the OpenTelemetry pipeline, so there is no
+                // legacy format to clean up here — only this store's own interrupted writes.
+                // Anything else in the directory belongs to someone we should not assume about.
+                let now = Self.nowMillis()
+                for entry in try self.directoryEntries()
+                    where entry.name.hasSuffix(Self.temporaryFileSuffix)
+                    && now - entry.lastModifiedMs >= max(0, minAgeMillis) {
+                    try self.fileManager.removeItem(at: self.rootURL.appendingPathComponent(entry.name))
                     deleted += 1
                 }
             } catch {
@@ -133,15 +158,125 @@ final class FileLogStore: ILogFileStore {
     }
 
     private func readableEntries(minAgeMillis: Int64) throws -> [StoredLogFile] {
-        try fileURLs()
-            .filter { $0.lastPathComponent.hasSuffix(Self.ownedFileSuffix) }
-            .filter { try isOldEnough($0, minAgeMillis: minAgeMillis) }
-            .compactMap { url in
+        let entries = try directoryEntries()
+        // Reclaim before reading so payloads are only materialized for records that survive
+        // both bounds — an over-cap backlog is never fully loaded into memory.
+        let reclaimed = reclaim(entries: entries)
+        let now = Self.nowMillis()
+
+        return entries
+            .filter { CrashRetention.shared.isOwned(name: $0.name, ownedSuffix: Self.ownedFileSuffix) }
+            .filter { !reclaimed.contains($0.name) }
+            .filter { now - $0.lastModifiedMs >= max(0, minAgeMillis) }
+            .compactMap { entry in
+                let url = rootURL.appendingPathComponent(entry.name)
                 guard let data = try? Data(contentsOf: url) else {
                     return nil
                 }
-                return StoredLogFile(id: url.lastPathComponent, bytes: data.kotlinByteArray)
+                return StoredLogFile(id: entry.name, bytes: data.kotlinByteArray)
             }
+    }
+
+    /// Applies the shared retention policy and deletes what it selects.
+    ///
+    /// - Returns: names that must be withheld from readers, including any whose unlink failed —
+    ///   a record past the ceiling must not be uploaded even if it could not be removed.
+    private func reclaim(entries: [CrashDirEntry]) -> Set<String> {
+        let now = Self.nowMillis()
+        var withheld = Set<String>()
+
+        let expired = CrashRetention.shared.selectExpiredOwned(
+            entries: entries,
+            nowMs: now,
+            maxAgeMillis: CrashRetention.shared.maxReadAgeMillis,
+            ownedSuffix: Self.ownedFileSuffix
+        )
+        for entry in expired {
+            withheld.insert(entry.name)
+            remove(name: entry.name)
+        }
+
+        let survivors = entries.filter { !withheld.contains($0.name) }
+        let overflow = CrashRetention.shared.selectOverflowOwned(
+            entries: survivors,
+            maxCount: CrashRetention.shared.maxRecordCount,
+            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
+            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
+            keepName: nil,
+            ownedSuffix: Self.ownedFileSuffix
+        )
+        for entry in overflow {
+            withheld.insert(entry.name)
+            remove(name: entry.name)
+        }
+
+        if !withheld.isEmpty {
+            OneSignalLog.onesignalLog(
+                .LL_DEBUG,
+                message: "FileLogStore reclaimed \(expired.count) expired and "
+                    + "\(overflow.count) over-cap record(s)"
+            )
+        }
+        return withheld
+    }
+
+    /// Trims the directory back inside the accumulation caps after a write, always keeping
+    /// [keepName]. Runs synchronously on the crashing thread, so it exits on one directory
+    /// listing in the steady state and only sorts when the caps are actually breached.
+    private func enforceAccumulationCaps(keepName: String) {
+        guard let entries = try? directoryEntries() else {
+            return
+        }
+        guard !CrashRetention.shared.isWithinCaps(
+            entries: entries,
+            maxCount: CrashRetention.shared.maxRecordCount,
+            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
+            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
+            ownedSuffix: Self.ownedFileSuffix
+        ) else {
+            return
+        }
+        let overflow = CrashRetention.shared.selectOverflowOwned(
+            entries: entries,
+            maxCount: CrashRetention.shared.maxRecordCount,
+            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
+            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
+            keepName: keepName,
+            ownedSuffix: Self.ownedFileSuffix
+        )
+        for entry in overflow {
+            remove(name: entry.name)
+        }
+    }
+
+    private func remove(name: String) {
+        do {
+            try fileManager.removeItem(at: rootURL.appendingPathComponent(name))
+        } catch {
+            OneSignalLog.onesignalLog(
+                .LL_WARN,
+                message: "FileLogStore failed to reclaim \(name): \(error.localizedDescription)"
+            )
+        }
+    }
+
+    /// Snapshots the directory as the platform-neutral entries the shared policy consumes.
+    private func directoryEntries() throws -> [CrashDirEntry] {
+        try fileURLs().compactMap { url in
+            let values = try? url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
+            guard let modifiedAt = values?.contentModificationDate else {
+                return nil
+            }
+            return CrashDirEntry(
+                name: url.lastPathComponent,
+                lastModifiedMs: Int64(modifiedAt.timeIntervalSince1970 * 1_000),
+                lengthBytes: Int64(values?.fileSize ?? 0)
+            )
+        }
+    }
+
+    private static func nowMillis() -> Int64 {
+        Int64(Date().timeIntervalSince1970 * 1_000)
     }
 
     private func fileURLs() throws -> [URL] {
@@ -150,19 +285,11 @@ final class FileLogStore: ILogFileStore {
         }
         return try fileManager.contentsOfDirectory(
             at: rootURL,
-            includingPropertiesForKeys: [.contentModificationDateKey, .isRegularFileKey],
+            includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey],
             options: [.skipsHiddenFiles]
         ).filter {
             (try? $0.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true
         }
-    }
-
-    private func isOldEnough(_ url: URL, minAgeMillis: Int64) throws -> Bool {
-        let values = try url.resourceValues(forKeys: [.contentModificationDateKey])
-        guard let modifiedAt = values.contentModificationDate else {
-            return false
-        }
-        return Date().timeIntervalSince(modifiedAt) * 1_000 >= Double(max(0, minAgeMillis))
     }
 
     private func isSafeEntryId(_ id: String) -> Bool {
