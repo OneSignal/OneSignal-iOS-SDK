@@ -54,13 +54,19 @@ public extension OSRemoteLoggerProtocol {
 
 @_implementationOnly import OneSignalKMP
 
-private final class OSRemoteLoggerLifecycle {
-    private let lock = NSLock()
+final class OSRemoteLoggerLifecycle {
+    /// A condition rather than a plain lock so teardown can wait on in-flight flushes.
+    private let lock = NSCondition()
     private var isStarted = false
     private var isShuttingDown = false
     private var isShutdown = false
+    private var activeFlushes = 0
 
-    var canStartUploader: Bool {
+    /// True while the transport is usable and teardown has not begun. Gates record
+    /// emission, uploader start, and explicit flushes alike, so nothing new is accepted
+    /// once the SDK has been told to stop. Keyed on shutdown *beginning* rather than
+    /// finishing, because the final drain is asynchronous.
+    var isActive: Bool {
         lock.lock()
         defer { lock.unlock() }
         return isStarted && !isShuttingDown && !isShutdown
@@ -76,14 +82,49 @@ private final class OSRemoteLoggerLifecycle {
         return true
     }
 
+    /// Rejects once shutdown has *begun*, not just once it has finished. The final
+    /// drain is asynchronous, so a logger told to shut down can otherwise still be
+    /// started afterwards and install a crash handler nothing will ever unregister.
     func start() -> Bool {
         lock.lock()
         defer { lock.unlock() }
-        guard !isStarted, !isShutdown else {
+        guard !isStarted, !isShuttingDown, !isShutdown else {
             return false
         }
         isStarted = true
         return true
+    }
+
+    /// Claims a flush slot, so teardown can tell a flush is still crossing into KMP.
+    /// Returns false once shutdown has begun, meaning the caller must not cross.
+    func beginFlush() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isStarted, !isShuttingDown, !isShutdown else {
+            return false
+        }
+        activeFlushes += 1
+        return true
+    }
+
+    func endFlush() {
+        lock.lock()
+        activeFlushes -= 1
+        if activeFlushes == 0 {
+            lock.broadcast()
+        }
+        lock.unlock()
+    }
+
+    /// Blocks until flushes admitted before shutdown began have finished, so the
+    /// teardown drain never overlaps one. `beginFlush` already refuses new flushes by
+    /// this point, so the set can only shrink. Bounded, because a wedged flush must
+    /// not stop teardown from completing.
+    func waitForFlushesToDrain(timeout: TimeInterval) {
+        let deadline = Date().addingTimeInterval(timeout)
+        lock.lock()
+        defer { lock.unlock() }
+        while activeFlushes > 0, lock.wait(until: deadline) {}
     }
 
     func beginShutdown() -> Bool {
@@ -170,6 +211,13 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
+    /// Serial so overlapping teardowns cannot stack several bounded drains at once.
+    private static let teardownQueue = DispatchQueue(label: "com.onesignal.logger.remote-teardown")
+
+    /// Matches the bound KMP puts on its own shutdown drain, so a wedged flush delays
+    /// teardown by no more than the drain itself already can.
+    private static let flushDrainTimeout: TimeInterval = 5
+
     public convenience init(
         installIdProvider: @escaping () -> String,
         onesignalIdProvider: @escaping () -> String?,
@@ -237,9 +285,12 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let crashLogger = OSCrashLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
+        // Console-only logger on purpose. Exporter diagnostics describe the POST that
+        // ships log records, so routing them through OneSignalLog would feed each POST
+        // back into the export queue as a new record and never settle.
         let httpSender = Self.makeHttpSender(
             requestSender: requestSenderOverride,
-            logger: logger,
+            logger: crashLogger,
             isDiagnosticsEnabled: exporterLoggingEnabledProvider,
             lifecycle: lifecycle
         )
@@ -309,7 +360,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         let logger = self.logger
         let lifecycle = self.lifecycle
         OSCrashUploaderCoordinator.shared.enqueue(owner: owner) {
-            guard lifecycle.canStartUploader else {
+            guard lifecycle.isActive else {
                 OSCrashUploaderCoordinator.shared.finish(owner: owner)
                 return
             }
@@ -347,6 +398,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         exceptionMessage: String?,
         exceptionStacktrace: String?
     ) {
+        guard lifecycle.isActive else {
+            return
+        }
         LogLoggingHelper.shared.log(
             telemetry: telemetry,
             level: level,
@@ -359,20 +413,49 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     }
 
     public func forceFlush(completion: @escaping () -> Void) {
-        telemetry.forceFlush(completionHandler: { _ in completion() })
+        // Claiming a slot rather than just testing a flag: the flush completes
+        // asynchronously even when started inline, so shutdown could otherwise begin
+        // after the check passed and drain the same telemetry concurrently.
+        // `shutdown()` waits for the slot to be released. The completion still has to
+        // run on every path — callers end a background task in it, and swallowing it
+        // would leak that task.
+        guard lifecycle.beginFlush() else {
+            completion()
+            return
+        }
+        let lifecycle = self.lifecycle
+        telemetry.forceFlush(completionHandler: { _ in
+            lifecycle.endFlush()
+            completion()
+        })
     }
 
     public func shutdown() {
         lifecycleOperationLock.lock()
-        defer { lifecycleOperationLock.unlock() }
         guard lifecycle.beginShutdown() else {
+            lifecycleOperationLock.unlock()
             return
         }
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
-        telemetry.shutdown()
-        lifecycle.finishShutdown()
+        lifecycleOperationLock.unlock()
+
+        // `telemetry.shutdown()` blocks for up to five seconds draining buffered
+        // records, and callers reach here from app launch and app-id changes, where
+        // that would stall the UI. `beginShutdown()` has already closed the door on
+        // new records, so the drain can finish on its own thread. Unregistering the
+        // crash handler stays synchronous above: a later logger cannot install its
+        // handler while this one is still registered.
+        Self.teardownQueue.async { [self] in
+            // A flush admitted just before `beginShutdown()` may still be crossing
+            // into KMP; the drain below would otherwise run alongside it. Safe to
+            // block here: this is a background queue, and the KMP completion that
+            // releases the slot resumes on main.
+            lifecycle.waitForFlushesToDrain(timeout: Self.flushDrainTimeout)
+            telemetry.shutdown()
+            lifecycle.finishShutdown()
+        }
     }
 }
 

@@ -44,6 +44,65 @@ final class OSLoggerAdaptersTests: XCTestCase {
         try? FileManager.default.removeItem(at: temporaryDirectory)
     }
 
+    func testLifecycleRejectsStartOnceShutdownHasBegun() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+
+        XCTAssertTrue(lifecycle.beginShutdown())
+        // The final drain is deferred, so `isShutdown` is still false at this point.
+        // Starting anyway would register a crash handler that nothing unregisters,
+        // permanently blocking every later logger from installing its own.
+        XCTAssertFalse(lifecycle.start())
+        XCTAssertFalse(lifecycle.isActive)
+    }
+
+    func testLifecycleShutdownWaitsForInFlightFlush() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.beginFlush())
+        XCTAssertTrue(lifecycle.beginShutdown())
+
+        // A flush admitted before shutdown began still holds its slot, so teardown
+        // must not proceed to the drain while it is outstanding.
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            lifecycle.waitForFlushesToDrain(timeout: 5)
+            drained.signal()
+        }
+        XCTAssertEqual(drained.wait(timeout: .now() + 0.3), .timedOut)
+
+        lifecycle.endFlush()
+        XCTAssertEqual(drained.wait(timeout: .now() + 2), .success)
+    }
+
+    func testLifecycleRefusesNewFlushOnceShutdownBegins() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.beginShutdown())
+
+        // Nothing new may cross into KMP, so the drain has a shrinking set to wait on.
+        XCTAssertFalse(lifecycle.beginFlush())
+
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            lifecycle.waitForFlushesToDrain(timeout: 5)
+            drained.signal()
+        }
+        XCTAssertEqual(drained.wait(timeout: .now() + 2), .success)
+    }
+
+    func testLifecycleStopsAcceptingRecordsWhenShutdownBegins() {
+        let lifecycle = OSRemoteLoggerLifecycle()
+
+        XCTAssertTrue(lifecycle.start())
+        XCTAssertTrue(lifecycle.isActive)
+
+        // Gates emission, uploader start, and explicit flushes together, so nothing
+        // new is accepted once the SDK has been told to stop.
+        XCTAssertTrue(lifecycle.beginShutdown())
+        XCTAssertFalse(lifecycle.isActive)
+        XCTAssertFalse(lifecycle.start())
+    }
+
     func testFileStoreSynchronouslySavesAndListsPayload() throws {
         let store = FileLogStore(rootPath: temporaryDirectory.path)
         let payload = makeKotlinBytes([1, 2, 3, 255])
@@ -244,6 +303,29 @@ final class OSLoggerAdaptersTests: XCTestCase {
         logger.debug(message: "debug")
 
         XCTAssertTrue(lines.isEmpty)
+    }
+
+    /// KMP #15 set `objcExportSuspendFunctionLaunchThreadRestriction=none`, lifting
+    /// Kotlin/Native's rule that exported `suspend` functions may only be called from
+    /// the main thread. Asserts that actually holds for the framework we link, so the
+    /// Swift side does not have to marshal every crossing onto main — and fails loudly
+    /// if that flag is ever dropped.
+    func testKmpSuspendCallSucceedsOffMainThread() {
+        let store = FileLogStore(rootPath: temporaryDirectory.path)
+        let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
+            platformProvider: makePlatformProvider(),
+            fileStore: store
+        )
+        let completed = expectation(description: "KMP suspend call completes off main")
+
+        DispatchQueue.global().async {
+            XCTAssertFalse(Thread.isMainThread)
+            telemetry.forceFlush { _ in
+                completed.fulfill()
+            }
+        }
+
+        wait(for: [completed], timeout: 5)
     }
 
     func testKmpPipelineInvokesSwiftAdapters() throws {
