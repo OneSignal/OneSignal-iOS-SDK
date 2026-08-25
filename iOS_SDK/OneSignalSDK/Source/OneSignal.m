@@ -140,6 +140,8 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     [OSRemoteLoggingController reset];
+    [OSFeatureFlagsRefreshService reset];
+    [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
     appSettings = nil;
@@ -465,6 +467,41 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OneSignalIdentifiers setCurrentAppId:nil];
 }
 
+/// Current foreground state for components that cannot read `UIApplication` themselves
+/// (OneSignalOSCore is extension-safe). Answers NO when it cannot know: `applicationState`
+/// is main-thread only, and `sharedApplication` is nil before `UIApplicationMain`
+/// (e.g. a SwiftUI `App.init()`), where a prewarmed background launch is the safe guess.
+static BOOL IsAppInForeground(void) {
+    if (![NSThread isMainThread]) {
+        return NO;
+    }
+    UIApplication *sharedApp = UIApplication.sharedApplication;
+    if (!sharedApp) {
+        return NO;
+    }
+    return sharedApp.applicationState != UIApplicationStateBackground;
+}
+
+/// Starts feature-flag polling seeded with the host's foreground state.
+///
+/// `+init` can run off the main queue, where the state is unreadable. Starting anyway
+/// registers the lifecycle observers; the hop back to main then supplies the real value.
+/// Without that second pass, an off-main init while the app is already active would see
+/// NO and wait for the next foreground transition — which may never come this session.
+/// The re-seed only reports YES so it cannot clobber a focus event that landed first.
+static void StartFeatureFlagsRefresh(void) {
+    if ([NSThread isMainThread]) {
+        [OSFeatureFlagsRefreshService startWithIsInForeground:IsAppInForeground()];
+        return;
+    }
+    [OSFeatureFlagsRefreshService startWithIsInForeground:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (IsAppInForeground()) {
+            [OSFeatureFlagsRefreshService startWithIsInForeground:YES];
+        }
+    });
+}
+
 /// Computes the initial value for `gProtectedDataAvailable` (see the case table in
 /// `+setupProtectedDataObserverOnce`).
 static BOOL ComputeInitialStorageReadable(void) {
@@ -542,6 +579,7 @@ static BOOL ComputeInitialStorageReadable(void) {
             [OSNotificationsManager sendPushTokenToDelegate];
             [OneSignal startLiveActivitiesManager];
             [OneSignal startInAppMessages];
+            StartFeatureFlagsRefresh();
             [OneSignal startNewSession:YES];
         };
 
@@ -634,11 +672,15 @@ static BOOL ComputeInitialStorageReadable(void) {
     [self startLifecycleObserver];
     //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-    // Defer LA and IAM init during prewarm: both eagerly read UserDefaults at first access and would
-    // overwrite the on-disk state with empty caches on the next save. The observer re-drives them post-unlock.
+    // Defer LA, IAM, and feature flags during prewarm: all three eagerly read UserDefaults at first access
+    // and would overwrite the on-disk state with empty caches on the next save. The observer re-drives them
+    // post-unlock. Feature flags are the least forgiving of the three: the first read also latches every
+    // APP_STARTUP flag for the process, and that latch never reopens, so an empty prewarm read would pin
+    // them off for the whole run.
     if (![OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil]) {
         [self startLiveActivitiesManager];
         [self startInAppMessages];
+        StartFeatureFlagsRefresh();
     }
     [self startNewSession:YES];
     
@@ -666,6 +708,10 @@ static BOOL ComputeInitialStorageReadable(void) {
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
         [OSRemoteLoggingController reset];
+        [OSFeatureFlagsRefreshService reset];
+        // Flags are app-scoped but stored unscoped, and APP_STARTUP flags never unlatch
+        // within a process, so both the cache and the latch have to go.
+        [OSFeatureManager resetAndClearCachedFlags];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
