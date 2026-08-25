@@ -292,7 +292,11 @@ private extension OSRemoteLoggingController {
             onesignalId: { OneSignalUserManagerImpl.sharedInstance.internalOnesignalId },
             pushSubscriptionId: { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId },
             appState: { [weak self] in self?.currentAppState ?? "unknown" },
-            featureFlags: { [] },
+            // Deliberately non-forcing: this closure runs on arbitrary threads and
+            // synchronously from the crash handler, and it can fire before storage is
+            // readable. Touching `.shared` here would both latch APP_STARTUP flags from
+            // an empty prewarm read and do lock/UserDefaults work on a crashing thread.
+            featureFlags: { OSFeatureManager.enabledFeatureKeysIfInitialized() },
             remoteLogLevel: { configuration.logLevelName },
             exporterLoggingEnabled: { false }
         )

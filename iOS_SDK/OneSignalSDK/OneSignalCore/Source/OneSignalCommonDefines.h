@@ -77,6 +77,9 @@
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+// Remote SDK feature flags (Turbine GET apps/{app_id}/sdk/features/{platform}/{sdk_version})
+#define OSUD_SDK_REMOTE_FEATURE_FLAGS                                       @"OSUD_SDK_REMOTE_FEATURE_FLAGS"
+#define OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA                               @"OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
