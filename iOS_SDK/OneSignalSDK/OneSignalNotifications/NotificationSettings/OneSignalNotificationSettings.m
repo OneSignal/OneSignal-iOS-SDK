@@ -189,4 +189,6 @@ static dispatch_queue_t serialQueue;
     [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
 }
 
+- (void)onNotificationPromptResponse:(int)notificationTypes { }
+
 @end

@@ -414,9 +414,9 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
     switch (self.message.position) {
-        case OSInAppMessageDisplayPositionTop:
-            UIEdgeInsets topSafeAreaInsets = self.view.window.safeAreaInsets;
-            bannerHeight += topSafeAreaInsets.top + topSafeAreaInsets.bottom;
+        case OSInAppMessageDisplayPositionTop: {
+            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
             bannerHeight += statusBarHeight;
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
@@ -427,9 +427,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
                                                                                     constant:(self.useHeightMargin ? marginSpacing : 0)];
             break;
-        case OSInAppMessageDisplayPositionBottom:
-            UIEdgeInsets bottomSafeAreaInsets = self.view.window.safeAreaInsets;
-            bannerHeight += bottomSafeAreaInsets.top + bottomSafeAreaInsets.bottom;
+        }
+        case OSInAppMessageDisplayPositionBottom: {
+            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             bannerMessageY = mainBounds.size.height - bannerHeight;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
@@ -439,6 +440,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
                                                                                        constant:(self.useHeightMargin ? -marginSpacing : 0)];
             break;
+        }
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
             self.view.window.frame = mainBounds;
