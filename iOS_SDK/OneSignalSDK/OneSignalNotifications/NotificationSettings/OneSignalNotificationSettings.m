@@ -32,7 +32,6 @@
 
 #import "OneSignalCommonDefines.h"
 #import "OSNotificationsManager.h"
-#import <OneSignalCore/OSDeviceUtils.h>
 #import "OSMacros.h"
 #import <OneSignalCore/OneSignalCoreHelper.h>
 
@@ -87,12 +86,10 @@ static dispatch_queue_t serialQueue;
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
-            // check if using provisional notifications
-            if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
+            if (settings.authorizationStatus == provisionalStatus)
                 status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
             
-            // also check if 'deliver quietly' is enabled.
-            if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
+            if (settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
             
             self.useCachedStatus = true;
@@ -156,7 +153,7 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
-    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && [OSNotificationsManager providesAppNotificationSettings]) {
+    if ([OSNotificationsManager providesAppNotificationSettings]) {
         options += PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION;
     }
     
@@ -167,11 +164,6 @@ static dispatch_queue_t serialQueue;
 }
 
 - (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
-    
-    if ([OSDeviceUtils isIOSVersionLessThan:@"12.0"]) {
-        return;
-    }
-    
     OSPermissionStateInternal *state = [self getNotificationPermissionState];
     
     //don't register for provisional if the user has already accepted the prompt
@@ -196,9 +188,5 @@ static dispatch_queue_t serialQueue;
     
     [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
 }
-
-// Ignore these 2 events, promptForNotifications: already takes care of these.
-// Only iOS 9
-- (void)onNotificationPromptResponse:(int)notificationTypes { }
 
 @end

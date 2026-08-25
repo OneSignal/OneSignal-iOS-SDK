@@ -136,38 +136,20 @@
 //}
 //
 //-(void)testIphoneSimulator {
-//    OneSignalHelperOverrider.mockIOSVersion = 10;
 //    [OSMessagingController removeInstance];
 //    let sharedInstance = OSMessagingController.sharedInstance;
 //    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 //}
 //
 //-(void)testIpadSimulator {
-//    OneSignalHelperOverrider.mockIOSVersion = 10;
 //    [OSMessagingController removeInstance];
 //    [UIDeviceOverrider setModel:@"iPad"];
 //    let sharedInstance = OSMessagingController.sharedInstance;
 //    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 //}
 //
-//-(void)testOldUnsupportedIphoneSimulator {
-//    OneSignalHelperOverrider.mockIOSVersion = 9;
-//    [OSMessagingController removeInstance];
-//    let sharedInstance = OSMessagingController.sharedInstance;
-//    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
-//}
-//
-//-(void)testOldUnsupportedIpadSimulator {
-//    OneSignalHelperOverrider.mockIOSVersion = 8;
-//    [OSMessagingController removeInstance];
-//    [UIDeviceOverrider setModel:@"iPad"];
-//    let sharedInstance = OSMessagingController.sharedInstance;
-//    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
-//}
-//
 //// This test needs to be run with Mac Catalyst as the build target
 //-(void)testUnsupportedCatalyst {
-//    OneSignalHelperOverrider.mockIOSVersion = 10;
 //    [OSMessagingController removeInstance];
 //    let sharedInstance = OSMessagingController.sharedInstance;
 //    #if TARGET_OS_MACCATALYST
@@ -178,35 +160,17 @@
 //}
 //
 //-(void)testRealIphone {
-//    OneSignalHelperOverrider.mockIOSVersion = 10;
 //    [OSMessagingController removeInstance];
 //    [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
 //    let sharedInstance = OSMessagingController.sharedInstance;
 //    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
-//}
-//
-//-(void)testRealUnsupportedIphone {
-//    OneSignalHelperOverrider.mockIOSVersion = 8;
-//    [OSMessagingController removeInstance];
-//    [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
-//    let sharedInstance = OSMessagingController.sharedInstance;
-//    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 //}
 //
 //-(void)testRealIpad {
-//    OneSignalHelperOverrider.mockIOSVersion = 13;
 //    [OSMessagingController removeInstance];
 //    [OneSignalHelperOverrider setSystemInfoMachine:@"iPad6,7"];
 //    let sharedInstance = OSMessagingController.sharedInstance;
 //    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
-//}
-//
-//-(void)testRealUnsupportedIpad {
-//    OneSignalHelperOverrider.mockIOSVersion = 8;
-//    [OSMessagingController removeInstance];
-//    [OneSignalHelperOverrider setSystemInfoMachine:@"iPad6,7"];
-//    let sharedInstance = OSMessagingController.sharedInstance;
-//    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 //}
 //
 //#pragma mark Message JSON Parsing Tests

@@ -312,7 +312,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
-    if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
+    if (providesView) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
 }
@@ -919,7 +919,7 @@ static BOOL ComputeInitialStorageReadable(void) {
 //        - Almost always this is the AppDelegate class but since UIApplicationDelegate is an "interface" this could be any class.
 //   - UNUserNotificationCenter
 //     - setDelegate:
-//        - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
+//        - Swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
 //         -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
 //
 //  Note1: Do NOT move this category to it's own file. This is required so when the app developer calls OneSignal.initWithLaunchOptions this load+

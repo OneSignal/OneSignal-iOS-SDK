@@ -40,8 +40,7 @@
 + (NSString*) appId;
 @end
 
-// This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
-//   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.
+// Hooks application lifecycle selectors and forwards to their original implementations.
 
 @implementation OneSignalAppDelegate
 
