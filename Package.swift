@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "OneSignalFramework", // Package name MUST be on line 7 for release automation
     platforms: [
-        .iOS(.v11),
+        .iOS(.v12),
         .macCatalyst(.v14),
     ],
     products: [

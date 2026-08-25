@@ -51,6 +51,7 @@ body:
       description: Which versions of iOS are broken for you?
       multiple: true
       options:
+        - "26"
         - "18"
         - "17"
         - "16"
@@ -58,7 +59,6 @@ body:
         - "14"
         - "13"
         - "12"
-        - "11 or below"
     validations:
       required: true
   - type: textarea
@@ -69,7 +69,7 @@ body:
       placeholder: |
         * iOS 17.2
         * iOS 15.4
-        * iOS 11.0
+        * iOS 12.0
       render: Markdown
 
   - type: textarea
