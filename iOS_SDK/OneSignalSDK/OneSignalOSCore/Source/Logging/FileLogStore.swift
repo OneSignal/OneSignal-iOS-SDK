@@ -42,10 +42,13 @@ import OneSignalCore
 /// those bounds a record that never uploads successfully is re-read and re-sent on every
 /// launch for the life of the install.
 final class FileLogStore: ILogFileStore {
-    /// Complete records use `.otlp`; interrupted durable writes leave
-    /// `.otlp.tmp` files that are safe to reap after the minimum-age gate.
-    private static let ownedFileSuffix = ".otlp"
-    private static let temporaryFileSuffix = ".otlp.tmp"
+    /// Complete records use the shared policy's suffix; interrupted durable writes leave
+    /// `.tmp` files alongside them that are safe to reap after the minimum-age gate.
+    ///
+    /// Taken from the policy rather than restated, so what this store writes cannot drift out
+    /// of what `isOwned` accepts — a mismatch would hide brand-new records from every reader.
+    private static let ownedFileSuffix = CrashRetention.shared.defaultPolicy.ownedSuffix
+    private static let temporaryFileSuffix = ownedFileSuffix + ".tmp"
     private static let queueLabel = "com.onesignal.logger.file-store"
 
     /// The shared bounds, named once. Kotlin default arguments do not cross the Objective-C
@@ -149,8 +152,11 @@ final class FileLogStore: ILogFileStore {
                 for entry in try self.directoryEntries()
                     where entry.name.hasSuffix(Self.temporaryFileSuffix)
                     && now - entry.lastModifiedMs >= max(0, minAgeMillis) {
-                    try self.fileManager.removeItem(at: self.rootURL.appendingPathComponent(entry.name))
-                    deleted += 1
+                    // Per-entry, so one undeletable leftover cannot strand the rest of the
+                    // sweep — a file locked before first unlock would otherwise wedge it.
+                    if self.remove(name: entry.name) {
+                        deleted += 1
+                    }
                 }
             } catch {
                 OneSignalLog.onesignalLog(
@@ -249,14 +255,19 @@ final class FileLogStore: ILogFileStore {
         }
     }
 
-    private func remove(name: String) {
+    /// - Returns: whether the file is gone. Callers reclaiming records ignore this — a failed
+    ///   unlink is still withheld from readers — but the temp sweep counts only real deletions.
+    @discardableResult
+    private func remove(name: String) -> Bool {
         do {
             try fileManager.removeItem(at: rootURL.appendingPathComponent(name))
+            return true
         } catch {
             OneSignalLog.onesignalLog(
                 .LL_WARN,
                 message: "FileLogStore failed to reclaim \(name): \(error.localizedDescription)"
             )
+            return false
         }
     }
 

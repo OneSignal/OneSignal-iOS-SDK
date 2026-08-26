@@ -119,18 +119,67 @@ final class FileLogStoreRetentionTests: XCTestCase {
         XCTAssertTrue(fileExists("seed-0.otlp"))
     }
 
-    func testSaveNeverEvictsTheRecordItJustWrote() throws {
-        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
-        for index in 0..<(max + 5) {
-            try writeRecord(named: "seed-\(index).otlp", ageMillis: Int64(1_000 * (index + 1)))
+    func testSaveEvictsOldestFirstPastTheTotalByteCap() throws {
+        // Each record sits just under the per-record cap, so the count stays well inside its
+        // bound and only the combined budget claim can breach — the one bound the count-cap
+        // tests would not notice being dropped.
+        let policy = CrashRetention.shared.defaultPolicy
+        let nearCap = Int(policy.maxRecordBytes) - 12_288
+        for index in 0..<5 {
+            try writeRecord(
+                named: "big-\(index).otlp",
+                ageMillis: Int64(10_000 * (index + 1)),
+                bytes: nearCap
+            )
         }
 
         XCTAssertTrue(makeStore().save(bytes: Data("new".utf8).kotlinByteArray))
 
-        let survivors = ownedFileNames()
-        XCTAssertEqual(survivors.count, max)
-        // The just-written record is the only one not named seed-*.
-        XCTAssertEqual(survivors.filter { !$0.hasPrefix("seed-") }.count, 1)
+        // Four near-cap records plus the new one exhaust the budget; the oldest loses.
+        XCTAssertEqual(ownedFileNames().count, 5)
+        XCTAssertFalse(fileExists("big-4.otlp"))
+        XCTAssertTrue(fileExists("big-0.otlp"))
+    }
+
+    /// Both sort keys clamp to now, so a record written while the backlog is dated ahead of the
+    /// clock ties with it, and the order inside that tie group is whatever the filesystem lists.
+    /// Only the explicit `keepName` reservation guarantees the new record survives; without it
+    /// eviction is a coin flip, so a single attempt would pass most of the time. Repeating drives
+    /// the odds of a false pass to nil.
+    func testSaveNeverEvictsTheRecordItJustWroteWhateverOrderTheBacklogListsIn() throws {
+        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
+
+        for _ in 0..<25 {
+            for name in try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path) {
+                try FileManager.default.removeItem(at: temporaryDirectory.appendingPathComponent(name))
+            }
+            for index in 0..<(max + 3) {
+                let ahead = Int64(Date().timeIntervalSince1970 * 1_000) + 3_600_000 + Int64(index)
+                try writeRecord(named: "\(ahead)-seed\(index).otlp", ageMillis: -60_000, bytes: 1)
+            }
+
+            XCTAssertTrue(makeStore().save(bytes: Data("new".utf8).kotlinByteArray))
+
+            let survivors = ownedFileNames()
+            XCTAssertEqual(survivors.count, max)
+            // The just-written record is the only one whose name has no "seed" marker.
+            XCTAssertEqual(survivors.filter { !$0.contains("seed") }.count, 1)
+        }
+    }
+
+    // MARK: - shared-policy coupling
+
+    func testWrittenRecordsUseTheSharedPolicySuffix() {
+        // The store's own ownership check runs through the policy, so if what it writes ever
+        // drifted from `ownedSuffix` every brand-new record would be invisible to readers.
+        XCTAssertTrue(makeStore().save(bytes: Data("new".utf8).kotlinByteArray))
+
+        let policy = CrashRetention.shared.defaultPolicy
+        let written = (try? FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)) ?? []
+        XCTAssertEqual(written.count, 1)
+        let name = written.first ?? ""
+        XCTAssertTrue(name.hasSuffix(policy.ownedSuffix))
+        XCTAssertTrue(CrashRetention.shared.isOwned(name: name, policy: policy))
     }
 
     // MARK: - foreign entries
@@ -192,7 +241,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
     private func ownedFileNames() -> [String] {
         let contents = (try? FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)) ?? []
-        return contents.filter { $0.hasSuffix(".otlp") }
+        return contents.filter { $0.hasSuffix(CrashRetention.shared.defaultPolicy.ownedSuffix) }
     }
 
     private func awaitListReadable(minAgeMillis: Int64) throws -> [StoredLogFile] {
