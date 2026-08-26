@@ -44,6 +44,12 @@ final class FileLogStoreRetentionTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        // A test may have made the directory read-only to force an unlink failure; it has to be
+        // writable again or the fixture outlives the run.
+        try? FileManager.default.setAttributes(
+            [.posixPermissions: 0o700],
+            ofItemAtPath: temporaryDirectory.path
+        )
         try? FileManager.default.removeItem(at: temporaryDirectory)
     }
 
@@ -87,6 +93,29 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
         XCTAssertEqual(readable.map { $0.id }, ["edge.otlp"])
         XCTAssertTrue(fileExists("edge.otlp"))
+    }
+
+    func testExpiredRecordThatCannotBeDeletedIsStillWithheldFromReaders() throws {
+        // An unlink can fail: a read-only directory, a filesystem error, or data protection
+        // before first unlock. Withholding must not be contingent on the delete succeeding —
+        // otherwise a permanently undeletable expired record is handed to the uploader on
+        // every pass, forever.
+        let ceiling = CrashRetention.shared.defaultPolicy.maxReadAgeMillis
+        try writeRecord(named: "expired-stuck.otlp", ageMillis: ceiling + 60_000)
+        try writeRecord(named: "fresh.otlp", ageMillis: 60_000)
+        // Denying writes on the directory fails the unlink without making the entries
+        // unreadable, so the reclaim path runs exactly as it would against a stuck record.
+        try FileManager.default.setAttributes(
+            [.posixPermissions: 0o500],
+            ofItemAtPath: temporaryDirectory.path
+        )
+
+        let readable = try awaitListReadable(minAgeMillis: 0)
+
+        // The record surviving is the premise of the test, not the behavior under test: if the
+        // removal had gone through this would only be re-covering the ordinary expiry path.
+        XCTAssertTrue(fileExists("expired-stuck.otlp"))
+        XCTAssertEqual(readable.map { $0.id }, ["fresh.otlp"])
     }
 
     // MARK: - accumulation caps
