@@ -51,6 +51,9 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         static let deviceManufacturer = "Apple"
         static let unknown = "unknown"
         static let osBuildName = "kern.osversion"
+        static let xcodeVersionInfoKey = "DTXcode"
+        static let xcodeVersionAttribute = "xcode_version"
+        static let macCatalystAttribute = "apple_platform"
         static let disabledLogLevel = "NONE"
         static let crashDirectoryComponents = ["onesignal", "logger", "crashes"]
 
@@ -107,15 +110,20 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     let osBuildId = OSLoggerPlatformProvider.systemValue(named: Constants.osBuildName)
     let sdkWrapper = OneSignalWrapper.sdkType
     let sdkWrapperVersion = OneSignalWrapper.sdkVersion
+    /// Nil on iOS: this describes the *host app's* Kotlin stack, and an iOS app is
+    /// not a Kotlin host. The shared module's own provenance rides on
+    /// `ossdk.kmp_version` instead.
     let kotlinVersion: String? = nil
-    let swiftVersion: String? = nil
-    let additionalVersionAttributes: [String: String] = {
-        #if targetEnvironment(macCatalyst)
-        return ["apple_platform": "mac_catalyst"]
-        #else
-        return [:]
-        #endif
-    }()
+
+    /// Approximated from the host app's Xcode version. Apple ships one Swift
+    /// toolchain per Xcode release and exposes no runtime API for the language
+    /// version, so this is the closest signal available. `xcode_version` is emitted
+    /// alongside and is exact, so a stale row in the lookup table stays recoverable.
+    let swiftVersion: String? = OSLoggerPlatformProvider.hostXcodeVersion()
+        .flatMap(OSLoggerPlatformProvider.approximateSwiftVersion(forXcodeVersion:))
+
+    let additionalVersionAttributes: [String: String] =
+        OSLoggerPlatformProvider.hostBuildAttributes()
     var enabledFeatureFlags: [String] {
         featureFlagsProvider()
     }
@@ -188,6 +196,89 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     }
 
     let apiBaseUrl = OS_API_SERVER_URL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+
+    /// Xcode stamps its own version, the compiler, and the SDK it built against
+    /// into the *host app's* `Info.plist`. Reading `Bundle.main` is deliberate:
+    /// this SDK ships as a prebuilt XCFramework, so a compile-time check here would
+    /// describe OneSignal's build machine and be identical for every customer.
+    ///
+    /// These are build-time facts. The OS actually running is reported separately
+    /// as `os.name` / `os.version` / `os.build_id`.
+    private static let buildMetadataKeys: [(infoKey: String, attribute: String)] = [
+        ("DTXcodeBuild", "xcode_build"),
+        ("DTCompiler", "build_compiler"),
+        ("DTPlatformName", "build_platform_name"),
+        ("DTPlatformVersion", "build_platform_version"),
+        ("DTPlatformBuild", "build_platform_build"),
+        ("DTSDKName", "build_sdk_name"),
+        ("DTSDKBuild", "build_sdk_build")
+    ]
+
+    /// Floor lookup, so an Xcode newer than every row resolves to the most recent
+    /// known Swift release rather than dropping the attribute. Add a row whenever
+    /// an Xcode release ships a new Swift version.
+    private static let swiftVersionByXcode: [(xcode: (major: Int, minor: Int), swift: String)] = [
+        ((14, 0), "5.7"),
+        ((14, 3), "5.8"),
+        ((15, 0), "5.9"),
+        ((15, 3), "5.10"),
+        ((16, 0), "6.0"),
+        ((16, 3), "6.1"),
+        ((26, 0), "6.2")
+    ]
+
+    static func hostBuildAttributes(
+        infoDictionary: [String: Any]? = Bundle.main.infoDictionary
+    ) -> [String: String] {
+        var attributes: [String: String] = [:]
+        #if targetEnvironment(macCatalyst)
+        attributes[Constants.macCatalystAttribute] = "mac_catalyst"
+        #endif
+        if let xcodeVersion = hostXcodeVersion(infoDictionary: infoDictionary) {
+            attributes[Constants.xcodeVersionAttribute] = xcodeVersion
+        }
+        for (infoKey, attribute) in buildMetadataKeys {
+            guard let value = infoDictionary?[infoKey] as? String, !value.isEmpty else {
+                continue
+            }
+            attributes[attribute] = value
+        }
+        return attributes
+    }
+
+    static func hostXcodeVersion(
+        infoDictionary: [String: Any]? = Bundle.main.infoDictionary
+    ) -> String? {
+        guard let raw = infoDictionary?[Constants.xcodeVersionInfoKey] as? String else {
+            return nil
+        }
+        return decodeXcodeVersion(raw)
+    }
+
+    /// `DTXcode` packs major/minor/patch into digits: `"2620"` is 26.2, `"0900"` is 9.0.
+    static func decodeXcodeVersion(_ raw: String) -> String? {
+        guard let packed = Int(raw.trimmingCharacters(in: .whitespaces)), packed > 0 else {
+            return nil
+        }
+        let major = packed / 100
+        let minor = (packed / 10) % 10
+        let patch = packed % 10
+        return patch == 0 ? "\(major).\(minor)" : "\(major).\(minor).\(patch)"
+    }
+
+    static func approximateSwiftVersion(forXcodeVersion version: String) -> String? {
+        let components = version.split(separator: ".").compactMap { Int($0) }
+        guard let major = components.first else {
+            return nil
+        }
+        let minor = components.count > 1 ? components[1] : 0
+        var resolved: String?
+        for entry in swiftVersionByXcode
+        where (entry.xcode.major, entry.xcode.minor) <= (major, minor) {
+            resolved = entry.swift
+        }
+        return resolved
+    }
 
     private static func systemValue(named name: String) -> String {
         var size = 0

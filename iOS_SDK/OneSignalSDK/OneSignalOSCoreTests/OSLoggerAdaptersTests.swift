@@ -428,6 +428,62 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 }
 
+/// Host build metadata read from the app's `Info.plist`, kept separate from the
+/// adapter tests above so neither class outgrows the lint limit.
+final class OSLoggerHostBuildAttributesTests: XCTestCase {
+    func testDecodeXcodeVersionUnpacksDTXcodeDigits() {
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("2620"), "26.2")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("1600"), "16.0")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("0900"), "9.0")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("1632"), "16.3.2")
+        XCTAssertNil(OSLoggerPlatformProvider.decodeXcodeVersion(""))
+        XCTAssertNil(OSLoggerPlatformProvider.decodeXcodeVersion("not-a-number"))
+    }
+
+    func testApproximateSwiftVersionFloorsToNearestKnownXcode() {
+        let approximate = OSLoggerPlatformProvider.approximateSwiftVersion(forXcodeVersion:)
+
+        XCTAssertEqual(approximate("16.0"), "6.0")
+        XCTAssertEqual(approximate("16.3"), "6.1")
+        // Unlisted release between known rows floors to the row below it.
+        XCTAssertEqual(approximate("16.4"), "6.1")
+        // Newer than every row keeps the last known value rather than dropping.
+        XCTAssertEqual(approximate("99.9"), "6.2")
+        // Older than every row has nothing sensible to report.
+        XCTAssertNil(approximate("13.4"))
+        XCTAssertNil(approximate(""))
+    }
+
+    func testHostBuildAttributesMapsInfoPlistKeys() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "DTXcode": "2620",
+            "DTXcodeBuild": "17C52",
+            "DTCompiler": "com.apple.compilers.llvm.clang.1_0",
+            "DTPlatformName": "iphonesimulator",
+            "DTPlatformVersion": "26.2",
+            "DTSDKName": "iphonesimulator26.2",
+            "DTSDKBuild": ""
+        ])
+
+        XCTAssertEqual(attributes["xcode_version"], "26.2")
+        XCTAssertEqual(attributes["xcode_build"], "17C52")
+        XCTAssertEqual(attributes["build_compiler"], "com.apple.compilers.llvm.clang.1_0")
+        XCTAssertEqual(attributes["build_platform_name"], "iphonesimulator")
+        XCTAssertEqual(attributes["build_platform_version"], "26.2")
+        XCTAssertEqual(attributes["build_sdk_name"], "iphonesimulator26.2")
+        // Blank and absent values are omitted rather than emitted empty.
+        XCTAssertNil(attributes["build_sdk_build"])
+        XCTAssertNil(attributes["build_platform_build"])
+    }
+
+    func testHostBuildAttributesOmitsXcodeVersionWhenKeyMissing() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [:])
+
+        XCTAssertNil(attributes["xcode_version"])
+        XCTAssertNil(attributes["xcode_build"])
+    }
+}
+
 private final class LoggerAdapterListener: NSObject, OSLogListener {
     var levels: [ONE_S_LOG_LEVEL] = []
 
