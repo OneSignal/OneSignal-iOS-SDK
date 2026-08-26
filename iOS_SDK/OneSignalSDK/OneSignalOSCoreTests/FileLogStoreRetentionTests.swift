@@ -118,6 +118,22 @@ final class FileLogStoreRetentionTests: XCTestCase {
         XCTAssertEqual(readable.map { $0.id }, ["fresh.otlp"])
     }
 
+    func testRecordWithUnreadableAttributesIsReclaimedRatherThanLeaked() throws {
+        // Data protection before first unlock can deny the modification date while the directory
+        // still lists. If such a file were dropped from the snapshot it would sit outside every
+        // bound — uncounted by the caps, unselectable by either reclaim pass — and occupy disk
+        // permanently. Android's `File.lastModified()` returns 0 on the same failure and reaps
+        // the file; iOS has to reach the same outcome.
+        try writeRecord(named: "opaque.otlp", ageMillis: 60_000)
+        try writeRecord(named: "fresh.otlp", ageMillis: 60_000)
+
+        let readable = try awaitListReadable(minAgeMillis: 0, attributesUnreadableFor: ["opaque.otlp"])
+
+        XCTAssertFalse(fileExists("opaque.otlp"))
+        XCTAssertEqual(readable.map { $0.id }, ["fresh.otlp"])
+        XCTAssertTrue(fileExists("fresh.otlp"))
+    }
+
     // MARK: - accumulation caps
 
     func testListReadableReclaimsAnInheritedOverCapBacklog() throws {
@@ -253,8 +269,15 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
     // MARK: - helpers
 
-    private func makeStore() -> FileLogStore {
-        FileLogStore(rootPath: temporaryDirectory.path)
+    /// - Parameter attributesUnreadableFor: names whose resource values the store should see as
+    ///   unavailable, standing in for a filesystem that denies them. There is no way to stage
+    ///   that on disk: revoking directory access fails the listing instead of the per-file read.
+    private func makeStore(attributesUnreadableFor denied: Set<String> = []) -> FileLogStore {
+        FileLogStore(rootPath: temporaryDirectory.path) { url in
+            denied.contains(url.lastPathComponent)
+                ? nil
+                : FileLogStore.defaultAttributeLookup(url)
+        }
     }
 
     private func writeRecord(named name: String, ageMillis: Int64, bytes: Int = 16) throws {
@@ -273,10 +296,13 @@ final class FileLogStoreRetentionTests: XCTestCase {
         return contents.filter { $0.hasSuffix(CrashRetention.shared.defaultPolicy.ownedSuffix) }
     }
 
-    private func awaitListReadable(minAgeMillis: Int64) throws -> [StoredLogFile] {
+    private func awaitListReadable(
+        minAgeMillis: Int64,
+        attributesUnreadableFor denied: Set<String> = []
+    ) throws -> [StoredLogFile] {
         let expectation = expectation(description: "listReadable")
         var result: [StoredLogFile] = []
-        makeStore().listReadable(minAgeMillis: minAgeMillis) { entries, _ in
+        makeStore(attributesUnreadableFor: denied).listReadable(minAgeMillis: minAgeMillis) { entries, _ in
             result = entries ?? []
             expectation.fulfill()
         }

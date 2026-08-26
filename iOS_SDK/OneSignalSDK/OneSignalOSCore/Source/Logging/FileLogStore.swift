@@ -56,13 +56,28 @@ final class FileLogStore: ILogFileStore {
     /// four numbers from being restated, and possibly transposed, at each call site.
     private static let retentionPolicy = CrashRetention.shared.defaultPolicy
 
+    /// Reads the attributes a `CrashDirEntry` is built from. Injectable because the failure that
+    /// matters here — attributes unreadable while the directory still lists — cannot be staged on
+    /// a real filesystem: revoking directory access fails the listing itself instead.
+    typealias AttributeLookup = (URL) -> URLResourceValues?
+
+    static let defaultAttributeLookup: AttributeLookup = { url in
+        try? url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
+    }
+
     private let rootURL: URL
     private let fileManager: FileManager
+    private let attributeLookup: AttributeLookup
     private let ioQueue = DispatchQueue(label: queueLabel, qos: .utility)
 
-    init(rootPath: String, fileManager: FileManager = .default) {
+    init(
+        rootPath: String,
+        fileManager: FileManager = .default,
+        attributeLookup: @escaping AttributeLookup = FileLogStore.defaultAttributeLookup
+    ) {
         self.rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
         self.fileManager = fileManager
+        self.attributeLookup = attributeLookup
         try? createRootDirectory()
     }
 
@@ -234,6 +249,11 @@ final class FileLogStore: ILogFileStore {
     /// Trims the directory back inside the accumulation caps after a write, always keeping
     /// [keepName]. Runs synchronously on the crashing thread, so it exits on one directory
     /// listing in the steady state and only sorts when the caps are actually breached.
+    ///
+    /// Overflow only, deliberately: expiry is a scan the crashing thread should not pay for when
+    /// nothing is over cap, and an under-cap expired record is reclaimed on the next uploader
+    /// pass by `listReadable` / `deleteUnrecognizedEntries`, both of which run expiry. This is
+    /// the same split Android's write path makes.
     private func enforceAccumulationCaps(keepName: String) {
         guard let entries = try? directoryEntries() else {
             return
@@ -272,15 +292,20 @@ final class FileLogStore: ILogFileStore {
     }
 
     /// Snapshots the directory as the platform-neutral entries the shared policy consumes.
+    ///
+    /// An unreadable attribute — data protection before first unlock, a transient I/O error —
+    /// dates the entry to the epoch instead of omitting it. Omission would put the file outside
+    /// every bound at once: uncounted by the caps, unselectable by either reclaim pass, and so
+    /// leaked for the life of the install. Epoch keeps it in the snapshot and reads as
+    /// unrecoverably stale, which is what Android's `File.lastModified()` already yields on the
+    /// same failure, so both platforms reclaim it.
     private func directoryEntries() throws -> [CrashDirEntry] {
-        try fileURLs().compactMap { url in
-            let values = try? url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
-            guard let modifiedAt = values?.contentModificationDate else {
-                return nil
-            }
+        try fileURLs().map { url in
+            let values = attributeLookup(url)
+            let modifiedAt = values?.contentModificationDate
             return CrashDirEntry(
                 name: url.lastPathComponent,
-                lastModifiedMs: Int64(modifiedAt.timeIntervalSince1970 * 1_000),
+                lastModifiedMs: modifiedAt.map { Int64($0.timeIntervalSince1970 * 1_000) } ?? 0,
                 lengthBytes: Int64(values?.fileSize ?? 0)
             )
         }
