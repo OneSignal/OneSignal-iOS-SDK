@@ -35,9 +35,8 @@
 @interface OneSignalExtension : NSObject
 #pragma mark NotificationService Extension
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-// Process from Notification Service Extension.
-// Used for media attachments and action buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent __deprecated_msg("Please use didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler: instead.");
+// Call from a UNNotificationServiceExtension on iOS 10 and later.
+// Processes media attachments and action buttons.
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 @end

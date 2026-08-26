@@ -141,7 +141,7 @@
         _body = (NSString*)alert;
 }
 
-// Parses legacy minified notification payloads.
+// Parses minified payloads that can still arrive before the server receives current SDK and device metadata.
 - (void)parseRemoteSlient:(NSDictionary*)payload {
     [self parseAlertField:payload[@"m"]];
     _badge = [payload[@"b"] intValue];

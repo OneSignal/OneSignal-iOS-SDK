@@ -104,9 +104,8 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSSession>)Session NS_REFINED_FOR_SWIFT;
 
 #pragma mark Extension
-// Process from Notification Service Extension.
-// Used for media attachments and action buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent __deprecated_msg("Please use didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler: instead.");
+// Call from a UNNotificationServiceExtension on iOS 10 and later.
+// Processes media attachments and action buttons.
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 @end

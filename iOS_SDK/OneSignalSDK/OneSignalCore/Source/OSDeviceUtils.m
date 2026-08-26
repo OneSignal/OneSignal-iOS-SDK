@@ -32,18 +32,6 @@
 
 @implementation OSDeviceUtils
 
-+ (NSString *)getCurrentDeviceVersion {
-    return [[UIDevice currentDevice] systemVersion];
-}
- 
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version {
-    return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
-}
-
-+ (BOOL)isIOSVersionLessThan:(NSString *)version {
-    return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
-}
-
 + (NSString*)getSystemInfoMachine {
     // e.g. @"x86_64" or @"iPhone9,3"
     struct utsname systemInfo;

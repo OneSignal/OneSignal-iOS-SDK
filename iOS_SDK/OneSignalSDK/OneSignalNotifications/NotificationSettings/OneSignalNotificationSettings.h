@@ -39,7 +39,6 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 - (void)getNotificationPermissionState:(void (^)(OSPermissionStateInternal *subscriptionState))completionHandler;
 - (void)promptForNotifications:(OSUserResponseBlock)block;
 - (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
-- (void)onNotificationPromptResponse:(int)notificationTypes __deprecated_msg("No longer used on supported iOS versions.");
 +(dispatch_queue_t)getQueue;
 @end
 
