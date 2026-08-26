@@ -51,7 +51,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
     func testRefusesPayloadOverThePerRecordLimit() {
         let store = makeStore()
-        let oversized = Data(count: Int(CrashRetention.shared.maxRecordBytes) + 1)
+        let oversized = Data(count: Int(CrashRetention.shared.defaultPolicy.maxRecordBytes) + 1)
 
         XCTAssertFalse(store.save(bytes: oversized.kotlinByteArray))
         XCTAssertEqual(ownedFileNames().count, 0)
@@ -59,7 +59,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
     func testAcceptsPayloadAtTheLimit() {
         let store = makeStore()
-        let atLimit = Data(count: Int(CrashRetention.shared.maxRecordBytes))
+        let atLimit = Data(count: Int(CrashRetention.shared.defaultPolicy.maxRecordBytes))
 
         XCTAssertTrue(store.save(bytes: atLimit.kotlinByteArray))
         XCTAssertEqual(ownedFileNames().count, 1)
@@ -68,7 +68,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     // MARK: - age ceiling
 
     func testListReadableDropsAndDeletesRecordsPastTheAgeCeiling() throws {
-        let ceiling = CrashRetention.shared.maxReadAgeMillis
+        let ceiling = CrashRetention.shared.defaultPolicy.maxReadAgeMillis
         try writeRecord(named: "expired.otlp", ageMillis: ceiling + 60_000)
         try writeRecord(named: "fresh.otlp", ageMillis: 60_000)
 
@@ -80,7 +80,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     }
 
     func testRecordInsideTheAgeWindowIsRetained() throws {
-        let ceiling = CrashRetention.shared.maxReadAgeMillis
+        let ceiling = CrashRetention.shared.defaultPolicy.maxReadAgeMillis
         try writeRecord(named: "edge.otlp", ageMillis: ceiling - 60_000)
 
         let readable = try awaitListReadable(minAgeMillis: 0)
@@ -94,7 +94,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     func testListReadableReclaimsAnInheritedOverCapBacklog() throws {
         // The upgrade case: a directory written by a build with no caps. It must be trimmed on
         // the first uploader pass rather than waiting for the next crash to trigger a write.
-        let max = Int(CrashRetention.shared.maxRecordCount)
+        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
         for index in 0..<(max + 10) {
             try writeRecord(named: "seed-\(index).otlp", ageMillis: Int64(1_000 * (index + 1)))
         }
@@ -106,7 +106,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     }
 
     func testSaveEvictsOldestFirstPastTheCountCap() throws {
-        let max = Int(CrashRetention.shared.maxRecordCount)
+        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
         for index in 0..<max {
             try writeRecord(named: "seed-\(index).otlp", ageMillis: Int64(1_000 * (index + 1)))
         }
@@ -120,7 +120,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     }
 
     func testSaveNeverEvictsTheRecordItJustWrote() throws {
-        let max = Int(CrashRetention.shared.maxRecordCount)
+        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
         for index in 0..<(max + 5) {
             try writeRecord(named: "seed-\(index).otlp", ageMillis: Int64(1_000 * (index + 1)))
         }
@@ -163,7 +163,7 @@ final class FileLogStoreRetentionTests: XCTestCase {
     func testDeleteUnrecognizedAlsoBoundsAnOverCapBacklog() throws {
         // This is the only scan that runs when remote logging is disabled, so it is the sole
         // opportunity to bound a directory nothing ever reads.
-        let max = Int(CrashRetention.shared.maxRecordCount)
+        let max = Int(CrashRetention.shared.defaultPolicy.maxRecordCount)
         for index in 0..<(max + 10) {
             try writeRecord(named: "seed-\(index).otlp", ageMillis: Int64(1_000 * (index + 1)))
         }

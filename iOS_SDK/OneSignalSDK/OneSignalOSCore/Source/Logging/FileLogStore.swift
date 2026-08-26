@@ -48,6 +48,11 @@ final class FileLogStore: ILogFileStore {
     private static let temporaryFileSuffix = ".otlp.tmp"
     private static let queueLabel = "com.onesignal.logger.file-store"
 
+    /// The shared bounds, named once. Kotlin default arguments do not cross the Objective-C
+    /// boundary, so every selector call must pass this explicitly — binding it here keeps the
+    /// four numbers from being restated, and possibly transposed, at each call site.
+    private static let retentionPolicy = CrashRetention.shared.defaultPolicy
+
     private let rootURL: URL
     private let fileManager: FileManager
     private let ioQueue = DispatchQueue(label: queueLabel, qos: .utility)
@@ -65,11 +70,11 @@ final class FileLogStore: ILogFileStore {
         // Refuse rather than store-then-reclaim. A record this large would either claim the
         // whole shared budget or be deleted before it could be uploaded, so losing it loudly
         // here beats losing it silently on a later launch.
-        guard Int64(bytes.size) <= CrashRetention.shared.maxRecordBytes else {
+        guard Int64(bytes.size) <= Self.retentionPolicy.maxRecordBytes else {
             OneSignalLog.onesignalLog(
                 .LL_WARN,
                 message: "FileLogStore refusing record of \(bytes.size) bytes, over the "
-                    + "\(CrashRetention.shared.maxRecordBytes)-byte limit"
+                    + "\(Self.retentionPolicy.maxRecordBytes)-byte limit"
             )
             return false
         }
@@ -165,7 +170,7 @@ final class FileLogStore: ILogFileStore {
         let now = Self.nowMillis()
 
         return entries
-            .filter { CrashRetention.shared.isOwned(name: $0.name, ownedSuffix: Self.ownedFileSuffix) }
+            .filter { CrashRetention.shared.isOwned(name: $0.name, policy: Self.retentionPolicy) }
             .filter { !reclaimed.contains($0.name) }
             .filter { now - $0.lastModifiedMs >= max(0, minAgeMillis) }
             .compactMap { entry in
@@ -188,22 +193,22 @@ final class FileLogStore: ILogFileStore {
         let expired = CrashRetention.shared.selectExpiredOwned(
             entries: entries,
             nowMs: now,
-            maxAgeMillis: CrashRetention.shared.maxReadAgeMillis,
-            ownedSuffix: Self.ownedFileSuffix
+            policy: Self.retentionPolicy
         )
         for entry in expired {
             withheld.insert(entry.name)
             remove(name: entry.name)
         }
 
+        // Only the survivors of the expiry pass, per the ILogFileStore contract: an expired
+        // record still in the listing consumes a count slot and budget, so the overflow pass
+        // would evict live records to make room for ones already being deleted.
         let survivors = entries.filter { !withheld.contains($0.name) }
         let overflow = CrashRetention.shared.selectOverflowOwned(
             entries: survivors,
-            maxCount: CrashRetention.shared.maxRecordCount,
-            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
-            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
+            nowMs: now,
             keepName: nil,
-            ownedSuffix: Self.ownedFileSuffix
+            policy: Self.retentionPolicy
         )
         for entry in overflow {
             withheld.insert(entry.name)
@@ -229,20 +234,15 @@ final class FileLogStore: ILogFileStore {
         }
         guard !CrashRetention.shared.isWithinCaps(
             entries: entries,
-            maxCount: CrashRetention.shared.maxRecordCount,
-            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
-            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
-            ownedSuffix: Self.ownedFileSuffix
+            policy: Self.retentionPolicy
         ) else {
             return
         }
         let overflow = CrashRetention.shared.selectOverflowOwned(
             entries: entries,
-            maxCount: CrashRetention.shared.maxRecordCount,
-            maxTotalBytes: CrashRetention.shared.maxTotalBytes,
-            maxRecordBytes: CrashRetention.shared.maxRecordBytes,
+            nowMs: Self.nowMillis(),
             keepName: keepName,
-            ownedSuffix: Self.ownedFileSuffix
+            policy: Self.retentionPolicy
         )
         for entry in overflow {
             remove(name: entry.name)
