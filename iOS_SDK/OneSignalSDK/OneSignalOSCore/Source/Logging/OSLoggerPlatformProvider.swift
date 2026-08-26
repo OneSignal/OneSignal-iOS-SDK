@@ -53,7 +53,13 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         static let osBuildName = "kern.osversion"
         static let xcodeVersionInfoKey = "DTXcode"
         static let xcodeVersionAttribute = "xcode_version"
-        static let macCatalystAttribute = "apple_platform"
+        static let xcodeBuildInfoKey = "DTXcodeBuild"
+        static let xcodeBuildAttribute = "xcode_build"
+        /// Catalyst bundles declare their floor as `LSMinimumSystemVersion`; iOS uses
+        /// `MinimumOSVersion`. First match wins.
+        static let minimumOSVersionInfoKeys = ["MinimumOSVersion", "LSMinimumSystemVersion"]
+        static let minimumOSVersionAttribute = "minimum_os_version"
+        static let applePlatformAttribute = "apple_platform"
         static let disabledLogLevel = "NONE"
         static let crashDirectoryComponents = ["onesignal", "logger", "crashes"]
 
@@ -115,12 +121,8 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     /// `ossdk.kmp_version` instead.
     let kotlinVersion: String? = nil
 
-    /// Nil on iOS. Apple exposes no runtime API for the Swift language version and
-    /// there is no `DTSwiftVersion` key, so the only derivable value would come from
-    /// the Xcode version — which maps to a Swift compiler 1:1 and is already emitted
-    /// exactly as `xcode_version`. The one thing a distinct value could carry is the
-    /// per-target language mode (`SWIFT_VERSION`, 5 vs 6), and that is not in the
-    /// host's `Info.plist` at all.
+    /// Nil on iOS: there is no runtime API for the Swift language version, and anything
+    /// derivable would just re-encode `xcode_version` less precisely.
     let swiftVersion: String? = nil
 
     let additionalVersionAttributes: [String: String] =
@@ -198,45 +200,41 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
 
     let apiBaseUrl = OS_API_SERVER_URL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
-    /// Xcode stamps its own version, the compiler, and the SDK it built against into
-    /// the *host app's* `Info.plist`, alongside the deployment target the app
-    /// declares. Reading `Bundle.main` is deliberate: this SDK ships as a prebuilt
-    /// XCFramework, so a compile-time check here would describe OneSignal's build
-    /// machine and be identical for every customer.
+    /// Toolchain and deployment target of the running executable, read from its
+    /// `Info.plist`. Read at runtime rather than with `#if swift(...)` because we ship a
+    /// prebuilt XCFramework — a compile-time check would describe OneSignal's build
+    /// machine, identically for every customer.
     ///
-    /// These are build-time facts and answer what the host *commits to* supporting.
-    /// The OS actually running is reported separately as `os.name` / `os.version` /
-    /// `os.build_id`, and the two diverge: an app can serve only iOS 18 users while
-    /// still declaring a much older `minimum_os_version`, which is what constrains
-    /// raising our own deployment target.
-    private static let buildMetadataKeys: [(infoKey: String, attribute: String)] = [
-        ("DTXcodeBuild", "xcode_build"),
-        ("DTCompiler", "build_compiler"),
-        ("DTPlatformName", "build_platform_name"),
-        ("DTPlatformVersion", "build_platform_version"),
-        ("DTPlatformBuild", "build_platform_build"),
-        ("DTSDKName", "build_sdk_name"),
-        ("DTSDKBuild", "build_sdk_build"),
-        ("MinimumOSVersion", "minimum_os_version")
-    ]
-
+    /// `minimum_os_version` is what the host *commits to* supporting, which is the fact
+    /// that gates raising our own deployment target. The OS actually running is separate
+    /// (`os.name` / `os.version` / `os.build_id`) and routinely diverges from it.
     static func hostBuildAttributes(
         infoDictionary: [String: Any]? = Bundle.main.infoDictionary
     ) -> [String: String] {
         var attributes: [String: String] = [:]
         #if targetEnvironment(macCatalyst)
-        attributes[Constants.macCatalystAttribute] = "mac_catalyst"
+        attributes[Constants.applePlatformAttribute] = "mac_catalyst"
         #endif
         if let xcodeVersion = hostXcodeVersion(infoDictionary: infoDictionary) {
             attributes[Constants.xcodeVersionAttribute] = xcodeVersion
         }
-        for (infoKey, attribute) in buildMetadataKeys {
-            guard let value = infoDictionary?[infoKey] as? String, !value.isEmpty else {
-                continue
-            }
-            attributes[attribute] = value
+        if let xcodeBuild = infoValue(Constants.xcodeBuildInfoKey, in: infoDictionary) {
+            attributes[Constants.xcodeBuildAttribute] = xcodeBuild
+        }
+        if let minimumOSVersion = Constants.minimumOSVersionInfoKeys
+            .lazy
+            .compactMap({ infoValue($0, in: infoDictionary) })
+            .first {
+            attributes[Constants.minimumOSVersionAttribute] = minimumOSVersion
         }
         return attributes
+    }
+
+    private static func infoValue(_ key: String, in infoDictionary: [String: Any]?) -> String? {
+        guard let value = infoDictionary?[key] as? String, !value.isEmpty else {
+            return nil
+        }
+        return value
     }
 
     static func hostXcodeVersion(

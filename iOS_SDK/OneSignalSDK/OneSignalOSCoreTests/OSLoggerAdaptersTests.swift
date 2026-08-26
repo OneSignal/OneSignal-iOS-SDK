@@ -444,32 +444,48 @@ final class OSLoggerHostBuildAttributesTests: XCTestCase {
         let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
             "DTXcode": "2620",
             "DTXcodeBuild": "17C52",
+            "MinimumOSVersion": "12.0",
+            // Present in every built Info.plist but deliberately not emitted: each is
+            // either constant across all apps or derivable from the fields above.
             "DTCompiler": "com.apple.compilers.llvm.clang.1_0",
             "DTPlatformName": "iphonesimulator",
             "DTPlatformVersion": "26.2",
+            "DTPlatformBuild": "23C53",
             "DTSDKName": "iphonesimulator26.2",
-            "MinimumOSVersion": "12.0",
-            "DTSDKBuild": ""
+            "DTSDKBuild": "23C53"
         ])
 
         XCTAssertEqual(attributes["xcode_version"], "26.2")
         XCTAssertEqual(attributes["xcode_build"], "17C52")
-        XCTAssertEqual(attributes["build_compiler"], "com.apple.compilers.llvm.clang.1_0")
-        XCTAssertEqual(attributes["build_platform_name"], "iphonesimulator")
-        XCTAssertEqual(attributes["build_platform_version"], "26.2")
-        XCTAssertEqual(attributes["build_sdk_name"], "iphonesimulator26.2")
         // The host's declared deployment target, not the OS it happens to run on.
         XCTAssertEqual(attributes["minimum_os_version"], "12.0")
-        // Blank and absent values are omitted rather than emitted empty.
-        XCTAssertNil(attributes["build_sdk_build"])
-        XCTAssertNil(attributes["build_platform_build"])
+        XCTAssertEqual(attributes.count, 3)
     }
 
-    func testHostBuildAttributesOmitsXcodeVersionWhenKeyMissing() {
-        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [:])
+    func testHostBuildAttributesFallsBackToCatalystMinimumSystemVersion() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "LSMinimumSystemVersion": "13.1"
+        ])
 
-        XCTAssertNil(attributes["xcode_version"])
-        XCTAssertNil(attributes["xcode_build"])
+        XCTAssertEqual(attributes["minimum_os_version"], "13.1")
+    }
+
+    func testHostBuildAttributesPrefersMinimumOSVersionOverCatalystKey() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "MinimumOSVersion": "12.0",
+            "LSMinimumSystemVersion": "13.1"
+        ])
+
+        XCTAssertEqual(attributes["minimum_os_version"], "12.0")
+    }
+
+    func testHostBuildAttributesOmitsBlankAndMissingValues() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "DTXcodeBuild": "",
+            "MinimumOSVersion": ""
+        ])
+
+        XCTAssertTrue(attributes.isEmpty)
     }
 }
 
