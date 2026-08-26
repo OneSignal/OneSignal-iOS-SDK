@@ -115,12 +115,13 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     /// `ossdk.kmp_version` instead.
     let kotlinVersion: String? = nil
 
-    /// Approximated from the host app's Xcode version. Apple ships one Swift
-    /// toolchain per Xcode release and exposes no runtime API for the language
-    /// version, so this is the closest signal available. `xcode_version` is emitted
-    /// alongside and is exact, so a stale row in the lookup table stays recoverable.
-    let swiftVersion: String? = OSLoggerPlatformProvider.hostXcodeVersion()
-        .flatMap(OSLoggerPlatformProvider.approximateSwiftVersion(forXcodeVersion:))
+    /// Nil on iOS. Apple exposes no runtime API for the Swift language version and
+    /// there is no `DTSwiftVersion` key, so the only derivable value would come from
+    /// the Xcode version — which maps to a Swift compiler 1:1 and is already emitted
+    /// exactly as `xcode_version`. The one thing a distinct value could carry is the
+    /// per-target language mode (`SWIFT_VERSION`, 5 vs 6), and that is not in the
+    /// host's `Info.plist` at all.
+    let swiftVersion: String? = nil
 
     let additionalVersionAttributes: [String: String] =
         OSLoggerPlatformProvider.hostBuildAttributes()
@@ -197,13 +198,17 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
 
     let apiBaseUrl = OS_API_SERVER_URL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
-    /// Xcode stamps its own version, the compiler, and the SDK it built against
-    /// into the *host app's* `Info.plist`. Reading `Bundle.main` is deliberate:
-    /// this SDK ships as a prebuilt XCFramework, so a compile-time check here would
-    /// describe OneSignal's build machine and be identical for every customer.
+    /// Xcode stamps its own version, the compiler, and the SDK it built against into
+    /// the *host app's* `Info.plist`, alongside the deployment target the app
+    /// declares. Reading `Bundle.main` is deliberate: this SDK ships as a prebuilt
+    /// XCFramework, so a compile-time check here would describe OneSignal's build
+    /// machine and be identical for every customer.
     ///
-    /// These are build-time facts. The OS actually running is reported separately
-    /// as `os.name` / `os.version` / `os.build_id`.
+    /// These are build-time facts and answer what the host *commits to* supporting.
+    /// The OS actually running is reported separately as `os.name` / `os.version` /
+    /// `os.build_id`, and the two diverge: an app can serve only iOS 18 users while
+    /// still declaring a much older `minimum_os_version`, which is what constrains
+    /// raising our own deployment target.
     private static let buildMetadataKeys: [(infoKey: String, attribute: String)] = [
         ("DTXcodeBuild", "xcode_build"),
         ("DTCompiler", "build_compiler"),
@@ -211,20 +216,8 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         ("DTPlatformVersion", "build_platform_version"),
         ("DTPlatformBuild", "build_platform_build"),
         ("DTSDKName", "build_sdk_name"),
-        ("DTSDKBuild", "build_sdk_build")
-    ]
-
-    /// Floor lookup, so an Xcode newer than every row resolves to the most recent
-    /// known Swift release rather than dropping the attribute. Add a row whenever
-    /// an Xcode release ships a new Swift version.
-    private static let swiftVersionByXcode: [(xcode: (major: Int, minor: Int), swift: String)] = [
-        ((14, 0), "5.7"),
-        ((14, 3), "5.8"),
-        ((15, 0), "5.9"),
-        ((15, 3), "5.10"),
-        ((16, 0), "6.0"),
-        ((16, 3), "6.1"),
-        ((26, 0), "6.2")
+        ("DTSDKBuild", "build_sdk_build"),
+        ("MinimumOSVersion", "minimum_os_version")
     ]
 
     static func hostBuildAttributes(
@@ -264,20 +257,6 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         let minor = (packed / 10) % 10
         let patch = packed % 10
         return patch == 0 ? "\(major).\(minor)" : "\(major).\(minor).\(patch)"
-    }
-
-    static func approximateSwiftVersion(forXcodeVersion version: String) -> String? {
-        let components = version.split(separator: ".").compactMap { Int($0) }
-        guard let major = components.first else {
-            return nil
-        }
-        let minor = components.count > 1 ? components[1] : 0
-        var resolved: String?
-        for entry in swiftVersionByXcode
-        where (entry.xcode.major, entry.xcode.minor) <= (major, minor) {
-            resolved = entry.swift
-        }
-        return resolved
     }
 
     private static func systemValue(named name: String) -> String {

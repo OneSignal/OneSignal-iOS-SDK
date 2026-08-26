@@ -440,20 +440,6 @@ final class OSLoggerHostBuildAttributesTests: XCTestCase {
         XCTAssertNil(OSLoggerPlatformProvider.decodeXcodeVersion("not-a-number"))
     }
 
-    func testApproximateSwiftVersionFloorsToNearestKnownXcode() {
-        let approximate = OSLoggerPlatformProvider.approximateSwiftVersion(forXcodeVersion:)
-
-        XCTAssertEqual(approximate("16.0"), "6.0")
-        XCTAssertEqual(approximate("16.3"), "6.1")
-        // Unlisted release between known rows floors to the row below it.
-        XCTAssertEqual(approximate("16.4"), "6.1")
-        // Newer than every row keeps the last known value rather than dropping.
-        XCTAssertEqual(approximate("99.9"), "6.2")
-        // Older than every row has nothing sensible to report.
-        XCTAssertNil(approximate("13.4"))
-        XCTAssertNil(approximate(""))
-    }
-
     func testHostBuildAttributesMapsInfoPlistKeys() {
         let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
             "DTXcode": "2620",
@@ -462,6 +448,7 @@ final class OSLoggerHostBuildAttributesTests: XCTestCase {
             "DTPlatformName": "iphonesimulator",
             "DTPlatformVersion": "26.2",
             "DTSDKName": "iphonesimulator26.2",
+            "MinimumOSVersion": "12.0",
             "DTSDKBuild": ""
         ])
 
@@ -471,6 +458,8 @@ final class OSLoggerHostBuildAttributesTests: XCTestCase {
         XCTAssertEqual(attributes["build_platform_name"], "iphonesimulator")
         XCTAssertEqual(attributes["build_platform_version"], "26.2")
         XCTAssertEqual(attributes["build_sdk_name"], "iphonesimulator26.2")
+        // The host's declared deployment target, not the OS it happens to run on.
+        XCTAssertEqual(attributes["minimum_os_version"], "12.0")
         // Blank and absent values are omitted rather than emitted empty.
         XCTAssertNil(attributes["build_sdk_build"])
         XCTAssertNil(attributes["build_platform_build"])
