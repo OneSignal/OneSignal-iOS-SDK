@@ -31,8 +31,15 @@ import Foundation
 /// Sends the KMP logger's encoded OTLP requests using the native URL loading system.
 final class OneSignalLogHttpSender: ILogHttpSender {
     private static let requestTimeout: TimeInterval = 10
+    /// The request was sent and got no usable response — DNS, timeout, socket reset. The
+    /// shared retry policy treats this as transient and will try again.
     private static let transportFailureStatusCode: Int32 = -1
     private static let disabledStatusCode: Int32 = -2
+    /// The request could never be built, so retrying cannot help. Kept distinct from
+    /// `transportFailureStatusCode` because the shared policy classifies anything it does not
+    /// recognise as permanent — reusing -1 here would burn the whole retry budget, on every
+    /// batch, against a misconfiguration that will not fix itself.
+    private static let invalidRequestStatusCode: Int32 = -3
     private static let maximumDiagnosticBodyLength = 500
     private static let defaultSession: URLSession = {
         let configuration = URLSessionConfiguration.default
@@ -91,7 +98,7 @@ final class OneSignalLogHttpSender: ILogHttpSender {
             completionHandler(
                 LogHttpResponse(
                     success: false,
-                    statusCode: Self.transportFailureStatusCode,
+                    statusCode: Self.invalidRequestStatusCode,
                     message: "Invalid log request URL"
                 ),
                 nil
