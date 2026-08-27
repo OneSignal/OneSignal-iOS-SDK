@@ -80,7 +80,6 @@
 #define OSUD_SDK_REMOTE_FEATURE_FLAGS                                       @"OSUD_SDK_REMOTE_FEATURE_FLAGS"
 #define OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA                               @"OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA"
 #define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
-#define OSUD_SDK_FEATURE_FLAGS                                              @"OSUD_SDK_FEATURE_FLAGS"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes

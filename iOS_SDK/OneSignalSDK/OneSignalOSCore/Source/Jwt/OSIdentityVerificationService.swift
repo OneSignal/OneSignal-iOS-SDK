@@ -27,6 +27,7 @@
 
 import Foundation
 import OneSignalCore
+@_implementationOnly import OneSignalKMP
 
 /// Who is waiting on hydration. Keyed so re-registering replaces rather than stacking a duplicate.
 public enum OSJwtConfigHydratedObserver {
@@ -48,7 +49,7 @@ public enum OSJwtConfigHydratedObserver {
    callers that must not send an unsigned request should wait until it is known.
  */
 public final class OSIdentityVerificationService {
-    private let featureManager: OSFeatureManagerProtocol
+    private let featureManager: OSFeatureManager
     private let jwtConfig: OSUserJwtConfig
 
     private let handlerLock = NSLock()
@@ -68,10 +69,10 @@ public final class OSIdentityVerificationService {
     /// Whether the new Identity Verification code paths run at all. An app that requires auth is always in,
     /// no matter how the rollout flag is set.
     public var newCodePathsRun: Bool {
-        return featureManager.isEnabled(.identityVerification) || ivBehaviorActive
+        return featureManager.isEnabled(featureKey: FeatureFlag.sdkIdentityVerification.key) || ivBehaviorActive
     }
 
-    public init(featureManager: OSFeatureManagerProtocol, jwtConfig: OSUserJwtConfig) {
+    public init(featureManager: OSFeatureManager, jwtConfig: OSUserJwtConfig) {
         self.featureManager = featureManager
         self.jwtConfig = jwtConfig
         jwtConfig.setOnHydratedHandler { [weak self] requirement in

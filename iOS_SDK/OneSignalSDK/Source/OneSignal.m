@@ -742,7 +742,6 @@ static BOOL ComputeInitialStorageReadable(void) {
         [sharedUserDefaults removeValueForKey:OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY];
 
         [sharedUserDefaults removeValueForKey:OSUD_USE_IDENTITY_VERIFICATION];
-        [sharedUserDefaults removeValueForKey:OSUD_SDK_FEATURE_FLAGS];
 
         // Drop cached identifiers — a real app-id change invalidates them.
         [OSResilientStorage setStrings:@{
