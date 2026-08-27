@@ -30,13 +30,6 @@
 
 @implementation OneSignalExtension
 
-// Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    return [OneSignalNotificationServiceExtensionHandler
-            didReceiveNotificationExtensionRequest:request
-            withMutableNotificationContent:replacementContent];
-}
-
 // Called from the app's Notification Service Extension. Calls contentHandler() to display the notification
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request                              withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
                 withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {

@@ -141,9 +141,7 @@
         _body = (NSString*)alert;
 }
 
-// Only used on iOS 9 and older.
-//   - Or if the OneSignal server hasn't received the iOS version update.
-// May also be used if OneSignal server hasn't received the SDK version 2.4.0+ update event
+// Parses minified payloads that can still arrive before the server receives current SDK and device metadata.
 - (void)parseRemoteSlient:(NSDictionary*)payload {
     [self parseAlertField:payload[@"m"]];
     _badge = [payload[@"b"] intValue];

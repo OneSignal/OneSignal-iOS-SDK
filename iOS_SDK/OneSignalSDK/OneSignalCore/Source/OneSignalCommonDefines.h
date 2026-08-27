@@ -56,7 +56,6 @@
 #define OSUD_PERMISSION_ACCEPTED_FROM                                       @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"                               // * OSUD_PERMISSION_ACCEPTED_FROM
 #define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO                              @"OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO"                           // OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO
 #define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM                            @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"                           // * OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM
-#define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO                            @"OS_NOTIFICATION_PROMPT_ANSWERED"                                  // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO
 #define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM                          @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"                             // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO                              @"OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO"                           // OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM
@@ -112,11 +111,6 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
-
-// Deprecated Selectors
-#define DEPRECATED_SELECTORS @[ @"application:didReceiveLocalNotification:", \
-                                @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", \
-                                @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:" ]
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use

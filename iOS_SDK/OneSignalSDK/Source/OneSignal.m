@@ -312,7 +312,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 }
 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
-    if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
+    if (providesView) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
 }
@@ -835,13 +835,6 @@ static BOOL ComputeInitialStorageReadable(void) {
     
 }
 
-// Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    return [OneSignalNotificationServiceExtensionHandler
-            didReceiveNotificationExtensionRequest:request
-            withMutableNotificationContent:replacementContent];
-}
-
 // Called from the app's Notification Service Extension. Calls contentHandler() to display the notification
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request                              withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
                 withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
@@ -912,20 +905,10 @@ static BOOL ComputeInitialStorageReadable(void) {
  End of outcome module
  */
 
-// Swizzles UIApplication class to swizzling the following:
-//   - UIApplication
-//      - setDelegate:
-//        - Used to swizzle all UIApplicationDelegate selectors on the passed in class.
-//        - Almost always this is the AppDelegate class but since UIApplicationDelegate is an "interface" this could be any class.
-//   - UNUserNotificationCenter
-//     - setDelegate:
-//        - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
-//         -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
-//
-//  Note1: Do NOT move this category to it's own file. This is required so when the app developer calls OneSignal.initWithLaunchOptions this load+
-//            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
-//  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
-//            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
+// Bootstraps notification swizzling through OSNotificationsManager, including UIApplicationDelegate
+// and UNUserNotificationCenterDelegate selectors available on all supported iOS versions.
+// Keep this category in this file so +load runs whenever OneSignal is linked.
+// The oneSignalLoadedTagSelector: marker prevents swizzling when the SDK is loaded twice.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)

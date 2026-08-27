@@ -165,7 +165,6 @@ static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
     dispatch_once(&once, ^{
-        // Make sure only devices with iOS 10 or newer can use IAMs
         if ([self doesDeviceSupportIAM]) {
             sharedInstance = [OSMessagingController new];
         } else {
@@ -209,9 +208,8 @@ static BOOL _isInAppMessagingPaused = false;
     // We could support in the future after we reslove the display issues.
     if ([@"Mac" isEqualToString:[OSDeviceUtils getDeviceVariant]])
         return false;
-    
-    // Only support iOS 10 and newer due to Safari 9 WebView issues
-    return [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"];
+
+    return true;
 }
 
 - (instancetype)init {

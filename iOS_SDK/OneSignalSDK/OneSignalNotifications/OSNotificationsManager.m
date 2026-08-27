@@ -351,10 +351,7 @@ static NSString *_pushToken;
 }
 
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
-    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
-        [self.osNotificationSettings registerForProvisionalAuthorization:block];
-    else
-        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
+    [self.osNotificationSettings registerForProvisionalAuthorization:block];
 }
 
 // Checks to see if we should register for APNS' new Provisional authorization
@@ -390,11 +387,6 @@ static NSString *_pushToken;
 
 //presents the settings page to control/customize push notification settings
 + (void)presentAppSettings {
-    
-    //only supported in 10+
-    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
-        return;
-    
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
     
     if (!url)
@@ -522,18 +514,11 @@ static NSString *_pushToken;
 //    User just responed to the iOS native notification permission prompt.
 + (void)updateNotificationTypes:(int)notificationTypes {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
-    
-    // TODO: Dropped support, can remove below?
-    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
-        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO withValue:true];
-    
+
     BOOL startedRegister = [OSNotificationsManager registerForAPNsToken];
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
-    
-    // TODO: Dropped support, can remove below?
-    [self.osNotificationSettings onNotificationPromptResponse:notificationTypes]; // iOS 9 only
-    
+
     // TODO: This can be called before the User Manager sets itself as the delegate
     [self sendNotificationTypesUpdateToDelegate];
 }
@@ -602,10 +587,8 @@ static NSString *_lastnonActiveMessageId;
 
 
 // Entry point for the following:
-//  - 1. (iOS all) - Opening notifications
-//  - 2. Notification received
-//    - 2A. iOS 9  - Notification received while app is in focus.
-//    - 2B. iOS 10 - Notification received/displayed while app is in focus.
+//  - Opening notifications
+//  - Receiving notifications while the app is in focus
 // isActive is not always true for when the application is on foreground, we need differentiation
 // between foreground and isActive
 + (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
@@ -646,7 +629,7 @@ static NSString *_lastnonActiveMessageId;
 
         // Call Action Block
         [self handleNotificationOpened:messageDict actionType:type];
-    } else if (isPreview && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+    } else if (isPreview) {
         let notification = [OSNotification parseWithApns:messageDict];
         [self handleIAMPreview:notification];
     }

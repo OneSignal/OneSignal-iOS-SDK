@@ -31,9 +31,6 @@
 
 @interface OSDeviceUtils : NSObject
 
-+ (NSString *)getCurrentDeviceVersion;
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version;
-+ (BOOL)isIOSVersionLessThan:(NSString *)version;
 + (NSString*)getDeviceVariant;
 
 @end
