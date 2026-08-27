@@ -462,27 +462,30 @@ final class OSLoggerHostBuildAttributesTests: XCTestCase {
         XCTAssertEqual(attributes.count, 3)
     }
 
-    func testHostBuildAttributesFallsBackToCatalystMinimumSystemVersion() {
+    func testHostBuildAttributesEmitsCatalystFloorAsMacOSVersion() {
         let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
             "LSMinimumSystemVersion": "13.1"
         ])
 
-        XCTAssertEqual(attributes["minimum_os_version"], "13.1")
+        XCTAssertEqual(attributes["minimum_macos_version"], "13.1")
+        XCTAssertNil(attributes["minimum_os_version"])
     }
 
-    func testHostBuildAttributesPrefersMinimumOSVersionOverCatalystKey() {
+    func testHostBuildAttributesEmitsIOSAndMacOSFloorsIndependently() {
         let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
             "MinimumOSVersion": "12.0",
             "LSMinimumSystemVersion": "13.1"
         ])
 
         XCTAssertEqual(attributes["minimum_os_version"], "12.0")
+        XCTAssertEqual(attributes["minimum_macos_version"], "13.1")
     }
 
     func testHostBuildAttributesOmitsBlankAndMissingValues() {
         let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
             "DTXcodeBuild": "",
-            "MinimumOSVersion": ""
+            "MinimumOSVersion": "",
+            "LSMinimumSystemVersion": ""
         ])
 
         XCTAssertTrue(attributes.isEmpty)

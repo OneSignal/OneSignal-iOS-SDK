@@ -55,10 +55,12 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         static let xcodeVersionAttribute = "xcode_version"
         static let xcodeBuildInfoKey = "DTXcodeBuild"
         static let xcodeBuildAttribute = "xcode_build"
-        /// Catalyst bundles declare their floor as `LSMinimumSystemVersion`; iOS uses
-        /// `MinimumOSVersion`. First match wins.
-        static let minimumOSVersionInfoKeys = ["MinimumOSVersion", "LSMinimumSystemVersion"]
+        /// iOS / tvOS / watchOS deployment target. Distinct from the macOS floor:
+        /// `LSMinimumSystemVersion` is a macOS version and must not share this key.
+        static let minimumOSVersionInfoKey = "MinimumOSVersion"
         static let minimumOSVersionAttribute = "minimum_os_version"
+        static let minimumMacOSVersionInfoKey = "LSMinimumSystemVersion"
+        static let minimumMacOSVersionAttribute = "minimum_macos_version"
         static let applePlatformAttribute = "apple_platform"
         static let disabledLogLevel = "NONE"
         static let crashDirectoryComponents = ["onesignal", "logger", "crashes"]
@@ -205,9 +207,11 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     /// prebuilt XCFramework — a compile-time check would describe OneSignal's build
     /// machine, identically for every customer.
     ///
-    /// `minimum_os_version` is what the host *commits to* supporting, which is the fact
-    /// that gates raising our own deployment target. The OS actually running is separate
-    /// (`os.name` / `os.version` / `os.build_id`) and routinely diverges from it.
+    /// `minimum_os_version` is the iOS deployment target the host *commits to*, which
+    /// is the fact that gates raising our own target. Catalyst's macOS floor is a
+    /// different namespace (`LSMinimumSystemVersion` → `minimum_macos_version`) and
+    /// is not mixed in. The OS actually running is separate (`os.name` / `os.version`
+    /// / `os.build_id`) and routinely diverges from both.
     static func hostBuildAttributes(
         infoDictionary: [String: Any]? = Bundle.main.infoDictionary
     ) -> [String: String] {
@@ -221,11 +225,14 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         if let xcodeBuild = infoValue(Constants.xcodeBuildInfoKey, in: infoDictionary) {
             attributes[Constants.xcodeBuildAttribute] = xcodeBuild
         }
-        if let minimumOSVersion = Constants.minimumOSVersionInfoKeys
-            .lazy
-            .compactMap({ infoValue($0, in: infoDictionary) })
-            .first {
+        if let minimumOSVersion = infoValue(Constants.minimumOSVersionInfoKey, in: infoDictionary) {
             attributes[Constants.minimumOSVersionAttribute] = minimumOSVersion
+        }
+        if let minimumMacOSVersion = infoValue(
+            Constants.minimumMacOSVersionInfoKey,
+            in: infoDictionary
+        ) {
+            attributes[Constants.minimumMacOSVersionAttribute] = minimumMacOSVersion
         }
         return attributes
     }
