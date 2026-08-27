@@ -128,8 +128,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     let newRecordsState = OSNewRecordsState()
 
-    // Shared instances: remote params hydrate them before this class is started, and a
-    // fresh instance here would read none of it.
+    // Hydrated before this class is started, jwtConfig by remote params and featureManager by
+    // OSFeatureFlagsRefreshService, so a fresh instance here would read none of it.
     let featureManager = OSFeatureManager.shared
     let jwtConfig = OSUserJwtConfig.shared
     let identityVerificationService: OSIdentityVerificationService
@@ -255,7 +255,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             pushSubscriptionModelStore.refresh()
             // Same prewarm gap as the stores: init may have read UserDefaults while it was locked.
             jwtConfig.refreshIfUnknown()
-            featureManager.refreshIfEmpty()
 
             OSNotificationsManager.delegate = self
 
