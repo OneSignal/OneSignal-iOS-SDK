@@ -51,6 +51,14 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         static let deviceManufacturer = "Apple"
         static let unknown = "unknown"
         static let osBuildName = "kern.osversion"
+        static let xcodeVersionInfoKey = "DTXcode"
+        static let xcodeVersionAttribute = "xcode_version"
+        static let xcodeBuildInfoKey = "DTXcodeBuild"
+        static let xcodeBuildAttribute = "xcode_build"
+        static let minimumOSVersionInfoKey = "MinimumOSVersion"
+        static let minimumOSVersionAttribute = "minimum_os_version"
+        static let minimumMacOSVersionInfoKey = "LSMinimumSystemVersion"
+        static let minimumMacOSVersionAttribute = "minimum_macos_version"
         static let disabledLogLevel = "NONE"
         static let crashDirectoryComponents = ["onesignal", "logger", "crashes"]
 
@@ -209,20 +217,20 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
         attributes["apple_platform"] = "mac_catalyst"
         #endif
         if let xcodeVersion = hostXcodeVersion(infoDictionary: infoDictionary) {
-            attributes["xcode_version"] = xcodeVersion
+            attributes[Constants.xcodeVersionAttribute] = xcodeVersion
         }
-        if let xcodeBuild = infoValue("DTXcodeBuild", in: infoDictionary) {
-            attributes["xcode_build"] = xcodeBuild
+        if let xcodeBuild = infoValue(Constants.xcodeBuildInfoKey, in: infoDictionary) {
+            attributes[Constants.xcodeBuildAttribute] = xcodeBuild
         }
-        if let minimumOSVersion = infoValue("MinimumOSVersion", in: infoDictionary) {
-            attributes["minimum_os_version"] = minimumOSVersion
+        if let minimumOSVersion = infoValue(Constants.minimumOSVersionInfoKey, in: infoDictionary) {
+            attributes[Constants.minimumOSVersionAttribute] = minimumOSVersion
         }
         // macOS version — do not fold into minimum_os_version
         if let minimumMacOSVersion = infoValue(
-            "LSMinimumSystemVersion",
+            Constants.minimumMacOSVersionInfoKey,
             in: infoDictionary
         ) {
-            attributes["minimum_macos_version"] = minimumMacOSVersion
+            attributes[Constants.minimumMacOSVersionAttribute] = minimumMacOSVersion
         }
         return attributes
     }
@@ -237,7 +245,7 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     static func hostXcodeVersion(
         infoDictionary: [String: Any]? = Bundle.main.infoDictionary
     ) -> String? {
-        guard let raw = infoDictionary?["DTXcode"] as? String else {
+        guard let raw = infoDictionary?[Constants.xcodeVersionInfoKey] as? String else {
             return nil
         }
         return decodeXcodeVersion(raw)
