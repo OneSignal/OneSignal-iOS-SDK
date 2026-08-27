@@ -28,18 +28,21 @@
 import Foundation
 import XCTest
 import OneSignalCore
+import OneSignalKMP
 @testable import OneSignalOSCore
 
 final class OSIdentityVerificationServiceTests: XCTestCase {
 
     private var jwtConfig = OSUserJwtConfig()
-    private var featureManager = OSFeatureManager(enabledKeys: [])
+    private var flagsStore: OSFeatureFlagsStore!
+    private var featureManager: OSFeatureManager!
 
     override func setUp() {
         super.setUp()
         clearCache()
         jwtConfig = OSUserJwtConfig()
-        featureManager = OSFeatureManager(enabledKeys: [])
+        flagsStore = OSFeatureFlagsStore()
+        featureManager = OSFeatureManager(store: flagsStore)
     }
 
     override func tearDown() {
@@ -49,7 +52,8 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
 
     private func clearCache() {
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_FEATURE_FLAGS)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA)
     }
 
     private func makeService() -> OSIdentityVerificationService {
@@ -67,7 +71,7 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     }
 
     func testTheFlagAloneRunsTheNewCodePathsWithoutTurningOnTheBehavior() {
-        featureManager = OSFeatureManager(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        flagsStore.applyRemoteFlags([FeatureFlag.sdkIdentityVerification.key], metadata: nil)
         let service = makeService()
         jwtConfig.hydrate(requiresUserAuth: false)
 
@@ -91,7 +95,7 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     }
 
     func testAnUnknownRequirementStaysVisibleWhileTheFlagRunsTheNewCodePaths() {
-        featureManager = OSFeatureManager(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        flagsStore.applyRemoteFlags([FeatureFlag.sdkIdentityVerification.key], metadata: nil)
         let service = makeService()
 
         XCTAssertTrue(service.newCodePathsRun)
@@ -101,14 +105,14 @@ final class OSIdentityVerificationServiceTests: XCTestCase {
     }
 
     func testGatesFollowTheFlagWithinTheSameRun() {
-        let realFeatureManager = OSFeatureManager()
-        let service = OSIdentityVerificationService(featureManager: realFeatureManager, jwtConfig: jwtConfig)
+        let service = makeService()
         jwtConfig.hydrate(requiresUserAuth: false)
 
-        realFeatureManager.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+        // sdk_identity_verification is IMMEDIATE in the catalog, so a mid-run store change flows through
+        flagsStore.applyRemoteFlags([FeatureFlag.sdkIdentityVerification.key], metadata: nil)
         XCTAssertTrue(service.newCodePathsRun)
 
-        realFeatureManager.setEnabledFeatureKeys([])
+        flagsStore.applyRemoteFlags([], metadata: nil)
         XCTAssertFalse(service.newCodePathsRun)
     }
 
