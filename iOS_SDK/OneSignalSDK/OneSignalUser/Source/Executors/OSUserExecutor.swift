@@ -514,28 +514,7 @@ extension OSUserExecutor {
             }
         }
 
-        // TODO: Determine how to hydrate the push subscription, which is still faulty.
-        // Hydrate by token if sub_id exists?
-        // Problem: a user can have multiple iOS push subscription, and perhaps missing token
-        // Ideally we only get push subscription for this device in the response, not others
-
-        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
-        if OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil,
-           let subscriptionObject = parseSubscriptionObjectResponse(response)
-        {
-            for subModel in subscriptionObject {
-                if subModel["type"] as? String == "iOSPush",
-                   // response may have "" token or no token
-                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String)
-                {
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
-                    if addNewRecords, let subId = subModel["id"] as? String {
-                        newRecordsState.add(subId)
-                    }
-                    break
-                }
-            }
-        }
+        hydratePushSubscription(response: response, originalPushToken: originalPushToken, addNewRecords: addNewRecords)
 
         // Hydrate onto the user this response is for
         // If user has changed, don't hydrate, except for push subscription above
@@ -573,6 +552,44 @@ extension OSUserExecutor {
                     }
                 }
             }
+        }
+    }
+
+    /// Hydrates the push subscription from a fetch or create response: the whole object before a
+    /// subscription ID exists, only the server's REST API disable state once one does.
+    // TODO: Determine how to hydrate the push subscription, which is still faulty.
+    // Hydrate by token if sub_id exists?
+    // Problem: a user can have multiple iOS push subscription, and perhaps missing token
+    // Ideally we only get push subscription for this device in the response, not others
+    private func hydratePushSubscription(response: [AnyHashable: Any], originalPushToken: String?, addNewRecords: Bool) {
+        guard let subscriptionObject = parseSubscriptionObjectResponse(response) else {
+            return
+        }
+        // The response's subscription ID is recorded as a new record even when the model is absent.
+        let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel
+
+        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
+        guard let subscriptionId = pushSubscriptionModel?.subscriptionId else {
+            for subModel in subscriptionObject {
+                if subModel["type"] as? String == "iOSPush",
+                   // response may have "" token or no token
+                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String)
+                {
+                    pushSubscriptionModel?.hydrate(subModel)
+                    if addNewRecords, let subId = subModel["id"] as? String {
+                        newRecordsState.add(subId)
+                    }
+                    break
+                }
+            }
+            return
+        }
+
+        // Only the REST API disable state hydrates onto an existing push subscription; the device
+        // owns the rest. Skipping it lets the next subscription payload re-enable a suppressed device.
+        for subModel in subscriptionObject where subModel["id"] as? String == subscriptionId {
+            pushSubscriptionModel?.hydrateRestApiDisabledState(from: subModel)
+            break
         }
     }
 

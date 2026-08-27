@@ -114,6 +114,10 @@ class OSSubscriptionModel: OSModel {
         var deviceModel: String?
         var appVersion: String?
         var netType: Int?
+        var restApiDisabledReason: Int?
+        // Not persisted; an optIn() clear outranks stale hydration until the server reports
+        // the subscription in another state.
+        var restApiDisableClearedByUser = false
     }
 
     /**
@@ -182,6 +186,11 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
+            // The disable code describes a specific server record; the record is gone when the ID resets.
+            if newValue == nil {
+                restApiDisabledReason = nil
+            }
+
             // Cache the subscriptionId to UserDefaults for routine reads, and the OSResilientStorage mirror 
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: newValue)
             OSResilientStorage.setString(newValue ?? "", forKey: OSResilientStorage.keySubscriptionId)
@@ -194,7 +203,12 @@ class OSSubscriptionModel: OSModel {
     var enabled: Bool { // Does not consider subscription_id in the calculation
         get {
             let state = snapshot()
-            return calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
+            return calculateIsEnabled(
+                address: state.address,
+                reachable: state.reachable,
+                isDisabled: state.isDisabled,
+                restApiDisabledReason: state.restApiDisabledReason
+            )
         }
     }
 
@@ -258,6 +272,28 @@ class OSSubscriptionModel: OSModel {
             }
             firePushSubscriptionChanged(.isDisabled(oldValue))
             notificationTypes = -2
+        }
+    }
+
+    /// The notification_types value for a REST API disable, the only server-owned code; other
+    /// negative codes are device or delivery errors the device recovers by re-asserting its state.
+    static let restApiDisabledNotificationType = -31
+
+    /**
+     The server's REST API disable code, or nil when the server has not disabled this subscription.
+     Hydrated from responses, never derived from device state, and echoed back in payloads so routine
+     updates and logins don't re-enable a suppressed subscription. Cleared when a response reports
+     any other state, when the subscription ID resets, or by `optIn()`.
+     */
+    var restApiDisabledReason: Int? {
+        get { stateLock.withLock { state.restApiDisabledReason } }
+        set {
+            let oldValue = swapValue(\.restApiDisabledReason, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            // Mirrors server state rather than a local change, so persist without generating a delta.
+            self.set(property: "restApiDisabledReason", newValue: newValue, preventServerUpdate: true)
         }
     }
 
@@ -371,7 +407,9 @@ class OSSubscriptionModel: OSModel {
             sdk: ONESIGNAL_VERSION,
             deviceModel: OSDeviceUtils.getDeviceVariant(),
             appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-            netType: OSNetworkingUtils.getNetType() as? Int
+            netType: OSNetworkingUtils.getNetType() as? Int,
+            restApiDisabledReason: nil,
+            restApiDisableClearedByUser: false
         )
 
         super.init(changeNotifier: changeNotifier)
@@ -393,6 +431,7 @@ class OSSubscriptionModel: OSModel {
         coder.encode(state.deviceModel, forKey: "deviceModel")
         coder.encode(state.appVersion, forKey: "appVersion")
         coder.encode(state.netType, forKey: "netType")
+        coder.encode(state.restApiDisabledReason, forKey: "restApiDisabledReason")
     }
 
     required init?(coder: NSCoder) {
@@ -415,7 +454,9 @@ class OSSubscriptionModel: OSModel {
             sdk: coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION,
             deviceModel: coder.decodeObject(forKey: "deviceModel") as? String,
             appVersion: coder.decodeObject(forKey: "appVersion") as? String,
-            netType: coder.decodeObject(forKey: "netType") as? Int
+            netType: coder.decodeObject(forKey: "netType") as? Int,
+            restApiDisabledReason: coder.decodeObject(forKey: "restApiDisabledReason") as? Int,
+            restApiDisableClearedByUser: false
         )
 
         super.init(coder: coder)
@@ -436,18 +477,43 @@ class OSSubscriptionModel: OSModel {
                 // self.address = property.value as? String
             case "enabled":
                 if let enabled = property.value as? Bool {
-                    if self.enabled != enabled { // TODO: Is this right?
-                        _isDisabled = !enabled
-                    }
+                    hydrateEnabled(enabled, response: response)
                 }
             case "notification_types":
                 if let notificationTypes = property.value as? Int {
-                    self.notificationTypes = notificationTypes
+                    hydrateNotificationTypes(notificationTypes)
                 }
             default:
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "Unused property on subscription model")
             }
         }
+    }
+
+    /// Applies a hydrated `enabled`. A REST API disable is server-owned, not a user opt-out,
+    /// so it must not flip `_isDisabled`; the notification_types hydration records it instead.
+    private func hydrateEnabled(_ enabled: Bool, response: [String: Any]) {
+        guard !isRestApiDisable(response) else {
+            return
+        }
+        if self.enabled != enabled { // TODO: Is this right?
+            _isDisabled = !enabled
+        }
+    }
+
+    /// Routes a hydrated notification_types: -31 records the server's disable; any other value
+    /// clears it and becomes the device value.
+    private func hydrateNotificationTypes(_ value: Int) {
+        if value == Self.restApiDisabledNotificationType {
+            recordRestApiDisable(value)
+        } else {
+            acceptServerNonDisabledState()
+            self.notificationTypes = value
+        }
+    }
+
+    /// True when the response's notification_types carries a REST API disable code.
+    private func isRestApiDisable(_ response: [String: Any]) -> Bool {
+        return response["notification_types"] as? Int == Self.restApiDisabledNotificationType
     }
 
     // Using snake_case so we can use this in request bodies
@@ -457,19 +523,22 @@ class OSSubscriptionModel: OSModel {
         json["id"] = state.subscriptionId
         json["type"] = state.type.rawValue
         json["token"] = state.address
-        json["enabled"] = calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
+        json["enabled"] = calculateIsEnabled(
+            address: state.address,
+            reachable: state.reachable,
+            isDisabled: state.isDisabled,
+            restApiDisabledReason: state.restApiDisabledReason
+        )
         json["test_type"] = state.testType
         json["device_os"] = state.deviceOs
         json["sdk"] = state.sdk
         json["device_model"] = state.deviceModel
         json["app_version"] = state.appVersion
         json["net_type"] = state.netType
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if state.notificationTypes != -1 {
-            json["notification_types"] = state.notificationTypes
-        }
+        json["notification_types"] = outboundNotificationTypes(state)
         return json
     }
+
 }
 
 // Push Subscription related
@@ -491,12 +560,85 @@ extension OSSubscriptionModel {
 
     // Calculates if push notifications are enabled on the device.
     // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
-    func calculateIsEnabled(address: String?, reachable: Bool, isDisabled: Bool) -> Bool {
-        return address != nil && reachable && !isDisabled
+    func calculateIsEnabled(address: String?, reachable: Bool, isDisabled: Bool, restApiDisabledReason: Int?) -> Bool {
+        return address != nil && reachable && !isDisabled && restApiDisabledReason == nil
     }
 
     func updateNotificationTypes() {
         notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
+    }
+
+    /// Records the server's disable code unless `optIn()` cleared one and the server has not yet
+    /// reported the subscription in another state; the user's explicit intent wins that race.
+    private func recordRestApiDisable(_ code: Int) {
+        let clearedByUser = stateLock.withLock { state.restApiDisableClearedByUser }
+        guard !clearedByUser else {
+            return
+        }
+        restApiDisabledReason = code
+    }
+
+    /// Clears `restApiDisabledReason` and re-arms recording once the server reports a non-disabled state.
+    private func acceptServerNonDisabledState() {
+        restApiDisabledReason = nil
+        stateLock.withLock { state.restApiDisableClearedByUser = false }
+    }
+    /// notification_types for outgoing payloads: the recorded disable code (the positive device
+    /// value would re-enable it), else the device value, nil for the -1 default.
+    private func outboundNotificationTypes(_ state: State) -> Int? {
+        if let restApiDisabledReason = state.restApiDisabledReason {
+            return restApiDisabledReason
+        }
+        return state.notificationTypes != -1 ? state.notificationTypes : nil
+    }
+
+    /// The PATCH body for a subscription update, built from one snapshot so a concurrent hydration
+    /// or `optIn()` can't tear `enabled` away from `notification_types`.
+    func updateParams() -> [String: Any] {
+        let state = snapshot()
+        var params: [String: Any] = [:]
+        params["token"] = state.address
+        params["device_os"] = state.deviceOs
+        params["sdk"] = state.sdk
+        params["app_version"] = state.appVersion
+        params["notification_types"] = outboundNotificationTypes(state)
+        params["enabled"] = calculateIsEnabled(
+            address: state.address,
+            reachable: state.reachable,
+            isDisabled: state.isDisabled,
+            restApiDisabledReason: state.restApiDisabledReason
+        )
+        return params
+    }
+
+    /**
+     Mirrors the server's REST API disable state from a fetched subscription object: -31 records it,
+     any other reported value clears it. The device stays the source of truth for the rest of an
+     existing subscription's state, so nothing else is read.
+     */
+    func hydrateRestApiDisabledState(from serverSubscription: [String: Any]) {
+        guard type == .push, let serverTypes = serverSubscription["notification_types"] as? Int else {
+            return
+        }
+        if serverTypes == Self.restApiDisabledNotificationType {
+            recordRestApiDisable(serverTypes)
+        } else {
+            acceptServerNonDisabledState()
+        }
+    }
+
+    /**
+     Clears a REST API disable and enqueues an enabled-change delta so the server re-enables the
+     subscription. Called from `optIn()`, where a deliberate user action overrides the suppression.
+     */
+    func clearRestApiDisable() {
+        let oldValue = swapValue(\.restApiDisabledReason, to: nil)
+        guard oldValue != nil else {
+            return
+        }
+        stateLock.withLock { state.restApiDisableClearedByUser = true }
+        self.set(property: "restApiDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
+        firePushSubscriptionChanged(.restApiDisabledReason(oldValue))
     }
 
     func updateTestType() {
@@ -532,38 +674,47 @@ extension OSSubscriptionModel {
         case reachable(Bool)
         case isDisabled(Bool)
         case address(String?)
+        case restApiDisabledReason(Int?)
     }
 
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
-        var prevIsOptedIn = true
-        var prevIsEnabled = true
-        var prevSubscriptionState = OSPushSubscriptionState(id: "", token: "", optedIn: true)
+        // The previous state is the current state with only the changed property's old value substituted.
+        var prevId = subscriptionId
+        var prevAddress = address
+        var prevReachable = _reachable
+        var prevIsDisabled = _isDisabled
+        var prevRestApiDisabledReason = restApiDisabledReason
 
         switch changedProperty {
         case .subscriptionId(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(id: oldValue, token: address, optedIn: prevIsOptedIn)
-
+            prevId = oldValue
         case .reachable(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, reachable: oldValue, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(reachable: oldValue, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
-
+            prevReachable = oldValue
         case .isDisabled(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: oldValue)
-            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: oldValue)
-            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
-
+            prevIsDisabled = oldValue
         case .address(let oldValue):
-            prevIsEnabled = calculateIsEnabled(address: oldValue, reachable: _reachable, isDisabled: _isDisabled)
-            prevIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: oldValue, optedIn: prevIsOptedIn)
+            prevAddress = oldValue
+        case .restApiDisabledReason(let oldValue):
+            prevRestApiDisabledReason = oldValue
         }
+
+        let prevIsEnabled = calculateIsEnabled(
+            address: prevAddress,
+            reachable: prevReachable,
+            isDisabled: prevIsDisabled,
+            restApiDisabledReason: prevRestApiDisabledReason
+        )
+        let prevIsOptedIn = calculateIsOptedIn(reachable: prevReachable, isDisabled: prevIsDisabled)
+        let prevSubscriptionState = OSPushSubscriptionState(id: prevId, token: prevAddress, optedIn: prevIsOptedIn)
 
         let newIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
 
-        let newIsEnabled = calculateIsEnabled(address: address, reachable: _reachable, isDisabled: _isDisabled)
+        let newIsEnabled = calculateIsEnabled(
+            address: address,
+            reachable: _reachable,
+            isDisabled: _isDisabled,
+            restApiDisabledReason: restApiDisabledReason
+        )
 
         if prevIsEnabled != newIsEnabled {
             self.set(property: "enabled", newValue: newIsEnabled)
