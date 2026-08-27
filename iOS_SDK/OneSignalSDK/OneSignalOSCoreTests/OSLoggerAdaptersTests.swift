@@ -428,6 +428,70 @@ final class OSLoggerAdaptersTests: XCTestCase {
     }
 }
 
+/// Host build metadata read from the app's `Info.plist`, kept separate from the
+/// adapter tests above so neither class outgrows the lint limit.
+final class OSLoggerHostBuildAttributesTests: XCTestCase {
+    func testDecodeXcodeVersionUnpacksDTXcodeDigits() {
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("2620"), "26.2")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("1600"), "16.0")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("0900"), "9.0")
+        XCTAssertEqual(OSLoggerPlatformProvider.decodeXcodeVersion("1632"), "16.3.2")
+        XCTAssertNil(OSLoggerPlatformProvider.decodeXcodeVersion(""))
+        XCTAssertNil(OSLoggerPlatformProvider.decodeXcodeVersion("not-a-number"))
+    }
+
+    func testHostBuildAttributesMapsInfoPlistKeys() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "DTXcode": "2620",
+            "DTXcodeBuild": "17C52",
+            "MinimumOSVersion": "12.0",
+            // Present in every built Info.plist but deliberately not emitted: each is
+            // either constant across all apps or derivable from the fields above.
+            "DTCompiler": "com.apple.compilers.llvm.clang.1_0",
+            "DTPlatformName": "iphonesimulator",
+            "DTPlatformVersion": "26.2",
+            "DTPlatformBuild": "23C53",
+            "DTSDKName": "iphonesimulator26.2",
+            "DTSDKBuild": "23C53"
+        ])
+
+        XCTAssertEqual(attributes["xcode_version"], "26.2")
+        XCTAssertEqual(attributes["xcode_build"], "17C52")
+        // The host's declared deployment target, not the OS it happens to run on.
+        XCTAssertEqual(attributes["minimum_os_version"], "12.0")
+        XCTAssertEqual(attributes.count, 3)
+    }
+
+    func testHostBuildAttributesEmitsCatalystFloorAsMacOSVersion() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "LSMinimumSystemVersion": "13.1"
+        ])
+
+        XCTAssertEqual(attributes["minimum_macos_version"], "13.1")
+        XCTAssertNil(attributes["minimum_os_version"])
+    }
+
+    func testHostBuildAttributesEmitsIOSAndMacOSFloorsIndependently() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "MinimumOSVersion": "12.0",
+            "LSMinimumSystemVersion": "13.1"
+        ])
+
+        XCTAssertEqual(attributes["minimum_os_version"], "12.0")
+        XCTAssertEqual(attributes["minimum_macos_version"], "13.1")
+    }
+
+    func testHostBuildAttributesOmitsBlankAndMissingValues() {
+        let attributes = OSLoggerPlatformProvider.hostBuildAttributes(infoDictionary: [
+            "DTXcodeBuild": "",
+            "MinimumOSVersion": "",
+            "LSMinimumSystemVersion": ""
+        ])
+
+        XCTAssertTrue(attributes.isEmpty)
+    }
+}
+
 private final class LoggerAdapterListener: NSObject, OSLogListener {
     var levels: [ONE_S_LOG_LEVEL] = []
 
