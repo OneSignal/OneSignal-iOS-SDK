@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 import OneSignalKMP
 @testable import OneSignalOSCore
 import XCTest
@@ -267,17 +268,124 @@ final class FileLogStoreRetentionTests: XCTestCase {
         XCTAssertEqual(ownedFileNames().count, max)
     }
 
+    func testInterruptedWriteWithUnreadableAttributesIsPreserved() throws {
+        // Epoch for a missing mtime makes an owned record stale enough to reclaim, but the
+        // same sentinel would make an in-flight `.otlp.tmp` look old enough to delete.
+        try writeRecord(named: "in-flight.otlp.tmp", ageMillis: 60_000)
+
+        let deleted = try awaitDeleteUnrecognized(
+            minAgeMillis: 0,
+            attributesUnreadableFor: ["in-flight.otlp.tmp"]
+        )
+
+        XCTAssertEqual(deleted, 0)
+        XCTAssertTrue(fileExists("in-flight.otlp.tmp"))
+    }
+
+    func testEntryIsKeptWhenRegularFileBitCannotBeRead() throws {
+        // `isRegularFile == true` dropped the URL when the bit was nil, before the attribute
+        // fallback could date the record. Keep unless the bit is known false.
+        try writeRecord(named: "present.otlp", ageMillis: 60_000)
+        let lookup: FileLogStore.AttributeLookup = { url in
+            guard url.lastPathComponent == "present.otlp" else {
+                return FileLogStore.defaultAttributeLookup(url)
+            }
+            var values = URLResourceValues()
+            values.contentModificationDate = Date(timeIntervalSinceNow: -60)
+            return values
+        }
+
+        let readable = try awaitListReadable(minAgeMillis: 0, attributeLookup: lookup)
+
+        XCTAssertEqual(readable.map { $0.id }, ["present.otlp"])
+        XCTAssertTrue(fileExists("present.otlp"))
+    }
+
+    func testDirectoryNamedLikeARecordIsNotTreatedAsOne() throws {
+        try FileManager.default.createDirectory(
+            at: temporaryDirectory.appendingPathComponent("folder.otlp"),
+            withIntermediateDirectories: true
+        )
+
+        let readable = try awaitListReadable(minAgeMillis: 0)
+
+        XCTAssertEqual(readable.map { $0.id }, [])
+        XCTAssertTrue(fileExists("folder.otlp"))
+    }
+
+    // MARK: - crash-path logging
+
+    func testSaveDoesNotFanOutThroughOneSignalLogWhenRefusingAnOversizedRecord() {
+        let listener = FileLogStoreLogListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        var crashWarnings: [String] = []
+        let oversized = Data(count: Int(CrashRetention.shared.defaultPolicy.maxRecordBytes) + 1)
+
+        XCTAssertFalse(
+            makeStore(crashWarn: { crashWarnings.append($0) })
+                .save(bytes: oversized.kotlinByteArray)
+        )
+
+        XCTAssertTrue(listener.entries.isEmpty)
+        XCTAssertEqual(crashWarnings.count, 1)
+        XCTAssertTrue(crashWarnings[0].contains("refusing record"))
+    }
+
+    // MARK: - concurrent reclaim
+
+    func testAlreadyRemovedFileIsASuccessfulCleanup() throws {
+        try writeRecord(named: "interrupted.otlp.tmp", ageMillis: 60_000)
+
+        let deleted = try awaitDeleteUnrecognized(
+            minAgeMillis: 0,
+            fileManager: FileLogStoreMissingItemFileManager()
+        )
+
+        XCTAssertEqual(deleted, 1)
+    }
+
+    func testSaveSurvivesATempSweepOfItsInFlightWrite() {
+        let fileManager = FileLogStoreReentrantCleanupFileManager()
+        let store = FileLogStore(rootPath: temporaryDirectory.path, fileManager: fileManager)
+        fileManager.onTemporaryWrite = {
+            let done = DispatchSemaphore(value: 0)
+            store.deleteUnrecognizedEntries(minAgeMillis: 0) { _, _ in done.signal() }
+            XCTAssertEqual(done.wait(timeout: .now() + 5), .success)
+        }
+
+        XCTAssertTrue(store.save(bytes: Data("new".utf8).kotlinByteArray))
+        XCTAssertEqual(ownedFileNames().count, 1)
+        XCTAssertEqual(
+            ((try? FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)) ?? [])
+                .filter { $0.hasSuffix(".otlp.tmp") }
+                .count,
+            0
+        )
+    }
+
     // MARK: - helpers
 
     /// - Parameter attributesUnreadableFor: names whose resource values the store should see as
     ///   unavailable, standing in for a filesystem that denies them. There is no way to stage
     ///   that on disk: revoking directory access fails the listing instead of the per-file read.
-    private func makeStore(attributesUnreadableFor denied: Set<String> = []) -> FileLogStore {
-        FileLogStore(rootPath: temporaryDirectory.path) { url in
+    private func makeStore(
+        attributesUnreadableFor denied: Set<String> = [],
+        fileManager: FileManager = .default,
+        crashWarn: ((String) -> Void)? = nil,
+        attributeLookup: FileLogStore.AttributeLookup? = nil
+    ) -> FileLogStore {
+        let lookup = attributeLookup ?? { url in
             denied.contains(url.lastPathComponent)
                 ? nil
                 : FileLogStore.defaultAttributeLookup(url)
         }
+        return FileLogStore(
+            rootPath: temporaryDirectory.path,
+            fileManager: fileManager,
+            crashWarn: crashWarn,
+            attributeLookup: lookup
+        )
     }
 
     private func writeRecord(named name: String, ageMillis: Int64, bytes: Int = 16) throws {
@@ -298,26 +406,61 @@ final class FileLogStoreRetentionTests: XCTestCase {
 
     private func awaitListReadable(
         minAgeMillis: Int64,
-        attributesUnreadableFor denied: Set<String> = []
+        attributesUnreadableFor denied: Set<String> = [],
+        attributeLookup: FileLogStore.AttributeLookup? = nil
     ) throws -> [StoredLogFile] {
         let expectation = expectation(description: "listReadable")
         var result: [StoredLogFile] = []
-        makeStore(attributesUnreadableFor: denied).listReadable(minAgeMillis: minAgeMillis) { entries, _ in
-            result = entries ?? []
-            expectation.fulfill()
-        }
+        makeStore(attributesUnreadableFor: denied, attributeLookup: attributeLookup)
+            .listReadable(minAgeMillis: minAgeMillis) { entries, _ in
+                result = entries ?? []
+                expectation.fulfill()
+            }
         wait(for: [expectation], timeout: 5)
         return result
     }
 
-    private func awaitDeleteUnrecognized(minAgeMillis: Int64) throws -> Int {
+    private func awaitDeleteUnrecognized(
+        minAgeMillis: Int64,
+        attributesUnreadableFor denied: Set<String> = [],
+        fileManager: FileManager = .default
+    ) throws -> Int {
         let expectation = expectation(description: "deleteUnrecognizedEntries")
         var deleted = 0
-        makeStore().deleteUnrecognizedEntries(minAgeMillis: minAgeMillis) { count, _ in
-            deleted = Int(truncating: count ?? 0)
-            expectation.fulfill()
-        }
+        makeStore(attributesUnreadableFor: denied, fileManager: fileManager)
+            .deleteUnrecognizedEntries(minAgeMillis: minAgeMillis) { count, _ in
+                deleted = Int(truncating: count ?? 0)
+                expectation.fulfill()
+            }
         wait(for: [expectation], timeout: 5)
         return deleted
+    }
+}
+
+private final class FileLogStoreLogListener: NSObject, OSLogListener {
+    var entries: [String] = []
+
+    func onLogEvent(_ event: OneSignalLogEvent) {
+        entries.append(event.entry)
+    }
+}
+
+/// `removeItem` reports the file already gone, the way a racing crash-path eviction looks.
+private final class FileLogStoreMissingItemFileManager: FileManager {
+    override func removeItem(at url: URL) throws {
+        throw CocoaError(.fileNoSuchFile)
+    }
+}
+
+/// Invokes a hook after the durable write has created its `.tmp`, so a concurrent temp sweep
+/// can race the in-flight name.
+private final class FileLogStoreReentrantCleanupFileManager: FileManager {
+    var onTemporaryWrite: (() -> Void)?
+
+    override func setAttributes(_ attributes: [FileAttributeKey: Any], ofItemAtPath path: String) throws {
+        try super.setAttributes(attributes, ofItemAtPath: path)
+        if path.hasSuffix(".tmp") {
+            onTemporaryWrite?()
+        }
     }
 }

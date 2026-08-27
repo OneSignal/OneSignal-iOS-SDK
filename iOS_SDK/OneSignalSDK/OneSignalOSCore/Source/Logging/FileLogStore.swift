@@ -62,21 +62,32 @@ final class FileLogStore: ILogFileStore {
     typealias AttributeLookup = (URL) -> URLResourceValues?
 
     static let defaultAttributeLookup: AttributeLookup = { url in
-        try? url.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])
+        try? url.resourceValues(forKeys: [
+            .contentModificationDateKey,
+            .fileSizeKey,
+            .isRegularFileKey
+        ])
     }
 
     private let rootURL: URL
     private let fileManager: FileManager
     private let attributeLookup: AttributeLookup
+    /// Crash-path diagnostics. `OneSignalLog` fans out to app listeners and the remote sink.
+    private let crashWarn: (String) -> Void
     private let ioQueue = DispatchQueue(label: queueLabel, qos: .utility)
+    private let inFlightLock = NSLock()
+    private var inFlightNames = Set<String>()
 
     init(
         rootPath: String,
         fileManager: FileManager = .default,
+        crashWarn: ((String) -> Void)? = nil,
         attributeLookup: @escaping AttributeLookup = FileLogStore.defaultAttributeLookup
     ) {
         self.rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
         self.fileManager = fileManager
+        let crashLogger = OSCrashLogger()
+        self.crashWarn = crashWarn ?? { crashLogger.warn(message: $0) }
         self.attributeLookup = attributeLookup
         try? createRootDirectory()
     }
@@ -89,9 +100,8 @@ final class FileLogStore: ILogFileStore {
         // whole shared budget or be deleted before it could be uploaded, so losing it loudly
         // here beats losing it silently on a later launch.
         guard Int64(bytes.size) <= Self.retentionPolicy.maxRecordBytes else {
-            OneSignalLog.onesignalLog(
-                .LL_WARN,
-                message: "FileLogStore refusing record of \(bytes.size) bytes, over the "
+            crashWarn(
+                "FileLogStore refusing record of \(bytes.size) bytes, over the "
                     + "\(Self.retentionPolicy.maxRecordBytes)-byte limit"
             )
             return false
@@ -100,8 +110,12 @@ final class FileLogStore: ILogFileStore {
             try createRootDirectory()
             let timestamp = Int64(Date().timeIntervalSince1970 * 1_000)
             let id = "\(timestamp)-\(UUID().uuidString)\(Self.ownedFileSuffix)"
-            try writeDurably(bytes.data, to: rootURL.appendingPathComponent(id))
-            enforceAccumulationCaps(keepName: id)
+            let targetURL = rootURL.appendingPathComponent(id)
+            let tmpName = targetURL.appendingPathExtension("tmp").lastPathComponent
+            try withInFlightNames([id, tmpName]) {
+                try writeDurably(bytes.data, to: targetURL)
+                enforceAccumulationCaps(keepName: id)
+            }
             return true
         } catch {
             return false
@@ -164,8 +178,13 @@ final class FileLogStore: ILogFileStore {
                 // legacy format to clean up here — only this store's own interrupted writes.
                 // Anything else in the directory belongs to someone we should not assume about.
                 let now = Self.nowMillis()
+                let inFlight = self.snapshotInFlightNames()
                 for entry in try self.directoryEntries()
                     where entry.name.hasSuffix(Self.temporaryFileSuffix)
+                    // Unknown mtime is stored as 0, which would otherwise look older than any
+                    // age gate — including an in-flight write whose attributes cannot be read.
+                    && entry.lastModifiedMs > 0
+                    && !inFlight.contains(entry.name)
                     && now - entry.lastModifiedMs >= max(0, minAgeMillis) {
                     // Per-entry, so one undeletable leftover cannot strand the rest of the
                     // sweep — a file locked before first unlock would otherwise wedge it.
@@ -211,12 +230,13 @@ final class FileLogStore: ILogFileStore {
         let now = Self.nowMillis()
         var withheld = Set<String>()
 
+        let inFlight = snapshotInFlightNames()
         let expired = CrashRetention.shared.selectExpiredOwned(
             entries: entries,
             nowMs: now,
             policy: Self.retentionPolicy
         )
-        for entry in expired {
+        for entry in expired where !inFlight.contains(entry.name) {
             withheld.insert(entry.name)
             remove(name: entry.name)
         }
@@ -228,10 +248,10 @@ final class FileLogStore: ILogFileStore {
         let overflow = CrashRetention.shared.selectOverflowOwned(
             entries: survivors,
             nowMs: now,
-            keepName: nil,
+            keepName: inFlight.first { CrashRetention.shared.isOwned(name: $0, policy: Self.retentionPolicy) },
             policy: Self.retentionPolicy
         )
-        for entry in overflow {
+        for entry in overflow where !inFlight.contains(entry.name) {
             withheld.insert(entry.name)
             remove(name: entry.name)
         }
@@ -271,41 +291,65 @@ final class FileLogStore: ILogFileStore {
             policy: Self.retentionPolicy
         )
         for entry in overflow {
-            remove(name: entry.name)
+            remove(name: entry.name, crashSafe: true)
         }
     }
 
     /// - Returns: whether the file is gone. Callers reclaiming records ignore this — a failed
     ///   unlink is still withheld from readers — but the temp sweep counts only real deletions.
+    ///   An already-removed file is success: crash-path eviction and the async reclaim can
+    ///   target the same name.
     @discardableResult
-    private func remove(name: String) -> Bool {
+    private func remove(name: String, crashSafe: Bool = false) -> Bool {
         do {
             try fileManager.removeItem(at: rootURL.appendingPathComponent(name))
             return true
         } catch {
-            OneSignalLog.onesignalLog(
-                .LL_WARN,
-                message: "FileLogStore failed to reclaim \(name): \(error.localizedDescription)"
-            )
+            if fileLogStoreIsAlreadyRemoved(error) {
+                return true
+            }
+            let message = "FileLogStore failed to reclaim \(name): \(error.localizedDescription)"
+            if crashSafe {
+                crashWarn(message)
+            } else {
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
+            }
             return false
         }
     }
 
     /// Snapshots the directory as the platform-neutral entries the shared policy consumes.
     ///
-    /// An unreadable attribute — data protection before first unlock, a transient I/O error —
-    /// dates the entry to the epoch instead of omitting it. Omission would put the file outside
-    /// every bound at once: uncounted by the caps, unselectable by either reclaim pass, and so
-    /// leaked for the life of the install. Epoch keeps it in the snapshot and reads as
-    /// unrecoverably stale, which is what Android's `File.lastModified()` already yields on the
-    /// same failure, so both platforms reclaim it.
+    /// Unreadable attributes — data protection before first unlock, a transient I/O error —
+    /// keep the entry in the snapshot rather than omitting it. Omission would put the file
+    /// outside every bound at once. Missing mtime is stored as 0: owned records then read as
+    /// unrecoverably stale (matching Android's `File.lastModified()`), while the temp sweep
+    /// treats 0 as unknown and leaves `.otlp.tmp` alone so an in-flight write is not reaped.
+    /// Entries are dropped only when `isRegularFile` is known false, not when that bit cannot
+    /// be read — the latter used to discard the file before this fallback could run.
     private func directoryEntries() throws -> [CrashDirEntry] {
-        try fileURLs().map { url in
+        guard fileManager.fileExists(atPath: rootURL.path) else {
+            return []
+        }
+        return try fileManager.contentsOfDirectory(
+            at: rootURL,
+            includingPropertiesForKeys: [
+                .contentModificationDateKey,
+                .fileSizeKey,
+                .isRegularFileKey
+            ],
+            options: [.skipsHiddenFiles]
+        ).compactMap { url in
             let values = attributeLookup(url)
-            let modifiedAt = values?.contentModificationDate
+            if values?.isRegularFile == false {
+                return nil
+            }
+            let name = url.lastPathComponent
             return CrashDirEntry(
-                name: url.lastPathComponent,
-                lastModifiedMs: modifiedAt.map { Int64($0.timeIntervalSince1970 * 1_000) } ?? 0,
+                name: name,
+                lastModifiedMs: values?.contentModificationDate.map {
+                    Int64($0.timeIntervalSince1970 * 1_000)
+                } ?? 0,
                 lengthBytes: Int64(values?.fileSize ?? 0)
             )
         }
@@ -315,17 +359,22 @@ final class FileLogStore: ILogFileStore {
         Int64(Date().timeIntervalSince1970 * 1_000)
     }
 
-    private func fileURLs() throws -> [URL] {
-        guard fileManager.fileExists(atPath: rootURL.path) else {
-            return []
+    private func withInFlightNames(_ names: [String], _ body: () throws -> Void) rethrows {
+        inFlightLock.lock()
+        inFlightNames.formUnion(names)
+        inFlightLock.unlock()
+        defer {
+            inFlightLock.lock()
+            inFlightNames.subtract(names)
+            inFlightLock.unlock()
         }
-        return try fileManager.contentsOfDirectory(
-            at: rootURL,
-            includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey, .isRegularFileKey],
-            options: [.skipsHiddenFiles]
-        ).filter {
-            (try? $0.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile) == true
-        }
+        try body()
+    }
+
+    private func snapshotInFlightNames() -> Set<String> {
+        inFlightLock.lock()
+        defer { inFlightLock.unlock() }
+        return inFlightNames
     }
 
     private func isSafeEntryId(_ id: String) -> Bool {
@@ -395,4 +444,13 @@ final class FileLogStore: ILogFileStore {
             throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
     }
+}
+
+private func fileLogStoreIsAlreadyRemoved(_ error: Error) -> Bool {
+    let nsError = error as NSError
+    if nsError.domain == NSCocoaErrorDomain {
+        return nsError.code == CocoaError.fileNoSuchFile.rawValue
+            || nsError.code == CocoaError.fileReadNoSuchFile.rawValue
+    }
+    return nsError.domain == NSPOSIXErrorDomain && nsError.code == Int(ENOENT)
 }
