@@ -216,6 +216,40 @@ final class DeltaOwnershipTests: XCTestCase {
         XCTAssertEqual(delta.identityModelId, first.identityModel.modelId)
     }
 
+    // MARK: - Requests built from a Delta
+
+    func testUpdateSubscriptionRequestIsBoundToTheDeltasOwner() throws {
+        let client = executingClient()
+        let user = newUser(externalId: userA)
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+
+        executor.enqueueDelta(subscriptionUpdateDelta(owner: user.identityModel))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("Update Subscription was not sent") {
+            client.executedRequests.contains { $0 is OSRequestUpdateSubscription }
+        }
+
+        let request = try XCTUnwrap(client.executedRequests.compactMap { $0 as? OSRequestUpdateSubscription }.first)
+        XCTAssertTrue(request.identityModel === user.identityModel)
+    }
+
+    /// Unknown owner still sends; only the RYW token is dropped, not misfiled under the current user.
+    func testASubscriptionRequestStillSendsWhenTheOwningIdentityIsUnknown() throws {
+        let client = executingClient()
+        newUser(externalId: userB)
+        let unknownOwner = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA], changeNotifier: OSEventProducer())
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+
+        executor.enqueueDelta(subscriptionUpdateDelta(owner: unknownOwner))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("Update Subscription was not sent") {
+            client.executedRequests.contains { $0 is OSRequestUpdateSubscription }
+        }
+
+        let request = try XCTUnwrap(client.executedRequests.compactMap { $0 as? OSRequestUpdateSubscription }.first)
+        XCTAssertNil(request.identityModel)
+    }
+
     // MARK: - Helpers
 
     @discardableResult
@@ -233,6 +267,13 @@ final class DeltaOwnershipTests: XCTestCase {
         )
     }
 
+    private func executingClient() -> MockOneSignalClient {
+        let client = MockOneSignalClient()
+        client.fireSuccessForAllRequests = true
+        OneSignalCoreImpl.setSharedClient(client)
+        return client
+    }
+
     private func emailSubscriptionModel() -> OSSubscriptionModel {
         return OSSubscriptionModel(
             type: .email,
@@ -241,6 +282,18 @@ final class DeltaOwnershipTests: XCTestCase {
             reachable: true,
             isDisabled: false,
             changeNotifier: OSEventProducer()
+        )
+    }
+
+    private func subscriptionUpdateDelta(owner: OSIdentityModel) -> OSDelta {
+        let model = emailSubscriptionModel()
+        return OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            identityModelId: owner.modelId,
+            externalId: owner.externalId,
+            model: model,
+            property: model.type.rawValue,
+            value: model.address ?? ""
         )
     }
 
