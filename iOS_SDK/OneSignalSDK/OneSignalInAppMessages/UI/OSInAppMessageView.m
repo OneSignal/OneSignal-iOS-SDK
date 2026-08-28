@@ -171,25 +171,23 @@
 }
 
 - (void)updateSafeAreaInsets {
-    if (@available(iOS 11, *)) {
-        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-        CGFloat top = keyWindow.safeAreaInsets.top;
-        CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-        CGFloat right = keyWindow.safeAreaInsets.right;
-        CGFloat left = keyWindow.safeAreaInsets.left;
-        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
-        
-        NSString *setInsetsString = [NSString stringWithFormat:OS_SET_SAFE_AREA_INSETS_METHOD, safeAreaInsetsObjectString];
-        [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
-            if (error) {
-                NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
-                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
-                return;
-            }
-            NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:successMessage];
-        }];
-    }
+    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+    CGFloat top = keyWindow.safeAreaInsets.top;
+    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
+    CGFloat right = keyWindow.safeAreaInsets.right;
+    CGFloat left = keyWindow.safeAreaInsets.left;
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+
+    NSString *setInsetsString = [NSString stringWithFormat:OS_SET_SAFE_AREA_INSETS_METHOD, safeAreaInsetsObjectString];
+    [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
+        if (error) {
+            NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+            return;
+        }
+        NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:successMessage];
+    }];
 }
 
 - (NSNumber *)extractHeightFromMetaDataPayload:(NSDictionary *)result {
@@ -210,8 +208,7 @@
     self.webView.layer.cornerRadius = 10.0f;
     self.webView.layer.masksToBounds = true;
     
-    if (@available(iOS 11, *))
-        self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     
     [self.webView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor].active = true;
     [self.webView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor].active = true;

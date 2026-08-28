@@ -139,6 +139,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         XCTAssertFalse(sentMinus19, "Must not send stale enabled:false / notification_types:-19 after grant")
         XCTAssertTrue(allSubscribed, "All executed UpdateSubscription payloads should reflect the live subscribed model")
         XCTAssertEqual(updateRequests.count, 1, "Unsent updates for the same subscription should be coalesced")
+        waitForUpdateRequestQueueToDrain()
     }
 
     /**
@@ -202,11 +203,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         }
 
         XCTAssertEqual(client.startedRequests.count, 2, "Pending follow-up should send after in-flight completes")
-        let secondPayload = try XCTUnwrap(
-            (client.startedRequests[1] as? OSRequestUpdateSubscription)?.parameters?["subscription"] as? [String: Any]
-        )
-        XCTAssertEqual(secondPayload["notification_types"] as? Int, subscribedNotificationTypes)
-        XCTAssertEqual(secondPayload["enabled"] as? Bool, true)
+        try assertSubscribedPayload(client.startedRequests[1])
+        waitForCompletedUpdateRequests(client, expectedCount: 2)
+        waitForUpdateRequestQueueToDrain()
     }
 
     /**
@@ -265,6 +264,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         let lastPayload = try XCTUnwrap(updateRequests.last?.parameters?["subscription"] as? [String: Any])
         XCTAssertEqual(lastPayload["notification_types"] as? Int, subscribedNotificationTypes)
         XCTAssertEqual(lastPayload["enabled"] as? Bool, true)
+        waitForUpdateRequestQueueToDrain()
     }
 
     // MARK: - Helpers
@@ -280,5 +280,29 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         )
         model.notificationTypes = notificationTypes
         return model
+    }
+
+    private func waitForUpdateRequestQueueToDrain() {
+        OneSignalCoreMocks.waitUntil("Subscription executor cleanup did not complete") {
+            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
+                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
+                defaultValue: []
+            ) as? [OSRequestUpdateSubscription]
+            return requests?.isEmpty == true
+        }
+    }
+
+    private func waitForCompletedUpdateRequests(_ client: MockOneSignalClient, expectedCount: Int) {
+        OneSignalCoreMocks.waitUntil("Subscription update did not complete") {
+            client.hasCompletedRequestOfType(OSRequestUpdateSubscription.self, expectedCount: expectedCount)
+        }
+    }
+
+    private func assertSubscribedPayload(_ request: OneSignalRequest) throws {
+        let payload = try XCTUnwrap(
+            (request as? OSRequestUpdateSubscription)?.parameters?["subscription"] as? [String: Any]
+        )
+        XCTAssertEqual(payload["notification_types"] as? Int, subscribedNotificationTypes)
+        XCTAssertEqual(payload["enabled"] as? Bool, true)
     }
 }

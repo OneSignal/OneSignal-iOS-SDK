@@ -38,9 +38,8 @@
 #import <objc/runtime.h>
 #import "OSMacros.h"
 
-// This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
-//   - UNUserNotificationCenter is used for iOS 10
-//   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.
+// Hooks notification registration and background delivery selectors.
+// Original implementations are called so other plugins and the app delegate still receive them.
 
 @implementation OneSignalNotificationsAppDelegate
 
@@ -69,9 +68,8 @@ static NSMutableSet<Class>* swizzledClasses;
     
     Class newClass = [OneSignalNotificationsAppDelegate class];
     
-    // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
-    //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
-    //   UNNotificationServiceExtension (mutable-content) and UNNotificationContentExtension (with category) replaced it.
+    // Background content-available notifications are delivered through UIApplicationDelegate,
+    // not UNUserNotificationCenterDelegate.
     injectSelector(
         delegateClass,
         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:),
@@ -149,9 +147,7 @@ static NSMutableSet<Class>* swizzledClasses;
 
 // Fires when a notication is opened or recieved while the app is in focus.
 //   - Also fires when the app is in the background and a notificaiton with content-available=1 is received.
-// NOTE: completionHandler must only be called once!
-//          iOS 10 - This crashes the app if it is called twice! Crash will happen when the app is resumed.
-//          iOS 9  - Does not have this issue.
+// NOTE: completionHandler must only be called once.
 - (void) oneSignalReceiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]

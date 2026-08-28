@@ -26,96 +26,17 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import <OneSignalCore/OneSignalLog.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
-#import "OneSignalFramework.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalTracker.h"
-#import "OneSignalSelectorHelpers.h"
-#import "SwizzlingForwarder.h"
-#import <objc/runtime.h>
 
-@interface OneSignal (UN_extra)
-+ (NSString*) appId;
-@end
-
-// This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
-//   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.
+// Provides the marker used to detect loading the SDK into the runtime more than once.
 
 @implementation OneSignalAppDelegate
 
 + (void) oneSignalLoadedTagSelector {}
 
-// A Set to keep track of which classes we have already swizzled so we only
-// swizzle each one once. If we swizzled more than once then this will create
-// an infinite loop, this includes swizzling with ourselves but also with
-// another SDK that swizzles.
-static NSMutableSet<Class>* swizzledClasses;
-
-- (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
-    [OneSignalAppDelegate traceCall:@"setOneSignalDelegate:"];
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
-    
-    if (swizzledClasses == nil)
-        swizzledClasses = [NSMutableSet new];
-    
-    Class delegateClass = [delegate class];
-    
-    if (delegate == nil || [OneSignalAppDelegate swizzledClassInHeirarchy:delegateClass]) {
-        [self setOneSignalDelegate:delegate];
-        return;
-    }
-    [swizzledClasses addObject:delegateClass];
-    
-    Class newClass = [OneSignalAppDelegate class];
-    // Used to track how long the app has been closed
-    injectSelector(
-        delegateClass,
-        @selector(applicationWillTerminate:),
-        newClass,
-        @selector(oneSignalApplicationWillTerminate:)
-    );
-    
-    [self setOneSignalDelegate:delegate];
-}
-
-+ (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
-    if ([swizzledClasses containsObject:delegateClass]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@", NSStringFromClass(delegateClass)]];
-        return true;
-    }
-    Class superClass = class_getSuperclass(delegateClass);
-    while(superClass) {
-        if ([swizzledClasses containsObject:superClass]) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in super class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
-            return true;
-        }
-        superClass = class_getSuperclass(superClass);
-    }
-    return false;
-}
-
--(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
-    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
-    
-    if ([OneSignal appId])
-        [OneSignalTracker onFocus:YES];
-    
-    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-        initWithTarget:self
-        withYourSelector:@selector(
-            oneSignalApplicationWillTerminate:
-        )
-        withOriginalSelector:@selector(
-            applicationWillTerminate:
-        )
-    ];
-    [forwarder invokeWithArgs:@[application]];
-}
-
-// Used to log all calls, also used in unit tests to observer
-// the OneSignalAppDelegate selectors get called.
+// Used by the test overrider that verifies marker calls.
 +(void) traceCall:(NSString*)selector {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:selector];
 }

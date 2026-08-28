@@ -300,8 +300,7 @@ static OneSignalLocationManager* singleInstance = nil;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                 [locationManager performSelector:NSSelectorFromString(@"requestAlwaysAuthorization")];
 #pragma clang diagnostic pop
-                if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"9.0"])
-                    [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+                [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
             }
             
             else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
