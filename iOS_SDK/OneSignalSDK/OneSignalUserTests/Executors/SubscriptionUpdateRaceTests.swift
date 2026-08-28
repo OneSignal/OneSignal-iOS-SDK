@@ -93,6 +93,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: promptedNeverAnswered
@@ -116,6 +117,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: subscribedNotificationTypes
@@ -159,6 +161,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: promptedNeverAnswered
@@ -182,6 +185,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: subscribedNotificationTypes
@@ -231,6 +235,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: promptedNeverAnswered
@@ -250,6 +255,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         executor.enqueueDelta(OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
             identityModelId: identityModelId,
+            externalId: nil,
             model: model,
             property: "notificationTypes",
             value: subscribedNotificationTypes
