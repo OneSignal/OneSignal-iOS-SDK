@@ -29,6 +29,7 @@ import Foundation
 import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
+import OneSignalKMP
 @testable import OneSignalOSCore
 
 /// Covers Operation Repo Identity Verification: hold until `requirement` is known, drop unsigned work.
@@ -37,14 +38,16 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
     private let deltaName = "test_delta"
 
     private var jwtConfig = OSUserJwtConfig()
-    private var featureManager = OSFeatureManager(enabledKeys: [])
+    private var flagsStore: OSFeatureFlagsStore!
+    private var featureManager: OSFeatureManager!
 
     override func setUp() {
         super.setUp()
         OneSignalIdentifiers.currentAppId = "test-app-id"
         OSOperationRepoTestEnvironment.clearCache()
         jwtConfig = OSUserJwtConfig()
-        featureManager = OSFeatureManager(enabledKeys: [])
+        flagsStore = OSFeatureFlagsStore()
+        featureManager = OSFeatureManager(store: flagsStore)
     }
 
     override func tearDown() {
@@ -176,7 +179,7 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
 
     /// The rollout flag alone must not suppress; only `jwt_required` turns it on.
     func testAnonymousDeltasSurviveWhenTheFlagIsOnButTheAppDoesNotRequireAuth() {
-        featureManager = OSFeatureManager(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        flagsStore.applyRemoteFlags([FeatureFlag.sdkIdentityVerification.key], metadata: nil)
 
         let repo = makeRepo()
         let executor = MockOperationExecutor(supportedDeltas: [deltaName])

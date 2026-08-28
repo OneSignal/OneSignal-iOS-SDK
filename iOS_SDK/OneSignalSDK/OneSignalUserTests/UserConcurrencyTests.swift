@@ -46,7 +46,20 @@ final class UserConcurrencyTests: XCTestCase {
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws { }
+    override func tearDownWithError() throws {
+        // The user manager and its repo outlive each test; a delta left queued here flushes
+        // mid-next-test against that test's client. Kick flushes rather than wait out the poller.
+        let repo = OneSignalUserManagerImpl.sharedInstance.operationRepo
+        repo.paused = false
+        repo.addFlushDeltaQueueToDispatchQueue()
+        OneSignalCoreMocks.waitUntil("Leftover deltas did not drain") {
+            if repo.dispatchQueue.sync(execute: { repo.deltaQueue.isEmpty }) {
+                return true
+            }
+            repo.addFlushDeltaQueueToDispatchQueue()
+            return false
+        }
+    }
 
     /**
      This test reproduces a crash in the Operation Repo's flushing delta queue.
