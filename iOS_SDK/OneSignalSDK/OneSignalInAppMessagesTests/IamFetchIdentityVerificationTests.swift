@@ -27,7 +27,7 @@
 
 import XCTest
 import OneSignalCore
-import OneSignalOSCore
+@testable import OneSignalOSCore
 import OneSignalCoreMocks
 import OneSignalOSCoreMocks
 import OneSignalUserMocks
@@ -73,7 +73,8 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
     override func tearDownWithError() throws {
         OneSignalUserManagerImpl.sharedInstance.removeUserJwtInvalidatedListener(jwtListener)
         OSMessagingController.removeInstance()
-        OSFeatureManager.shared.setEnabledFeatureKeys([])
+        OSFeatureFlagsStore.shared.clear()
+        OSFeatureManager.reset()
         OneSignalCoreMocks.clearUserDefaults()
     }
 
@@ -96,7 +97,7 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
     }
 
     private func turnOnTheRolloutFlag() {
-        OSFeatureManager.shared.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_identity_verification"], metadata: nil)
     }
 
     /**
