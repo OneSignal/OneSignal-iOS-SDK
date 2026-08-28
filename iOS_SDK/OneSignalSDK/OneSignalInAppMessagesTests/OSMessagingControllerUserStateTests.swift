@@ -26,7 +26,7 @@ with services provided by OneSignal.
  */
 
 import XCTest
-import OneSignalOSCore
+@testable import OneSignalOSCore
 import OneSignalCoreMocks
 import OneSignalOSCoreMocks
 import OneSignalUserMocks
@@ -59,7 +59,8 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        OSFeatureManager.shared.setEnabledFeatureKeys([])
+        OSFeatureFlagsStore.shared.clear()
+        OSFeatureManager.reset()
         OSMessagingController.removeInstance()
     }
 
@@ -167,7 +168,7 @@ final class OSMessagingControllerUserStateTests: XCTestCase {
      */
     func testLoginRefetchesInAppMessagesForTheIncomingUser() throws {
         /* Setup */
-        OSFeatureManager.shared.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_identity_verification"], metadata: nil)
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
         OneSignalInAppMessages.start()
