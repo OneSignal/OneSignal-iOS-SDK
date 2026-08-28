@@ -120,10 +120,6 @@ final class OSLoggerPlatformProvider: ILoggerPlatformProvider {
     /// `ossdk.kmp_version` instead.
     let kotlinVersion: String? = nil
 
-    /// Nil on iOS: there is no runtime API for the Swift language version, and anything
-    /// derivable would just re-encode `xcode_version` less precisely.
-    let swiftVersion: String? = nil
-
     let additionalVersionAttributes: [String: String] =
         OSLoggerPlatformProvider.hostBuildAttributes()
     var enabledFeatureFlags: [String] {
