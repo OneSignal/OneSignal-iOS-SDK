@@ -207,16 +207,6 @@ final class OneSignalUserTests: XCTestCase {
         )
     }
 
-    private func startUserManagerWithPausedOperations(
-        client: MockOneSignalClient,
-        operationRepo: OSOperationRepo
-    ) {
-        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        OneSignalCoreImpl.setSharedClient(client)
-        operationRepo.paused = true
-        OneSignalUserManagerImpl.sharedInstance.start()
-    }
-
     /**
      Unit test for the tag-merge primitive.
 

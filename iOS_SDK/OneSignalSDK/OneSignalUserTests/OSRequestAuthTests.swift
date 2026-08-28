@@ -27,7 +27,7 @@
 
 import XCTest
 import OneSignalCore
-import OneSignalOSCore
+@testable import OneSignalOSCore
 @testable import OneSignalUser
 
 /// A stand-in for whichever concrete Request is being authorized; only ownership and the header matter here.
@@ -93,14 +93,20 @@ final class OSRequestAuthTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
+        clearCache()
         jwtConfig = OSUserJwtConfig()
         jwt = StubJwtProvider()
     }
 
     override func tearDown() {
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
+        clearCache()
         super.tearDown()
+    }
+
+    private func clearCache() {
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA)
     }
 
     private func makeAuth(requiresUserAuth: Bool) -> OSRequestAuth {
@@ -110,7 +116,9 @@ final class OSRequestAuthTests: XCTestCase {
 
     /// For the cases that turn on the rollout flag, or leave the requirement unhydrated, or both.
     private func makeAuth(enabledKeys: Set<String>) -> OSRequestAuth {
-        let service = OSIdentityVerificationService(featureManager: OSFeatureManager(enabledKeys: enabledKeys), jwtConfig: jwtConfig)
+        let store = OSFeatureFlagsStore()
+        store.applyRemoteFlags(Array(enabledKeys), metadata: nil)
+        let service = OSIdentityVerificationService(featureManager: OSFeatureManager(store: store), jwtConfig: jwtConfig)
         return OSRequestAuth(identityVerificationService: service, jwt: jwt)
     }
 
@@ -306,7 +314,7 @@ final class OSRequestAuthTests: XCTestCase {
 
     func testAuthorizationAddressesTheOnesignalIdWhileIdentityVerificationIsOff() {
         jwtConfig.hydrate(requiresUserAuth: false)
-        let auth = makeAuth(enabledKeys: [OSFeatureFlag.identityVerification.rawValue])
+        let auth = makeAuth(enabledKeys: ["sdk_identity_verification"])
         jwt.tokens["user-a"] = "token-a"
 
         let authorization = auth.authorization(onesignalId: "osid-a", externalId: "user-a")

@@ -38,7 +38,8 @@ enum OSOperationRepoTestEnvironment {
     static func clearCache() {
         OneSignalUserDefaults.initShared().removeValue(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_FEATURE_FLAGS)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA)
     }
 
     static func seedCachedDeltaQueue(_ deltas: [OSDelta]) {
@@ -51,7 +52,7 @@ enum OSOperationRepoTestEnvironment {
     }
 
     // Pin the poller out of reach: DEBUG uses 100ms and would flush underneath expectations.
-    static func makeRepo(jwtConfig: OSUserJwtConfig, featureManager: OSFeatureManager = OSFeatureManager(enabledKeys: [])) -> OSOperationRepo {
+    static func makeRepo(jwtConfig: OSUserJwtConfig, featureManager: OSFeatureManager = OSFeatureManager(store: OSFeatureFlagsStore())) -> OSOperationRepo {
         let service = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
         let repo = OSOperationRepo(identityVerificationService: service)
         repo.pollIntervalMilliseconds = 60_000

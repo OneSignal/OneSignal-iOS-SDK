@@ -75,7 +75,8 @@ final class UserJwtLifecycleTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.removeObserver(observer)
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         OneSignalCoreMocks.clearUserDefaults()
-        OSFeatureManager.shared.setEnabledFeatureKeys([])
+        OSFeatureFlagsStore.shared.clear()
+        OSFeatureManager.reset()
     }
 
     /// The push subscription as the server would see it right now.
@@ -193,7 +194,7 @@ final class UserJwtLifecycleTests: XCTestCase {
     /// Promoting before remote params answer is safe because nothing is sent while the requirement is
     /// unknown, so the queued promotion can still be reshaped into the Create User auth requires.
     func testLoginWhileTheRequirementIsUnknownBecomesACreateUserOnceAuthIsRequired() {
-        OSFeatureManager.shared.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_identity_verification"], metadata: nil)
         makeRequirementUnknown()
         _ = OneSignalUserManagerImpl.sharedInstance.user
 
@@ -220,7 +221,7 @@ final class UserJwtLifecycleTests: XCTestCase {
 
     /// The same promotion when remote params answer the other way is simply sent.
     func testLoginWhileTheRequirementIsUnknownIsSentOnceAuthIsKnownToBeOff() {
-        OSFeatureManager.shared.setEnabledFeatureKeys([OSFeatureFlag.identityVerification.rawValue])
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_identity_verification"], metadata: nil)
         makeRequirementUnknown()
         _ = OneSignalUserManagerImpl.sharedInstance.user
 
