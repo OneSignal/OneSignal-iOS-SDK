@@ -32,33 +32,21 @@ import OneSignalCore
 
 /// Persists encoded crash logs so they can be uploaded after the app restarts.
 ///
-/// Writes are synchronous and durable because fatal handlers may terminate the
-/// process immediately after `save` returns. Directory scans and cleanup run on
-/// a utility queue to keep disk I/O off the caller.
-///
-/// This is a bounded cache, not a queue. Retention decisions — which records have aged out,
-/// which exceed the accumulation caps — come from `CrashRetention` in the shared module, so
-/// iOS and Android reclaim identically; this type contributes only the file I/O. Without
-/// those bounds a record that never uploads successfully is re-read and re-sent on every
-/// launch for the life of the install.
+/// A bounded cache, not a queue: retention decisions come from `CrashRetention` in the shared
+/// module, so iOS and Android reclaim identically and this type contributes only the file I/O.
 final class FileLogStore: ILogFileStore {
-    /// Complete records use the shared policy's suffix; interrupted durable writes leave
-    /// `.tmp` files alongside them that are safe to reap after the minimum-age gate.
-    ///
-    /// Taken from the policy rather than restated, so what this store writes cannot drift out
-    /// of what `isOwned` accepts — a mismatch would hide brand-new records from every reader.
+    /// Taken from the policy rather than restated, so what this store writes cannot drift out of
+    /// what `isOwned` accepts; a mismatch would hide brand-new records from every reader.
     private static let ownedFileSuffix = CrashRetention.shared.defaultPolicy.ownedSuffix
     private static let temporaryFileSuffix = ownedFileSuffix + ".tmp"
     private static let queueLabel = "com.onesignal.logger.file-store"
 
-    /// The shared bounds, named once. Kotlin default arguments do not cross the Objective-C
-    /// boundary, so every selector call must pass this explicitly — binding it here keeps the
-    /// four numbers from being restated, and possibly transposed, at each call site.
+    /// Kotlin default arguments do not cross the Objective-C boundary, so every selector call
+    /// must pass this explicitly.
     private static let retentionPolicy = CrashRetention.shared.defaultPolicy
 
-    /// Reads the attributes a `CrashDirEntry` is built from. Injectable because the failure that
-    /// matters here — attributes unreadable while the directory still lists — cannot be staged on
-    /// a real filesystem: revoking directory access fails the listing itself instead.
+    /// Reads the attributes a `CrashDirEntry` is built from. Injectable because unreadable
+    /// attributes cannot be staged on a real filesystem: revoking access fails the listing.
     typealias AttributeLookup = (URL) -> URLResourceValues?
 
     static let defaultAttributeLookup: AttributeLookup = { url in
@@ -72,7 +60,7 @@ final class FileLogStore: ILogFileStore {
     private let rootURL: URL
     private let fileManager: FileManager
     private let attributeLookup: AttributeLookup
-    /// Crash-path diagnostics. `OneSignalLog` fans out to app listeners and the remote sink.
+    /// Crash-path diagnostics; `OneSignalLog` would fan out to app listeners and the remote sink.
     private let crashWarn: (String) -> Void
     private let ioQueue = DispatchQueue(label: queueLabel, qos: .utility)
     private let inFlightLock = NSLock()
@@ -92,13 +80,14 @@ final class FileLogStore: ILogFileStore {
         try? createRootDirectory()
     }
 
+    /// Runs synchronously on the crashing thread and must not throw: a fatal handler may
+    /// terminate the process the moment this returns.
     func save(bytes: KotlinByteArray) -> Bool {
         guard bytes.size > 0 else {
             return false
         }
-        // Refuse rather than store-then-reclaim. A record this large would either claim the
-        // whole shared budget or be deleted before it could be uploaded, so losing it loudly
-        // here beats losing it silently on a later launch.
+        // Refuse rather than store-then-reclaim: an over-limit record would claim the whole
+        // shared budget or be evicted before it could upload.
         guard Int64(bytes.size) <= Self.retentionPolicy.maxRecordBytes else {
             crashWarn(
                 "FileLogStore refusing record of \(bytes.size) bytes, over the "
@@ -169,28 +158,20 @@ final class FileLogStore: ILogFileStore {
         ioQueue.async {
             var deleted = 0
             do {
-                // Also the only scan that runs when remote logging is disabled, so it is the
-                // sole chance to bound a directory `listReadable` never touches.
+                // The only scan that runs when remote logging is disabled, so it is the sole
+                // chance to bound a directory `listReadable` never touches.
                 _ = self.reclaim(entries: try self.directoryEntries())
 
-                // Deliberately narrower than the shared `selectUnrecognized`, which reaps any
-                // non-owned file. iOS never ran the OpenTelemetry pipeline, so there is no
-                // legacy format to clean up here — only this store's own interrupted writes.
-                // Anything else in the directory belongs to someone we should not assume about.
-                //
-                // The age gate is the shared one, so a temp whose attributes are unreadable is
-                // still dated by the millis its name was built from. An interrupted write is
-                // therefore reapable before first unlock instead of skipped until the device
-                // is unlocked, and one still too young is protected by its real age rather
-                // than by the reader failing.
+                // Deliberately narrower than the shared `selectUnrecognized`: iOS never ran the
+                // OpenTelemetry pipeline, so the only reapable foreign files are this store's own
+                // interrupted writes, and never one it currently has in flight.
                 let now = Self.nowMillis()
                 let inFlight = self.snapshotInFlightNames()
                 for entry in try self.directoryEntries()
                     where entry.name.hasSuffix(Self.temporaryFileSuffix)
                     && !inFlight.contains(entry.name)
                     && Self.hasReachedMinAge(entry, now: now, minAgeMillis: minAgeMillis) {
-                    // Per-entry, so one undeletable leftover cannot strand the rest of the
-                    // sweep — a file locked before first unlock would otherwise wedge it.
+                    // Per-entry, so one undeletable leftover cannot strand the rest of the sweep.
                     if self.remove(name: entry.name) {
                         deleted += 1
                     }
@@ -207,8 +188,7 @@ final class FileLogStore: ILogFileStore {
 
     private func readableEntries(minAgeMillis: Int64) throws -> [StoredLogFile] {
         let entries = try directoryEntries()
-        // Reclaim before reading so payloads are only materialized for records that survive
-        // both bounds — an over-cap backlog is never fully loaded into memory.
+        // Reclaim first so payloads are only materialized for records that survive both bounds.
         let reclaimed = reclaim(entries: entries)
         let now = Self.nowMillis()
 
@@ -227,16 +207,8 @@ final class FileLogStore: ILogFileStore {
 
     /// Whether [entry] is known to have existed for at least [minAgeMillis].
     ///
-    /// Age comes from the shared `effectiveWriteTimeMs` rather than the raw timestamp, so the
-    /// readers and the temp sweep cannot end up measuring against different clocks — one
-    /// withholding a record the other reclaims.
-    ///
-    /// An entry neither the filesystem nor its own name can date has not been shown to clear
-    /// the gate, so it does not: an unreadable timestamp is not evidence of age, and treating
-    /// it as zero would hand a possibly half-written record to the uploader and let the temp
-    /// sweep delete a write that may still be in flight. Such a record is withheld, not
-    /// deleted, and becomes readable as soon as it can be dated. It cannot leak in the
-    /// meantime — the accumulation caps count and evict it regardless of age.
+    /// An entry nothing can date returns false: an unreadable timestamp is not evidence of age,
+    /// so the record is withheld rather than uploaded or reaped, and the caps still bound it.
     private static func hasReachedMinAge(
         _ entry: CrashDirEntry,
         now: Int64,
@@ -250,8 +222,8 @@ final class FileLogStore: ILogFileStore {
 
     /// Applies the shared retention policy and deletes what it selects.
     ///
-    /// - Returns: names that must be withheld from readers, including any whose unlink failed —
-    ///   a record past the ceiling must not be uploaded even if it could not be removed.
+    /// - Returns: names to withhold from readers, including any whose unlink failed: a record
+    ///   past the ceiling must not be uploaded even if it could not be removed.
     private func reclaim(entries: [CrashDirEntry]) -> Set<String> {
         let now = Self.nowMillis()
         var withheld = Set<String>()
@@ -267,15 +239,13 @@ final class FileLogStore: ILogFileStore {
             remove(name: entry.name)
         }
 
-        // Only the survivors of the expiry pass, per the ILogFileStore contract: an expired
-        // record still in the listing consumes a count slot and budget, so the overflow pass
-        // would evict live records to make room for ones already being deleted.
+        // Survivors only, per the ILogFileStore contract: an expired record still in the listing
+        // would consume a count slot and byte budget it is about to give back.
         let survivors = entries.filter { !withheld.contains($0.name) }
         let overflow = CrashRetention.shared.selectOverflowOwned(
             entries: survivors,
             nowMs: now,
-            // Every in-flight name at once: concurrent crashing threads each hold a record
-            // open, and evicting any of them corrupts a crash being captured right now.
+            // Every in-flight name: evicting one corrupts a crash being captured right now.
             keepNames: inFlight,
             policy: Self.retentionPolicy
         )
@@ -294,19 +264,12 @@ final class FileLogStore: ILogFileStore {
         return withheld
     }
 
-    /// Trims the directory back inside the accumulation caps after a write, always keeping
-    /// [keepName]. Runs synchronously on the crashing thread, so it exits on one directory
-    /// listing in the steady state and only sorts when the caps are actually breached.
+    /// Trims back inside the accumulation caps after a write, reserving every in-flight name and
+    /// not just [keepName]: this path unlinks whatever the selector returns without re-checking,
+    /// so a sibling crashing thread's record really is deleted if it is not named here.
     ///
-    /// Overflow only, deliberately: expiry is a scan the crashing thread should not pay for when
-    /// nothing is over cap, and an under-cap expired record is reclaimed on the next uploader
-    /// pass by `listReadable` / `deleteUnrecognizedEntries`, both of which run expiry. This is
-    /// the same split Android's write path makes.
-    ///
-    /// Every in-flight name is reserved, not just [keepName]. Unlike `reclaim`, this path
-    /// unlinks whatever the selector returns without re-checking the in-flight set, so a
-    /// sibling thread's just-written record really is deleted if it is not named here — one
-    /// crashing thread destroying the crash another is still capturing.
+    /// Runs inline on the crashing thread, so the `isWithinCaps` guard is what keeps the sort out
+    /// of the steady state. Overflow only; expiry is left to the uploader passes.
     private func enforceAccumulationCaps(keepName: String) {
         guard let entries = try? directoryEntries() else {
             return
@@ -328,10 +291,8 @@ final class FileLogStore: ILogFileStore {
         }
     }
 
-    /// - Returns: whether the file is gone. Callers reclaiming records ignore this — a failed
-    ///   unlink is still withheld from readers — but the temp sweep counts only real deletions.
-    ///   An already-removed file is success: crash-path eviction and the async reclaim can
-    ///   target the same name.
+    /// - Returns: whether the file is gone. An already-removed file counts as success, since
+    ///   crash-path eviction and the async reclaim can target the same name.
     @discardableResult
     private func remove(name: String, crashSafe: Bool = false) -> Bool {
         do {
@@ -353,20 +314,10 @@ final class FileLogStore: ILogFileStore {
 
     /// Snapshots the directory as the platform-neutral entries the shared policy consumes.
     ///
-    /// Unreadable attributes — data protection before first unlock, a transient I/O error —
-    /// keep the entry in the snapshot rather than omitting it. Omission would put the file
-    /// outside every bound at once.
-    ///
-    /// A missing mtime is reported as `nil`, never as a stand-in number. The policy reads
-    /// whatever it is given back as an age, so the `0` this used to pass made every record
-    /// with unreadable attributes look maximally stale and had it deleted — on Apple platforms
-    /// that is every record in the directory, on every reboot, until first unlock. Age is
-    /// resolved by `CrashRetention.effectiveWriteTimeMs`, which recovers the write time from
-    /// the leading millis in the record's own name; only an entry neither source can date is
-    /// undatable, and that is bounded by the caps rather than by expiry.
-    ///
-    /// Entries are dropped only when `isRegularFile` is known false, not when that bit cannot
-    /// be read — the latter used to discard the file before this fallback could run.
+    /// Attributes are routinely unreadable under data protection before first unlock, so the
+    /// entry is kept: omitting it would put the file outside every bound at once. A missing
+    /// mtime must stay `nil`, never a stand-in number the policy would read back as an age.
+    /// Entries are dropped only when `isRegularFile` is known false.
     private func directoryEntries() throws -> [CrashDirEntry] {
         guard fileManager.fileExists(atPath: rootURL.path) else {
             return []
