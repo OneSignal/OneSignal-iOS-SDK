@@ -264,12 +264,10 @@ final class FileLogStore: ILogFileStore {
         return withheld
     }
 
-    /// Trims back inside the accumulation caps after a write, reserving every in-flight name and
-    /// not just [keepName]: this path unlinks whatever the selector returns without re-checking,
-    /// so a sibling crashing thread's record really is deleted if it is not named here.
-    ///
-    /// Runs inline on the crashing thread, so the `isWithinCaps` guard is what keeps the sort out
-    /// of the steady state. Overflow only; expiry is left to the uploader passes.
+    /// Reserves every in-flight name, not just [keepName]: this path unlinks whatever the selector
+    /// returns without re-checking, so an unnamed sibling's record really is deleted. Runs inline
+    /// on the crashing thread, so the `isWithinCaps` guard is what keeps the sort out of the
+    /// steady state. Overflow only; expiry is left to the uploader passes.
     private func enforceAccumulationCaps(keepName: String) {
         guard let entries = try? directoryEntries() else {
             return
@@ -312,12 +310,10 @@ final class FileLogStore: ILogFileStore {
         }
     }
 
-    /// Snapshots the directory as the platform-neutral entries the shared policy consumes.
-    ///
-    /// Attributes are routinely unreadable under data protection before first unlock, so the
-    /// entry is kept: omitting it would put the file outside every bound at once. A missing
-    /// mtime must stay `nil`, never a stand-in number the policy would read back as an age.
-    /// Entries are dropped only when `isRegularFile` is known false.
+    /// Attributes are routinely unreadable before first unlock, so the entry is kept: omitting it
+    /// would put the file outside every bound at once. A missing mtime must stay `nil`, never a
+    /// stand-in the policy reads back as an age. Entries are dropped only when `isRegularFile`
+    /// is known false.
     private func directoryEntries() throws -> [CrashDirEntry] {
         guard fileManager.fileExists(atPath: rootURL.path) else {
             return []

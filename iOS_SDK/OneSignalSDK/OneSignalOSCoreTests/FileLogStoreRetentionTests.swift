@@ -572,11 +572,9 @@ private extension FileLogStoreTestCase {
         try FileManager.default.setAttributes([.modificationDate: modified], ofItemAtPath: url.path)
     }
 
-    /// A record named the way the store names its own: `{millis}-{uuid}.otlp`.
-    ///
-    /// Anything asserting on how a record is dated must use this shape. A name without leading
-    /// millis can never reach the name fallback and silently tests the undatable path instead.
-    ///
+    /// A record named the way the store names its own: `{millis}-{uuid}.otlp`. Anything asserting
+    /// on dating must use this shape — a name without leading millis cannot reach the name
+    /// fallback and silently tests the undatable path instead.
     /// - Returns: the generated name.
     @discardableResult
     func writeProductionShapedRecord(
