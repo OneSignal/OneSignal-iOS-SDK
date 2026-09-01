@@ -39,12 +39,29 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     }
 
     var subscriptionModel: OSSubscriptionModel
+    /// The user this update was made for; used to file the response's RYW token under their
+    /// `onesignal_id`. `nil` drops the token. Held as the model because that ID may not exist
+    /// yet when the request is built.
+    var identityModel: OSIdentityModel?
+
+    /**
+     Always nil, so this Request is never signed. Its path names a subscription rather than a user and the
+     endpoint ignores the token, while owning it would stall the device's push token and notification types
+     behind an identified user whose token went invalid.
+
+     The Delta it comes from is owned, which is what decides whether the update survives the anonymous purge.
+     */
+    var ownerExternalId: String? { return nil }
+
+    /// The one Request Identity Verification lets through unowned, for the reason `ownerExternalId` gives.
+    var sendsUnsigned: Bool { return true }
 
     // Need the subscription_id
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let subscriptionId = subscriptionModel.subscriptionId,
            newRecordsState.canAccess(subscriptionId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           auth.authorize(self)
         {
             self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             // Refresh so a stale snapshot queued earlier can't overwrite newer local state.
@@ -62,16 +79,18 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         subscriptionParams["device_os"] = subscriptionModel.deviceOs
         subscriptionParams["sdk"] = subscriptionModel.sdk
         subscriptionParams["app_version"] = subscriptionModel.appVersion
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if subscriptionModel.notificationTypes != -1 {
-            subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+
+        let enablement = subscriptionModel.reportedEnablement()
+        subscriptionParams["enabled"] = enablement.enabled
+        if let notificationTypes = enablement.notificationTypes {
+            subscriptionParams["notification_types"] = notificationTypes
         }
-        subscriptionParams["enabled"] = subscriptionModel.enabled
         self.parameters = ["subscription": subscriptionParams]
     }
 
-    init(subscriptionModel: OSSubscriptionModel) {
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel?) {
         self.subscriptionModel = subscriptionModel
+        self.identityModel = identityModel
         self.stringDescription = "OSRequestUpdateSubscription with model: \(subscriptionModel.modelId)"
         super.init()
         refreshParametersFromLiveModel()
@@ -80,6 +99,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(subscriptionModel, forKey: "subscriptionModel")
+        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -96,6 +116,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel = subscriptionModel
+        self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
         self.stringDescription = "OSRequestUpdateSubscription with parameters: \(parameters)"
         super.init()
         self.parameters = parameters

@@ -27,17 +27,36 @@
 
 import Foundation
 
-/// Reads the OneSignal /users API to hydrate aliases / tags / channels in the demo
+/// Reads the OneSignal /users API to hydrate aliases / tags / channels in the demo.
 final class UserFetchService {
     static let shared = UserFetchService()
     private init() {}
 
-    func fetchUser(appId: String, onesignalId: String) async -> UserData? {
-        let urlString = "https://api.onesignal.com/apps/\(appId)/users/by/onesignal_id/\(onesignalId)"
-        guard let url = URL(string: urlString) else { return nil }
+    /// Fetches by `onesignal_id` (unsigned) or `external_id` (Bearer when `jwt` is set).
+    func fetchUser(
+        appId: String,
+        aliasLabel: String,
+        aliasValue: String,
+        jwt: String? = nil
+    ) async -> UserData? {
+        guard !aliasValue.isEmpty else { return nil }
+
+        // Path-encode so external_ids with reserved characters don't misroute the GET.
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/")
+        guard
+            let encodedAlias = aliasValue.addingPercentEncoding(withAllowedCharacters: allowed),
+            let url = URL(string: "https://api.onesignal.com/apps/\(appId)/users/by/\(aliasLabel)/\(encodedAlias)")
+        else {
+            return nil
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        if let jwt = jwt {
+            request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
+        }
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)

@@ -28,8 +28,12 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSInAppMessageClickResult.h"
 
+@class OSAliasPair;
+
 @interface OSRequestGetInAppMessages : OneSignalRequest
-+ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId withSessionDuration:(NSNumber * _Nonnull)sessionDuration withRetryCount:(NSNumber *)retryCount withRywToken:(NSString *)rywToken;
+/// A nil `alias` addresses the subscription on its own, which is how this was addressed before Identity
+/// Verification; `userHeaders` carries the Bearer when the call is signed.
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId withAlias:(OSAliasPair * _Nullable)alias withUserHeaders:(NSDictionary<NSString *, NSString *> * _Nullable)userHeaders withSessionDuration:(NSNumber * _Nonnull)sessionDuration withRetryCount:(NSNumber *)retryCount withRywToken:(NSString *)rywToken;
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest

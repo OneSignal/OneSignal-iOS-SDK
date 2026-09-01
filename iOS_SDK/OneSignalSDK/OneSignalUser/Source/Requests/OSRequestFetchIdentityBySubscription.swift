@@ -39,7 +39,11 @@ class OSRequestFetchIdentityBySubscription: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel
 
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    /// Always nil, so this Request is never signed. It discovers which user owns a subscription during
+    /// the v4 upgrade, before there is an `external_id` to sign with.
+    var ownerExternalId: String? { return nil }
+
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         // newRecordsState is unused for this request
         guard let appId = OneSignalIdentifiers.currentAppId else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the FetchIdentityBySubscription request due to null app ID.")
