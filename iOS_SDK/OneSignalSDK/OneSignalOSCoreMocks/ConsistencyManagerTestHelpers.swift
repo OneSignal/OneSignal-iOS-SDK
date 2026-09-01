@@ -28,6 +28,13 @@
 import OneSignalOSCore
 
 public class ConsistencyManagerTestHelpers {
+    /// Clears both halves of the read-your-write state: the manager's tokens and waiters, and the
+    /// per-id conditions, which otherwise carry a raised subscription bar into the next test.
+    public static func reset() {
+        OSConsistencyManager.shared.reset()
+        OSIamFetchReadyCondition.reset()
+    }
+
     /// Unblocks the Consistency Manager, which allows fetching of IAMs for example.
     public static func setDefaultRywToken(id: String) {
         let key = OSIamFetchOffsetKey.userUpdate
