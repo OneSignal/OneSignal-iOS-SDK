@@ -83,6 +83,7 @@
 		A5048F01A1B2C3D4E5F6000A /* OSFeatureFlagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5048F01A1B2C3D4E5F60009 /* OSFeatureFlagsTests.swift */; };
 		A5048F01A1B2C3D4E5F6100B /* OSFeatureFlagsRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */; };
 		C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */; };
+		32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */; };
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		25898119922BDCDA7AF0B9CC /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
 		9EAF92032D0429FA35E04417 /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
@@ -1816,6 +1817,7 @@
 		A5048F01A1B2C3D4E5F60009 /* OSFeatureFlagsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSFeatureFlagsTests.swift; sourceTree = "<group>"; };
 		A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSFeatureFlagsRefreshServiceTests.swift; sourceTree = "<group>"; };
 		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
+		9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogStoreRetentionTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
 		7C91A2B0D84F1E9A3C5B6D8E /* OSRemoteLoggingConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingConfiguration.swift; sourceTree = "<group>"; };
 		C0462F96E1AADF655F3B3765 /* OSRemoteLoggingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSRemoteLoggingController.h; sourceTree = "<group>"; };
@@ -2608,6 +2610,7 @@
 				A5048F01A1B2C3D4E5F60009 /* OSFeatureFlagsTests.swift */,
 				A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */,
 				3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */,
+				9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */,
 				3C23A21A2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift */,
 				3C23A21E2FCE0AA1001D32E3 /* OSResilientStorageTests.swift */,
 				3C23A21C2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift */,
@@ -4655,6 +4658,7 @@
 				A5048F01A1B2C3D4E5F6000A /* OSFeatureFlagsTests.swift in Sources */,
 				A5048F01A1B2C3D4E5F6100B /* OSFeatureFlagsRefreshServiceTests.swift in Sources */,
 				C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */,
+				32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */,
 				3C23A21B2FCE0A52001D32E3 /* OneSignalIdentifiersFallbackTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
