@@ -329,4 +329,179 @@ final class OneSignalUserTests: XCTestCase {
         XCTAssertNil(manager._user)
         XCTAssertNil(manager.currentUser(matching: identityModel.modelId))
     }
+
+    // MARK: - REST API disabled push subscriptions
+
+    /// A push model hydrated with the server's REST API disable state (notification_types -31).
+    private func pushModelWithRestApiDisable() -> OSSubscriptionModel {
+        let model = OSSubscriptionModel(
+            type: .push,
+            address: "test-token",
+            subscriptionId: "test-sub-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+        return model
+    }
+
+    func testRestApiDisable_overridesOutgoingSubscriptionPayloads() {
+        let model = pushModelWithRestApiDisable()
+        XCTAssertEqual(model.restApiDisabledReason, -31)
+
+        let json = model.jsonRepresentation()
+        XCTAssertEqual(json["enabled"] as? Bool, false)
+        XCTAssertEqual(json["notification_types"] as? Int, -31)
+
+        let updateRequest = OSRequestUpdateSubscription(subscriptionModel: model)
+        let params = updateRequest.parameters?["subscription"] as? [String: Any]
+        XCTAssertEqual(params?["enabled"] as? Bool, false)
+        XCTAssertEqual(params?["notification_types"] as? Int, -31)
+    }
+
+    func testRestApiDisable_survivesDeviceStateRefresh() {
+        let model = pushModelWithRestApiDisable()
+
+        // Device-driven recomputes must not clear server-owned disable state
+        model.updateNotificationTypes()
+        model.update()
+
+        XCTAssertEqual(model.restApiDisabledReason, -31)
+        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
+    }
+
+    func testRestApiDisable_survivesArchiving() throws {
+        let model = pushModelWithRestApiDisable()
+
+        let data = try NSKeyedArchiver.archivedData(withRootObject: model, requiringSecureCoding: false)
+        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data)
+        unarchiver.requiresSecureCoding = false
+        let restored = try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSSubscriptionModel)
+
+        XCTAssertEqual(restored.restApiDisabledReason, -31)
+        XCTAssertEqual(restored.jsonRepresentation()["enabled"] as? Bool, false)
+    }
+
+    func testRestApiDisable_clearedByOptIn() {
+        let model = pushModelWithRestApiDisable()
+
+        model.clearRestApiDisable()
+
+        XCTAssertNil(model.restApiDisabledReason)
+        let json = model.jsonRepresentation()
+        XCTAssertEqual(json["enabled"] as? Bool, true)
+        XCTAssertNotEqual(json["notification_types"] as? Int, -31)
+    }
+
+    func testRestApiDisable_mirrorsServerField() {
+        // Only -31 is ever recorded; any other reported value is not, and clears an existing disable.
+        let model = OSSubscriptionModel(
+            type: .push,
+            address: "test-token",
+            subscriptionId: "test-sub-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
+        XCTAssertNil(model.restApiDisabledReason)
+
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+        XCTAssertEqual(model.restApiDisabledReason, -31)
+
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
+        XCTAssertNil(model.restApiDisabledReason)
+        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+    }
+
+    func testRestApiDisable_clearedWhenSubscriptionIdResets() {
+        // The disable code describes a specific server record; it must die with the record.
+        let model = pushModelWithRestApiDisable()
+
+        model.subscriptionId = nil
+
+        XCTAssertNil(model.restApiDisabledReason)
+        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+    }
+
+    func testRestApiDisable_optInOutranksStaleHydration() {
+        let model = pushModelWithRestApiDisable()
+
+        // A stale fetch response landing after optIn() cleared the disable must not re-record it
+        model.clearRestApiDisable()
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+        XCTAssertNil(model.restApiDisabledReason)
+
+        // Once the server reports another state, recording re-arms for a later operator disable
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+        XCTAssertEqual(model.restApiDisabledReason, -31)
+    }
+
+    func testRestApiDisable_clearedWhenServerReportsEnabled() {
+        let model = pushModelWithRestApiDisable()
+
+        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
+
+        XCTAssertNil(model.restApiDisabledReason)
+    }
+
+    /**
+     A push subscription disabled through the REST API (server notification_types -31) must stay
+     disabled across a login to a different external ID. The fetch hydrates the server's disable
+     state onto the existing subscription, and the login's Create User payload echoes it back.
+     */
+    func testLoginToDifferentUser_afterRestApiDisable_sendsDisabledPushSubscription() throws {
+        /* Setup */
+        let client = MockOneSignalClient()
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID)
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userB_EUID)
+
+        // Fetching user A reports the push subscription disabled through the REST API
+        var disabledResponse = MockUserRequests.testDefaultFullCreateUserResponse(
+            onesignalId: anonUserOSID,
+            externalId: userA_EUID,
+            subscriptionId: testPushSubId
+        )
+        let disabledSub = MockUserRequests.testDefaultPushSubPayload(id: testPushSubId)
+            .merging(["enabled": false, "notification_types": -31]) { _, new in new }
+        disabledResponse["subscriptions"] = [disabledSub]
+        client.setMockResponseForRequest(
+            request: "<OSRequestFetchUser with onesignal_id: \(anonUserOSID)>",
+            response: disabledResponse
+        )
+        OneSignalCoreImpl.setSharedClient(client)
+
+        // 1. Start with an anonymous user and log in to user A; the post-identify fetch
+        // hydrates the REST API disable onto the existing push subscription
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+
+        OneSignalCoreMocks.waitUntil("Fetch did not hydrate the REST API disable") {
+            OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId == userA_EUID &&
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.restApiDisabledReason == -31
+        }
+
+        /* When */
+
+        // 2. Log in to user B, which sends a Create User carrying the push subscription
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
+
+        func createUserBRequest() -> OSRequestCreateUser? {
+            return client.executedRequests.compactMap { $0 as? OSRequestCreateUser }.first {
+                ($0.parameters?["identity"] as? [String: String])?[OS_EXTERNAL_ID] == userB_EUID
+            }
+        }
+        OneSignalCoreMocks.waitUntil("Create User for user B was not sent") {
+            createUserBRequest() != nil
+        }
+
+        /* Then */
+
+        let subscriptions = try XCTUnwrap(createUserBRequest()?.parameters?["subscriptions"] as? [[String: Any]])
+        XCTAssertEqual(subscriptions.first?["enabled"] as? Bool, false)
+        XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -31)
+    }
 }
