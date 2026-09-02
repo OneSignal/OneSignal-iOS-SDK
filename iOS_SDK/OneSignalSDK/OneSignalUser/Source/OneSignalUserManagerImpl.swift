@@ -96,6 +96,8 @@ import OneSignalNotifications
 @objc public protocol OSPushSubscription {
     var id: String? { get }
     var token: String? { get }
+    /// The user's preference combined with OS permission; a subscription the app owner disabled
+    /// through the REST API still reports true here.
     var optedIn: Bool { get }
 
     func optIn()

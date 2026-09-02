@@ -571,17 +571,33 @@ extension OSSubscriptionModel {
     /// Records the server's disable code unless `optIn()` cleared one and the server has not yet
     /// reported the subscription in another state; the user's explicit intent wins that race.
     private func recordRestApiDisable(_ code: Int) {
-        let clearedByUser = stateLock.withLock { state.restApiDisableClearedByUser }
-        guard !clearedByUser else {
+        let changed: Bool = stateLock.withLock {
+            guard !state.restApiDisableClearedByUser, state.restApiDisabledReason != code else {
+                return false
+            }
+            state.restApiDisabledReason = code
+            return true
+        }
+        guard changed else {
             return
         }
-        restApiDisabledReason = code
+        self.set(property: "restApiDisabledReason", newValue: code, preventServerUpdate: true)
     }
 
     /// Clears `restApiDisabledReason` and re-arms recording once the server reports a non-disabled state.
     private func acceptServerNonDisabledState() {
-        restApiDisabledReason = nil
-        stateLock.withLock { state.restApiDisableClearedByUser = false }
+        let changed: Bool = stateLock.withLock {
+            state.restApiDisableClearedByUser = false
+            guard state.restApiDisabledReason != nil else {
+                return false
+            }
+            state.restApiDisabledReason = nil
+            return true
+        }
+        guard changed else {
+            return
+        }
+        self.set(property: "restApiDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
     }
     /// notification_types for outgoing payloads: the recorded disable code (the positive device
     /// value would re-enable it), else the device value, nil for the -1 default.
@@ -632,11 +648,17 @@ extension OSSubscriptionModel {
      subscription. Called from `optIn()`, where a deliberate user action overrides the suppression.
      */
     func clearRestApiDisable() {
-        let oldValue = swapValue(\.restApiDisabledReason, to: nil)
+        let oldValue: Int? = stateLock.withLock {
+            guard let recorded = state.restApiDisabledReason else {
+                return nil
+            }
+            state.restApiDisabledReason = nil
+            state.restApiDisableClearedByUser = true
+            return recorded
+        }
         guard oldValue != nil else {
             return
         }
-        stateLock.withLock { state.restApiDisableClearedByUser = true }
         self.set(property: "restApiDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
         firePushSubscriptionChanged(.restApiDisabledReason(oldValue))
     }
