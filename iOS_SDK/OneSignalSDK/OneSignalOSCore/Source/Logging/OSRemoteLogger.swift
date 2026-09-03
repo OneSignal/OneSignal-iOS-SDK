@@ -209,6 +209,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let logger: IOSLogger
     private let lifecycle: OSRemoteLoggerLifecycle
     private let eventRecorder: OSSdkEventRecorderAttaching
+    /// Guarded by `lifecycleOperationLock`. The recorder is shared across instances, and a logger
+    /// that lost the install race is shut down without ever starting; it must not detach the winner.
+    private var didAttachEventRecorder = false
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
@@ -360,6 +363,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         crashHandler.initialize()
         // Events ride this telemetry, so the recorder follows it here and in shutdown().
         eventRecorder.attach(telemetry)
+        didAttachEventRecorder = true
         lifecycleOperationLock.unlock()
         let owner = uploaderOwner
         let crashUploader = self.crashUploader
@@ -445,7 +449,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
-        eventRecorder.detach()
+        if didAttachEventRecorder {
+            eventRecorder.detach(telemetry)
+            didAttachEventRecorder = false
+        }
         lifecycleOperationLock.unlock()
 
         // `telemetry.shutdown()` blocks for up to five seconds draining buffered

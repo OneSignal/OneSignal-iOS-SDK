@@ -28,7 +28,7 @@
 import Foundation
 import OneSignalCore
 import OneSignalKMP
-@testable import OneSignalOSCore
+@_spi(OneSignalInternal) @testable import OneSignalOSCore
 import XCTest
 
 /// Stands in for the remote telemetry and records what the shared KMP recorder emits.
@@ -61,18 +61,41 @@ private final class TelemetrySpy: ILogTelemetry {
 /// Observes the seam `OSRemoteLogger` drives.
 private final class EventRecorderSpy: OSSdkEventRecorderAttaching {
     private(set) var attached: [ILogTelemetry] = []
-    private(set) var detachCount = 0
+    private(set) var detached: [ILogTelemetry] = []
 
     func attach(_ telemetry: ILogTelemetry) {
         attached.append(telemetry)
     }
 
-    func detach() {
-        detachCount += 1
+    func detach(_ telemetry: ILogTelemetry) {
+        detached.append(telemetry)
     }
 }
 
 final class OSSdkEventRecorderTests: XCTestCase {
+    override func tearDown() {
+        OSFeatureManager.didConstructForTesting = nil
+        OSFeatureManager.reset()
+        OSFeatureFlagsStore.shared.clear()
+        super.tearDown()
+    }
+
+    private func makeRemoteLogger(recorder: EventRecorderSpy) -> OSRemoteLogger {
+        OSRemoteLogger(
+            installIdProvider: { "install-id" },
+            onesignalIdProvider: { nil },
+            pushSubscriptionIdProvider: { nil },
+            appStateProvider: { "foreground" },
+            featureFlagsProvider: { [] },
+            remoteLogLevelProvider: { nil },
+            exporterLoggingEnabledProvider: { false },
+            requestSenderOverride: { _, completion in completion(nil, nil, nil) },
+            eventRecorder: recorder
+        )
+    }
+
+    // MARK: - Recording through the shared KMP recorder
+
     func testRecordShipsAnInfoRecordNamedAfterTheEvent() throws {
         let telemetry = TelemetrySpy()
         telemetry.emitExpectation = expectation(description: "emits the event")
@@ -121,65 +144,119 @@ final class OSSdkEventRecorderTests: XCTestCase {
 
     func testDetachHoldsEventsUntilTheNextAttach() {
         let first = TelemetrySpy()
-        first.emitExpectation = expectation(description: "the detached telemetry stays silent")
-        first.emitExpectation?.isInverted = true
         let second = TelemetrySpy()
         second.emitExpectation = expectation(description: "the next telemetry receives the held event")
         let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
         recorder.attach(first)
-        recorder.detach()
+        recorder.detach(first)
 
         recorder.record(event: .deviceGesture, attributes: [:])
         recorder.attach(second)
 
-        wait(for: [first.emitExpectation!, second.emitExpectation!], timeout: 2)
+        wait(for: [second.emitExpectation!], timeout: 2)
         XCTAssertTrue(first.records.isEmpty)
         XCTAssertEqual(second.records.count, 1)
     }
 
-    func testRemoteLoggerAttachesOnStartAndDetachesOnShutdown() {
-        let recorder = EventRecorderSpy()
-        let logger = OSRemoteLogger(
-            installIdProvider: { "install-id" },
-            onesignalIdProvider: { nil },
-            pushSubscriptionIdProvider: { nil },
-            appStateProvider: { "foreground" },
-            featureFlagsProvider: { [] },
-            remoteLogLevelProvider: { nil },
-            exporterLoggingEnabledProvider: { false },
-            requestSenderOverride: { _, completion in completion(nil, nil, nil) },
-            eventRecorder: recorder
+    func testDetachOfTelemetryThatIsNotAttachedIsIgnored() {
+        let winner = TelemetrySpy()
+        winner.emitExpectation = expectation(description: "the attached telemetry still receives the event")
+        let loser = TelemetrySpy()
+        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        recorder.attach(winner)
+
+        recorder.detach(loser)
+        recorder.record(event: .deviceGesture, attributes: [:])
+
+        wait(for: [winner.emitExpectation!], timeout: 2)
+        XCTAssertEqual(winner.records.count, 1)
+        XCTAssertTrue(loser.records.isEmpty)
+    }
+
+    func testResetDropsTheQueue() {
+        let telemetry = TelemetrySpy()
+        telemetry.emitExpectation = expectation(description: "nothing from before the reset")
+        telemetry.emitExpectation?.isInverted = true
+        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        recorder.record(event: .deviceGesture, attributes: ["n": "old app"])
+
+        recorder.reset()
+        recorder.attach(telemetry)
+
+        wait(for: [telemetry.emitExpectation!], timeout: 0.2)
+        XCTAssertTrue(telemetry.records.isEmpty)
+    }
+
+    // MARK: - The flag read
+
+    func testTheFlagReadDoesNotConstructTheFeatureManager() {
+        OSFeatureManager.reset()
+        var constructed = false
+        OSFeatureManager.didConstructForTesting = { constructed = true }
+
+        let enabled = OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key)
+
+        XCTAssertFalse(enabled)
+        XCTAssertFalse(constructed)
+    }
+
+    func testTheFlagReadSeesTheBuiltFeatureManager() {
+        OSFeatureManager.reset()
+        OSFeatureFlagsStore.shared.applyRemoteFlags([FeatureFlag.sdkEventDeviceGesture.key], metadata: nil)
+        _ = OSFeatureManager.shared
+
+        XCTAssertTrue(OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key))
+        XCTAssertFalse(OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkIdentityVerification.key))
+    }
+
+    // MARK: - The mirror enum
+
+    func testTheMirrorEnumMatchesTheKmpCatalog() {
+        // A KMP event added without a Swift case, or the reverse, fails here instead of compiling silently.
+        XCTAssertEqual(
+            Set(OSSdkEvent.allCases.map { $0.eventName }),
+            Set(SdkEvent.entries.map { $0.eventName })
         )
+        XCTAssertEqual(OSSdkEvent.allCases.count, SdkEvent.entries.count)
+    }
+
+    // MARK: - The remote logger seam
+
+    func testRemoteLoggerAttachesOnStartAndDetachesTheSameTelemetryOnShutdown() {
+        let recorder = EventRecorderSpy()
+        let logger = makeRemoteLogger(recorder: recorder)
 
         logger.start()
         XCTAssertEqual(recorder.attached.count, 1)
-        XCTAssertEqual(recorder.detachCount, 0)
+        XCTAssertTrue(recorder.detached.isEmpty)
 
         logger.shutdown()
-        XCTAssertEqual(recorder.detachCount, 1)
-        XCTAssertEqual(recorder.attached.count, 1)
+        XCTAssertEqual(recorder.detached.count, 1)
+        XCTAssertTrue((recorder.detached.first as AnyObject?) === (recorder.attached.first as AnyObject?))
     }
 
     func testRemoteLoggerDetachesOnlyOncePerShutdown() {
         let recorder = EventRecorderSpy()
-        let logger = OSRemoteLogger(
-            installIdProvider: { "install-id" },
-            onesignalIdProvider: { nil },
-            pushSubscriptionIdProvider: { nil },
-            appStateProvider: { "foreground" },
-            featureFlagsProvider: { [] },
-            remoteLogLevelProvider: { nil },
-            exporterLoggingEnabledProvider: { false },
-            requestSenderOverride: { _, completion in completion(nil, nil, nil) },
-            eventRecorder: recorder
-        )
+        let logger = makeRemoteLogger(recorder: recorder)
         logger.start()
 
         logger.shutdown()
         logger.shutdown()
         logger.start()
 
-        XCTAssertEqual(recorder.detachCount, 1)
+        XCTAssertEqual(recorder.detached.count, 1)
         XCTAssertEqual(recorder.attached.count, 1)
+    }
+
+    func testRemoteLoggerThatNeverStartedDoesNotDetachOnShutdown() {
+        // The controller shuts down a logger that lost the install race without starting it,
+        // while the winner is attached to the shared recorder.
+        let recorder = EventRecorderSpy()
+        let logger = makeRemoteLogger(recorder: recorder)
+
+        logger.shutdown()
+
+        XCTAssertTrue(recorder.attached.isEmpty)
+        XCTAssertTrue(recorder.detached.isEmpty)
     }
 }

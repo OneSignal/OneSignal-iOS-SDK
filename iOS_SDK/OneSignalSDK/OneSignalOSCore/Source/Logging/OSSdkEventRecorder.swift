@@ -31,12 +31,19 @@ import OneSignalCore
 
 /// Mirrors the KMP `SdkEvent` catalog so a call site can name an event without seeing KMP
 /// types, which this module imports implementation-only.
-public enum OSSdkEvent {
+@_spi(OneSignalInternal)
+public enum OSSdkEvent: CaseIterable {
     /// Temporary: comes out once its usage question is answered.
     case deviceGesture
+
+    /// The `event.name` of the KMP entry, so a test can check the mirror against the catalog.
+    var eventName: String {
+        kmpEvent.eventName
+    }
 }
 
 /// The producer-facing contract, so a call site can take a spy in tests.
+@_spi(OneSignalInternal)
 public protocol OSSdkEventRecorderProtocol: AnyObject {
     /// Never throws or blocks. Drops when the event's flag is off or the per-process cap is
     /// reached; queues, bounded, until remote telemetry is attached.
@@ -46,38 +53,67 @@ public protocol OSSdkEventRecorderProtocol: AnyObject {
 /// The attach side, driven by `OSRemoteLogger`. Internal because the telemetry is a KMP type.
 protocol OSSdkEventRecorderAttaching: AnyObject {
     func attach(_ telemetry: ILogTelemetry)
-    func detach()
+
+    /// Ignored unless `telemetry` is the attached one, so a logger that lost the install race
+    /// cannot detach the winner.
+    func detach(_ telemetry: ILogTelemetry)
 }
 
-/// Wraps the shared KMP recorder, which owns the flag check, the pre-attach queue and the session
-/// cap. Events ride the remote logger's telemetry, so they share the crash gate rather than the
-/// severity filter.
+/// Wraps the shared KMP recorder, which owns the flag check, the pre-attach queue and the
+/// per-process cap. Events ride the remote logger's telemetry, so they share the crash gate
+/// rather than the severity filter.
+@_spi(OneSignalInternal)
 public final class OSSdkEventRecorder: OSSdkEventRecorderProtocol, OSSdkEventRecorderAttaching {
-    /// Reads the feature manager per record, so an IMMEDIATE flag turned off remotely stops the next one.
-    public static let shared = OSSdkEventRecorder(isFeatureEnabled: { key in
-        OSFeatureManager.shared.isEnabled(featureKey: key)
-    })
+    public static let shared = OSSdkEventRecorder(isFeatureEnabled: featureIsEnabledIfInitialized)
 
     private let recorder: ISdkEventRecorder
 
     /// - Parameter isFeatureEnabled: the feature-manager read for a catalog flag key.
     init(isFeatureEnabled: @escaping (String) -> Bool) {
+        // Console-only logger: `attach` runs under the remote logger's lifecycle lock, and
+        // `OneSignalLog` reaches app listeners synchronously, so a listener that re-enters the
+        // SDK would deadlock on that lock.
         recorder = LoggerFactory.shared.createEventRecorder(
-            isEnabled: { event in KotlinBoolean(bool: isFeatureEnabled(event.flag.key)) },
-            logger: IOSLogger()
+            gate: OSSdkEventGate(isFeatureEnabled: isFeatureEnabled),
+            logger: OSCrashLogger()
         )
+    }
+
+    /// Never constructs the feature manager: first touch latches every APP_STARTUP flag from
+    /// whatever storage returns, and a record can arrive from any thread at any time. Off until
+    /// the manager exists, which is also the documented state before the first flags fetch.
+    static func featureIsEnabledIfInitialized(_ key: String) -> Bool {
+        OSFeatureManager.enabledFeatureKeysIfInitialized().contains(key)
     }
 
     public func record(event: OSSdkEvent, attributes: [String: String]) {
         recorder.record(event: event.kmpEvent, attributes: attributes)
     }
 
+    /// Drops whatever an earlier app id queued; called beside the other app-id-change resets.
+    public func reset() {
+        recorder.reset()
+    }
+
     func attach(_ telemetry: ILogTelemetry) {
         recorder.attach(telemetry: telemetry)
     }
 
-    func detach() {
-        recorder.detach()
+    func detach(_ telemetry: ILogTelemetry) {
+        recorder.detach(telemetry: telemetry)
+    }
+}
+
+/// Bridges the host's flag read to the KMP gate so the feature-key string stays on this side.
+private final class OSSdkEventGate: ISdkEventGate {
+    private let isFeatureEnabled: (String) -> Bool
+
+    init(isFeatureEnabled: @escaping (String) -> Bool) {
+        self.isFeatureEnabled = isFeatureEnabled
+    }
+
+    func isEnabled(event: SdkEvent) -> Bool {
+        isFeatureEnabled(event.flag.key)
     }
 }
 
