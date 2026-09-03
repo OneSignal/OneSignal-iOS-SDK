@@ -208,6 +208,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let crashUploader: LogCrashUploader
     private let logger: IOSLogger
     private let lifecycle: OSRemoteLoggerLifecycle
+    private let eventSink: OSSdkEventSinkAttaching
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
@@ -262,7 +263,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
     }
 
-    private init(
+    /// Internal rather than private so tests can stand in an event sink; the public
+    /// convenience initializers above are the only production entry points.
+    init(
         installIdProvider: @escaping () -> String,
         onesignalIdProvider: @escaping () -> String?,
         pushSubscriptionIdProvider: @escaping () -> String?,
@@ -270,7 +273,8 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         featureFlagsProvider: @escaping () -> [String],
         remoteLogLevelProvider: @escaping () -> String?,
         exporterLoggingEnabledProvider: @escaping () -> Bool,
-        requestSenderOverride: RequestSender?
+        requestSenderOverride: RequestSender?,
+        eventSink: OSSdkEventSinkAttaching = OSSdkEventRecorder.shared
     ) {
         let provider = OSLoggerPlatformProvider(
             installIdProvider: installIdProvider,
@@ -320,6 +324,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         self.crashUploader = crashUploader
         self.logger = logger
         self.lifecycle = lifecycle
+        self.eventSink = eventSink
     }
 
     private static func makeHttpSender(
@@ -354,6 +359,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         }
 
         crashHandler.initialize()
+        // Named events ride this telemetry, the sink log lines and crash records use, so the
+        // recorder follows it: attached here, detached in `shutdown()`. Anything recorded in
+        // between waits in the recorder's own queue.
+        eventSink.attach(telemetry)
         lifecycleOperationLock.unlock()
         let owner = uploaderOwner
         let crashUploader = self.crashUploader
@@ -439,6 +448,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
+        eventSink.detach()
         lifecycleOperationLock.unlock()
 
         // `telemetry.shutdown()` blocks for up to five seconds draining buffered
