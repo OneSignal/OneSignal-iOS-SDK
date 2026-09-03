@@ -141,6 +141,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)clearStatics {
     [OSRemoteLoggingController reset];
     [OSFeatureFlagsRefreshService reset];
+    [OSDeviceGestureDetector reset];
     [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
@@ -580,6 +581,7 @@ static BOOL ComputeInitialStorageReadable(void) {
             [OneSignal startLiveActivitiesManager];
             [OneSignal startInAppMessages];
             StartFeatureFlagsRefresh();
+            [OSDeviceGestureDetector start];
             [OneSignal startNewSession:YES];
         };
 
@@ -681,6 +683,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         [self startLiveActivitiesManager];
         [self startInAppMessages];
         StartFeatureFlagsRefresh();
+        [OSDeviceGestureDetector start];
     }
     [self startNewSession:YES];
     
