@@ -208,7 +208,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let crashUploader: LogCrashUploader
     private let logger: IOSLogger
     private let lifecycle: OSRemoteLoggerLifecycle
-    private let eventRecorder: OSSdkEventRecorderAttaching
+    private let eventRecorder: OSObservabilityEventRecorderAttaching
     /// Guarded by `lifecycleOperationLock`. The recorder is shared across instances, and a logger
     /// that lost the install race is shut down without ever starting; it must not detach the winner.
     private var didAttachEventRecorder = false
@@ -276,7 +276,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         remoteLogLevelProvider: @escaping () -> String?,
         exporterLoggingEnabledProvider: @escaping () -> Bool,
         requestSenderOverride: RequestSender?,
-        eventRecorder: OSSdkEventRecorderAttaching = OSSdkEventRecorder.shared
+        eventRecorder: OSObservabilityEventRecorderAttaching = OSObservabilityEventRecorder.shared
     ) {
         let provider = OSLoggerPlatformProvider(
             installIdProvider: installIdProvider,

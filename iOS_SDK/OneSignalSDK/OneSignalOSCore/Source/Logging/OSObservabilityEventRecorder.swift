@@ -29,10 +29,10 @@ import Foundation
 import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
-/// Mirrors the KMP `SdkEvent` catalog so a call site can name an event without seeing KMP
+/// Mirrors the KMP `ObservabilityEvent` catalog so a call site can name an event without seeing KMP
 /// types, which this module imports implementation-only.
 @_spi(OneSignalInternal)
-public enum OSSdkEvent: CaseIterable {
+public enum OSObservabilityEvent: CaseIterable {
     /// Temporary: comes out once its usage question is answered.
     case deviceGesture
 
@@ -44,14 +44,14 @@ public enum OSSdkEvent: CaseIterable {
 
 /// The producer-facing contract, so a call site can take a spy in tests.
 @_spi(OneSignalInternal)
-public protocol OSSdkEventRecorderProtocol: AnyObject {
+public protocol OSObservabilityEventRecorderProtocol: AnyObject {
     /// Never throws or blocks. Drops when the event's flag is off or the per-process cap is
     /// reached; queues, bounded, until remote telemetry is attached.
-    func record(event: OSSdkEvent, attributes: [String: String])
+    func record(event: OSObservabilityEvent, attributes: [String: String])
 }
 
 /// The attach side, driven by `OSRemoteLogger`. Internal because the telemetry is a KMP type.
-protocol OSSdkEventRecorderAttaching: AnyObject {
+protocol OSObservabilityEventRecorderAttaching: AnyObject {
     func attach(_ telemetry: ILogTelemetry)
 
     /// Ignored unless `telemetry` is the attached one, so a logger that lost the install race
@@ -63,18 +63,18 @@ protocol OSSdkEventRecorderAttaching: AnyObject {
 /// per-process cap. Events ride the remote logger's telemetry, so they share the crash gate
 /// rather than the severity filter.
 @_spi(OneSignalInternal)
-public final class OSSdkEventRecorder: OSSdkEventRecorderProtocol, OSSdkEventRecorderAttaching {
-    public static let shared = OSSdkEventRecorder(isFeatureEnabled: featureIsEnabledIfInitialized)
+public final class OSObservabilityEventRecorder: OSObservabilityEventRecorderProtocol, OSObservabilityEventRecorderAttaching {
+    public static let shared = OSObservabilityEventRecorder(isFeatureEnabled: featureIsEnabledIfInitialized)
 
-    private let recorder: ISdkEventRecorder
+    private let recorder: IObservabilityEventRecorder
 
     /// - Parameter isFeatureEnabled: the feature-manager read for a catalog flag key.
     init(isFeatureEnabled: @escaping (String) -> Bool) {
         // Console-only logger: `attach` runs under the remote logger's lifecycle lock, and
         // `OneSignalLog` reaches app listeners synchronously, so a listener that re-enters the
         // SDK would deadlock on that lock.
-        recorder = LoggerFactory.shared.createEventRecorder(
-            gate: OSSdkEventGate(isFeatureEnabled: isFeatureEnabled),
+        recorder = LoggerFactory.shared.createObservabilityEventRecorder(
+            gate: OSObservabilityEventGate(isFeatureEnabled: isFeatureEnabled),
             logger: OSCrashLogger()
         )
     }
@@ -86,7 +86,7 @@ public final class OSSdkEventRecorder: OSSdkEventRecorderProtocol, OSSdkEventRec
         OSFeatureManager.enabledFeatureKeysIfInitialized().contains(key)
     }
 
-    public func record(event: OSSdkEvent, attributes: [String: String]) {
+    public func record(event: OSObservabilityEvent, attributes: [String: String]) {
         recorder.record(event: event.kmpEvent, attributes: attributes)
     }
 
@@ -105,20 +105,20 @@ public final class OSSdkEventRecorder: OSSdkEventRecorderProtocol, OSSdkEventRec
 }
 
 /// Bridges the host's flag read to the KMP gate so the feature-key string stays on this side.
-private final class OSSdkEventGate: ISdkEventGate {
+private final class OSObservabilityEventGate: IObservabilityEventGate {
     private let isFeatureEnabled: (String) -> Bool
 
     init(isFeatureEnabled: @escaping (String) -> Bool) {
         self.isFeatureEnabled = isFeatureEnabled
     }
 
-    func isEnabled(event: SdkEvent) -> Bool {
+    func isEnabled(event: ObservabilityEvent) -> Bool {
         isFeatureEnabled(event.flag.key)
     }
 }
 
-private extension OSSdkEvent {
-    var kmpEvent: SdkEvent {
+private extension OSObservabilityEvent {
+    var kmpEvent: ObservabilityEvent {
         switch self {
         case .deviceGesture:
             return .deviceGesture

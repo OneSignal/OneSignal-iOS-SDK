@@ -59,7 +59,7 @@ private final class TelemetrySpy: ILogTelemetry {
 }
 
 /// Observes the seam `OSRemoteLogger` drives.
-private final class EventRecorderSpy: OSSdkEventRecorderAttaching {
+private final class EventRecorderSpy: OSObservabilityEventRecorderAttaching {
     private(set) var attached: [ILogTelemetry] = []
     private(set) var detached: [ILogTelemetry] = []
 
@@ -72,7 +72,7 @@ private final class EventRecorderSpy: OSSdkEventRecorderAttaching {
     }
 }
 
-final class OSSdkEventRecorderTests: XCTestCase {
+final class OSObservabilityEventRecorderTests: XCTestCase {
     override func tearDown() {
         OSFeatureManager.didConstructForTesting = nil
         OSFeatureManager.reset()
@@ -100,7 +100,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         let telemetry = TelemetrySpy()
         telemetry.emitExpectation = expectation(description: "emits the event")
         var askedKeys: [String] = []
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { key in
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { key in
             askedKeys.append(key)
             return true
         })
@@ -121,7 +121,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         let telemetry = TelemetrySpy()
         telemetry.emitExpectation = expectation(description: "does not emit")
         telemetry.emitExpectation?.isInverted = true
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in false })
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { _ in false })
         recorder.attach(telemetry)
 
         recorder.record(event: .deviceGesture, attributes: [:])
@@ -133,7 +133,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
     func testEventsRecordedBeforeAttachFlushOnAttach() {
         let telemetry = TelemetrySpy()
         telemetry.emitExpectation = expectation(description: "flushes the queue")
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { _ in true })
 
         recorder.record(event: .deviceGesture, attributes: ["n": "1"])
         recorder.attach(telemetry)
@@ -146,7 +146,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         let first = TelemetrySpy()
         let second = TelemetrySpy()
         second.emitExpectation = expectation(description: "the next telemetry receives the held event")
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { _ in true })
         recorder.attach(first)
         recorder.detach(first)
 
@@ -162,7 +162,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         let winner = TelemetrySpy()
         winner.emitExpectation = expectation(description: "the attached telemetry still receives the event")
         let loser = TelemetrySpy()
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { _ in true })
         recorder.attach(winner)
 
         recorder.detach(loser)
@@ -177,7 +177,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         let telemetry = TelemetrySpy()
         telemetry.emitExpectation = expectation(description: "nothing from before the reset")
         telemetry.emitExpectation?.isInverted = true
-        let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
+        let recorder = OSObservabilityEventRecorder(isFeatureEnabled: { _ in true })
         recorder.record(event: .deviceGesture, attributes: ["n": "old app"])
 
         recorder.reset()
@@ -194,7 +194,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         var constructed = false
         OSFeatureManager.didConstructForTesting = { constructed = true }
 
-        let enabled = OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key)
+        let enabled = OSObservabilityEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key)
 
         XCTAssertFalse(enabled)
         XCTAssertFalse(constructed)
@@ -205,8 +205,8 @@ final class OSSdkEventRecorderTests: XCTestCase {
         OSFeatureFlagsStore.shared.applyRemoteFlags([FeatureFlag.sdkEventDeviceGesture.key], metadata: nil)
         _ = OSFeatureManager.shared
 
-        XCTAssertTrue(OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key))
-        XCTAssertFalse(OSSdkEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkIdentityVerification.key))
+        XCTAssertTrue(OSObservabilityEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkEventDeviceGesture.key))
+        XCTAssertFalse(OSObservabilityEventRecorder.featureIsEnabledIfInitialized(FeatureFlag.sdkIdentityVerification.key))
     }
 
     // MARK: - The mirror enum
@@ -214,10 +214,10 @@ final class OSSdkEventRecorderTests: XCTestCase {
     func testTheMirrorEnumMatchesTheKmpCatalog() {
         // A KMP event added without a Swift case, or the reverse, fails here instead of compiling silently.
         XCTAssertEqual(
-            Set(OSSdkEvent.allCases.map { $0.eventName }),
-            Set(SdkEvent.entries.map { $0.eventName })
+            Set(OSObservabilityEvent.allCases.map { $0.eventName }),
+            Set(ObservabilityEvent.entries.map { $0.eventName })
         )
-        XCTAssertEqual(OSSdkEvent.allCases.count, SdkEvent.entries.count)
+        XCTAssertEqual(OSObservabilityEvent.allCases.count, ObservabilityEvent.entries.count)
     }
 
     // MARK: - The remote logger seam
