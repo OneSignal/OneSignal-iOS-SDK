@@ -59,7 +59,7 @@ private final class TelemetrySpy: ILogTelemetry {
 }
 
 /// Observes the seam `OSRemoteLogger` drives.
-private final class EventSinkSpy: OSSdkEventSinkAttaching {
+private final class EventRecorderSpy: OSSdkEventRecorderAttaching {
     private(set) var attached: [ILogTelemetry] = []
     private(set) var detachCount = 0
 
@@ -121,10 +121,10 @@ final class OSSdkEventRecorderTests: XCTestCase {
 
     func testDetachHoldsEventsUntilTheNextAttach() {
         let first = TelemetrySpy()
-        first.emitExpectation = expectation(description: "the detached sink stays silent")
+        first.emitExpectation = expectation(description: "the detached telemetry stays silent")
         first.emitExpectation?.isInverted = true
         let second = TelemetrySpy()
-        second.emitExpectation = expectation(description: "the next sink receives the held event")
+        second.emitExpectation = expectation(description: "the next telemetry receives the held event")
         let recorder = OSSdkEventRecorder(isFeatureEnabled: { _ in true })
         recorder.attach(first)
         recorder.detach()
@@ -138,7 +138,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
     }
 
     func testRemoteLoggerAttachesOnStartAndDetachesOnShutdown() {
-        let sink = EventSinkSpy()
+        let recorder = EventRecorderSpy()
         let logger = OSRemoteLogger(
             installIdProvider: { "install-id" },
             onesignalIdProvider: { nil },
@@ -148,20 +148,20 @@ final class OSSdkEventRecorderTests: XCTestCase {
             remoteLogLevelProvider: { nil },
             exporterLoggingEnabledProvider: { false },
             requestSenderOverride: { _, completion in completion(nil, nil, nil) },
-            eventSink: sink
+            eventRecorder: recorder
         )
 
         logger.start()
-        XCTAssertEqual(sink.attached.count, 1)
-        XCTAssertEqual(sink.detachCount, 0)
+        XCTAssertEqual(recorder.attached.count, 1)
+        XCTAssertEqual(recorder.detachCount, 0)
 
         logger.shutdown()
-        XCTAssertEqual(sink.detachCount, 1)
-        XCTAssertEqual(sink.attached.count, 1)
+        XCTAssertEqual(recorder.detachCount, 1)
+        XCTAssertEqual(recorder.attached.count, 1)
     }
 
     func testRemoteLoggerDetachesOnlyOncePerShutdown() {
-        let sink = EventSinkSpy()
+        let recorder = EventRecorderSpy()
         let logger = OSRemoteLogger(
             installIdProvider: { "install-id" },
             onesignalIdProvider: { nil },
@@ -171,7 +171,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
             remoteLogLevelProvider: { nil },
             exporterLoggingEnabledProvider: { false },
             requestSenderOverride: { _, completion in completion(nil, nil, nil) },
-            eventSink: sink
+            eventRecorder: recorder
         )
         logger.start()
 
@@ -179,7 +179,7 @@ final class OSSdkEventRecorderTests: XCTestCase {
         logger.shutdown()
         logger.start()
 
-        XCTAssertEqual(sink.detachCount, 1)
-        XCTAssertEqual(sink.attached.count, 1)
+        XCTAssertEqual(recorder.detachCount, 1)
+        XCTAssertEqual(recorder.attached.count, 1)
     }
 }
