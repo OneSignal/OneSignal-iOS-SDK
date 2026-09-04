@@ -114,7 +114,7 @@ final class OSObservabilityEventRecorderTests: XCTestCase {
         XCTAssertEqual(record.body, "sdk.device_gesture")
         XCTAssertEqual(record.attributes["event.name"], "sdk.device_gesture")
         XCTAssertEqual(record.attributes["gesture.result"], "copied")
-        XCTAssertEqual(askedKeys, ["sdk_event_device_gesture_enabled"])
+        XCTAssertEqual(askedKeys, ["sdk_event_device_gesture"])
     }
 
     func testRecordDropsWhenTheEventFlagIsOff() {
