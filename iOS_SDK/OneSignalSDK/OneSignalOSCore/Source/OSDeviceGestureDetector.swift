@@ -43,6 +43,9 @@ import UIKit
 /// means enabled, so a device that has never fetched flags still has it. Reads the raw
 /// `OSFeatureFlagsStore` list because `OSFeatureManager` only resolves keys the KMP catalog
 /// registers.
+///
+/// Every recognised gesture also records `OSObservabilityEvent.deviceGesture`, with its outcome
+/// and the copied ID, so the gesture's usage can be measured.
 @objc(OSDeviceGestureDetector)
 public final class OSDeviceGestureDetector: NSObject {
     static let requiredCycles = 6
@@ -79,6 +82,7 @@ public final class OSDeviceGestureDetector: NSObject {
     private let subscriptionIdProvider: () -> String?
     private let shouldAwaitProvider: () -> Bool
     private let pasteboardWriter: (String) -> Void
+    private let eventRecorder: OSObservabilityEventRecorderProtocol
 
     private let stateLock = NSLock()
     private var started = false
@@ -98,7 +102,8 @@ public final class OSDeviceGestureDetector: NSObject {
         shouldAwaitProvider: @escaping () -> Bool = {
             OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil)
         },
-        pasteboardWriter: @escaping (String) -> Void = OSDeviceGestureDetector.writeToGeneralPasteboard
+        pasteboardWriter: @escaping (String) -> Void = OSDeviceGestureDetector.writeToGeneralPasteboard,
+        eventRecorder: OSObservabilityEventRecorderProtocol = OSObservabilityEventRecorder.shared
     ) {
         self.notificationCenter = notificationCenter
         self.mainQueue = mainQueue
@@ -107,6 +112,7 @@ public final class OSDeviceGestureDetector: NSObject {
         self.subscriptionIdProvider = subscriptionIdProvider
         self.shouldAwaitProvider = shouldAwaitProvider
         self.pasteboardWriter = pasteboardWriter
+        self.eventRecorder = eventRecorder
         super.init()
     }
 
@@ -225,6 +231,7 @@ public final class OSDeviceGestureDetector: NSObject {
             guard let self, !self.stateLock.withLock({ self.invalidated }) else {
                 return
             }
+            // Not recorded either: without an app id or consent, nothing about the device may ship.
             guard !self.shouldAwaitProvider() else {
                 OneSignalLog.onesignalLog(
                     .LL_DEBUG,
@@ -237,6 +244,7 @@ public final class OSDeviceGestureDetector: NSObject {
             }
             guard !disabled else {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSDeviceGestureDetector: gesture detected but disabled remotely")
+                self.recordGesture(.disabled)
                 return
             }
             guard let subscriptionId = self.subscriptionIdProvider(), !subscriptionId.isEmpty else {
@@ -244,11 +252,29 @@ public final class OSDeviceGestureDetector: NSObject {
                     .LL_INFO,
                     message: "OSDeviceGestureDetector: gesture detected before the push subscription exists, nothing copied"
                 )
+                self.recordGesture(.noId)
                 return
             }
             self.pasteboardWriter(Self.clipText(subscriptionId: subscriptionId))
             OneSignalLog.onesignalLog(.LL_INFO, message: "OSDeviceGestureDetector: push subscription ID copied to the pasteboard")
+            self.recordGesture(.copied, copiedId: subscriptionId)
         }
+    }
+
+    /// Wire values of `gesture.result`, which backend queries match on.
+    private enum GestureResult: String {
+        case copied
+        case noId = "no_id"
+        case disabled
+    }
+
+    /// Recorded once the outcome is known, so `copied` means the pasteboard write went through.
+    private func recordGesture(_ result: GestureResult, copiedId: String? = nil) {
+        var attributes = ["gesture.result": result.rawValue]
+        if let copiedId {
+            attributes["gesture.push_subscription_id"] = copiedId
+        }
+        eventRecorder.record(event: .deviceGesture, attributes: attributes)
     }
 
     /// The `os:` prefix marks the value as a OneSignal ID, for the dashboard's paste target and for
