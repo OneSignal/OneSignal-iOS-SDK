@@ -41,10 +41,8 @@ import UIKit
 /// synthetic sub-millisecond pair. The window is the only rate rule; six cycles inside it
 /// takes sustained five-second round trips.
 ///
-/// Adding `killSwitchKey` to the app's enabled feature keys disables the gesture. Absent
-/// means enabled, so a device that has never fetched flags still has it. Reads the raw
-/// `OSFeatureFlagsStore` list because `OSFeatureManager` only resolves keys the KMP catalog
-/// registers.
+/// The `killSwitchKey` catalog flag turns the gesture off. Absent means enabled, so a device
+/// that has never fetched flags still has it.
 ///
 /// Every recognised gesture also records `OSObservabilityEvent.deviceGesture`, with its outcome
 /// and the copied ID, so the gesture's usage can be measured.
@@ -80,7 +78,7 @@ public final class OSDeviceGestureDetector: NSObject {
     /// Monotonic clock, so wall-clock jumps from NTP or manual time changes cannot stretch
     /// or shrink the window.
     private let nowProvider: () -> TimeInterval
-    private let enabledFlagsProvider: () -> [String]
+    private let isDisabledRemotelyProvider: () -> Bool
     private let subscriptionIdProvider: () -> String?
     private let shouldAwaitProvider: () -> Bool
     private let pasteboardWriter: (String) -> Void
@@ -99,7 +97,9 @@ public final class OSDeviceGestureDetector: NSObject {
         notificationCenter: NotificationCenter = .default,
         mainQueue: OSDispatchQueue = DispatchQueue.main,
         nowProvider: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
-        enabledFlagsProvider: @escaping () -> [String] = { OSFeatureFlagsStore.shared.sdkRemoteFeatureFlags },
+        isDisabledRemotelyProvider: @escaping () -> Bool = {
+            OSFeatureManager.shared.isEnabled(featureKey: OSDeviceGestureDetector.killSwitchKey)
+        },
         subscriptionIdProvider: @escaping () -> String? = { OneSignalIdentifiers.subscriptionId },
         shouldAwaitProvider: @escaping () -> Bool = {
             OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil)
@@ -110,7 +110,7 @@ public final class OSDeviceGestureDetector: NSObject {
         self.notificationCenter = notificationCenter
         self.mainQueue = mainQueue
         self.nowProvider = nowProvider
-        self.enabledFlagsProvider = enabledFlagsProvider
+        self.isDisabledRemotelyProvider = isDisabledRemotelyProvider
         self.subscriptionIdProvider = subscriptionIdProvider
         self.shouldAwaitProvider = shouldAwaitProvider
         self.pasteboardWriter = pasteboardWriter
@@ -241,10 +241,7 @@ public final class OSDeviceGestureDetector: NSObject {
                 )
                 return
             }
-            let disabled = self.enabledFlagsProvider().contains {
-                $0.caseInsensitiveCompare(Self.killSwitchKey) == .orderedSame
-            }
-            guard !disabled else {
+            guard !self.isDisabledRemotelyProvider() else {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSDeviceGestureDetector: gesture detected but disabled remotely")
                 self.recordGesture(.disabled)
                 return
