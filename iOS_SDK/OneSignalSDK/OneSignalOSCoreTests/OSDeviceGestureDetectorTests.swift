@@ -44,6 +44,25 @@ private final class InlineQueue: OSDispatchQueue {
     }
 }
 
+/// Captures queued work so a test can tear the detector down before the write runs.
+private final class DeferringQueue: OSDispatchQueue {
+    private(set) var pending: [() -> Void] = []
+
+    func async(execute work: @escaping @convention(block) () -> Void) {
+        pending.append(work)
+    }
+
+    func asyncAfterTime(deadline: DispatchTime, execute work: @escaping @Sendable @convention(block) () -> Void) {
+        pending.append(work)
+    }
+
+    func drain() {
+        let work = pending
+        pending.removeAll()
+        work.forEach { $0() }
+    }
+}
+
 /// Counts live observer registrations so tests can assert teardown.
 private final class ObserverTrackingCenter: NotificationCenter {
     private(set) var liveObservers = 0
@@ -87,11 +106,11 @@ private final class Harness {
     let recorder = EventRecorderSpy()
     private(set) var detector: OSDeviceGestureDetector!
 
-    init(center: NotificationCenter = NotificationCenter()) {
+    init(center: NotificationCenter = NotificationCenter(), queue: OSDispatchQueue = InlineQueue()) {
         self.center = center
         detector = OSDeviceGestureDetector(
             notificationCenter: center,
-            mainQueue: InlineQueue(),
+            mainQueue: queue,
             nowProvider: { [unowned self] in self.now },
             isDisabledRemotelyProvider: { [unowned self] in self.killSwitchOn },
             subscriptionIdProvider: { [unowned self] in self.currentSubscriptionId },
@@ -283,12 +302,59 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
 
         harness.detector.tearDown()
         XCTAssertEqual(center.liveObservers, 0)
+    }
 
-        // Queued or in-flight gestures on a torn-down instance must not write.
+    func testTearDownDropsAWriteAlreadyQueued() {
+        // A gesture can complete just before a reset lands. The write is on the main queue by
+        // then, so the block itself has to notice the instance is gone.
+        let queue = DeferringQueue()
+        let harness = Harness(queue: queue)
+
         for _ in 1...6 {
             harness.cycle()
         }
+        XCTAssertEqual(queue.pending.count, 1)
         XCTAssertEqual(harness.writes, [])
+
+        harness.detector.tearDown()
+        queue.drain()
+
+        XCTAssertEqual(harness.writes, [])
+        XCTAssertEqual(harness.recorder.events, [])
+    }
+
+    func testTwoHundredFortyNineMillisecondsIsABlipAndTwoHundredFiftyIsACycle() {
+        // The floor is inclusive: exactly the minimum counts. Six blips leave the window empty,
+        // so the six real cycles right after still need all six.
+        let harness = Harness()
+
+        for _ in 1...6 {
+            harness.cycle(backgroundDwell: 0.249)
+        }
+        XCTAssertEqual(harness.writes, [])
+
+        for _ in 1...6 {
+            harness.cycle(backgroundDwell: 0.25)
+        }
+        XCTAssertEqual(harness.writes, [expectedWrite])
+    }
+
+    func testWindowIsInclusiveAtExactlyThirtySeconds() {
+        // Five 2s cycles complete at +2s..+10s. A sixth completing exactly 30s after the first
+        // still counts; one millisecond later the first has aged out and only five remain.
+        let exact = Harness()
+        for _ in 1...5 {
+            exact.cycle()
+        }
+        exact.cycle(backgroundDwell: 1.0, foregroundDwell: 21.0)
+        XCTAssertEqual(exact.writes, [expectedWrite])
+
+        let late = Harness()
+        for _ in 1...5 {
+            late.cycle()
+        }
+        late.cycle(backgroundDwell: 1.0, foregroundDwell: 21.001)
+        XCTAssertEqual(late.writes, [])
     }
 
     // MARK: - Observability event

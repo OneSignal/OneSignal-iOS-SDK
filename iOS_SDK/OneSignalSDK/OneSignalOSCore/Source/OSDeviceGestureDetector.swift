@@ -38,8 +38,8 @@ import UIKit
 /// A cycle is a `didEnterBackground`/`didBecomeActive` pair whose background phase lasts at
 /// least `minBackgroundDwellSeconds`. Pairing keeps `willResignActive`-only blips (Control
 /// Center, Face ID) from counting; the floor matches Android, where rotation emits a
-/// synthetic sub-millisecond pair. The window is the only rate rule; six cycles inside it
-/// takes sustained five-second round trips.
+/// synthetic sub-millisecond pair. The window is the only rate rule; six cycles fit inside it
+/// at round trips of five seconds or faster.
 ///
 /// The `killSwitchKey` catalog flag turns the gesture off. Absent means enabled, so a device
 /// that has never fetched flags still has it.
@@ -56,7 +56,7 @@ public final class OSDeviceGestureDetector: NSObject {
 
     static let killSwitchKey = "sdk_device_gesture_disabled"
 
-    /// Caps how long the gesture clobbers whatever the person had copied.
+    /// The copied ID expires after five minutes. Whatever it replaced is not restored.
     static let pasteboardExpirySeconds: TimeInterval = 300
 
     private static let lock = NSLock()
@@ -75,8 +75,9 @@ public final class OSDeviceGestureDetector: NSObject {
 
     private let notificationCenter: NotificationCenter
     private let mainQueue: OSDispatchQueue
-    /// Monotonic clock, so wall-clock jumps from NTP or manual time changes cannot stretch
-    /// or shrink the window.
+    /// Monotonic and keeps counting through sleep, so neither a wall-clock jump nor a nap can
+    /// stretch or shrink the window; `systemUptime` would stop at each lock and stitch visits
+    /// hours apart into one window.
     private let nowProvider: () -> TimeInterval
     private let isDisabledRemotelyProvider: () -> Bool
     private let subscriptionIdProvider: () -> String?
@@ -96,7 +97,9 @@ public final class OSDeviceGestureDetector: NSObject {
     init(
         notificationCenter: NotificationCenter = .default,
         mainQueue: OSDispatchQueue = DispatchQueue.main,
-        nowProvider: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
+        nowProvider: @escaping () -> TimeInterval = {
+            TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / TimeInterval(NSEC_PER_SEC)
+        },
         isDisabledRemotelyProvider: @escaping () -> Bool = {
             OSFeatureManager.shared.isEnabled(featureKey: OSDeviceGestureDetector.killSwitchKey)
         },
@@ -194,6 +197,9 @@ public final class OSDeviceGestureDetector: NSObject {
 
     func onFocus() {
         let timestamp = nowProvider()
+        // Logged after the lock: OneSignalLog runs app listeners synchronously, and one that
+        // re-enters the SDK would deadlock on it.
+        var progress: String?
         let completedGesture: Bool = stateLock.withLock {
             let backgroundedAt = lastBackgroundedAt
             lastBackgroundedAt = nil
@@ -204,24 +210,21 @@ public final class OSDeviceGestureDetector: NSObject {
             let dwell = timestamp - backgroundedAt
             if dwell < Self.minBackgroundDwellSeconds {
                 // Faster than any human app switch; Android rotation emits pairs like this.
-                OneSignalLog.onesignalLog(
-                    .LL_VERBOSE,
-                    message: "OSDeviceGestureDetector: ignored a \(String(format: "%.3f", dwell))s background blip (rotation filter)"
-                )
+                progress = "ignored a \(String(format: "%.3f", dwell))s background blip (rotation filter)"
                 return false
             }
             cycleCompletions.append(timestamp)
             cycleCompletions.removeAll { timestamp - $0 > Self.windowSeconds }
-            OneSignalLog.onesignalLog(
-                .LL_VERBOSE,
-                message: "OSDeviceGestureDetector: cycle \(cycleCompletions.count)/\(Self.requiredCycles) within the window "
-                    + "(background \(String(format: "%.2f", dwell))s)"
-            )
+            progress = "cycle \(cycleCompletions.count)/\(Self.requiredCycles) within the window "
+                + "(background \(String(format: "%.2f", dwell))s)"
             if cycleCompletions.count >= Self.requiredCycles {
                 cycleCompletions.removeAll()
                 return true
             }
             return false
+        }
+        if let progress {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSDeviceGestureDetector: \(progress)")
         }
         if completedGesture {
             copySubscriptionIdToPasteboard()
@@ -265,7 +268,8 @@ public final class OSDeviceGestureDetector: NSObject {
         case disabled
     }
 
-    /// Recorded once the pasteboard is written, so a result never claims a change that did not happen.
+    /// `copied` and `noId` are recorded after the pasteboard write, so neither claims a change that
+    /// did not happen. `disabled` is recorded at the decision, since nothing is written.
     private func recordGesture(_ result: GestureResult, copiedId: String? = nil) {
         var attributes = ["gesture.result": result.rawValue]
         if let copiedId {

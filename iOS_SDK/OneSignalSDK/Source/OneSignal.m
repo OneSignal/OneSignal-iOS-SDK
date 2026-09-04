@@ -712,6 +712,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         _didCallDownloadParameters = false;
         [OSRemoteLoggingController reset];
         [OSFeatureFlagsRefreshService reset];
+        [OSDeviceGestureDetector reset];
         // Flags are app-scoped but stored unscoped, and APP_STARTUP flags never unlatch
         // within a process, so both the cache and the latch have to go.
         [OSFeatureManager resetAndClearCachedFlags];
