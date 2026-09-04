@@ -31,7 +31,9 @@ import UIKit
 
 /// Detects the test-device gesture: `requiredCycles` background/foreground cycles within
 /// `windowSeconds`, then copies the push subscription ID to the general pasteboard, prefixed
-/// `os:` (see `clipText`), so the person can paste it into the dashboard.
+/// `os:` (see `clipText`), so the person can paste it into the dashboard. Without a subscription
+/// it copies `noSubscriptionClipText` instead, so someone following the docs can tell the gesture
+/// worked.
 ///
 /// A cycle is a `didEnterBackground`/`didBecomeActive` pair whose background phase lasts at
 /// least `minBackgroundDwellSeconds`. Pairing keeps `willResignActive`-only blips (Control
@@ -248,15 +250,13 @@ public final class OSDeviceGestureDetector: NSObject {
                 return
             }
             guard let subscriptionId = self.subscriptionIdProvider(), !subscriptionId.isEmpty else {
-                OneSignalLog.onesignalLog(
-                    .LL_INFO,
-                    message: "OSDeviceGestureDetector: gesture detected before the push subscription exists, nothing copied"
-                )
+                self.pasteboardWriter(Self.noSubscriptionClipText)
+                OneSignalLog.onesignalLog(.LL_INFO, message: "OSDeviceGestureDetector: pasteboard set, gesture result no_id")
                 self.recordGesture(.noId)
                 return
             }
             self.pasteboardWriter(Self.clipText(subscriptionId: subscriptionId))
-            OneSignalLog.onesignalLog(.LL_INFO, message: "OSDeviceGestureDetector: push subscription ID copied to the pasteboard")
+            OneSignalLog.onesignalLog(.LL_INFO, message: "OSDeviceGestureDetector: pasteboard set, gesture result copied")
             self.recordGesture(.copied, copiedId: subscriptionId)
         }
     }
@@ -268,7 +268,7 @@ public final class OSDeviceGestureDetector: NSObject {
         case disabled
     }
 
-    /// Recorded once the outcome is known, so `copied` means the pasteboard write went through.
+    /// Recorded once the pasteboard is written, so a result never claims a change that did not happen.
     private func recordGesture(_ result: GestureResult, copiedId: String? = nil) {
         var attributes = ["gesture.result": result.rawValue]
         if let copiedId {
@@ -277,10 +277,13 @@ public final class OSDeviceGestureDetector: NSObject {
         eventRecorder.record(event: .deviceGesture, attributes: attributes)
     }
 
+    private static let clipPrefix = "os: "
+    static let noSubscriptionClipText = clipPrefix + "no subscription ID yet"
+
     /// The `os:` prefix marks the value as a OneSignal ID, for the dashboard's paste target and for
     /// anyone who copied it by accident.
     static func clipText(subscriptionId: String) -> String {
-        "os: \(subscriptionId)"
+        clipPrefix + subscriptionId
     }
 
     /// No `localOnly` option: Universal Clipboard carrying the ID to the Mac running the

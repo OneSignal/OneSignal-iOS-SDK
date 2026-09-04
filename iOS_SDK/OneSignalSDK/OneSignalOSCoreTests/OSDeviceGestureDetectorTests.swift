@@ -248,7 +248,8 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
         XCTAssertEqual(harness.writes, [])
     }
 
-    func testMissingSubscriptionIdWritesNothing() {
+    func testMissingSubscriptionIdWritesThePlaceholder() {
+        // Someone following the docs gets a visible result that says why there is no ID.
         let harness = Harness()
         harness.currentSubscriptionId = nil
 
@@ -256,10 +257,10 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
             harness.cycle()
         }
 
-        XCTAssertEqual(harness.writes, [])
+        XCTAssertEqual(harness.writes, ["os: no subscription ID yet"])
     }
 
-    func testEmptySubscriptionIdWritesNothing() {
+    func testEmptySubscriptionIdWritesThePlaceholder() {
         let harness = Harness()
         harness.currentSubscriptionId = ""
 
@@ -267,7 +268,7 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
             harness.cycle()
         }
 
-        XCTAssertEqual(harness.writes, [])
+        XCTAssertEqual(harness.writes, ["os: no subscription ID yet"])
     }
 
     func testRegistrationIsIdempotent() {
