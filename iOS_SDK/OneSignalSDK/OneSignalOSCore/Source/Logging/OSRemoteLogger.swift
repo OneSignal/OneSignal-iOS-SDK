@@ -288,7 +288,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             exporterLoggingEnabledProvider: exporterLoggingEnabledProvider
         )
         let logger = IOSLogger()
-        let crashLogger = OSCrashLogger()
+        let consoleLogger = OSConsoleLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
         // Console-only logger on purpose. Exporter diagnostics describe the POST that
@@ -296,7 +296,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         // back into the export queue as a new record and never settle.
         let httpSender = Self.makeHttpSender(
             requestSender: requestSenderOverride,
-            logger: crashLogger,
+            logger: consoleLogger,
             isDiagnosticsEnabled: exporterLoggingEnabledProvider,
             lifecycle: lifecycle
         )
@@ -310,7 +310,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
         let crashReporter = LoggerFactory.shared.createCrashReporter(
             crashTelemetry: crashTelemetry,
-            logger: crashLogger
+            logger: consoleLogger
         )
         let crashHandler = OSLogCrashHandler(reporter: crashReporter)
         let crashUploader = LoggerFactory.shared.createCrashUploader(

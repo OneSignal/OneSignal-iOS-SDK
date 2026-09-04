@@ -340,7 +340,7 @@ extension OSLogCrashHandlerTests {
         )
         let reporter = LoggerFactory.shared.createCrashReporter(
             crashTelemetry: telemetry,
-            logger: OSCrashLogger()
+            logger: OSConsoleLogger()
         )
         return OSLogCrashHandler(reporter: reporter)
     }

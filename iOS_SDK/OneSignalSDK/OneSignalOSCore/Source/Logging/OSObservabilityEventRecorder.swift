@@ -75,7 +75,7 @@ public final class OSObservabilityEventRecorder: OSObservabilityEventRecorderPro
         // SDK would deadlock on that lock.
         recorder = LoggerFactory.shared.createObservabilityEventRecorder(
             flags: OSFeatureFlagReader(isFeatureEnabled: isFeatureEnabled),
-            logger: OSCrashLogger()
+            logger: OSConsoleLogger()
         )
     }
 

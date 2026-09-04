@@ -265,12 +265,15 @@ final class OSLoggerAdaptersTests: XCTestCase {
         XCTAssertEqual(listener.levels, [.LL_ERROR, .LL_WARN, .LL_INFO, .LL_DEBUG])
     }
 
-    func testCrashLoggerHonorsConsoleLogLevelWithoutOneSignalLog() {
+    func testConsoleLoggerHonorsConsoleLogLevelWithoutOneSignalLog() {
+        // The point of this logger: it must never reach OneSignalLog, whose listeners run
+        // synchronously and would deadlock a caller holding the lifecycle lock, or feed the
+        // export queue a record about the export.
         let listener = LoggerAdapterListener()
         OneSignalLog.debug().__add(listener)
         defer { OneSignalLog.debug().__remove(listener) }
         var lines: [String] = []
-        let logger = OSCrashLogger(
+        let logger = OSConsoleLogger(
             consoleLogLevel: { .LL_WARN },
             write: { lines.append($0) }
         )
@@ -280,19 +283,21 @@ final class OSLoggerAdaptersTests: XCTestCase {
         logger.info(message: "info")
         logger.debug(message: "debug")
 
+        // The prefix marks the console-only path; the component is named by the message the
+        // caller passes, so this logger does not repeat it.
         XCTAssertEqual(
             lines,
             [
-                "[OneSignal crash] ERROR: error",
-                "[OneSignal crash] WARN: warn"
+                "[OSConsoleLogger] ERROR: error",
+                "[OSConsoleLogger] WARN: warn"
             ]
         )
         XCTAssertTrue(listener.levels.isEmpty)
     }
 
-    func testCrashLoggerSilentWhenConsoleLogLevelIsNone() {
+    func testConsoleLoggerSilentWhenConsoleLogLevelIsNone() {
         var lines: [String] = []
-        let logger = OSCrashLogger(
+        let logger = OSConsoleLogger(
             consoleLogLevel: { .LL_NONE },
             write: { lines.append($0) }
         )
