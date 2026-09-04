@@ -27,7 +27,7 @@
 
 import UIKit
 import XCTest
-@testable import OneSignalOSCore
+@_spi(OneSignalInternal) @testable import OneSignalOSCore
 
 private let subscriptionId = "aaaabbbb-cccc-dddd-eeee-ffff00001111"
 private let expectedWrite = OSDeviceGestureDetector.clipText(subscriptionId: subscriptionId)
@@ -63,8 +63,19 @@ private final class ObserverTrackingCenter: NotificationCenter {
     }
 }
 
+/// Captures what the detector records so tests can assert the event and its attributes.
+private final class EventRecorderSpy: OSObservabilityEventRecorderProtocol {
+    private(set) var events: [OSObservabilityEvent] = []
+    private(set) var attributes: [[String: String]] = []
+
+    func record(event: OSObservabilityEvent, attributes: [String: String]) {
+        events.append(event)
+        self.attributes.append(attributes)
+    }
+}
+
 /// Owns a detector driven through an injected notification center, a fake monotonic clock,
-/// and a writer that records instead of touching the real pasteboard.
+/// a writer that records instead of touching the real pasteboard, and a recorder spy.
 private final class Harness {
     let center: NotificationCenter
     var now: TimeInterval = 1_000
@@ -72,6 +83,7 @@ private final class Harness {
     var currentSubscriptionId: String? = subscriptionId
     var shouldAwait = false
     private(set) var writes: [String] = []
+    let recorder = EventRecorderSpy()
     private(set) var detector: OSDeviceGestureDetector!
 
     init(center: NotificationCenter = NotificationCenter()) {
@@ -83,7 +95,8 @@ private final class Harness {
             enabledFlagsProvider: { [unowned self] in self.flags },
             subscriptionIdProvider: { [unowned self] in self.currentSubscriptionId },
             shouldAwaitProvider: { [unowned self] in self.shouldAwait },
-            pasteboardWriter: { [unowned self] in self.writes.append($0) }
+            pasteboardWriter: { [unowned self] in self.writes.append($0) },
+            eventRecorder: recorder
         )
         detector.registerLifecycleObserversIfNeeded()
     }
@@ -279,5 +292,80 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
             harness.cycle()
         }
         XCTAssertEqual(harness.writes, [])
+    }
+
+    // MARK: - Observability event
+
+    // Every recognised gesture records deviceGesture with its outcome, whether or not an ID was
+    // copied, so the backend can answer how often the gesture happens and how often it pays off.
+
+    func testCompletedGestureRecordsACopiedEventCarryingTheSubscriptionId() {
+        let harness = Harness()
+
+        // Progress is silent: the event fires on recognition, not per cycle.
+        for _ in 1...5 {
+            harness.cycle()
+        }
+        XCTAssertEqual(harness.recorder.events, [])
+
+        harness.cycle()
+
+        XCTAssertEqual(harness.recorder.events, [.deviceGesture])
+        XCTAssertEqual(harness.recorder.attributes, [[
+            "gesture.result": "copied",
+            "gesture.push_subscription_id": subscriptionId
+        ]])
+    }
+
+    func testKillSwitchRecordsADisabledResultWithoutAnId() {
+        let harness = Harness()
+        harness.flags = [OSDeviceGestureDetector.killSwitchKey]
+
+        for _ in 1...6 {
+            harness.cycle()
+        }
+
+        XCTAssertEqual(harness.recorder.events, [.deviceGesture])
+        XCTAssertEqual(harness.recorder.attributes, [["gesture.result": "disabled"]])
+    }
+
+    func testMissingOrEmptySubscriptionIdRecordsANoIdResult() {
+        // Both shapes mean the same thing to the backend: the gesture ran before the device had
+        // anything worth pasting.
+        for missingId in [nil, ""] {
+            let harness = Harness()
+            harness.currentSubscriptionId = missingId
+
+            for _ in 1...6 {
+                harness.cycle()
+            }
+
+            XCTAssertEqual(harness.recorder.events, [.deviceGesture])
+            XCTAssertEqual(harness.recorder.attributes, [["gesture.result": "no_id"]])
+        }
+    }
+
+    func testNotReadySdkRecordsNothing() {
+        // The event would ship to the backend, and nothing may leave the device before the app id
+        // and consent are in place.
+        let harness = Harness()
+        harness.shouldAwait = true
+
+        for _ in 1...6 {
+            harness.cycle()
+        }
+
+        XCTAssertEqual(harness.recorder.events, [])
+    }
+
+    func testEachRecognitionRecordsItsOwnEvent() {
+        let harness = Harness()
+
+        for _ in 1...12 {
+            harness.cycle()
+        }
+
+        XCTAssertEqual(harness.recorder.events, [.deviceGesture, .deviceGesture])
+        XCTAssertEqual(harness.recorder.attributes.map { $0["gesture.result"] }, ["copied", "copied"])
     }
 }
