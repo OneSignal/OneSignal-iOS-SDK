@@ -25,6 +25,7 @@
  THE SOFTWARE.
  */
 
+import OneSignalKMP
 import UIKit
 import XCTest
 @_spi(OneSignalInternal) @testable import OneSignalOSCore
@@ -79,7 +80,7 @@ private final class EventRecorderSpy: OSObservabilityEventRecorderProtocol {
 private final class Harness {
     let center: NotificationCenter
     var now: TimeInterval = 1_000
-    var flags: [String] = []
+    var killSwitchOn = false
     var currentSubscriptionId: String? = subscriptionId
     var shouldAwait = false
     private(set) var writes: [String] = []
@@ -92,7 +93,7 @@ private final class Harness {
             notificationCenter: center,
             mainQueue: InlineQueue(),
             nowProvider: { [unowned self] in self.now },
-            enabledFlagsProvider: { [unowned self] in self.flags },
+            isDisabledRemotelyProvider: { [unowned self] in self.killSwitchOn },
             subscriptionIdProvider: { [unowned self] in self.currentSubscriptionId },
             shouldAwaitProvider: { [unowned self] in self.shouldAwait },
             pasteboardWriter: { [unowned self] in self.writes.append($0) },
@@ -215,9 +216,9 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
         XCTAssertEqual(harness.writes, [expectedWrite, expectedWrite])
     }
 
-    func testKillSwitchKeySuppressesTheWriteCaseInsensitively() {
+    func testKillSwitchSuppressesTheWrite() {
         let harness = Harness()
-        harness.flags = ["SDK_Device_Gesture_Disabled"]
+        harness.killSwitchOn = true
 
         for _ in 1...6 {
             harness.cycle()
@@ -226,15 +227,10 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
         XCTAssertEqual(harness.writes, [])
     }
 
-    func testUnrelatedFlagKeysDoNotSuppressTheWrite() {
-        let harness = Harness()
-        harness.flags = ["sdk_custom_logging", "sdk_identity_verification"]
-
-        for _ in 1...6 {
-            harness.cycle()
-        }
-
-        XCTAssertEqual(harness.writes, [expectedWrite])
+    func testKillSwitchKeyMatchesTheCatalog() {
+        // The feature manager only answers for catalog keys, so a drift here would silently
+        // turn the switch into a no-op.
+        XCTAssertEqual(OSDeviceGestureDetector.killSwitchKey, FeatureFlag.sdkDeviceGestureDisabled.key)
     }
 
     func testNotReadySdkSuppressesTheWrite() {
@@ -320,7 +316,7 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
 
     func testKillSwitchRecordsADisabledResultWithoutAnId() {
         let harness = Harness()
-        harness.flags = [OSDeviceGestureDetector.killSwitchKey]
+        harness.killSwitchOn = true
 
         for _ in 1...6 {
             harness.cycle()
