@@ -41,9 +41,14 @@ struct OSResolvedStackFrame: Equatable {
     let symbolName: String?
 }
 
-/// Prints KMP crash-reporter diagnostics with `NSLog`. Honors the console log level
-/// without going through `OneSignalLog` (listeners, alert UI, remote sink).
-final class OSCrashLogger: ILogger {
+/// Prints KMP diagnostics with `NSLog`, honoring the console log level without going through
+/// `OneSignalLog` (listeners, alert UI, remote telemetry). Each caller documents why it cannot
+/// afford that path.
+final class OSConsoleLogger: ILogger {
+    /// Marks the lines that skipped `OneSignalLog`. Every message arrives already naming its
+    /// own component, so nothing finer is needed here.
+    private static let prefix = "[OSConsoleLogger]"
+
     private let consoleLogLevel: () -> ONE_S_LOG_LEVEL
     private let write: (String) -> Void
 
@@ -75,7 +80,7 @@ final class OSCrashLogger: ILogger {
         guard level.rawValue <= consoleLogLevel().rawValue else {
             return
         }
-        write("[OneSignal crash] \(label): \(message)")
+        write("\(Self.prefix) \(label): \(message)")
     }
 }
 

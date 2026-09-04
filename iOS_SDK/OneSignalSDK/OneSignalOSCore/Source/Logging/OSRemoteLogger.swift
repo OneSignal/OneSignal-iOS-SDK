@@ -208,6 +208,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
     private let crashUploader: LogCrashUploader
     private let logger: IOSLogger
     private let lifecycle: OSRemoteLoggerLifecycle
+    private let eventRecorder: OSObservabilityEventRecorderAttaching
+    /// Guarded by `lifecycleOperationLock`. The recorder is shared across instances, and a logger
+    /// that lost the install race is shut down without ever starting; it must not detach the winner.
+    private var didAttachEventRecorder = false
     private let lifecycleOperationLock = NSLock()
     private let uploaderOwner = UUID()
 
@@ -262,7 +266,8 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
     }
 
-    private init(
+    /// Internal so tests can stand in an event recorder; production goes through the convenience initializers.
+    init(
         installIdProvider: @escaping () -> String,
         onesignalIdProvider: @escaping () -> String?,
         pushSubscriptionIdProvider: @escaping () -> String?,
@@ -270,7 +275,8 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         featureFlagsProvider: @escaping () -> [String],
         remoteLogLevelProvider: @escaping () -> String?,
         exporterLoggingEnabledProvider: @escaping () -> Bool,
-        requestSenderOverride: RequestSender?
+        requestSenderOverride: RequestSender?,
+        eventRecorder: OSObservabilityEventRecorderAttaching = OSObservabilityEventRecorder.shared
     ) {
         let provider = OSLoggerPlatformProvider(
             installIdProvider: installIdProvider,
@@ -282,7 +288,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
             exporterLoggingEnabledProvider: exporterLoggingEnabledProvider
         )
         let logger = IOSLogger()
-        let crashLogger = OSCrashLogger()
+        let consoleLogger = OSConsoleLogger()
         let lifecycle = OSRemoteLoggerLifecycle()
         let fileStore = FileLogStore(rootPath: provider.crashStoragePath)
         // Console-only logger on purpose. Exporter diagnostics describe the POST that
@@ -290,7 +296,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         // back into the export queue as a new record and never settle.
         let httpSender = Self.makeHttpSender(
             requestSender: requestSenderOverride,
-            logger: crashLogger,
+            logger: consoleLogger,
             isDiagnosticsEnabled: exporterLoggingEnabledProvider,
             lifecycle: lifecycle
         )
@@ -304,7 +310,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         )
         let crashReporter = LoggerFactory.shared.createCrashReporter(
             crashTelemetry: crashTelemetry,
-            logger: crashLogger
+            logger: consoleLogger
         )
         let crashHandler = OSLogCrashHandler(reporter: crashReporter)
         let crashUploader = LoggerFactory.shared.createCrashUploader(
@@ -320,6 +326,7 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         self.crashUploader = crashUploader
         self.logger = logger
         self.lifecycle = lifecycle
+        self.eventRecorder = eventRecorder
     }
 
     private static func makeHttpSender(
@@ -354,6 +361,9 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         }
 
         crashHandler.initialize()
+        // Events ride this telemetry, so the recorder follows it here and in shutdown().
+        eventRecorder.attach(telemetry)
+        didAttachEventRecorder = true
         lifecycleOperationLock.unlock()
         let owner = uploaderOwner
         let crashUploader = self.crashUploader
@@ -439,6 +449,10 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
 
         OSCrashUploaderCoordinator.shared.cancel(owner: uploaderOwner)
         crashHandler.unregister()
+        if didAttachEventRecorder {
+            eventRecorder.detach(telemetry)
+            didAttachEventRecorder = false
+        }
         lifecycleOperationLock.unlock()
 
         // `telemetry.shutdown()` blocks for up to five seconds draining buffered
