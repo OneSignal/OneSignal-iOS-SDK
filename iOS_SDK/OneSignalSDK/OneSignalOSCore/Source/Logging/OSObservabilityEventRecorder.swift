@@ -74,7 +74,7 @@ public final class OSObservabilityEventRecorder: OSObservabilityEventRecorderPro
         // `OneSignalLog` reaches app listeners synchronously, so a listener that re-enters the
         // SDK would deadlock on that lock.
         recorder = LoggerFactory.shared.createObservabilityEventRecorder(
-            gate: OSObservabilityEventGate(isFeatureEnabled: isFeatureEnabled),
+            flags: OSFeatureFlagReader(isFeatureEnabled: isFeatureEnabled),
             logger: OSCrashLogger()
         )
     }
@@ -104,16 +104,16 @@ public final class OSObservabilityEventRecorder: OSObservabilityEventRecorderPro
     }
 }
 
-/// Bridges the host's flag read to the KMP gate so the feature-key string stays on this side.
-private final class OSObservabilityEventGate: IObservabilityEventGate {
+/// Answers the KMP recorder's flag lookups; each event's own gate decides which flag to ask about.
+private final class OSFeatureFlagReader: IFeatureFlagReader {
     private let isFeatureEnabled: (String) -> Bool
 
     init(isFeatureEnabled: @escaping (String) -> Bool) {
         self.isFeatureEnabled = isFeatureEnabled
     }
 
-    func isEnabled(event: ObservabilityEvent) -> Bool {
-        isFeatureEnabled(event.flag.key)
+    func isEnabled(flag: FeatureFlag) -> Bool {
+        isFeatureEnabled(flag.key)
     }
 }
 
