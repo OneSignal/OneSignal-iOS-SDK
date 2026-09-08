@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		pdl9agLO1qiuVSI8dn69lccTmf0=
+		oRMGyyvh22JsmtWP/SOcMuJETWc=
 		</data>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -47,7 +47,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			CJpM5If7vZz4m960lM+ulaOZohExs1bTVVH5q0zODe4=
+			o1suMPhe6PY/F8tZ92wvI+qckDYwxd4nsX4yI5OGx7Y=
 			</data>
 		</dict>
 		<key>Headers/OSDialogInstanceManager.h</key>
@@ -159,14 +159,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			v2x1GVvRlfaoouc8E7qq2aiE4jJcQYFtJzNWAgTLtC8=
+			E5IQ32k2tJ+wqy29Lt1zYaY0ExLlFZquqkKaBlcKMeI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZGK6PsUwXK41SBsHwBXcRGDOHs/zLHQkrbEWWXhkuEA=
+			afYOCr7vbuTBdpaIwkfAnmnWlzm5vzB5xHK89GBC3fU=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -181,6 +181,13 @@
 			<key>hash2</key>
 			<data>
 			kMtRfO7qidbRMEXsw6rwliOh7oaZmd3pHFmDQX6+dkA=
+			</data>
+		</dict>
+		<key>Headers/OneSignalLogInternal.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			zQKexYuugTn5yFEAqXI2NFk+efFsl+uqpZGkBhwOTJQ=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>
@@ -250,7 +257,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			JZ3vPd3BTwlOIbXU6i8fLXCUBIKpS81PzTwDJm7RwS8=
+			RvmAH2psjKFVzXSvk1MRbGUpBvt2nF90LfUWp37Dx6Q=
 			</data>
 		</dict>
 		<key>Resources/PrivacyInfo.xcprivacy</key>

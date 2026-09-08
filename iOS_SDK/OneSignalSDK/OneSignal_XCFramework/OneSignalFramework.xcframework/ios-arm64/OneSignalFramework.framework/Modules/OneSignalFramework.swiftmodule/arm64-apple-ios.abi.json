@@ -43,6 +43,67 @@
         "moduleName": "OneSignalFramework"
       },
       {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalOSCore",
+        "printedName": "OneSignalOSCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework",
+        "declAttributes": [
+          "SPIAccessControl"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalUser",
+        "printedName": "OneSignalUser",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework",
+        "declAttributes": [
+          "SPIAccessControl"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework"
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalFramework"
+      },
+      {
         "kind": "TypeDecl",
         "name": "OneSignal",
         "printedName": "OneSignal",
@@ -1320,5 +1381,111 @@
     ],
     "json_format_version": 8
   },
-  "ConstValues": []
+  "ConstValues": [
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 1670,
+      "length": 21,
+      "value": "\"PREFS_OS_INSTALL_ID\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 1740,
+      "length": 39,
+      "value": "\"PREFS_OS_REMOTE_LOGGING_CONFIGURATION\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 1826,
+      "length": 29,
+      "value": "\"com.onesignal.logger.flush.\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 2282,
+      "length": 39,
+      "value": "\"com.onesignal.logger.remote-lifecycle\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2732,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 2825,
+      "length": 9,
+      "value": "\"unknown\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "Array",
+      "offset": 2892,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "StringLiteral",
+      "offset": 1416,
+      "length": 25,
+      "value": "\"OneSignalFramework.OSRemoteLoggingController\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingController.swift",
+      "kind": "BooleanLiteral",
+      "offset": 12956,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "StringLiteral",
+      "offset": 1483,
+      "length": 16,
+      "value": "\"logging_config\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "StringLiteral",
+      "offset": 1529,
+      "length": 11,
+      "value": "\"log_level\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "StringLiteral",
+      "offset": 1573,
+      "length": 8,
+      "value": "\"app_id\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "StringLiteral",
+      "offset": 1617,
+      "length": 11,
+      "value": "\"log_level\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "StringLiteral",
+      "offset": 1665,
+      "length": 12,
+      "value": "\"is_enabled\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/Source\/OSRemoteLoggingConfiguration.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2311,
+      "length": 5,
+      "value": "false"
+    }
+  ]
 }
