@@ -1,11 +1,13 @@
 // swift-interface-format-version: 1.0
 // swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
-// swift-module-flags: -target arm64-apple-ios11.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
+// swift-module-flags: -target arm64-apple-ios12.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
 // swift-module-flags-ignorable: -enable-bare-slash-regex
+import Darwin
 import Foundation
 import OneSignalCore
 @_exported import OneSignalOSCore
 import Swift
+import UIKit
 import _Concurrency
 import _StringProcessing
 import _SwiftConcurrencyShims
@@ -20,6 +22,25 @@ import _SwiftConcurrencyShims
 }
 public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValue == Swift.Int {
 }
+@_hasMissingDesignatedInitializers @objc(OSFeatureManager) final public class OSFeatureManager : ObjectiveC.NSObject {
+  @objc public static var shared: OneSignalOSCore.OSFeatureManager {
+    @objc get
+  }
+  @objc public static func enabledFeatureKeysIfInitialized() -> [Swift.String]
+  @objc public static func reset()
+  @objc public static func resetAndClearCachedFlags()
+  @objc(isEnabledForKey:) final public func isEnabled(featureKey: Swift.String) -> Swift.Bool
+  @objc final public func enabledFeatureKeys() -> [Swift.String]
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc(OSFeatureFlagsRefreshService) final public class OSFeatureFlagsRefreshService : ObjectiveC.NSObject {
+  @objc public static var shared: OneSignalOSCore.OSFeatureFlagsRefreshService {
+    @objc get
+  }
+  @objc final public class func start(isInForeground: Swift.Bool)
+  @objc final public class func reset()
+  @objc deinit
+}
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
   public static let sharedInstance: OneSignalOSCore.OSOperationRepo
   public var paused: Swift.Bool
@@ -29,6 +50,39 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
   @objc override dynamic public init()
   @objc deinit
+}
+public protocol OSRemoteLoggerProtocol : AnyObject {
+  var kmpVersion: Swift.String { get }
+  var crashStoragePath: Swift.String { get }
+  func start()
+  func log(level: Swift.String, message: Swift.String)
+  func forceFlush(completion: @escaping () -> Swift.Void)
+  func shutdown()
+}
+@_spi(OneSignalInternal) public protocol OSStructuredRemoteLoggerProtocol : OneSignalOSCore.OSRemoteLoggerProtocol {
+  @_spi(OneSignalInternal) func log(level: Swift.String, message: Swift.String, exceptionType: Swift.String?, exceptionMessage: Swift.String?, exceptionStacktrace: Swift.String?)
+}
+extension OneSignalOSCore.OSRemoteLoggerProtocol {
+  public func start()
+}
+@_hasMissingDesignatedInitializers final public class OSRemoteLogger : OneSignalOSCore.OSRemoteLoggerProtocol {
+  @_spi(OneSignalInternal) public typealias RequestSender = (Foundation.URLRequest, @escaping (Foundation.Data?, Foundation.URLResponse?, (any Swift.Error)?) -> Swift.Void) -> Swift.Void
+  convenience public init(installIdProvider: @escaping () -> Swift.String, onesignalIdProvider: @escaping () -> Swift.String?, pushSubscriptionIdProvider: @escaping () -> Swift.String?, appStateProvider: @escaping () -> Swift.String, featureFlagsProvider: @escaping () -> [Swift.String], remoteLogLevelProvider: @escaping () -> Swift.String?, exporterLoggingEnabledProvider: @escaping () -> Swift.Bool)
+  @_spi(OneSignalInternal) convenience public init(installIdProvider: @escaping () -> Swift.String, onesignalIdProvider: @escaping () -> Swift.String?, pushSubscriptionIdProvider: @escaping () -> Swift.String?, appStateProvider: @escaping () -> Swift.String, featureFlagsProvider: @escaping () -> [Swift.String], remoteLogLevelProvider: @escaping () -> Swift.String?, exporterLoggingEnabledProvider: @escaping () -> Swift.Bool, requestSender: @escaping OneSignalOSCore.OSRemoteLogger.RequestSender)
+  final public func start()
+  final public var kmpVersion: Swift.String {
+    get
+  }
+  final public var crashStoragePath: Swift.String {
+    get
+  }
+  final public func log(level: Swift.String, message: Swift.String)
+  final public func log(level: Swift.String, message: Swift.String, exceptionType: Swift.String?, exceptionMessage: Swift.String?, exceptionStacktrace: Swift.String?)
+  final public func forceFlush(completion: @escaping () -> Swift.Void)
+  final public func shutdown()
+  @objc deinit
+}
+@_spi(OneSignalInternal) extension OneSignalOSCore.OSRemoteLogger : OneSignalOSCore.OSStructuredRemoteLoggerProtocol {
 }
 @_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
   public func subscribe(_ handler: THandler)

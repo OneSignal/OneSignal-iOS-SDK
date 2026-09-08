@@ -301,6 +301,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 #if defined(__OBJC__)
 
+
 @class NSString;
 
 SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSBackgroundTaskHandler_")
@@ -350,6 +351,62 @@ SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// Fetches remote SDK feature flags when the app is in the foreground, immediately on
+/// focus and then every <code>refreshInterval</code> while the session stays in the foreground.
+/// Updates <code>OSFeatureFlagsStore</code> so <code>OSFeatureManager</code> stays in sync.
+/// Polling is keyed on the active appId: once a poll loop is running for a given
+/// appId, redundant triggers are a no-op so we don’t double-fire the Turbine GET
+/// at startup. Genuine appId changes still cancel and restart.
+SWIFT_CLASS_NAMED("OSFeatureFlagsRefreshService")
+@interface OSFeatureFlagsRefreshService : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSFeatureFlagsRefreshService * _Nonnull shared;)
++ (OSFeatureFlagsRefreshService * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+/// Idempotent: safe to call again once the host learns its real foreground state.
+/// \param isInForeground the host’s current foreground state. Passing <code>false</code>
+/// registers the lifecycle observers but leaves polling idle until a focus event.
+///
++ (void)startWithIsInForeground:(BOOL)isInForeground;
++ (void)reset;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// Resolves backend-driven feature flag state for the current device run.
+/// Catalog and latching live in shared KMP <code>FeatureManager</code>; this host hydrates
+/// from <code>OSFeatureFlagsStore</code> and applies activation-mode rules via <code>refresh</code>.
+SWIFT_CLASS_NAMED("OSFeatureManager")
+@interface OSFeatureManager : NSObject
+/// Constructing this reads persisted flags and builds the KMP latch, so the first
+/// access decides which <code>APP_STARTUP</code> flags are latched for the process. Only touch
+/// it once storage is readable; see <code>enabledFeatureKeysIfInitialized()</code>.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSFeatureManager * _Nonnull shared;)
++ (OSFeatureManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+/// Enabled keys <em>without</em> forcing construction, for callers that must not trigger
+/// first-touch initialization: a crash handler (initialization takes locks and reads
+/// UserDefaults, neither async-signal-safe) and any pre-unlock caller that would
+/// otherwise latch <code>APP_STARTUP</code> flags from unreadable storage.
+/// Returns empty when the manager has not been built yet. Reading keys from an
+/// already-built manager still takes the KMP latch’s lock.
++ (NSArray<NSString *> * _Nonnull)enabledFeatureKeysIfInitialized SWIFT_WARN_UNUSED_RESULT;
+/// Drops the latch and cached state so the next access re-reads storage. Required on
+/// an app-id change: <code>APP_STARTUP</code> flags never unlatch within a process, so without
+/// this the previous app’s flags would govern the new one.
++ (void)reset;
+/// Drops the latch <em>and</em> discards the persisted keys. Flags are scoped to an app id
+/// but stored unscoped, so on an app-id change the cache has to go too — otherwise
+/// the new app runs on the old app’s flags until its first successful fetch, and
+/// never for <code>APP_STARTUP</code> flags.
++ (void)resetAndClearCachedFlags;
+/// Whether the catalog flag with this Turbine key is enabled after latching.
+- (BOOL)isEnabledForKey:(NSString * _Nonnull)featureKey SWIFT_WARN_UNUSED_RESULT;
+/// Canonical keys enabled for this process after latching, in catalog order.
+- (NSArray<NSString *> * _Nonnull)enabledFeatureKeys SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -455,6 +512,7 @@ SWIFT_CLASS("_TtC15OneSignalOSCore19OSReadYourWriteData")
 /// so it’s readable before first unlock, when shared <code>UserDefaults</code> reads silently return nil.
 /// Stored in the App Group container, so it’s shared across any targets (main app, NSE, etc.)
 /// configured with the same App Group entitlement. Opaque identifiers only: no PII or credentials.
+/// Accessors are no-ops on Mac Catalyst, where iOS data protection and prewarming do not apply.
 SWIFT_CLASS_NAMED("OSResilientStorage")
 @interface OSResilientStorage : NSObject
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull keyAppId;)
