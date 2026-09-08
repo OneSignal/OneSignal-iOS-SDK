@@ -22,7 +22,7 @@
 		</data>
 		<key>Headers/OSDeviceUtils.h</key>
 		<data>
-		qZnSYyg9QxHCH9m743tw/0wlLEE=
+		9HNOHr1ksNAU1zD3vO3emL83HzI=
 		</data>
 		<key>Headers/OSDialogInstanceManager.h</key>
 		<data>
@@ -86,11 +86,11 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		OAZTgA9ci4ODJRiQTEl+zL0g2o0=
+		EeqzeWwfBylf7XI0v/6WqLfcRBU=
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		KoZA/osqyMF9WEWOAvY68Hy2KRU=
+		b+hs1iSOjFLY5+cQtsBKfRNCpiQ=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
@@ -99,6 +99,10 @@
 		<key>Headers/OneSignalLog.h</key>
 		<data>
 		DbQwmfzvtLutVDIDptYl4pNhf0g=
+		</data>
+		<key>Headers/OneSignalLogInternal.h</key>
+		<data>
+		f+YAPT5b9PQfG7nHb6pDYxVLDK8=
 		</data>
 		<key>Headers/OneSignalMobileProvision.h</key>
 		<data>
@@ -130,7 +134,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		+irsx42CXBMMBKkfy4yWvi2kfes=
+		n98BMjY5zHr6DMQxHD8zCpe+geI=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -179,7 +183,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			CJpM5If7vZz4m960lM+ulaOZohExs1bTVVH5q0zODe4=
+			o1suMPhe6PY/F8tZ92wvI+qckDYwxd4nsX4yI5OGx7Y=
 			</data>
 		</dict>
 		<key>Headers/OSDialogInstanceManager.h</key>
@@ -291,14 +295,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			v2x1GVvRlfaoouc8E7qq2aiE4jJcQYFtJzNWAgTLtC8=
+			OKofvEfFLLk3Bat3L+04F92dobCOAuVEpdPYqhlNtEE=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZGK6PsUwXK41SBsHwBXcRGDOHs/zLHQkrbEWWXhkuEA=
+			afYOCr7vbuTBdpaIwkfAnmnWlzm5vzB5xHK89GBC3fU=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
@@ -313,6 +317,13 @@
 			<key>hash2</key>
 			<data>
 			kMtRfO7qidbRMEXsw6rwliOh7oaZmd3pHFmDQX6+dkA=
+			</data>
+		</dict>
+		<key>Headers/OneSignalLogInternal.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			zQKexYuugTn5yFEAqXI2NFk+efFsl+uqpZGkBhwOTJQ=
 			</data>
 		</dict>
 		<key>Headers/OneSignalMobileProvision.h</key>

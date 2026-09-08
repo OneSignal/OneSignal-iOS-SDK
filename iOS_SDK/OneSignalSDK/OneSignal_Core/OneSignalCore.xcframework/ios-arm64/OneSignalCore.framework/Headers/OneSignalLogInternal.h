@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2021 OneSignal
+ Copyright 2026 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,18 +25,25 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UserNotifications/UserNotifications.h>
-#import <OneSignalExtension/OneSignalAttachmentHandler.h>
-#import <OneSignalExtension/OneSignalExtensionBadgeHandler.h>
-#import <OneSignalExtension/OneSignalReceiveReceiptsController.h>
-#import <OneSignalExtension/OneSignalNotificationServiceExtensionHandler.h>
+#import "OneSignalLog.h"
 
-@interface OneSignalExtension : NSObject
-#pragma mark NotificationService Extension
-#pragma clang diagnostic ignored "-Wnullability-completeness"
-// Call from a UNNotificationServiceExtension on iOS 10 and later.
-// Processes media attachments and action buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol OSInternalLogSink <NSObject>
+
+- (void)captureLogWithLevel:(ONE_S_LOG_LEVEL)level
+                    message:(NSString *)message
+              exceptionType:(nullable NSString *)exceptionType
+           exceptionMessage:(nullable NSString *)exceptionMessage
+        exceptionStacktrace:(nullable NSString *)exceptionStacktrace;
+
 @end
+
+@interface OneSignalLog (Internal)
+
++ (void)setInternalLogSink:(NSObject<OSInternalLogSink> *)sink NS_SWIFT_NAME(__setInternalLogSink(_:));
++ (void)removeInternalLogSink:(NSObject<OSInternalLogSink> *)sink NS_SWIFT_NAME(__removeInternalLogSink(_:));
+
+@end
+
+NS_ASSUME_NONNULL_END
