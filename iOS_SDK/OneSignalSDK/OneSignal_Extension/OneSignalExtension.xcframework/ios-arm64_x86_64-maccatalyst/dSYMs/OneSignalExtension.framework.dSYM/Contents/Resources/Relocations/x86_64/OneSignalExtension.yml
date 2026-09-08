@@ -64,9 +64,10 @@ relocations:
   - { offsetInCU: 0x27, offset: 0xDA5D4, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x7B10, symSize: 0x12A }
   - { offsetInCU: 0x51, offset: 0xDA5FE, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:withNotification:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x7B10, symSize: 0x12A }
   - { offsetInCU: 0x1DF, offset: 0xDA78C, size: 0x8, addend: 0x0, symName: '+[OneSignalExtensionBadgeHandler currentCachedBadgeValue]', symObjAddr: 0x12A, symBinAddr: 0x7C3A, symSize: 0x54 }
-  - { offsetInCU: 0x27, offset: 0xDA85A, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x0, symBinAddr: 0x7C8E, symSize: 0x19 }
-  - { offsetInCU: 0xA3, offset: 0xDA8D6, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x0, symBinAddr: 0x7C8E, symSize: 0x19 }
-  - { offsetInCU: 0x125, offset: 0xDA958, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x19, symBinAddr: 0x7CA7, symSize: 0x19 }
-  - { offsetInCU: 0x34, offset: 0xDAAA8, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionString, symObjAddr: 0x0, symBinAddr: 0x86F0, symSize: 0x0 }
-  - { offsetInCU: 0x69, offset: 0xDAADD, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionNumber, symObjAddr: 0x38, symBinAddr: 0x8728, symSize: 0x0 }
+  - { offsetInCU: 0x27, offset: 0xDA85A, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x7C8E, symSize: 0x19 }
+  - { offsetInCU: 0xA3, offset: 0xDA8D6, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:]', symObjAddr: 0x0, symBinAddr: 0x7C8E, symSize: 0x19 }
+  - { offsetInCU: 0x10F, offset: 0xDA942, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler:]', symObjAddr: 0x19, symBinAddr: 0x7CA7, symSize: 0x19 }
+  - { offsetInCU: 0x191, offset: 0xDA9C4, size: 0x8, addend: 0x0, symName: '+[OneSignalExtension serviceExtensionTimeWillExpireRequest:withMutableNotificationContent:]', symObjAddr: 0x32, symBinAddr: 0x7CC0, symSize: 0x19 }
+  - { offsetInCU: 0x34, offset: 0xDAB14, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionString, symObjAddr: 0x0, symBinAddr: 0x8720, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0xDAB49, size: 0x8, addend: 0x0, symName: _OneSignalExtensionVersionNumber, symObjAddr: 0x38, symBinAddr: 0x8758, symSize: 0x0 }
 ...
