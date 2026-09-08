@@ -835,7 +835,7 @@ static BOOL ComputeInitialStorageReadable(void) {
     
 }
 
-// Called from the app's Notification Service Extension. Sync path; forwards with a nil handler.
+// Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     return [OneSignalNotificationServiceExtensionHandler
             didReceiveNotificationExtensionRequest:request
