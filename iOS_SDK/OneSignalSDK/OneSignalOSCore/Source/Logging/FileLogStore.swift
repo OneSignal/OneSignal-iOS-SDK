@@ -214,7 +214,10 @@ final class FileLogStore: ILogFileStore {
         now: Int64,
         minAgeMillis: Int64
     ) -> Bool {
-        guard let writtenMs = CrashRetention.shared.effectiveWriteTimeMs(entry: entry)?.int64Value else {
+        guard let writtenMs = CrashRetention.shared.effectiveWriteTimeMs(
+            entry: entry,
+            policy: Self.retentionPolicy
+        )?.int64Value else {
             return false
         }
         return now - writtenMs >= max(0, minAgeMillis)
@@ -272,8 +275,11 @@ final class FileLogStore: ILogFileStore {
         guard let entries = try? directoryEntries() else {
             return
         }
+        // The guard and the selector must see the same names, or they stop measuring the same directory.
+        let keepNames = snapshotInFlightNames().union([keepName])
         guard !CrashRetention.shared.isWithinCaps(
             entries: entries,
+            keepNames: keepNames,
             policy: Self.retentionPolicy
         ) else {
             return
@@ -281,7 +287,7 @@ final class FileLogStore: ILogFileStore {
         let overflow = CrashRetention.shared.selectOverflowOwned(
             entries: entries,
             nowMs: Self.nowMillis(),
-            keepNames: snapshotInFlightNames().union([keepName]),
+            keepNames: keepNames,
             policy: Self.retentionPolicy
         )
         for entry in overflow {
