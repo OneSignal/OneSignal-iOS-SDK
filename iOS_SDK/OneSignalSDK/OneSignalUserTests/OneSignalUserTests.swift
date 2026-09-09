@@ -490,6 +490,33 @@ final class OneSignalUserTests: XCTestCase {
         }
     }
 
+    func testRemoteDisable_optInOutranksStaleHydrationWithNothingRecorded() {
+        // The customer's first disable is the common case for this race, and it is the one a
+        // "only arm when a disable was already recorded" flag would miss. The customer disables
+        // the subscription, a fetch goes out that will report it, and the user calls optIn()
+        // before that response lands. Nothing is recorded locally at that point, so the opt-in
+        // has to arm the guard anyway or the fetch re-suppresses the subscription the user just
+        // opted into, and the next update re-sends the code. Android pins the same behavior in
+        // "optIn takes precedence over a pending fetch even when no remote disable was recorded".
+        let model = OSSubscriptionModel(
+            type: .push,
+            address: "test-token",
+            subscriptionId: "test-sub-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+        XCTAssertNil(model.remoteDisabledReason)
+
+        model.clearRemoteDisable()
+
+        for code in Self.remoteDisableCodes {
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertNil(model.remoteDisabledReason, "a fetch predating optIn() must not record \(code)")
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+        }
+    }
+
     func testRemoteDisable_clearedWhenServerReportsEnabled() {
         for code in Self.remoteDisableCodes {
             let model = pushModelWithRemoteDisable(code)

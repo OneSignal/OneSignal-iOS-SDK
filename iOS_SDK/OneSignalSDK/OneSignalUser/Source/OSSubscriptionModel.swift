@@ -679,14 +679,15 @@ extension OSSubscriptionModel {
      */
     func clearRemoteDisable() {
         let oldValue: Int? = stateLock.withLock {
-            guard let recorded = state.remoteDisabledReason else {
-                return nil
-            }
-            state.remoteDisabledReason = nil
+            // The flag arms on every opt-in, not only when a disable was already recorded, because
+            // a fetch issued before this opt-in can still land the customer's first disable and
+            // undo it. Nothing is recorded locally on that first cycle, which is the common case.
             state.remoteDisableClearedByUser = true
+            let recorded = state.remoteDisabledReason
+            state.remoteDisabledReason = nil
             return recorded
         }
-        guard oldValue != nil else {
+        guard let oldValue else {
             return
         }
         self.set(property: "remoteDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
