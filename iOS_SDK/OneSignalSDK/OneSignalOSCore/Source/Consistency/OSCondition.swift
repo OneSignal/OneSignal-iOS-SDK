@@ -32,4 +32,8 @@ import Foundation
     var conditionId: String { get }
     func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool
     func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData?
+
+    /// Called once a waiter on this condition has been released, so a condition that raised its own bar
+    /// for that wait can lower it again instead of holding every later waiter to it.
+    @objc optional func onConditionSatisfied()
 }

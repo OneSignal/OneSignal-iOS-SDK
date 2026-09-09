@@ -276,7 +276,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     )
                 } else {
                     // handle a potential regression where ryw_token is no longer returned by API
-                    OSConsistencyManager.shared.resolveConditionsWithID(id: OSIamFetchReadyCondition.CONDITIONID)
+                    OSConsistencyManager.shared.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: onesignalId)
                 }
             }
         } onFailure: { error in

@@ -43,7 +43,7 @@ final class IAMIntegrationTests: XCTestCase {
     override func setUpWithError() throws {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
-        OSConsistencyManager.shared.reset()
+        ConsistencyManagerTestHelpers.reset()
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
