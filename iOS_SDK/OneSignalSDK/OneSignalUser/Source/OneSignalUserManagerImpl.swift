@@ -96,8 +96,9 @@ import OneSignalNotifications
 @objc public protocol OSPushSubscription {
     var id: String? { get }
     var token: String? { get }
-    /// The user's preference combined with OS permission; a subscription the app owner disabled
-    /// remotely, from the dashboard or the REST API, still reports true here.
+    /// The user's preference combined with OS permission. This is false while the app owner has the
+    /// subscription disabled remotely, from the dashboard or the REST API; `optIn()` clears that
+    /// suppression.
     var optedIn: Bool { get }
 
     func optIn()

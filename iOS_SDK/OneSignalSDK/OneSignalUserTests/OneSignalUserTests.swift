@@ -588,3 +588,114 @@ final class OneSignalUserTests: XCTestCase {
         XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -22)
     }
 }
+
+
+/**
+ `optedIn` is the only signal the public API gives an app for "will push reach this device", so a
+ subscription the app owner turned off remotely has to report false there. Kept in its own class
+ because these build bare models and never touch the user manager singleton.
+ */
+final class RemoteDisableOptedInTests: XCTestCase {
+
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        // Firing a push subscription change reaches the user manager singleton and can enqueue a
+        // delta, so reset it between tests the way the rest of this suite does.
+        OneSignalUserMocks.reset()
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+    }
+
+    /// The notification_types codes the app owner sets remotely: -22 from the dashboard, -31 through
+    /// the REST API. Treated identically, recorded separately.
+    private static let remoteDisableCodes = [-22, -31]
+
+    private func makePushModel() -> OSSubscriptionModel {
+        return OSSubscriptionModel(
+            type: .push,
+            address: "test-token",
+            subscriptionId: "test-sub-id",
+            reachable: true,
+            isDisabled: false,
+            changeNotifier: OSEventProducer()
+        )
+    }
+
+    private func pushModelWithRemoteDisable(_ code: Int) -> OSSubscriptionModel {
+        let model = makePushModel()
+        model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+        return model
+    }
+
+    func testRemoteDisable_reportsOptedInFalse() {
+        // A remote disable suppresses delivery, so the property clients read to decide whether push
+        // works must say so. Before this, a preference center showed "subscribed" on a device the
+        // app owner had turned off, and nothing in the public API revealed why.
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
+
+            XCTAssertFalse(model.optedIn, "a \(code) disable must report optedIn false")
+            // currentPushSubscriptionState builds the observer payload, so it has to agree.
+            XCTAssertFalse(model.currentPushSubscriptionState.optedIn)
+
+            // The toggle a client drives off is not a dead end: opting in reports true again.
+            model.clearRemoteDisable()
+            XCTAssertTrue(model.optedIn)
+            XCTAssertTrue(model.currentPushSubscriptionState.optedIn)
+        }
+    }
+
+    func testRemoteDisable_optedInIgnoresDeviceRecoverableCodes() {
+        // Only the two server-owned codes reach optedIn, and they arrive through
+        // remoteDisabledReason rather than notificationTypes. A device-side delivery error is
+        // recoverable by re-asserting local state, so it must not read as an opt-out to the app.
+        let model = makePushModel()
+
+        for code in [-2, -13, -25, -30, -32] {
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "notification_types": code])
+            XCTAssertTrue(model.optedIn, "\(code) is device-recoverable and must not clear optedIn")
+        }
+    }
+
+    func testRemoteDisable_hydrationDoesNotEnqueueAnEnabledDelta() {
+        // Hydrating the disable flips optedIn, which observers need to hear about, but the server
+        // is where the state came from. Enqueueing an `enabled` delta for it would send a request
+        // telling the server what it just told us, so the observer fires without one.
+        for code in Self.remoteDisableCodes {
+            let model = makePushModel()
+            let spy = SpyModelChangedHandler()
+            model.changeNotifier.subscribe(spy)
+
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "notification_types": code])
+            XCTAssertEqual(model.remoteDisabledReason, code)
+            XCTAssertTrue(spy.serverUpdates.isEmpty, "hydrating \(code) must not enqueue a delta")
+            // The reason was still written, so the assertion above is not passing vacuously.
+            XCTAssertTrue(spy.hydratedUpdates.contains("remoteDisabledReason"))
+
+            // Clearing it from the server side is the same story.
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "notification_types": -2])
+            XCTAssertNil(model.remoteDisabledReason)
+            XCTAssertFalse(spy.serverUpdates.contains("enabled"))
+
+            // An optIn() clear is the opposite case: the delta is how the server re-enables it.
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "notification_types": code])
+            spy.serverUpdates.removeAll()
+            model.clearRemoteDisable()
+            XCTAssertTrue(spy.serverUpdates.contains("enabled"), "optIn() must re-enable on the server")
+        }
+    }
+}
+
+/// Records the properties a model reported as changed, split by whether the change was meant to
+/// reach the server. `hydrating` is true for writes that only mirror state the server already has.
+private class SpyModelChangedHandler: OSModelChangedHandler {
+    var serverUpdates: [String] = []
+    var hydratedUpdates: [String] = []
+
+    func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
+        if hydrating {
+            hydratedUpdates.append(args.property)
+        } else {
+            serverUpdates.append(args.property)
+        }
+    }
+}

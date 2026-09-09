@@ -237,10 +237,14 @@ class OSSubscriptionModel: OSModel {
     }
 
     var optedIn: Bool {
-        // optedIn = permission + userPreference
+        // optedIn = permission + userPreference + not suppressed by the app owner
         get {
             let state = snapshot()
-            return calculateIsOptedIn(reachable: state.reachable, isDisabled: state.isDisabled)
+            return calculateIsOptedIn(
+                reachable: state.reachable,
+                isDisabled: state.isDisabled,
+                remoteDisabledReason: state.remoteDisabledReason
+            )
         }
     }
 
@@ -570,14 +574,20 @@ extension OSSubscriptionModel {
         let state = snapshot()
         return OSPushSubscriptionState(id: state.subscriptionId,
                                        token: state.address,
-                                       optedIn: calculateIsOptedIn(reachable: state.reachable, isDisabled: state.isDisabled)
+                                       optedIn: calculateIsOptedIn(
+                                        reachable: state.reachable,
+                                        isDisabled: state.isDisabled,
+                                        remoteDisabledReason: state.remoteDisabledReason
+                                       )
         )
     }
 
     // Calculates if the device is opted in to push notification.
-    // Must have permission and not be opted out.
-    func calculateIsOptedIn(reachable: Bool, isDisabled: Bool) -> Bool {
-        return reachable && !isDisabled
+    // Must have permission, not be opted out, and not be disabled remotely by the app owner. A
+    // remote disable suppresses delivery just as surely as a missing permission or an opt-out, and
+    // it is the only one of the three the app cannot see any other way.
+    func calculateIsOptedIn(reachable: Bool, isDisabled: Bool, remoteDisabledReason: Int?) -> Bool {
+        return reachable && !isDisabled && remoteDisabledReason == nil
     }
 
     // Calculates if push notifications are enabled on the device.
@@ -594,12 +604,13 @@ extension OSSubscriptionModel {
     /// `optIn()` cleared one and the server has not yet reported the subscription in another state;
     /// the user's explicit intent wins that race.
     private func recordRemoteDisable(_ code: Int) {
-        let changed: Bool = stateLock.withLock {
+        let (changed, previousReason) = stateLock.withLock { () -> (Bool, Int?) in
             guard !state.remoteDisableClearedByUser, state.remoteDisabledReason != code else {
-                return false
+                return (false, nil)
             }
+            let previousReason = state.remoteDisabledReason
             state.remoteDisabledReason = code
-            return true
+            return (true, previousReason)
         }
         guard changed else {
             return
@@ -609,6 +620,8 @@ extension OSSubscriptionModel {
             message: "OSSubscriptionModel: recording remote disable \(code) for push subscription \(subscriptionId ?? "nil")"
         )
         self.set(property: "remoteDisabledReason", newValue: code, preventServerUpdate: true)
+        // The disable takes `optedIn` to false, which observers need to hear about.
+        firePushSubscriptionChanged(.remoteDisabledReason(previousReason), generateEnabledDelta: false)
     }
 
     /// Clears `remoteDisabledReason` and re-arms recording once the server reports a non-disabled state.
@@ -627,6 +640,8 @@ extension OSSubscriptionModel {
             message: "OSSubscriptionModel: clearing remote disable \(clearedReason) for push subscription \(subscriptionId ?? "nil")"
         )
         self.set(property: "remoteDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
+        // Clearing the disable takes `optedIn` back to true, which observers need to hear about.
+        firePushSubscriptionChanged(.remoteDisabledReason(clearedReason), generateEnabledDelta: false)
     }
 
     /// notification_types for outgoing payloads: the recorded disable code (the positive device
@@ -730,7 +745,12 @@ extension OSSubscriptionModel {
         case remoteDisabledReason(Int?)
     }
 
-    func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
+    /// Notifies push subscription observers of the state after `changedProperty` changed.
+    ///
+    /// Pass `generateEnabledDelta: false` when the change came from a server response: the server
+    /// already holds that state, so enqueueing an `enabled` delta for it would send a request that
+    /// tells the server what it just told us.
+    func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged, generateEnabledDelta: Bool = true) {
         // The previous state is the current state with only the changed property's old value substituted.
         var prevId = subscriptionId
         var prevAddress = address
@@ -757,10 +777,18 @@ extension OSSubscriptionModel {
             isDisabled: prevIsDisabled,
             remoteDisabledReason: prevRemoteDisabledReason
         )
-        let prevIsOptedIn = calculateIsOptedIn(reachable: prevReachable, isDisabled: prevIsDisabled)
+        let prevIsOptedIn = calculateIsOptedIn(
+            reachable: prevReachable,
+            isDisabled: prevIsDisabled,
+            remoteDisabledReason: prevRemoteDisabledReason
+        )
         let prevSubscriptionState = OSPushSubscriptionState(id: prevId, token: prevAddress, optedIn: prevIsOptedIn)
 
-        let newIsOptedIn = calculateIsOptedIn(reachable: _reachable, isDisabled: _isDisabled)
+        let newIsOptedIn = calculateIsOptedIn(
+            reachable: _reachable,
+            isDisabled: _isDisabled,
+            remoteDisabledReason: remoteDisabledReason
+        )
 
         let newIsEnabled = calculateIsEnabled(
             address: address,
@@ -769,7 +797,7 @@ extension OSSubscriptionModel {
             remoteDisabledReason: remoteDisabledReason
         )
 
-        if prevIsEnabled != newIsEnabled {
+        if generateEnabledDelta && prevIsEnabled != newIsEnabled {
             self.set(property: "enabled", newValue: newIsEnabled)
         }
 
