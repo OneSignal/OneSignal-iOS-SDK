@@ -604,22 +604,28 @@ extension OSSubscriptionModel {
         guard changed else {
             return
         }
+        OneSignalLog.onesignalLog(
+            .LL_DEBUG,
+            message: "OSSubscriptionModel: recording remote disable \(code) for push subscription \(subscriptionId ?? "nil")"
+        )
         self.set(property: "remoteDisabledReason", newValue: code, preventServerUpdate: true)
     }
 
     /// Clears `remoteDisabledReason` and re-arms recording once the server reports a non-disabled state.
     private func acceptServerNonDisabledState() {
-        let changed: Bool = stateLock.withLock {
+        let clearedReason: Int? = stateLock.withLock {
             state.remoteDisableClearedByUser = false
-            guard state.remoteDisabledReason != nil else {
-                return false
-            }
+            let previous = state.remoteDisabledReason
             state.remoteDisabledReason = nil
-            return true
+            return previous
         }
-        guard changed else {
+        guard let clearedReason else {
             return
         }
+        OneSignalLog.onesignalLog(
+            .LL_DEBUG,
+            message: "OSSubscriptionModel: clearing remote disable \(clearedReason) for push subscription \(subscriptionId ?? "nil")"
+        )
         self.set(property: "remoteDisabledReason", newValue: nil as Int?, preventServerUpdate: true)
     }
 
