@@ -97,7 +97,7 @@ import OneSignalNotifications
     var id: String? { get }
     var token: String? { get }
     /// The user's preference combined with OS permission; a subscription the app owner disabled
-    /// through the REST API still reports true here.
+    /// remotely, from the dashboard or the REST API, still reports true here.
     var optedIn: Bool { get }
 
     func optIn()
@@ -936,7 +936,7 @@ extension OneSignalUserManagerImpl {
             }
             let model = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
             model?._isDisabled = false
-            model?.clearRestApiDisable()
+            model?.clearRemoteDisable()
             OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
         }
 

@@ -325,10 +325,16 @@ final class OneSignalUserTests: XCTestCase {
         XCTAssertNil(manager.currentUser(matching: identityModel.modelId))
     }
 
-    // MARK: - REST API disabled push subscriptions
+    // MARK: - Remotely disabled push subscriptions
 
-    /// A push model hydrated with the server's REST API disable state (notification_types -31).
-    private func pushModelWithRestApiDisable() -> OSSubscriptionModel {
+    /// The notification_types codes the app owner sets remotely: -22 unsubscribes the subscription
+    /// by hand from the dashboard, -31 disables it through the REST API. Both mean "the server
+    /// turned this off" and are treated identically, but each is recorded as itself so outgoing
+    /// payloads echo back the code the server actually sent.
+    private static let remoteDisableCodes = [-22, -31]
+
+    /// A push model hydrated with the server's remote disable state for `code`.
+    private func pushModelWithRemoteDisable(_ code: Int = -31) -> OSSubscriptionModel {
         let model = OSSubscriptionModel(
             type: .push,
             address: "test-token",
@@ -337,60 +343,91 @@ final class OneSignalUserTests: XCTestCase {
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+        model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
         return model
     }
 
-    func testRestApiDisable_overridesOutgoingSubscriptionPayloads() {
-        let model = pushModelWithRestApiDisable()
-        XCTAssertEqual(model.restApiDisabledReason, -31)
-
-        let json = model.jsonRepresentation()
-        XCTAssertEqual(json["enabled"] as? Bool, false)
-        XCTAssertEqual(json["notification_types"] as? Int, -31)
-
-        let updateRequest = OSRequestUpdateSubscription(subscriptionModel: model)
-        let params = updateRequest.parameters?["subscription"] as? [String: Any]
-        XCTAssertEqual(params?["enabled"] as? Bool, false)
-        XCTAssertEqual(params?["notification_types"] as? Int, -31)
+    func testRemoteDisable_recognizesOnlyTheTwoServerOwnedCodes() {
+        for code in Self.remoteDisableCodes {
+            XCTAssertTrue(
+                OSRemoteDisable.matches(code),
+                "\(code) is a code the app owner sets remotely and must suppress outgoing payloads"
+            )
+        }
+        // Every other code describes device or delivery state the device recovers from by
+        // re-asserting its own truth. Treating one as a remote disable would permanently suppress
+        // a subscription the device could have re-enabled, so the boundary matters more than the
+        // list: -21/-23/-24 sit inside the range reserved for other platforms, and -30/-32
+        // bracket the REST API code.
+        for code in [1, 0, -2, -3, -13, -21, -23, -24, -25, -30, -32] {
+            XCTAssertFalse(
+                OSRemoteDisable.matches(code),
+                "\(code) is device-recoverable and must not be recorded as a remote disable"
+            )
+        }
+        XCTAssertFalse(OSRemoteDisable.matches(nil))
     }
 
-    func testRestApiDisable_survivesDeviceStateRefresh() {
-        let model = pushModelWithRestApiDisable()
+    func testRemoteDisable_overridesOutgoingSubscriptionPayloads() {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
+            XCTAssertEqual(model.remoteDisabledReason, code)
 
-        // Device-driven recomputes must not clear server-owned disable state
-        model.updateNotificationTypes()
-        model.update()
+            // The recorded code round-trips rather than collapsing to the other one.
+            let json = model.jsonRepresentation()
+            XCTAssertEqual(json["enabled"] as? Bool, false)
+            XCTAssertEqual(json["notification_types"] as? Int, code)
 
-        XCTAssertEqual(model.restApiDisabledReason, -31)
-        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
+            let updateRequest = OSRequestUpdateSubscription(subscriptionModel: model)
+            let params = updateRequest.parameters?["subscription"] as? [String: Any]
+            XCTAssertEqual(params?["enabled"] as? Bool, false)
+            XCTAssertEqual(params?["notification_types"] as? Int, code)
+        }
     }
 
-    func testRestApiDisable_survivesArchiving() throws {
-        let model = pushModelWithRestApiDisable()
+    func testRemoteDisable_survivesDeviceStateRefresh() {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
 
-        let data = try NSKeyedArchiver.archivedData(withRootObject: model, requiringSecureCoding: false)
-        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data)
-        unarchiver.requiresSecureCoding = false
-        let restored = try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSSubscriptionModel)
+            // Device-driven recomputes must not clear server-owned disable state
+            model.updateNotificationTypes()
+            model.update()
 
-        XCTAssertEqual(restored.restApiDisabledReason, -31)
-        XCTAssertEqual(restored.jsonRepresentation()["enabled"] as? Bool, false)
+            XCTAssertEqual(model.remoteDisabledReason, code)
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
+        }
     }
 
-    func testRestApiDisable_clearedByOptIn() {
-        let model = pushModelWithRestApiDisable()
+    func testRemoteDisable_survivesArchiving() throws {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
 
-        model.clearRestApiDisable()
+            let data = try NSKeyedArchiver.archivedData(withRootObject: model, requiringSecureCoding: false)
+            let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data)
+            unarchiver.requiresSecureCoding = false
+            let restored = try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSSubscriptionModel)
 
-        XCTAssertNil(model.restApiDisabledReason)
-        let json = model.jsonRepresentation()
-        XCTAssertEqual(json["enabled"] as? Bool, true)
-        XCTAssertNotEqual(json["notification_types"] as? Int, -31)
+            XCTAssertEqual(restored.remoteDisabledReason, code)
+            XCTAssertEqual(restored.jsonRepresentation()["enabled"] as? Bool, false)
+        }
     }
 
-    func testRestApiDisable_mirrorsServerField() {
-        // Only -31 is ever recorded; any other reported value is not, and clears an existing disable.
+    func testRemoteDisable_clearedByOptIn() {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
+
+            model.clearRemoteDisable()
+
+            XCTAssertNil(model.remoteDisabledReason)
+            let json = model.jsonRepresentation()
+            XCTAssertEqual(json["enabled"] as? Bool, true)
+            XCTAssertNotEqual(json["notification_types"] as? Int, code)
+        }
+    }
+
+    func testRemoteDisable_mirrorsServerField() {
+        // Only -22 and -31 are ever recorded; any other reported value is not, and clears an
+        // existing disable. Each code is recorded as itself, including replacing the other one.
         let model = OSSubscriptionModel(
             type: .push,
             address: "test-token",
@@ -399,69 +436,93 @@ final class OneSignalUserTests: XCTestCase {
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
-        XCTAssertNil(model.restApiDisabledReason)
+        model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
+        XCTAssertNil(model.remoteDisabledReason)
 
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
-        XCTAssertEqual(model.restApiDisabledReason, -31)
+        for code in Self.remoteDisableCodes {
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertEqual(model.remoteDisabledReason, code)
 
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
-        XCTAssertNil(model.restApiDisabledReason)
-        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -2])
+            XCTAssertNil(model.remoteDisabledReason)
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+        }
     }
 
-    func testRestApiDisable_clearedWhenSubscriptionIdResets() {
+    func testRemoteDisable_switchingBetweenTheTwoCodesRecordsTheLatest() {
+        // The dashboard and the REST API can both act on the same subscription, so a second
+        // disable arriving under the other code must replace the recorded one rather than be
+        // ignored as "already disabled".
+        let model = pushModelWithRemoteDisable(-22)
+        XCTAssertEqual(model.remoteDisabledReason, -22)
+
+        model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
+
+        XCTAssertEqual(model.remoteDisabledReason, -31)
+        XCTAssertEqual(model.jsonRepresentation()["notification_types"] as? Int, -31)
+    }
+
+    func testRemoteDisable_clearedWhenSubscriptionIdResets() {
         // The disable code describes a specific server record; it must die with the record.
-        let model = pushModelWithRestApiDisable()
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
 
-        model.subscriptionId = nil
+            model.subscriptionId = nil
 
-        XCTAssertNil(model.restApiDisabledReason)
-        XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+            XCTAssertNil(model.remoteDisabledReason)
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+        }
     }
 
-    func testRestApiDisable_optInOutranksStaleHydration() {
-        let model = pushModelWithRestApiDisable()
+    func testRemoteDisable_optInOutranksStaleHydration() {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
 
-        // A stale fetch response landing after optIn() cleared the disable must not re-record it
-        model.clearRestApiDisable()
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
-        XCTAssertNil(model.restApiDisabledReason)
+            // A stale fetch response landing after optIn() cleared the disable must not re-record it
+            model.clearRemoteDisable()
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertNil(model.remoteDisabledReason)
 
-        // Once the server reports another state, recording re-arms for a later operator disable
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": false, "notification_types": -31])
-        XCTAssertEqual(model.restApiDisabledReason, -31)
+            // Once the server reports another state, recording re-arms for a later operator disable
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertEqual(model.remoteDisabledReason, code)
+        }
     }
 
-    func testRestApiDisable_clearedWhenServerReportsEnabled() {
-        let model = pushModelWithRestApiDisable()
+    func testRemoteDisable_clearedWhenServerReportsEnabled() {
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
 
-        model.hydrateRestApiDisabledState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": true, "notification_types": 1])
 
-        XCTAssertNil(model.restApiDisabledReason)
+            XCTAssertNil(model.remoteDisabledReason)
+        }
     }
 
     /**
-     A push subscription disabled through the REST API (server notification_types -31) must stay
-     disabled across a login to a different external ID. The fetch hydrates the server's disable
-     state onto the existing subscription, and the login's Create User payload echoes it back.
+     A push subscription the app owner turned off remotely must stay disabled across a login to a
+     different external ID. The fetch hydrates the server's disable state onto the existing
+     subscription, and the login's Create User payload echoes it back.
+
+     Uses -22 (unsubscribed by hand from the dashboard) rather than -31 so this end-to-end path also
+     proves the exact recorded code survives, instead of every remote disable reporting as -31.
      */
-    func testLoginToDifferentUser_afterRestApiDisable_sendsDisabledPushSubscription() throws {
+    func testLoginToDifferentUser_afterRemoteDisable_sendsDisabledPushSubscription() throws {
         /* Setup */
         let client = MockOneSignalClient()
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID)
         MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: userB_EUID)
 
-        // Fetching user A reports the push subscription disabled through the REST API
+        // Fetching user A reports the push subscription unsubscribed from the dashboard
         var disabledResponse = MockUserRequests.testDefaultFullCreateUserResponse(
             onesignalId: anonUserOSID,
             externalId: userA_EUID,
             subscriptionId: testPushSubId
         )
         let disabledSub = MockUserRequests.testDefaultPushSubPayload(id: testPushSubId)
-            .merging(["enabled": false, "notification_types": -31]) { _, new in new }
+            .merging(["enabled": false, "notification_types": -22]) { _, new in new }
         disabledResponse["subscriptions"] = [disabledSub]
         client.setMockResponseForRequest(
             request: "<OSRequestFetchUser with onesignal_id: \(anonUserOSID)>",
@@ -470,13 +531,13 @@ final class OneSignalUserTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
 
         // 1. Start with an anonymous user and log in to user A; the post-identify fetch
-        // hydrates the REST API disable onto the existing push subscription
+        // hydrates the remote disable onto the existing push subscription
         OneSignalUserManagerImpl.sharedInstance.start()
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
 
-        OneSignalCoreMocks.waitUntil("Fetch did not hydrate the REST API disable") {
+        OneSignalCoreMocks.waitUntil("Fetch did not hydrate the remote disable") {
             OneSignalUserManagerImpl.sharedInstance.user.identityModel.externalId == userA_EUID &&
-                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.restApiDisabledReason == -31
+                OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.remoteDisabledReason == -22
         }
 
         /* When */
@@ -497,6 +558,6 @@ final class OneSignalUserTests: XCTestCase {
 
         let subscriptions = try XCTUnwrap(createUserBRequest()?.parameters?["subscriptions"] as? [[String: Any]])
         XCTAssertEqual(subscriptions.first?["enabled"] as? Bool, false)
-        XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -31)
+        XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -22)
     }
 }

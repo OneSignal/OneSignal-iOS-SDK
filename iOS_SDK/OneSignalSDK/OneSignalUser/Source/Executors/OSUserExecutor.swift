@@ -556,7 +556,7 @@ extension OSUserExecutor {
     }
 
     /// Hydrates the push subscription from a fetch or create response: the whole object before a
-    /// subscription ID exists, only the server's REST API disable state once one does.
+    /// subscription ID exists, only the server's remote disable state once one does.
     // TODO: Determine how to hydrate the push subscription, which is still faulty.
     // Hydrate by token if sub_id exists?
     // Problem: a user can have multiple iOS push subscription, and perhaps missing token
@@ -585,10 +585,10 @@ extension OSUserExecutor {
             return
         }
 
-        // Only the REST API disable state hydrates onto an existing push subscription; the device
+        // Only the remote disable state hydrates onto an existing push subscription; the device
         // owns the rest. Skipping it lets the next subscription payload re-enable a suppressed device.
         for subModel in subscriptionObject where subModel["id"] as? String == subscriptionId {
-            pushSubscriptionModel?.hydrateRestApiDisabledState(from: subModel)
+            pushSubscriptionModel?.hydrateRemoteDisableState(from: subModel)
             break
         }
     }
