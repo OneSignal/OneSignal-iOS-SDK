@@ -49,10 +49,13 @@ final class OneSignalService {
     // MARK: - Initialization
 
     /// Mirrors the Capacitor demo's `useOneSignal` init order: feed cached
-    /// consent into the SDK BEFORE `initialize`, then restore IAM-paused,
-    /// location-shared, and a previously-logged-in external user id once the
-    /// SDK is ready. Without this, toggles flip back to defaults on every
-    /// cold launch.
+    /// consent into the SDK BEFORE `initialize`, then restore IAM-paused and
+    /// location-shared once the SDK is ready. Without this, toggles flip back
+    /// to defaults on every cold launch.
+    ///
+    /// No login here. The SDK restores the user from its own cache, and the stored JWT
+    /// stays with the demo so the SDK's own ask through `OSUserJwtInvalidatedListener`
+    /// stays observable on cold start.
     func initialize(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         OneSignal.Debug.setLogLevel(.LL_VERBOSE)
 
@@ -63,10 +66,6 @@ final class OneSignalService {
 
         OneSignal.InAppMessages.paused = prefs.getIamPaused()
         OneSignal.Location.isShared = prefs.getLocationShared()
-
-        if let storedExternalId = prefs.getExternalUserId() {
-            OneSignal.login(storedExternalId)
-        }
     }
 
     // MARK: - Identity
@@ -98,7 +97,7 @@ final class OneSignalService {
 
     func login(externalId: String, jwtToken: String? = nil) {
         prefs.setExternalUserId(externalId)
-        // Persist for the demo REST fetch only; cold start does not call login/updateUserJwt with it.
+        // Demo REST fetch only. Not replayed to the SDK at launch.
         prefs.setSessionJwtToken(jwtToken)
         if let jwtToken = jwtToken {
             OneSignal.login(externalId: externalId, token: jwtToken)
@@ -118,6 +117,11 @@ final class OneSignalService {
         OneSignal.logout()
     }
 
+    /// Called when the SDK rejects the token, so the REST fetch stops sending it.
+    func clearSessionJwtToken() {
+        prefs.setSessionJwtToken(nil)
+    }
+
     // MARK: - Identity Verification (demo REST fetch)
 
     /// Demo toggle for addressing the REST user fetch by `external_id`. Persisted across launches.
@@ -126,7 +130,7 @@ final class OneSignalService {
         set { prefs.setUseIdentityVerification(newValue) }
     }
 
-    /// JWT from the last login / updateUserJwt. Used by the demo REST fetch only — not auto-fed to the SDK on cold start.
+    /// Token from the last login / updateUserJwt, for the demo REST fetch only. Cleared when the SDK rejects it.
     var sessionJwtToken: String? { prefs.getSessionJwtToken() }
 
     // MARK: - Aliases

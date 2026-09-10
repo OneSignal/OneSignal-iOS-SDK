@@ -30,6 +30,7 @@ import SwiftUI
 /// Login/logout + JWT / Identity Verification controls for manual testing.
 struct UserSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
+    @EnvironmentObject var toast: ToastPresenter
     @State private var loginOpen = false
     @State private var updateJwtOpen = false
 
@@ -58,6 +59,31 @@ struct UserSection: View {
                     monospaced: true
                 )
             ])
+
+            // Shown instead of auto-feeding the stored token, so the SDK's ask is visible.
+            if let askedId = viewModel.jwtAskExternalId {
+                VStack(alignment: .leading, spacing: OS.Spacing.cardGap) {
+                    Text("The SDK is waiting for a JWT. Requests for this user are parked until one is supplied.")
+                        .font(OS.Font.bodySmall)
+                        .foregroundColor(OS.Color.bodyText)
+                    Text(askedId)
+                        .font(OS.Font.mono12)
+                        .foregroundColor(OS.Color.bodyText)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .accessibilityIdentifier("jwt_ask_external_id_value")
+                    ActionButton(
+                        "PROVIDE JWT",
+                        style: .outline,
+                        accessibilityID: "jwt_ask_provide_button"
+                    ) {
+                        updateJwtOpen = true
+                    }
+                }
+                .osCard(background: OS.Color.warningBackground)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("jwt_ask_banner")
+            }
 
             ActionButton(
                 viewModel.loginButtonTitle,
@@ -96,12 +122,18 @@ struct UserSection: View {
         .osCenteredDialog(isPresented: $updateJwtOpen) {
             AddItemDialog(
                 itemType: .updateUserJwt,
+                initialKey: viewModel.jwtAskExternalId ?? viewModel.externalUserId ?? "",
                 onAdd: { externalId, token in
                     viewModel.updateUserJwt(externalId: externalId, token: token)
                     updateJwtOpen = false
                 },
                 onCancel: { updateJwtOpen = false }
             )
+        }
+        .onChange(of: viewModel.jwtAskExternalId) { askedId in
+            if let askedId = askedId {
+                toast.show("SDK asked for a JWT for \(askedId)")
+            }
         }
     }
 }

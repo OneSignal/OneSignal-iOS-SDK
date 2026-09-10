@@ -44,6 +44,8 @@ final class OneSignalViewModel: ObservableObject {
     @Published var externalUserId: String?
     @Published var aliases: [KeyValueItem] = []
     @Published var useIdentityVerification: Bool = false
+    /// External id the SDK is waiting on a JWT for. Drives the banner in `UserSection`.
+    @Published var jwtAskExternalId: String?
 
     // MARK: - Push
 
@@ -203,6 +205,9 @@ final class OneSignalViewModel: ObservableObject {
         isLoading = true
         service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
+        if jwtToken != nil, jwtAskExternalId == trimmed {
+            jwtAskExternalId = nil
+        }
         clearUserData()
     }
 
@@ -211,12 +216,23 @@ final class OneSignalViewModel: ObservableObject {
         let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty, !trimmedToken.isEmpty else { return }
         service.updateUserJwt(externalId: trimmedId, token: trimmedToken)
+        if jwtAskExternalId == trimmedId {
+            jwtAskExternalId = nil
+        }
         print("[OneSignal] Updated JWT for: \(trimmedId)")
+    }
+
+    /// The SDK parked this user's requests for want of a token. Drop the demo's stale copy and show the ask.
+    func handleJwtInvalidated(externalId: String) {
+        service.clearSessionJwtToken()
+        jwtAskExternalId = externalId
+        print("[OneSignal] JWT invalidated for externalId: \(externalId)")
     }
 
     func logout() {
         service.logout()
         externalUserId = nil
+        jwtAskExternalId = nil
         clearUserData()
     }
 
@@ -524,6 +540,8 @@ private final class Observers: NSObject,
     }
 
     func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
-        print("[OneSignal] JWT invalidated for externalId: \(event.externalId)")
+        Task { @MainActor in
+            viewModel?.handleJwtInvalidated(externalId: event.externalId)
+        }
     }
 }
