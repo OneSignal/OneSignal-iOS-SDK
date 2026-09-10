@@ -27,6 +27,24 @@
 
 import Foundation
 
+/// Why a demo /users fetch returned nothing, shown in the User section so a 401 under
+/// Identity Verification is not mistaken for an empty user.
+enum UserFetchError: Error, CustomStringConvertible {
+    case badRequest
+    case http(Int)
+    case badBody
+    case transport(Error)
+
+    var description: String {
+        switch self {
+        case .badRequest: return "bad request"
+        case .http(let status): return "HTTP \(status)"
+        case .badBody: return "unreadable body"
+        case .transport(let error): return error.localizedDescription
+        }
+    }
+}
+
 /// Reads the OneSignal /users API to hydrate aliases / tags / channels in the demo.
 final class UserFetchService {
     static let shared = UserFetchService()
@@ -38,8 +56,8 @@ final class UserFetchService {
         aliasLabel: String,
         aliasValue: String,
         jwt: String? = nil
-    ) async -> UserData? {
-        guard !aliasValue.isEmpty else { return nil }
+    ) async -> Result<UserData, UserFetchError> {
+        guard !aliasValue.isEmpty else { return .failure(.badRequest) }
 
         // Path-encode so external_ids with reserved characters don't misroute the GET.
         var allowed = CharacterSet.urlPathAllowed
@@ -48,7 +66,7 @@ final class UserFetchService {
             let encodedAlias = aliasValue.addingPercentEncoding(withAllowedCharacters: allowed),
             let url = URL(string: "https://api.onesignal.com/apps/\(appId)/users/by/\(aliasLabel)/\(encodedAlias)")
         else {
-            return nil
+            return .failure(.badRequest)
         }
 
         var request = URLRequest(url: url)
@@ -61,14 +79,14 @@ final class UserFetchService {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-                return nil
+                return .failure(.http((response as? HTTPURLResponse)?.statusCode ?? -1))
             }
             guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                return nil
+                return .failure(.badBody)
             }
-            return parse(json)
+            return .success(parse(json))
         } catch {
-            return nil
+            return .failure(.transport(error))
         }
     }
 

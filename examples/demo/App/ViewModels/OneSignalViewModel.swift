@@ -46,6 +46,8 @@ final class OneSignalViewModel: ObservableObject {
     @Published var useIdentityVerification: Bool = false
     /// External id the SDK is waiting on a JWT for. Drives the banner in `UserSection`.
     @Published var jwtAskExternalId: String?
+    /// Outcome of the last demo /users fetch, "OK" or the failure reason.
+    @Published var userFetchStatus: String?
 
     // MARK: - Push
 
@@ -159,7 +161,7 @@ final class OneSignalViewModel: ObservableObject {
         let captured = requestSequence
         isLoading = true
 
-        let userData = await UserFetchService.shared.fetchUser(
+        let result = await UserFetchService.shared.fetchUser(
             appId: appId,
             aliasLabel: aliasLabel,
             aliasValue: aliasValue,
@@ -169,7 +171,8 @@ final class OneSignalViewModel: ObservableObject {
         // Drop the result if a newer fetch has started while this one was in flight.
         guard captured == requestSequence else { return }
 
-        if let userData = userData {
+        switch result {
+        case .success(let userData):
             aliases = userData.aliases.map { KeyValueItem(key: $0.key, value: $0.value) }
             tags = userData.tags.map { KeyValueItem(key: $0.key, value: $0.value) }
             emails = userData.emails
@@ -177,6 +180,10 @@ final class OneSignalViewModel: ObservableObject {
             if let extId = userData.externalId, !extId.isEmpty {
                 externalUserId = extId
             }
+            userFetchStatus = "OK"
+        case .failure(let error):
+            userFetchStatus = "\(aliasLabel) fetch failed: \(error)"
+            print("[OneSignal] /users fetch by \(aliasLabel) failed: \(error)")
         }
         isLoading = false
     }
@@ -245,7 +252,8 @@ final class OneSignalViewModel: ObservableObject {
     func setUseIdentityVerification(_ enabled: Bool) {
         useIdentityVerification = enabled
         service.useIdentityVerification = enabled
-        print("[OneSignal] Identity verification \(enabled ? "enabled" : "disabled")")
+        print("[OneSignal] Fetch by external_id \(enabled ? "enabled" : "disabled")")
+        Task { await fetchUserDataFromApi() }
     }
 
     private func clearUserData() {

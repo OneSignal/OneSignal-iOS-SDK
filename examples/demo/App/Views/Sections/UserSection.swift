@@ -37,8 +37,8 @@ struct UserSection: View {
     var body: some View {
         SectionCard(title: "USER", sectionKey: "user") {
             ToggleRow(
-                label: "Identity Verification",
-                description: "Use external_id for API calls",
+                label: "Fetch by external_id (JWT)",
+                description: "Demo REST fetch only. Signs with the stored JWT.",
                 isOn: Binding(
                     get: { viewModel.useIdentityVerification },
                     set: { viewModel.setUseIdentityVerification($0) }
@@ -57,6 +57,11 @@ struct UserSection: View {
                     value: viewModel.externalUserId ?? "—",
                     valueAccessibilityID: "user_external_id_value",
                     monospaced: true
+                ),
+                ValueCard.Row(
+                    label: "REST fetch",
+                    value: viewModel.userFetchStatus ?? "—",
+                    valueAccessibilityID: "user_fetch_status_value"
                 )
             ])
 
