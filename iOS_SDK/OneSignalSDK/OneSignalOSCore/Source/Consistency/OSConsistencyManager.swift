@@ -32,17 +32,30 @@ import OneSignalCore
     // Singleton instance
     @objc public static let shared = OSConsistencyManager()
 
-    private let queue = DispatchQueue(label: "com.consistencyManager.queue")
+    // Serial, and the only place `indexedTokens` and `indexedConditions` may be touched.
+    // Non-private so test helpers can synchronize with it.
+    let queue = DispatchQueue(label: "com.consistencyManager.queue")
     private var indexedTokens: [String: [NSNumber: OSReadYourWriteData]] = [:]
-    private var indexedConditions: [String: [(OSCondition, DispatchSemaphore)]] = [:] // Index conditions by condition id
+    // Waiters, indexed by the id passed to getRywTokenFromAwaitableCondition. Non-private for tests.
+    var indexedConditions: [String: [(OSCondition, DispatchSemaphore)]] = [:]
+
+    /**
+     How long a waiter blocks before proceeding with whatever token it has. A response that never arrives —
+     the device is offline, or the endpoint stopped returning `ryw_token` and has no call that resolves the
+     condition — would otherwise hold the calling thread for the life of the process.
+     Non-private so tests can shorten it.
+     */
+    static var waitTimeout: DispatchTimeInterval = .seconds(30)
 
     // Private initializer to prevent multiple instances
     private override init() {}
 
     // Used for testing
     public func reset() {
-        indexedTokens = [:]
-        indexedConditions = [:]
+        queue.sync {
+            self.indexedTokens = [:]
+            self.indexedConditions = [:]
+        }
     }
 
     // Function to set the token in a thread-safe manner
@@ -57,52 +70,67 @@ import OneSignalCore
         }
     }
 
-    // Register a condition and block the caller until the condition is met
+    /// Blocks the caller until the condition is met or `waitTimeout` elapses, then returns the newest
+    /// token the condition accepts, which is nil when it was released without one.
     @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
         let semaphore = DispatchSemaphore(value: 0)
         queue.sync {
-            if self.indexedConditions[id] == nil {
-                self.indexedConditions[id] = []
-            }
-            self.indexedConditions[id]?.append((condition, semaphore))
+            self.indexedConditions[id, default: []].append((condition, semaphore))
             self.checkConditionsAndComplete(forId: id)
         }
-        semaphore.wait() // Block until the condition is met
+        if semaphore.wait(timeout: .now() + OSConsistencyManager.waitTimeout) == .timedOut {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSConsistencyManager timed out waiting on \(condition.conditionId) for id: \(id)")
+            queue.sync {
+                // Skip if a met-path release already removed this waiter.
+                guard self.indexedConditions[id]?.contains(where: { $0.1 === semaphore }) == true else {
+                    return
+                }
+                // Clear so later fetches for this id are not held to a subscription token that never arrives.
+                condition.onConditionSatisfied?()
+                self.indexedConditions[id]?.removeAll { $0.1 === semaphore }
+            }
+        }
         return queue.sync {
             return condition.getNewestToken(indexedTokens: self.indexedTokens)
         }
     }
 
-    // Method to resolve conditions by condition ID (e.g. OSIamFetchReadyCondition.ID)
-    @objc public func resolveConditionsWithID(id: String) {
-        guard let conditionList = indexedConditions[id] else { return }
-        var completedConditions: [(OSCondition, DispatchSemaphore)] = []
-        for (condition, semaphore) in conditionList {
-            if condition.conditionId == id {
-                semaphore.signal()
-                completedConditions.append((condition, semaphore))
+    /**
+     Releases waiters on `conditionId` registered under `id` (e.g. onesignalId). Used when that user's
+     response carried no `ryw_token`, so those waiters have nothing left to wait for.
+     */
+    @objc(resolveConditionsWithConditionId:forId:)
+    public func resolveConditions(conditionId: String, forId id: String) {
+        queue.sync {
+            guard let waiters = self.indexedConditions[id] else {
+                return
             }
-        }
-        indexedConditions[id]?.removeAll { condition, semaphore in
-            completedConditions.contains(where: { $0.0 === condition && $0.1 == semaphore })
+            for (condition, semaphore) in waiters where condition.conditionId == conditionId {
+                OneSignalLog.onesignalLog(.LL_INFO, message: "Condition \(conditionId) resolved for id: \(id)")
+                self.release(condition, semaphore)
+            }
+            self.indexedConditions[id] = waiters.filter { $0.0.conditionId != conditionId }
         }
     }
 
     // Private method to check conditions for a specific id (unique ID like onesignalId)
     private func checkConditionsAndComplete(forId id: String) {
-        guard let conditionList = indexedConditions[id] else { return }
-        var completedConditions: [(OSCondition, DispatchSemaphore)] = []
-        for (condition, semaphore) in conditionList {
+        guard let waiters = indexedConditions[id] else { return }
+        var stillWaiting: [(OSCondition, DispatchSemaphore)] = []
+        for (condition, semaphore) in waiters {
             if condition.isMet(indexedTokens: indexedTokens) {
                 OneSignalLog.onesignalLog(.LL_INFO, message: "Condition met for id: \(id)")
-                semaphore.signal()
-                completedConditions.append((condition, semaphore))
+                release(condition, semaphore)
             } else {
                 OneSignalLog.onesignalLog(.LL_INFO, message: "Condition not met for id: \(id)")
+                stillWaiting.append((condition, semaphore))
             }
         }
-        indexedConditions[id]?.removeAll { condition, semaphore in
-            completedConditions.contains(where: { $0.0 === condition && $0.1 == semaphore })
-        }
+        indexedConditions[id] = stillWaiting
+    }
+
+    private func release(_ condition: OSCondition, _ semaphore: DispatchSemaphore) {
+        condition.onConditionSatisfied?()
+        semaphore.signal()
     }
 }
