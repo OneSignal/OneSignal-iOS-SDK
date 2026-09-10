@@ -107,6 +107,7 @@ class OSSubscriptionModel: OSModel {
         var subscriptionId: String?
         var reachable: Bool
         var isDisabled: Bool
+        var isDisabledInternally: Bool
         var notificationTypes: Int
         var testType: Int?
         var deviceOs: String
@@ -261,6 +262,54 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
+    /**
+     Set by the SDK on `logout` under Identity Verification, where no anonymous user is created to send to.
+     Only `reportedEnablement` reads it, so `_isDisabled` and `notificationTypes` keep the app's own opt-in
+     state and clearing this restores what the app asked for.
+
+     The app's push subscription observer does not fire — its opt-in preference has not changed, only what
+     the SDK reports while there is no user to report it for — but setting this does queue an Update
+     Subscription, which is how the server learns the device stopped listening.
+     */
+    var _isDisabledInternally: Bool {
+        get { stateLock.withLock { state.isDisabledInternally } }
+        set { setDisabledInternally(newValue, sendUpdate: true) }
+    }
+
+    /// Restores reporting without an Update Subscription, for `login`: its Create User already carries
+    /// the re-enabled subscription.
+    func clearDisabledInternallyForLogin() {
+        setDisabledInternally(false, sendUpdate: false)
+    }
+
+    private func setDisabledInternally(_ disabled: Bool, sendUpdate: Bool) {
+        let oldValue = swapValue(\.isDisabledInternally, to: disabled)
+        guard disabled != oldValue else {
+            return
+        }
+        self.set(property: "isDisabledInternally", newValue: disabled, preventServerUpdate: !sendUpdate)
+    }
+
+    /**
+     The `enabled` and `notification_types` to report, which the server reads as a pair. An internal
+     disable overrides both. `notificationTypes` is nil when there is no value to send.
+
+     Taken from one snapshot so the two cannot disagree, and shared with Update Subscription so a
+     subscription reports the same thing however the Request was built.
+     */
+    func reportedEnablement() -> (enabled: Bool, notificationTypes: Int?) {
+        return reportedEnablement(from: snapshot())
+    }
+
+    private func reportedEnablement(from state: State) -> (enabled: Bool, notificationTypes: Int?) {
+        guard !state.isDisabledInternally else {
+            return (false, -2)
+        }
+        let enabled = calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
+        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
+        return (enabled, state.notificationTypes == -1 ? nil : state.notificationTypes)
+    }
+
     // Properties for push subscription
     var testType: Int? {
         get { stateLock.withLock { state.testType } }
@@ -365,6 +414,7 @@ class OSSubscriptionModel: OSModel {
             subscriptionId: subscriptionId,
             reachable: reachable,
             isDisabled: isDisabled,
+            isDisabledInternally: false,
             notificationTypes: notificationTypes,
             testType: testType,
             deviceOs: UIDevice.current.systemVersion,
@@ -386,6 +436,7 @@ class OSSubscriptionModel: OSModel {
         coder.encode(state.subscriptionId, forKey: "subscriptionId")
         coder.encode(state.reachable, forKey: "_reachable")
         coder.encode(state.isDisabled, forKey: "_isDisabled")
+        coder.encode(state.isDisabledInternally, forKey: "isDisabledInternally")
         coder.encode(state.notificationTypes, forKey: "notificationTypes")
         coder.encode(state.testType, forKey: "testType")
         coder.encode(state.deviceOs, forKey: "deviceOs")
@@ -409,6 +460,9 @@ class OSSubscriptionModel: OSModel {
             subscriptionId: coder.decodeObject(forKey: "subscriptionId") as? String,
             reachable: coder.decodeBool(forKey: "_reachable"),
             isDisabled: coder.decodeBool(forKey: "_isDisabled"),
+            // A model archived while logged out under Identity Verification stays internally disabled
+            // until the next login clears it.
+            isDisabledInternally: coder.decodeBool(forKey: "isDisabledInternally"),
             notificationTypes: coder.decodeInteger(forKey: "notificationTypes"),
             testType: coder.decodeObject(forKey: "testType") as? Int,
             deviceOs: coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion,
@@ -457,16 +511,17 @@ class OSSubscriptionModel: OSModel {
         json["id"] = state.subscriptionId
         json["type"] = state.type.rawValue
         json["token"] = state.address
-        json["enabled"] = calculateIsEnabled(address: state.address, reachable: state.reachable, isDisabled: state.isDisabled)
         json["test_type"] = state.testType
         json["device_os"] = state.deviceOs
         json["sdk"] = state.sdk
         json["device_model"] = state.deviceModel
         json["app_version"] = state.appVersion
         json["net_type"] = state.netType
-        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if state.notificationTypes != -1 {
-            json["notification_types"] = state.notificationTypes
+
+        let enablement = reportedEnablement(from: state)
+        json["enabled"] = enablement.enabled
+        if let notificationTypes = enablement.notificationTypes {
+            json["notification_types"] = notificationTypes
         }
         return json
     }

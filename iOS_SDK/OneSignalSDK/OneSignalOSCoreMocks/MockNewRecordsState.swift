@@ -41,6 +41,13 @@ public class MockNewRecordsState: OSNewRecordsState {
         lock.withLock { storedRecords }
     }
 
+    /**
+     When true, an ID stays inaccessible for as long as it is present. Under TEST the post-create
+     delay is zero, so the production timer would otherwise release immediately and a Request would
+     leave the executor queue before a purge test can see it.
+     */
+    public var holdWhilePresent = false
+
     override public func add(_ key: String, _ overwrite: Bool = false) {
         let record = MockNewRecord(key: key, overwrite: overwrite)
         lock.withLock {
@@ -48,6 +55,13 @@ public class MockNewRecordsState: OSNewRecordsState {
         }
 
         super.add(key, overwrite)
+    }
+
+    override public func canAccess(_ key: String) -> Bool {
+        if holdWhilePresent {
+            return !contains(key)
+        }
+        return super.canAccess(key)
     }
 
     public func get(_ key: String?) -> [MockNewRecord] {

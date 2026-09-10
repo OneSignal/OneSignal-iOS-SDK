@@ -120,7 +120,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
             client.hasCompletedRequestOfType(OSRequestCreateUser.self)
         }
-        OSOperationRepo.sharedInstance.paused = true
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
 
         /* When */
 
@@ -137,8 +137,8 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_a", id: "id_a")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_a@example.com")
 
-        OSOperationRepo.sharedInstance.paused = false
-        OSOperationRepo.sharedInstance.flushAndWait()
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
 
         OneSignalCoreMocks.waitUntil("User A updates and hydration did not complete") {
             self.userAUpdatesAndHydrationCompleted(client, tagsUserA)
@@ -235,7 +235,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
             client.hasCompletedRequestOfType(OSRequestCreateUser.self)
         }
-        OSOperationRepo.sharedInstance.paused = true
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
 
         /* When */
 
@@ -259,8 +259,8 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
 
-        OSOperationRepo.sharedInstance.paused = false
-        OSOperationRepo.sharedInstance.flushAndWait()
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
 
         OneSignalCoreMocks.waitUntil("Logged-out user updates were not sent") {
             self.userUpdatesCompleted(client, tagsUserA, tagsUserB, anonUserOSID)
@@ -345,8 +345,8 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalCoreImpl.setSharedClient(client)
 
         // Increase flush interval to allow all the updates to batch
-        OSOperationRepo.sharedInstance.pollIntervalMilliseconds = 300
-        OSOperationRepo.sharedInstance.flushAndWait()
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.pollIntervalMilliseconds = 300
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
 
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]

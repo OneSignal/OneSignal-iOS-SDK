@@ -119,9 +119,22 @@ final class OneSignalUserTests: XCTestCase {
      */
     func testBasicCombiningUserUpdateDeltas_resultsInOneRequest() throws {
         /* Setup */
+
         let client = MockOneSignalClient()
-        let operationRepo = OSOperationRepo.sharedInstance
-        startUserManagerWithPausedOperations(client: client, operationRepo: operationRepo)
+        client.executeInstantaneously = true
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        // Hold the queue for the batch below. Widening the poll interval instead left the test
+        // dependent on where the running poller happened to be in its cycle, and a poll landing
+        // mid-batch splits it into two Requests.
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
 
         /* When */
 
@@ -160,9 +173,8 @@ final class OneSignalUserTests: XCTestCase {
 
         /* Then */
 
-        operationRepo.paused = false
-        operationRepo.flushAndWait()
-
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
         OneSignalCoreMocks.waitUntil("Combined property update did not complete") {
             client.hasCompletedRequestOfType(OSRequestUpdateProperties.self)
         }
@@ -193,16 +205,6 @@ final class OneSignalUserTests: XCTestCase {
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
             contains: expectedPayload)
         )
-    }
-
-    private func startUserManagerWithPausedOperations(
-        client: MockOneSignalClient,
-        operationRepo: OSOperationRepo
-    ) {
-        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
-        OneSignalCoreImpl.setSharedClient(client)
-        operationRepo.paused = true
-        OneSignalUserManagerImpl.sharedInstance.start()
     }
 
     /**
