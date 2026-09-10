@@ -63,6 +63,7 @@ extension OneSignalUserManagerImpl {
         }
         operationRepo.addFlushDeltaQueueToDispatchQueue()
         userExecutor?.executePendingRequests()
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
     }
 
     /**
@@ -106,5 +107,29 @@ extension OneSignalUserManagerImpl {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: \(token)")
 
         storeJwt(externalId: externalId, token: token)
+    }
+
+    /// Rollout flag, or always when the app requires Identity Verification.
+    @objc public var newCodePathsRun: Bool {
+        identityVerificationService.newCodePathsRun
+    }
+
+    /**
+     How another module should address and sign a user-scoped call for the current user, decided in one
+     read so the alias and the token cannot come from different users.
+
+     Returns nil when the call cannot be sent yet — the requirement is still unknown, nobody is logged in
+     under Identity Verification, or the app owes a token, which this asks for. Callers reattempt when
+     `OS_ON_JWT_CONFIG_HYDRATED` or `OS_ON_USER_JWT_UPDATED` is posted.
+     */
+    @objc
+    public func authorizationForCurrentUser() -> OSUserRequestAuthorization? {
+        // `_user` rather than `user`, which would create a guest user for a caller that only reads.
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil),
+              let identityModel = _user?.identityModel
+        else {
+            return nil
+        }
+        return requestAuth.authorization(onesignalId: identityModel.onesignalId, externalId: identityModel.externalId)
     }
 }
