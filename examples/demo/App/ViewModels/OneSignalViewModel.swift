@@ -359,6 +359,53 @@ final class OneSignalViewModel: ObservableObject {
         tags.removeAll { keys.contains($0.key) }
     }
 
+    // MARK: - Location
+
+    func setLocationShared(_ shared: Bool) {
+        isLocationShared = shared
+        service.isLocationShared = shared
+    }
+
+    func promptLocation() {
+        service.requestLocationPermission()
+    }
+
+    func checkLocationShared() -> Bool {
+        let shared = service.isLocationShared
+        print("[OneSignal] Location shared: \(shared)")
+        return shared
+    }
+
+    // MARK: - Tooltips
+
+    func showTooltip(for key: String) {
+        if let tooltip = TooltipService.shared.tooltip(for: key) {
+            activeTooltip = tooltip
+        }
+    }
+
+    func dismissTooltip() {
+        activeTooltip = nil
+    }
+
+    // MARK: - Observers
+
+    private func setupObservers() {
+        observers.viewModel = self
+        service.addPushSubscriptionObserver(observers)
+        service.addUserObserver(observers)
+        service.addPermissionObserver(observers)
+        service.addUserJwtInvalidatedListener(observers)
+    }
+}
+
+// MARK: - Engagement
+
+/// Outcomes, in-app messages, triggers, custom events, notifications and Live
+/// Activities. Split out of the main declaration so the type body stays inside
+/// SwiftLint's `type_body_length` limit.
+extension OneSignalViewModel {
+
     // MARK: - Outcomes
 
     func sendOutcome(_ name: String) {
@@ -429,23 +476,6 @@ final class OneSignalViewModel: ObservableObject {
         print("[OneSignal] Event tracked: \(name)")
     }
 
-    // MARK: - Location
-
-    func setLocationShared(_ shared: Bool) {
-        isLocationShared = shared
-        service.isLocationShared = shared
-    }
-
-    func promptLocation() {
-        service.requestLocationPermission()
-    }
-
-    func checkLocationShared() -> Bool {
-        let shared = service.isLocationShared
-        print("[OneSignal] Location shared: \(shared)")
-        return shared
-    }
-
     // MARK: - Notifications
 
     func clearAllNotifications() {
@@ -500,28 +530,6 @@ final class OneSignalViewModel: ObservableObject {
         }
     }
     #endif
-
-    // MARK: - Tooltips
-
-    func showTooltip(for key: String) {
-        if let tooltip = TooltipService.shared.tooltip(for: key) {
-            activeTooltip = tooltip
-        }
-    }
-
-    func dismissTooltip() {
-        activeTooltip = nil
-    }
-
-    // MARK: - Observers
-
-    private func setupObservers() {
-        observers.viewModel = self
-        service.addPushSubscriptionObserver(observers)
-        service.addUserObserver(observers)
-        service.addPermissionObserver(observers)
-        service.addUserJwtInvalidatedListener(observers)
-    }
 }
 
 // MARK: - Observer Bridge
