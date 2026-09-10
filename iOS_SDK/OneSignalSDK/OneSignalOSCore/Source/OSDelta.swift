@@ -36,6 +36,8 @@ open class OSDelta: NSObject, NSCoding {
     public let deltaId: String
     public let timestamp: Date
     public let identityModelId: String
+    /// The `external_id` of the user this change belongs to, `nil` if that user was anonymous.
+    public let externalId: String?
     public var model: OSModel
     public let property: String
     public let value: Any
@@ -44,11 +46,12 @@ open class OSDelta: NSObject, NSCoding {
         return "<OSDelta \(name) with property: \(property) value: \(value)>"
     }
 
-    public init(name: String, identityModelId: String, model: OSModel, property: String, value: Any) {
+    public init(name: String, identityModelId: String, externalId: String?, model: OSModel, property: String, value: Any) {
         self.name = name
         self.deltaId = UUID().uuidString
         self.timestamp = Date()
         self.identityModelId = identityModelId
+        self.externalId = externalId
         self.model = model
         self.property = property
         self.value = value
@@ -59,6 +62,7 @@ open class OSDelta: NSObject, NSCoding {
         coder.encode(deltaId, forKey: "deltaId")
         coder.encode(timestamp, forKey: "timestamp")
         coder.encode(identityModelId, forKey: "identityModelId")
+        coder.encode(externalId, forKey: "externalId")
         coder.encode(model, forKey: "model")
         coder.encode(property, forKey: "property")
         coder.encode(value, forKey: "value")
@@ -81,6 +85,7 @@ open class OSDelta: NSObject, NSCoding {
         self.deltaId = deltaId
         self.timestamp = timestamp
         self.identityModelId = identityModelId
+        self.externalId = coder.decodeObject(forKey: "externalId") as? String
         self.model = model
         self.property = property
         self.value = value

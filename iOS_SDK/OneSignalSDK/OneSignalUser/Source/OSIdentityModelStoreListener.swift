@@ -31,9 +31,11 @@ import OneSignalOSCore
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSIdentityModel>) {
+    required init(store: OSModelStore<OSIdentityModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
@@ -50,6 +52,7 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         // TODO: Let users call addAliases with "" IDs? If so, this will change...
         guard
+            let identityModel = args.model as? OSIdentityModel,
             let aliasesDict = args.newValue as? [String: String],
             let (_, id) = aliasesDict.first
         else {
@@ -60,8 +63,9 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
 
         return OSDelta(
             name: name,
-            identityModelId: args.model.modelId,
-            model: args.model,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
+            model: identityModel,
             property: args.property,
             value: args.newValue
         )

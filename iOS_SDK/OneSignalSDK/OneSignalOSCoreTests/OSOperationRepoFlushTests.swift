@@ -111,6 +111,7 @@ final class OSOperationRepoFlushTests: XCTestCase {
         OSDelta(
             name: name,
             identityModelId: UUID().uuidString,
+            externalId: nil,
             model: OSModel(changeNotifier: OSEventProducer()),
             property: property,
             value: property
