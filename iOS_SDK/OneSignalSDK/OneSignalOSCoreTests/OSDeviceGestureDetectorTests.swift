@@ -106,13 +106,14 @@ private final class Harness {
     let recorder = EventRecorderSpy()
     private(set) var detector: OSDeviceGestureDetector!
 
-    init(center: NotificationCenter = NotificationCenter(), queue: OSDispatchQueue = InlineQueue()) {
+    init(center: NotificationCenter = NotificationCenter(), queue: OSDispatchQueue = InlineQueue(), disabledByApp: Bool = false) {
         self.center = center
         detector = OSDeviceGestureDetector(
             notificationCenter: center,
             mainQueue: queue,
             nowProvider: { [unowned self] in self.now },
             isDisabledRemotelyProvider: { [unowned self] in self.killSwitchOn },
+            isDisabledByAppProvider: { disabledByApp },
             subscriptionIdProvider: { [unowned self] in self.currentSubscriptionId },
             shouldAwaitProvider: { [unowned self] in self.shouldAwait },
             pasteboardWriter: { [unowned self] in self.writes.append($0) },
@@ -301,6 +302,23 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
         XCTAssertEqual(center.liveObservers, 2)
 
         harness.detector.tearDown()
+        XCTAssertEqual(center.liveObservers, 0)
+    }
+
+    func testInfoPlistOptOutKeepsTheDetectorFromStarting() {
+        // The app owner said no: no observers are registered, so nothing is counted, written
+        // or recorded, and a second start does not register either because the latch holds.
+        let center = ObserverTrackingCenter()
+        let harness = Harness(center: center, disabledByApp: true)
+        XCTAssertEqual(center.liveObservers, 0)
+
+        for _ in 1...6 {
+            harness.cycle()
+        }
+        XCTAssertEqual(harness.writes, [])
+        XCTAssertEqual(harness.recorder.events, [])
+
+        harness.detector.registerLifecycleObserversIfNeeded()
         XCTAssertEqual(center.liveObservers, 0)
     }
 
