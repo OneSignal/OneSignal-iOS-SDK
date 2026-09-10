@@ -202,13 +202,19 @@ final class OneSignalViewModel: ObservableObject {
     func login(externalId: String, jwtToken: String? = nil) {
         let trimmed = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        let sameUser = trimmed == service.externalId
         isLoading = true
         service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
         if jwtToken != nil, jwtAskExternalId == trimmed {
             jwtAskExternalId = nil
         }
-        clearUserData()
+        if sameUser {
+            // No user-state event fires for the same user, so refetch here instead.
+            Task { await fetchUserDataFromApi() }
+        } else {
+            clearUserData()
+        }
     }
 
     func updateUserJwt(externalId: String, token: String) {

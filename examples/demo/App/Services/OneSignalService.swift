@@ -96,9 +96,12 @@ final class OneSignalService {
     // MARK: - User
 
     func login(externalId: String, jwtToken: String? = nil) {
+        // Demo REST fetch only. Not replayed to the SDK at launch. A same-user login
+        // without a token keeps the stored one, matching the SDK, which keeps its own.
+        if jwtToken != nil || externalId != OneSignal.User.externalId {
+            prefs.setSessionJwtToken(jwtToken)
+        }
         prefs.setExternalUserId(externalId)
-        // Demo REST fetch only. Not replayed to the SDK at launch.
-        prefs.setSessionJwtToken(jwtToken)
         if let jwtToken = jwtToken {
             OneSignal.login(externalId: externalId, token: jwtToken)
         } else {
