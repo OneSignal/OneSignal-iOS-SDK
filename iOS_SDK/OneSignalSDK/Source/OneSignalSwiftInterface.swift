@@ -33,6 +33,14 @@ import OneSignalNotifications
 import OneSignalCore
 
 public extension OneSignal {
+    static func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        __add(listener)
+    }
+
+    static func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        __remove(listener)
+    }
+
     static var User: OSUser {
         return __user()
     }
