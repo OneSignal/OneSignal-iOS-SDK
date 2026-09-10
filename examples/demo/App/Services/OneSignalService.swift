@@ -107,7 +107,11 @@ final class OneSignalService {
     }
 
     func updateUserJwt(externalId: String, token: String) {
-        prefs.setSessionJwtToken(token)
+        // The demo's REST bearer belongs to the current user. A token for anyone else
+        // still goes to the SDK, which owns the parked work for that id.
+        if externalId == OneSignal.User.externalId {
+            prefs.setSessionJwtToken(token)
+        }
         OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
