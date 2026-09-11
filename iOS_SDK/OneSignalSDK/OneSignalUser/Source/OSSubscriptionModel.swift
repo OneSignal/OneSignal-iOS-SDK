@@ -210,7 +210,9 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
-            // The disable code describes a specific server record; the record is gone when the ID resets.
+            // The disable code describes a specific server record; the record is gone when the ID
+            // resets. The old code rides along on the event so the previous state still reads as disabled.
+            let previousRemoteDisabledReason = remoteDisabledReason
             if newValue == nil {
                 remoteDisabledReason = nil
             }
@@ -219,7 +221,11 @@ class OSSubscriptionModel: OSModel {
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: newValue)
             OSResilientStorage.setString(newValue ?? "", forKey: OSResilientStorage.keySubscriptionId)
 
-            firePushSubscriptionChanged(.subscriptionId(oldValue))
+            // The new record's state goes out with the create request, so no enabled delta here.
+            firePushSubscriptionChanged(
+                .subscriptionId(oldValue, remoteDisabledReason: previousRemoteDisabledReason),
+                generateEnabledDelta: false
+            )
         }
     }
 
@@ -515,33 +521,6 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    /// Applies a hydrated `enabled`. A remote disable is server-owned, not a user opt-out,
-    /// so it must not flip `_isDisabled`; the notification_types hydration records it instead.
-    private func hydrateEnabled(_ enabled: Bool, response: [String: Any]) {
-        guard !isRemoteDisable(response) else {
-            return
-        }
-        if self.enabled != enabled { // TODO: Is this right?
-            _isDisabled = !enabled
-        }
-    }
-
-    /// Routes a hydrated notification_types: -22 and -31 record the server's disable verbatim, so
-    /// the recorded code stays distinguishable; any other value clears it and becomes the device value.
-    private func hydrateNotificationTypes(_ value: Int) {
-        if OSRemoteDisable.matches(value) {
-            recordRemoteDisable(value)
-        } else {
-            acceptServerNonDisabledState()
-            self.notificationTypes = value
-        }
-    }
-
-    /// True when the response's notification_types carries a remote disable code.
-    private func isRemoteDisable(_ response: [String: Any]) -> Bool {
-        return OSRemoteDisable.matches(response["notification_types"] as? Int)
-    }
-
     // Using snake_case so we can use this in request bodies
     public func jsonRepresentation() -> [String: Any] {
         let state = snapshot()
@@ -598,6 +577,41 @@ extension OSSubscriptionModel {
 
     func updateNotificationTypes() {
         notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
+    }
+
+    /// Applies a hydrated `enabled`. On a push subscription a remote disable is server-owned, not a
+    /// user opt-out, so it must not flip `_isDisabled`; the notification_types hydration records it
+    /// instead. Email and SMS have no remote disable state and keep the plain mapping.
+    private func hydrateEnabled(_ enabled: Bool, response: [String: Any]) {
+        guard type != .push || !isRemoteDisable(response) else {
+            return
+        }
+        if self.enabled != enabled { // TODO: Is this right?
+            _isDisabled = !enabled
+        }
+    }
+
+    /// Routes a hydrated notification_types. On a push subscription -22 and -31 record the server's
+    /// disable verbatim, so the recorded code stays distinguishable, and any other value clears it and
+    /// becomes the device value. Email and SMS rows carry the same codes when the app owner disables
+    /// them and hydrate through here too, but the remote disable state and the push observer it
+    /// drives are push-only.
+    private func hydrateNotificationTypes(_ value: Int) {
+        guard type == .push else {
+            self.notificationTypes = value
+            return
+        }
+        if OSRemoteDisable.matches(value) {
+            recordRemoteDisable(value)
+        } else {
+            acceptServerNonDisabledState()
+            self.notificationTypes = value
+        }
+    }
+
+    /// True when the response's notification_types carries a remote disable code.
+    private func isRemoteDisable(_ response: [String: Any]) -> Bool {
+        return OSRemoteDisable.matches(response["notification_types"] as? Int)
     }
 
     /// Records the server's disable code verbatim, so -22 and -31 stay distinguishable, unless
@@ -691,14 +705,19 @@ extension OSSubscriptionModel {
     /**
      Clears a remote disable and enqueues an enabled-change delta so the server re-enables the
      subscription. Called from `optIn()`, where a deliberate user action overrides the suppression.
+
+     The guard against a stale fetch arms only when the opt-in changed something, either a disable
+     was recorded here or the caller lifted the user's own opt-out, because only then is a re-enable
+     on its way that an earlier fetch can still contradict. An opt-in that changed nothing sends
+     nothing, and arming for it would blind the SDK to a disable that lands afterward for as long as
+     the process lives.
      */
-    func clearRemoteDisable() {
+    func clearRemoteDisable(userWasOptedOut: Bool = false) {
         let oldValue: Int? = stateLock.withLock {
-            // The flag arms on every opt-in, not only when a disable was already recorded, because
-            // a fetch issued before this opt-in can still land the customer's first disable and
-            // undo it. Nothing is recorded locally on that first cycle, which is the common case.
-            state.remoteDisableClearedByUser = true
             let recorded = state.remoteDisabledReason
+            if recorded != nil || userWasOptedOut {
+                state.remoteDisableClearedByUser = true
+            }
             state.remoteDisabledReason = nil
             return recorded
         }
@@ -738,7 +757,7 @@ extension OSSubscriptionModel {
     }
 
     enum OSPushPropertyChanged {
-        case subscriptionId(String?)
+        case subscriptionId(String?, remoteDisabledReason: Int?)
         case reachable(Bool)
         case isDisabled(Bool)
         case address(String?)
@@ -759,8 +778,9 @@ extension OSSubscriptionModel {
         var prevRemoteDisabledReason = remoteDisabledReason
 
         switch changedProperty {
-        case .subscriptionId(let oldValue):
+        case .subscriptionId(let oldValue, let oldRemoteDisabledReason):
             prevId = oldValue
+            prevRemoteDisabledReason = oldRemoteDisabledReason
         case .reachable(let oldValue):
             prevReachable = oldValue
         case .isDisabled(let oldValue):

@@ -490,30 +490,48 @@ final class OneSignalUserTests: XCTestCase {
         }
     }
 
-    func testRemoteDisable_optInOutranksStaleHydrationWithNothingRecorded() {
-        // The customer's first disable is the common case for this race, and it is the one a
-        // "only arm when a disable was already recorded" flag would miss. The customer disables
-        // the subscription, a fetch goes out that will report it, and the user calls optIn()
-        // before that response lands. Nothing is recorded locally at that point, so the opt-in
-        // has to arm the guard anyway or the fetch re-suppresses the subscription the user just
-        // opted into, and the next update re-sends the code. Android pins the same behavior in
-        // "optIn takes precedence over a pending fetch even when no remote disable was recorded".
-        let model = OSSubscriptionModel(
-            type: .push,
-            address: "test-token",
-            subscriptionId: "test-sub-id",
-            reachable: true,
-            isDisabled: false,
-            changeNotifier: OSEventProducer()
-        )
-        XCTAssertNil(model.remoteDisabledReason)
-
-        model.clearRemoteDisable()
-
+    func testRemoteDisable_optInFromOptedOutOutranksStaleHydration() {
+        // The customer's first disable is the common shape of this race. The customer disables the
+        // subscription, a fetch goes out that will report it, and an opted-out user opts in before
+        // that response lands. Nothing is recorded locally yet, but the opt-in changed the device
+        // state and a re-enable is on its way, so the stale response must not record over it.
         for code in Self.remoteDisableCodes {
+            let model = OSSubscriptionModel(
+                type: .push,
+                address: "test-token",
+                subscriptionId: "test-sub-id",
+                reachable: true,
+                isDisabled: true,
+                changeNotifier: OSEventProducer()
+            )
+
+            model.clearRemoteDisable(userWasOptedOut: true)
+
             model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
             XCTAssertNil(model.remoteDisabledReason, "a fetch predating optIn() must not record \(code)")
-            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, true)
+        }
+    }
+
+    func testRemoteDisable_optInThatChangesNothingDoesNotOutrankALaterDisable() {
+        // Many apps call optIn() on every launch. A call that finds the user already opted in with
+        // nothing recorded sends nothing, so it has no intent to protect. Arming the guard for it
+        // would make every fetch that reports a disable get ignored until the process died, and the
+        // next routine update would re-enable the subscription, which is the bug this branch fixes.
+        for code in Self.remoteDisableCodes {
+            let model = OSSubscriptionModel(
+                type: .push,
+                address: "test-token",
+                subscriptionId: "test-sub-id",
+                reachable: true,
+                isDisabled: false,
+                changeNotifier: OSEventProducer()
+            )
+
+            model.clearRemoteDisable(userWasOptedOut: false)
+
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertEqual(model.remoteDisabledReason, code, "a disable landing after a no-op optIn() must be recorded")
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
         }
     }
 
@@ -683,10 +701,78 @@ final class RemoteDisableOptedInTests: XCTestCase {
             XCTAssertTrue(spy.serverUpdates.contains("enabled"), "optIn() must re-enable on the server")
         }
     }
+
+    func testRemoteDisable_emailAndSmsHydrateWithoutRecordingOrNotifyingPush() {
+        // The server writes the same codes on email and SMS rows the app owner disables, and those
+        // models hydrate through the same path. The remote disable state and the push observer it
+        // drives are push-only, so an email row must not record one or reach push observers with an
+        // email address as the token.
+        let observer = SpyPushSubscriptionObserver()
+        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.addObserver(observer)
+        defer { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.removeObserver(observer) }
+
+        for (type, address) in [(OSSubscriptionType.email, "person@example.com"), (.sms, "+15555550100")] {
+            for code in Self.remoteDisableCodes {
+                let model = OSSubscriptionModel(
+                    type: type,
+                    address: address,
+                    subscriptionId: "test-other-sub-id",
+                    reachable: true,
+                    isDisabled: false,
+                    changeNotifier: OSEventProducer()
+                )
+
+                model.hydrate([
+                    "id": "test-other-sub-id", "type": type.rawValue, "token": address, "enabled": false, "notification_types": code
+                ])
+
+                XCTAssertNil(model.remoteDisabledReason, "\(type.rawValue) must not record \(code)")
+                XCTAssertEqual(model.notificationTypes, code)
+                XCTAssertTrue(model._isDisabled, "\(type.rawValue) keeps the plain enabled mapping")
+            }
+        }
+
+        // Observer callbacks hop to the main queue, so let anything queued arrive before asserting nothing did.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        XCTAssertTrue(observer.changes.isEmpty, "email and SMS hydration must not reach push observers")
+    }
+
+    func testRemoteDisable_resetEventReportsThePreviousStateAsDisabled() throws {
+        // Observers see the reset as one change: the disabled record with its ID, then no record and
+        // no disable. Clearing the code before building the event made the previous state read as
+        // opted in, so the app never saw the disable end.
+        for code in Self.remoteDisableCodes {
+            let model = pushModelWithRemoteDisable(code)
+            let observer = SpyPushSubscriptionObserver()
+            OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.addObserver(observer)
+            defer { OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.removeObserver(observer) }
+            let spy = SpyModelChangedHandler()
+            model.changeNotifier.subscribe(spy)
+
+            model.subscriptionId = nil
+
+            OneSignalCoreMocks.waitUntil("the reset did not reach push observers") { !observer.changes.isEmpty }
+            let change = try XCTUnwrap(observer.changes.last)
+            XCTAssertEqual(change.previous.id, "test-sub-id")
+            XCTAssertFalse(change.previous.optedIn, "the record was disabled by \(code) until it went away")
+            XCTAssertNil(change.current.id)
+            XCTAssertTrue(change.current.optedIn)
+            // The new record's state travels with the create request, not as a delta against the dead ID.
+            XCTAssertFalse(spy.serverUpdates.contains("enabled"))
+        }
+    }
 }
 
 /// Records the properties a model reported as changed, split by whether the change was meant to
 /// reach the server. `hydrating` is true for writes that only mirror state the server already has.
+private class SpyPushSubscriptionObserver: NSObject, OSPushSubscriptionObserver {
+    var changes: [OSPushSubscriptionChangedState] = []
+
+    func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
+        changes.append(state)
+    }
+}
+
 private class SpyModelChangedHandler: OSModelChangedHandler {
     var serverUpdates: [String] = []
     var hydratedUpdates: [String] = []
