@@ -447,9 +447,8 @@ extension OSSubscriptionOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
-                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
-                } else if responseType != .retryable {
+                // No token handling: the delete is never signed, so a 401 here is not about the user's JWT.
+                if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})

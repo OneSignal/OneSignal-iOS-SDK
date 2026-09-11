@@ -69,7 +69,9 @@ extension OSUserRequest {
 
  Three Requests are nil by construction and so are never signed: Identify User and Fetch Identity By
  Subscription both address a user that has no `external_id` yet, and Update Subscription is the
- device's own push subscription. Each says why at its declaration.
+ device's own push subscription. Delete Subscription carries an owner for the purge but is never signed
+ either, since its endpoint is addressed by subscription ID and takes no user JWT. Each says why at its
+ declaration.
  */
 
 internal extension OneSignalRequest {
