@@ -43,6 +43,11 @@ final class OneSignalViewModel: ObservableObject {
 
     @Published var externalUserId: String?
     @Published var aliases: [KeyValueItem] = []
+    @Published var useIdentityVerification: Bool = false
+    /// External id the SDK is waiting on a JWT for. Drives the banner in `UserSection`.
+    @Published var jwtAskExternalId: String?
+    /// Outcome of the last demo /users fetch, "OK" or the failure reason.
+    @Published var userFetchStatus: String?
 
     // MARK: - Push
 
@@ -99,6 +104,7 @@ final class OneSignalViewModel: ObservableObject {
         self.appId = service.appId
         self.consentRequired = service.consentRequired
         self.consentGiven = service.consentGiven
+        self.useIdentityVerification = service.useIdentityVerification
         self.externalUserId = service.externalId ?? prefs.getExternalUserId()
         self.hasNotificationPermission = service.hasNotificationPermission
         refreshState()
@@ -106,7 +112,12 @@ final class OneSignalViewModel: ObservableObject {
 
         TooltipService.shared.loadIfNeeded()
 
-        if service.onesignalId != nil {
+        // Demo REST hydrate only — does not call login / updateUserJwt with a cached JWT.
+        if useIdentityVerification {
+            if externalUserId != nil || service.externalId != nil {
+                Task { await fetchUserDataFromApi() }
+            }
+        } else if service.onesignalId != nil {
             Task { await fetchUserDataFromApi() }
         }
     }
@@ -119,24 +130,49 @@ final class OneSignalViewModel: ObservableObject {
         isInAppMessagesPaused = service.isInAppMessagesPaused
         isLocationShared = service.isLocationShared
         hasNotificationPermission = service.hasNotificationPermission
-        externalUserId = service.externalId
+        externalUserId = service.externalId ?? prefs.getExternalUserId()
 
         let sdkTags = service.getTags()
         tags = sdkTags.map { KeyValueItem(key: $0.key, value: $0.value) }
     }
 
     func fetchUserDataFromApi() async {
-        guard let onesignalId = service.onesignalId else { return }
+        let aliasLabel: String
+        let aliasValue: String
+        let jwt: String?
+
+        if useIdentityVerification {
+            guard let externalId = externalUserId ?? service.externalId, !externalId.isEmpty else {
+                return
+            }
+            aliasLabel = "external_id"
+            aliasValue = externalId
+            jwt = service.sessionJwtToken
+        } else {
+            guard let onesignalId = service.onesignalId, !onesignalId.isEmpty else {
+                return
+            }
+            aliasLabel = "onesignal_id"
+            aliasValue = onesignalId
+            jwt = nil
+        }
+
         requestSequence &+= 1
         let captured = requestSequence
         isLoading = true
 
-        let userData = await UserFetchService.shared.fetchUser(appId: appId, onesignalId: onesignalId)
+        let result = await UserFetchService.shared.fetchUser(
+            appId: appId,
+            aliasLabel: aliasLabel,
+            aliasValue: aliasValue,
+            jwt: jwt
+        )
 
         // Drop the result if a newer fetch has started while this one was in flight.
         guard captured == requestSequence else { return }
 
-        if let userData = userData {
+        switch result {
+        case .success(let userData):
             aliases = userData.aliases.map { KeyValueItem(key: $0.key, value: $0.value) }
             tags = userData.tags.map { KeyValueItem(key: $0.key, value: $0.value) }
             emails = userData.emails
@@ -144,6 +180,10 @@ final class OneSignalViewModel: ObservableObject {
             if let extId = userData.externalId, !extId.isEmpty {
                 externalUserId = extId
             }
+            userFetchStatus = "OK"
+        case .failure(let error):
+            userFetchStatus = "\(aliasLabel) fetch failed: \(error)"
+            print("[OneSignal] /users fetch by \(aliasLabel) failed: \(error)")
         }
         isLoading = false
     }
@@ -166,19 +206,61 @@ final class OneSignalViewModel: ObservableObject {
 
     // MARK: - User
 
-    func login(externalId: String) {
+    func login(externalId: String, jwtToken: String? = nil) {
         let trimmed = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        let sameUser = trimmed == service.externalId
         isLoading = true
-        service.login(externalId: trimmed)
+        service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
-        clearUserData()
+        if jwtToken != nil, jwtAskExternalId == trimmed {
+            jwtAskExternalId = nil
+        }
+        if sameUser {
+            // No user-state event fires for the same user, so refetch here instead.
+            Task { await fetchUserDataFromApi() }
+        } else {
+            clearUserData()
+        }
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        let trimmedId = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedId.isEmpty, !trimmedToken.isEmpty else { return }
+        // Same condition the service uses to decide whether to store the bearer.
+        let currentUser = trimmedId == service.externalId
+        service.updateUserJwt(externalId: trimmedId, token: trimmedToken)
+        if jwtAskExternalId == trimmedId {
+            jwtAskExternalId = nil
+        }
+        print("[OneSignal] Updated JWT for: \(trimmedId)")
+        if currentUser {
+            // The demo now holds a fresh bearer for this user, and no user-state
+            // event is guaranteed, so refetch instead of leaving the stale failure.
+            Task { await fetchUserDataFromApi() }
+        }
+    }
+
+    /// The SDK parked this user's requests for want of a token. Drop the demo's stale copy and show the ask.
+    func handleJwtInvalidated(externalId: String) {
+        service.clearSessionJwtToken()
+        jwtAskExternalId = externalId
+        print("[OneSignal] JWT invalidated for externalId: \(externalId)")
     }
 
     func logout() {
         service.logout()
         externalUserId = nil
+        jwtAskExternalId = nil
         clearUserData()
+    }
+
+    func setUseIdentityVerification(_ enabled: Bool) {
+        useIdentityVerification = enabled
+        service.useIdentityVerification = enabled
+        print("[OneSignal] Fetch by external_id \(enabled ? "enabled" : "disabled")")
+        Task { await fetchUserDataFromApi() }
     }
 
     private func clearUserData() {
@@ -284,6 +366,53 @@ final class OneSignalViewModel: ObservableObject {
         tags.removeAll { keys.contains($0.key) }
     }
 
+    // MARK: - Location
+
+    func setLocationShared(_ shared: Bool) {
+        isLocationShared = shared
+        service.isLocationShared = shared
+    }
+
+    func promptLocation() {
+        service.requestLocationPermission()
+    }
+
+    func checkLocationShared() -> Bool {
+        let shared = service.isLocationShared
+        print("[OneSignal] Location shared: \(shared)")
+        return shared
+    }
+
+    // MARK: - Tooltips
+
+    func showTooltip(for key: String) {
+        if let tooltip = TooltipService.shared.tooltip(for: key) {
+            activeTooltip = tooltip
+        }
+    }
+
+    func dismissTooltip() {
+        activeTooltip = nil
+    }
+
+    // MARK: - Observers
+
+    private func setupObservers() {
+        observers.viewModel = self
+        service.addPushSubscriptionObserver(observers)
+        service.addUserObserver(observers)
+        service.addPermissionObserver(observers)
+        service.addUserJwtInvalidatedListener(observers)
+    }
+}
+
+// MARK: - Engagement
+
+/// Outcomes, in-app messages, triggers, custom events, notifications and Live
+/// Activities. Split out of the main declaration so the type body stays inside
+/// SwiftLint's `type_body_length` limit.
+extension OneSignalViewModel {
+
     // MARK: - Outcomes
 
     func sendOutcome(_ name: String) {
@@ -354,23 +483,6 @@ final class OneSignalViewModel: ObservableObject {
         print("[OneSignal] Event tracked: \(name)")
     }
 
-    // MARK: - Location
-
-    func setLocationShared(_ shared: Bool) {
-        isLocationShared = shared
-        service.isLocationShared = shared
-    }
-
-    func promptLocation() {
-        service.requestLocationPermission()
-    }
-
-    func checkLocationShared() -> Bool {
-        let shared = service.isLocationShared
-        print("[OneSignal] Location shared: \(shared)")
-        return shared
-    }
-
     // MARK: - Notifications
 
     func clearAllNotifications() {
@@ -425,32 +537,15 @@ final class OneSignalViewModel: ObservableObject {
         }
     }
     #endif
-
-    // MARK: - Tooltips
-
-    func showTooltip(for key: String) {
-        if let tooltip = TooltipService.shared.tooltip(for: key) {
-            activeTooltip = tooltip
-        }
-    }
-
-    func dismissTooltip() {
-        activeTooltip = nil
-    }
-
-    // MARK: - Observers
-
-    private func setupObservers() {
-        observers.viewModel = self
-        service.addPushSubscriptionObserver(observers)
-        service.addUserObserver(observers)
-        service.addPermissionObserver(observers)
-    }
 }
 
 // MARK: - Observer Bridge
 
-private final class Observers: NSObject, OSPushSubscriptionObserver, OSUserStateObserver, OSNotificationPermissionObserver {
+private final class Observers: NSObject,
+                                OSPushSubscriptionObserver,
+                                OSUserStateObserver,
+                                OSNotificationPermissionObserver,
+                                OSUserJwtInvalidatedListener {
     weak var viewModel: OneSignalViewModel?
 
     func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
@@ -470,6 +565,12 @@ private final class Observers: NSObject, OSPushSubscriptionObserver, OSUserState
         Task { @MainActor in
             viewModel?.hasNotificationPermission = permission
             viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
+        }
+    }
+
+    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
+        Task { @MainActor in
+            viewModel?.handleJwtInvalidated(externalId: event.externalId)
         }
     }
 }

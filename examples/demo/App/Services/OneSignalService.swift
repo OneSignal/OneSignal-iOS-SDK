@@ -49,10 +49,13 @@ final class OneSignalService {
     // MARK: - Initialization
 
     /// Mirrors the Capacitor demo's `useOneSignal` init order: feed cached
-    /// consent into the SDK BEFORE `initialize`, then restore IAM-paused,
-    /// location-shared, and a previously-logged-in external user id once the
-    /// SDK is ready. Without this, toggles flip back to defaults on every
-    /// cold launch.
+    /// consent into the SDK BEFORE `initialize`, then restore IAM-paused and
+    /// location-shared once the SDK is ready. Without this, toggles flip back
+    /// to defaults on every cold launch.
+    ///
+    /// No login here. The SDK restores the user from its own cache, and the stored JWT
+    /// stays with the demo so the SDK's own ask through `OSUserJwtInvalidatedListener`
+    /// stays observable on cold start.
     func initialize(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         OneSignal.Debug.setLogLevel(.LL_VERBOSE)
 
@@ -63,10 +66,6 @@ final class OneSignalService {
 
         OneSignal.InAppMessages.paused = prefs.getIamPaused()
         OneSignal.Location.isShared = prefs.getLocationShared()
-
-        if let storedExternalId = prefs.getExternalUserId() {
-            OneSignal.login(storedExternalId)
-        }
     }
 
     // MARK: - Identity
@@ -96,15 +95,50 @@ final class OneSignalService {
 
     // MARK: - User
 
-    func login(externalId: String) {
+    func login(externalId: String, jwtToken: String? = nil) {
+        // Demo REST fetch only. Not replayed to the SDK at launch. A same-user login
+        // without a token keeps the stored one, matching the SDK, which keeps its own.
+        if jwtToken != nil || externalId != OneSignal.User.externalId {
+            prefs.setSessionJwtToken(jwtToken)
+        }
         prefs.setExternalUserId(externalId)
-        OneSignal.login(externalId)
+        if let jwtToken = jwtToken {
+            OneSignal.login(externalId: externalId, token: jwtToken)
+        } else {
+            OneSignal.login(externalId)
+        }
+    }
+
+    func updateUserJwt(externalId: String, token: String) {
+        // The demo's REST bearer belongs to the current user. A token for anyone else
+        // still goes to the SDK, which owns the parked work for that id.
+        if externalId == OneSignal.User.externalId {
+            prefs.setSessionJwtToken(token)
+        }
+        OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
     func logout() {
         prefs.setExternalUserId(nil)
+        prefs.setSessionJwtToken(nil)
         OneSignal.logout()
     }
+
+    /// Called when the SDK rejects the token, so the REST fetch stops sending it.
+    func clearSessionJwtToken() {
+        prefs.setSessionJwtToken(nil)
+    }
+
+    // MARK: - Identity Verification (demo REST fetch)
+
+    /// Demo toggle for addressing the REST user fetch by `external_id`. Persisted across launches.
+    var useIdentityVerification: Bool {
+        get { prefs.getUseIdentityVerification() }
+        set { prefs.setUseIdentityVerification(newValue) }
+    }
+
+    /// Token from the last login / updateUserJwt, for the demo REST fetch only. Cleared when the SDK rejects it.
+    var sessionJwtToken: String? { prefs.getSessionJwtToken() }
 
     // MARK: - Aliases
 
@@ -220,6 +254,14 @@ final class OneSignalService {
 
     func addPermissionObserver(_ observer: OSNotificationPermissionObserver) {
         OneSignal.Notifications.addPermissionObserver(observer)
+    }
+
+    func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        OneSignal.addUserJwtInvalidatedListener(listener)
+    }
+
+    func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        OneSignal.removeUserJwtInvalidatedListener(listener)
     }
 
     func addNotificationClickListener(_ listener: OSNotificationClickListener) {
