@@ -490,51 +490,6 @@ final class OneSignalUserTests: XCTestCase {
         }
     }
 
-    func testRemoteDisable_optInFromOptedOutOutranksStaleHydration() {
-        // The customer's first disable is the common shape of this race. The customer disables the
-        // subscription, a fetch goes out that will report it, and an opted-out user opts in before
-        // that response lands. Nothing is recorded locally yet, but the opt-in changed the device
-        // state and a re-enable is on its way, so the stale response must not record over it.
-        for code in Self.remoteDisableCodes {
-            let model = OSSubscriptionModel(
-                type: .push,
-                address: "test-token",
-                subscriptionId: "test-sub-id",
-                reachable: true,
-                isDisabled: true,
-                changeNotifier: OSEventProducer()
-            )
-
-            model.clearRemoteDisable(userWasOptedOut: true)
-
-            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
-            XCTAssertNil(model.remoteDisabledReason, "a fetch predating optIn() must not record \(code)")
-        }
-    }
-
-    func testRemoteDisable_optInThatChangesNothingDoesNotOutrankALaterDisable() {
-        // Many apps call optIn() on every launch. A call that finds the user already opted in with
-        // nothing recorded sends nothing, so it has no intent to protect. Arming the guard for it
-        // would make every fetch that reports a disable get ignored until the process died, and the
-        // next routine update would re-enable the subscription, which is the bug this branch fixes.
-        for code in Self.remoteDisableCodes {
-            let model = OSSubscriptionModel(
-                type: .push,
-                address: "test-token",
-                subscriptionId: "test-sub-id",
-                reachable: true,
-                isDisabled: false,
-                changeNotifier: OSEventProducer()
-            )
-
-            model.clearRemoteDisable(userWasOptedOut: false)
-
-            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
-            XCTAssertEqual(model.remoteDisabledReason, code, "a disable landing after a no-op optIn() must be recorded")
-            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
-        }
-    }
-
     func testRemoteDisable_clearedWhenServerReportsEnabled() {
         for code in Self.remoteDisableCodes {
             let model = pushModelWithRemoteDisable(code)
@@ -759,6 +714,74 @@ final class RemoteDisableOptedInTests: XCTestCase {
             XCTAssertTrue(change.current.optedIn)
             // The new record's state travels with the create request, not as a delta against the dead ID.
             XCTAssertFalse(spy.serverUpdates.contains("enabled"))
+        }
+    }
+
+    func testRemoteDisable_optInFromOptedOutOutranksStaleHydration() {
+        // The customer's first disable is the common shape of this race. The customer disables the
+        // subscription, a fetch goes out that will report it, and an opted-out user opts in before
+        // that response lands. Nothing is recorded locally yet, but the opt-in changed the device
+        // state and a re-enable is on its way, so the stale response must not record over it.
+        for code in Self.remoteDisableCodes {
+            let model = OSSubscriptionModel(
+                type: .push,
+                address: "test-token",
+                subscriptionId: "test-sub-id",
+                reachable: true,
+                isDisabled: true,
+                changeNotifier: OSEventProducer()
+            )
+
+            model.clearRemoteDisable()
+
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertNil(model.remoteDisabledReason, "a fetch predating optIn() must not record \(code)")
+        }
+    }
+
+    func testRemoteDisable_optInWithoutPermissionOutranksStaleHydration() {
+        // A user who never granted permission taps opt-in while a fetch that will report the
+        // customer's first disable is in flight. Nothing changes locally yet, but optIn() is about
+        // to prompt for permission, and the grant is the write that re-enables the subscription.
+        // Without the flag the stale response would record the disable first, and the grant's
+        // update would carry it instead of enabling the subscription the user just asked for.
+        for code in Self.remoteDisableCodes {
+            let model = OSSubscriptionModel(
+                type: .push,
+                address: "test-token",
+                subscriptionId: "test-sub-id",
+                reachable: false,
+                isDisabled: false,
+                changeNotifier: OSEventProducer()
+            )
+
+            model.clearRemoteDisable()
+
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertNil(model.remoteDisabledReason, "a fetch predating optIn() must not record \(code)")
+        }
+    }
+
+    func testRemoteDisable_optInThatChangesNothingDoesNotOutrankALaterDisable() {
+        // Many apps call optIn() on every launch. A call that finds the user already opted in with
+        // nothing recorded sends nothing, so it has no intent to protect. Arming the guard for it
+        // would make every fetch that reports a disable get ignored until the process died, and the
+        // next routine update would re-enable the subscription, which is the bug this branch fixes.
+        for code in Self.remoteDisableCodes {
+            let model = OSSubscriptionModel(
+                type: .push,
+                address: "test-token",
+                subscriptionId: "test-sub-id",
+                reachable: true,
+                isDisabled: false,
+                changeNotifier: OSEventProducer()
+            )
+
+            model.clearRemoteDisable()
+
+            model.hydrateRemoteDisableState(from: ["id": "test-sub-id", "enabled": false, "notification_types": code])
+            XCTAssertEqual(model.remoteDisabledReason, code, "a disable landing after a no-op optIn() must be recorded")
+            XCTAssertEqual(model.jsonRepresentation()["enabled"] as? Bool, false)
         }
     }
 }

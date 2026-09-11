@@ -699,17 +699,18 @@ extension OSSubscriptionModel {
 
     /**
      Clears a remote disable and enqueues an enabled-change delta so the server re-enables the
-     subscription. Called from `optIn()`, where a deliberate user action overrides the suppression.
+     subscription. Called from `optIn()` before `_isDisabled` flips, so it still sees the state the
+     opt-in is changing.
 
-     `remoteDisableClearedByUser` is set only when the opt-in changed something, a disable recorded
-     here or the user's own opt-out per `userWasOptedOut`, since only then is a re-enable on its way
-     that an earlier fetch can contradict. An opt-in that changed nothing sends nothing, and setting
-     the flag for it would ignore every later disable until the process died.
+     `remoteDisableClearedByUser` is set only when the opt-in leads to a re-enable: a disable was
+     recorded here, the user had opted out, or permission is missing and `optIn()` is about to prompt
+     for it. An opt-in that changes nothing sends nothing, and setting the flag for it would ignore
+     every later disable until the process died.
      */
-    func clearRemoteDisable(userWasOptedOut: Bool = false) {
+    func clearRemoteDisable() {
         let oldValue: Int? = stateLock.withLock {
             let recorded = state.remoteDisabledReason
-            if recorded != nil || userWasOptedOut {
+            if recorded != nil || state.isDisabled || !state.reachable {
                 state.remoteDisableClearedByUser = true
             }
             state.remoteDisabledReason = nil
