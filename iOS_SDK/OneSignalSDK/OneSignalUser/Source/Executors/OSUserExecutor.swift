@@ -474,6 +474,7 @@ extension OSUserExecutor {
             if let identityObject = self.parseIdentityObjectResponse(response),
                let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 request.identityModel.hydrate(identityObject)
+                OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModel)
 
                 // Fetch this user's data if it is the current user
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
@@ -536,6 +537,7 @@ extension OSUserExecutor {
                 request.aliasLabel: request.aliasId
             ]
             request.identityModelToUpdate.hydrate(aliases)
+            OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModelToUpdate)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil {
@@ -665,8 +667,10 @@ extension OSUserExecutor {
 
         // If this was a create user, it hydrates the onesignal_id of the request's identityModel
         // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
+        // Only a current user is reported to the app; a parked Create User can complete after a switch.
         if let identityObject = parseIdentityObjectResponse(response) {
             identityModel.hydrate(identityObject)
+            OSUserStateSnapshot.fireUserStateChangedIfCurrent(identityModel)
             if addNewRecords, let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 newRecordsState.add(onesignalId)
             }

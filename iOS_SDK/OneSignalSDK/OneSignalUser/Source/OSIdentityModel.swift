@@ -161,21 +161,34 @@ class OSIdentityModel: OSModel {
         }
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel with aliases: \(remoteAliases)")
-        let newOnesignalId = remoteAliases[OS_ONESIGNAL_ID]
-        let newExternalId = remoteAliases[OS_EXTERNAL_ID]
-
+        // Reporting the user to the app is the executor's call, since only a current user may be reported.
         internalAddAliases(remoteAliases)
-        OSUserStateSnapshot.fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
     }
 }
 
 /**
  Owns the last user state the app was told about, so the observer only hears real changes.
 
- Hydration is the usual source, but `logout` under Identity Verification also reports here: it creates
- no user on the server, so there is no hydration to carry the news that nobody is signed in.
+ The User executor reports a hydrated current user through `fireUserStateChangedIfCurrent`, and `logout`
+ under Identity Verification also reports here: it creates no user on the server, so there is no
+ hydration to carry the news that nobody is signed in.
  */
 enum OSUserStateSnapshot {
+    /**
+     Reports the hydrated user to the app, but only while that user is still current. A Create User or
+     Identify User for a user the app has since switched away from still hydrates its model, since the
+     Requests queued behind it need the `onesignal_id`, but the app must not hear that user as signed in,
+     and the persisted pair must keep naming the current user, or the current user's real state would
+     later read as unchanged and go unreported.
+     */
+    static func fireUserStateChangedIfCurrent(_ identityModel: OSIdentityModel) {
+        guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: identityModel.modelId) != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserStateSnapshot not reporting a hydrated user who is no longer current")
+            return
+        }
+        fireUserStateChanged(newOnesignalId: identityModel.onesignalId, newExternalId: identityModel.externalId)
+    }
+
     /// Fires the user observer if `onesignal_id` OR `external_id` differs from the last reported pair.
     static func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
         let prevOnesignalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
