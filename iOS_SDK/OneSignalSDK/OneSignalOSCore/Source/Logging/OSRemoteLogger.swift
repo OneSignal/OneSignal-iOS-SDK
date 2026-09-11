@@ -361,9 +361,12 @@ public final class OSRemoteLogger: OSRemoteLoggerProtocol {
         }
 
         crashHandler.initialize()
-        // Events ride this telemetry, so the recorder follows it here and in shutdown().
-        eventRecorder.attach(telemetry)
-        didAttachEventRecorder = true
+        // Events ride this telemetry, so the recorder follows it here and in shutdown(). At NONE it
+        // stays detached and events queue until a logger with a real level starts.
+        if platformProvider.isRemoteLoggingEnabled {
+            eventRecorder.attach(telemetry)
+            didAttachEventRecorder = true
+        }
         lifecycleOperationLock.unlock()
         let owner = uploaderOwner
         let crashUploader = self.crashUploader

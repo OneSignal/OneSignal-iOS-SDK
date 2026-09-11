@@ -80,14 +80,14 @@ final class OSObservabilityEventRecorderTests: XCTestCase {
         super.tearDown()
     }
 
-    private func makeRemoteLogger(recorder: EventRecorderSpy) -> OSRemoteLogger {
+    private func makeRemoteLogger(recorder: EventRecorderSpy, remoteLogLevel: String? = "ERROR") -> OSRemoteLogger {
         OSRemoteLogger(
             installIdProvider: { "install-id" },
             onesignalIdProvider: { nil },
             pushSubscriptionIdProvider: { nil },
             appStateProvider: { "foreground" },
             featureFlagsProvider: { [] },
-            remoteLogLevelProvider: { nil },
+            remoteLogLevelProvider: { remoteLogLevel },
             exporterLoggingEnabledProvider: { false },
             requestSenderOverride: { _, completion in completion(nil, nil, nil) },
             eventRecorder: recorder
@@ -254,6 +254,22 @@ final class OSObservabilityEventRecorderTests: XCTestCase {
         let recorder = EventRecorderSpy()
         let logger = makeRemoteLogger(recorder: recorder)
 
+        logger.shutdown()
+
+        XCTAssertTrue(recorder.attached.isEmpty)
+        XCTAssertTrue(recorder.detached.isEmpty)
+    }
+
+    func testRemoteLoggerDoesNotAttachAtNone() {
+        // NONE is the remote off switch: log lines are filtered and the crash uploader refuses it,
+        // and Android never starts at NONE at all. A NONE logger still starts here (see
+        // testNoneLogLevelStartsLoggerButDoesNotSend), so the recorder has to be gated at attach
+        // time or events would ship while everything else is off. Shutdown must then leave the
+        // recorder alone, since it may be attached to a live logger from a later level change.
+        let recorder = EventRecorderSpy()
+        let logger = makeRemoteLogger(recorder: recorder, remoteLogLevel: "NONE")
+
+        logger.start()
         logger.shutdown()
 
         XCTAssertTrue(recorder.attached.isEmpty)
