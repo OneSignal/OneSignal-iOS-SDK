@@ -228,11 +228,18 @@ final class OneSignalViewModel: ObservableObject {
         let trimmedId = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty, !trimmedToken.isEmpty else { return }
+        // Same condition the service uses to decide whether to store the bearer.
+        let currentUser = trimmedId == service.externalId
         service.updateUserJwt(externalId: trimmedId, token: trimmedToken)
         if jwtAskExternalId == trimmedId {
             jwtAskExternalId = nil
         }
         print("[OneSignal] Updated JWT for: \(trimmedId)")
+        if currentUser {
+            // The demo now holds a fresh bearer for this user, and no user-state
+            // event is guaranteed, so refetch instead of leaving the stale failure.
+            Task { await fetchUserDataFromApi() }
+        }
     }
 
     /// The SDK parked this user's requests for want of a token. Drop the demo's stale copy and show the ask.
