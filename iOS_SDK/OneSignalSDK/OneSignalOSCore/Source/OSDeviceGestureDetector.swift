@@ -41,8 +41,10 @@ import UIKit
 /// synthetic sub-millisecond pair. The window is the only rate rule; six cycles fit inside it
 /// at round trips of five seconds or faster.
 ///
-/// The `killSwitchKey` catalog flag turns the gesture off. Absent means enabled, so a device
-/// that has never fetched flags still has it.
+/// The `remoteKillSwitchKey` catalog flag turns the gesture off. Absent means enabled, so a device
+/// that has never fetched flags still has it. An app can also opt out for good with the
+/// Info.plist key `disableInfoPlistKey`; then the detector never starts, so nothing is counted
+/// or recorded.
 ///
 /// Every recognised gesture also records `OSObservabilityEvent.deviceGesture`, with its outcome
 /// and the copied ID, so the gesture's usage can be measured.
@@ -54,7 +56,8 @@ public final class OSDeviceGestureDetector: NSObject {
     /// Shortest background phase a human can produce; anything faster is synthetic.
     static let minBackgroundDwellSeconds: TimeInterval = 0.25
 
-    static let killSwitchKey = "sdk_device_gesture_disabled"
+    static let remoteKillSwitchKey = "sdk_device_gesture_disabled"
+    static let disableInfoPlistKey = "OneSignal_disable_subscription_id_copy"
 
     /// The copied ID expires after five minutes. Whatever it replaced is not restored.
     static let pasteboardExpirySeconds: TimeInterval = 300
@@ -80,6 +83,7 @@ public final class OSDeviceGestureDetector: NSObject {
     /// hours apart into one window.
     private let nowProvider: () -> TimeInterval
     private let isDisabledRemotelyProvider: () -> Bool
+    private let isDisabledByAppProvider: () -> Bool
     private let subscriptionIdProvider: () -> String?
     private let shouldAwaitProvider: () -> Bool
     private let pasteboardWriter: (String) -> Void
@@ -101,7 +105,12 @@ public final class OSDeviceGestureDetector: NSObject {
             TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / TimeInterval(NSEC_PER_SEC)
         },
         isDisabledRemotelyProvider: @escaping () -> Bool = {
-            OSFeatureManager.shared.isEnabled(featureKey: OSDeviceGestureDetector.killSwitchKey)
+            OSFeatureManager.shared.isEnabled(featureKey: OSDeviceGestureDetector.remoteKillSwitchKey)
+        },
+        isDisabledByAppProvider: @escaping () -> Bool = {
+            OSDeviceGestureDetector.isDisabledByApp(
+                infoPlistValue: Bundle.main.object(forInfoDictionaryKey: OSDeviceGestureDetector.disableInfoPlistKey)
+            )
         },
         subscriptionIdProvider: @escaping () -> String? = { OneSignalIdentifiers.subscriptionId },
         shouldAwaitProvider: @escaping () -> Bool = {
@@ -114,6 +123,7 @@ public final class OSDeviceGestureDetector: NSObject {
         self.mainQueue = mainQueue
         self.nowProvider = nowProvider
         self.isDisabledRemotelyProvider = isDisabledRemotelyProvider
+        self.isDisabledByAppProvider = isDisabledByAppProvider
         self.subscriptionIdProvider = subscriptionIdProvider
         self.shouldAwaitProvider = shouldAwaitProvider
         self.pasteboardWriter = pasteboardWriter
@@ -137,6 +147,8 @@ public final class OSDeviceGestureDetector: NSObject {
     /// once the last scene backgrounds, exactly the whole-app signal a cycle counter needs.
     /// Per-scene events would over-count on multi-window iPad.
     func registerLifecycleObserversIfNeeded() {
+        // Read before the lock; it touches the app bundle, not the SDK.
+        let optedOut = isDisabledByAppProvider()
         let shouldSkip = stateLock.withLock { () -> Bool in
             if started || invalidated {
                 return true
@@ -145,6 +157,11 @@ public final class OSDeviceGestureDetector: NSObject {
             return false
         }
         guard !shouldSkip else {
+            return
+        }
+        // The app owner's opt-out. Logged so a developer can confirm the key took.
+        guard !optedOut else {
+            OneSignalLog.onesignalLog(.LL_INFO, message: "OSDeviceGestureDetector: disabled by \(Self.disableInfoPlistKey), not starting")
             return
         }
 
@@ -285,6 +302,12 @@ public final class OSDeviceGestureDetector: NSObject {
     /// anyone who copied it by accident.
     static func clipText(subscriptionId: String) -> String {
         clipPrefix + subscriptionId
+    }
+
+    /// Dynamic `boolValue`, as Objective-C sends to `id`. A Boolean, Number or String such as
+    /// `YES` opts out. Anything else, including a missing key, does not.
+    static func isDisabledByApp(infoPlistValue value: Any?) -> Bool {
+        (value as AnyObject?)?.boolValue ?? false
     }
 
     /// No `localOnly` option: Universal Clipboard carrying the ID to the Mac running the

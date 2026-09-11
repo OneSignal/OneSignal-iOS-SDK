@@ -106,13 +106,14 @@ private final class Harness {
     let recorder = EventRecorderSpy()
     private(set) var detector: OSDeviceGestureDetector!
 
-    init(center: NotificationCenter = NotificationCenter(), queue: OSDispatchQueue = InlineQueue()) {
+    init(center: NotificationCenter = NotificationCenter(), queue: OSDispatchQueue = InlineQueue(), disabledByApp: Bool = false) {
         self.center = center
         detector = OSDeviceGestureDetector(
             notificationCenter: center,
             mainQueue: queue,
             nowProvider: { [unowned self] in self.now },
             isDisabledRemotelyProvider: { [unowned self] in self.killSwitchOn },
+            isDisabledByAppProvider: { disabledByApp },
             subscriptionIdProvider: { [unowned self] in self.currentSubscriptionId },
             shouldAwaitProvider: { [unowned self] in self.shouldAwait },
             pasteboardWriter: { [unowned self] in self.writes.append($0) },
@@ -249,7 +250,7 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
     func testKillSwitchKeyMatchesTheCatalog() {
         // The feature manager only answers for catalog keys, so a drift here would silently
         // turn the switch into a no-op.
-        XCTAssertEqual(OSDeviceGestureDetector.killSwitchKey, FeatureFlag.sdkDeviceGestureDisabled.key)
+        XCTAssertEqual(OSDeviceGestureDetector.remoteKillSwitchKey, FeatureFlag.sdkDeviceGestureDisabled.key)
     }
 
     func testNotReadySdkSuppressesTheWrite() {
@@ -301,6 +302,23 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
         XCTAssertEqual(center.liveObservers, 2)
 
         harness.detector.tearDown()
+        XCTAssertEqual(center.liveObservers, 0)
+    }
+
+    func testInfoPlistOptOutKeepsTheDetectorFromStarting() {
+        // The app owner said no: no observers are registered, so nothing is counted, written
+        // or recorded, and a second start does not register either because the latch holds.
+        let center = ObserverTrackingCenter()
+        let harness = Harness(center: center, disabledByApp: true)
+        XCTAssertEqual(center.liveObservers, 0)
+
+        for _ in 1...6 {
+            harness.cycle()
+        }
+        XCTAssertEqual(harness.writes, [])
+        XCTAssertEqual(harness.recorder.events, [])
+
+        harness.detector.registerLifecycleObserversIfNeeded()
         XCTAssertEqual(center.liveObservers, 0)
     }
 
@@ -430,5 +448,61 @@ final class OSDeviceGestureDetectorTests: XCTestCase {
 
         XCTAssertEqual(harness.recorder.events, [.deviceGesture, .deviceGesture])
         XCTAssertEqual(harness.recorder.attributes.map { $0["gesture.result"] }, ["copied", "copied"])
+    }
+}
+
+/// Parsing of the Info.plist opt-out value. A separate class so the one above stays under
+/// SwiftLint's body length limit.
+final class OSDeviceGestureDetectorInfoPlistTests: XCTestCase {
+    func testReadsTheValueTypesTheOlderSwitchesAccept() throws {
+        // Each case is the literal Info.plist text. A String such as YES has to count too.
+        let optedOut = [
+            "<true/>",
+            "<integer>1</integer>",
+            "<real>1.0</real>",
+            "<string>YES</string>",
+            "<string>yes</string>",
+            "<string>true</string>",
+            "<string>1</string>"
+        ]
+        for xml in optedOut {
+            XCTAssertTrue(OSDeviceGestureDetector.isDisabledByApp(infoPlistValue: try plistValue(xml)), xml)
+        }
+
+        let stillOn = [
+            "<false/>",
+            "<integer>0</integer>",
+            "<string>NO</string>",
+            "<string>false</string>",
+            "<string>0</string>",
+            "<string></string>"
+        ]
+        for xml in stillOn {
+            XCTAssertFalse(OSDeviceGestureDetector.isDisabledByApp(infoPlistValue: try plistValue(xml)), xml)
+        }
+    }
+
+    func testIgnoresAMissingOrMistypedValue() throws {
+        // A missing or mistyped value leaves the gesture on and must not crash.
+        XCTAssertFalse(OSDeviceGestureDetector.isDisabledByApp(infoPlistValue: nil))
+        let mistyped = [
+            "<array><string>YES</string></array>",
+            "<dict><key>enabled</key><true/></dict>",
+            "<date>2026-09-11T00:00:00Z</date>",
+            "<data>WUVT</data>"
+        ]
+        for xml in mistyped {
+            XCTAssertFalse(OSDeviceGestureDetector.isDisabledByApp(infoPlistValue: try plistValue(xml)), xml)
+        }
+    }
+
+    /// The value of one Info.plist key written as `xml`, with the type `Bundle.main` would return.
+    private func plistValue(_ xml: String) throws -> Any {
+        let plist = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <plist version="1.0"><dict><key>k</key>\(xml)</dict></plist>
+        """
+        let dict = try XCTUnwrap(PropertyListSerialization.propertyList(from: Data(plist.utf8), format: nil) as? [String: Any])
+        return try XCTUnwrap(dict["k"], xml)
     }
 }
