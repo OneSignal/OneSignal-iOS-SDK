@@ -33,7 +33,7 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 /// Covers the JWT bearer token on `OSIdentityModel`: which tokens count as usable, the
-/// compare-and-set on invalidation, and what survives an archive round trip.
+/// compare-and-set on invalidation, and what survives an archive round trip. Also what `clearData` keeps.
 final class OSIdentityModelTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -57,6 +57,23 @@ final class OSIdentityModelTests: XCTestCase {
         unarchiver.requiresSecureCoding = false
         defer { unarchiver.finishDecoding() }
         return try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSIdentityModel)
+    }
+
+    // MARK: - clearData()
+
+    /// The fetch that follows a clear is by `onesignal_id`, so it cannot change who the user is, and work
+    /// built before its response must not read this user as anonymous.
+    func testClearDataKeepsTheExternalIdAndDropsEveryOtherAlias() {
+        let model = OSIdentityModel(
+            aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID, "stale_label": "stale_value"],
+            changeNotifier: OSEventProducer()
+        )
+
+        model.clearData()
+
+        XCTAssertEqual(model.externalId, userA_EUID)
+        XCTAssertNil(model.onesignalId)
+        XCTAssertNil(model.aliases["stale_label"])
     }
 
     // MARK: - getValidJwt()

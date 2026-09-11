@@ -57,13 +57,15 @@ protocol OSRequestAuthorizing: AnyObject {
     func authorize(_ request: OSUserRequest) -> Bool
 
     /**
-     Returns `true` if the Request's owner has no token to sign with, which is why the two methods above
-     parked it. Reads only: it does not ask the app for a token, so call it after one of them has.
+     Whether the last authorization of this Request parked it, because its owner has no token to sign
+     with. Consumes the answer, so ask once per `prepareForExecution`, right after it returns false.
 
      Lets a caller that stops at its first unsendable Request tell "nothing can send until the app hands
-     over a token for this user" from "not addressable yet", which resolves on its own.
+     over a token for this user" from "not addressable yet", which resolves on its own: an app id that has
+     not arrived, a user still inside the new-records cool-down, or an `onesignal_id` a queued Create User
+     has yet to supply. Those fail before the two methods above run, so only a park may skip the retry.
      */
-    func awaitsToken(_ request: OSUserRequest) -> Bool
+    func parkedForToken(_ request: OSUserRequest) -> Bool
 
     /**
      Parks the token an unauthorized response rejected and clears `sentToClient` so the Request is
@@ -119,6 +121,15 @@ final class OSRequestAuth: OSRequestAuthorizing {
     private let identityVerificationService: OSIdentityVerificationService
     private let jwt: OSUserJwtProviding
 
+    /**
+     Requests whose last authorization `park` held. Weak, so a Request that leaves its queue leaves this
+     too. Every authorization starts by forgetting the Request, so the entry reflects the latest attempt,
+     and `parkedForToken` removes it, so a prepare that fails before authorizing reads as not parked.
+     Shared by every executor's queue, hence the lock.
+     */
+    private let parkedRequests = NSHashTable<AnyObject>.weakObjects()
+    private let parkedRequestsLock = NSLock()
+
     var ivBehaviorActive: Bool {
         return identityVerificationService.ivBehaviorActive
     }
@@ -129,6 +140,7 @@ final class OSRequestAuth: OSRequestAuthorizing {
     }
 
     func authorizeUserScoped(_ request: OSUserRequest, legacyAlias: OSAliasPair) -> OSAliasPair? {
+        forgetPark(of: request)
         guard ivBehaviorActive else {
             return legacyAlias
         }
@@ -148,6 +160,7 @@ final class OSRequestAuth: OSRequestAuthorizing {
     }
 
     func authorize(_ request: OSUserRequest) -> Bool {
+        forgetPark(of: request)
         guard ivBehaviorActive else {
             return true
         }
@@ -167,11 +180,18 @@ final class OSRequestAuth: OSRequestAuthorizing {
         return true
     }
 
-    func awaitsToken(_ request: OSUserRequest) -> Bool {
-        guard ivBehaviorActive, let externalId = request.ownerExternalId else {
-            return false
+    func parkedForToken(_ request: OSUserRequest) -> Bool {
+        return parkedRequestsLock.withLock {
+            guard parkedRequests.contains(request) else {
+                return false
+            }
+            parkedRequests.remove(request)
+            return true
         }
-        return jwt.validJwt(externalId: externalId) == nil
+    }
+
+    private func forgetPark(of request: OSUserRequest) {
+        parkedRequestsLock.withLock { parkedRequests.remove(request) }
     }
 
     /**
@@ -180,6 +200,7 @@ final class OSRequestAuth: OSRequestAuthorizing {
      SDK holding none with nothing to reject. The repo keeps this to one ask per external ID per session.
      */
     private func park(_ request: OSUserRequest, ownedBy externalId: String) {
+        parkedRequestsLock.withLock { parkedRequests.add(request) }
         // Log only on the ask that reaches the app; later prepareForExecution retries stay quiet.
         if jwt.askForToken(externalId: externalId) {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSRequestAuth: holding \(request) until \(externalId) has a token")

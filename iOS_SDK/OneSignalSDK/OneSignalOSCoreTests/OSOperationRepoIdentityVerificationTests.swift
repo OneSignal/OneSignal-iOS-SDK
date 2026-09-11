@@ -29,6 +29,7 @@ import Foundation
 import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
+import OneSignalOSCoreMocks
 import OneSignalKMP
 @testable import OneSignalOSCore
 

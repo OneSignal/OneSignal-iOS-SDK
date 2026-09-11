@@ -28,6 +28,7 @@
 import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
+import OneSignalOSCoreMocks
 import OneSignalUserMocks
 @testable import OneSignalOSCore
 @testable import OneSignalUser
@@ -298,6 +299,6 @@ final class DeltaOwnershipTests: XCTestCase {
     }
 
     private func queuedDelta(named name: String, property: String) -> OSDelta? {
-        return OneSignalUserManagerImpl.sharedInstance.operationRepo.deltaQueue.first { $0.name == name && $0.property == property }
+        return OneSignalUserManagerImpl.sharedInstance.operationRepo.snapshotDeltaQueue().first { $0.name == name && $0.property == property }
     }
 }

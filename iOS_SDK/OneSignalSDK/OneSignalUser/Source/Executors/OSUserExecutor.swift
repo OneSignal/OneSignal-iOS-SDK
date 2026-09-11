@@ -67,9 +67,13 @@ class OSUserExecutor {
 
      Runs on every send because `refreshIfUnknown` can raise `requirement` with no event; reads the live
      model because this executor sends nothing while `requirement` is unknown.
+
+     With the requirement off there is nothing to reshape, but a login kept at start while the requirement
+     was still unknown may never become sendable; see `dropIdentifyUsersThatCanNeverPrepare`.
      */
     private func reshapeInvalidRequests() {
         guard identityVerificationService.ivBehaviorActive else {
+            dropIdentifyUsersThatCanNeverPrepare()
             return
         }
 
@@ -120,6 +124,44 @@ class OSUserExecutor {
         return request is OSRequestFetchIdentityBySubscription
     }
 
+    /**
+     With the requirement off, an Identify User whose user never received an `onesignal_id`, and has no
+     queued Create User or Fetch Identity By Subscription left to supply one, can never prepare. Drop it
+     rather than let it hold the queue and block the logins behind it. Only reachable for a login kept at
+     start while the requirement was still unknown; `uncacheUserRequests` drops the same Request when the
+     requirement is already known to be off.
+     */
+    private func dropIdentifyUsersThatCanNeverPrepare() {
+        guard identityVerificationService.requirement == .off else {
+            return
+        }
+        let modelIdsAwaitingAnId = Set(userRequestQueue.compactMap { request -> String? in
+            if let createUser = request as? OSRequestCreateUser {
+                return createUser.identityModel.modelId
+            }
+            if let fetchIdentity = request as? OSRequestFetchIdentityBySubscription {
+                return fetchIdentity.identityModel.modelId
+            }
+            return nil
+        })
+        let kept = userRequestQueue.filter { request in
+            guard let identifyUser = request as? OSRequestIdentifyUser,
+                  identifyUser.identityModelToIdentify.onesignalId == nil,
+                  !modelIdsAwaitingAnId.contains(identifyUser.identityModelToIdentify.modelId)
+            else {
+                return true
+            }
+            let reason = "its user never received an onesignal_id and nothing queued can supply one"
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor dropped \(identifyUser), \(reason)")
+            return false
+        }
+        guard kept.count != userRequestQueue.count else {
+            return
+        }
+        userRequestQueue = kept
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+    }
+
     /// Read in requests from the cache, do not read in FetchUser requests as this is not needed.
     private func uncacheUserRequests() {
         var userRequestQueue: [OSUserRequest] = []
@@ -159,9 +201,15 @@ class OSUserExecutor {
                         req.identityModelToUpdate = updateInRepo
                     }
 
-                    // `prepareForExecution` is false under IV so `reshapeInvalidRequests` can promote
-                    // this login; do not treat that as a permanent drop.
-                    if auth.ivBehaviorActive || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // Keep the login when the user it identifies is known to the repo: a restored Create User
+                    // ahead of it put the model there, and that response supplies the `onesignal_id` prepare
+                    // needs. Keep it too while the requirement is not known to be off, since
+                    // `reshapeInvalidRequests` decides what a login made under Identity Verification becomes
+                    // once the requirement is known. Otherwise only a Request that can be sent as is stays:
+                    // one that can never prepare would hold the queue and block the logins behind it.
+                    if identifyInRepo != nil
+                        || identityVerificationService.requirement != .off
+                        || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                         if identifyInRepo == nil {
                             addIdentityModel(req.identityModelToIdentify)
                         }
@@ -252,7 +300,9 @@ class OSUserExecutor {
             else {
                 // Only the app can end this wait (`updateUserJwt` → `storeJwt`); do not poll for it.
                 // A login for another user behind this one must not be stranded, so step over it.
-                if self.auth.awaitsToken(request) {
+                // Anything else that stops a prepare, the cool-down or an id still to arrive, resolves
+                // on its own, and the delayed retry below is what picks it up.
+                if self.auth.parkedForToken(request) {
                     awaitingToken = true
                     continue
                 }
@@ -426,6 +476,7 @@ extension OSUserExecutor {
             if let identityObject = self.parseIdentityObjectResponse(response),
                let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 request.identityModel.hydrate(identityObject)
+                OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModel)
 
                 // Fetch this user's data if it is the current user
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
@@ -488,6 +539,7 @@ extension OSUserExecutor {
                 request.aliasLabel: request.aliasId
             ]
             request.identityModelToUpdate.hydrate(aliases)
+            OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModelToUpdate)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil {
@@ -617,8 +669,10 @@ extension OSUserExecutor {
 
         // If this was a create user, it hydrates the onesignal_id of the request's identityModel
         // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
+        // Only a current user is reported to the app; a parked Create User can complete after a switch.
         if let identityObject = parseIdentityObjectResponse(response) {
             identityModel.hydrate(identityObject)
+            OSUserStateSnapshot.fireUserStateChangedIfCurrent(identityModel)
             if addNewRecords, let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 newRecordsState.add(onesignalId)
             }

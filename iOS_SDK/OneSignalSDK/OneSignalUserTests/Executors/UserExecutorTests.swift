@@ -439,6 +439,84 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
     }
 
+    /// The archive an offline first launch with a `login` leaves behind: the anonymous Create User has not
+    /// been sent, so its user has no `onesignal_id` yet. The Identify User behind it has to wait for that
+    /// response rather than be dropped at start.
+    func testRestoredIdentifyUserBehindItsUnsentCreateUserIsSentOnceTheCreateUserCompletes() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        let createUser = makeUnsentAnonymousCreateUserRequest()
+        cacheUserRequests([createUser, makeIdentifyUserRequest(identifying: createUser.identityModel, updating: user.identityModel)])
+
+        /* When */
+        let mocks = Mocks {
+            MockUserRequests.setDefaultCreateAnonUserResponses(with: $0)
+            MockUserRequests.setDefaultIdentifyUserResponses(with: $0, externalId: userA_EUID, conflicted: false)
+        }
+        OneSignalCoreMocks.waitUntil("Restored Identify User was not sent after its Create User") {
+            mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self)
+        }
+
+        /* Then */
+        XCTAssertTrue(mocks.client.executedRequests.first is OSRequestCreateUser, "the Create User has to go out first")
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self, expectedCount: 1))
+    }
+
+    /// Same archive with the requirement unknown at start. Once auth turns out to be required, reshape
+    /// drops the anonymous Create User and promotes the Identify User into the Create User `login` would
+    /// have made.
+    func testRestoredIdentifyUserBehindItsUnsentCreateUserBecomesACreateUserWhenAuthIsRequired() {
+        /* Setup */
+        makeRequirementUnknown()
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        user.identityModel.jwtBearerToken = "token-a"
+        let createUser = makeUnsentAnonymousCreateUserRequest()
+        cacheUserRequests([createUser, makeIdentifyUserRequest(identifying: createUser.identityModel, updating: user.identityModel)])
+        let mocks = Mocks { MockUserRequests.setDefaultCreateUserResponses(with: $0, externalId: userA_EUID) }
+        allowAsyncWorkToRun()
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self),
+                       "nothing may be sent while the requirement is unknown")
+
+        /* When */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        OneSignalCoreMocks.waitUntil("Restored Identify User was not reshaped into a Create User") {
+            mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        /* Then */
+        let createUsers = mocks.client.executedRequests.compactMap { $0 as? OSRequestCreateUser }
+        XCTAssertEqual(createUsers.map { $0.identityModel.externalId }, [userA_EUID], "only the promoted Create User for A may go out")
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+    }
+
+    /// A login kept at start while the requirement was unknown, whose user never received an
+    /// `onesignal_id` and has no Create User left to supply one, can never prepare once auth is known to
+    /// be off. It has to be dropped rather than hold the queue, or every login behind it is stranded.
+    func testRestoredIdentifyUserThatCanNeverPrepareIsDroppedOnceAuthIsKnownToBeOff() {
+        /* Setup */
+        makeRequirementUnknown()
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        let neverCreated = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
+        cacheUserRequests([makeIdentifyUserRequest(identifying: neverCreated, updating: user.identityModel)])
+        let mocks = Mocks { MockUserRequests.setDefaultCreateUserResponses(with: $0, externalId: userB_EUID) }
+
+        /* When */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
+        // A login behind the dead Identify User has to go out.
+        let userB = mocks.createUserInstance(externalId: userB_EUID)
+        OneSignalUserManagerImpl.sharedInstance._user = userB
+        mocks.userExecutor.createUser(userB)
+        OneSignalCoreMocks.waitUntil("Create User behind the dead Identify User was not sent") {
+            mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
+    }
+
     /// `login` promotes while the requirement is still unknown, so turning out to require auth must not
     /// strand that login: it becomes the Create User it would have been.
     func testInSessionIdentifyUserBecomesACreateUserWhenIdentityVerificationIsRequired() {
@@ -504,6 +582,38 @@ final class UserExecutorTests: XCTestCase {
             pushSubscriptionModel: pushModel,
             originalPushToken: nil
         )
+    }
+
+    private func makeIdentifyUserRequest(
+        identifying identityModelToIdentify: OSIdentityModel,
+        updating identityModelToUpdate: OSIdentityModel
+    ) -> OSRequestIdentifyUser {
+        return OSRequestIdentifyUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: userA_EUID,
+            identityModelToIdentify: identityModelToIdentify,
+            identityModelToUpdate: identityModelToUpdate
+        )
+    }
+
+    /// A Create User for an anonymous user that has not been sent, so its user has no `onesignal_id`.
+    private func makeUnsentAnonymousCreateUserRequest() -> OSRequestCreateUser {
+        let pushModel = OSSubscriptionModel(
+            type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer()
+        )
+        return OSRequestCreateUser(
+            identityModel: OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer()),
+            propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
+            pushSubscriptionModel: pushModel,
+            originalPushToken: nil
+        )
+    }
+
+    /// `OneSignalUserMocks.reset()` hydrates the requirement off for non-IV tests, so a test that starts
+    /// unknown has to clear both the shared config and its cache.
+    private func makeRequirementUnknown() {
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_USE_IDENTITY_VERIFICATION)
+        OSCoreMocks.resetSharedJwtConfig()
     }
 }
 
