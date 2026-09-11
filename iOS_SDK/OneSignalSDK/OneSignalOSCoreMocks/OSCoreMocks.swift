@@ -55,4 +55,12 @@ extension OSOperationRepo {
         }
         paused = false
     }
+
+    /**
+     The queue as of right now. Tests poll it while the repo appends on its own queue, so reading
+     `deltaQueue` directly is a data race even when only the count is wanted.
+     */
+    public func snapshotDeltaQueue() -> [OSDelta] {
+        return dispatchQueue.sync { deltaQueue }
+    }
 }
