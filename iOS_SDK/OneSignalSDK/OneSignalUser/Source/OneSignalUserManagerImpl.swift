@@ -936,7 +936,7 @@ extension OneSignalUserManagerImpl {
                 return
             }
             let model = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
-            // Clear first so the guard is armed before the opt-out flips and its delta goes out.
+            // Clear first so `remoteDisableClearedByUser` is set before the opt-out flips and its delta goes out.
             model?.clearRemoteDisable(userWasOptedOut: model?._isDisabled == true)
             model?._isDisabled = false
             OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
