@@ -247,6 +247,7 @@
 		3CEE93572B7C78FD008440BD /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		3CEE93582B7C78FE008440BD /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
+		354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
@@ -1516,6 +1517,7 @@
 		3CEE90A62BFE6ABD00B0FB5B /* OSPropertiesSupportedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesSupportedProperty.swift; sourceTree = "<group>"; };
 		3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalRequest+UnitTests.swift"; sourceTree = "<group>"; };
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
+		6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorRetryTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
@@ -2542,6 +2544,7 @@
 			isa = PBXGroup;
 			children = (
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
+				6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */,
 				3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */,
 				3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */,
 				FE740F9E6B87D215510B5982 /* ExecutorAnonymousPurgeTests.swift */,
@@ -4694,6 +4697,7 @@
 			files = (
 				3CB331682F281679000E1801 /* CustomEventsIntegrationTests.swift in Sources */,
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
+				354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */,

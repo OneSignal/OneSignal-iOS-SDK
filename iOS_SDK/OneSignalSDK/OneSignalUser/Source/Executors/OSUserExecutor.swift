@@ -300,7 +300,9 @@ class OSUserExecutor {
             else {
                 // Only the app can end this wait (`updateUserJwt` → `storeJwt`); do not poll for it.
                 // A login for another user behind this one must not be stranded, so step over it.
-                if self.auth.awaitsToken(request) {
+                // Anything else that stops a prepare, the cool-down or an id still to arrive, resolves
+                // on its own, and the delayed retry below is what picks it up.
+                if self.auth.parkedForToken(request) {
                     awaitingToken = true
                     continue
                 }
