@@ -81,15 +81,19 @@ public final class OSUserJwtConfig: NSObject {
     @objc
     public func hydrate(requiresUserAuth: Bool) {
         let hydrated: OSRequiresUserAuth = requiresUserAuth ? .on : .off
-        // Keep the log and the handler out of the lock; either can re-enter and read the requirement.
+        // Only the value changes under the lock. The write flushes to disk, and every reader of
+        // `requirement` (the repo queue, IAM on main, the executors) would wait on it; the log and the
+        // handler can re-enter and read the requirement.
         let (previous, handler) = lock.withLock { () -> (OSRequiresUserAuth, ((OSRequiresUserAuth) -> Void)?) in
             let previous = _requirement
             _requirement = hydrated
-            // Written even when the value is unchanged, so a launch whose write was dropped by locked
-            // storage still ends up with the requirement on disk.
-            OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: hydrated.rawValue)
             return (previous, onHydrated)
         }
+        // Written even when the value is unchanged, so a launch whose write was dropped by locked
+        // storage still ends up with the requirement on disk. Two hydrates racing with different values
+        // could leave disk holding the older one while memory holds the newer; `hydrate` has one guarded
+        // call site per session, and the next session's params fetch heals a stale cache.
+        OneSignalUserDefaults.initShared().saveInteger(forKey: OSUD_USE_IDENTITY_VERIFICATION, withValue: hydrated.rawValue)
         if previous != hydrated {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserJwtConfig requirement changed from \(previous) to \(hydrated)")
         }
