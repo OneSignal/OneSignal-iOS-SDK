@@ -104,15 +104,27 @@ public final class OSUserJwtConfig: NSObject {
 
     /**
      Re-reads the cached requirement while it is still unknown. The read in `init` can land during an
-     app prewarm, before first unlock, when UserDefaults silently returns nothing.
+     app prewarm, before first unlock, when UserDefaults silently returns nothing. Fires the hydrated
+     handler when the value moves off `unknown`, the same transition `hydrate` reports, so a caller
+     registered before this runs is told the same way.
      */
     public func refreshIfUnknown() {
-        lock.withLock {
+        let (refreshed, handler) = lock.withLock { () -> (OSRequiresUserAuth?, ((OSRequiresUserAuth) -> Void)?) in
             guard _requirement == .unknown else {
-                return
+                return (nil, nil)
             }
-            _requirement = OSUserJwtConfig.cachedRequirement()
+            let cached = OSUserJwtConfig.cachedRequirement()
+            guard cached != .unknown else {
+                return (nil, nil)
+            }
+            _requirement = cached
+            return (cached, onHydrated)
         }
+        guard let refreshed else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSUserJwtConfig requirement refreshed from the cache to \(refreshed)")
+        handler?(refreshed)
     }
 
     /// The Identity Verification service is the sole observer, so a second registration replaces the first.
