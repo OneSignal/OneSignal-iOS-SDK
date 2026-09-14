@@ -68,7 +68,8 @@ extension OneSignalUserManagerImpl {
 
     /**
      Replays any ask that already fired this session, so a listener registered after `start` or `login`
-     still hears who currently owes a token.
+     still hears who currently owes a token. The listener is held weakly, so the app has to keep its own
+     reference to it.
      */
     @objc
     public func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {

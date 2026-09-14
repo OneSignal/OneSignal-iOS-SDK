@@ -180,17 +180,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return userStateChangesObserver
     }
 
-    // JWT Invalidated Observer
-    private var _userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>?
-    var userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
-        if let observer = _userJwtInvalidatedObserver {
-            return observer
-        }
-        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:)))
-        _userJwtInvalidatedObserver = userJwtInvalidatedObserver
-
-        return userJwtInvalidatedObserver
-    }
+    // JWT Invalidated Observer. Built in `init` rather than lazily: the ask path reaches it from the
+    // executor queues while the app registers from its own thread, and a lazy getter with no lock could
+    // build two and discard the one holding the app's listener.
+    let userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>
 
     // Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY).registerAsUserObserver()
@@ -219,12 +212,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private override init() {
         let identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
         let operationRepo = OSOperationRepo(identityVerificationService: identityVerificationService)
-        // Goes through `sharedInstance` rather than capturing self: the observer it notifies is created
-        // lazily and must not be touched during init.
+        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(
+            change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:))
+        )
+        // Captures the observer, not self, so the closure is safe to build before init completes.
         let userJwtRepo = OSUserJwtRepo(identityModelRepo: identityModelRepo) { externalId in
-            OneSignalUserManagerImpl.sharedInstance.userJwtInvalidatedObserver.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId))
+            OneSignalUserManagerImpl.notifyJwtInvalidated(userJwtInvalidatedObserver, externalId: externalId)
         }
         self.identityVerificationService = identityVerificationService
+        self.userJwtInvalidatedObserver = userJwtInvalidatedObserver
         self.userJwtRepo = userJwtRepo
         self.requestAuth = OSRequestAuth(identityVerificationService: identityVerificationService, jwt: userJwtRepo)
         self.operationRepo = operationRepo
@@ -233,6 +229,22 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
+    }
+
+    /**
+     Tells the app's listeners who owes a token. A cold-start ask that beats the app's registration is
+     the normal path, and the replay in `addUserJwtInvalidatedListener` covers it, so an ask nobody hears
+     only warns. Without that line an app that never registers, or registered a listener it does not
+     retain, would see every user-scoped call park in silence.
+     */
+    static func notifyJwtInvalidated(
+        _ observer: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>,
+        externalId: String
+    ) {
+        if !observer.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId)) {
+            let unheard = "asked for a JWT for externalId \(externalId) but no OSUserJwtInvalidatedListener is registered"
+            OneSignalLog.onesignalLog(.LL_WARN, message: "\(unheard); the ask is replayed when one is added")
+        }
     }
 
     @objc
