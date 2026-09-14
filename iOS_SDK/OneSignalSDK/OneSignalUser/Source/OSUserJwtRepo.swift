@@ -109,6 +109,15 @@ final class OSUserJwtRepo: OSUserJwtProviding {
         return lock.withLock { Array(askedForToken) }
     }
 
+    /**
+     Forgets an ask so a later park can ask again. A `login` that builds a new Identity Model for this
+     external ID is a fresh chance to hear about the token it owes; without this, an ask left unanswered
+     before a logout silenced every later token-less login as the same user for the rest of the session.
+     */
+    func clearAsk(externalId: String) {
+        lock.withLock { _ = askedForToken.remove(externalId) }
+    }
+
     @discardableResult
     func invalidateJwt(externalId: String, rejectedToken: String) -> Bool {
         // No model for this user means the token could not have come from here. A Request stamped

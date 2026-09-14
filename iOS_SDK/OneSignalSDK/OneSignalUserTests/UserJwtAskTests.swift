@@ -99,4 +99,26 @@ final class UserJwtAskTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The listener was not told") { listener.invalidatedExternalIds == [userA_EUID] }
         XCTAssertTrue(warnings.warnings.isEmpty, "\(warnings.warnings)")
     }
+
+    // MARK: - asking again after a logout
+
+    /// An ask left unanswered before a logout must not silence the next login as the same user: every
+    /// login that builds a new Identity Model is asked afresh.
+    func testLoggingInAgainAfterALogoutAsksAgain() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        // Held strongly for the test's lifetime: the observer keeps listeners weakly.
+        let listener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(listener)
+        defer { OneSignalUserManagerImpl.sharedInstance.removeUserJwtInvalidatedListener(listener) }
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+        OneSignalCoreMocks.waitUntil("The first login did not ask") { listener.invalidatedExternalIds == [userA_EUID] }
+
+        OneSignalUserManagerImpl.sharedInstance.logout()
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+
+        OneSignalCoreMocks.waitUntil("The second login did not ask again") {
+            listener.invalidatedExternalIds == [userA_EUID, userA_EUID]
+        }
+    }
 }
