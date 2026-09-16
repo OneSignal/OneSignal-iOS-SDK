@@ -198,6 +198,41 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         wait(for: [secondReturned], timeout: 2.0)
     }
 
+    /// The bar is shared by every fetch waiting on the id, so lowering it on one timeout can be all a sibling
+    /// was missing. That sibling goes out with the user token it already had, not after a timeout of its own.
+    func testATimeoutReleasesASiblingThatAlreadyHasItsUserToken() {
+        let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        condition.setSubscriptionUpdatePending(value: true)
+
+        OSConsistencyManager.waitTimeout = .seconds(1)
+        let firstReturned = expectation(description: "first fetch timed out")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            firstReturned.fulfill()
+        }
+        OneSignalCoreMocks.waitUntil("first fetch waiting") { manager.waiterCount == 1 }
+
+        // Left to itself, the sibling would sit out the full timeout.
+        OSConsistencyManager.waitTimeout = .seconds(30)
+        let siblingReturned = expectation(description: "sibling fetch released")
+        var siblingData: OSReadYourWriteData?
+        DispatchQueue.global().async {
+            siblingData = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            siblingReturned.fulfill()
+        }
+        OneSignalCoreMocks.waitUntil("sibling fetch waiting") { manager.waiterCount == 2 }
+
+        // A user token alone satisfies neither while the bar is up.
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("100"))
+        XCTAssertEqual(manager.waiterCount, 2)
+
+        wait(for: [firstReturned], timeout: 2.0)
+        wait(for: [siblingReturned], timeout: 2.0)
+        XCTAssertEqual(siblingData?.rywToken, "100", "the sibling proceeds with the token it already had")
+        XCTAssertEqual(manager.waiterCount, 0)
+    }
+
     // MARK: - Helpers
 
     private func token(_ value: String) -> OSReadYourWriteData {

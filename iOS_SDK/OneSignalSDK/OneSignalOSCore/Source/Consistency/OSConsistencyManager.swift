@@ -73,21 +73,27 @@ import OneSignalCore
     /// Blocks the caller until the condition is met or `waitTimeout` elapses, then returns the newest
     /// token the condition accepts, which is nil when it was released without one.
     @objc public func getRywTokenFromAwaitableCondition(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
+        // The timeout in force when the waiter registers is the one it waits.
+        let timeout = OSConsistencyManager.waitTimeout
         let semaphore = DispatchSemaphore(value: 0)
         queue.sync {
             self.indexedConditions[id, default: []].append((condition, semaphore))
             self.checkConditionsAndComplete(forId: id)
         }
-        if semaphore.wait(timeout: .now() + OSConsistencyManager.waitTimeout) == .timedOut {
+        if semaphore.wait(timeout: .now() + timeout) == .timedOut {
             OneSignalLog.onesignalLog(.LL_WARN, message: "OSConsistencyManager timed out waiting on \(condition.conditionId) for id: \(id)")
             queue.sync {
                 // Skip if a met-path release already removed this waiter.
                 guard self.indexedConditions[id]?.contains(where: { $0.1 === semaphore }) == true else {
                     return
                 }
+                // Deregister first, so the re-check below cannot release this waiter a second time.
+                self.indexedConditions[id]?.removeAll { $0.1 === semaphore }
                 // Clear so later fetches for this id are not held to a subscription token that never arrives.
                 condition.onConditionSatisfied?()
-                self.indexedConditions[id]?.removeAll { $0.1 === semaphore }
+                // The lowered bar can be all a sibling waiter on this id was missing, so measure the rest
+                // against it now instead of leaving them to sit out their own timeouts.
+                self.checkConditionsAndComplete(forId: id)
             }
         }
         return queue.sync {
