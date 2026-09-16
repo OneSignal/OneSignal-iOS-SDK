@@ -127,9 +127,16 @@ class OSUserExecutor {
     /**
      With the requirement off, an Identify User whose user never received an `onesignal_id`, and has no
      queued Create User or Fetch Identity By Subscription left to supply one, can never prepare. Drop it
-     rather than let it hold the queue and block the logins behind it. Only reachable for a login kept at
-     start while the requirement was still unknown; `uncacheUserRequests` drops the same Request when the
-     requirement is already known to be off.
+     rather than let it hold the queue and block the logins behind it. Reached by a login kept at start
+     while the requirement was still unknown (`uncacheUserRequests` drops that Request when the
+     requirement is already known to be off) and by one whose Fetch Identity By Subscription failed for
+     good.
+
+     Runs on every send, so it relies on each response handler removing its Request from the queue only
+     after it has hydrated the `onesignal_id` it supplies. A pass that runs before that removal still
+     sees the supplier queued; one that runs after it is ordered behind the hydrate by the removal's
+     dispatch. Removing first would let a pass in between drop, and persist the drop of, a login whose
+     id was a few instructions away.
      */
     private func dropIdentifyUsersThatCanNeverPrepare() {
         guard identityVerificationService.requirement == .off else {
@@ -388,8 +395,6 @@ extension OSUserExecutor {
         request.sentToClient = true
 
         OneSignalCoreImpl.sharedClient().execute(request) { response in
-            self.removeFromQueue(request)
-
             // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
                 // Parse the response for any data we need to update
@@ -399,6 +404,10 @@ extension OSUserExecutor {
                     originalPushToken: request.originalPushToken,
                     addNewRecords: request.addsNewRecords
                 )
+                // Only now, with the `onesignal_id` hydrated. An Identify User queued behind this Create
+                // User reads that id, and once the Create User has left the queue nothing else tells
+                // `dropIdentifyUsersThatCanNeverPrepare` that an id is on its way.
+                self.removeFromQueue(request)
 
                 // If this user already exists and we logged into an external_id, fetch the user data
                 // Fetch the user only if its the current user and non-anonymous
@@ -425,6 +434,8 @@ extension OSUserExecutor {
                         OSConsistencyManager.shared.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: onesignalId)
                     }
                 }
+            } else {
+                self.removeFromQueue(request)
             }
             OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
@@ -471,12 +482,12 @@ extension OSUserExecutor {
         request.sentToClient = true
 
         OneSignalCoreImpl.sharedClient().execute(request) { response in
-            self.removeFromQueue(request)
-
             if let identityObject = self.parseIdentityObjectResponse(response),
                let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 request.identityModel.hydrate(identityObject)
                 OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModel)
+                // After the hydrate, for the Identify User queued behind this Request; see `executeCreateUserRequest`.
+                self.removeFromQueue(request)
 
                 // Fetch this user's data if it is the current user
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
@@ -486,6 +497,8 @@ extension OSUserExecutor {
                 }
 
                 self.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: request.identityModel)
+            } else {
+                self.removeFromQueue(request)
             }
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
@@ -525,10 +538,9 @@ extension OSUserExecutor {
         request.sentToClient = true
 
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
-            self.removeFromQueue(request)
-
             guard let onesignalId = request.identityModelToIdentify.onesignalId else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "executeIdentifyUserRequest succeeded but is now missing OneSignal ID!")
+                self.removeFromQueue(request)
                 self.executePendingRequests()
                 return
             }
@@ -540,6 +552,8 @@ extension OSUserExecutor {
             ]
             request.identityModelToUpdate.hydrate(aliases)
             OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModelToUpdate)
+            // After the hydrate, like every handler that supplies an `onesignal_id`; see `executeCreateUserRequest`.
+            self.removeFromQueue(request)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
             if OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModelToUpdate.modelId) != nil {
