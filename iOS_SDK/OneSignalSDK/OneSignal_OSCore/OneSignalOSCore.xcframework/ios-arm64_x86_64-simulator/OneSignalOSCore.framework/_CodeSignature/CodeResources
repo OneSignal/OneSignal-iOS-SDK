@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalOSCore-Swift.h</key>
 		<data>
-		0gjznGobs1ih51/jCWSg7tf7PiE=
+		JFnOVIGR5eY/RwzWD+8lPq+2H2Y=
 		</data>
 		<key>Headers/OneSignalOSCore.h</key>
 		<data>
@@ -18,35 +18,35 @@
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		12S+qryBKJLFLsEICTSzjnWD8OU=
+		cIkNJHW3yg0VGSi3AoK0V2g4nEI=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		4B8C2/MnEHz4+O1/Fde3ONfGJ9w=
+		IlSKVqS6mSaabEWf9jq+stzxaT4=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		xN10G0XXCUXN9A1kjdl0M0g8NJI=
+		6AKPzoUFN5RMwbt+2DJF2MD550E=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		Z9H8oDAzeqg1+quUUgQPFSS8I1E=
+		APESgrktFNLsTlNLSZtVRzl7XTg=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		12S+qryBKJLFLsEICTSzjnWD8OU=
+		cIkNJHW3yg0VGSi3AoK0V2g4nEI=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		vdCiiztyB6y+SJqmFbGTnJZ0JHA=
+		juO2tTWpuAqmFTTZYFgEorJ8+4U=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		Sxfgz9yIHirmq4o1ZvaREkY5zzc=
+		nkh90+MSCXyYgDjebZ1lISmypbk=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		xhwrvHcO2PEERkUv1uwMXqJFV9Q=
+		SE+6lsRm7EjiqV2lo1/0OuEI/7Y=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -63,7 +63,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8PrgPIww7c8jeSwkua0XNL/rdDNCisdpWzAopM/Yq9I=
+			QJraUSipV3ozpTsaCsdkZlgOWNNdc8i9/fScq0KmogI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOSCore.h</key>
@@ -77,56 +77,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vZRtvBg10leIouoGY7trzMmfYlAzQeC/ZGZ2TGriLx4=
+			TzKnRbSjHfZoHcH6PprLoXGWYX1AruyLr4qj+WMTLRk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			oDz9jN0PYUp2ouH3Cgkfvxxu44aoqNrcXHYz0VOCO0Y=
+			pFtilX757ZE8L2XajCPTOSvep8o0MR75WzTABqshW4w=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Y7DBf/P6TTFLoplEb3MNQsKxLqzLOxkEjYQg7lpEgS0=
+			XmBR8SeGMjSfBJVcOdn5/EQmI8yl0MaSaeHGaPtQhtk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			byQpNrlNJSVdw9g4rsbP0dKufj32mt79oM2kZ1BfP/k=
+			4hq8E3FvfAE/JCIj/+4Gds8vGFC6pLldvC6ZgQcZzl4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vZRtvBg10leIouoGY7trzMmfYlAzQeC/ZGZ2TGriLx4=
+			TzKnRbSjHfZoHcH6PprLoXGWYX1AruyLr4qj+WMTLRk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			5/FHxXFoo2Vf6AlOH7xCYXuY8so+i+zoQ2MZQrhXtmI=
+			ViAciF+E9FyCXlZBB9OSWwrpGf6I8/KtcaRAvS5TChc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			qttV/DiWgOYqLoyf8ORovLjjw2qD2zEFhQiRBBCwo8Q=
+			kA5BTKhRfeCsk/ieo0+HFAPMKQvTP7YHpcHW8h1BNA0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			2u08NzeH0c7PR0n8HzotFW8jknXMkpGqlsC17FfuEjA=
+			HbAvD0Qz6X0xrmUZeMENh/adqTvhORBiek88Y2zqJmM=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
