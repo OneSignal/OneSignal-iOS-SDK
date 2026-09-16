@@ -34,9 +34,10 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
     /// The user this Request belongs to; also selects its token. See the ownership convention below.
     var ownerExternalId: String? { get }
 
-    /// Whether this Request may still be sent with no `Authorization` header once Identity Verification
-    /// is in effect. Only Update Subscription may: its path names a subscription rather than a user, so
-    /// there is no user for the server to authorize. Everything else with no owner is refused.
+    /// Whether this Request goes out with no `Authorization` header even once Identity Verification is
+    /// in effect. Two do, because their paths name a subscription rather than a user and their endpoints
+    /// take no user JWT: Update Subscription, which has no owner either, and Delete Subscription, which
+    /// keeps its owner for the purge. Everything else with no owner is refused.
     var sendsUnsigned: Bool { get }
 
     /// Builds the path and resolves authorization. `false` leaves the Request queued, whether it is
@@ -69,9 +70,9 @@ extension OSUserRequest {
 
  Three Requests are nil by construction and so are never signed: Identify User and Fetch Identity By
  Subscription both address a user that has no `external_id` yet, and Update Subscription is the
- device's own push subscription. Delete Subscription carries an owner for the purge but is never signed
- either, since its endpoint is addressed by subscription ID and takes no user JWT. Each says why at its
- declaration.
+ device's own push subscription. Delete Subscription carries an owner for the purge but declares
+ `sendsUnsigned`, since its endpoint is addressed by subscription ID and takes no user JWT. Each says
+ why at its declaration.
  */
 
 internal extension OneSignalRequest {

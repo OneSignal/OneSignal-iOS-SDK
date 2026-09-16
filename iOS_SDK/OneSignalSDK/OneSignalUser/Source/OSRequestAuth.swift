@@ -53,7 +53,7 @@ protocol OSRequestAuthorizing: AnyObject {
 
     /// The same decision for endpoints that take a token but no alias, because their path names a
     /// subscription or the app. Returns `false` under the same conditions as `authorizeUserScoped`,
-    /// except that a `sendsUnsigned` Request with no owner is allowed through.
+    /// except that a `sendsUnsigned` Request always goes through with no header, owner or not.
     func authorize(_ request: OSUserRequest) -> Bool
 
     /**
@@ -161,16 +161,14 @@ final class OSRequestAuth: OSRequestAuthorizing {
 
     func authorize(_ request: OSUserRequest) -> Bool {
         forgetPark(of: request)
-        guard ivBehaviorActive else {
+        // An exempt Request is never signed, so an owner it keeps for the purge is not looked at here.
+        guard ivBehaviorActive, !request.sendsUnsigned else {
             return true
         }
         guard let externalId = request.ownerExternalId else {
             // Anything not exempt is a leftover the purge has yet to clear, and unsendable until it does.
-            guard request.sendsUnsigned else {
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSRequestAuth: refusing \(request), it has no owner under Identity Verification")
-                return false
-            }
-            return true
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSRequestAuth: refusing \(request), it has no owner under Identity Verification")
+            return false
         }
         guard let token = jwt.validJwt(externalId: externalId) else {
             park(request, ownedBy: externalId)
