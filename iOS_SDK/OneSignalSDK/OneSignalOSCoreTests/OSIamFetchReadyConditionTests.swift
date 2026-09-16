@@ -132,23 +132,45 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         wait(for: [secondReturned], timeout: 2.0)
     }
 
-    /// The `ryw_token`-missing fallback the executors call for that user.
-    func testResolvingTheConditionReleasesTheFetch() {
+    /// A write that came back with no `ryw_token` is filed as a blank entry, and the condition only asks
+    /// whether the entry is there, so the fetch goes out without a token rather than waiting for one.
+    func testAWriteWithNoTokenReleasesTheFetch() {
         let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
         let returned = expectation(description: "fetch released")
+        var rywData: OSReadYourWriteData?
         DispatchQueue.global().async {
-            _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
+            rywData = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
             returned.fulfill()
         }
         OneSignalCoreMocks.waitUntil("fetch waiting") { manager.waiterCount == 1 }
 
-        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userA)
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: blank())
 
         wait(for: [returned], timeout: 2.0)
+        XCTAssertNil(rywData?.rywToken)
     }
 
-    /// Resolving user B leaves user A's subscription bar raised.
-    func testResolvingOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
+    /// The entry stays on file, so a fetch that registers after the tokenless write is released at once
+    /// instead of waiting the full timeout for a token that is never coming.
+    func testAFetchThatRegistersAfterATokenlessWriteDoesNotWait() {
+        let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: blank())
+
+        let returned = expectation(description: "fetch released")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            returned.fulfill()
+        }
+
+        // The timeout is the full 30 seconds here, so only a release brings the fetch back in time.
+        wait(for: [returned], timeout: 2.0)
+        XCTAssertEqual(manager.waiterCount, 0)
+    }
+
+    /// User B's tokenless write leaves user A's subscription bar raised.
+    func testATokenlessWriteForOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
         let manager = OSConsistencyManager.shared
         let conditionA = OSIamFetchReadyCondition.sharedInstance(withId: userA)
         let conditionB = OSIamFetchReadyCondition.sharedInstance(withId: userB)
@@ -162,13 +184,14 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         }
         OneSignalCoreMocks.waitUntil("user B waiting") { manager.waiterCount == 1 }
 
-        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userB)
+        // A completed Create User is enough on its own, bar or no bar.
+        manager.setRywTokenAndDelay(id: userB, key: OSIamFetchOffsetKey.userCreate, value: blank())
         wait(for: [bReturned], timeout: 2.0)
 
         XCTAssertFalse(conditionA.isMet(indexedTokens: [userA: userUpdateToken()]),
                        "user A's subscription bar must still be up")
         XCTAssertTrue(conditionB.isMet(indexedTokens: [userB: userUpdateToken()]),
-                      "user B's bar comes down with its own resolve")
+                      "user B's bar comes down with its own release")
     }
 
     /// After a timeout, a later fetch for the same id is released by the user token alone.
@@ -237,6 +260,11 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
 
     private func token(_ value: String) -> OSReadYourWriteData {
         return OSReadYourWriteData(rywToken: value, rywDelay: 0)
+    }
+
+    /// What a write that came back with no `ryw_token` files.
+    private func blank() -> OSReadYourWriteData {
+        return OSReadYourWriteData(rywToken: nil, rywDelay: nil)
     }
 
     private func userCreateToken() -> [NSNumber: OSReadYourWriteData] {

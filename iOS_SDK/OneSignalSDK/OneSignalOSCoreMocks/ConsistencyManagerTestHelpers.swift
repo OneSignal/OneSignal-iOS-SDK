@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-import OneSignalOSCore
+@testable import OneSignalOSCore
 
 public class ConsistencyManagerTestHelpers {
     /// Clears both halves of the read-your-write state: the manager's tokens and waiters, and the
@@ -42,5 +42,12 @@ public class ConsistencyManagerTestHelpers {
         let rywDelay: NSNumber = 0
         let rywData = OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
         OSConsistencyManager.shared.setRywTokenAndDelay(id: id, key: key, value: rywData)
+    }
+}
+
+extension OSConsistencyManager {
+    /// The tokens on file right now, read through the manager's own queue.
+    public func snapshotTokens() -> [String: [NSNumber: OSReadYourWriteData]] {
+        return queue.sync { indexedTokens }
     }
 }
