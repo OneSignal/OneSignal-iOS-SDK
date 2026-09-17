@@ -48,9 +48,8 @@ private class MockUserStateObserver: NSObject, OSUserStateObserver {
 }
 
 /**
- What the app's `OSUserStateObserver` hears, and what the persisted snapshot names, once a Request can
- complete for a user who is no longer current. One case per executor site that hydrates an identity
- model: Create User, Identify User, and Fetch Identity By Subscription.
+ What the app's `OSUserStateObserver` hears, and what the persisted snapshot names, once a Request
+ completes for a user who is no longer current. One test per executor site that hydrates an identity model.
  */
 final class UserStateReportingTests: XCTestCase {
     private var client = MockOneSignalClient()
@@ -102,10 +101,9 @@ final class UserStateReportingTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("A's parked Create User was not sent") {
             self.client.executedRequests.contains { ($0 as? OSRequestCreateUser)?.identityModel.externalId == userA_EUID }
         }
-        // Settled once idle: the report decision is made inside the response block, and the mock records
-        // a request as completed only after that block returns. The pause just lets the executor queue
-        // drain what the response dispatched before teardown.
+        // The report fires inside the response block, before the mock counts it complete, so idle means decided.
         OneSignalCoreMocks.waitUntil("A's Create User was still in flight") { self.client.isIdle }
+        // Drains the executor queue before teardown.
         allowAsyncWorkToRun(seconds: 0.1)
 
         // Hydrated, so anything queued for A has its onesignal_id.
@@ -116,17 +114,13 @@ final class UserStateReportingTests: XCTestCase {
         assertPersistedSnapshotNames(externalId: userB_EUID, onesignalId: userB_OSID)
     }
 
-    /**
-     Needs no Identity Verification. A `login` while anonymous identifies that user, and a second `login`
-     before the response lands makes another user current. The Identify User still hydrates the first
-     user's model, since Requests queued behind it read the `onesignal_id`, but the app must not hear a
-     user it has already switched away from.
-     */
+    /// A second `login` before the first one's Identify User returns makes another user current. The
+    /// response still hydrates the first user's model, but the app must not hear that user.
     func testAnIdentifyUserThatCompletesAfterAUserSwitchDoesNotReportThatUser() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
         MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userA_EUID)
-        // The anonymous user needs its onesignal_id first, or the Identify User cannot address it.
+        // The Identify User addresses the anonymous user by onesignal_id, so let its Create User finish.
         OneSignalUserManagerImpl.sharedInstance.start()
         OneSignalCoreMocks.waitUntil("The anonymous user was not created") {
             OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId == anonUserOSID && self.client.isIdle
@@ -137,24 +131,20 @@ final class UserStateReportingTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The Identify User was not started") {
             self.client.startedRequestCount(ofType: OSRequestIdentifyUser.self) == 1
         }
-        // Makes B current while A's Identify User is still in flight; B's Create User queues behind it.
+        // B becomes current while A's Identify User is in flight.
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
         client.releaseHeldResponses()
         waitForTheLoginToSettle()
 
-        // Hydrated, so anything queued for A has its onesignal_id.
+        // Still hydrated, for anything queued behind it.
         XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.identityModelRepo.get(externalId: userA_EUID)?.onesignalId, anonUserOSID)
         XCTAssertFalse(observer.states.contains { $0.externalId == userA_EUID }, "the app must not hear about A: \(observer.states)")
         XCTAssertEqual(observer.states.last?.externalId, userB_EUID)
         assertPersistedSnapshotNames(externalId: userB_EUID, onesignalId: userB_OSID)
     }
 
-    /**
-     The 3.x upgrade path, again with no Identity Verification. The fetch identifies an anonymous user,
-     and a `login` that lands before its response makes an identified user current. The fetch still
-     hydrates the anonymous model, which the Identify User queued behind it needs, but the app must not
-     hear an anonymous user it has already logged in over.
-     */
+    /// The 3.x upgrade path. A `login` before the legacy player's fetch returns makes an identified user
+    /// current; the response still hydrates the anonymous model, but the app must not hear that user.
     func testAFetchIdentityBySubscriptionThatCompletesAfterALoginDoesNotReportTheAnonymousUser() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: false)
         let legacyPlayerId = "legacy_player_id"
@@ -174,19 +164,19 @@ final class UserStateReportingTests: XCTestCase {
         )
         client.holdResponses = true
 
-        // Migrates the legacy player into an anonymous user whose identity the held fetch supplies.
+        // Migrates the legacy player; its identity fetch is held.
         OneSignalUserManagerImpl.sharedInstance.start()
         let anonymousModel = OneSignalUserManagerImpl.sharedInstance.user.identityModel
         XCTAssertNil(anonymousModel.onesignalId)
         OneSignalCoreMocks.waitUntil("The Fetch Identity By Subscription was not started") {
             self.client.startedRequestCount(ofType: OSRequestFetchIdentityBySubscription.self) == 1
         }
-        // Makes A current while the anonymous user's fetch is still in flight; A's Identify User queues behind it.
+        // A becomes current while the fetch is in flight.
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
         client.releaseHeldResponses()
         waitForTheLoginToSettle()
 
-        // Hydrated, so the Identify User behind the fetch could address the anonymous user.
+        // Still hydrated, for the Identify User behind it.
         XCTAssertEqual(anonymousModel.onesignalId, legacyOnesignalId)
         XCTAssertFalse(observer.states.contains { $0.externalId == nil }, "the app must not hear the anonymous user: \(observer.states)")
         XCTAssertEqual(observer.states.last?.externalId, userA_EUID)

@@ -161,7 +161,7 @@ final class OSRequestAuth: OSRequestAuthorizing {
 
     func authorize(_ request: OSUserRequest) -> Bool {
         forgetPark(of: request)
-        // An exempt Request is never signed, so an owner it keeps for the purge is not looked at here.
+        // An exempt Request may carry an owner for the purge; it still goes out unsigned.
         guard ivBehaviorActive, !request.sendsUnsigned else {
             return true
         }

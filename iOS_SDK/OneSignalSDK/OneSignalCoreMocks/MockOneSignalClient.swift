@@ -284,8 +284,7 @@ extension MockOneSignalClient {
         }.count
     }
 
-    /// Whether every request that entered `execute` has also completed, read under the lock the two
-    /// lists are written with. A held request counts as started and not completed.
+    /// Held requests count as in flight. Read under the lock, so safe from the test thread.
     public var isIdle: Bool {
         return lock.withLock { startedRequests.count == completedRequests.count }
     }

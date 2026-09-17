@@ -50,11 +50,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
      */
     let ownerExternalId: String?
 
-    /**
-     The endpoint is addressed by subscription ID and takes no user JWT, so this Request is never signed
-     and never parked for a token: parking it would hold an unsubscribe on a credential the server does
-     not read, and after a logout on one the app can no longer supply.
-     */
+    /// The endpoint takes no user JWT, so waiting for a token would only delay the unsubscribe, forever after a logout.
     var sendsUnsigned: Bool { return true }
 
     // Need the subscription_id

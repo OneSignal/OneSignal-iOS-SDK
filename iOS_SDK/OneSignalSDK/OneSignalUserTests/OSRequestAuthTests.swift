@@ -238,8 +238,7 @@ final class OSRequestAuthTests: XCTestCase {
         XCTAssertNil(request.authorizationHeader)
     }
 
-    /// The subscription delete keeps its owner for the purge and still goes out unsigned: the endpoint
-    /// takes no user JWT, so a missing token must neither park it nor ask the app for one.
+    /// Delete Subscription keeps an owner for the purge; a missing token must not park it or ask the app.
     func testAuthorizeSendsAnOwnedExemptRequestUnsignedWithoutAsking() {
         let auth = makeAuth(requiresUserAuth: true)
         let request = StubUserRequest(ownerExternalId: "user-a", sendsUnsigned: true)
@@ -250,7 +249,7 @@ final class OSRequestAuthTests: XCTestCase {
         XCTAssertFalse(auth.parkedForToken(request))
     }
 
-    /// A token on hand changes nothing: the header would be ignored, and a rejection could not be about it.
+    /// Not signed even with a token on hand; the endpoint ignores the header.
     func testAuthorizeDoesNotSignAnOwnedExemptRequestThatHasAToken() {
         let auth = makeAuth(requiresUserAuth: true)
         jwt.tokens["user-a"] = "token-a"

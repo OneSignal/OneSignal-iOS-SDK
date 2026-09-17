@@ -76,9 +76,8 @@ final class OSIdentityModelTests: XCTestCase {
         XCTAssertNil(model.aliases["stale_label"])
     }
 
-    /// The response to that fetch merges into what the clear kept, which is what keeping `external_id`
-    /// relies on. A response that omits it, which only a server-side unlink produces, therefore leaves
-    /// the user identified rather than demoting it; the next `login` corrects that.
+    /// The fetch response merges into what the clear kept, so one without `external_id` leaves the user
+    /// identified until the next `login`.
     func testHydrateAfterClearDataMergesIntoTheKeptExternalId() {
         let model = OSIdentityModel(
             aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID],

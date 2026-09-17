@@ -34,10 +34,9 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
     /// The user this Request belongs to; also selects its token. See the ownership convention below.
     var ownerExternalId: String? { get }
 
-    /// Whether this Request goes out with no `Authorization` header even once Identity Verification is
-    /// in effect. Two do, because their paths name a subscription rather than a user and their endpoints
-    /// take no user JWT: Update Subscription, which has no owner either, and Delete Subscription, which
-    /// keeps its owner for the purge. Everything else with no owner is refused.
+    /// Whether this Request goes out with no `Authorization` header even under Identity Verification:
+    /// Update Subscription and Delete Subscription, whose endpoints are addressed by subscription ID and
+    /// take no user JWT. Everything else with no owner is refused.
     var sendsUnsigned: Bool { get }
 
     /// Builds the path and resolves authorization. `false` leaves the Request queued, whether it is

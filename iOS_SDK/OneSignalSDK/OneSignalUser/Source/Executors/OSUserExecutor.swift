@@ -125,18 +125,10 @@ class OSUserExecutor {
     }
 
     /**
-     With the requirement off, an Identify User whose user never received an `onesignal_id`, and has no
-     queued Create User or Fetch Identity By Subscription left to supply one, can never prepare. Drop it
-     rather than let it hold the queue and block the logins behind it. Reached by a login kept at start
-     while the requirement was still unknown (`uncacheUserRequests` drops that Request when the
-     requirement is already known to be off) and by one whose Fetch Identity By Subscription failed for
-     good.
-
-     Runs on every send, so it relies on each response handler removing its Request from the queue only
-     after it has hydrated the `onesignal_id` it supplies. A pass that runs before that removal still
-     sees the supplier queued; one that runs after it is ordered behind the hydrate by the removal's
-     dispatch. Removing first would let a pass in between drop, and persist the drop of, a login whose
-     id was a few instructions away.
+     An Identify User whose user has no `onesignal_id`, and no queued Create User or Fetch Identity By
+     Subscription to supply one, can never prepare, so drop it rather than let it block the logins behind it.
+     Runs on every send, so a handler that supplies an id must hydrate before it removes its Request from
+     the queue; a pass between the two would see no supplier and drop the login.
      */
     private func dropIdentifyUsersThatCanNeverPrepare() {
         guard identityVerificationService.requirement == .off else {
@@ -404,9 +396,7 @@ extension OSUserExecutor {
                     originalPushToken: request.originalPushToken,
                     addNewRecords: request.addsNewRecords
                 )
-                // Only now, with the `onesignal_id` hydrated. An Identify User queued behind this Create
-                // User reads that id, and once the Create User has left the queue nothing else tells
-                // `dropIdentifyUsersThatCanNeverPrepare` that an id is on its way.
+                // Must follow the hydrate; see `dropIdentifyUsersThatCanNeverPrepare`.
                 self.removeFromQueue(request)
 
                 // If this user already exists and we logged into an external_id, fetch the user data
@@ -486,7 +476,7 @@ extension OSUserExecutor {
                let onesignalId = identityObject[OS_ONESIGNAL_ID] {
                 request.identityModel.hydrate(identityObject)
                 OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModel)
-                // After the hydrate, for the Identify User queued behind this Request; see `executeCreateUserRequest`.
+                // Must follow the hydrate; see `dropIdentifyUsersThatCanNeverPrepare`.
                 self.removeFromQueue(request)
 
                 // Fetch this user's data if it is the current user
@@ -552,7 +542,7 @@ extension OSUserExecutor {
             ]
             request.identityModelToUpdate.hydrate(aliases)
             OSUserStateSnapshot.fireUserStateChangedIfCurrent(request.identityModelToUpdate)
-            // After the hydrate, like every handler that supplies an `onesignal_id`; see `executeCreateUserRequest`.
+            // Must follow the hydrate; see `dropIdentifyUsersThatCanNeverPrepare`.
             self.removeFromQueue(request)
 
             // the anonymous user has been identified, still need to Fetch User as we cleared local data
