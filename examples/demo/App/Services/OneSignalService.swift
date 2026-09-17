@@ -63,6 +63,7 @@ final class OneSignalService {
 
         OneSignal.InAppMessages.paused = prefs.getIamPaused()
         OneSignal.Location.isShared = prefs.getLocationShared()
+        setLanguage(prefs.getLanguage())
 
         if let storedExternalId = prefs.getExternalUserId() {
             OneSignal.login(storedExternalId)
@@ -104,6 +105,11 @@ final class OneSignalService {
     func logout() {
         prefs.setExternalUserId(nil)
         OneSignal.logout()
+    }
+
+    func setLanguage(_ language: String) {
+        prefs.setLanguage(language)
+        OneSignal.User.setLanguage(language)
     }
 
     // MARK: - Aliases

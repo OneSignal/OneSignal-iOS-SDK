@@ -47,6 +47,7 @@ final class PreferencesService {
         static let iamPaused       = "onesignal.demo.iamPaused"
         static let locationShared  = "onesignal.demo.locationShared"
         static let externalUserId  = "onesignal.demo.externalUserId"
+        static let language        = "onesignal.demo.language"
     }
 
     // MARK: - Consent
@@ -83,4 +84,9 @@ final class PreferencesService {
             defaults.removeObject(forKey: Key.externalUserId)
         }
     }
+
+    // MARK: - Language
+
+    func getLanguage() -> String { defaults.string(forKey: Key.language) ?? "" }
+    func setLanguage(_ value: String) { defaults.set(value, forKey: Key.language) }
 }
