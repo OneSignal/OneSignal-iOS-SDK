@@ -71,6 +71,10 @@ final class IAMIntegrationTests: XCTestCase {
         let testCases = [
             ("zh-Hans", "simplified-chinese-variant"),
             ("zh-Hant", "traditional-chinese-variant"),
+            ("zh-Hans-CN", "simplified-chinese-variant"),
+            ("zh-Hant-TW", "traditional-chinese-variant"),
+            ("zh-CN", "simplified-chinese-variant"),
+            ("zh-TW", "traditional-chinese-variant"),
             ("en-US", "english-variant"),
             ("kl", "default-variant")
         ]

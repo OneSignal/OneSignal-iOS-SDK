@@ -180,6 +180,7 @@ final class OneSignalViewModel: ObservableObject {
     func logout() {
         service.logout()
         externalUserId = nil
+        setLanguage("")
         clearUserData()
     }
 

@@ -71,12 +71,17 @@ final class OneSignalUserTests: XCTestCase {
     func testEmptyLanguageUsesDeviceLanguage() {
         let user = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: "osid-a")
         let manager = OneSignalUserManagerImpl.sharedInstance
+        let deviceLanguage = OSLanguageProviderDevice().language
+        let customLanguage = deviceLanguage == "de" ? "fr" : "de"
 
-        manager.setLanguage("de")
+        manager.setLanguage(customLanguage)
+        XCTAssertEqual(user.propertiesModel.language, customLanguage)
+        XCTAssertEqual(manager.language, customLanguage)
+
         manager.setLanguage("")
 
-        XCTAssertNil(user.propertiesModel.language)
-        XCTAssertEqual(manager.language, OSLanguageProviderDevice().language)
+        XCTAssertEqual(user.propertiesModel.language, deviceLanguage)
+        XCTAssertEqual(manager.language, deviceLanguage)
     }
 
     func testInternalOnesignalIdTracksCurrentUser() {

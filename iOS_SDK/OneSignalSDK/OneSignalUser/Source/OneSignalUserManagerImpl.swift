@@ -73,7 +73,13 @@ import OneSignalNotifications
     // SMS
     func addSms(_ number: String)
     func removeSms(_ number: String)
-    // Language
+    /**
+     Sets the language for this user.
+
+     See [Supported Languages](https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages).
+
+     - Parameter language: A supported language code, or an empty string to use the device default.
+     */
     func setLanguage(_ language: String)
     // Events
     /**
@@ -837,12 +843,19 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.remove(number)
     }
 
+    /**
+     Sets the language for this user.
+
+     See [Supported Languages](https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages).
+
+     - Parameter language: A supported language code, or an empty string to use the device default.
+     */
     public func setLanguage(_ language: String) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLanguage") else {
             return
         }
 
-        user.setLanguage(language.isEmpty ? nil : language)
+        user.setLanguage(language.isEmpty ? OSLanguageProviderDevice().language : language)
     }
 
     public func trackEvent(name: String, properties: [String: Any]?) {

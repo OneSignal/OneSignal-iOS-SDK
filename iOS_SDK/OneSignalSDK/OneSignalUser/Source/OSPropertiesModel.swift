@@ -40,7 +40,7 @@ final class OSLanguageProviderDevice {
 
     var language: String {
         let locale = localeProvider()
-        guard let languageCode = locale.languageCode else {
+        guard let languageCode = languageCode(locale) else {
             return DEFAULT_LANGUAGE
         }
 
@@ -53,15 +53,36 @@ final class OSLanguageProviderDevice {
     }
 
     private func chineseLanguage(_ locale: Locale) -> String {
-        switch locale.scriptCode {
+        switch scriptCode(locale) {
         case "Hans":
             return "zh-Hans"
         case "Hant":
             return "zh-Hant"
         default:
-            let isTraditionalRegion = locale.regionCode.map { ["HK", "MO", "TW"].contains($0) } ?? false
+            let isTraditionalRegion = regionCode(locale).map { ["HK", "MO", "TW"].contains($0) } ?? false
             return isTraditionalRegion ? "zh-Hant" : "zh-Hans"
         }
+    }
+
+    private func languageCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.language.languageCode?.identifier
+        }
+        return locale.languageCode
+    }
+
+    private func scriptCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.language.script?.identifier
+        }
+        return locale.scriptCode
+    }
+
+    private func regionCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.region?.identifier
+        }
+        return locale.regionCode
     }
 }
 
