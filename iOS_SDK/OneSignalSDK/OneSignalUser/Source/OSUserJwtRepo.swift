@@ -39,8 +39,9 @@ protocol OSUserJwtProviding: AnyObject {
     /**
      Asks the app for a token for `externalId`.
 
-     Returns `true` if this call is the one that asked, which happens at most once per external ID
-     per session so a burst of concurrent callers does not fire the event repeatedly.
+     Returns `true` if this call is the one that asked. An external ID is asked once, until a usable token
+     is stored for it or a `login` builds it a new Identity Model, so a burst of concurrent callers does
+     not fire the event repeatedly.
      */
     @discardableResult
     func askForToken(externalId: String) -> Bool
@@ -104,7 +105,7 @@ final class OSUserJwtRepo: OSUserJwtProviding {
         return true
     }
 
-    /// External IDs already asked this session; cleared when a usable token is stored.
+    /// External IDs asked and not yet answered. A stored token or a `login` as that user clears the entry.
     func pendingTokenAsks() -> [String] {
         return lock.withLock { Array(askedForToken) }
     }
