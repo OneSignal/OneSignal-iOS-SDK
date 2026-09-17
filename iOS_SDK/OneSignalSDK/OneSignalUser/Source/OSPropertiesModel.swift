@@ -29,6 +29,48 @@ import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
+final class OSLanguageProviderDevice {
+    private let localeProvider: () -> Locale
+
+    init(localeProvider: @escaping () -> Locale = {
+        Locale(identifier: NSLocale.preferredLanguages.first ?? DEFAULT_LANGUAGE)
+    }) {
+        self.localeProvider = localeProvider
+    }
+
+    var language: String {
+        let locale = localeProvider()
+        guard let languageCode = locale.languageCode else {
+            return DEFAULT_LANGUAGE
+        }
+
+        switch languageCode {
+        case "iw":
+            return "he"
+        case "in":
+            return "id"
+        case "ji":
+            return "yi"
+        case "zh":
+            return chineseLanguage(locale)
+        default:
+            return languageCode
+        }
+    }
+
+    private func chineseLanguage(_ locale: Locale) -> String {
+        switch locale.scriptCode {
+        case "Hans":
+            return "zh-Hans"
+        case "Hant":
+            return "zh-Hant"
+        default:
+            let isTraditionalRegion = locale.regionCode.map { ["HK", "MO", "TW"].contains($0) } ?? false
+            return isTraditionalRegion ? "zh-Hant" : "zh-Hans"
+        }
+    }
+}
+
 // Both lat and long must exist to be accepted by the server
 class OSLocationPoint: NSObject, NSCoding {
     let lat: Float
@@ -80,16 +122,7 @@ class OSPropertiesModel: OSModel {
     // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
     override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
-        self.language = getPreferredLanguage()
-    }
-
-    private func getPreferredLanguage() -> String {
-        let preferredLanguages = NSLocale.preferredLanguages
-        if !preferredLanguages.isEmpty {
-            return preferredLanguages[0]
-        } else {
-            return DEFAULT_LANGUAGE
-        }
+        self.language = OSLanguageProviderDevice().language
     }
 
     override func encode(with coder: NSCoder) {

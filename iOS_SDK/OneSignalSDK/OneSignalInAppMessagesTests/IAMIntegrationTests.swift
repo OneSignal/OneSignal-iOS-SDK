@@ -50,6 +50,37 @@ final class IAMIntegrationTests: XCTestCase {
 
     override func tearDownWithError() throws { }
 
+    func testLanguageVariantSelection() throws {
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+        _ = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: testOneSignalId)
+
+        var messageJson = IAMTestHelpers.testDefaultMessageJson()
+        messageJson["variants"] = [
+            "ios": [
+                "default": "default-variant",
+                "en": "english-variant",
+                "zh-Hans": "simplified-chinese-variant",
+                "zh-Hant": "traditional-chinese-variant"
+            ],
+            "all": [
+                "zh-Hans": "lower-priority-variant"
+            ]
+        ]
+        let message = try XCTUnwrap(OSInAppMessageInternal.instance(withJson: messageJson))
+
+        let testCases = [
+            ("zh-Hans", "simplified-chinese-variant"),
+            ("zh-Hant", "traditional-chinese-variant"),
+            ("en-US", "english-variant"),
+            ("kl", "default-variant")
+        ]
+
+        for (language, expectedVariant) in testCases {
+            OneSignalUserManagerImpl.sharedInstance.setLanguage(language)
+            XCTAssertEqual(message.variantId(), expectedVariant, language)
+        }
+    }
+
     /**
      Test IAMs should display even when IAMs are paused.
      */
