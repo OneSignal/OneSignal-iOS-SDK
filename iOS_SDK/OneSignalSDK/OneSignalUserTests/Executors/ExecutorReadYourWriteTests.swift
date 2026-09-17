@@ -34,7 +34,7 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 /**
- What each executor records for the in-app message fetch when its response carries no `ryw_token`.
+ What each executor records for the in-app message fetch, with and without a `ryw_token` in the response.
 
  The fetch waits on `OSIamFetchReadyCondition`, which only asks whether the writes it cares about have
  completed. A response with no token still completes the write, so the executor files an entry with no
@@ -109,6 +109,28 @@ final class ExecutorReadYourWriteTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("A tokenless Create Subscription left the fetch waiting") { self.fetchIsReady(for: userA_OSID) }
     }
 
+    /// The create response carries `ryw_token` beside `subscription`, and it has to be read from there.
+    func testACreateSubscriptionResponseWithATokenFilesItForTheFetch() {
+        let email = "a@example.com"
+        client.setMockResponseForRequest(
+            request: "<OSRequestCreateSubscription with token: \(email)>",
+            response: [
+                "subscription": ["id": "\(email)_id", "type": "Email", "token": email],
+                "ryw_token": "0900",
+                "ryw_delay": 250
+            ]
+        )
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: auth)
+        executor.enqueueDelta(subscriptionDelta(OS_ADD_SUBSCRIPTION_DELTA, model: subscription(type: .email, address: email, id: nil)))
+
+        executor.processDeltaQueue(inBackground: false)
+
+        OneSignalCoreMocks.waitUntil("The Create Subscription token was not filed") {
+            self.filedEntry(for: userA_OSID, key: .subscriptionUpdate)?.rywToken == "0900"
+        }
+        XCTAssertEqual(filedEntry(for: userA_OSID, key: .subscriptionUpdate)?.rywDelay?.intValue, 250)
+    }
+
     func testAnUpdateSubscriptionResponseWithNoTokenStillReadiesAFetchHeldForIt() {
         holdTheFetchForASubscriptionUpdate()
         let executor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: auth)
@@ -130,6 +152,11 @@ final class ExecutorReadYourWriteTests: XCTestCase {
     private func fetchIsReady(for onesignalId: String) -> Bool {
         return OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             .isMet(indexedTokens: OSConsistencyManager.shared.snapshotTokens())
+    }
+
+    /// What is on file for the user under one key, or nil when nothing has been filed there.
+    private func filedEntry(for onesignalId: String, key: OSIamFetchOffsetKey) -> OSReadYourWriteData? {
+        return OSConsistencyManager.shared.snapshotTokens()[onesignalId]?[NSNumber(value: key.rawValue)]
     }
 
     /// A subscription update in flight holds the fetch until that write completes, even with a user token on file.

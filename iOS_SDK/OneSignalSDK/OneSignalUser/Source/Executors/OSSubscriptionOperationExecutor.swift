@@ -357,7 +357,7 @@ extension OSSubscriptionOperationExecutor {
                 self.addRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
-                guard let response = response?["subscription"] as? [String: Any] else {
+                guard let subscription = response?["subscription"] as? [String: Any] else {
                     OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
                     if inBackground {
                         OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -367,15 +367,15 @@ extension OSSubscriptionOperationExecutor {
 
                 if let onesignalId = request.identityModel.onesignalId {
                     // Filed even when the response has no ryw_token, so a fetch that registers after this write
-                    // is not held for a token that never comes.
+                    // is not held for a token that never comes. The token sits beside `subscription`, not inside it.
                     let rywData = OSReadYourWriteData(
-                        rywToken: response["ryw_token"] as? String,
-                        rywDelay: response["ryw_delay"] as? NSNumber
+                        rywToken: response?["ryw_token"] as? String,
+                        rywDelay: response?["ryw_delay"] as? NSNumber
                     )
                     OSConsistencyManager.shared.setRywTokenAndDelay(id: onesignalId, key: OSIamFetchOffsetKey.subscriptionUpdate, value: rywData)
                 }
 
-                request.subscriptionModel.hydrate(response)
+                request.subscriptionModel.hydrate(subscription)
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
