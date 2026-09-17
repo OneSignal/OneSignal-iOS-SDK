@@ -92,9 +92,6 @@ final class OneSignalService {
         set {
             prefs.setConsentGiven(newValue)
             OneSignal.setConsentGiven(newValue)
-            if newValue {
-                restoreLanguageOverride()
-            }
         }
     }
 
