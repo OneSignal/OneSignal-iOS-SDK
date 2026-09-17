@@ -60,7 +60,14 @@ final class UserJwtAskTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        // The mock answers 50ms late, so a Request still in flight would otherwise land mid-next-test
+        // and hydrate the shared models and JWT repo out from under it.
+        OneSignalCoreMocks.waitUntil("A Request was still in flight at teardown") { self.clientIsIdle }
         OneSignalCoreMocks.clearUserDefaults()
+    }
+
+    private var clientIsIdle: Bool {
+        return client.completedRequests.count == client.startedRequests.count
     }
 
     private func makeObserver() -> OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
