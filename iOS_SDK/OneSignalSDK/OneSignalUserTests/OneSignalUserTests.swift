@@ -68,6 +68,17 @@ final class OneSignalUserTests: XCTestCase {
         }
     }
 
+    func testEmptyLanguageUsesDeviceLanguage() {
+        let user = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: "osid-a")
+        let manager = OneSignalUserManagerImpl.sharedInstance
+
+        manager.setLanguage("de")
+        manager.setLanguage("")
+
+        XCTAssertNil(user.propertiesModel.language)
+        XCTAssertEqual(manager.language, OSLanguageProviderDevice().language)
+    }
+
     func testInternalOnesignalIdTracksCurrentUser() {
         let manager = OneSignalUserManagerImpl.sharedInstance
         OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")

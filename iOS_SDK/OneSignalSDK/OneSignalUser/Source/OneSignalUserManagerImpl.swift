@@ -125,7 +125,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc public var language: String? {
-        return _user?.propertiesModel.language
+        return _user?.propertiesModel.language ?? OSLanguageProviderDevice().language
     }
 
     @objc public let pushSubscriptionImpl: OSPushSubscriptionImpl
@@ -842,12 +842,7 @@ extension OneSignalUserManagerImpl: OSUser {
             return
         }
 
-        if language == "" {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User.setLanguage cannot be called with an empty language code.")
-            return
-        }
-
-        user.setLanguage(language)
+        user.setLanguage(language.isEmpty ? nil : language)
     }
 
     public func trackEvent(name: String, properties: [String: Any]?) {

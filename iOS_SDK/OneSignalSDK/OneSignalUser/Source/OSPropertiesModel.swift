@@ -45,12 +45,6 @@ final class OSLanguageProviderDevice {
         }
 
         switch languageCode {
-        case "iw":
-            return "he"
-        case "in":
-            return "id"
-        case "ji":
-            return "yi"
         case "zh":
             return chineseLanguage(locale)
         default:
