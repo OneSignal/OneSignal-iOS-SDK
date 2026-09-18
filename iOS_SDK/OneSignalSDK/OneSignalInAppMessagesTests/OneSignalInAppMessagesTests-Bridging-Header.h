@@ -3,6 +3,7 @@
 //
 
 #import "OSInAppMessageInternal.h"
+#import "OSInAppMessageController.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessagingRequests.h"
 

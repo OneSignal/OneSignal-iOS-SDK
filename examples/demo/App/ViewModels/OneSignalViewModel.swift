@@ -42,6 +42,7 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - Identity
 
     @Published var externalUserId: String?
+    @Published var language: String
     @Published var aliases: [KeyValueItem] = []
 
     // MARK: - Push
@@ -100,6 +101,7 @@ final class OneSignalViewModel: ObservableObject {
         self.consentRequired = service.consentRequired
         self.consentGiven = service.consentGiven
         self.externalUserId = service.externalId ?? prefs.getExternalUserId()
+        self.language = prefs.getLanguage()
         self.hasNotificationPermission = service.hasNotificationPermission
         refreshState()
         setupObservers()
@@ -178,7 +180,13 @@ final class OneSignalViewModel: ObservableObject {
     func logout() {
         service.logout()
         externalUserId = nil
+        setLanguage("")
         clearUserData()
+    }
+
+    func setLanguage(_ language: String) {
+        service.setLanguage(language)
+        self.language = language
     }
 
     private func clearUserData() {

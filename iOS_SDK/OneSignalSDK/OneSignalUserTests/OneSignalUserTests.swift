@@ -48,6 +48,42 @@ final class OneSignalUserTests: XCTestCase {
 
     override func tearDownWithError() throws { }
 
+    func testDeviceLanguageNormalization() {
+        let testCases = [
+            ("zh-Hans-HK", "zh-Hans"),
+            ("zh-Hant-CN", "zh-Hant"),
+            ("zh-CN", "zh-Hans"),
+            ("zh-TW", "zh-Hant"),
+            ("zh-HK", "zh-Hant"),
+            ("zh-MO", "zh-Hant"),
+            ("zh", "zh-Hans"),
+            ("en-US", "en")
+        ]
+
+        for (languageTag, expectedLanguage) in testCases {
+            let provider = OSLanguageProviderDevice {
+                Locale(identifier: languageTag)
+            }
+            XCTAssertEqual(provider.language, expectedLanguage, languageTag)
+        }
+    }
+
+    func testEmptyLanguageUsesDeviceLanguage() {
+        let user = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: "osid-a")
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let deviceLanguage = OSLanguageProviderDevice().language
+        let customLanguage = deviceLanguage == "de" ? "fr" : "de"
+
+        manager.setLanguage(customLanguage)
+        XCTAssertEqual(user.propertiesModel.language, customLanguage)
+        XCTAssertEqual(manager.language, customLanguage)
+
+        manager.setLanguage("")
+
+        XCTAssertEqual(user.propertiesModel.language, deviceLanguage)
+        XCTAssertEqual(manager.language, deviceLanguage)
+    }
+
     func testInternalOnesignalIdTracksCurrentUser() {
         let manager = OneSignalUserManagerImpl.sharedInstance
         OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")

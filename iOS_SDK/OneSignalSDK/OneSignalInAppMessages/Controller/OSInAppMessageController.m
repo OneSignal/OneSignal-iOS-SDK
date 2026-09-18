@@ -69,21 +69,27 @@
     matching language.
 */
 - (NSString * _Nullable)variantId {
-    // we only want the first two characters, ie. "en-US" we want "en"
-    NSString *userLanguageCode = [OneSignalUserManagerImpl.sharedInstance.language substringToIndex:2];
+    NSString *userLanguage = OneSignalUserManagerImpl.sharedInstance.language;
+    NSString *baseLanguage = [[userLanguage componentsSeparatedByString:@"-"] firstObject];
     
     NSString *variantId;
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
-        if (self.variants[type]) {
-            if (self.variants[type][userLanguageCode]) {
-                variantId = self.variants[type][userLanguageCode];
-                break;
+        NSDictionary<NSString *, NSString *> *languageVariants = self.variants[type];
+        if (languageVariants) {
+            if (userLanguage) {
+                variantId = languageVariants[userLanguage];
+            }
+
+            if (!variantId
+                && baseLanguage
+                && ![baseLanguage isEqualToString:@"zh"]
+                && ![baseLanguage isEqualToString:userLanguage]) {
+                variantId = languageVariants[baseLanguage];
             }
             
-            if (!variantId && self.variants[type][@"default"]) {
-                variantId = self.variants[type][@"default"];
-                break;
+            if (!variantId) {
+                variantId = languageVariants[@"default"];
             }
         }
         

@@ -106,6 +106,11 @@ final class OneSignalService {
         OneSignal.logout()
     }
 
+    func setLanguage(_ language: String) {
+        prefs.setLanguage(language)
+        OneSignal.User.setLanguage(language)
+    }
+
     // MARK: - Aliases
 
     func addAlias(label: String, id: String) { OneSignal.User.addAlias(label: label, id: id) }
