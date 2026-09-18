@@ -292,18 +292,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 self.addRequestQueue.removeAll(where: { $0 == request})
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
-                guard let response = response?["subscription"] as? [String: Any] else {
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
-                    if inBackground {
-                        OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
-                    }
-                    return
-                }
-
                 if let onesignalId = request.identityModel.onesignalId {
-                    if let rywToken = response["ryw_token"] as? String
+                    // ryw_token and ryw_delay are top-level fields, siblings of "subscription".
+                    if let rywToken = response?["ryw_token"] as? String
                     {
-                        let rywDelay = response["ryw_delay"] as? NSNumber
+                        let rywDelay = response?["ryw_delay"] as? NSNumber
                         OSConsistencyManager.shared.setRywTokenAndDelay(
                             id: onesignalId,
                             key: OSIamFetchOffsetKey.subscriptionUpdate,
@@ -315,7 +308,13 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     }
                 }
 
-                request.subscriptionModel.hydrate(response)
+                // A 2xx with no subscription object is the server's no-op for a subscription that already exists on this user.
+                if let subscription = response?["subscription"] as? [String: Any] {
+                    request.subscriptionModel.hydrate(subscription)
+                } else {
+                    let type = request.subscriptionModel.type.rawValue
+                    OneSignalLog.onesignalLog(.LL_INFO, message: "Create \(type) subscription response has no subscription object to hydrate")
+                }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
