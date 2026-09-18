@@ -82,12 +82,15 @@
         NSString *scriptCode = components[NSLocaleScriptCode];
         NSString *regionCode = components[NSLocaleCountryCode];
         BOOL isTraditional = [scriptCode isEqualToString:@"Hant"]
-            || (!scriptCode && [@[@"HK", @"MO", @"TW"] containsObject:regionCode]);
+            || (!scriptCode && regionCode && [@[@"HK", @"MO", @"TW"] containsObject:regionCode]);
         normalizedLanguage = isTraditional ? @"zh-Hant" : @"zh-Hans";
     }
 
     if (normalizedLanguage && ![candidates containsObject:normalizedLanguage]) {
         [candidates addObject:normalizedLanguage];
+    }
+    if (languageCode && ![candidates containsObject:languageCode]) {
+        [candidates addObject:languageCode];
     }
 
     return candidates;

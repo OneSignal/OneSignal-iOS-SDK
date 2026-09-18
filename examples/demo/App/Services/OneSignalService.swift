@@ -67,7 +67,6 @@ final class OneSignalService {
         if let storedExternalId = prefs.getExternalUserId() {
             OneSignal.login(storedExternalId)
         }
-        restoreLanguageOverride()
     }
 
     // MARK: - Identity
@@ -100,7 +99,6 @@ final class OneSignalService {
     func login(externalId: String) {
         prefs.setExternalUserId(externalId)
         OneSignal.login(externalId)
-        restoreLanguageOverride()
     }
 
     func logout() {
@@ -110,12 +108,6 @@ final class OneSignalService {
 
     func setLanguage(_ language: String) {
         prefs.setLanguage(language)
-        OneSignal.User.setLanguage(language)
-    }
-
-    private func restoreLanguageOverride() {
-        let language = prefs.getLanguage()
-        guard !language.isEmpty else { return }
         OneSignal.User.setLanguage(language)
     }
 

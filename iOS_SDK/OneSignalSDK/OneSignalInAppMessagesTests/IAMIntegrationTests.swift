@@ -75,6 +75,7 @@ final class IAMIntegrationTests: XCTestCase {
             ("zh-Hant-TW", "traditional-chinese-variant"),
             ("zh-CN", "simplified-chinese-variant"),
             ("zh-TW", "traditional-chinese-variant"),
+            ("zh", "simplified-chinese-variant"),
             ("en-US", "english-variant"),
             ("kl", "default-variant")
         ]
