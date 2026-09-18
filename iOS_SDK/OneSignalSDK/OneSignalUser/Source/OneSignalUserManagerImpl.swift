@@ -180,17 +180,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return userStateChangesObserver
     }
 
-    // JWT Invalidated Observer
-    private var _userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>?
-    var userJwtInvalidatedObserver: OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
-        if let observer = _userJwtInvalidatedObserver {
-            return observer
-        }
-        let userJwtInvalidatedObserver = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:)))
-        _userJwtInvalidatedObserver = userJwtInvalidatedObserver
-
-        return userJwtInvalidatedObserver
-    }
+    // The app's JWT listeners. Built in `init` rather than lazily: the ask path reaches them from the
+    // executor queues while the app registers from its own thread, and a lazy getter with no lock could
+    // build two and discard the one holding the app's listener.
+    let userJwtInvalidatedListeners: OSUserJwtInvalidatedListeners
 
     // Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY).registerAsUserObserver()
@@ -219,12 +212,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private override init() {
         let identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
         let operationRepo = OSOperationRepo(identityVerificationService: identityVerificationService)
-        // Goes through `sharedInstance` rather than capturing self: the observer it notifies is created
-        // lazily and must not be touched during init.
+        let userJwtInvalidatedListeners = OSUserJwtInvalidatedListeners()
+        // Captures the listeners, not self, so the closure is safe to build before init completes.
         let userJwtRepo = OSUserJwtRepo(identityModelRepo: identityModelRepo) { externalId in
-            OneSignalUserManagerImpl.sharedInstance.userJwtInvalidatedObserver.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId))
+            userJwtInvalidatedListeners.notify(externalId: externalId)
         }
         self.identityVerificationService = identityVerificationService
+        self.userJwtInvalidatedListeners = userJwtInvalidatedListeners
         self.userJwtRepo = userJwtRepo
         self.requestAuth = OSRequestAuth(identityVerificationService: identityVerificationService, jwt: userJwtRepo)
         self.operationRepo = operationRepo
@@ -447,8 +441,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
-        if let externalId = externalId, let token = token {
-            storeJwt(externalId: externalId, token: token)
+        if let externalId = externalId {
+            storeJwtOrRearmAsk(externalId: externalId, token: token)
         }
         userExecutor!.createUser(newUser)
         return newUser
@@ -475,9 +469,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         // The token belongs on the model that carries `external_id`: the Fetch User this leads to is signed
         // with it, as is the Create User this becomes if the requirement turns out to be on.
-        if let token = token {
-            storeJwt(externalId: externalId, token: token)
-        }
+        storeJwtOrRearmAsk(externalId: externalId, token: token)
 
         // Now proceed to identify the previous user
         userExecutor!.identifyUser(
