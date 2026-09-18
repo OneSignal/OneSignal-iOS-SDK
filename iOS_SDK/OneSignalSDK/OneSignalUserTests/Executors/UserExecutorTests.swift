@@ -63,6 +63,9 @@ private let recreatedPushSubId = "recreated-push-sub-id"
 
 final class UserExecutorTests: XCTestCase {
 
+    /// Whatever executor the shared manager had before a test installed its own, restored in tearDown.
+    private var previousSubscriptionExecutor: OSSubscriptionOperationExecutor?
+
     override func setUpWithError() throws {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
@@ -70,9 +73,12 @@ final class UserExecutorTests: XCTestCase {
         OneSignalIdentifiers.currentAppId = "test-app-id"
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
+        previousSubscriptionExecutor = OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor
     }
 
-    override func tearDownWithError() throws { }
+    override func tearDownWithError() throws {
+        OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor = previousSubscriptionExecutor
+    }
 
     func testCreateUser_withPushSubscription_addsToNewRecords() {
         /* Setup */
@@ -360,21 +366,6 @@ final class UserExecutorTests: XCTestCase {
 
         /* Then */
         // The self-heal clears the id before queuing its Create, so an unchanged id proves it did not run.
-        XCTAssertEqual(user.pushSubscriptionModel.subscriptionId, testPushSubId)
-    }
-
-    /**
-     A response that did not parse as a user cannot vouch for a missing subscription list, so nothing is re-created.
-     */
-    func testFetchUser_onNewSession_keepsPushSubscription_whenResponseHasNoIdentity() {
-        /* Setup */
-        let mocks = Mocks()
-        let user = setUpUserWithPushSubscription()
-
-        /* When */
-        fetchUserOnNewSession(mocks, user: user, response: ["properties": ["language": "en"]])
-
-        /* Then */
         XCTAssertEqual(user.pushSubscriptionModel.subscriptionId, testPushSubId)
     }
 }

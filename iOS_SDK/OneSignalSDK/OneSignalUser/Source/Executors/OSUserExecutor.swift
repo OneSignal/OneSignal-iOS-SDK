@@ -456,11 +456,9 @@ extension OSUserExecutor {
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
                 // If this is a on-new-session's fetch user call, check that the subscription still exists.
-                // A user with no subscriptions has no "subscriptions" key at all, so an absent list means empty,
-                // and only a response that parsed as a user (identity present) is trusted to say so.
+                // A user with no subscriptions has no "subscriptions" key at all, so an absent key means none.
                 if request.onNewSession,
-                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
-                   self.parseIdentityObjectResponse(response) != nil {
+                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId {
                     let subscriptionObjects = self.parseSubscriptionObjectResponse(response) ?? []
                     let subscriptionExists = subscriptionObjects.contains { $0["id"] as? String == subId }
 
