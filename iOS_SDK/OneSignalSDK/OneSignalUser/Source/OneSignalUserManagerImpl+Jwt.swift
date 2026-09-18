@@ -51,19 +51,30 @@ extension OneSignalUserManagerImpl {
      notification — the work that travels through neither.
 
      Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
-     ask for this user is cleared and a later rejection can ask again.
+     ask for this user is cleared and a later rejection can ask again. Returns whether the token was
+     stored; the repo refuses an unusable one.
      */
-    func storeJwt(externalId: String, token: String) {
+    @discardableResult
+    func storeJwt(externalId: String, token: String) -> Bool {
         guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
-            return
+            return false
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
         guard identityVerificationService.newCodePathsRun else {
-            return
+            return true
         }
         operationRepo.addFlushDeltaQueueToDispatchQueue()
         userExecutor?.executePendingRequests()
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
+        return true
+    }
+
+    /// `storeJwt` clears the ask itself when it stores; a login with no usable token rearms it instead.
+    func storeJwtOrRearmAsk(externalId: String, token: String?) {
+        if let token = token, storeJwt(externalId: externalId, token: token) {
+            return
+        }
+        userJwtRepo.clearAsk(externalId: externalId)
     }
 
     /**

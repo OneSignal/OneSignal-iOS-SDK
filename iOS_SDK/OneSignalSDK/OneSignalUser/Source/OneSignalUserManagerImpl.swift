@@ -460,11 +460,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         if let externalId = externalId {
-            // Each login is a fresh chance to be asked for this user's token.
-            userJwtRepo.clearAsk(externalId: externalId)
-            if let token = token {
-                storeJwt(externalId: externalId, token: token)
-            }
+            storeJwtOrRearmAsk(externalId: externalId, token: token)
         }
         userExecutor!.createUser(newUser)
         return newUser
@@ -489,13 +485,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
-        // Each login is a fresh chance to be asked for this user's token.
-        userJwtRepo.clearAsk(externalId: externalId)
         // The token belongs on the model that carries `external_id`: the Fetch User this leads to is signed
         // with it, as is the Create User this becomes if the requirement turns out to be on.
-        if let token = token {
-            storeJwt(externalId: externalId, token: token)
-        }
+        storeJwtOrRearmAsk(externalId: externalId, token: token)
 
         // Now proceed to identify the previous user
         userExecutor!.identifyUser(

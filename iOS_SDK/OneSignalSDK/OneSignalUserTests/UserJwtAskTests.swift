@@ -128,4 +128,22 @@ final class UserJwtAskTests: XCTestCase {
             listener.invalidatedExternalIds == [userA_EUID, userA_EUID]
         }
     }
+
+    /// A token the repo refuses answers nothing, so that login asks like one with no token.
+    func testLoggingInAgainWithAnUnusableTokenAsksAgain() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let listener = MockUserJwtInvalidatedListener()
+        OneSignalUserManagerImpl.sharedInstance.addUserJwtInvalidatedListener(listener)
+        defer { OneSignalUserManagerImpl.sharedInstance.removeUserJwtInvalidatedListener(listener) }
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+        OneSignalCoreMocks.waitUntil("The first login did not ask") { listener.invalidatedExternalIds == [userA_EUID] }
+
+        OneSignalUserManagerImpl.sharedInstance.logout()
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "")
+
+        OneSignalCoreMocks.waitUntil("The login with an empty token did not ask again") {
+            listener.invalidatedExternalIds == [userA_EUID, userA_EUID]
+        }
+    }
 }
