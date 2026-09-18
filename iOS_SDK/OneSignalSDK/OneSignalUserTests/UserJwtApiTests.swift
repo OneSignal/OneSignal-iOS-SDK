@@ -32,6 +32,14 @@ import OneSignalUserMocks
 @testable import OneSignalOSCore
 @testable import OneSignalUser
 
+private final class CapturingLogListener: NSObject, OSLogListener {
+    var entries: [String] = []
+
+    func onLogEvent(_ event: OneSignalLogEvent) {
+        entries.append(event.entry)
+    }
+}
+
 /**
  Public JWT surface on the User Manager: store a token, and tell the app when it stopped being accepted.
  Goes through `sharedInstance` because the JWT config and IV service are shared.
@@ -111,6 +119,21 @@ final class UserJwtApiTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: "user-a", token: OS_JWT_TOKEN_INVALID)
 
         XCTAssertNil(user.identityModel.jwtBearerToken)
+    }
+
+    /// The entry names the user and the token's last 8 characters, never more.
+    func testUpdateUserJwtLogsTheCallWithOnlyTheTokensTail() {
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: "user-a", onesignalId: "osid-a")
+        let token = "eyJhbGciOi.eyJzdWIiOi.signature-a1b2c3d4"
+        let log = CapturingLogListener()
+        OneSignalLog.debug().__add(log)
+        defer { OneSignalLog.debug().__remove(log) }
+
+        OneSignalUserManagerImpl.sharedInstance.updateUserJwt(externalId: "user-a", token: token)
+
+        let entry = log.entries.first { $0.contains("updateUserJwt") }
+        XCTAssertEqual(entry, "VERBOSE: OneSignal.updateUserJwt called for externalId: user-a with token: ...a1b2c3d4")
+        XCTAssertFalse(log.entries.contains { $0.contains("signature-a1b2c3d4") }, "\(log.entries)")
     }
 
     // MARK: - Invalidated listener
