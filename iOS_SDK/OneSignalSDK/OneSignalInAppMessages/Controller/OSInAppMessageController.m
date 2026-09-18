@@ -89,9 +89,6 @@
     if (normalizedLanguage && ![candidates containsObject:normalizedLanguage]) {
         [candidates addObject:normalizedLanguage];
     }
-    if (languageCode && ![candidates containsObject:languageCode]) {
-        [candidates addObject:languageCode];
-    }
 
     return candidates;
 }
