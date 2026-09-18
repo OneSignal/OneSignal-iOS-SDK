@@ -49,7 +49,7 @@ private final class LogCapture: NSObject, OSLogListener {
 }
 
 /**
- How the app is asked for a token: once per user per login, and audibly even when nobody is listening.
+ How the app is asked for a token: once per user per login, and audibly when a listener it registered is gone.
  */
 final class UserJwtAskTests: XCTestCase {
     private var client = MockOneSignalClient()
@@ -75,22 +75,34 @@ final class UserJwtAskTests: XCTestCase {
         return client.completedRequests.count == client.startedRequests.count
     }
 
-    private func makeObserver() -> OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent> {
-        return OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(
-            change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:))
-        )
-    }
-
     // MARK: - an ask nobody hears
 
-    /// The ask is the only way the SDK gets a token, and listeners are held weakly, so an ask nobody
-    /// hears has to leave a trace above DEBUG.
-    func testAnAskNobodyHearsWarns() {
+    /// Before the app registers anything, an unheard ask is the cold-start order and the replay on
+    /// registration covers it, so it stays below the default console level.
+    func testAnAskBeforeAnyListenerIsRegisteredLogsAtDebug() {
         let log = LogCapture()
         OneSignalLog.debug().__add(log)
         defer { OneSignalLog.debug().__remove(log) }
 
-        OneSignalUserManagerImpl.notifyJwtInvalidated(makeObserver(), externalId: userA_EUID)
+        OSUserJwtInvalidatedListeners().notify(externalId: userA_EUID)
+
+        let warnings = log.entries(at: .LL_WARN, mentioning: userA_EUID)
+        XCTAssertTrue(warnings.isEmpty, "\(warnings)")
+        XCTAssertEqual(log.entries(at: .LL_DEBUG, mentioning: userA_EUID).count, 1)
+    }
+
+    /// Listeners are held weakly, so one the app let go of leaves the ask unheard for good, and the ask
+    /// is the only way the SDK gets a token, so that has to leave a trace above DEBUG.
+    func testAnAskAfterTheListenerIsGoneWarns() {
+        let log = LogCapture()
+        OneSignalLog.debug().__add(log)
+        defer { OneSignalLog.debug().__remove(log) }
+        let listeners = OSUserJwtInvalidatedListeners()
+        autoreleasepool {
+            listeners.add(MockUserJwtInvalidatedListener())
+        }
+
+        listeners.notify(externalId: userA_EUID)
 
         let warnings = log.entries(at: .LL_WARN, mentioning: userA_EUID)
         XCTAssertEqual(warnings.count, 1, "\(warnings)")
@@ -103,10 +115,10 @@ final class UserJwtAskTests: XCTestCase {
         OneSignalLog.debug().__add(log)
         defer { OneSignalLog.debug().__remove(log) }
         let listener = MockUserJwtInvalidatedListener()
-        let observer = makeObserver()
-        observer.addObserver(listener)
+        let listeners = OSUserJwtInvalidatedListeners()
+        listeners.add(listener)
 
-        OneSignalUserManagerImpl.notifyJwtInvalidated(observer, externalId: userA_EUID)
+        listeners.notify(externalId: userA_EUID)
 
         OneSignalCoreMocks.waitUntil("The listener was not told") { listener.invalidatedExternalIds == [userA_EUID] }
         let warnings = log.entries(at: .LL_WARN, mentioning: userA_EUID)
