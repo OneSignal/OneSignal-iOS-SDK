@@ -40,19 +40,20 @@ final class OSLanguageProviderDevice {
 
     var language: String {
         let locale = localeProvider()
+        if let chineseLanguage = chineseLanguage(locale) {
+            return chineseLanguage
+        }
         guard let languageCode = languageCode(locale) else {
             return DEFAULT_LANGUAGE
         }
-
-        switch languageCode {
-        case "zh":
-            return chineseLanguage(locale)
-        default:
-            return languageCode
-        }
+        return languageCode
     }
 
-    private func chineseLanguage(_ locale: Locale) -> String {
+    private func chineseLanguage(_ locale: Locale) -> String? {
+        guard languageCode(locale) == "zh" else {
+            return nil
+        }
+
         switch scriptCode(locale) {
         case "Hans":
             return "zh-Hans"

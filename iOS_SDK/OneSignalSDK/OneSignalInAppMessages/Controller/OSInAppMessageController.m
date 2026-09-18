@@ -68,45 +68,24 @@
     variant over lower platforms (ie. 'all') even if they have a
     matching language.
 */
-- (NSArray<NSString *> *)languageVariantCandidatesForLanguage:(NSString * _Nullable)userLanguage {
-    if (!userLanguage) {
-        return @[];
-    }
-
-    NSMutableArray<NSString *> *candidates = [NSMutableArray arrayWithObject:userLanguage];
-    NSDictionary<NSString *, NSString *> *components = [NSLocale componentsFromLocaleIdentifier:userLanguage];
-    NSString *languageCode = components[NSLocaleLanguageCode];
-    NSString *normalizedLanguage = languageCode;
-
-    if ([languageCode isEqualToString:@"zh"]) {
-        NSString *scriptCode = components[NSLocaleScriptCode];
-        NSString *regionCode = components[NSLocaleCountryCode];
-        BOOL isTraditional = [scriptCode isEqualToString:@"Hant"]
-            || (!scriptCode && regionCode && [@[@"HK", @"MO", @"TW"] containsObject:regionCode]);
-        normalizedLanguage = isTraditional ? @"zh-Hant" : @"zh-Hans";
-    }
-
-    if (normalizedLanguage && ![candidates containsObject:normalizedLanguage]) {
-        [candidates addObject:normalizedLanguage];
-    }
-
-    return candidates;
-}
-
 - (NSString * _Nullable)variantId {
     NSString *userLanguage = OneSignalUserManagerImpl.sharedInstance.language;
-    NSArray<NSString *> *languageCandidates = [self languageVariantCandidatesForLanguage:userLanguage];
+    NSString *baseLanguage = [[userLanguage componentsSeparatedByString:@"-"] firstObject];
     
     NSString *variantId;
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
         NSDictionary<NSString *, NSString *> *languageVariants = self.variants[type];
         if (languageVariants) {
-            for (NSString *language in languageCandidates) {
-                variantId = languageVariants[language];
-                if (variantId) {
-                    break;
-                }
+            if (userLanguage) {
+                variantId = languageVariants[userLanguage];
+            }
+
+            if (!variantId
+                && baseLanguage
+                && ![baseLanguage isEqualToString:@"zh"]
+                && ![baseLanguage isEqualToString:userLanguage]) {
+                variantId = languageVariants[baseLanguage];
             }
             
             if (!variantId) {
