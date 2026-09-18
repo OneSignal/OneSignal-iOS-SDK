@@ -52,9 +52,10 @@ final class SubscriptionCreateResponseTests: XCTestCase {
 
     /**
      The server answers a create for a subscription that already exists on the user with a 2xx and no
-     subscription object. The request is finished, not retried, and the model is left as it was.
+     subscription object. The request is finished, not retried, the model is left as it was, and a
+     fetch waiting on this user's read-your-write token is released because none is coming.
      */
-    func testResponseWithoutSubscription_completesWithoutHydratingOrRetrying() throws {
+    func testResponseWithoutSubscription_completesWithoutHydratingAndReleasesWaiters() throws {
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
         client.setMockResponseForRequest(request: createRequestKey, response: [:])
@@ -62,6 +63,14 @@ final class SubscriptionCreateResponseTests: XCTestCase {
         let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState())
         let user = OneSignalUserMocks.setUserManagerInternalUser(onesignalId: onesignalId)
         let model = makeEmailSubscriptionModel()
+
+        // Only a resolve can release this waiter, so it stays blocked if the response is dropped instead of handled.
+        let released = expectation(description: "IAM fetch waiter was not released")
+        DispatchQueue.global().async {
+            _ = OSConsistencyManager.shared.getRywTokenFromAwaitableCondition(UnmetIamFetchCondition(), forId: self.onesignalId)
+            released.fulfill()
+        }
+        OneSignalCoreMocks.waitUntil("Waiter was not registered") { self.waiterCount(forId: self.onesignalId) == 1 }
 
         executor.enqueueDelta(addDelta(for: model, identityModelId: user.identityModel.modelId))
         executor.processDeltaQueue(inBackground: false)
@@ -73,6 +82,7 @@ final class SubscriptionCreateResponseTests: XCTestCase {
         XCTAssertTrue(client.allRequestsHandled)
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCreateSubscription.self, expectedCount: 1))
         XCTAssertNil(model.subscriptionId)
+        wait(for: [released], timeout: 3.0)
     }
 
     /**
@@ -137,6 +147,12 @@ final class SubscriptionCreateResponseTests: XCTestCase {
         )
     }
 
+    private func waiterCount(forId id: String) -> Int {
+        OSConsistencyManager.shared.queue.sync {
+            OSConsistencyManager.shared.indexedConditions[id]?.count ?? 0
+        }
+    }
+
     private func waitForAddRequestQueueToDrain() {
         OneSignalCoreMocks.waitUntil("Create subscription request was not removed from the cache") {
             let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
@@ -164,5 +180,18 @@ private final class SubscriptionUpdateTokenCondition: NSObject, OSCondition {
 
     func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
         indexedTokens[id]?[NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue)]
+    }
+}
+
+/// Never met on its own and carries the IAM fetch condition id, so only the executor's resolve releases it.
+private final class UnmetIamFetchCondition: NSObject, OSCondition {
+    var conditionId: String { OSIamFetchReadyCondition.CONDITIONID }
+
+    func isMet(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> Bool {
+        false
+    }
+
+    func getNewestToken(indexedTokens: [String: [NSNumber: OSReadYourWriteData]]) -> OSReadYourWriteData? {
+        nil
     }
 }
