@@ -33,13 +33,18 @@ import OneSignalUserMocks
 @testable import OneSignalOSCore
 @testable import OneSignalUser
 
-private final class WarningListener: NSObject, OSLogListener {
-    var warnings: [String] = []
+/// Listeners hear every line logged in the process, on the thread that logged it, so a test reads back
+/// only the level and text it is about.
+private final class LogCapture: NSObject, OSLogListener {
+    private let lock = NSLock()
+    private var entries: [(level: ONE_S_LOG_LEVEL, entry: String)] = []
 
     func onLogEvent(_ event: OneSignalLogEvent) {
-        if event.level == .LL_WARN {
-            warnings.append(event.entry)
-        }
+        lock.withLock { entries.append((event.level, event.entry)) }
+    }
+
+    func entries(at level: ONE_S_LOG_LEVEL, mentioning text: String) -> [String] {
+        return lock.withLock { entries.filter { $0.level == level && $0.entry.contains(text) }.map { $0.entry } }
     }
 }
 
@@ -81,22 +86,22 @@ final class UserJwtAskTests: XCTestCase {
     /// The ask is the only way the SDK gets a token, and listeners are held weakly, so an ask nobody
     /// hears has to leave a trace above DEBUG.
     func testAnAskNobodyHearsWarns() {
-        let warnings = WarningListener()
-        OneSignalLog.debug().__add(warnings)
-        defer { OneSignalLog.debug().__remove(warnings) }
+        let log = LogCapture()
+        OneSignalLog.debug().__add(log)
+        defer { OneSignalLog.debug().__remove(log) }
 
         OneSignalUserManagerImpl.notifyJwtInvalidated(makeObserver(), externalId: userA_EUID)
 
-        XCTAssertEqual(warnings.warnings.count, 1, "\(warnings.warnings)")
-        XCTAssertTrue(warnings.warnings.first?.contains(userA_EUID) == true)
-        XCTAssertTrue(warnings.warnings.first?.contains("OSUserJwtInvalidatedListener") == true)
+        let warnings = log.entries(at: .LL_WARN, mentioning: userA_EUID)
+        XCTAssertEqual(warnings.count, 1, "\(warnings)")
+        XCTAssertTrue(warnings.first?.contains("OSUserJwtInvalidatedListener") == true)
     }
 
     /// A heard ask is the normal path and stays quiet.
     func testAnAskWithAListenerIsDeliveredWithoutAWarning() {
-        let warnings = WarningListener()
-        OneSignalLog.debug().__add(warnings)
-        defer { OneSignalLog.debug().__remove(warnings) }
+        let log = LogCapture()
+        OneSignalLog.debug().__add(log)
+        defer { OneSignalLog.debug().__remove(log) }
         let listener = MockUserJwtInvalidatedListener()
         let observer = makeObserver()
         observer.addObserver(listener)
@@ -104,7 +109,8 @@ final class UserJwtAskTests: XCTestCase {
         OneSignalUserManagerImpl.notifyJwtInvalidated(observer, externalId: userA_EUID)
 
         OneSignalCoreMocks.waitUntil("The listener was not told") { listener.invalidatedExternalIds == [userA_EUID] }
-        XCTAssertTrue(warnings.warnings.isEmpty, "\(warnings.warnings)")
+        let warnings = log.entries(at: .LL_WARN, mentioning: userA_EUID)
+        XCTAssertTrue(warnings.isEmpty, "\(warnings)")
     }
 
     // MARK: - asking again after a logout
