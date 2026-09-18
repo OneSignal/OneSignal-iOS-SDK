@@ -32,4 +32,4 @@ For account issues and support please contact OneSignal support from the [OneSig
 
 #### Supports:
 * Swift and Objective-C Projects
-* Supports iOS 12 to iOS 26
+* Supports iOS 15 to iOS 26
