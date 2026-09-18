@@ -362,18 +362,13 @@ extension OSUserExecutor {
                 }
 
                 if let onesignalId = request.identityModel.onesignalId {
-                    if let rywToken = response["ryw_token"] as? String
-                    {
-                        let rywDelay = response["ryw_delay"] as? NSNumber
-                        OSConsistencyManager.shared.setRywTokenAndDelay(
-                            id: onesignalId,
-                            key: OSIamFetchOffsetKey.userCreate,
-                            value: OSReadYourWriteData(rywToken: rywToken, rywDelay: rywDelay)
-                        )
-                    } else {
-                        // handle a potential regression where ryw_token is no longer returned by API
-                        OSConsistencyManager.shared.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: onesignalId)
-                    }
+                    // Filed even when the response has no ryw_token, so a fetch that registers after this write
+                    // is not held for a token that never comes.
+                    let rywData = OSReadYourWriteData(
+                        rywToken: response["ryw_token"] as? String,
+                        rywDelay: response["ryw_delay"] as? NSNumber
+                    )
+                    OSConsistencyManager.shared.setRywTokenAndDelay(id: onesignalId, key: OSIamFetchOffsetKey.userCreate, value: rywData)
                 }
             }
             OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
