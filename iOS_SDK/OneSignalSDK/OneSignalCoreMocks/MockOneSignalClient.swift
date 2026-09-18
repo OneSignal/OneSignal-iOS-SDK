@@ -283,4 +283,9 @@ extension MockOneSignalClient {
             request.isKind(of: type)
         }.count
     }
+
+    /// Held requests count as in flight. Read under the lock, so safe from the test thread.
+    public var isIdle: Bool {
+        return lock.withLock { startedRequests.count == completedRequests.count }
+    }
 }

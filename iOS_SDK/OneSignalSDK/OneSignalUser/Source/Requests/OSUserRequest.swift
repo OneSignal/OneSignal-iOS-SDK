@@ -34,9 +34,9 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
     /// The user this Request belongs to; also selects its token. See the ownership convention below.
     var ownerExternalId: String? { get }
 
-    /// Whether this Request may still be sent with no `Authorization` header once Identity Verification
-    /// is in effect. Only Update Subscription may: its path names a subscription rather than a user, so
-    /// there is no user for the server to authorize. Everything else with no owner is refused.
+    /// Whether this Request goes out with no `Authorization` header even under Identity Verification:
+    /// Update Subscription and Delete Subscription, whose endpoints are addressed by subscription ID and
+    /// take no user JWT. Everything else with no owner is refused.
     var sendsUnsigned: Bool { get }
 
     /// Builds the path and resolves authorization. `false` leaves the Request queued, whether it is
@@ -55,10 +55,11 @@ extension OSUserRequest {
  owner's `external_id` as of when the Request was built, and both the purge and the token lookup
  judge it by that rather than by its `identityModel`.
 
- The live model cannot answer the question. `clearUserData` empties an Identity Model's aliases before
- a fetch response hydrates them, so for that window an identified user reads as anonymous and a purge
- running alongside it would delete signed work. The stamp also matches how `OSDelta` carries
- `externalId`, which keeps a Delta and the Request built from it judged the same way.
+ The live model is not the record of who the work was for. Its aliases are cleared and hydrated again
+ around every fetch (only `external_id` survives the clear, see `OSIdentityModel.clearData`), and the
+ owner has to be what it was when the work was built, not what the model reads later. The stamp also
+ matches how `OSDelta` carries `externalId`, which keeps a Delta and the Request built from it judged
+ the same way.
 
  nil means anonymous, including for caches written before ownership was stamped.
 
@@ -68,7 +69,9 @@ extension OSUserRequest {
 
  Three Requests are nil by construction and so are never signed: Identify User and Fetch Identity By
  Subscription both address a user that has no `external_id` yet, and Update Subscription is the
- device's own push subscription. Each says why at its declaration.
+ device's own push subscription. Delete Subscription carries an owner for the purge but declares
+ `sendsUnsigned`, since its endpoint is addressed by subscription ID and takes no user JWT. Each says
+ why at its declaration.
  */
 
 internal extension OneSignalRequest {

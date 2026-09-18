@@ -45,9 +45,13 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     /**
      See the ownership convention in `OSUserRequest.swift`. Removing an email or SMS subscription is a
      deliberate action on one user, so an anonymous one is dropped under Identity Verification even
-     though the path addresses a subscription rather than a user.
+     though the path addresses a subscription rather than a user. The owner serves that purge only;
+     see `sendsUnsigned`.
      */
     let ownerExternalId: String?
+
+    /// The endpoint takes no user JWT, so waiting for a token would only delay the unsubscribe, forever after a logout.
+    var sendsUnsigned: Bool { return true }
 
     // Need the subscription_id
     func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
