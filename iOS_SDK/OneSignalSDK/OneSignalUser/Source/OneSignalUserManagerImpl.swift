@@ -74,7 +74,13 @@ import OneSignalNotifications
     // SMS
     func addSms(_ number: String)
     func removeSms(_ number: String)
-    // Language
+    /**
+     Sets the language for this user.
+
+     See [Supported Languages](https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages).
+
+     - Parameter language: A supported language code, or an empty string to use the device default.
+     */
     func setLanguage(_ language: String)
     // Events
     /**
@@ -122,7 +128,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc public var language: String? {
-        return _user?.propertiesModel.language
+        return _user?.propertiesModel.language ?? OSLanguageProviderDevice().language
     }
 
     @objc public let pushSubscriptionImpl: OSPushSubscriptionImpl
@@ -914,17 +920,19 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.remove(number)
     }
 
+    /**
+     Sets the language for this user.
+
+     See [Supported Languages](https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages).
+
+     - Parameter language: A supported language code, or an empty string to use the device default.
+     */
     public func setLanguage(_ language: String) {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLanguage") else {
             return
         }
 
-        if language == "" {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User.setLanguage cannot be called with an empty language code.")
-            return
-        }
-
-        user.setLanguage(language)
+        user.setLanguage(language.isEmpty ? OSLanguageProviderDevice().language : language)
     }
 
     public func trackEvent(name: String, properties: [String: Any]?) {

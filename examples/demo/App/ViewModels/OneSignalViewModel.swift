@@ -42,6 +42,7 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - Identity
 
     @Published var externalUserId: String?
+    @Published var language: String
     @Published var aliases: [KeyValueItem] = []
     @Published var useIdentityVerification: Bool = false
     /// External id the SDK is waiting on a JWT for. Drives the banner in `UserSection`.
@@ -106,6 +107,7 @@ final class OneSignalViewModel: ObservableObject {
         self.consentGiven = service.consentGiven
         self.useIdentityVerification = service.useIdentityVerification
         self.externalUserId = service.externalId ?? prefs.getExternalUserId()
+        self.language = prefs.getLanguage()
         self.hasNotificationPermission = service.hasNotificationPermission
         refreshState()
         setupObservers()
@@ -253,7 +255,13 @@ final class OneSignalViewModel: ObservableObject {
         service.logout()
         externalUserId = nil
         jwtAskExternalId = nil
+        setLanguage("")
         clearUserData()
+    }
+
+    func setLanguage(_ language: String) {
+        service.setLanguage(language)
+        self.language = language
     }
 
     func setUseIdentityVerification(_ enabled: Bool) {

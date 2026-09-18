@@ -49,6 +49,7 @@ final class PreferencesService {
         static let externalUserId  = "onesignal.demo.externalUserId"
         static let useIdentityVerification = "onesignal.demo.useIdentityVerification"
         static let sessionJwtToken = "onesignal.demo.sessionJwtToken"
+        static let language        = "onesignal.demo.language"
     }
 
     // MARK: - Consent
@@ -105,4 +106,9 @@ final class PreferencesService {
             defaults.removeObject(forKey: Key.sessionJwtToken)
         }
     }
+
+    // MARK: - Language
+
+    func getLanguage() -> String { defaults.string(forKey: Key.language) ?? "" }
+    func setLanguage(_ value: String) { defaults.set(value, forKey: Key.language) }
 }

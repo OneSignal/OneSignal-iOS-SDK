@@ -124,6 +124,11 @@ final class OneSignalService {
         OneSignal.logout()
     }
 
+    func setLanguage(_ language: String) {
+        prefs.setLanguage(language)
+        OneSignal.User.setLanguage(language)
+    }
+
     /// Called when the SDK rejects the token, so the REST fetch stops sending it.
     func clearSessionJwtToken() {
         prefs.setSessionJwtToken(nil)
