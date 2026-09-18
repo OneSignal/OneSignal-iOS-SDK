@@ -1122,6 +1122,177 @@
         "moduleName": "OneSignalOSCore"
       },
       {
+        "kind": "Import",
+        "name": "UIKit",
+        "printedName": "UIKit",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSDeviceGestureDetector",
+        "printedName": "OSDeviceGestureDetector",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "start",
+            "printedName": "start()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSDeviceGestureDetector(cm)start",
+            "mangledName": "$s15OneSignalOSCore23OSDeviceGestureDetectorC5startyyFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "reset",
+            "printedName": "reset()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSDeviceGestureDetector(cm)reset",
+            "mangledName": "$s15OneSignalOSCore23OSDeviceGestureDetectorC5resetyyFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSDeviceGestureDetector",
+                "printedName": "OneSignalOSCore.OSDeviceGestureDetector",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSDeviceGestureDetector"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSDeviceGestureDetector(im)init",
+            "mangledName": "$s15OneSignalOSCore23OSDeviceGestureDetectorCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalOSCore@objc(cs)OSDeviceGestureDetector",
+        "mangledName": "$s15OneSignalOSCore23OSDeviceGestureDetectorC",
+        "moduleName": "OneSignalOSCore",
+        "objc_name": "OSDeviceGestureDetector",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "hasMissingDesignatedInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
         "kind": "TypeDecl",
         "name": "OSOperationRepo",
         "printedName": "OSOperationRepo",
@@ -2665,6 +2836,548 @@
         "moduleName": "OneSignalOSCore"
       },
       {
+        "kind": "Import",
+        "name": "OneSignalKMP",
+        "printedName": "OneSignalKMP",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "ImplementationOnly"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSObservabilityEvent",
+        "printedName": "OSObservabilityEvent",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "deviceGesture",
+            "printedName": "deviceGesture",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSObservabilityEvent.Type) -> OneSignalOSCore.OSObservabilityEvent",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSObservabilityEvent",
+                    "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                    "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSObservabilityEvent.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSObservabilityEvent",
+                        "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                        "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore20OSObservabilityEventO13deviceGestureyA2CmF",
+            "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO13deviceGestureyA2CmF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "spi_group_names": [
+              "OneSignalInternal"
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSObservabilityEvent",
+                "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSObservabilityEvent",
+                "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore20OSObservabilityEventO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO2eeoiySbAC_ACtFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "implicit": true,
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore20OSObservabilityEventO9hashValueSivp",
+            "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO9hashValueSivp",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO9hashValueSivg",
+                "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO9hashValueSivg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "spi_group_names": [
+                  "OneSignalInternal"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore20OSObservabilityEventO4hash4intoys6HasherVz_tF",
+            "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO4hash4intoys6HasherVz_tF",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "allCases",
+            "printedName": "allCases",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[OneSignalOSCore.OSObservabilityEvent]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSObservabilityEvent",
+                    "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                    "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore20OSObservabilityEventO8allCasesSayACGvpZ",
+            "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO8allCasesSayACGvpZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "implicit": true,
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[OneSignalOSCore.OSObservabilityEvent]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSObservabilityEvent",
+                        "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                        "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO8allCasesSayACGvgZ",
+                "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO8allCasesSayACGvgZ",
+                "moduleName": "OneSignalOSCore",
+                "static": true,
+                "implicit": true,
+                "spi_group_names": [
+                  "OneSignalInternal"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:15OneSignalOSCore20OSObservabilityEventO",
+        "mangledName": "$s15OneSignalOSCore20OSObservabilityEventO",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "AccessControl",
+          "SPIAccessControl",
+          "RawDocComment"
+        ],
+        "spi_group_names": [
+          "OneSignalInternal"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CaseIterable",
+            "printedName": "CaseIterable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "AllCases",
+                "printedName": "AllCases",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[OneSignalOSCore.OSObservabilityEvent]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSObservabilityEvent",
+                        "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                        "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:s12CaseIterableP",
+            "mangledName": "$ss12CaseIterableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSObservabilityEventRecorderProtocol",
+        "printedName": "OSObservabilityEventRecorderProtocol",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "record",
+            "printedName": "record(event:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSObservabilityEvent",
+                "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore36OSObservabilityEventRecorderProtocolP6record5event10attributesyAA0dE0O_SDyS2SGtF",
+            "mangledName": "$s15OneSignalOSCore36OSObservabilityEventRecorderProtocolP6record5event10attributesyAA0dE0O_SDyS2SGtF",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSObservabilityEventRecorderProtocol>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSObservabilityEventRecorderProtocol>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:15OneSignalOSCore36OSObservabilityEventRecorderProtocolP",
+        "mangledName": "$s15OneSignalOSCore36OSObservabilityEventRecorderProtocolP",
+        "moduleName": "OneSignalOSCore",
+        "genericSig": "<τ_0_0 : AnyObject>",
+        "sugared_genericSig": "<Self : AnyObject>",
+        "declAttributes": [
+          "AccessControl",
+          "SPIAccessControl",
+          "RawDocComment"
+        ],
+        "spi_group_names": [
+          "OneSignalInternal"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSObservabilityEventRecorder",
+        "printedName": "OSObservabilityEventRecorder",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "shared",
+            "printedName": "shared",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSObservabilityEventRecorder",
+                "printedName": "OneSignalOSCore.OSObservabilityEventRecorder",
+                "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC6sharedACvpZ",
+            "mangledName": "$s15OneSignalOSCore28OSObservabilityEventRecorderC6sharedACvpZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl"
+            ],
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSObservabilityEventRecorder",
+                    "printedName": "OneSignalOSCore.OSObservabilityEventRecorder",
+                    "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC6sharedACvgZ",
+                "mangledName": "$s15OneSignalOSCore28OSObservabilityEventRecorderC6sharedACvgZ",
+                "moduleName": "OneSignalOSCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "spi_group_names": [
+                  "OneSignalInternal"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "record",
+            "printedName": "record(event:attributes:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSObservabilityEvent",
+                "printedName": "OneSignalOSCore.OSObservabilityEvent",
+                "usr": "s:15OneSignalOSCore20OSObservabilityEventO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Dictionary",
+                "printedName": "[Swift.String : Swift.String]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:SD"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC6record5event10attributesyAA0dE0O_SDyS2SGtF",
+            "mangledName": "$s15OneSignalOSCore28OSObservabilityEventRecorderC6record5event10attributesyAA0dE0O_SDyS2SGtF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "reset",
+            "printedName": "reset()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC5resetyyF",
+            "mangledName": "$s15OneSignalOSCore28OSObservabilityEventRecorderC5resetyyF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "spi_group_names": [
+              "OneSignalInternal"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:15OneSignalOSCore28OSObservabilityEventRecorderC",
+        "mangledName": "$s15OneSignalOSCore28OSObservabilityEventRecorderC",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "SPIAccessControl",
+          "RawDocComment"
+        ],
+        "spi_group_names": [
+          "OneSignalInternal"
+        ],
+        "hasMissingDesignatedInitializers": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "OSObservabilityEventRecorderProtocol",
+            "printedName": "OSObservabilityEventRecorderProtocol",
+            "usr": "s:15OneSignalOSCore36OSObservabilityEventRecorderProtocolP",
+            "mangledName": "$s15OneSignalOSCore36OSObservabilityEventRecorderProtocolP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
         "kind": "TypeDecl",
         "name": "OSEventProducer",
         "printedName": "OSEventProducer",
@@ -3056,6 +3769,32 @@
             ],
             "reqNewWitnessTableEntry": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "onConditionSatisfied",
+            "printedName": "onConditionSatisfied()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(pl)OSCondition(im)onConditionSatisfied",
+            "mangledName": "$s15OneSignalOSCore11OSConditionP20onConditionSatisfiedyyF",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSCondition>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSCondition>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Optional",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Protocol",
@@ -3250,8 +3989,8 @@
           },
           {
             "kind": "Function",
-            "name": "resolveConditionsWithID",
-            "printedName": "resolveConditionsWithID(id:)",
+            "name": "resolveConditions",
+            "printedName": "resolveConditions(conditionId:forId:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -3263,13 +4002,19 @@
                 "name": "String",
                 "printedName": "Swift.String",
                 "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
               }
             ],
             "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(cs)OSConsistencyManager(im)resolveConditionsWithIDWithId:",
-            "mangledName": "$s15OneSignalOSCore20OSConsistencyManagerC23resolveConditionsWithID2idySS_tF",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSConsistencyManager(im)resolveConditionsWithConditionId:forId:",
+            "mangledName": "$s15OneSignalOSCore20OSConsistencyManagerC17resolveConditions11conditionId03forI0ySS_SStF",
             "moduleName": "OneSignalOSCore",
-            "objc_name": "resolveConditionsWithIDWithId:",
+            "objc_name": "resolveConditionsWithConditionId:forId:",
             "declAttributes": [
               "AccessControl",
               "ObjC",
@@ -6819,6 +7564,30 @@
             "funcSelfKind": "NonMutating"
           },
           {
+            "kind": "Function",
+            "name": "reset",
+            "printedName": "reset()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSIamFetchReadyCondition(cm)reset",
+            "mangledName": "$s15OneSignalOSCore24OSIamFetchReadyConditionC5resetyyFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "Var",
             "name": "CONDITIONID",
             "printedName": "CONDITIONID",
@@ -6940,7 +7709,31 @@
             "mangledName": "$s15OneSignalOSCore24OSIamFetchReadyConditionC28setSubscriptionUpdatePending5valueySb_tF",
             "moduleName": "OneSignalOSCore",
             "declAttributes": [
-              "AccessControl"
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "onConditionSatisfied",
+            "printedName": "onConditionSatisfied()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSIamFetchReadyCondition(im)onConditionSatisfied",
+            "mangledName": "$s15OneSignalOSCore24OSIamFetchReadyConditionC02onG9SatisfiedyyF",
+            "moduleName": "OneSignalOSCore",
+            "objc_name": "onConditionSatisfied",
+            "declAttributes": [
+              "ObjC",
+              "AccessControl",
+              "RawDocComment"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -9553,385 +10346,385 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 3915,
+      "offset": 3921,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 3943,
+      "offset": 3949,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4232,
+      "offset": 4238,
       "length": 64,
       "value": "\"FileLogStore refusing record of \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4278,
+      "offset": 4284,
       "length": 5,
       "value": "\" bytes, over the \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4319,
+      "offset": 4325,
       "length": 51,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4358,
+      "offset": 4364,
       "length": 1,
       "value": "\"-byte limit\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 4404,
+      "offset": 4410,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 4536,
+      "offset": 4542,
       "length": 5,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4564,
+      "offset": 4570,
       "length": 58,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4577,
+      "offset": 4583,
       "length": 1,
       "value": "\"-\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4598,
+      "offset": 4604,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4621,
+      "offset": 4627,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 4745,
+      "offset": 4751,
       "length": 5,
       "value": "\"tmp\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 4968,
+      "offset": 4974,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 5010,
+      "offset": 5016,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 5461,
+      "offset": 5467,
       "length": 65,
       "value": "\"FileLogStore listReadable failed: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 5525,
+      "offset": 5531,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "Array",
-      "offset": 5579,
+      "offset": 5585,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 6198,
+      "offset": 6204,
       "length": 59,
       "value": "\"FileLogStore delete failed: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 6256,
+      "offset": 6262,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 6531,
+      "offset": 6537,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 7638,
+      "offset": 7644,
       "length": 1,
       "value": "1"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 7804,
+      "offset": 7810,
       "length": 60,
       "value": "\"FileLogStore cleanup failed: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 7863,
+      "offset": 7869,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 9482,
+      "offset": 9488,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 9536,
+      "offset": 9542,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 11157,
+      "offset": 11163,
       "length": 54,
       "value": "\"FileLogStore reclaimed \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 11197,
+      "offset": 11203,
       "length": 7,
       "value": "\" expired and \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 11234,
+      "offset": 11240,
       "length": 38,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 11252,
+      "offset": 11258,
       "length": 4,
       "value": "\" over-cap record(s)\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 12518,
+      "offset": 12524,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 12792,
+      "offset": 12798,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 12922,
+      "offset": 12928,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 13021,
+      "offset": 13027,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 13066,
+      "offset": 13072,
       "length": 71,
       "value": "\"FileLogStore failed to reclaim \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 13105,
+      "offset": 13111,
       "length": 1,
       "value": "\": \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 13136,
+      "offset": 13142,
       "length": 1,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 13324,
+      "offset": 13330,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "Array",
-      "offset": 13812,
+      "offset": 13818,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 14225,
+      "offset": 14231,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 14525,
+      "offset": 14531,
       "length": 5,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 14607,
+      "offset": 14613,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 14733,
+      "offset": 14739,
       "length": 5,
       "value": "1000"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 15522,
+      "offset": 15528,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "StringLiteral",
-      "offset": 15667,
+      "offset": 15673,
       "length": 5,
       "value": "\"tmp\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 15800,
+      "offset": 15806,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 15912,
+      "offset": 15918,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 16472,
+      "offset": 16478,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 16584,
+      "offset": 16590,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 16695,
+      "offset": 16701,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 16976,
+      "offset": 16982,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 17112,
+      "offset": 17118,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "BooleanLiteral",
-      "offset": 17232,
+      "offset": 17238,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 17580,
+      "offset": 17586,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/FileLogStore.swift",
       "kind": "IntegerLiteral",
-      "offset": 17740,
+      "offset": 17746,
       "length": 1,
       "value": "0"
     },
@@ -10755,6 +11548,335 @@
       "value": "\"OneSignalOSCore.OSFeatureFlagsRefreshService\""
     },
     {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2674,
+      "length": 1,
+      "value": "6"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2721,
+      "length": 2,
+      "value": "30"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "FloatLiteral",
+      "offset": 2867,
+      "length": 4,
+      "value": "0.25"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 2910,
+      "length": 29,
+      "value": "\"sdk_device_gesture_disabled\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 2977,
+      "length": 40,
+      "value": "\"OneSignal_disable_subscription_id_copy\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "IntegerLiteral",
+      "offset": 3162,
+      "length": 3,
+      "value": "300"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 4314,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 4525,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "Array",
+      "offset": 4588,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "Array",
+      "offset": 4692,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7239,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7280,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 7304,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 7554,
+      "length": 80,
+      "value": "\"OSDeviceGestureDetector: disabled by \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 7619,
+      "length": 1,
+      "value": "\", not starting\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 8461,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 8545,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 8763,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 8878,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 9752,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 9999,
+      "length": 79,
+      "value": "\"ignored a \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10027,
+      "length": 6,
+      "value": "\"%.3f\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10042,
+      "length": 1,
+      "value": "\"s background blip (rotation filter)\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 10102,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10271,
+      "length": 75,
+      "value": "\"cycle \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10303,
+      "length": 1,
+      "value": "\"\/\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10326,
+      "length": 6,
+      "value": "\" within the window \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10365,
+      "length": 48,
+      "value": "\"(background \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10395,
+      "length": 6,
+      "value": "\"%.2f\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10410,
+      "length": 1,
+      "value": "\"s)\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 10545,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 10583,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10685,
+      "length": 38,
+      "value": "\"OSDeviceGestureDetector: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 10722,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 11296,
+      "length": 97,
+      "value": "\"OSDeviceGestureDetector: gesture detected but the SDK is not ready (appId, consent, or storage)\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 11571,
+      "length": 65,
+      "value": "\"OSDeviceGestureDetector: gesture detected but disabled remotely\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 11950,
+      "length": 63,
+      "value": "\"OSDeviceGestureDetector: pasteboard set, gesture result no_id\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 12232,
+      "length": 64,
+      "value": "\"OSDeviceGestureDetector: pasteboard set, gesture result copied\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 12535,
+      "length": 7,
+      "value": "\"no_id\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 12535,
+      "length": 7,
+      "value": "\"no_id\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 12872,
+      "length": 16,
+      "value": "\"gesture.result\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 12956,
+      "length": 30,
+      "value": "\"gesture.push_subscription_id\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 13128,
+      "length": 6,
+      "value": "\"os: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 13188,
+      "length": 24,
+      "value": "\"no subscription ID yet\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "BooleanLiteral",
+      "offset": 13744,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 14012,
+      "length": 24,
+      "value": "\"public.utf8-plain-text\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDeviceGestureDetector.swift",
+      "kind": "StringLiteral",
+      "offset": 2606,
+      "length": 23,
+      "value": "\"OneSignalOSCore.OSDeviceGestureDetector\""
+    },
+    {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
       "offset": 1573,
@@ -10911,273 +12033,287 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2060,
+      "offset": 2048,
+      "length": 19,
+      "value": "\"[OSConsoleLogger]\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 2315,
       "length": 4,
       "value": "\"%@\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2226,
+      "offset": 2481,
       "length": 7,
       "value": "\"ERROR\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2323,
+      "offset": 2578,
       "length": 6,
       "value": "\"WARN\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2419,
+      "offset": 2674,
       "length": 6,
       "value": "\"INFO\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2517,
+      "offset": 2772,
       "length": 7,
       "value": "\"DEBUG\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2742,
-      "length": 40,
-      "value": "\"[OneSignal crash] \""
+      "offset": 2997,
+      "length": 37,
+      "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2769,
+      "offset": 3012,
+      "length": 1,
+      "value": "\" \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
+      "kind": "StringLiteral",
+      "offset": 3021,
       "length": 1,
       "value": "\": \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 2781,
+      "offset": 3033,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "Array",
-      "offset": 3210,
+      "offset": 3462,
       "length": 349,
       "value": "[\"OneSignal\", \"OneSignalCore\", \"OneSignalExtension\", \"OneSignalFramework\", \"OneSignalInAppMessages\", \"OneSignalKMP\", \"OneSignalLiveActivities\", \"OneSignalLocation\", \"OneSignalNotifications\", \"OneSignalOSCore\", \"OneSignalOutcomes\", \"OneSignalUser\"]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 3650,
+      "offset": 3902,
       "length": 41,
       "value": "\"com.onesignal.logger.handling-exception\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 3949,
+      "offset": 4201,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 4524,
+      "offset": 4776,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 5099,
+      "offset": 5351,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 5835,
+      "offset": 6087,
       "length": 4,
       "value": "\"\n\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 6341,
+      "offset": 6593,
       "length": 53,
       "value": "\"[OneSignal crash] Unable to persist fatal crash: %@\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 6637,
+      "offset": 6889,
       "length": 6,
       "value": "\"main\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 6692,
+      "offset": 6944,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 6702,
+      "offset": 6954,
       "length": 2,
       "value": "64"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 6777,
+      "offset": 7029,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 6805,
+      "offset": 7057,
       "length": 9,
       "value": "\"unknown\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 6908,
+      "offset": 7160,
       "length": 9,
       "value": "\"unknown\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 7088,
+      "offset": 7340,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 7356,
+      "offset": 7608,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 7965,
+      "offset": 8217,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 8079,
+      "offset": 8331,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 8180,
+      "offset": 8432,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 8652,
+      "offset": 8904,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9061,
+      "offset": 9313,
       "length": 3,
       "value": "\"\/\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9189,
+      "offset": 9441,
       "length": 18,
       "value": "\"\/System\/Library\/\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9226,
+      "offset": 9478,
       "length": 11,
       "value": "\"\/usr\/lib\/\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9389,
+      "offset": 9641,
       "length": 3,
       "value": "\"_\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9449,
+      "offset": 9701,
       "length": 13,
       "value": "\"-[OneSignal\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9521,
+      "offset": 9773,
       "length": 13,
       "value": "\"+[OneSignal\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9593,
+      "offset": 9845,
       "length": 12,
       "value": "\"onesignal_\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 9663,
+      "offset": 9915,
       "length": 21,
       "value": "\"kfun:com.onesignal.\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 9707,
+      "offset": 9959,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "BooleanLiteral",
-      "offset": 9838,
+      "offset": 10090,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "StringLiteral",
-      "offset": 10015,
+      "offset": 10267,
       "length": 4,
       "value": "\"$s\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
       "kind": "IntegerLiteral",
-      "offset": 10135,
+      "offset": 10387,
       "length": 1,
       "value": "2"
     },
@@ -11323,31 +12459,52 @@
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
+      "kind": "BooleanLiteral",
+      "offset": 6992,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
       "kind": "StringLiteral",
-      "offset": 6916,
+      "offset": 7233,
       "length": 38,
       "value": "\"com.onesignal.logger.remote-teardown\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
       "kind": "IntegerLiteral",
-      "offset": 7164,
+      "offset": 7481,
       "length": 1,
       "value": "5"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
+      "kind": "BooleanLiteral",
+      "offset": 13645,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
       "kind": "StringLiteral",
-      "offset": 13281,
+      "offset": 14187,
       "length": 56,
       "value": "\"LogCrashUploader failed: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
       "kind": "StringLiteral",
-      "offset": 13336,
+      "offset": 14242,
       "length": 2,
       "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSRemoteLogger.swift",
+      "kind": "BooleanLiteral",
+      "offset": 16556,
+      "length": 5,
+      "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSEventProducer.swift",
@@ -11366,28 +12523,14 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 1448,
+      "offset": 1590,
       "length": 30,
       "value": "\"com.consistencyManager.queue\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 1555,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Dictionary",
-      "offset": 1641,
-      "length": 3,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Dictionary",
-      "offset": 1845,
+      "offset": 1697,
       "length": 3,
       "value": "[]"
     },
@@ -11400,64 +12543,127 @@
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "IntegerLiteral",
+      "offset": 2306,
+      "length": 2,
+      "value": "30"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 2217,
+      "offset": 2504,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "Dictionary",
+      "offset": 2545,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "Dictionary",
+      "offset": 2895,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "IntegerLiteral",
-      "offset": 2655,
+      "offset": 3444,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Array",
-      "offset": 2775,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Array",
-      "offset": 3402,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "Array",
-      "offset": 4102,
+      "offset": 3516,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 4283,
+      "offset": 3766,
+      "length": 82,
+      "value": "\"OSConsistencyManager timed out waiting on \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 3833,
+      "length": 3,
+      "value": "\" for id: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 3847,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "BooleanLiteral",
+      "offset": 4043,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 5097,
+      "length": 49,
+      "value": "\"Condition \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 5122,
+      "length": 8,
+      "value": "\" resolved for id: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 5145,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "Array",
+      "offset": 5604,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
+      "kind": "StringLiteral",
+      "offset": 5779,
       "length": 29,
       "value": "\"Condition met for id: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 4311,
+      "offset": 5807,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 4498,
+      "offset": 5938,
       "length": 33,
       "value": "\"Condition not met for id: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 4530,
+      "offset": 5970,
       "length": 2,
       "value": "\"\""
     },
@@ -11912,42 +13118,63 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "BooleanLiteral",
-      "offset": 1434,
+      "offset": 1472,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
+      "kind": "Dictionary",
+      "offset": 1598,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
+      "kind": "Dictionary",
+      "offset": 2337,
+      "length": 3,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "StringLiteral",
-      "offset": 2055,
+      "offset": 2562,
       "length": 26,
       "value": "\"OSIamFetchReadyCondition\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "BooleanLiteral",
-      "offset": 2442,
+      "offset": 3268,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "BooleanLiteral",
-      "offset": 3088,
+      "offset": 3433,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
+      "kind": "BooleanLiteral",
+      "offset": 4079,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "StringLiteral",
-      "offset": 3773,
+      "offset": 4788,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/IamFetch\/OSIamFetchReadyCondition.swift",
       "kind": "StringLiteral",
-      "offset": 3795,
+      "offset": 4810,
       "length": 2,
       "value": "\"\""
     },

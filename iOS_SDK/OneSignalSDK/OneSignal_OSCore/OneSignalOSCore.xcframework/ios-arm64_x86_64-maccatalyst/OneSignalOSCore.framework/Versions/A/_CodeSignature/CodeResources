@@ -19,7 +19,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8PrgPIww7c8jeSwkua0XNL/rdDNCisdpWzAopM/Yq9I=
+			QJraUSipV3ozpTsaCsdkZlgOWNNdc8i9/fScq0KmogI=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOSCore.h</key>
@@ -33,56 +33,56 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vUifnf1cN/IWnSzxLAxK9uJ3o+bj9f8y2XoooxSHJgE=
+			evWvFN5D6U5OFRMaTG4NY9sD8Wh5QlGVRmSrHKgQnAU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			JhFtTCMTA4A2s31djgDi7pZzEGYKoAdcFj3V+MvZPWg=
+			1FuZUsnz7BYafaJ+roXMw2ZP7TMLJDFR4qYFsgLadgI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			4D+XoC6u1jMefNaLXnxk7hDLou6DkLLJJRC/biX+8Ow=
+			LSiFDkdJFzuNDRWNjAMn2EojWDoEAWQQFdCrB6aLIZM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			mjHXB6x5ufGdxtsHZVb1dMPbJSAB1mwIvNC9CS42wDw=
+			+Ff8xEvUAK2fsEak5yaP1EyDF6hL7z3zqAT166Lud7Y=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vUifnf1cN/IWnSzxLAxK9uJ3o+bj9f8y2XoooxSHJgE=
+			evWvFN5D6U5OFRMaTG4NY9sD8Wh5QlGVRmSrHKgQnAU=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vfCZYz/Bq2toMHmLXiEksD3LBNjG6rz6Ejnizeyk1Dw=
+			VfV3NxBX+IsameBBxvxG+Db3Jv28r615nixWtFl0KGM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			K7BcDhYrGjdIoWZRmHNaVtTDt0Lqy39dyspQr6EYXdY=
+			UqMIQAyJ/h7dRpTcRR9bD6DtLikFsoAhSSVBRCpFH5s=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			SLlTu5x1Y3Kp5Eok4FzFaJp8Q2ptN5shSwcGlE9WpmI=
+			y7Hp/kW+s8/IOpx9j5Gx1GLC0PnxZ3psnqYS+rVM/0g=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

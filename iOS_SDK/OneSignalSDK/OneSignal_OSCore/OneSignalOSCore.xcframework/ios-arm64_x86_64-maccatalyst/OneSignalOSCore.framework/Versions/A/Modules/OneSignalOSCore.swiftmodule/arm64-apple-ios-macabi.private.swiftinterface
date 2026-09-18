@@ -41,6 +41,11 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   @objc final public class func reset()
   @objc deinit
 }
+@_hasMissingDesignatedInitializers @objc(OSDeviceGestureDetector) final public class OSDeviceGestureDetector : ObjectiveC.NSObject {
+  @objc public static func start()
+  @objc public static func reset()
+  @objc deinit
+}
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
   public static let sharedInstance: OneSignalOSCore.OSOperationRepo
   public var paused: Swift.Bool
@@ -84,6 +89,27 @@ extension OneSignalOSCore.OSRemoteLoggerProtocol {
 }
 @_spi(OneSignalInternal) extension OneSignalOSCore.OSRemoteLogger : OneSignalOSCore.OSStructuredRemoteLoggerProtocol {
 }
+@_spi(OneSignalInternal) public enum OSObservabilityEvent : Swift.CaseIterable {
+  @_spi(OneSignalInternal) case deviceGesture
+  @_spi(OneSignalInternal) public static func == (a: OneSignalOSCore.OSObservabilityEvent, b: OneSignalOSCore.OSObservabilityEvent) -> Swift.Bool
+  @_spi(OneSignalInternal) public func hash(into hasher: inout Swift.Hasher)
+  @_spi(OneSignalInternal) public typealias AllCases = [OneSignalOSCore.OSObservabilityEvent]
+  @_spi(OneSignalInternal) public static var allCases: [OneSignalOSCore.OSObservabilityEvent] {
+    @_spi(OneSignalInternal) get
+  }
+  @_spi(OneSignalInternal) public var hashValue: Swift.Int {
+    @_spi(OneSignalInternal) get
+  }
+}
+@_spi(OneSignalInternal) public protocol OSObservabilityEventRecorderProtocol : AnyObject {
+  @_spi(OneSignalInternal) func record(event: OneSignalOSCore.OSObservabilityEvent, attributes: [Swift.String : Swift.String])
+}
+@_spi(OneSignalInternal) @_hasMissingDesignatedInitializers final public class OSObservabilityEventRecorder : OneSignalOSCore.OSObservabilityEventRecorderProtocol {
+  @_spi(OneSignalInternal) public static let shared: OneSignalOSCore.OSObservabilityEventRecorder
+  @_spi(OneSignalInternal) final public func record(event: OneSignalOSCore.OSObservabilityEvent, attributes: [Swift.String : Swift.String])
+  @_spi(OneSignalInternal) final public func reset()
+  @_spi(OneSignalInternal) @objc deinit
+}
 @_inheritsConvenienceInitializers public class OSEventProducer<THandler> : ObjectiveC.NSObject {
   public func subscribe(_ handler: THandler)
   public func unsubscribe(_ handler: THandler)
@@ -95,13 +121,14 @@ extension OneSignalOSCore.OSRemoteLoggerProtocol {
   @objc var conditionId: Swift.String { get }
   @objc func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
   @objc func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
+  @objc optional func onConditionSatisfied()
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OSConsistencyManager : ObjectiveC.NSObject {
   @objc public static let shared: OneSignalOSCore.OSConsistencyManager
   public func reset()
   public func setRywTokenAndDelay(id: Swift.String, key: any OneSignalOSCore.OSConsistencyKeyEnum, value: OneSignalOSCore.OSReadYourWriteData)
   @objc public func getRywTokenFromAwaitableCondition(_ condition: any OneSignalOSCore.OSCondition, forId id: Swift.String) -> OneSignalOSCore.OSReadYourWriteData?
-  @objc public func resolveConditionsWithID(id: Swift.String)
+  @objc(resolveConditionsWithConditionId:forId:) public func resolveConditions(conditionId: Swift.String, forId id: Swift.String)
   @objc deinit
 }
 @_inheritsConvenienceInitializers @objc(OneSignalIdentifiers) final public class OneSignalIdentifiers : ObjectiveC.NSObject {
@@ -208,11 +235,13 @@ extension OneSignalOSCore.OSModelStoreListener {
 }
 @_hasMissingDesignatedInitializers @objc public class OSIamFetchReadyCondition : ObjectiveC.NSObject, OneSignalOSCore.OSCondition {
   @objc public static func sharedInstance(withId id: Swift.String) -> OneSignalOSCore.OSIamFetchReadyCondition
+  @objc public static func reset()
   @objc public static let CONDITIONID: Swift.String
   @objc public var conditionId: Swift.String {
     @objc get
   }
   public func setSubscriptionUpdatePending(value: Swift.Bool)
+  @objc public func onConditionSatisfied()
   @objc public func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
   @objc public func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
   @objc deinit
@@ -288,5 +317,7 @@ public protocol OSOperationExecutor {
   func cacheDeltaQueue()
   func processDeltaQueue(inBackground: Swift.Bool)
 }
+@_spi(OneSignalInternal) extension OneSignalOSCore.OSObservabilityEvent : Swift.Equatable {}
+@_spi(OneSignalInternal) extension OneSignalOSCore.OSObservabilityEvent : Swift.Hashable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Equatable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Hashable {}

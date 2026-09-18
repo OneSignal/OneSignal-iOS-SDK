@@ -308,6 +308,9 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser18OSPushSubscription_")
 @protocol OSPushSubscription
 @property (nonatomic, readonly, copy) NSString * _Nullable id;
 @property (nonatomic, readonly, copy) NSString * _Nullable token;
+/// The user’s preference combined with OS permission. This is false while the app owner has the
+/// subscription disabled remotely, from the dashboard or the REST API; <code>optIn()</code> clears that
+/// suppression.
 @property (nonatomic, readonly) BOOL optedIn;
 - (void)optIn;
 - (void)optOut;
@@ -818,6 +821,9 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser18OSPushSubscription_")
 @protocol OSPushSubscription
 @property (nonatomic, readonly, copy) NSString * _Nullable id;
 @property (nonatomic, readonly, copy) NSString * _Nullable token;
+/// The user’s preference combined with OS permission. This is false while the app owner has the
+/// subscription disabled remotely, from the dashboard or the REST API; <code>optIn()</code> clears that
+/// suppression.
 @property (nonatomic, readonly) BOOL optedIn;
 - (void)optIn;
 - (void)optOut;
