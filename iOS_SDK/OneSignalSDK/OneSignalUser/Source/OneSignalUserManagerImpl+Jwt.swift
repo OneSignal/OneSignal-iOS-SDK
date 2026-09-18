@@ -103,8 +103,10 @@ extension OneSignalUserManagerImpl {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.updateUserJwt called with empty externalId or an unusable token. This is not allowed.")
             return
         }
-        // TODO: omit the token from this log before shipping — keep for testing.
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: \(token)")
+        OneSignalLog.onesignalLog(
+            .LL_VERBOSE,
+            message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: ...\(token.suffix(8))"
+        )
 
         storeJwt(externalId: externalId, token: token)
     }
