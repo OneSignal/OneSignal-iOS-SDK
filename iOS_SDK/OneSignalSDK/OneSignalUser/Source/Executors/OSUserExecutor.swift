@@ -455,17 +455,12 @@ extension OSUserExecutor {
                 OneSignalUserManagerImpl.sharedInstance.clearUserData(user)
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
-                // If this is a on-new-session's fetch user call, check that the subscription still exists
+                // If this is a on-new-session's fetch user call, check that the subscription still exists.
+                // A user with no subscriptions has no "subscriptions" key at all, so an absent key means none.
                 if request.onNewSession,
-                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
-                   let subscriptionObjects = self.parseSubscriptionObjectResponse(response) {
-                    var subscriptionExists = false
-                    for subModel in subscriptionObjects {
-                        if subModel["id"] as? String == subId {
-                            subscriptionExists = true
-                            break
-                        }
-                    }
+                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId {
+                    let subscriptionObjects = self.parseSubscriptionObjectResponse(response) ?? []
+                    let subscriptionExists = subscriptionObjects.contains { $0["id"] as? String == subId }
 
                     if !subscriptionExists {
                         // This subscription probably has been deleted
