@@ -56,7 +56,7 @@ extension OSUserRequest {
  judge it by that rather than by its `identityModel`.
 
  The live model is not the record of who the work was for. Its aliases are cleared and hydrated again
- around every fetch (only `external_id` survives the clear, see `OSIdentityModel.clearData`), and the
+ around every fetch (only the two ids survive the clear, see `OSIdentityModel.clearData`), and the
  owner has to be what it was when the work was built, not what the model reads later. The stamp also
  matches how `OSDelta` carries `externalId`, which keeps a Delta and the Request built from it judged
  the same way.

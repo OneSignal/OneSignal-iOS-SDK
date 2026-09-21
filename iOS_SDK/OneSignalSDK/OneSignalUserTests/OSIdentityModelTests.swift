@@ -61,9 +61,8 @@ final class OSIdentityModelTests: XCTestCase {
 
     // MARK: - clearData()
 
-    /// The fetch that follows a clear is by `onesignal_id`, so it cannot change who the user is, and work
-    /// built before its response must not read this user as anonymous.
-    func testClearDataKeepsTheExternalIdAndDropsEveryOtherAlias() {
+    /// Work built before the fetch response lands must still read this user as created and identified.
+    func testClearDataKeepsBothIdsAndDropsEveryOtherAlias() {
         let model = OSIdentityModel(
             aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID, "stale_label": "stale_value"],
             changeNotifier: OSEventProducer()
@@ -71,13 +70,13 @@ final class OSIdentityModelTests: XCTestCase {
 
         model.clearData()
 
+        XCTAssertEqual(model.onesignalId, userA_OSID)
         XCTAssertEqual(model.externalId, userA_EUID)
-        XCTAssertNil(model.onesignalId)
         XCTAssertNil(model.aliases["stale_label"])
     }
 
     /// The fetch response merges into what the clear kept, so one without `external_id` leaves the user
-    /// identified until the next `login`.
+    /// identified.
     func testHydrateAfterClearDataMergesIntoTheKeptExternalId() {
         let model = OSIdentityModel(
             aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID],

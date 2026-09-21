@@ -133,18 +133,15 @@ class OSIdentityModel: OSModel {
     }
 
     /**
-     Called to clear the model's data in preparation for hydration via a fetch user call.
-
-     `external_id` stays. The fetch that follows is by `onesignal_id`, so it cannot change who the user
-     is, and its response overwrites the alias anyway. Blanking it would let work built in the gap before
-     that response, on another queue, read this user as anonymous: a Delta stamped with no owner is
-     dropped under Identity Verification before it is ever persisted. A response that omits `external_id`
-     no longer reads as anonymous either; only a server-side unlink produces one, and the next `login`
-     corrects it.
+     Keeps `onesignal_id` and `external_id` and drops every other alias, ahead of the Fetch User response
+     that fills the model back in. The fetch is addressed by one of those two, so neither can change, and
+     work built on another queue before the response lands has to keep reading this user as created and
+     identified. A response that omits `external_id` therefore leaves it in place; a same-user `login` is
+     a no-op, so only a login as someone else replaces it.
      */
     func clearData() {
         lock.withLock {
-            self.aliases = self.aliases.filter { $0.key == OS_EXTERNAL_ID }
+            self.aliases = self.aliases.filter { $0.key == OS_ONESIGNAL_ID || $0.key == OS_EXTERNAL_ID }
         }
     }
 
