@@ -33,10 +33,15 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 private final class CapturingLogListener: NSObject, OSLogListener {
-    var entries: [String] = []
+    private let lock = NSLock()
+    private var captured: [String] = []
+
+    var entries: [String] {
+        lock.withLock { captured }
+    }
 
     func onLogEvent(_ event: OneSignalLogEvent) {
-        entries.append(event.entry)
+        lock.withLock { captured.append(event.entry) }
     }
 }
 

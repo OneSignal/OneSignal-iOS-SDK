@@ -198,6 +198,7 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(entry.contains("Authorization = \"<redacted>\""), entry)
         XCTAssertTrue(entry.contains("sub-a"), entry)
         XCTAssertFalse(listener.calls.contains { $0.contains(bearer) }, "\(listener.calls)")
+        XCTAssertEqual(request.urlRequest().value(forHTTPHeaderField: "Authorization"), "Bearer \(bearer)")
     }
 
     /// The response log masks the bearer too.
@@ -222,5 +223,6 @@ final class LoggingTests: XCTestCase {
         XCTAssertFalse(entry.contains(bearer), entry)
         XCTAssertTrue(entry.contains("Authorization = \"<redacted>\""), entry)
         XCTAssertFalse(listener.calls.contains { $0.contains(bearer) }, "\(listener.calls)")
+        XCTAssertEqual(request.urlRequest().value(forHTTPHeaderField: "Authorization"), "Bearer \(bearer)")
     }
 }
