@@ -374,6 +374,10 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 - (void)removeEmail:(NSString * _Nonnull)email;
 - (void)addSms:(NSString * _Nonnull)number;
 - (void)removeSms:(NSString * _Nonnull)number;
+/// Sets the language for this user.
+/// See <a href="https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages">Supported Languages</a>.
+/// \param language A supported language code, or an empty string to use the device default.
+///
 - (void)setLanguage:(NSString * _Nonnull)language;
 /// Track an event performed by the current user.
 /// \param name Name of the event, e.g., ‘Started Free Trial’
@@ -499,6 +503,10 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 /// This will be a no-op and no request will be made.
 /// Error handling needs to be implemented in the future.
 - (void)removeSms:(NSString * _Nonnull)number;
+/// Sets the language for this user.
+/// See <a href="https://documentation.onesignal.com/docs/en/multi-language-messaging#supported-languages">Supported Languages</a>.
+/// \param language A supported language code, or an empty string to use the device default.
+///
 - (void)setLanguage:(NSString * _Nonnull)language;
 - (void)trackEventWithName:(NSString * _Nonnull)name properties:(NSDictionary<NSString *, id> * _Nullable)properties;
 @end

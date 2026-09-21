@@ -19,7 +19,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			4O3qUPycvbthqApq8Gmax/lmHLffSiEdTJzVR9bV8z0=
+			Ag8oJjV3lD9zk3Mr3GH8wglz/mvtHcr75ZWc/SajbXE=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -33,7 +33,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jwX2855oGWd9XK69cQV7PXVB4MXVplm0IwNZ+CkcEoQ=
+			RBfxBwf6eRYdLPHg27lHy94QfWmpVx1HS535MnTzyp4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
@@ -47,7 +47,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OeKVRt2dh7aRj/DEiViE56Fa4B9LIv0GRPYsDaShLIs=
+			HzHw61KzGCdK7kJQf90G4hewG+BM0E+ulgst+wAFf5k=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.swiftinterface</key>
@@ -61,7 +61,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jwX2855oGWd9XK69cQV7PXVB4MXVplm0IwNZ+CkcEoQ=
+			RBfxBwf6eRYdLPHg27lHy94QfWmpVx1HS535MnTzyp4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
@@ -75,7 +75,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OyAW3a2KMGms71ou28O7Wpz94BTYwS5GIR47qm/+whM=
+			FiQ0H9kb5GdWTK/p87LcreexOUrJzsC5QxOgtpyXGgA=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.swiftinterface</key>
