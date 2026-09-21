@@ -439,6 +439,84 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
     }
 
+    /// `login` promotes while the requirement is still unknown, so turning out to require auth must not
+    /// strand that login: it becomes the Create User it would have been.
+    func testInSessionIdentifyUserBecomesACreateUserWhenIdentityVerificationIsRequired() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let mocks = Mocks()
+        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
+        MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID)
+
+        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
+        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
+        user.identityModel.jwtBearerToken = "token-a"
+
+        /* When */
+        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: user.identityModel)
+        OneSignalCoreMocks.waitUntil("In-session Identify was not reshaped into a Create User") {
+            mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    /// A promotion whose user a later `login` has already replaced has no login left to carry over.
+    func testInSessionIdentifyUserForAReplacedUserIsDroppedWhenIdentityVerificationIsRequired() {
+        /* Setup */
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        let mocks = Mocks()
+        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
+
+        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
+        let replacedIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: nil)
+
+        /* When */
+        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: replacedIdentityModel)
+        allowAsyncWorkToRun()
+
+        /* Then */
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
+        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
+    }
+
+    private func cacheUserRequests(_ requests: [OSUserRequest]) {
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: requests)
+    }
+
+    private func makeIdentifyUserRequest() -> OSRequestIdentifyUser {
+        return OSRequestIdentifyUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: userA_EUID,
+            identityModelToIdentify: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
+            identityModelToUpdate: OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
+        )
+    }
+
+    private func makeAnonymousCreateUserRequest() -> OSRequestCreateUser {
+        let pushModel = OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
+        return OSRequestCreateUser(
+            identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
+            propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
+            pushSubscriptionModel: pushModel,
+            originalPushToken: nil
+        )
+    }
+}
+
+/// Logins restored from the archive of a launch that ended before its requests went out. Split from
+/// `UserExecutorTests` at SwiftLint's type body limit.
+final class UserExecutorRestoredLoginTests: XCTestCase {
+
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+    }
+
     /// The archive an offline first launch with a `login` leaves behind: the anonymous Create User has not
     /// been sent, so its user has no `onesignal_id` yet. The Identify User behind it has to wait for that
     /// response rather than be dropped at start.
@@ -517,71 +595,8 @@ final class UserExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
     }
 
-    /// `login` promotes while the requirement is still unknown, so turning out to require auth must not
-    /// strand that login: it becomes the Create User it would have been.
-    func testInSessionIdentifyUserBecomesACreateUserWhenIdentityVerificationIsRequired() {
-        /* Setup */
-        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
-        let mocks = Mocks()
-        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
-        MockUserRequests.setDefaultCreateUserResponses(with: mocks.client, externalId: userA_EUID)
-
-        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let user = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: nil)
-        user.identityModel.jwtBearerToken = "token-a"
-
-        /* When */
-        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: user.identityModel)
-        OneSignalCoreMocks.waitUntil("In-session Identify was not reshaped into a Create User") {
-            mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self)
-        }
-
-        /* Then */
-        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
-        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
-    }
-
-    /// A promotion whose user a later `login` has already replaced has no login left to carry over.
-    func testInSessionIdentifyUserForAReplacedUserIsDroppedWhenIdentityVerificationIsRequired() {
-        /* Setup */
-        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
-        let mocks = Mocks()
-        MockUserRequests.setDefaultIdentifyUserResponses(with: mocks.client, externalId: userA_EUID, conflicted: false)
-
-        let anonIdentityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer())
-        let replacedIdentityModel = OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: nil)
-
-        /* When */
-        mocks.userExecutor.identifyUser(externalId: userA_EUID, identityModelToIdentify: anonIdentityModel, identityModelToUpdate: replacedIdentityModel)
-        allowAsyncWorkToRun()
-
-        /* Then */
-        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestIdentifyUser.self))
-        XCTAssertFalse(mocks.client.hasExecutedRequestOfType(OSRequestCreateUser.self))
-    }
-
     private func cacheUserRequests(_ requests: [OSUserRequest]) {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: requests)
-    }
-
-    private func makeIdentifyUserRequest() -> OSRequestIdentifyUser {
-        return OSRequestIdentifyUser(
-            aliasLabel: OS_EXTERNAL_ID,
-            aliasId: userA_EUID,
-            identityModelToIdentify: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
-            identityModelToUpdate: OSIdentityModel(aliases: [OS_EXTERNAL_ID: userA_EUID], changeNotifier: OSEventProducer())
-        )
-    }
-
-    private func makeAnonymousCreateUserRequest() -> OSRequestCreateUser {
-        let pushModel = OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
-        return OSRequestCreateUser(
-            identityModel: OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userA_OSID], changeNotifier: OSEventProducer()),
-            propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
-            pushSubscriptionModel: pushModel,
-            originalPushToken: nil
-        )
     }
 
     private func makeIdentifyUserRequest(
