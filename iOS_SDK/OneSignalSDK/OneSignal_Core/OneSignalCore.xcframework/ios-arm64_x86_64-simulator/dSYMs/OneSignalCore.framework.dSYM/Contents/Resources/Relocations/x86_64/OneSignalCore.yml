@@ -3479,12 +3479,12 @@ relocations:
   - { offsetInCU: 0x57D, offset: 0xE06EE, size: 0x8, addend: 0x0, symName: '-[OSReattemptRequest .cxx_destruct]', symObjAddr: 0xFE, symBinAddr: 0x1B0422, symSize: 0x33 }
   - { offsetInCU: 0x27, offset: 0xE077D, size: 0x8, addend: 0x0, symName: '-[OneSignalLogEvent initWithLevel:entry:]', symObjAddr: 0x0, symBinAddr: 0x1B0455, symSize: 0x23 }
   - { offsetInCU: 0x35, offset: 0xE078B, size: 0x8, addend: 0x0, symName: '+[OneSignalLog logListeners]', symObjAddr: 0x5A, symBinAddr: 0x1B04AF, symSize: 0x30 }
-  - { offsetInCU: 0x5F, offset: 0xE07B5, size: 0x8, addend: 0x0, symName: _logListeners._logListeners, symObjAddr: 0x4768, symBinAddr: 0x271B48, symSize: 0x0 }
-  - { offsetInCU: 0x75, offset: 0xE07CB, size: 0x8, addend: 0x0, symName: _logListeners.onceToken, symObjAddr: 0x4770, symBinAddr: 0x271B50, symSize: 0x0 }
-  - { offsetInCU: 0xFB, offset: 0xE0851, size: 0x8, addend: 0x0, symName: __internalLogSink, symObjAddr: 0x4788, symBinAddr: 0x271B68, symSize: 0x0 }
-  - { offsetInCU: 0x116, offset: 0xE086C, size: 0x8, addend: 0x0, symName: __nsLogLevel, symObjAddr: 0x1418, symBinAddr: 0x2693B0, symSize: 0x0 }
-  - { offsetInCU: 0x175, offset: 0xE08CB, size: 0x8, addend: 0x0, symName: __alertLogLevel, symObjAddr: 0x4778, symBinAddr: 0x271B58, symSize: 0x0 }
-  - { offsetInCU: 0x18B, offset: 0xE08E1, size: 0x8, addend: 0x0, symName: __internalLogSinkLock, symObjAddr: 0x4780, symBinAddr: 0x271B60, symSize: 0x0 }
+  - { offsetInCU: 0x5F, offset: 0xE07B5, size: 0x8, addend: 0x0, symName: _logListeners._logListeners, symObjAddr: 0x4768, symBinAddr: 0x271B28, symSize: 0x0 }
+  - { offsetInCU: 0x75, offset: 0xE07CB, size: 0x8, addend: 0x0, symName: _logListeners.onceToken, symObjAddr: 0x4770, symBinAddr: 0x271B30, symSize: 0x0 }
+  - { offsetInCU: 0xFB, offset: 0xE0851, size: 0x8, addend: 0x0, symName: __internalLogSink, symObjAddr: 0x4788, symBinAddr: 0x271B48, symSize: 0x0 }
+  - { offsetInCU: 0x116, offset: 0xE086C, size: 0x8, addend: 0x0, symName: __nsLogLevel, symObjAddr: 0x1418, symBinAddr: 0x269390, symSize: 0x0 }
+  - { offsetInCU: 0x175, offset: 0xE08CB, size: 0x8, addend: 0x0, symName: __alertLogLevel, symObjAddr: 0x4778, symBinAddr: 0x271B38, symSize: 0x0 }
+  - { offsetInCU: 0x18B, offset: 0xE08E1, size: 0x8, addend: 0x0, symName: __internalLogSinkLock, symObjAddr: 0x4780, symBinAddr: 0x271B40, symSize: 0x0 }
   - { offsetInCU: 0x1ED, offset: 0xE0943, size: 0x8, addend: 0x0, symName: '-[OneSignalLogEvent initWithLevel:entry:]', symObjAddr: 0x0, symBinAddr: 0x1B0455, symSize: 0x23 }
   - { offsetInCU: 0x244, offset: 0xE099A, size: 0x8, addend: 0x0, symName: '-[OneSignalLogEvent level]', symObjAddr: 0x23, symBinAddr: 0x1B0478, symSize: 0xA }
   - { offsetInCU: 0x279, offset: 0xE09CF, size: 0x8, addend: 0x0, symName: '-[OneSignalLogEvent entry]', symObjAddr: 0x2D, symBinAddr: 0x1B0482, symSize: 0x14 }
@@ -3501,7 +3501,7 @@ relocations:
   - { offsetInCU: 0x703, offset: 0xE0E59, size: 0x8, addend: 0x0, symName: _onesignal_Log, symObjAddr: 0x24B, symBinAddr: 0x1B06A0, symSize: 0x3E2 }
   - { offsetInCU: 0x9EB, offset: 0xE1141, size: 0x8, addend: 0x0, symName: '+[OneSignalLog getLogLevel]', symObjAddr: 0x62D, symBinAddr: 0x1B0A82, symSize: 0xD }
   - { offsetInCU: 0x27, offset: 0xE1248, size: 0x8, addend: 0x0, symName: '+[OSDialogInstanceManager setSharedOSDialogInstance:]', symObjAddr: 0x0, symBinAddr: 0x1B0A8F, symSize: 0x14 }
-  - { offsetInCU: 0x41, offset: 0xE1262, size: 0x8, addend: 0x0, symName: __sharedInstance, symObjAddr: 0xC20, symBinAddr: 0x271B70, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xE1262, size: 0x8, addend: 0x0, symName: __sharedInstance, symObjAddr: 0xC20, symBinAddr: 0x271B50, symSize: 0x0 }
   - { offsetInCU: 0x57, offset: 0xE1278, size: 0x8, addend: 0x0, symName: '+[OSDialogInstanceManager setSharedOSDialogInstance:]', symObjAddr: 0x0, symBinAddr: 0x1B0A8F, symSize: 0x14 }
   - { offsetInCU: 0x94, offset: 0xE12B5, size: 0x8, addend: 0x0, symName: '+[OSDialogInstanceManager sharedInstance]', symObjAddr: 0x14, symBinAddr: 0x1B0AA3, symSize: 0x11 }
   - { offsetInCU: 0x27, offset: 0xE133A, size: 0x8, addend: 0x0, symName: '-[NSURL(OneSignal) valueFromQueryParameter:]', symObjAddr: 0x0, symBinAddr: 0x1B0AB4, symSize: 0x218 }
@@ -3536,12 +3536,12 @@ relocations:
   - { offsetInCU: 0x3C, offset: 0xE2A4C, size: 0x8, addend: 0x0, symName: '+[OneSignalBadgeHelpers updateCachedBadgeValue:usePreviousBadgeCount:]', symObjAddr: 0x0, symBinAddr: 0x1B2119, symSize: 0x13B }
   - { offsetInCU: 0x27, offset: 0xE2C0D, size: 0x8, addend: 0x0, symName: '+[OneSignalMobileProvision getProvision]', symObjAddr: 0x0, symBinAddr: 0x1B2254, symSize: 0x3D1 }
   - { offsetInCU: 0x35, offset: 0xE2C1B, size: 0x8, addend: 0x0, symName: '+[OneSignalMobileProvision getProvision]', symObjAddr: 0x0, symBinAddr: 0x1B2254, symSize: 0x3D1 }
-  - { offsetInCU: 0x5F, offset: 0xE2C45, size: 0x8, addend: 0x0, symName: _getProvision.provision, symObjAddr: 0x25D8, symBinAddr: 0x271B78, symSize: 0x0 }
+  - { offsetInCU: 0x5F, offset: 0xE2C45, size: 0x8, addend: 0x0, symName: _getProvision.provision, symObjAddr: 0x25D8, symBinAddr: 0x271B58, symSize: 0x0 }
   - { offsetInCU: 0x3DB, offset: 0xE2FC1, size: 0x8, addend: 0x0, symName: '+[OneSignalMobileProvision logInvalidProvisionError:]', symObjAddr: 0x3D1, symBinAddr: 0x1B2625, symSize: 0x21 }
   - { offsetInCU: 0x435, offset: 0xE301B, size: 0x8, addend: 0x0, symName: '+[OneSignalMobileProvision releaseMode]', symObjAddr: 0x3F2, symBinAddr: 0x1B2646, symSize: 0x197 }
   - { offsetInCU: 0x27, offset: 0xE31E6, size: 0x8, addend: 0x0, symName: '+[OneSignalWrapper sdkType]', symObjAddr: 0x0, symBinAddr: 0x1B27DD, symSize: 0x11 }
-  - { offsetInCU: 0x41, offset: 0xE3200, size: 0x8, addend: 0x0, symName: __sdkType, symObjAddr: 0xEB0, symBinAddr: 0x271B80, symSize: 0x0 }
-  - { offsetInCU: 0x5C, offset: 0xE321B, size: 0x8, addend: 0x0, symName: __sdkVersion, symObjAddr: 0xEB8, symBinAddr: 0x271B88, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xE3200, size: 0x8, addend: 0x0, symName: __sdkType, symObjAddr: 0xEB0, symBinAddr: 0x271B60, symSize: 0x0 }
+  - { offsetInCU: 0x5C, offset: 0xE321B, size: 0x8, addend: 0x0, symName: __sdkVersion, symObjAddr: 0xEB8, symBinAddr: 0x271B68, symSize: 0x0 }
   - { offsetInCU: 0x6D, offset: 0xE322C, size: 0x8, addend: 0x0, symName: '+[OneSignalWrapper sdkType]', symObjAddr: 0x0, symBinAddr: 0x1B27DD, symSize: 0x11 }
   - { offsetInCU: 0xA0, offset: 0xE325F, size: 0x8, addend: 0x0, symName: '+[OneSignalWrapper setSdkType:]', symObjAddr: 0x11, symBinAddr: 0x1B27EE, symSize: 0x14 }
   - { offsetInCU: 0xDD, offset: 0xE329C, size: 0x8, addend: 0x0, symName: '+[OneSignalWrapper sdkVersion]', symObjAddr: 0x25, symBinAddr: 0x1B2802, symSize: 0x11 }
@@ -3613,8 +3613,8 @@ relocations:
   - { offsetInCU: 0xCE, offset: 0xE72BF, size: 0x8, addend: 0x0, symName: '+[OSDeviceUtils getDeviceVariant]', symObjAddr: 0x72, symBinAddr: 0x1B62CF, symSize: 0xB7 }
   - { offsetInCU: 0x27, offset: 0xE73D6, size: 0x8, addend: 0x0, symName: '+[OneSignalClient sharedClient]', symObjAddr: 0x0, symBinAddr: 0x1B6386, symSize: 0x30 }
   - { offsetInCU: 0x35, offset: 0xE73E4, size: 0x8, addend: 0x0, symName: '+[OneSignalClient sharedClient]', symObjAddr: 0x0, symBinAddr: 0x1B6386, symSize: 0x30 }
-  - { offsetInCU: 0x5F, offset: 0xE740E, size: 0x8, addend: 0x0, symName: _sharedClient.sharedClient, symObjAddr: 0x8A68, symBinAddr: 0x271B90, symSize: 0x0 }
-  - { offsetInCU: 0x75, offset: 0xE7424, size: 0x8, addend: 0x0, symName: _sharedClient.once, symObjAddr: 0x8A70, symBinAddr: 0x271B98, symSize: 0x0 }
+  - { offsetInCU: 0x5F, offset: 0xE740E, size: 0x8, addend: 0x0, symName: _sharedClient.sharedClient, symObjAddr: 0x8A68, symBinAddr: 0x271B70, symSize: 0x0 }
+  - { offsetInCU: 0x75, offset: 0xE7424, size: 0x8, addend: 0x0, symName: _sharedClient.once, symObjAddr: 0x8A70, symBinAddr: 0x271B78, symSize: 0x0 }
   - { offsetInCU: 0x209, offset: 0xE75B8, size: 0x8, addend: 0x0, symName: '___31+[OneSignalClient sharedClient]_block_invoke', symObjAddr: 0x30, symBinAddr: 0x1B63B6, symSize: 0x2D }
   - { offsetInCU: 0x248, offset: 0xE75F7, size: 0x8, addend: 0x0, symName: '-[OneSignalClient init]', symObjAddr: 0x5D, symBinAddr: 0x1B63E3, symSize: 0xFB }
   - { offsetInCU: 0x2EF, offset: 0xE769E, size: 0x8, addend: 0x0, symName: '-[OneSignalClient configurationWithCachingPolicy:]', symObjAddr: 0x158, symBinAddr: 0x1B64DE, symSize: 0x7C }
@@ -3666,7 +3666,7 @@ relocations:
   - { offsetInCU: 0x2BA, offset: 0xE9FC9, size: 0x8, addend: 0x0, symName: '-[OneSignalReachability connectionRequired]', symObjAddr: 0x142, symBinAddr: 0x1B81D2, symSize: 0x2C }
   - { offsetInCU: 0x33B, offset: 0xEA04A, size: 0x8, addend: 0x0, symName: '-[OneSignalReachability currentReachabilityStatus]', symObjAddr: 0x16E, symBinAddr: 0x1B81FE, symSize: 0x4A }
   - { offsetInCU: 0x27, offset: 0xEA13C, size: 0x8, addend: 0x0, symName: '+[OSRequestGetIosParams withUserId:appId:]', symObjAddr: 0x0, symBinAddr: 0x1B8248, symSize: 0x158 }
-  - { offsetInCU: 0x41, offset: 0xEA156, size: 0x8, addend: 0x0, symName: _OS_USAGE_DATA, symObjAddr: 0xE08, symBinAddr: 0x254360, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xEA156, size: 0x8, addend: 0x0, symName: _OS_USAGE_DATA, symObjAddr: 0xE08, symBinAddr: 0x254340, symSize: 0x0 }
   - { offsetInCU: 0x1CE, offset: 0xEA2E3, size: 0x8, addend: 0x0, symName: '+[OSRequestGetIosParams withUserId:appId:]', symObjAddr: 0x0, symBinAddr: 0x1B8248, symSize: 0x158 }
   - { offsetInCU: 0x340, offset: 0xEA455, size: 0x8, addend: 0x0, symName: '+[OSRequestPostNotification withAppId:withJson:]', symObjAddr: 0x158, symBinAddr: 0x1B83A0, symSize: 0xEB }
   - { offsetInCU: 0x47C, offset: 0xEA591, size: 0x8, addend: 0x0, symName: '+[OSRequestSubmitNotificationOpened withUserId:appId:wasOpened:messageId:withDeviceType:]', symObjAddr: 0x243, symBinAddr: 0x1B848B, symSize: 0x282 }
@@ -3698,8 +3698,8 @@ relocations:
   - { offsetInCU: 0x3EB, offset: 0xEBB64, size: 0x8, addend: 0x0, symName: '+[OSPrivacyConsentController consentGranted:]', symObjAddr: 0x382, symBinAddr: 0x1B9615, symSize: 0x58 }
   - { offsetInCU: 0x45E, offset: 0xEBBD7, size: 0x8, addend: 0x0, symName: '+[OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:]', symObjAddr: 0x3DA, symBinAddr: 0x1B966D, symSize: 0xA9 }
   - { offsetInCU: 0x27, offset: 0xEBD21, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics resetLocals]', symObjAddr: 0x0, symBinAddr: 0x1B9716, symSize: 0x18 }
-  - { offsetInCU: 0x41, offset: 0xEBD3B, size: 0x8, addend: 0x0, symName: _lastOpenedTime, symObjAddr: 0x3B40, symBinAddr: 0x271BA0, symSize: 0x0 }
-  - { offsetInCU: 0x5E, offset: 0xEBD58, size: 0x8, addend: 0x0, symName: _trackingEnabled, symObjAddr: 0x3B48, symBinAddr: 0x271BA8, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xEBD3B, size: 0x8, addend: 0x0, symName: _lastOpenedTime, symObjAddr: 0x3B40, symBinAddr: 0x271B80, symSize: 0x0 }
+  - { offsetInCU: 0x5E, offset: 0xEBD58, size: 0x8, addend: 0x0, symName: _trackingEnabled, symObjAddr: 0x3B48, symBinAddr: 0x271B88, symSize: 0x0 }
   - { offsetInCU: 0x84, offset: 0xEBD7E, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics resetLocals]', symObjAddr: 0x0, symBinAddr: 0x1B9716, symSize: 0x18 }
   - { offsetInCU: 0xB3, offset: 0xEBDAD, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics libraryExists]', symObjAddr: 0x18, symBinAddr: 0x1B972E, symSize: 0x18 }
   - { offsetInCU: 0x11F, offset: 0xEBE19, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics init]', symObjAddr: 0x30, symBinAddr: 0x1B9746, symSize: 0x53 }
@@ -3711,7 +3711,7 @@ relocations:
   - { offsetInCU: 0x61A, offset: 0xEC314, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics trackReceivedEvent:]', symObjAddr: 0x551, symBinAddr: 0x1B9C67, symSize: 0x116 }
   - { offsetInCU: 0x782, offset: 0xEC47C, size: 0x8, addend: 0x0, symName: '+[OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent]', symObjAddr: 0x667, symBinAddr: 0x1B9D7D, symSize: 0x254 }
   - { offsetInCU: 0x27, offset: 0xEC869, size: 0x8, addend: 0x0, symName: '+[OSRemoteParamController sharedController]', symObjAddr: 0x0, symBinAddr: 0x1B9FD1, symSize: 0x45 }
-  - { offsetInCU: 0x41, offset: 0xEC883, size: 0x8, addend: 0x0, symName: __sharedController, symObjAddr: 0x20D8, symBinAddr: 0x271BB0, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xEC883, size: 0x8, addend: 0x0, symName: __sharedController, symObjAddr: 0x20D8, symBinAddr: 0x271B90, symSize: 0x0 }
   - { offsetInCU: 0xB5, offset: 0xEC8F7, size: 0x8, addend: 0x0, symName: '+[OSRemoteParamController sharedController]', symObjAddr: 0x0, symBinAddr: 0x1B9FD1, symSize: 0x45 }
   - { offsetInCU: 0x100, offset: 0xEC942, size: 0x8, addend: 0x0, symName: '-[OSRemoteParamController saveRemoteParams:]', symObjAddr: 0x45, symBinAddr: 0x1BA016, symSize: 0x11 }
   - { offsetInCU: 0x141, offset: 0xEC983, size: 0x8, addend: 0x0, symName: '-[OSRemoteParamController hasLocationKey]', symObjAddr: 0x56, symBinAddr: 0x1BA027, symSize: 0x47 }
@@ -3758,7 +3758,7 @@ relocations:
   - { offsetInCU: 0x2E6, offset: 0xEE640, size: 0x8, addend: 0x0, symName: '-[OSCopyOnWriteSet allObjects]', symObjAddr: 0x1E7, symBinAddr: 0x1BB4D1, symSize: 0xE }
   - { offsetInCU: 0x31D, offset: 0xEE677, size: 0x8, addend: 0x0, symName: '-[OSCopyOnWriteSet .cxx_destruct]', symObjAddr: 0x1F5, symBinAddr: 0x1BB4DF, symSize: 0x28 }
   - { offsetInCU: 0x27, offset: 0xEE71C, size: 0x8, addend: 0x0, symName: '+[OneSignalCoreImpl migrate]', symObjAddr: 0x0, symBinAddr: 0x1BB507, symSize: 0x3F }
-  - { offsetInCU: 0x41, offset: 0xEE736, size: 0x8, addend: 0x0, symName: __sharedClient, symObjAddr: 0x2538, symBinAddr: 0x271BB8, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0xEE736, size: 0x8, addend: 0x0, symName: __sharedClient, symObjAddr: 0x2538, symBinAddr: 0x271B98, symSize: 0x0 }
   - { offsetInCU: 0x240, offset: 0xEE935, size: 0x8, addend: 0x0, symName: '+[OneSignalCoreImpl migrate]', symObjAddr: 0x0, symBinAddr: 0x1BB507, symSize: 0x3F }
   - { offsetInCU: 0x2A8, offset: 0xEE99D, size: 0x8, addend: 0x0, symName: '+[OneSignalCoreImpl migrateCachedSdkVersion]', symObjAddr: 0x3F, symBinAddr: 0x1BB546, symSize: 0x1DF }
   - { offsetInCU: 0x45D, offset: 0xEEB52, size: 0x8, addend: 0x0, symName: '+[OneSignalCoreImpl saveCurrentSDKVersion]', symObjAddr: 0x21E, symBinAddr: 0x1BB725, symSize: 0x6A }

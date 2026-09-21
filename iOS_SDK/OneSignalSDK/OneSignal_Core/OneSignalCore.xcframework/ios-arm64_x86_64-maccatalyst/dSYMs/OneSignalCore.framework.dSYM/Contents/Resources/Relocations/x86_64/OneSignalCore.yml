@@ -3666,7 +3666,7 @@ relocations:
   - { offsetInCU: 0x2AF, offset: 0x1690BB, size: 0x8, addend: 0x0, symName: '-[OneSignalReachability connectionRequired]', symObjAddr: 0x132, symBinAddr: 0x1BCCF1, symSize: 0x2F }
   - { offsetInCU: 0x330, offset: 0x16913C, size: 0x8, addend: 0x0, symName: '-[OneSignalReachability currentReachabilityStatus]', symObjAddr: 0x161, symBinAddr: 0x1BCD20, symSize: 0x4A }
   - { offsetInCU: 0x27, offset: 0x16922E, size: 0x8, addend: 0x0, symName: '+[OSRequestGetIosParams withUserId:appId:]', symObjAddr: 0x0, symBinAddr: 0x1BCD6A, symSize: 0x14D }
-  - { offsetInCU: 0x41, offset: 0x169248, size: 0x8, addend: 0x0, symName: _OS_USAGE_DATA, symObjAddr: 0xDD8, symBinAddr: 0x25C1E0, symSize: 0x0 }
+  - { offsetInCU: 0x41, offset: 0x169248, size: 0x8, addend: 0x0, symName: _OS_USAGE_DATA, symObjAddr: 0xDD8, symBinAddr: 0x25C1C0, symSize: 0x0 }
   - { offsetInCU: 0x1D6, offset: 0x1693DD, size: 0x8, addend: 0x0, symName: '+[OSRequestGetIosParams withUserId:appId:]', symObjAddr: 0x0, symBinAddr: 0x1BCD6A, symSize: 0x14D }
   - { offsetInCU: 0x32D, offset: 0x169534, size: 0x8, addend: 0x0, symName: '+[OSRequestPostNotification withAppId:withJson:]', symObjAddr: 0x14D, symBinAddr: 0x1BCEB7, symSize: 0xE0 }
   - { offsetInCU: 0x45D, offset: 0x169664, size: 0x8, addend: 0x0, symName: '+[OSRequestSubmitNotificationOpened withUserId:appId:wasOpened:messageId:withDeviceType:]', symObjAddr: 0x22D, symBinAddr: 0x1BCF97, symSize: 0x277 }
