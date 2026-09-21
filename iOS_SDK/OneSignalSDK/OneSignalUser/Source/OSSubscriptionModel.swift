@@ -382,73 +382,6 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    // Properties for push subscription
-    var testType: Int? {
-        get { stateLock.withLock { state.testType } }
-        set {
-            let oldValue = swapValue(\.testType, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "testType", newValue: newValue)
-        }
-    }
-
-    var deviceOs: String {
-        get { stateLock.withLock { state.deviceOs } }
-        set {
-            let oldValue = swapValue(\.deviceOs, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "deviceOs", newValue: newValue)
-        }
-    }
-
-    var sdk: String {
-        get { stateLock.withLock { state.sdk } }
-        set {
-            let oldValue = swapValue(\.sdk, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "sdk", newValue: newValue)
-        }
-    }
-
-    var deviceModel: String? {
-        get { stateLock.withLock { state.deviceModel } }
-        set {
-            let oldValue = swapValue(\.deviceModel, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "deviceModel", newValue: newValue)
-        }
-    }
-
-    var appVersion: String? {
-        get { stateLock.withLock { state.appVersion } }
-        set {
-            let oldValue = swapValue(\.appVersion, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "appVersion", newValue: newValue)
-        }
-    }
-
-    var netType: Int? {
-        get { stateLock.withLock { state.netType } }
-        set {
-            let oldValue = swapValue(\.netType, to: newValue)
-            guard newValue != oldValue else {
-                return
-            }
-            self.set(property: "netType", newValue: newValue)
-        }
-    }
-
     // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
     init(type: OSSubscriptionType,
          address: String?,
@@ -601,6 +534,75 @@ class OSSubscriptionModel: OSModel {
         return json
     }
 
+}
+
+// Device and SDK metadata reported alongside the subscription.
+extension OSSubscriptionModel {
+    var testType: Int? {
+        get { stateLock.withLock { state.testType } }
+        set {
+            let oldValue = swapValue(\.testType, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "testType", newValue: newValue)
+        }
+    }
+
+    var deviceOs: String {
+        get { stateLock.withLock { state.deviceOs } }
+        set {
+            let oldValue = swapValue(\.deviceOs, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "deviceOs", newValue: newValue)
+        }
+    }
+
+    var sdk: String {
+        get { stateLock.withLock { state.sdk } }
+        set {
+            let oldValue = swapValue(\.sdk, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "sdk", newValue: newValue)
+        }
+    }
+
+    var deviceModel: String? {
+        get { stateLock.withLock { state.deviceModel } }
+        set {
+            let oldValue = swapValue(\.deviceModel, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "deviceModel", newValue: newValue)
+        }
+    }
+
+    var appVersion: String? {
+        get { stateLock.withLock { state.appVersion } }
+        set {
+            let oldValue = swapValue(\.appVersion, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "appVersion", newValue: newValue)
+        }
+    }
+
+    var netType: Int? {
+        get { stateLock.withLock { state.netType } }
+        set {
+            let oldValue = swapValue(\.netType, to: newValue)
+            guard newValue != oldValue else {
+                return
+            }
+            self.set(property: "netType", newValue: newValue)
+        }
+    }
 }
 
 // Push Subscription related
