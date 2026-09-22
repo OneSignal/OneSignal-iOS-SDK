@@ -14,7 +14,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		MJ/eS8qaHtX+wR71zPuO7nu4zbo=
+		Jy7uZKb/BMe1i36V5njbCk71Qg8=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -22,15 +22,15 @@
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		IlSKVqS6mSaabEWf9jq+stzxaT4=
+		+6HzlE7g5ZAasujXCNHdcF6Uz80=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		6AKPzoUFN5RMwbt+2DJF2MD550E=
+		AO6TThAP/66+4QF/r9meZxONjDU=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		APESgrktFNLsTlNLSZtVRzl7XTg=
+		XG+WTeEsCfHYClsCnOceUHVGjUU=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -38,15 +38,15 @@
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		juO2tTWpuAqmFTTZYFgEorJ8+4U=
+		7kNgt6ATqRMGifyNdBywJdhkuzk=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		nkh90+MSCXyYgDjebZ1lISmypbk=
+		N76cDbJ7/Qp/dsFoAwqDRtavWS8=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		SE+6lsRm7EjiqV2lo1/0OuEI/7Y=
+		MFcn/wYgYdSfw2pE/sS/0RXafr4=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -84,21 +84,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pFtilX757ZE8L2XajCPTOSvep8o0MR75WzTABqshW4w=
+			PgoXTjIllnrzcbjmTb+x6BbpcnBz7dmLyYNlS13ekd0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			XmBR8SeGMjSfBJVcOdn5/EQmI8yl0MaSaeHGaPtQhtk=
+			PuBc4vuQXQSy42OE8GjmNEc6SyOEaVCuTNU1rleoEs8=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			4hq8E3FvfAE/JCIj/+4Gds8vGFC6pLldvC6ZgQcZzl4=
+			j0kJNleY/HT0gIAMdS9/0wWKA9Kh43YpUoLtub879uw=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -112,21 +112,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ViAciF+E9FyCXlZBB9OSWwrpGf6I8/KtcaRAvS5TChc=
+			gdcwfHL471V7wceVQsIMI5aze14Yvu2XZyO7YUxqaaI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kA5BTKhRfeCsk/ieo0+HFAPMKQvTP7YHpcHW8h1BNA0=
+			47bZJtAeFMj7bgzkCSou358m7suwL2V6lKRqKlQRqW4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			HbAvD0Qz6X0xrmUZeMENh/adqTvhORBiek88Y2zqJmM=
+			sCCmJlGNYFYnMHSuWGkIspn2P+KDW/PHESjF+IbZVK4=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
