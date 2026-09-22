@@ -90,7 +90,10 @@ public class OSPushSubscriptionImpl: NSObject, OSPushSubscription {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optIn") else {
             return
         }
-        pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabled = false
+        let model = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+        // Clear first so `remoteDisableClearedByUser` is set before the opt-out flips and its delta goes out.
+        model?.clearRemoteDisable()
+        model?._isDisabled = false
         OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
     }
 

@@ -54,10 +54,14 @@ public class OneSignalUserMocks: NSObject {
         OneSignalUserManagerImpl.sharedInstance.reset()
     }
 
-    public static func setUserManagerInternalUser(externalId: String = "test-external-id", onesignalId: String?) -> OSUserInternal {
+    public static func setUserManagerInternalUser(
+        externalId: String = "test-external-id",
+        onesignalId: String?,
+        pushToken: String = ""
+    ) -> OSUserInternal {
         let user = OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
             externalId: externalId,
-            pushSubscriptionModel: OSSubscriptionModel(type: .push, address: "", subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
+            pushSubscriptionModel: OSSubscriptionModel(type: .push, address: pushToken, subscriptionId: testPushSubId, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
         )
         if let onesignalId = onesignalId {
             user.identityModel.addAliases([OS_ONESIGNAL_ID: onesignalId])

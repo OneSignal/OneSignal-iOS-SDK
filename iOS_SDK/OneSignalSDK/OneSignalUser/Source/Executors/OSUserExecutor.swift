@@ -558,17 +558,12 @@ extension OSUserExecutor {
                 OneSignalUserManagerImpl.sharedInstance.clearUserData(user)
                 self.parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.pushSubscriptionImpl.token)
 
-                // If this is a on-new-session's fetch user call, check that the subscription still exists
+                // If this is a on-new-session's fetch user call, check that the subscription still exists.
+                // A user with no subscriptions has no "subscriptions" key at all, so an absent key means none.
                 if request.onNewSession,
-                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
-                   let subscriptionObjects = self.parseSubscriptionObjectResponse(response) {
-                    var subscriptionExists = false
-                    for subModel in subscriptionObjects {
-                        if subModel["id"] as? String == subId {
-                            subscriptionExists = true
-                            break
-                        }
-                    }
+                   let subId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId {
+                    let subscriptionObjects = self.parseSubscriptionObjectResponse(response) ?? []
+                    let subscriptionExists = subscriptionObjects.contains { $0["id"] as? String == subId }
 
                     if !subscriptionExists {
                         // This subscription probably has been deleted
@@ -619,28 +614,7 @@ extension OSUserExecutor {
             }
         }
 
-        // TODO: Determine how to hydrate the push subscription, which is still faulty.
-        // Hydrate by token if sub_id exists?
-        // Problem: a user can have multiple iOS push subscription, and perhaps missing token
-        // Ideally we only get push subscription for this device in the response, not others
-
-        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
-        if OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == nil,
-           let subscriptionObject = parseSubscriptionObjectResponse(response)
-        {
-            for subModel in subscriptionObject {
-                if subModel["type"] as? String == "iOSPush",
-                   // response may have "" token or no token
-                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String)
-                {
-                    OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.hydrate(subModel)
-                    if addNewRecords, let subId = subModel["id"] as? String {
-                        newRecordsState.add(subId)
-                    }
-                    break
-                }
-            }
-        }
+        hydratePushSubscription(response: response, originalPushToken: originalPushToken, addNewRecords: addNewRecords)
 
         // Hydrate onto the user this response is for
         // If user has changed, don't hydrate, except for push subscription above
@@ -678,6 +652,44 @@ extension OSUserExecutor {
                     }
                 }
             }
+        }
+    }
+
+    /// Hydrates the push subscription from a fetch or create response: the whole object before a
+    /// subscription ID exists, only the server's remote disable state once one does.
+    // TODO: Determine how to hydrate the push subscription, which is still faulty.
+    // Hydrate by token if sub_id exists?
+    // Problem: a user can have multiple iOS push subscription, and perhaps missing token
+    // Ideally we only get push subscription for this device in the response, not others
+    private func hydratePushSubscription(response: [AnyHashable: Any], originalPushToken: String?, addNewRecords: Bool) {
+        guard let subscriptionObject = parseSubscriptionObjectResponse(response) else {
+            return
+        }
+        // The response's subscription ID is recorded as a new record even when the model is absent.
+        let pushSubscriptionModel = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel
+
+        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
+        guard let subscriptionId = pushSubscriptionModel?.subscriptionId else {
+            for subModel in subscriptionObject {
+                if subModel["type"] as? String == "iOSPush",
+                   // response may have "" token or no token
+                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String)
+                {
+                    pushSubscriptionModel?.hydrate(subModel)
+                    if addNewRecords, let subId = subModel["id"] as? String {
+                        newRecordsState.add(subId)
+                    }
+                    break
+                }
+            }
+            return
+        }
+
+        // Only the remote disable state hydrates onto an existing push subscription; the device
+        // owns the rest. Skipping it lets the next subscription payload re-enable a suppressed device.
+        for subModel in subscriptionObject where subModel["id"] as? String == subscriptionId {
+            pushSubscriptionModel?.hydrateRemoteDisableState(from: subModel)
+            break
         }
     }
 

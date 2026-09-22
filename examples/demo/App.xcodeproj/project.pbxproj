@@ -42,6 +42,7 @@
 		5B959D44AB09CB821C00AFBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F726E64F9B6817F917227C /* ContentView.swift */; };
 		5F4B7EC8437D1A8D80DF7674 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20B46F63592FC67B655BEB8 /* NotificationService.swift */; };
 		638B81D9DA5FD8636BB038B0 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF49509A218369322ECFA3B9 /* OneSignalUser.framework */; };
+		673E0146B4B27EB81FCF50DA /* LoginUserDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD26AED9EA84B0308C1BFE8 /* LoginUserDialog.swift */; };
 		674995A7A55C13341317E19B /* OSDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = D261D46C404E325CBA87A9E0 /* OSDialog.swift */; };
 		68BC99D15FDCB26EB35EBB07 /* OneSignalLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE9834773C437CC373607693 /* OneSignalLocation.framework */; };
 		6E3E040FD8A750248E70E46F /* AppModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA9D80191548D49F09D30B3 /* AppModels.swift */; };
@@ -324,6 +325,7 @@
 		38138523A8A81A60A77800CA /* NotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSender.swift; sourceTree = "<group>"; };
 		3A654457BF0A55B54220E669 /* RemoveMultiDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoveMultiDialog.swift; sourceTree = "<group>"; };
 		3B81D7E1A7EB9BB4466C768F /* SendPushSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendPushSection.swift; sourceTree = "<group>"; };
+		3DD26AED9EA84B0308C1BFE8 /* LoginUserDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginUserDialog.swift; sourceTree = "<group>"; };
 		3FD8258E807E6672642A32E6 /* UserFetchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFetchService.swift; sourceTree = "<group>"; };
 		4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiPairInputDialog.swift; sourceTree = "<group>"; };
 		4078B5F096680AFA83D1CB85 /* OutcomesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutcomesSection.swift; sourceTree = "<group>"; };
@@ -512,6 +514,7 @@
 				2D959B1636916DAEE5FE6278 /* CustomNotificationDialog.swift */,
 				5984B93007C6B85AFE09045A /* KeyValueRow.swift */,
 				280B23B41935EAB89C8C6FCB /* ListWidgets.swift */,
+				3DD26AED9EA84B0308C1BFE8 /* LoginUserDialog.swift */,
 				4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */,
 				D261D46C404E325CBA87A9E0 /* OSDialog.swift */,
 				D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */,
@@ -828,6 +831,7 @@
 				7D2BA9022E77B00205453467 /* LiveActivityController.swift in Sources */,
 				DBDA727D6317A3CCC73A1699 /* LiveActivitySection.swift in Sources */,
 				B3AE701075398C6A369DBBE0 /* LocationSection.swift in Sources */,
+				673E0146B4B27EB81FCF50DA /* LoginUserDialog.swift in Sources */,
 				E3725231A3FD5F5A88BAA758 /* MultiPairInputDialog.swift in Sources */,
 				4C18E3D284BB28BD846162F3 /* NotificationSender.swift in Sources */,
 				674995A7A55C13341317E19B /* OSDialog.swift in Sources */,

@@ -74,18 +74,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
     /// Rebuild the PATCH body from the current subscription model.
     func refreshParametersFromLiveModel() {
-        var subscriptionParams: [String: Any] = [:]
-        subscriptionParams["token"] = subscriptionModel.address
-        subscriptionParams["device_os"] = subscriptionModel.deviceOs
-        subscriptionParams["sdk"] = subscriptionModel.sdk
-        subscriptionParams["app_version"] = subscriptionModel.appVersion
-
-        let enablement = subscriptionModel.reportedEnablement()
-        subscriptionParams["enabled"] = enablement.enabled
-        if let notificationTypes = enablement.notificationTypes {
-            subscriptionParams["notification_types"] = notificationTypes
-        }
-        self.parameters = ["subscription": subscriptionParams]
+        self.parameters = ["subscription": subscriptionModel.updateParams()]
     }
 
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel?) {

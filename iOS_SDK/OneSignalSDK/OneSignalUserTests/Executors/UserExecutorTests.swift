@@ -52,9 +52,21 @@ private class Mocks {
         let pushModel = OSSubscriptionModel(type: .push, address: "", subscriptionId: nil, reachable: false, isDisabled: false, changeNotifier: OSEventProducer())
         return OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushModel)
     }
+
+    /// The on-new-session self-heal sends its Create through the user manager's subscription executor.
+    func installSubscriptionExecutor() -> OSSubscriptionOperationExecutor {
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+        OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor = executor
+        return executor
+    }
 }
 
+private let recreatedPushSubId = "recreated-push-sub-id"
+
 final class UserExecutorTests: XCTestCase {
+
+    /// Whatever executor the shared manager had before a test installed its own, restored in tearDown.
+    private var previousSubscriptionExecutor: OSSubscriptionOperationExecutor?
 
     override func setUpWithError() throws {
         OneSignalCoreMocks.clearUserDefaults()
@@ -63,9 +75,12 @@ final class UserExecutorTests: XCTestCase {
         OneSignalIdentifiers.currentAppId = "test-app-id"
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
+        previousSubscriptionExecutor = OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor
     }
 
-    override func tearDownWithError() throws { }
+    override func tearDownWithError() throws {
+        OneSignalUserManagerImpl.sharedInstance.subscriptionExecutor = previousSubscriptionExecutor
+    }
 
     func testCreateUser_withPushSubscription_addsToNewRecords() {
         /* Setup */
@@ -322,6 +337,96 @@ final class UserExecutorTests: XCTestCase {
         // clearUserData() ran for the current user: the stale alias is gone and server aliases are hydrated.
         XCTAssertNil(currentUser.identityModel.aliases["stale_label"])
         XCTAssertEqual(currentUser.identityModel.externalId, userA_EUID)
+    }
+
+    // MARK: - On-new-session push subscription self-heal
+
+    /// Installs a user whose push subscription already has a server id, as after an earlier session.
+    private func setUpUserWithPushSubscription() -> OSUserInternal {
+        return OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID, pushToken: "push-token")
+    }
+
+    private func stubRecreatedPushSubscription(_ mocks: Mocks) {
+        mocks.client.setMockResponseForRequest(
+            request: "<OSRequestCreateSubscription with token: push-token>",
+            response: ["subscription": MockUserRequests.testDefaultPushSubPayload(id: recreatedPushSubId)]
+        )
+    }
+
+    private func fetchUserOnNewSession(_ mocks: Mocks, user: OSUserInternal, response: [String: Any]) {
+        mocks.client.setMockResponseForRequest(
+            request: "<OSRequestFetchUser with onesignal_id: \(userA_OSID)>",
+            response: response
+        )
+        mocks.userExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: userA_OSID, identityModel: user.identityModel, onNewSession: true)
+        OneSignalCoreMocks.waitUntil("Fetch user request did not complete") {
+            mocks.client.hasCompletedRequestOfType(OSRequestFetchUser.self)
+        }
+    }
+
+    /**
+     A user whose only subscription was deleted server-side comes back with no "subscriptions" key at all.
+     The self-heal must still notice this device's push subscription is gone and re-create it.
+     */
+    func testFetchUser_onNewSession_recreatesPushSubscription_whenResponseHasNoSubscriptionsKey() {
+        /* Setup */
+        let mocks = Mocks()
+        let subscriptionExecutor = mocks.installSubscriptionExecutor()
+        let user = setUpUserWithPushSubscription()
+        stubRecreatedPushSubscription(mocks)
+
+        /* When */
+        fetchUserOnNewSession(mocks, user: user, response: MockUserRequests.testIdentityPayload(onesignalId: userA_OSID, externalId: userA_EUID))
+        subscriptionExecutor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("Push subscription was not re-created") {
+            user.pushSubscriptionModel.subscriptionId == recreatedPushSubId
+        }
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self, expectedCount: 1))
+        XCTAssertEqual(user.pushSubscriptionModel.subscriptionId, recreatedPushSubId)
+    }
+
+    /**
+     The response lists other subscriptions but not this device's push subscription, so it is re-created.
+     */
+    func testFetchUser_onNewSession_recreatesPushSubscription_whenResponseOmitsThisDevice() {
+        /* Setup */
+        let mocks = Mocks()
+        let subscriptionExecutor = mocks.installSubscriptionExecutor()
+        let user = setUpUserWithPushSubscription()
+        stubRecreatedPushSubscription(mocks)
+        var response: [String: Any] = MockUserRequests.testIdentityPayload(onesignalId: userA_OSID, externalId: userA_EUID)
+        response["subscriptions"] = [["type": "Email", "id": "remote_email_id", "token": "remote_email@example.com"]]
+
+        /* When */
+        fetchUserOnNewSession(mocks, user: user, response: response)
+        subscriptionExecutor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("Push subscription was not re-created") {
+            user.pushSubscriptionModel.subscriptionId == recreatedPushSubId
+        }
+
+        /* Then */
+        XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCreateSubscription.self, expectedCount: 1))
+        XCTAssertEqual(user.pushSubscriptionModel.subscriptionId, recreatedPushSubId)
+    }
+
+    /**
+     The response still lists this device's push subscription, so nothing is re-created.
+     */
+    func testFetchUser_onNewSession_keepsPushSubscription_whenResponseContainsIt() {
+        /* Setup */
+        let mocks = Mocks()
+        let user = setUpUserWithPushSubscription()
+        var response: [String: Any] = MockUserRequests.testIdentityPayload(onesignalId: userA_OSID, externalId: userA_EUID)
+        response["subscriptions"] = [MockUserRequests.testDefaultPushSubPayload(id: testPushSubId)]
+
+        /* When */
+        fetchUserOnNewSession(mocks, user: user, response: response)
+
+        /* Then */
+        // The self-heal clears the id before queuing its Create, so an unchanged id proves it did not run.
+        XCTAssertEqual(user.pushSubscriptionModel.subscriptionId, testPushSubId)
     }
 
     // MARK: - Identity Verification
