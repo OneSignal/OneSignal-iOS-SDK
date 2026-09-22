@@ -41,8 +41,9 @@ final class OSUserJwtInvalidatedListeners {
     private var everRegistered = false
 
     func add(_ listener: OSUserJwtInvalidatedListener) {
-        lock.withLock { everRegistered = true }
+        // Observer first, so an ask that lands between the two is heard rather than logged as a lost listener.
         observer.addObserver(listener)
+        lock.withLock { everRegistered = true }
     }
 
     func remove(_ listener: OSUserJwtInvalidatedListener) {
