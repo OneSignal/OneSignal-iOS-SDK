@@ -33,7 +33,7 @@ import OneSignalUserMocks
 @testable import OneSignalUser
 
 /// Covers the JWT bearer token on `OSIdentityModel`: which tokens count as usable, the
-/// compare-and-set on invalidation, and what survives an archive round trip.
+/// compare-and-set on invalidation, and what survives an archive round trip. Also what `clearData` keeps.
 final class OSIdentityModelTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -57,6 +57,37 @@ final class OSIdentityModelTests: XCTestCase {
         unarchiver.requiresSecureCoding = false
         defer { unarchiver.finishDecoding() }
         return try XCTUnwrap(unarchiver.decodeObject(forKey: NSKeyedArchiveRootObjectKey) as? OSIdentityModel)
+    }
+
+    // MARK: - clearData()
+
+    /// Work built before the fetch response lands must still read this user as created and identified.
+    func testClearDataKeepsBothIdsAndDropsEveryOtherAlias() {
+        let model = OSIdentityModel(
+            aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID, "stale_label": "stale_value"],
+            changeNotifier: OSEventProducer()
+        )
+
+        model.clearData()
+
+        XCTAssertEqual(model.onesignalId, userA_OSID)
+        XCTAssertEqual(model.externalId, userA_EUID)
+        XCTAssertNil(model.aliases["stale_label"])
+    }
+
+    /// The fetch response merges into what the clear kept, so one without `external_id` leaves the user
+    /// identified.
+    func testHydrateAfterClearDataMergesIntoTheKeptExternalId() {
+        let model = OSIdentityModel(
+            aliases: [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID],
+            changeNotifier: OSEventProducer()
+        )
+        model.clearData()
+
+        model.hydrate([OS_ONESIGNAL_ID: userA_OSID])
+
+        XCTAssertEqual(model.onesignalId, userA_OSID)
+        XCTAssertEqual(model.externalId, userA_EUID)
     }
 
     // MARK: - getValidJwt()

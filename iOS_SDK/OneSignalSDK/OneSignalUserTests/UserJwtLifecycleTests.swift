@@ -109,7 +109,7 @@ final class UserJwtLifecycleTests: XCTestCase {
 
     /// The Delta `logout()` produces by silencing the push subscription.
     private func silencingDelta() -> OSDelta? {
-        return OneSignalUserManagerImpl.sharedInstance.operationRepo.deltaQueue.first {
+        return OneSignalUserManagerImpl.sharedInstance.operationRepo.snapshotDeltaQueue().first {
             $0.name == OS_UPDATE_SUBSCRIPTION_DELTA && $0.property == "isDisabledInternally"
         }
     }

@@ -349,6 +349,26 @@ final class ExecutorAnonymousPurgeTests: XCTestCase {
         XCTAssertEqual(cachedRequestOwners(OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, of: OSRequestDeleteSubscription.self), [userA_EUID])
     }
 
+    /// The delete endpoint is addressed by subscription ID and takes no user JWT, so an owned delete goes
+    /// out unsigned even when its owner has no token, and nobody is asked for one. Parking it would hold
+    /// an unsubscribe on a credential the server does not read.
+    func testTheSubscriptionExecutorSendsAnOwnedDeleteUnsignedWithoutAskingForAToken() {
+        let tokenless = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: userB_OSID, OS_EXTERNAL_ID: userB_EUID], changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(tokenless)
+        let executor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: auth)
+
+        let removal = subscriptionDelta(OS_REMOVE_SUBSCRIPTION_DELTA, for: tokenless, subscription: subscription(id: "tokenless-subscription-id"))
+        executor.enqueueDelta(removal)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The owned delete was not sent") {
+            self.client.hasExecutedRequestOfType(OSRequestDeleteSubscription.self, expectedCount: 1)
+        }
+
+        XCTAssertNil(client.executedRequests.first?.additionalHeaders?["Authorization"])
+        XCTAssertTrue(OneSignalUserManagerImpl.sharedInstance.userJwtRepo.pendingTokenAsks().isEmpty,
+                      "nobody may be asked for a token the endpoint does not read")
+    }
+
     /// An Update Subscription is addressed by subscription ID and never signed, so it has no owner to be
     /// judged by and the purge has to leave that queue alone: `logout()`'s unsubscribe travels in it.
     func testTheSubscriptionExecutorKeepsEveryUpdateRequest() {

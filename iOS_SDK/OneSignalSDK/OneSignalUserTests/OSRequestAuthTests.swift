@@ -238,6 +238,27 @@ final class OSRequestAuthTests: XCTestCase {
         XCTAssertNil(request.authorizationHeader)
     }
 
+    /// Delete Subscription keeps an owner for the purge; a missing token must not park it or ask the app.
+    func testAuthorizeSendsAnOwnedExemptRequestUnsignedWithoutAsking() {
+        let auth = makeAuth(requiresUserAuth: true)
+        let request = StubUserRequest(ownerExternalId: "user-a", sendsUnsigned: true)
+
+        XCTAssertTrue(auth.authorize(request))
+        XCTAssertNil(request.authorizationHeader)
+        XCTAssertTrue(jwt.askedFor.isEmpty)
+        XCTAssertFalse(auth.parkedForToken(request))
+    }
+
+    /// Not signed even with a token on hand; the endpoint ignores the header.
+    func testAuthorizeDoesNotSignAnOwnedExemptRequestThatHasAToken() {
+        let auth = makeAuth(requiresUserAuth: true)
+        jwt.tokens["user-a"] = "token-a"
+        let request = StubUserRequest(ownerExternalId: "user-a", sendsUnsigned: true)
+
+        XCTAssertTrue(auth.authorize(request))
+        XCTAssertNil(request.authorizationHeader)
+    }
+
     /// Everything else with no owner is a leftover the purge has yet to clear, and must not go out unsigned.
     func testAuthorizeRefusesAnUnownedRequestThatIsNotExempt() {
         let auth = makeAuth(requiresUserAuth: true)
@@ -253,6 +274,41 @@ final class OSRequestAuthTests: XCTestCase {
 
         XCTAssertTrue(auth.authorize(request))
         XCTAssertNil(request.authorizationHeader)
+    }
+
+    // MARK: - parkedForToken
+
+    /// The answer is consumed, so the executor asks once per failed prepare and sees a fresh answer next time.
+    func testParkedForTokenIsTrueOnceAfterAPark() {
+        let auth = makeAuth(requiresUserAuth: true)
+        let request = StubUserRequest(ownerExternalId: "user-a")
+
+        XCTAssertFalse(auth.parkedForToken(request), "nothing has parked it yet")
+        XCTAssertFalse(auth.authorize(request))
+        XCTAssertTrue(auth.parkedForToken(request))
+        XCTAssertFalse(auth.parkedForToken(request), "consumed by the read before")
+    }
+
+    /// A signed authorization is not a park, so a prepare that fails after it failed for some other reason.
+    func testParkedForTokenIsFalseAfterASignedAuthorization() {
+        let auth = makeAuth(requiresUserAuth: true)
+        jwt.tokens["user-a"] = "token-a"
+        let request = StubUserRequest(ownerExternalId: "user-a")
+
+        XCTAssertTrue(auth.authorize(request))
+        XCTAssertFalse(auth.parkedForToken(request))
+    }
+
+    /// The entry reflects the latest authorization: a park does not outlive a later signed attempt.
+    func testASignedAuthorizationClearsAnEarlierPark() {
+        let auth = makeAuth(requiresUserAuth: true)
+        let request = StubUserRequest(ownerExternalId: "user-a")
+        XCTAssertFalse(auth.authorize(request))
+
+        jwt.tokens["user-a"] = "token-a"
+        XCTAssertTrue(auth.authorizeUserScoped(request, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, "osid")) != nil)
+
+        XCTAssertFalse(auth.parkedForToken(request))
     }
 
     // MARK: - handleUnauthorized

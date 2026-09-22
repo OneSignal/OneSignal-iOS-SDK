@@ -29,6 +29,7 @@ import Foundation
 import XCTest
 import OneSignalCore
 import OneSignalCoreMocks
+import OneSignalOSCoreMocks
 @testable import OneSignalOSCore
 
 /// Covers `flushDeltaQueue` routing: matched deltas go to executors and leave the repo
