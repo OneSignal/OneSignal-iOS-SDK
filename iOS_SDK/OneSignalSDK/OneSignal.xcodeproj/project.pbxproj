@@ -199,6 +199,7 @@
 		3CA8B8822BEC2FCB0010ADA1 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; };
 		3CA8B8832BEC2FCB0010ADA1 /* XCTest.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C7A39D42B7C18EE0082665E /* XCTest.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */; };
+		E85C1C500D87196C5E20144F /* ExecutorReadYourWriteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */; };
 		3C5181A1B2C3D4E5F6A7B802 /* SubscriptionCreateResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */; };
 		3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */; };
 		3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */; };
@@ -1482,6 +1483,7 @@
 		3C9AD6D22B228BB000BC1540 /* OSRequestUpdateProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestUpdateProperties.swift; sourceTree = "<group>"; };
 		3CA6CE0928E4F19B00CA0585 /* OSUserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSUserRequest.swift; sourceTree = "<group>"; };
 		3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionUpdateRaceTests.swift; sourceTree = "<group>"; };
+		C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutorReadYourWriteTests.swift; sourceTree = "<group>"; };
 		3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionCreateResponseTests.swift; sourceTree = "<group>"; };
 		3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionModelConcurrencyTests.swift; sourceTree = "<group>"; };
 		3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTests.swift; sourceTree = "<group>"; };
@@ -2555,6 +2557,7 @@
 			children = (
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
 				3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */,
+				C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */,
 				3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */,
 				3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */,
 				FE740F9E6B87D215510B5982 /* ExecutorAnonymousPurgeTests.swift */,
@@ -4717,6 +4720,7 @@
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,
 				3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */,
+				E85C1C500D87196C5E20144F /* ExecutorReadYourWriteTests.swift in Sources */,
 				3C5181A1B2C3D4E5F6A7B802 /* SubscriptionCreateResponseTests.swift in Sources */,
 				3CDE664C2BFC2A56006DA114 /* OneSignalUserObjcTests.m in Sources */,
 				D465D9B81F58B242ADF14874 /* OSIdentityModelRepoTests.swift in Sources */,
