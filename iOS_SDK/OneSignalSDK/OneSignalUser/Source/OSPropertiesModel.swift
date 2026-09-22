@@ -29,6 +29,64 @@ import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
+final class OSLanguageProviderDevice {
+    private let localeProvider: () -> Locale
+
+    init(localeProvider: @escaping () -> Locale = {
+        Locale(identifier: NSLocale.preferredLanguages.first ?? DEFAULT_LANGUAGE)
+    }) {
+        self.localeProvider = localeProvider
+    }
+
+    var language: String {
+        let locale = localeProvider()
+        if let chineseLanguage = chineseLanguage(locale) {
+            return chineseLanguage
+        }
+        guard let languageCode = languageCode(locale) else {
+            return DEFAULT_LANGUAGE
+        }
+        return languageCode
+    }
+
+    private func chineseLanguage(_ locale: Locale) -> String? {
+        guard languageCode(locale) == "zh" else {
+            return nil
+        }
+
+        switch scriptCode(locale) {
+        case "Hans":
+            return "zh-Hans"
+        case "Hant":
+            return "zh-Hant"
+        default:
+            let isTraditionalRegion = regionCode(locale).map { ["HK", "MO", "TW"].contains($0) } ?? false
+            return isTraditionalRegion ? "zh-Hant" : "zh-Hans"
+        }
+    }
+
+    private func languageCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.language.languageCode?.identifier
+        }
+        return locale.languageCode
+    }
+
+    private func scriptCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.language.script?.identifier
+        }
+        return locale.scriptCode
+    }
+
+    private func regionCode(_ locale: Locale) -> String? {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            return locale.region?.identifier
+        }
+        return locale.regionCode
+    }
+}
+
 // Both lat and long must exist to be accepted by the server
 class OSLocationPoint: NSObject, NSCoding {
     let lat: Float
@@ -80,16 +138,7 @@ class OSPropertiesModel: OSModel {
     // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
     override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
-        self.language = getPreferredLanguage()
-    }
-
-    private func getPreferredLanguage() -> String {
-        let preferredLanguages = NSLocale.preferredLanguages
-        if !preferredLanguages.isEmpty {
-            return preferredLanguages[0]
-        } else {
-            return DEFAULT_LANGUAGE
-        }
+        self.language = OSLanguageProviderDevice().language
     }
 
     override func encode(with coder: NSCoder) {

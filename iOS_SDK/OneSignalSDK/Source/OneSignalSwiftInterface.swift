@@ -33,6 +33,7 @@ import OneSignalNotifications
 import OneSignalCore
 
 public extension OneSignal {
+    /// The listener is held weakly: keep a strong reference to it, or it is released and never called.
     static func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
         __add(listener)
     }

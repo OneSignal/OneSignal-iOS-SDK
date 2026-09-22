@@ -84,6 +84,18 @@ final class OSUserJwtRepoTests: XCTestCase {
         XCTAssertEqual(asked, ["user-a"])
     }
 
+    /// A login that builds a new Identity Model for the user is a fresh chance to be asked.
+    func testClearingAnAskLetsTheUserBeAskedAgain() {
+        XCTAssertTrue(repo.askForToken(externalId: "user-a"))
+        XCTAssertFalse(repo.askForToken(externalId: "user-a"))
+
+        repo.clearAsk(externalId: "user-a")
+
+        XCTAssertTrue(repo.askForToken(externalId: "user-a"))
+        XCTAssertEqual(asked, ["user-a", "user-a"])
+        XCTAssertEqual(repo.pendingTokenAsks(), ["user-a"])
+    }
+
     // MARK: - invalidateJwt
 
     func testInvalidatingParksTheTokenAndAsksTheApp() {

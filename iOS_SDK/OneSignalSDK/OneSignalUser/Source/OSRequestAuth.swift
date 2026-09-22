@@ -194,8 +194,9 @@ final class OSRequestAuth: OSRequestAuthorizing {
 
     /**
      Nothing else prompts the app when a Request merely parks: the invalidated event fires on a rejected
-     token, and a token the app never supplied — or supplied in a session that has since ended — leaves the
-     SDK holding none with nothing to reject. The repo keeps this to one ask per external ID per session.
+     token, and a token the app never supplied, or supplied in a session that has since ended, leaves the
+     SDK holding none with nothing to reject. The repo keeps this to one ask per external ID until a token
+     is stored or a `login` as that user rearms it.
      */
     private func park(_ request: OSUserRequest, ownedBy externalId: String) {
         parkedRequestsLock.withLock { parkedRequests.add(request) }

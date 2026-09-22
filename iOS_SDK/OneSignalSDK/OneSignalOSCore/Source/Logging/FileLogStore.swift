@@ -74,8 +74,8 @@ final class FileLogStore: ILogFileStore {
     ) {
         self.rootURL = URL(fileURLWithPath: rootPath, isDirectory: true)
         self.fileManager = fileManager
-        let crashLogger = OSCrashLogger()
-        self.crashWarn = crashWarn ?? { crashLogger.warn(message: $0) }
+        let consoleLogger = OSConsoleLogger()
+        self.crashWarn = crashWarn ?? { consoleLogger.warn(message: $0) }
         self.attributeLookup = attributeLookup
         try? createRootDirectory()
     }

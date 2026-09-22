@@ -109,6 +109,9 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
 
     @objc static func reset() {
         shared.shutdown()
+        // An app-id change comes through here; events queued under the old app must not ship
+        // under the new one.
+        OSObservabilityEventRecorder.shared.reset()
     }
 
     private static func cache(configuration: OSRemoteLoggingConfiguration) {
