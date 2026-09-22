@@ -29,6 +29,44 @@ import OneSignalCore
 import OneSignalOSCore
 
 /**
+ The app's JWT listeners, and whether one was ever added. An ask nobody hears is replayed when a listener
+ is added, so before the first registration it is the cold-start order and logs at debug; after one, the
+ app has let its listener go (they are held weakly) and only the warning tells it.
+ */
+final class OSUserJwtInvalidatedListeners {
+    private let observer = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(
+        change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:))
+    )
+    private let lock = NSLock()
+    private var everRegistered = false
+
+    func add(_ listener: OSUserJwtInvalidatedListener) {
+        // Observer first, so an ask that lands between the two is heard rather than logged as a lost listener.
+        observer.addObserver(listener)
+        lock.withLock { everRegistered = true }
+    }
+
+    func remove(_ listener: OSUserJwtInvalidatedListener) {
+        observer.removeObserver(listener)
+    }
+
+    func notify(externalId: String) {
+        // Read first: a listener added during delivery is told by the replay, not by this warning.
+        let hadListener = lock.withLock { everRegistered }
+        if observer.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId)) {
+            return
+        }
+        let unheard = "asked for a JWT for externalId \(externalId)"
+        let replayed = "the ask is replayed when a listener is added"
+        if hadListener {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "\(unheard) but the OSUserJwtInvalidatedListener registered earlier is gone; \(replayed)")
+        } else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(unheard) before any OSUserJwtInvalidatedListener was registered; \(replayed)")
+        }
+    }
+}
+
+/**
  The Identity Verification surface the app talks to: it hands the SDK a token for a user, and the SDK
  tells it when that token stopped being accepted.
  */
@@ -51,28 +89,40 @@ extension OneSignalUserManagerImpl {
      notification — the work that travels through neither.
 
      Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
-     ask for this user is cleared and a later rejection can ask again.
+     ask for this user is cleared and a later rejection can ask again. Returns whether the token was
+     stored; the repo refuses an unusable one.
      */
-    func storeJwt(externalId: String, token: String) {
+    @discardableResult
+    func storeJwt(externalId: String, token: String) -> Bool {
         guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
-            return
+            return false
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
         guard identityVerificationService.newCodePathsRun else {
-            return
+            return true
         }
         operationRepo.addFlushDeltaQueueToDispatchQueue()
         userExecutor?.executePendingRequests()
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
+        return true
+    }
+
+    /// `storeJwt` clears the ask itself when it stores; a login with no usable token rearms it instead.
+    func storeJwtOrRearmAsk(externalId: String, token: String?) {
+        if let token = token, storeJwt(externalId: externalId, token: token) {
+            return
+        }
+        userJwtRepo.clearAsk(externalId: externalId)
     }
 
     /**
      Replays any ask that already fired this session, so a listener registered after `start` or `login`
-     still hears who currently owes a token.
+     still hears who currently owes a token. The listener is held weakly, so the app has to keep its own
+     reference to it.
      */
     @objc
     public func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
-        self.userJwtInvalidatedObserver.addObserver(listener)
+        self.userJwtInvalidatedListeners.add(listener)
         let pending = userJwtRepo.pendingTokenAsks()
         guard !pending.isEmpty else {
             return
@@ -91,7 +141,7 @@ extension OneSignalUserManagerImpl {
 
     @objc
     public func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
-        self.userJwtInvalidatedObserver.removeObserver(listener)
+        self.userJwtInvalidatedListeners.remove(listener)
     }
 
     @objc

@@ -72,6 +72,29 @@ final class OSUserJwtConfigTests: XCTestCase {
         XCTAssertEqual(jwtConfig.requirement, .on)
     }
 
+    /// The same transition `hydrate` reports, so a handler registered before the refresh hears it too.
+    func testRefreshFiresTheHydratedHandlerWhenItAdoptsACachedRequirement() {
+        let jwtConfig = OSUserJwtConfig()
+        var reported: [OSRequiresUserAuth] = []
+        jwtConfig.setOnHydratedHandler { reported.append($0) }
+        cacheRequirement(.on)
+
+        jwtConfig.refreshIfUnknown()
+
+        XCTAssertEqual(reported, [.on])
+    }
+
+    func testRefreshFiresNothingWhileTheCacheIsStillEmpty() {
+        let jwtConfig = OSUserJwtConfig()
+        var reported: [OSRequiresUserAuth] = []
+        jwtConfig.setOnHydratedHandler { reported.append($0) }
+
+        jwtConfig.refreshIfUnknown()
+
+        XCTAssertEqual(jwtConfig.requirement, .unknown)
+        XCTAssertTrue(reported.isEmpty)
+    }
+
     func testRefreshLeavesAKnownRequirementAlone() {
         let jwtConfig = OSUserJwtConfig()
         jwtConfig.hydrate(requiresUserAuth: false)

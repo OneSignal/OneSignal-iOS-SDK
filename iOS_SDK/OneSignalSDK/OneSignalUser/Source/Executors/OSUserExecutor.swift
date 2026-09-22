@@ -65,8 +65,9 @@ class OSUserExecutor {
      `login` that promoted an anonymous user while the requirement was still unknown — becomes the Create
      User that login would have made, or is dropped if a later `login` has superseded it.
 
-     Runs on every send because `refreshIfUnknown` can raise `requirement` with no event; reads the live
-     model because this executor sends nothing while `requirement` is unknown.
+     Runs on every send rather than only when the requirement hydrates, and reads the live model: this
+     executor sends nothing while `requirement` is unknown, so the queue is always judged against a known
+     value, and the check is cheap.
      */
     private func reshapeInvalidRequests() {
         guard identityVerificationService.ivBehaviorActive else {

@@ -72,6 +72,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
+/// The listener is held weakly: keep a strong reference to it, or it is released and never called.
 + (void)addUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener NS_REFINED_FOR_SWIFT;
 + (void)removeUserJwtInvalidatedListener:(id<OSUserJwtInvalidatedListener> _Nonnull)listener NS_REFINED_FOR_SWIFT;
 + (void)updateUserJwt:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token
