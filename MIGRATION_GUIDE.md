@@ -48,7 +48,7 @@ OneSignal uses a built-in **alias label** called `external_id` which supports ex
 As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order to align across OneSignal’s suite of client SDKs.
 
 ## Requirements
-- Minimum deployment target of iOS 11
+- Minimum deployment target of iOS 15
 - Requires Xcode 14
 - If you are using CocoaPods, please use version `1.11.3+` and Ruby version `2.7.5+`.
 
