@@ -261,9 +261,9 @@ final class OSRemoteLoggingController: NSObject, OSInternalLogSink {
 private extension OSRemoteLoggingController {
     func registerLifecycleObservers() {
         if usesScenes() {
-            observe(Notification.Name("UISceneDidActivateNotification"), appState: "foreground")
-            observe(Notification.Name("UISceneWillDeactivateNotification"), appState: "unknown")
-            observe(Notification.Name("UISceneDidEnterBackgroundNotification"), appState: "background", flush: true)
+            observe(UIScene.didActivateNotification, appState: "foreground")
+            observe(UIScene.willDeactivateNotification, appState: "unknown")
+            observe(UIScene.didEnterBackgroundNotification, appState: "background", flush: true)
         } else {
             observe(UIApplication.didBecomeActiveNotification, appState: "foreground")
             observe(UIApplication.willResignActiveNotification, appState: "unknown")

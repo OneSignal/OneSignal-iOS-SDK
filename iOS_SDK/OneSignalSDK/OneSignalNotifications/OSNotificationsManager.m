@@ -264,10 +264,8 @@ static NSString *_pushToken;
 }
 
 + (void)registerLifecycleObserverAsUIScene {
-    if (@available(iOS 13.0, *)) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Scene Lifecycle notifications"];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:@"UISceneWillEnterForegroundNotification" object:nil];
-    }
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSNotificationManager registering for Scene Lifecycle notifications"];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willEnterForeground) name:UISceneWillEnterForegroundNotification object:nil];
 }
 
 + (void)registerLifecycleObserverAsUIApplication {

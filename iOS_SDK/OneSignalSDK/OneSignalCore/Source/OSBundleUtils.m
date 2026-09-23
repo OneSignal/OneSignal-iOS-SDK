@@ -25,10 +25,7 @@
 @implementation OSBundleUtils
 
 + (BOOL)isAppUsingUIScene {
-    if (@available(iOS 13.0, *)) {
-        return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"] != nil;
-    }
-    return NO;
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"] != nil;
 }
 
 @end
