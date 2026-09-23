@@ -152,14 +152,21 @@
 }
 
 - (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
-    if ([self keyExists:key])
-        return [NSKeyedUnarchiver unarchiveObjectWithData:[self.userDefaults objectForKey:key]];
-    
+    if ([self keyExists:key]) {
+        NSData *data = [self.userDefaults objectForKey:key];
+        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
+        unarchiver.requiresSecureCoding = NO;
+        id result = [unarchiver decodeTopLevelObjectAndReturnError:nil];
+        [unarchiver finishDecoding];
+        return result;
+    }
+
     return value;
 }
 
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value {
-    [self.userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value requiringSecureCoding:NO error:nil];
+    [self.userDefaults setObject:data forKey:key];
     [self.userDefaults synchronize];
 }
 
