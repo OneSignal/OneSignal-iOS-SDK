@@ -237,13 +237,9 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         willPresentNotificationWithPayload:notification.request.content.userInfo
         completion:^(OSNotification *notif) {
             if (notif) {
-                if (@available(iOS 14.0, *)) {
-                    completionHandler(UNNotificationPresentationOptionBanner |
-                                      UNNotificationPresentationOptionList |
-                                      UNNotificationPresentationOptionSound);
-                } else {
-                    completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
-                }
+                completionHandler(UNNotificationPresentationOptionBanner |
+                                  UNNotificationPresentationOptionList |
+                                  UNNotificationPresentationOptionSound);
             } else {
                 completionHandler(UNNotificationPresentationOptionNone);
             }

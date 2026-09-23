@@ -58,12 +58,10 @@ static OneSignalLifecycleObserver* _instance = nil;
 }
 
 + (void)registerLifecycleObserverAsUIScene {
-    if (@available(iOS 13.0, *)) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
-        [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:@"UISceneDidEnterBackgroundNotification" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:@"UISceneDidActivateNotification" object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:@"UISceneWillDeactivateNotification" object:nil];
-    }
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
+    [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:UISceneDidEnterBackgroundNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:UISceneDidActivateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:UISceneWillDeactivateNotification object:nil];
 }
 
 + (void)registerLifecycleObserverAsUIApplication {
