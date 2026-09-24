@@ -868,7 +868,7 @@ private class SpyModelChangedHandler: OSModelChangedHandler {
         for key in betaKeys {
             defaults.saveCodeableData(forKey: key, withValue: ["nan01": []])
         }
-        // A queue blob a defect left behind, too large to be worth decoding at launch.
+        // A queue blob too large to decode at launch.
         defaults.saveObject(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: Data(count: Int(OS_CACHED_QUEUE_MAX_BYTES) + 1))
 
         OneSignalUserManagerImpl.sharedInstance.start()
