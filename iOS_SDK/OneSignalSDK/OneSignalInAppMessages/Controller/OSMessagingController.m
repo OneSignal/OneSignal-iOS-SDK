@@ -190,16 +190,35 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)isInAppMessagingPaused {
     return _isInAppMessagingPaused;
 }
+
+/// The message collections and trigger evaluation belong to the main queue. Entry points that can
+/// arrive on any thread go through here, inline on the main thread and dispatched asynchronously from
+/// anywhere else.
+- (void)runOnMainQueue:(void (^)(void))block {
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
+}
+
 - (void)setInAppMessagingPaused:(BOOL)pause {
+    // Written on the calling thread so a read right after this call sees the new value.
     _isInAppMessagingPaused = pause;
     
     // If IAM are not paused, try to evaluate and show IAMs
     if (!pause) {
-        [self evaluateMessages];
-    } else if (self.isInAppMessageShowing) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.viewController dismissCurrentInAppMessage];
-        });
+        [self runOnMainQueue:^{
+            [self evaluateMessages];
+        }];
+    } else {
+        [self runOnMainQueue:^{
+            if (self.isInAppMessageShowing) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.viewController dismissCurrentInAppMessage];
+                });
+            }
+        }];
     }
 }
 
@@ -828,25 +847,34 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    [self evaluateRedisplayedInAppMessages:triggers.allKeys];
+    NSDictionary<NSString *, id> *newTriggers = [triggers copy];
+    [self runOnMainQueue:^{
+        [self evaluateRedisplayedInAppMessages:newTriggers.allKeys];
 
-    // Track triggers added early on cold start (before first fetch completes) for redisplay logic
-    if (!self.hasCompletedFirstFetch) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tracking triggers added early on cold start: %@", triggers]];
-        [self.earlySessionTriggers addObjectsFromArray:triggers.allKeys];
-    }
+        // Track triggers added early on cold start (before first fetch completes) for redisplay logic
+        if (!self.hasCompletedFirstFetch) {
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tracking triggers added early on cold start: %@", newTriggers]];
+            [self.earlySessionTriggers addObjectsFromArray:newTriggers.allKeys];
+        }
 
-    [self.triggerController addTriggers:triggers];
+        [self.triggerController addTriggers:newTriggers];
+    }];
 }
 
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    [self evaluateRedisplayedInAppMessages:keys];
-    [self.triggerController removeTriggersForKeys:keys];
+    NSArray<NSString *> *removedKeys = [keys copy];
+    [self runOnMainQueue:^{
+        [self evaluateRedisplayedInAppMessages:removedKeys];
+        [self.triggerController removeTriggersForKeys:removedKeys];
+    }];
 }
 
 - (void)clearTriggers {
-    NSDictionary<NSString *, id> *allTriggers = [self getTriggers];
-    [self removeTriggersForKeys:allTriggers.allKeys];
+    [self runOnMainQueue:^{
+        // Read the keys on the main queue so a trigger queued before this call is cleared too.
+        NSDictionary<NSString *, id> *allTriggers = [self getTriggers];
+        [self removeTriggersForKeys:allTriggers.allKeys];
+    }];
 }
 
 - (NSDictionary<NSString *, id> *)getTriggers {
@@ -1044,8 +1072,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)messageIsNotActive:(OSInAppMessageInternal *)message {
-    [self deleteInactiveMessage:message];
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self deleteInactiveMessage:message];
         [self cleanUpInAppWindow];
     });
 }
