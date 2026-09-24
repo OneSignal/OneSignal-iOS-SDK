@@ -168,12 +168,12 @@
     }
     NSData *data = stored;
     if (maxBytes > 0 && data.length > maxBytes) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %lu bytes is over the %lu byte limit", key, (unsigned long)data.length, (unsigned long)maxBytes]];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %lu bytes, limit %lu", key, (unsigned long)data.length, (unsigned long)maxBytes]];
         [self removeValueForKey:key];
         return value;
     }
     @try {
-        // An archive can decode to nothing; hand back the default the same way a missing key does.
+        // A blob that decodes to nil is treated like a missing key.
         return [NSKeyedUnarchiver unarchiveObjectWithData:data] ?: value;
     } @catch (NSException *exception) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %@", key, exception.reason]];
@@ -187,7 +187,7 @@
     @try {
         data = [NSKeyedArchiver archivedDataWithRootObject:value];
     } @catch (NSException *exception) {
-        // The old blob no longer matches memory, so drop it rather than restore it next launch.
+        // The old blob no longer matches memory, so drop it rather than restore it on the next launch.
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@, removing it: %@", key, exception.reason]];
         [self removeValueForKey:key];
         return;
