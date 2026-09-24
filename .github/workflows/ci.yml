@@ -192,7 +192,7 @@ jobs:
           frameworks="$RUNNER_TEMP/OneSignalFramework-Catalyst.xcarchive/Products/Library/Frameworks"
           host="$RUNNER_TEMP/CatalystLoggerHost"
           xcrun --sdk macosx swiftc \
-            -target "$(uname -m)-apple-ios14.0-macabi" \
+            -target "$(uname -m)-apple-ios15.0-macabi" \
             -F "$frameworks" \
             -framework OneSignalOSCore \
             -framework OneSignalCore \
