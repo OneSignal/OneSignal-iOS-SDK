@@ -192,7 +192,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 /// The message collections and trigger evaluation belong to the main queue. Entry points that can
-/// arrive on any thread go through here: inline on the main thread, dispatched asynchronously from
+/// arrive on any thread go through here, inline on the main thread and dispatched asynchronously from
 /// anywhere else.
 - (void)runOnMainQueue:(void (^)(void))block {
     if ([NSThread isMainThread]) {
@@ -212,11 +212,13 @@ static BOOL _isInAppMessagingPaused = false;
             [self evaluateMessages];
         }];
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        [self runOnMainQueue:^{
             if (self.isInAppMessageShowing) {
-                [self.viewController dismissCurrentInAppMessage];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.viewController dismissCurrentInAppMessage];
+                });
             }
-        });
+        }];
     }
 }
 
