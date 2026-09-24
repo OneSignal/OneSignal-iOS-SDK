@@ -7,7 +7,7 @@ let package = Package(
     name: "OneSignalFramework", // Package name MUST be on line 7 for release automation
     platforms: [
         .iOS(.v15),
-        .macCatalyst(.v14),
+        .macCatalyst(.v15),
     ],
     products: [
         .library(
