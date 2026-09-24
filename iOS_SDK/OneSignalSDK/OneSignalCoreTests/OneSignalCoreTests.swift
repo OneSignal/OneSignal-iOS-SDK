@@ -73,4 +73,57 @@ final class OneSignalCoreTests: XCTestCase {
         XCTAssertEqual(templateId, "templateId123")
         XCTAssertEqual(templateName, "Template name")
     }
+
+    // MARK: - Codeable data guards
+
+    private let guardKey = "OS_CORE_TESTS_CODEABLE_GUARD"
+
+    func testOversizedCodeableDataIsDroppedNotDecoded() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveObject(forKey: guardKey, withValue: Data(count: 1025))
+
+        let restored = defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"], maxBytes: 1024) as? [String]
+
+        XCTAssertEqual(restored, ["default"])
+        XCTAssertFalse(defaults.keyExists(guardKey))
+    }
+
+    func testCodeableDataWithinTheLimitIsDecoded() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveCodeableData(forKey: guardKey, withValue: ["cached"])
+
+        let restored = defaults.getSavedCodeableData(forKey: guardKey, defaultValue: [], maxBytes: 1024) as? [String]
+
+        XCTAssertEqual(restored, ["cached"])
+        defaults.removeValue(forKey: guardKey)
+    }
+
+    func testUnreadableCodeableDataReturnsTheDefaultWithoutThrowing() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveObject(forKey: guardKey, withValue: Data("not an archive".utf8))
+
+        let restored = defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"]) as? [String]
+
+        XCTAssertEqual(restored, ["default"])
+        defaults.removeValue(forKey: guardKey)
+    }
+
+    func testUnarchivableValueIsNotCachedAndClearsTheKey() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveCodeableData(forKey: guardKey, withValue: ["cached"])
+
+        // NSObject does not adopt NSCoding, so archiving it raises.
+        defaults.saveCodeableData(forKey: guardKey, withValue: NSObject())
+
+        XCTAssertFalse(defaults.keyExists(guardKey))
+    }
+
+    func testValueAtThePlatformLimitIsNotCached() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveCodeableData(forKey: guardKey, withValue: ["cached"])
+
+        defaults.saveCodeableData(forKey: guardKey, withValue: Data(count: Int(OS_USER_DEFAULTS_MAX_VALUE_BYTES)))
+
+        XCTAssertFalse(defaults.keyExists(guardKey))
+    }
 }

@@ -53,7 +53,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if let modelInStore = getSubscriptionModelFromStores(modelId: delta.model.modelId) {
@@ -75,7 +75,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     private func uncacheCreateSubscriptionRequests() {
         var requestQueue: [OSRequestCreateSubscription] = []
 
-        if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
+        if let cachedAddRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestCreateSubscription] {
             // Hook each uncached Request to the model in the store
             for request in cachedAddRequestQueue {
                 // 1. Hook up the subscription model
@@ -111,7 +111,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheDeleteSubscriptionRequests() {
-        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestDeleteSubscription] {
+        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestDeleteSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
                 if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
@@ -136,7 +136,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheUpdateSubscriptionRequests() {
-        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateSubscription] {
+        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestUpdateSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
                 if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId) {
