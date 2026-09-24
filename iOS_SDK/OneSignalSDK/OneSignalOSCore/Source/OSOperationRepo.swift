@@ -78,7 +78,7 @@ public class OSOperationRepo: NSObject {
     }
 
     private func uncacheDeltaQueue() {
-        guard let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] else {
+        guard let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSDelta] else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSOperationRepo is unable to uncache the OSDelta queue.")
             return
         }

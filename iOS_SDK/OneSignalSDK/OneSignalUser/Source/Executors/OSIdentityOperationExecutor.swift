@@ -50,7 +50,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSDelta] {
             // Hook each uncached Delta to the model in the store
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if let modelInStore = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.model.modelId) {
@@ -70,7 +70,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheAddAliasRequests() {
-        if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
+        if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestAddAliases] {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
@@ -93,7 +93,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheRemoveAliasRequests() {
-        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
+        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestRemoveAlias] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {

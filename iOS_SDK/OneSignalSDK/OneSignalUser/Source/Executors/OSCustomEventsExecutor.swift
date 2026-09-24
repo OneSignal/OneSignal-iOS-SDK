@@ -63,7 +63,7 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSDelta] {
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
                     // The identity model does not exist, drop this Delta
@@ -81,7 +81,7 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     private func uncacheRequests() {
-        if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCustomEvents] {
+        if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestCustomEvents] {
             // Hook each uncached Request to the model in the store
             for (index, request) in requestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {

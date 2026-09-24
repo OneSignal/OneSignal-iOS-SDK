@@ -85,7 +85,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSDelta] {
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
                     // The identity model does not exist, drop this Delta
@@ -101,7 +101,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     private func uncacheUpdateRequests() {
-        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
+        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestUpdateProperties] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {

@@ -850,4 +850,37 @@ private class SpyModelChangedHandler: OSModelChangedHandler {
             serverUpdates.append(args.property)
         }
     }
+
+    func testStartRemovesIdentityVerificationBetaCachesAndAnOversizedQueue() throws {
+        let client = MockOneSignalClient()
+        client.executeInstantaneously = true
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let defaults = OneSignalUserDefaults.initShared()
+        let betaKeys = [
+            OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY
+        ]
+        for key in betaKeys {
+            defaults.saveCodeableData(forKey: key, withValue: ["nan01": []])
+        }
+        // A queue blob a defect left behind, too large to be worth decoding at launch.
+        defaults.saveObject(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: Data(count: Int(OS_CACHED_QUEUE_MAX_BYTES) + 1))
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        for key in betaKeys {
+            XCTAssertFalse(defaults.keyExists(key), "\(key) survived start()")
+        }
+        // The property executor replaced the blob with its empty queue rather than decoding it.
+        let queue = defaults.getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: nil) as? [Any]
+        XCTAssertEqual(queue?.count, 0)
+    }
 }

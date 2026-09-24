@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalLog.h"
 
 @implementation OneSignalUserDefaults : NSObject
 
@@ -152,15 +153,57 @@
 }
 
 - (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
-    if ([self keyExists:key])
-        return [NSKeyedUnarchiver unarchiveObjectWithData:[self.userDefaults objectForKey:key]];
-    
-    return value;
+    return [self getSavedCodeableDataForKey:key defaultValue:value maxBytes:0];
+}
+
+- (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value maxBytes:(NSUInteger)maxBytes {
+    if (![self keyExists:key])
+        return value;
+
+    id stored = [self.userDefaults objectForKey:key];
+    if (![stored isKindOfClass:[NSData class]]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: not archived data", key]];
+        [self removeValueForKey:key];
+        return value;
+    }
+    NSData *data = stored;
+    if (maxBytes > 0 && data.length > maxBytes) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %lu bytes is over the %lu byte limit", key, (unsigned long)data.length, (unsigned long)maxBytes]];
+        [self removeValueForKey:key];
+        return value;
+    }
+    @try {
+        // An archive can decode to nothing; hand back the default the same way a missing key does.
+        return [NSKeyedUnarchiver unarchiveObjectWithData:data] ?: value;
+    } @catch (NSException *exception) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %@", key, exception.reason]];
+        [self removeValueForKey:key];
+        return value;
+    }
 }
 
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value {
-    [self.userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
-    [self.userDefaults synchronize];
+    NSData *data;
+    @try {
+        data = [NSKeyedArchiver archivedDataWithRootObject:value];
+    } @catch (NSException *exception) {
+        // The old blob no longer matches memory, so drop it rather than restore it next launch.
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@, removing it: %@", key, exception.reason]];
+        [self removeValueForKey:key];
+        return;
+    }
+    // CFPreferences refuses a value this large and may stop persisting the suite afterwards.
+    if (data.length >= OS_USER_DEFAULTS_MAX_VALUE_BYTES) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults not caching %@: %lu bytes", key, (unsigned long)data.length]];
+        [self removeValueForKey:key];
+        return;
+    }
+    @try {
+        [self.userDefaults setObject:data forKey:key];
+        [self.userDefaults synchronize];
+    } @catch (NSException *exception) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not cache %@: %@", key, exception.reason]];
+    }
 }
 
 //gets the NSBundle of the primary application - NOT the app extension
