@@ -167,7 +167,7 @@ class OSUserExecutor {
         var userRequestQueue: [OSUserRequest] = []
 
         // Read unfinished Create User + Identify User + Get Identity By Subscription requests from cache, if any...
-        if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
+        if let cachedRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSUserRequest] {
             // Hook each uncached Request to the right model reference
             for request in cachedRequestQueue {
                 if request.isKind(of: OSRequestFetchIdentityBySubscription.self), let req = request as? OSRequestFetchIdentityBySubscription {

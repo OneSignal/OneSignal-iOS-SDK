@@ -70,6 +70,8 @@
 
 // NSUserDefaults for storing and getting saved codeable data (custom objects)
 - (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
+/// Removes a stored blob larger than `maxBytes` and returns `value` instead of decoding it.
+- (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value maxBytes:(NSUInteger)maxBytes;
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
 @end
