@@ -47,33 +47,8 @@
 @synthesize error, response, done;
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    NSError * __autoreleasing fileHandleError;
-    NSError * __autoreleasing *fileHandleErrorPointer = &fileHandleError;
-    if (@available(iOS 13.0, *)) {
-        // We need to use NSInvocation for reflection because performSelector cannot take pointer parameters
-        SEL writeDataSelector = NSSelectorFromString(@"writeData:error:");
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSFileHandle instanceMethodSignatureForSelector:writeDataSelector]];
-        [invocation setTarget:outputHandle];
-        [invocation setSelector:writeDataSelector];
-        /*
-         From Apple's Documentation on NSInvocation:
-         Indices 0 and 1 indicate the hidden arguments self and _cmd, respectively;
-         you should set these values directly with the target and selector properties.
-         Use indices 2 and greater for the arguments normally passed in a message.
-        */
-        [invocation setArgument:&data atIndex:2];
-        [invocation setArgument:&fileHandleErrorPointer atIndex:3];
-        [invocation invoke];
-    } else {
-        @try {
-            [outputHandle writeData:data];
-        } @catch (NSException *e) {
-            NSDictionary *userInfo = @{
-                NSLocalizedDescriptionKey : @"Failed to write attachment data to filehandle",
-            };
-            fileHandleError = [NSError errorWithDomain:@"com.onesignal.download" code:0 userInfo:userInfo];
-        }
-    }
+    NSError *fileHandleError;
+    [outputHandle writeData:data error:&fileHandleError];
     
     if (fileHandleError != nil) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError]];
@@ -265,46 +240,16 @@
 + (UNNotificationAction *)createActionForButton:(NSDictionary *)button {
     NSString *buttonId = button[@"id"];
     NSString *buttonText = button[@"text"];
-    
-    if (@available(iOS 15.0, *)) {
-        // Using reflection for Xcode versions lower than 13
-        id icon; // UNNotificationActionIcon
-        let UNNotificationActionIconClass = NSClassFromString(@"UNNotificationActionIcon");
-        if (UNNotificationActionIconClass) {
-            if (button[@"systemIcon"]) {
-                icon = [UNNotificationActionIconClass performSelector:@selector(iconWithSystemImageName:)
-                                                           withObject:button[@"systemIcon"]];
-            } else if (button[@"templateIcon"]) {
-                icon = [UNNotificationActionIconClass performSelector:@selector(iconWithTemplateImageName:)
-                                                           withObject:button[@"templateIcon"]];
-            }
-        }
-        
-        // We need to use NSInvocation because performSelector only allows up to 2 arguments
-        SEL actionSelector = NSSelectorFromString(@"actionWithIdentifier:title:options:icon:");
-        UNNotificationAction * __unsafe_unretained action;
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UNNotificationAction methodSignatureForSelector:actionSelector]];
-        [invocation setTarget:[UNNotificationAction class]];
-        [invocation setSelector:actionSelector];
-        /*
-         From Apple's Documentation on NSInvocation:
-         Indices 0 and 1 indicate the hidden arguments self and _cmd, respectively;
-         you should set these values directly with the target and selector properties.
-         Use indices 2 and greater for the arguments normally passed in a message.
-        */
-        NSUInteger actionOption = UNNotificationActionOptionForeground;
-        [invocation setArgument:&buttonId atIndex:2];
-        [invocation setArgument:&buttonText atIndex:3];
-        [invocation setArgument:&actionOption atIndex:4];
-        [invocation setArgument:&icon atIndex:5];
-        [invocation invoke];
-        [invocation getReturnValue:&action];
-        return action;
-    } else {
-        return [UNNotificationAction actionWithIdentifier:buttonId
-                                                    title:buttonText
-                                                  options:UNNotificationActionOptionForeground];
+    UNNotificationActionIcon *icon;
+    if (button[@"systemIcon"]) {
+        icon = [UNNotificationActionIcon iconWithSystemImageName:button[@"systemIcon"]];
+    } else if (button[@"templateIcon"]) {
+        icon = [UNNotificationActionIcon iconWithTemplateImageName:button[@"templateIcon"]];
     }
+    return [UNNotificationAction actionWithIdentifier:buttonId
+                                                title:buttonText
+                                              options:UNNotificationActionOptionForeground
+                                                 icon:icon];
 }
 
 /*

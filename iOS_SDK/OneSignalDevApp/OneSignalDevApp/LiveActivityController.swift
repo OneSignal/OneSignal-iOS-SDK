@@ -81,7 +81,6 @@ class LiveActivityController: NSObject {
       An example of starting a Live Activity whose attributes are "OneSignal SDK aware". The SDK will handle listening for update tokens on behalf of the app.
       */
      static var counter1 = 0
-     @available(iOS 13.0, *)
      @objc
      static func createOneSignalAwareActivity(activityId: String) {
          if #available(iOS 16.1, *) {
@@ -103,7 +102,6 @@ class LiveActivityController: NSObject {
     /**
      An example of starting a Live Activity using the DefaultLiveActivityAttributes.  The SDK will handle listening for update tokens on behalf of the app.
      */
-    @available(iOS 13.0, *)
     @objc
     static func createDefaultActivity(activityId: String) {
         if #available(iOS 16.1, *) {
@@ -118,7 +116,6 @@ class LiveActivityController: NSObject {
      An example of starting a Live Activity whose attributes are **not** "OneSignal SDK aware".  The app must handle listening for update tokens and notify the OneSignal SDK.
      */
     static var counter2 = 0
-    @available(iOS 13.0, *)
     @objc
     static func createActivity(activityId: String) async {
         if #available(iOS 16.1, *) {

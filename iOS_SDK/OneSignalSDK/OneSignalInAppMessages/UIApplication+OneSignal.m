@@ -33,13 +33,8 @@
 
 + (BOOL)applicationIsActive {
     if ([OSBundleUtils isAppUsingUIScene] && [NSThread isMainThread]) {
-        if (@available(iOS 13.0, *)) {
-            UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-            id windowScene = [keyWindow performSelector:@selector(windowScene)];
-            id session = [windowScene performSelector:@selector(session)];
-            id scene = [session performSelector:@selector(scene)];
-            return [scene performSelector:@selector(activationState)] == 0;
-        }
+        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+        return keyWindow.windowScene.activationState == UISceneActivationStateForegroundActive;
     }
     return [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 }

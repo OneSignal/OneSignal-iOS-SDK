@@ -71,10 +71,8 @@ public class OneSignalCoreMocks: NSObject {
 
     @objc public static func backgroundApp() {
         if OSBundleUtils.isAppUsingUIScene() {
-            if #available(iOS 13.0, *) {
-                NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
-                NotificationCenter.default.post(name: UIScene.didEnterBackgroundNotification, object: nil)
-            }
+            NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
+            NotificationCenter.default.post(name: UIScene.didEnterBackgroundNotification, object: nil)
         } else {
             NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
             NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -83,10 +81,8 @@ public class OneSignalCoreMocks: NSObject {
 
     @objc public static func foregroundApp() {
         if OSBundleUtils.isAppUsingUIScene() {
-            if #available(iOS 13.0, *) {
-                NotificationCenter.default.post(name: UIScene.willEnterForegroundNotification, object: nil)
-                NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
-            }
+            NotificationCenter.default.post(name: UIScene.willEnterForegroundNotification, object: nil)
+            NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         } else {
             NotificationCenter.default.post(name: UIApplication.willEnterForegroundNotification, object: nil)
             NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -95,9 +91,7 @@ public class OneSignalCoreMocks: NSObject {
 
     @objc public static func resignActive() {
         if OSBundleUtils.isAppUsingUIScene() {
-            if #available(iOS 13.0, *) {
-                NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
-            }
+            NotificationCenter.default.post(name: UIScene.willDeactivateNotification, object: nil)
         } else {
             NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
         }
@@ -105,9 +99,7 @@ public class OneSignalCoreMocks: NSObject {
 
     @objc public static func becomeActive() {
         if OSBundleUtils.isAppUsingUIScene() {
-            if #available(iOS 13.0, *) {
-                NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
-            }
+            NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
         } else {
             NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         }
