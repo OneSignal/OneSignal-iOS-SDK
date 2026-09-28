@@ -104,7 +104,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     private func uncacheUpdateRequests() {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestUpdateProperties] {
-            // Before the hook-up, so it does not restore an identity model for a Request that is going anyway.
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
             _ = removeStaleRequests(from: &updateRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
@@ -266,7 +266,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 
-    /// See `OSRequestAging`. Returns whether the queue changed, so the caller can rewrite its cache key.
+    /// See `OSRequestAging`. Returns whether the queue changed, so the caller can rewrite its cache entry.
     private func removeStaleRequests(from queue: inout [OSRequestUpdateProperties]) -> Bool {
         return queue.removeStaleRequests(
             typeLimit: OSRequestAging.propertyRequestMaxAge,

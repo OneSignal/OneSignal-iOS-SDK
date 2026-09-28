@@ -27,47 +27,68 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
 /// Age limits for queued user Requests. Each executor applies them at uncache and at the start of a
-/// flush pass, before `prepareForExecution`, so a stale Request goes even if it could send by then.
+/// flush pass, before `prepareForExecution`, so a stale Request is dropped even if it could send by then.
 enum OSRequestAging {
     static let propertyRequestMaxAge: TimeInterval = 60 * 60 * 24 * 90 // 90 days
     static let nonCurrentUserRequestMaxAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
     static let customEventRequestMaxAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
 
-    /// The limit for `request`, nil when it never ages out.
-    static func maxAge(of request: OSUserRequest, typeLimit: TimeInterval?, currentExternalId: String?) -> TimeInterval? {
+    /// The `external_id` of the current user, nil while there is none. Reads `_user`, since `user` calls
+    /// `start()` and would deadlock at uncache.
+    static var currentExternalId: String? {
+        return OneSignalUserManagerImpl.sharedInstance._user?.identityModel.externalId
+    }
+
+    /// The limit for work owned by `owner`, nil when it never ages out.
+    static func maxAge(owner: String?, typeLimit: TimeInterval?, currentExternalId: String?) -> TimeInterval? {
         var limit = typeLimit
-        if let owner = request.ownerExternalId, owner != currentExternalId {
+        if let owner = owner, owner != currentExternalId {
             limit = min(limit ?? .infinity, nonCurrentUserRequestMaxAge)
         }
         return limit
     }
 
-    /// A timestamp ahead of the clock reads as age zero, so a clock set back does not empty the queues.
-    static func age(of request: OneSignalRequest, now: Date) -> TimeInterval {
-        return max(0, now.timeIntervalSince(request.timestamp))
+    /// The age at which work with `timestamp` is dropped, nil to keep it. A timestamp ahead of the clock has no age.
+    static func staleAge(timestamp: Date, owner: String?, typeLimit: TimeInterval?, now: Date, currentExternalId: String?) -> TimeInterval? {
+        guard let limit = maxAge(owner: owner, typeLimit: typeLimit, currentExternalId: currentExternalId) else {
+            return nil
+        }
+        let age = now.timeIntervalSince(timestamp)
+        return age > limit ? age : nil
     }
 
-    /// The `external_id` of the user manager's current user, nil while there is none.
-    static var currentExternalId: String? {
-        return OneSignalUserManagerImpl.sharedInstance._user?.identityModel.externalId
+    static func logDrop(of item: String, owner: String?, age: TimeInterval, executor: String) {
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(executor) dropped \(item) owned by \(owner ?? "nil"), \(Int(age / 86_400)) days old")
     }
 }
 
 extension Array where Element: OSUserRequest {
-    /// Removes every Request past its age limit. Returns whether any went, so the caller can rewrite its cache key.
+    /// Removes every Request past its age limit. Returns whether any were dropped, so the caller can rewrite its cache entry.
     mutating func removeStaleRequests(typeLimit: TimeInterval?, now: Date, currentExternalId: String?, executor: String) -> Bool {
         let countBefore = count
         removeAll { request in
-            guard let limit = OSRequestAging.maxAge(of: request, typeLimit: typeLimit, currentExternalId: currentExternalId) else {
+            guard let age = OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: typeLimit, now: now, currentExternalId: currentExternalId) else {
                 return false
             }
-            let age = OSRequestAging.age(of: request, now: now)
-            guard age > limit else {
+            OSRequestAging.logDrop(of: "\(type(of: request))", owner: request.ownerExternalId, age: age, executor: executor)
+            return true
+        }
+        return count != countBefore
+    }
+}
+
+extension Array where Element == OSDelta {
+    /// The same for Deltas, which the custom events executor holds until their user has an `onesignal_id`.
+    mutating func removeStaleDeltas(typeLimit: TimeInterval?, now: Date, currentExternalId: String?, executor: String) -> Bool {
+        let countBefore = count
+        removeAll { delta in
+            guard let age = OSRequestAging.staleAge(timestamp: delta.timestamp, owner: delta.externalId, typeLimit: typeLimit, now: now, currentExternalId: currentExternalId) else {
                 return false
             }
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(executor) dropped \(type(of: request)) owned by \(request.ownerExternalId ?? "nobody"), \(Int(age / 86_400)) days old")
+            OSRequestAging.logDrop(of: "\(delta.name) Delta", owner: delta.externalId, age: age, executor: executor)
             return true
         }
         return count != countBefore

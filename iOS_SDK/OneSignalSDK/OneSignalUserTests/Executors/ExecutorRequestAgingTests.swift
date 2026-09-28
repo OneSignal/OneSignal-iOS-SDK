@@ -78,8 +78,12 @@ final class ExecutorRequestAgingTests: XCTestCase {
 
     // MARK: - Setup helpers
 
-    private func addUserToRepo(externalId: String, onesignalId: String, token: String) -> OSIdentityModel {
-        let model = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: onesignalId, OS_EXTERNAL_ID: externalId], changeNotifier: OSEventProducer())
+    private func addUserToRepo(externalId: String, onesignalId: String?, token: String) -> OSIdentityModel {
+        var aliases = [OS_EXTERNAL_ID: externalId]
+        if let onesignalId = onesignalId {
+            aliases[OS_ONESIGNAL_ID] = onesignalId
+        }
+        let model = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
         model.jwtBearerToken = token
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(model)
         return model
@@ -137,11 +141,27 @@ final class ExecutorRequestAgingTests: XCTestCase {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: key, withValue: requests)
     }
 
+    private func customEventDelta(for identityModel: OSIdentityModel) -> OSDelta {
+        return OSDelta(
+            name: OS_CUSTOM_EVENT_DELTA,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
+            model: OSModel(changeNotifier: OSEventProducer()),
+            property: "test_event",
+            value: ["test_property": "test-value"]
+        )
+    }
+
     // MARK: - Assertion helpers
 
     private func cachedOwners<T: OSUserRequest>(_ key: String, of type: T.Type) -> [String?] {
         let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: key, defaultValue: []) as? [T] ?? []
         return requests.map { $0.ownerExternalId }
+    }
+
+    private func cachedCustomEventDeltaCount() -> Int {
+        let deltas = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] ?? []
+        return deltas.count
     }
 
     // MARK: - Property updates
@@ -162,8 +182,8 @@ final class ExecutorRequestAgingTests: XCTestCase {
         XCTAssertEqual(cachedOwners(propertiesKey, of: OSRequestUpdateProperties.self), [userA_EUID])
     }
 
-    /// The check runs before `prepareForExecution`, so the Request goes on the flush that finds it stale
-    /// even though the hold that stopped the first flush has lifted by then.
+    /// The check runs before `prepareForExecution`, so the Request is dropped on the flush that finds it
+    /// stale even though the hold that stopped the first flush has lifted by then.
     func testAPropertyUpdateThatCrosses90DaysBetweenFlushesIsDroppedAtTheSecondFlush() {
         newRecordsState.add(userA_OSID)
         cache([propertyUpdate(for: current, daysOld: 89)], under: propertiesKey)
@@ -201,6 +221,25 @@ final class ExecutorRequestAgingTests: XCTestCase {
         }
 
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestUpdateProperties.self, expectedCount: 1))
+    }
+
+    /// The rule judges the owner at each flush, so a switch makes the outgoing user's older Requests non-current.
+    func testARequestOwnedByAUserWhoIsNoLongerCurrentIsDroppedAtTheNextFlush() {
+        newRecordsState.add(userA_OSID)
+        cache([propertyUpdate(for: current, daysOld: 45)], under: propertiesKey)
+        let executor = propertyExecutor()
+
+        executor.processDeltaQueue(inBackground: false)
+        allowAsyncWorkToRun()
+        XCTAssertEqual(cachedOwners(propertiesKey, of: OSRequestUpdateProperties.self), [userA_EUID])
+
+        _ = OneSignalUserMocks.setUserManagerInternalUser(externalId: userB_EUID, onesignalId: userB_OSID)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The outgoing user's Update Properties was not dropped") {
+            self.cachedOwners(self.propertiesKey, of: OSRequestUpdateProperties.self).isEmpty
+        }
+
+        XCTAssertEqual(client.executedRequests.count, 0)
     }
 
     // MARK: - Non-current users
@@ -245,6 +284,25 @@ final class ExecutorRequestAgingTests: XCTestCase {
         XCTAssertEqual(cachedOwners(propertiesKey, of: OSRequestUpdateProperties.self), [userA_EUID])
     }
 
+    // MARK: - Aliases
+
+    /// Both queues are aged at flush, and each rewrites its own cache entry.
+    func testAnIdentityFlushDropsStaleAliasRequestsFromBothQueues() {
+        newRecordsState.add(userA_OSID)
+        cache([addAliases(for: other, daysOld: 29)], under: addAliasesKey)
+        cache([removeAlias(for: other, daysOld: 29), removeAlias(for: current, daysOld: 29)], under: removeAliasKey)
+        let executor = identityExecutor()
+
+        now = now.addingTimeInterval(2 * day)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The stale alias Requests were not dropped from both cache entries") {
+            self.cachedOwners(self.addAliasesKey, of: OSRequestAddAliases.self).isEmpty
+                && self.cachedOwners(self.removeAliasKey, of: OSRequestRemoveAlias.self) == [userA_EUID]
+        }
+
+        XCTAssertEqual(client.executedRequests.count, 0)
+    }
+
     // MARK: - Custom events
 
     func testCustomEventsOwnedByTheCurrentUserAreDroppedAt31Days() {
@@ -253,6 +311,74 @@ final class ExecutorRequestAgingTests: XCTestCase {
         _ = customEventsExecutor()
 
         XCTAssertEqual(cachedOwners(customEventsKey, of: OSRequestCustomEvents.self), [])
+    }
+
+    func testACustomEventsFlushKeepsAt29DaysAndDropsAt31Days() {
+        newRecordsState.add(userA_OSID)
+        cache([customEvents(for: current, daysOld: 29)], under: customEventsKey)
+        let executor = customEventsExecutor()
+
+        executor.processDeltaQueue(inBackground: false)
+        allowAsyncWorkToRun()
+        XCTAssertEqual(cachedOwners(customEventsKey, of: OSRequestCustomEvents.self), [userA_EUID])
+
+        now = now.addingTimeInterval(2 * day)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The stale Custom Events was not dropped from the cache") {
+            self.cachedOwners(self.customEventsKey, of: OSRequestCustomEvents.self).isEmpty
+        }
+
+        XCTAssertEqual(client.executedRequests.count, 0)
+    }
+
+    /// A custom event stays a Delta until its user has an `onesignal_id`, so it is aged where it waits.
+    func testACustomEventDeltaWaitingForAnOnesignalIdIsDroppedAt31Days() {
+        let pending = addUserToRepo(externalId: "test_user_c_external_id", onesignalId: nil, token: "token-c")
+        let executor = customEventsExecutor()
+        executor.enqueueDelta(customEventDelta(for: pending))
+
+        now = now.addingTimeInterval(29 * day)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The waiting Delta was not cached") {
+            self.cachedCustomEventDeltaCount() == 1
+        }
+
+        now = now.addingTimeInterval(2 * day)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The stale Delta was not dropped from the cache") {
+            self.cachedCustomEventDeltaCount() == 0
+        }
+
+        XCTAssertEqual(cachedOwners(customEventsKey, of: OSRequestCustomEvents.self), [])
+        XCTAssertEqual(client.executedRequests.count, 0)
+    }
+
+    /// The Request built once the id arrives keeps the Delta's timestamp, so its 30 days count from the event.
+    func testACustomEventRequestIsAgedFromItsDelta() {
+        let pendingOSID = "test_user_c_onesignal_id"
+        let pending = addUserToRepo(externalId: "test_user_c_external_id", onesignalId: nil, token: "token-c")
+        newRecordsState.add(pendingOSID)
+        let executor = customEventsExecutor()
+        executor.enqueueDelta(customEventDelta(for: pending))
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The waiting Delta was not cached") {
+            self.cachedCustomEventDeltaCount() == 1
+        }
+
+        now = now.addingTimeInterval(20 * day)
+        pending.addAliases([OS_ONESIGNAL_ID: pendingOSID])
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The Delta did not become a Request once its user had an onesignal_id") {
+            self.cachedOwners(self.customEventsKey, of: OSRequestCustomEvents.self) == ["test_user_c_external_id"]
+        }
+
+        now = now.addingTimeInterval(11 * day)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The Request was not aged from its Delta") {
+            self.cachedOwners(self.customEventsKey, of: OSRequestCustomEvents.self).isEmpty
+        }
+
+        XCTAssertEqual(client.executedRequests.count, 0)
     }
 
     // MARK: - Requests with no age limit

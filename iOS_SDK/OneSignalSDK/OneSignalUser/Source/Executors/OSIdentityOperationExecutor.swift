@@ -73,7 +73,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     private func uncacheAddAliasRequests() {
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestAddAliases] {
-            // Before the hook-up, so it does not restore an identity model for a Request that is going anyway.
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
             _ = removeStaleRequests(from: &addRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
@@ -98,7 +98,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     private func uncacheRemoveAliasRequests() {
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestRemoveAlias] {
-            // Before the hook-up, so it does not restore an identity model for a Request that is going anyway.
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
             _ = removeStaleRequests(from: &removeRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
