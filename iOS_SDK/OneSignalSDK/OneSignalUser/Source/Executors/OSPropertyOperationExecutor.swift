@@ -71,13 +71,15 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private var updateRequestQueue: [OSRequestUpdateProperties] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let nowProvider: () -> Date
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
         uncacheDeltas()
@@ -102,6 +104,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     private func uncacheUpdateRequests() {
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_USER_DEFAULTS_MAX_VALUE_BYTES)) as? [OSRequestUpdateProperties] {
+            // Before the hook-up, so it does not restore an identity model for a Request that is going anyway.
+            _ = removeStaleRequests(from: &updateRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
@@ -249,6 +253,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     private func processRequestQueue(inBackground: Bool) {
+        if removeStaleRequests(from: &updateRequestQueue) {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: updateRequestQueue)
+        }
+
         if updateRequestQueue.isEmpty {
             return
         }
@@ -256,6 +264,16 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         for request in updateRequestQueue {
             executeUpdatePropertiesRequest(request, inBackground: inBackground)
         }
+    }
+
+    /// See `OSRequestAging`. Returns whether the queue changed, so the caller can rewrite its cache key.
+    private func removeStaleRequests(from queue: inout [OSRequestUpdateProperties]) -> Bool {
+        return queue.removeStaleRequests(
+            typeLimit: OSRequestAging.propertyRequestMaxAge,
+            now: nowProvider(),
+            currentExternalId: OSRequestAging.currentExternalId,
+            executor: "OSPropertyOperationExecutor"
+        )
     }
 
     func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties, inBackground: Bool) {
