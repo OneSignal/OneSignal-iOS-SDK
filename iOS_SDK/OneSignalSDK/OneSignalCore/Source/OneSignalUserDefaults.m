@@ -187,7 +187,6 @@
     @try {
         data = [NSKeyedArchiver archivedDataWithRootObject:value];
     } @catch (NSException *exception) {
-        // The previous blob stays: for a model store a stale copy beats none.
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@: %@", key, exception.reason]];
         return;
     }
