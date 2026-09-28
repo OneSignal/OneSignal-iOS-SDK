@@ -50,13 +50,15 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     private var requestQueue: [OSRequestCustomEvents] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let nowProvider: () -> Date
 
     // The executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `requestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSCustomEventsExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheRequests()
@@ -82,6 +84,8 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
     private func uncacheRequests() {
         if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestCustomEvents] {
+            // Before the hook-up, so it does not restore an identity model for a Request that is going anyway.
+            _ = removeStaleRequests(from: &requestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in requestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
@@ -271,6 +275,10 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     private func processRequestQueue(inBackground: Bool) {
+        if removeStaleRequests(from: &requestQueue) {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: requestQueue)
+        }
+
         if requestQueue.isEmpty {
             return
         }
@@ -278,6 +286,16 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         for request in requestQueue {
             executeRequest(request, inBackground: inBackground)
         }
+    }
+
+    /// See `OSRequestAging`. Returns whether the queue changed, so the caller can rewrite its cache key.
+    private func removeStaleRequests(from queue: inout [OSRequestCustomEvents]) -> Bool {
+        return queue.removeStaleRequests(
+            typeLimit: OSRequestAging.customEventRequestMaxAge,
+            now: nowProvider(),
+            currentExternalId: OSRequestAging.currentExternalId,
+            executor: "OSCustomEventsExecutor"
+        )
     }
 
     private func executeRequest(_ request: OSRequestCustomEvents, inBackground: Bool) {
