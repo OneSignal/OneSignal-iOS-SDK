@@ -33,8 +33,8 @@ import OneSignalUserMocks
 import OneSignalInAppMessagesMocks
 
 /**
- The trigger and pause entry points accept calls from any thread, while the controller's message
- state lives on the main queue. Each test drives an entry point from a background queue with the
+ The trigger and pause entry points and the inactive-message callback accept calls from any thread,
+ while the controller's message state lives on the main queue. Each test drives an entry point from a background queue with the
  main thread held, then lets the main queue drain and checks where the work ran.
  */
 final class TriggerThreadingTests: XCTestCase {
@@ -167,5 +167,17 @@ final class TriggerThreadingTests: XCTestCase {
         drainMainQueue()
 
         XCTAssertEqual(triggerController.matchCallsOnMain, [true])
+    }
+
+    func testInactiveMessageOffMainIsDeletedOnMainQueue() {
+        let message = controller.messages.firstObject as! OSInAppMessageInternal
+
+        runOffMain { self.controller.messageIsNotActive(message) }
+
+        XCTAssertEqual(controller.messages.count, 1, "messages were replaced on the calling thread")
+
+        drainMainQueue()
+
+        XCTAssertEqual(controller.messages.count, 0)
     }
 }
