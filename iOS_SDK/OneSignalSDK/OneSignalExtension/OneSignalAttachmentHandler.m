@@ -48,9 +48,7 @@
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     NSError *fileHandleError;
-    [outputHandle writeData:data error:&fileHandleError];
-    
-    if (fileHandleError != nil) {
+    if (![outputHandle writeData:data error:&fileHandleError]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError]];
     }
 }

@@ -345,8 +345,8 @@ void finishProcessingNotification(UNNotification *notification,
     // Or call a legacy AppDelegate selector
     //  - If not a dismiss event as their isn't a iOS 9 selector for it.
     else if (![OneSignalNotificationsUNUserNotificationCenter isDismissEvent:response]) {
-        BOOL isTextReply = [response isKindOfClass:NSClassFromString(@"UNTextInputNotificationResponse")];
-        NSString* userText = isTextReply ? [response valueForKey:@"userText"] : nil;
+        BOOL isTextReply = [response isKindOfClass:[UNTextInputNotificationResponse class]];
+        NSString* userText = isTextReply ? ((UNTextInputNotificationResponse *)response).userText : nil;
         [OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:response.notification
                                                 isTextReply:isTextReply
                                            actionIdentifier:response.actionIdentifier
@@ -406,7 +406,7 @@ void finishProcessingNotification(UNNotification *notification,
      the SDK will now print warnings when a developer's app implements these selectors
      */
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
-    BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
+    BOOL isRemote = [notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]];
     
     if (isRemote) {
         NSDictionary* remoteUserInfo = notification.request.content.userInfo;
