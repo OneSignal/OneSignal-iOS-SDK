@@ -217,7 +217,7 @@ final class OSRemoteLoggingControllerTests: XCTestCase {
         wait(for: [telemetry.flushExpectation!], timeout: 0.2)
 
         telemetry.flushExpectation = expectation(description: "flushes on scene background")
-        notificationCenter.post(name: Notification.Name("UISceneDidEnterBackgroundNotification"), object: nil)
+        notificationCenter.post(name: UIScene.didEnterBackgroundNotification, object: nil)
         wait(for: [telemetry.flushExpectation!], timeout: 2)
     }
 

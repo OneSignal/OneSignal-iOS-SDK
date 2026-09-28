@@ -238,19 +238,15 @@
 - (IBAction)startAndEnterLiveActivity:(id)sender {
 #if TARGET_OS_MACCATALYST
 #else
-    if (@available(iOS 13.0, *)) {
-        NSString *activityId = [self.activityId text];
-        // Will not make a live activity if activityId is empty
-        if (activityId && activityId.length) {
-            // 1. Create a Default activity
-            // [LiveActivityController createDefaultActivityWithActivityId:activityId ];
-            // 2. Create non-OneSignal-aware activity
-            // [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
-            // 3. Create OneSignal-aware activity
-            [LiveActivityController createOneSignalAwareActivityWithActivityId:activityId];
-        }
-    } else {
-        NSLog(@"Must use iOS 13 or later for swift concurrency which is required for [LiveActivityController createActivityWithCompletionHandler...");
+    NSString *activityId = [self.activityId text];
+    // Will not make a live activity if activityId is empty
+    if (activityId && activityId.length) {
+        // 1. Create a Default activity
+        // [LiveActivityController createDefaultActivityWithActivityId:activityId ];
+        // 2. Create non-OneSignal-aware activity
+        // [LiveActivityController createActivityWithActivityId:activityId completionHandler:^(void) {} ];
+        // 3. Create OneSignal-aware activity
+        [LiveActivityController createOneSignalAwareActivityWithActivityId:activityId];
     }
 #endif
 }
