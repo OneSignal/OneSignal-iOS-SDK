@@ -44,11 +44,14 @@ final class IAMIntegrationTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
         ConsistencyManagerTestHelpers.reset()
+        OSMessagingController.removeInstance()
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws { }
+    override func tearDownWithError() throws {
+        OSMessagingController.removeInstance()
+    }
 
     func testLanguageVariantSelection() throws {
         OneSignalIdentifiers.currentAppId = "test-app-id"
@@ -101,7 +104,12 @@ final class IAMIntegrationTests: XCTestCase {
         // 3. Present the preview message
         OSMessagingController.sharedInstance().present(inAppPreviewMessage: message)
 
-        // 4. Verify that the preview IAM is showing even when paused
+        // 4. Let anything the pause queued on the main queue run first
+        let drained = expectation(description: "main queue drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: 5)
+
+        // 5. Verify that the preview IAM is showing even when paused
         XCTAssertTrue(OSMessagingController.sharedInstance().isInAppMessageShowing)
     }
 
