@@ -44,11 +44,14 @@ final class IAMIntegrationTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
         OneSignalUserMocks.reset()
         ConsistencyManagerTestHelpers.reset()
+        OSMessagingController.removeInstance()
         // Temp. logging to help debug during testing
         OneSignalLog.setLogLevel(.LL_VERBOSE)
     }
 
-    override func tearDownWithError() throws { }
+    override func tearDownWithError() throws {
+        OSMessagingController.removeInstance()
+    }
 
     func testLanguageVariantSelection() throws {
         OneSignalIdentifiers.currentAppId = "test-app-id"
