@@ -187,9 +187,8 @@
     @try {
         data = [NSKeyedArchiver archivedDataWithRootObject:value];
     } @catch (NSException *exception) {
-        // The old blob no longer matches memory, so drop it rather than restore it on the next launch.
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@, removing it: %@", key, exception.reason]];
-        [self removeValueForKey:key];
+        // The previous blob stays: for a model store a stale copy beats none.
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@: %@", key, exception.reason]];
         return;
     }
     // CFPreferences refuses a value this large and may stop persisting the suite afterwards.

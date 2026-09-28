@@ -232,7 +232,7 @@ class OSUserExecutor {
      As of `5.2.3`, the SDK will no longer send Transfer Subscription requests, so migrate the request into an equivalent Create User request.
      */
     private func migrateTransferSubscriptionRequests() {
-        if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: nil) as? [OSRequestTransferSubscription] {
+        if let transferSubscriptionRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY, defaultValue: nil, maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestTransferSubscription] {
             OneSignalUserDefaults.initShared().removeValue(forKey: OS_USER_EXECUTOR_TRANSFER_SUBSCRIPTION_REQUEST_QUEUE_KEY)
 
             // Translate the last request into a Create User request, if the current user is the same

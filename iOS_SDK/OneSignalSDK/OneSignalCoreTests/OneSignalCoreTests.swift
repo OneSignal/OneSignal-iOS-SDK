@@ -80,7 +80,8 @@ final class OneSignalCoreTests: XCTestCase {
 
     func testOversizedCodeableDataIsDroppedNotDecoded() {
         let defaults = OneSignalUserDefaults.initShared()
-        defaults.saveObject(forKey: guardKey, withValue: Data(count: 1025))
+        // A real archive over the cap; without the cap it would decode.
+        defaults.saveCodeableData(forKey: guardKey, withValue: [String(repeating: "x", count: 2048)])
 
         let restored = defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"], maxBytes: 1024) as? [String]
 
@@ -108,14 +109,15 @@ final class OneSignalCoreTests: XCTestCase {
         defaults.removeValue(forKey: guardKey)
     }
 
-    func testUnarchivableValueIsNotCachedAndClearsTheKey() {
+    func testUnarchivableValueLeavesTheCachedValueInPlace() {
         let defaults = OneSignalUserDefaults.initShared()
         defaults.saveCodeableData(forKey: guardKey, withValue: ["cached"])
 
         // NSObject does not adopt NSCoding, so archiving it raises.
         defaults.saveCodeableData(forKey: guardKey, withValue: NSObject())
 
-        XCTAssertFalse(defaults.keyExists(guardKey))
+        XCTAssertEqual(defaults.getSavedCodeableData(forKey: guardKey, defaultValue: nil) as? [String], ["cached"])
+        defaults.removeValue(forKey: guardKey)
     }
 
     func testValueAtThePlatformLimitIsNotCached() {

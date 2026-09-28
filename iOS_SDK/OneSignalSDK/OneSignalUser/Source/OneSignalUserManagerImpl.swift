@@ -268,6 +268,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
 
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
+            removeIdentityVerificationBetaCaches()
 
             // The model stores load their in-memory `models` dict once in their initializer.
             // If the singleton was first touched while protected data was unavailable (iOS app
@@ -323,8 +324,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 }
                 self?.pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabledInternally = false
             }
-
-            removeIdentityVerificationBetaCaches()
 
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
