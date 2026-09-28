@@ -1173,13 +1173,7 @@ static BOOL _isInAppMessagingPaused = false;
 // Required to display if the app is using a Scene
 // See https://github.com/OneSignal/OneSignal-iOS-SDK/issues/648
 - (void)addKeySceneToWindow:(UIWindow*)window {
-    if (@available(iOS 13.0, *)) {
-        // The below lines can be replace with this single line once Xcode 10 support is dropped
-        // window.windowScene = UIApplication.sharedApplication.keyWindow.windowScene;
-        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-        id windowScene = [keyWindow performSelector:@selector(windowScene)];
-        [window performSelector:@selector(setWindowScene:) withObject:windowScene];
-    }
+    window.windowScene = UIApplication.sharedApplication.keyWindow.windowScene;
 }
 
 - (void)dynamicTriggerCompleted:(NSString *)triggerId {
