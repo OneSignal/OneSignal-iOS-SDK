@@ -603,6 +603,25 @@ final class OneSignalUserTests: XCTestCase {
         XCTAssertEqual(subscriptions.first?["enabled"] as? Bool, false)
         XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -22)
     }
+}
+
+/**
+ `optedIn` is the only signal the public API gives an app for "will push reach this device", so a
+ subscription the app owner turned off remotely has to report false there. Kept in its own class
+ because these build bare models and never touch the user manager singleton.
+ */
+/// The 5.3.0-beta line left queues on disk that this SDK does not read. `start()` clears them and
+/// refuses to decode an oversized queue it does read.
+final class IdentityVerificationBetaCacheTests: XCTestCase {
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+    }
+
+    override func tearDownWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+    }
 
     func testStartRemovesIdentityVerificationBetaCachesAndAnOversizedQueue() throws {
         let client = MockOneSignalClient()
@@ -640,12 +659,6 @@ final class OneSignalUserTests: XCTestCase {
     }
 }
 
-
-/**
- `optedIn` is the only signal the public API gives an app for "will push reach this device", so a
- subscription the app owner turned off remotely has to report false there. Kept in its own class
- because these build bare models and never touch the user manager singleton.
- */
 final class RemoteDisableOptedInTests: XCTestCase {
 
     override func setUpWithError() throws {
