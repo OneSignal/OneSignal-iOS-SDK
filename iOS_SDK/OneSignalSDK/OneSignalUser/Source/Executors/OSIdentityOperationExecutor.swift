@@ -36,13 +36,15 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     private var removeRequestQueue: [OSRequestRemoveAlias] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let nowProvider: () -> Date
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheAddAliasRequests()
@@ -71,6 +73,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     private func uncacheAddAliasRequests() {
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestAddAliases] {
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
+            _ = removeStaleRequests(from: &addRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
@@ -94,6 +98,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     private func uncacheRemoveAliasRequests() {
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_CACHED_QUEUE_MAX_BYTES)) as? [OSRequestRemoveAlias] {
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
+            _ = removeStaleRequests(from: &removeRequestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
@@ -196,6 +202,13 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     private func processRequestQueue(inBackground: Bool) {
+        if removeStaleRequests(from: &addRequestQueue) {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: addRequestQueue)
+        }
+        if removeStaleRequests(from: &removeRequestQueue) {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: removeRequestQueue)
+        }
+
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue
 
         if requestQueue.isEmpty {
@@ -214,6 +227,16 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor.processRequestQueue met incompatible OneSignalRequest type: \(request).")
             }
         }
+    }
+
+    /// See `OSRequestAging`. Only the owner rule applies, since an alias change has no limit of its own.
+    private func removeStaleRequests<T: OSUserRequest>(from queue: inout [T]) -> Bool {
+        return queue.removeStaleRequests(
+            typeLimit: nil,
+            now: nowProvider(),
+            currentExternalId: OSRequestAging.currentExternalId,
+            executor: "OSIdentityOperationExecutor"
+        )
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases, inBackground: Bool) {
