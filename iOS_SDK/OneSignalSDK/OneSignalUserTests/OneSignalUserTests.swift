@@ -605,12 +605,60 @@ final class OneSignalUserTests: XCTestCase {
     }
 }
 
-
 /**
  `optedIn` is the only signal the public API gives an app for "will push reach this device", so a
  subscription the app owner turned off remotely has to report false there. Kept in its own class
  because these build bare models and never touch the user manager singleton.
  */
+/// The 5.3.0-beta line left queues on disk that this SDK does not read. `start()` clears them and
+/// refuses to decode an oversized queue it does read.
+final class IdentityVerificationBetaCacheTests: XCTestCase {
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+    }
+
+    override func tearDownWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+    }
+
+    func testStartRemovesIdentityVerificationBetaCachesAndAnOversizedQueue() throws {
+        let client = MockOneSignalClient()
+        client.executeInstantaneously = true
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+
+        let defaults = OneSignalUserDefaults.initShared()
+        let betaKeys = [
+            OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY
+        ]
+        for key in betaKeys {
+            defaults.saveCodeableData(forKey: key, withValue: ["nan01": []])
+        }
+        // A real archive over the cap. Without the cap it decodes to strings, which fails the cast and leaves the key as is.
+        // Distinct strings: the archiver stores a repeated object once, which would keep this under the cap.
+        let oversized = (0..<(Int(OS_CACHED_QUEUE_MAX_BYTES) / 1024 + 64)).map { String(repeating: "x", count: 1024) + String($0) }
+        defaults.saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: oversized)
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        for key in betaKeys {
+            XCTAssertFalse(defaults.keyExists(key), "\(key) survived start()")
+        }
+        // The property executor replaced the blob with its empty queue rather than decoding it.
+        let queue = defaults.getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: nil) as? [Any]
+        XCTAssertEqual(queue?.count, 0)
+    }
+}
+
 final class RemoteDisableOptedInTests: XCTestCase {
 
     override func setUpWithError() throws {
