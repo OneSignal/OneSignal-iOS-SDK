@@ -151,4 +151,21 @@ final class IAMIntegrationTests: XCTestCase {
         XCTAssertFalse(OSMessagingController.sharedInstance().isInAppMessageShowing)
         XCTAssertEqual(OSMessagingController.sharedInstance().messageDisplayQueue.count, 0)
     }
+
+    func testBlankTriggerKeysLeaveExistingTriggers() {
+        let controller = OSMessagingController.sharedInstance()
+        OneSignalInAppMessages.addTrigger("guard-kept", withValue: "yes")
+        OneSignalInAppMessages.addTrigger("", withValue: "no")
+        OneSignalInAppMessages.addTriggers(["": "y", "blank-batch": "x"])
+        OneSignalInAppMessages.removeTrigger("")
+        OneSignalInAppMessages.removeTriggers(["guard-kept", ""])
+
+        let triggers = controller.triggerController.getTriggers()
+        XCTAssertEqual(triggers["guard-kept"] as? String, "yes")
+        XCTAssertNil(triggers[""])
+        XCTAssertNil(triggers["blank-batch"])
+
+        OneSignalInAppMessages.removeTrigger("guard-kept")
+        controller.earlySessionTriggers.remove("guard-kept")
+    }
 }

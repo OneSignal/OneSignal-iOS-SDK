@@ -38,11 +38,13 @@ final class OSInputGuardTests: XCTestCase {
 
     func testIsMissingAnyRejectsABlankEntryAndANilCollection() {
         XCTAssertTrue(OSInputGuard.isMissingAny(nil as NSArray?, "removeTags: key"))
+        XCTAssertTrue(OSInputGuard.isMissingAny(nil as [String]?, "removeTags: key"))
         XCTAssertTrue(OSInputGuard.isMissingAny(["ok", ""], "removeTags: key"))
         XCTAssertFalse(OSInputGuard.isMissingAny(["ok", " "], "removeTags: key"))
     }
 
     func testHasMissingEntriesRejectsBlankKeysAndBlankAliasIds() {
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(nil as [String: String]?, "addAliases", allowEmptyValue: false))
         XCTAssertTrue(OSInputGuard.hasMissingEntries(["": "id"], "addAliases", allowEmptyValue: false))
         XCTAssertTrue(OSInputGuard.hasMissingEntries(["label": ""], "addAliases", allowEmptyValue: false))
         XCTAssertFalse(OSInputGuard.hasMissingEntries(["label": "id"], "addAliases", allowEmptyValue: false))

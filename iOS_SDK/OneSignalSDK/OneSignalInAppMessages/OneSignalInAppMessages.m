@@ -80,10 +80,8 @@
 
     if ([OSInputGuard isMissing:key api:@"addTrigger: key"])
         return;
-    if (!value) {
-        [OSInputGuard isMissing:nil api:@"addTrigger: value"];
+    if (!value && [OSInputGuard isMissing:nil api:@"addTrigger: value"])
         return;
-    }
 
     [OSMessagingController.sharedInstance addTriggers:@{key : value}];
 }

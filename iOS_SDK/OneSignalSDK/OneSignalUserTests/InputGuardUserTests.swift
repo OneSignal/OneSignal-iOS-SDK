@@ -33,46 +33,82 @@ import XCTest
 @_spi(OneSignalInternal) @testable import OneSignalUser
 
 final class InputGuardUserTests: XCTestCase {
-    func testBlankIdentityStringsAreNotStored() throws {
-        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
-        let previousAppId = OneSignalIdentifiers.currentAppId
+    private var previousAppId: String?
+
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        previousAppId = OneSignalIdentifiers.currentAppId
         OneSignalIdentifiers.currentAppId = "b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-        defer { OneSignalIdentifiers.currentAppId = previousAppId }
+        OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
+        OSOperationRepo.sharedInstance.paused = true
+    }
 
+    override func tearDownWithError() throws {
+        OneSignalIdentifiers.currentAppId = previousAppId
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+    }
+
+    func testBlankAliasLabelIsNotStoredAndEmptyRemoveLeavesIt() {
         let manager = OneSignalUserManagerImpl.sharedInstance
-
+        manager.user.addAliases(["": "legacy-id"])
         manager.addAlias(label: "", id: "alias-id")
+        manager.addAlias(label: "kept-label", id: "real-id")
         manager.addAlias(label: "kept-label", id: "")
         manager.addAliases(["blank-label": "x", "": "y"])
-        XCTAssertNil(manager.user.identityModel.aliases[""])
-        XCTAssertNil(manager.user.identityModel.aliases["kept-label"])
+
+        XCTAssertEqual(manager.user.identityModel.aliases[""], "legacy-id")
+        XCTAssertEqual(manager.user.identityModel.aliases["kept-label"], "real-id")
         XCTAssertNil(manager.user.identityModel.aliases["blank-label"])
+
+        manager.removeAlias("")
+        manager.removeAliases([""])
+        XCTAssertEqual(manager.user.identityModel.aliases[""], "legacy-id")
 
         manager.addAlias(label: " ", id: "space-id")
         XCTAssertEqual(manager.user.identityModel.aliases[" "], "space-id")
         manager.removeAlias(" ")
         XCTAssertNil(manager.user.identityModel.aliases[" "])
+    }
 
+    func testBlankTagKeyRejectsTheBatchAndEmptyRemoveLeavesIt() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.user.addTags(["": "legacy"])
         manager.addTags(["": "nope", "blank-batch": "nope"])
         manager.addTag(key: "empty-value", value: "")
-        XCTAssertNil(manager.getTags()[""])
+
+        XCTAssertEqual(manager.getTags()[""], "legacy")
         XCTAssertNil(manager.getTags()["blank-batch"])
         XCTAssertEqual(manager.getTags()["empty-value"], "")
+
+        manager.removeTag("")
+        manager.removeTags([""])
+        XCTAssertEqual(manager.getTags()[""], "legacy")
         manager.removeTag("empty-value")
         XCTAssertNil(manager.getTags()["empty-value"])
+    }
 
+    func testEmptyEmailAndSmsAreNotStored() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
         manager.addEmail("")
         manager.removeEmail("")
-        XCTAssertNil(manager.subscriptionModelStore.getModel(key: ""))
-
         manager.addSms("")
         manager.removeSms("")
         XCTAssertNil(manager.subscriptionModelStore.getModel(key: ""))
+    }
 
-        manager.removeAlias("")
-        manager.removeAliases([""])
-        manager.removeTag("")
-        manager.removeTags([""])
+    func testBlankEventNameIsNotEnqueued() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let repo = OSOperationRepo.sharedInstance
+        manager.trackEvent(name: "kept-event", properties: nil)
+        repo.flushAndWait()
+        let before = repo.deltaQueue.filter { $0.name == OS_CUSTOM_EVENT_DELTA }.count
+
         manager.trackEvent(name: "", properties: nil)
+        repo.flushAndWait()
+        let after = repo.deltaQueue.filter { $0.name == OS_CUSTOM_EVENT_DELTA }.count
+        XCTAssertEqual(after, before)
+        XCTAssertGreaterThan(before, 0)
     }
 }
