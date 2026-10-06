@@ -198,8 +198,10 @@
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@: %@", key, exception.reason]];
         return;
     }
-    // CFPreferences refuses a value this large and may stop persisting the suite afterwards.
-    if (data.length >= OS_USER_DEFAULTS_MAX_VALUE_BYTES) {
+    // Nothing the SDK caches is legitimately this large: a queue that reached it is the bloat the read cap drops,
+    // so the previous blob goes too rather than resend the Requests it held. CFPreferences refuses a value of 4 MB
+    // or more and can stop persisting the suite afterwards.
+    if (data.length > OS_USER_DEFAULTS_MAX_VALUE_BYTES) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults not caching %@: %lu bytes", key, (unsigned long)data.length]];
         [self removeValueForKey:key];
         return;

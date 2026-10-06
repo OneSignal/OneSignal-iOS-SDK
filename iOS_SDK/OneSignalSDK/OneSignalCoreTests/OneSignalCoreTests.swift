@@ -120,7 +120,7 @@ final class OneSignalCoreTests: XCTestCase {
         defaults.removeValue(forKey: guardKey)
     }
 
-    func testValueAtThePlatformLimitIsNotCached() {
+    func testValueOverTheLimitIsNotCachedAndThePreviousBlobGoesWithIt() {
         let defaults = OneSignalUserDefaults.initShared()
         defaults.saveCodeableData(forKey: guardKey, withValue: ["cached"])
 

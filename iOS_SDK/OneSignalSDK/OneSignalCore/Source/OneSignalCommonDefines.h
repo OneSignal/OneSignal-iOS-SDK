@@ -378,10 +378,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY                           @"OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY                         @"OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY"
 
-// A cached queue past this size is dropped without decoding it. Real queues are a few KB.
-#define OS_CACHED_QUEUE_MAX_BYTES                                           1048576
-// CFPreferences rejects a single value at or above this size on iOS.
-#define OS_USER_DEFAULTS_MAX_VALUE_BYTES                                    4194304
+// A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
+// decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.
+#define OS_USER_DEFAULTS_MAX_VALUE_BYTES                                    1048576
 
 // Written only by the 5.3.0-beta Identity Verification builds. Nothing reads them anymore.
 #define OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY                          @"OS_USER_EXECUTOR_PENDING_QUEUE_KEY"

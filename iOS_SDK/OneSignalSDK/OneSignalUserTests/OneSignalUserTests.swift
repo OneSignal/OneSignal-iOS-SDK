@@ -860,8 +860,12 @@ final class IdentityVerificationBetaCacheTests: XCTestCase {
         }
         // A real archive over the cap. Without the cap it decodes to strings, which fails the cast and leaves the key as is.
         // Distinct strings: the archiver stores a repeated object once, which would keep this under the cap.
-        let oversized = (0..<(Int(OS_CACHED_QUEUE_MAX_BYTES) / 1024 + 64)).map { String(repeating: "x", count: 1024) + String($0) }
-        defaults.saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: oversized)
+        let oversized = (0..<(Int(OS_USER_DEFAULTS_MAX_VALUE_BYTES) / 1024 + 64)).map { String(repeating: "x", count: 1024) + String($0) }
+        // Written directly: `saveCodeableData` refuses a value this large. The builds that wrote these blobs did not.
+        defaults.saveObject(
+            forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
+            withValue: try NSKeyedArchiver.archivedData(withRootObject: oversized, requiringSecureCoding: false)
+        )
 
         OneSignalUserManagerImpl.sharedInstance.start()
         OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
