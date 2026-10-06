@@ -92,10 +92,26 @@ final class InputGuardUserTests: XCTestCase {
     func testEmptyEmailAndSmsAreNotStored() {
         let manager = OneSignalUserManagerImpl.sharedInstance
         manager.addEmail("")
-        manager.removeEmail("")
-        manager.addSms("")
-        manager.removeSms("")
         XCTAssertNil(manager.subscriptionModelStore.getModel(key: ""))
+        manager.addSms("")
+        XCTAssertNil(manager.subscriptionModelStore.getModel(key: ""))
+
+        manager.subscriptionModelStore.add(
+            id: "",
+            model: OSSubscriptionModel(
+                type: .email,
+                address: "",
+                subscriptionId: nil,
+                reachable: true,
+                isDisabled: false,
+                changeNotifier: OSEventProducer()
+            ),
+            hydrating: false
+        )
+        manager.removeEmail("")
+        XCTAssertNotNil(manager.subscriptionModelStore.getModel(key: ""))
+        manager.removeSms("")
+        XCTAssertNotNil(manager.subscriptionModelStore.getModel(key: ""))
     }
 
     func testBlankEventNameIsNotEnqueued() {
