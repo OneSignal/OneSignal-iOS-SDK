@@ -128,4 +128,44 @@ final class OneSignalCoreTests: XCTestCase {
 
         XCTAssertFalse(defaults.keyExists(guardKey))
     }
+
+    func testBlobThatIsNotArchivedDataIsRemovedOnlyByACappedRead() {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveObject(forKey: guardKey, withValue: "not data")
+
+        XCTAssertEqual(defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"]) as? [String], ["default"])
+        XCTAssertTrue(defaults.keyExists(guardKey))
+
+        XCTAssertEqual(defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"], maxBytes: 1024) as? [String], ["default"])
+        XCTAssertFalse(defaults.keyExists(guardKey))
+    }
+
+    func testUndecodableBlobIsRemovedOnlyByACappedRead() throws {
+        let defaults = OneSignalUserDefaults.initShared()
+        defaults.saveObject(forKey: guardKey, withValue: try archiveNamingAnUnknownClass())
+
+        XCTAssertEqual(defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"]) as? [String], ["default"])
+        XCTAssertTrue(defaults.keyExists(guardKey))
+
+        XCTAssertEqual(defaults.getSavedCodeableData(forKey: guardKey, defaultValue: ["default"], maxBytes: 1024) as? [String], ["default"])
+        XCTAssertFalse(defaults.keyExists(guardKey))
+    }
+
+    /// A keyed archive whose root is of a class this process does not have. Decoding it raises, as a queue written
+    /// by a newer build does.
+    private func archiveNamingAnUnknownClass() throws -> Data {
+        let archive = try NSKeyedArchiver.archivedData(withRootObject: ["cached"], requiringSecureCoding: false)
+        var plist = try XCTUnwrap(try PropertyListSerialization.propertyList(from: archive, format: nil) as? [String: Any])
+        var objects = try XCTUnwrap(plist["$objects"] as? [Any])
+        for (index, object) in objects.enumerated() {
+            guard var descriptor = object as? [String: Any], descriptor["$classname"] != nil else {
+                continue
+            }
+            descriptor["$classname"] = "OSNoSuchClass"
+            descriptor["$classes"] = ["OSNoSuchClass"]
+            objects[index] = descriptor
+        }
+        plist["$objects"] = objects
+        return try PropertyListSerialization.data(fromPropertyList: plist, format: .binary, options: 0)
+    }
 }

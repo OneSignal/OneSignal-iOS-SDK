@@ -162,8 +162,8 @@
 
     id stored = [self.userDefaults objectForKey:key];
     if (![stored isKindOfClass:[NSData class]]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: not archived data", key]];
-        [self removeValueForKey:key];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults cannot decode %@: not archived data", key]];
+        [self removeUndecodableValueForKey:key maxBytes:maxBytes];
         return value;
     }
     NSData *data = stored;
@@ -176,9 +176,17 @@
         // A blob that decodes to nil is treated like a missing key.
         return [NSKeyedUnarchiver unarchiveObjectWithData:data] ?: value;
     } @catch (NSException *exception) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %@", key, exception.reason]];
-        [self removeValueForKey:key];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults cannot decode %@: %@", key, exception.reason]];
+        [self removeUndecodableValueForKey:key maxBytes:maxBytes];
         return value;
+    }
+}
+
+/// Only a capped read, a queue of this SDK's own Requests, heals by deletion. An uncapped read leaves the blob to
+/// whichever module wrote it; a model store, for one, is overwritten by the user the SDK creates in its place.
+- (void)removeUndecodableValueForKey:(NSString *)key maxBytes:(NSUInteger)maxBytes {
+    if (maxBytes > 0) {
+        [self removeValueForKey:key];
     }
 }
 
