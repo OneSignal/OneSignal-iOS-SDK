@@ -28,6 +28,7 @@
 #import "OneSignalInAppMessages.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessageMigrationController.h"
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 
 @implementation OneSignalInAppMessages
 
@@ -77,10 +78,10 @@
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
         return;
 
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
+    if ([OSInputGuard isMissing:key api:@"addTrigger: key"])
         return;
-    }
+    if (!value && [OSInputGuard isMissing:nil api:@"addTrigger: value"])
+        return;
 
     [OSMessagingController.sharedInstance addTriggers:@{key : value}];
 }
@@ -88,6 +89,9 @@
 + (void)addTriggers:(NSDictionary<NSString *, NSString *> * _Nonnull)triggers {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
+        return;
+
+    if ([OSInputGuard hasMissingEntries:triggers api:@"addTriggers" allowEmptyValue:YES])
         return;
 
     [OSMessagingController.sharedInstance addTriggers:triggers];
@@ -98,10 +102,8 @@
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
         return;
 
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
+    if ([OSInputGuard isMissing:key api:@"removeTrigger: key"])
         return;
-    }
 
     [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
 }
@@ -109,6 +111,9 @@
 + (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
+        return;
+
+    if ([OSInputGuard isMissingAny:keys api:@"removeTriggers: key"])
         return;
 
     [OSMessagingController.sharedInstance removeTriggersForKeys:keys];

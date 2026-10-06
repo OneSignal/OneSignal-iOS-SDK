@@ -378,10 +378,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         start()
-        guard externalId != "" else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User login called with empty externalId. This is not allowed.")
-            return
-        }
+        if OSInputGuard.isMissing(externalId, "login: externalId") { return }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
         // Ungated: a subscription internally disabled by a previous logout has to come back even if
@@ -789,6 +786,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addAlias") else {
             return
         }
+        if OSInputGuard.isMissing(label, "addAlias: label") || OSInputGuard.isMissing(id, "addAlias: id") { return }
         user.addAliases([label: id])
     }
 
@@ -796,6 +794,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addAliases") else {
             return
         }
+        if OSInputGuard.hasMissingEntries(aliases, "addAliases", allowEmptyValue: false) { return }
         user.addAliases(aliases)
     }
 
@@ -803,6 +802,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeAlias") else {
             return
         }
+        if OSInputGuard.isMissing(label, "removeAlias: label") { return }
         user.removeAliases([label])
     }
 
@@ -810,6 +810,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeAliases") else {
             return
         }
+        if OSInputGuard.isMissingAny(labels, "removeAliases: label") { return }
         user.removeAliases(labels)
     }
 
@@ -817,6 +818,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addTag") else {
             return
         }
+        if OSInputGuard.isMissing(key, "addTag: key") { return }
         user.addTags([key: value])
     }
 
@@ -824,6 +826,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addTags") else {
             return
         }
+        if OSInputGuard.hasMissingEntries(tags, "addTags", allowEmptyValue: true) { return }
         user.addTags(tags)
     }
 
@@ -831,6 +834,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTag") else {
             return
         }
+        if OSInputGuard.isMissing(tag, "removeTag: key") { return }
         user.removeTags([tag])
     }
 
@@ -838,6 +842,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTags") else {
             return
         }
+        if OSInputGuard.isMissingAny(tags, "removeTags: key") { return }
         user.removeTags(tags)
     }
 
@@ -852,6 +857,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addEmail") else {
             return
         }
+        if OSInputGuard.isMissing(email, "addEmail: email") { return }
         // Check if is valid email?
         // Check if this email already exists on this User?
         createUserIfNil()
@@ -875,6 +881,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeEmail") else {
             return
         }
+        if OSInputGuard.isMissing(email, "removeEmail: email") { return }
         // Check if is valid email?
         createUserIfNil()
         self.subscriptionModelStore.remove(email)
@@ -884,6 +891,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addSmsNumber") else {
             return
         }
+        if OSInputGuard.isMissing(number, "addSms: smsNumber") { return }
         // Check if is valid SMS?
         // Check if this SMS already exists on this User?
         createUserIfNil()
@@ -907,6 +915,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeSmsNumber") else {
             return
         }
+        if OSInputGuard.isMissing(number, "removeSms: smsNumber") { return }
         // Check if is valid SMS?
         createUserIfNil()
         self.subscriptionModelStore.remove(number)
@@ -931,6 +940,7 @@ extension OneSignalUserManagerImpl: OSUser {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "trackEvent") else {
             return
         }
+        if OSInputGuard.isMissing(name, "trackEvent: name") { return }
 
         let processedProperties = properties ?? [:]
 
