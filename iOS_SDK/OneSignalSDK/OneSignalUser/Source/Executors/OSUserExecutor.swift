@@ -50,6 +50,7 @@ class OSUserExecutor {
         self.auth = auth
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
+        createUserIfNeverCreated()
 
         identityVerificationService.addOnJwtConfigHydratedHandler(for: .userExecutor) { [weak self] _ in
             // Including an unchanged value: Requests held while `requirement` was unknown wait on this.
@@ -240,6 +241,47 @@ class OSUserExecutor {
                let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
                userInstance.identityModel.externalId == request.aliasId {
                 createUser(userInstance)
+            }
+        }
+    }
+
+    /// A cached user with no `onesignal_id` never reached the server, and only a Create User gets it there.
+    /// Queue one unless a queued Request already exists. Skip an anonymous user under Identity
+    /// Verification, where `reshapeInvalidRequests` would drop the Create User anyway. Runs on the executor
+    /// queue so it sees what `migrateTransferSubscriptionRequests` appended.
+    private func createUserIfNeverCreated() {
+        dispatchQueue.async {
+            guard let user = OneSignalUserManagerImpl.sharedInstance._user,
+                  user.identityModel.onesignalId == nil,
+                  user.identityModel.externalId != nil || !self.identityVerificationService.ivBehaviorActive,
+                  !self.queueSuppliesAnId(for: user.identityModel.modelId)
+            else {
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor queued a Create User for the cached user")
+            let request = OSRequestCreateUser(
+                identityModel: user.identityModel,
+                propertiesModel: user.propertiesModel,
+                pushSubscriptionModel: user.pushSubscriptionModel,
+                originalPushToken: user.pushSubscriptionModel.address
+            )
+            self.userRequestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: self.userRequestQueue)
+        }
+    }
+
+    /// Whether a queued Request gives the identity model an `onesignal_id` when it completes.
+    private func queueSuppliesAnId(for modelId: String) -> Bool {
+        return userRequestQueue.contains { request in
+            switch request {
+            case let createUser as OSRequestCreateUser:
+                return createUser.identityModel.modelId == modelId
+            case let fetchIdentity as OSRequestFetchIdentityBySubscription:
+                return fetchIdentity.identityModel.modelId == modelId
+            case let identifyUser as OSRequestIdentifyUser:
+                return identifyUser.identityModelToUpdate.modelId == modelId
+            default:
+                return false
             }
         }
     }
