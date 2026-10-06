@@ -333,10 +333,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return
         }
         start()
-        guard externalId != "" else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User login called with empty externalId. This is not allowed.")
-            return
-        }
+        if OSInputGuard.isMissing(externalId, "login: externalId") { return }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
 
         // Logging into an identified user from an anonymous user

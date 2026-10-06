@@ -32,6 +32,11 @@ import OneSignalCore
 public final class OSInputGuard: NSObject {
     @objc(isMissing:api:)
     public static func isMissing(_ value: String?, _ api: String) -> Bool {
+        // A NUL cannot be stored in a text column, so it is never a usable value.
+        if let value, value.contains("\u{0000}") {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "[OneSignal] \(api) contains a null byte")
+            return true
+        }
         if let value, !value.isEmpty {
             return false
         }
@@ -50,7 +55,7 @@ public final class OSInputGuard: NSObject {
         return false
     }
 
-    /// `allowEmptyValue` keeps "" and still rejects a null value.
+    /// `allowEmptyValue` keeps "" and a value containing a null byte. A null value is still rejected.
     @objc(hasMissingEntries:api:allowEmptyValue:)
     public static func hasMissingEntries(
         _ values: NSDictionary?,

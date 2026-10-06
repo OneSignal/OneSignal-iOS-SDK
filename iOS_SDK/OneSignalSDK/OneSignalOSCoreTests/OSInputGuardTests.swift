@@ -34,6 +34,8 @@ final class OSInputGuardTests: XCTestCase {
         XCTAssertTrue(OSInputGuard.isMissing("", "login: externalId"))
         XCTAssertFalse(OSInputGuard.isMissing(" ", "login: externalId"))
         XCTAssertFalse(OSInputGuard.isMissing("user", "login: externalId"))
+        XCTAssertTrue(OSInputGuard.isMissing("\u{0000}: 1", "login: externalId"))
+        XCTAssertTrue(OSInputGuard.isMissing("abc\u{0000}", "addAlias: id"))
     }
 
     func testIsMissingAnyRejectsABlankEntryAndANilCollection() {
@@ -49,6 +51,7 @@ final class OSInputGuardTests: XCTestCase {
         XCTAssertTrue(OSInputGuard.hasMissingEntries(["label": ""], "addAliases", allowEmptyValue: false))
         XCTAssertFalse(OSInputGuard.hasMissingEntries(["label": "id"], "addAliases", allowEmptyValue: false))
         XCTAssertFalse(OSInputGuard.hasMissingEntries(["label": " "], "addAliases", allowEmptyValue: false))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["external_id": "\u{0000}: 1"], "addAliases", allowEmptyValue: false))
     }
 
     func testHasMissingEntriesAllowsAnEmptyTagValueAndRejectsNull() {
@@ -57,5 +60,7 @@ final class OSInputGuardTests: XCTestCase {
         let tags = NSMutableDictionary()
         tags["key"] = NSNull()
         XCTAssertTrue(OSInputGuard.hasMissingEntries(tags, "addTags", allowEmptyValue: true))
+        XCTAssertFalse(OSInputGuard.hasMissingEntries(["key": "a\u{0000}b"], "addTags", allowEmptyValue: true))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["a\u{0000}": "value"], "addTags", allowEmptyValue: true))
     }
 }

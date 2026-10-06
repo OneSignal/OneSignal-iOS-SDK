@@ -114,6 +114,23 @@ final class InputGuardUserTests: XCTestCase {
         XCTAssertNotNil(manager.subscriptionModelStore.getModel(key: ""))
     }
 
+    func testNullByteIsNotStoredExceptAsAnEmptyTagValue() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.login(externalId: "\u{0000}: 1", token: nil)
+        XCTAssertNil(manager.externalId)
+
+        manager.addAlias(label: "nul-id", id: "\u{0000}: 1")
+        manager.addAlias(label: "\u{0000}", id: "1")
+        XCTAssertNil(manager.user.identityModel.aliases["nul-id"])
+        XCTAssertNil(manager.user.identityModel.aliases["\u{0000}"])
+
+        manager.addTag(key: "nul-value", value: "a\u{0000}b")
+        XCTAssertEqual(manager.getTags()["nul-value"], "a\u{0000}b")
+        manager.addTags(["\u{0000}": "nope", "sibling": "nope"])
+        XCTAssertNil(manager.getTags()["sibling"])
+        manager.removeTag("nul-value")
+    }
+
     func testBlankEventNameIsNotEnqueued() {
         let manager = OneSignalUserManagerImpl.sharedInstance
         let repo = OSOperationRepo.sharedInstance
