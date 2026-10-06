@@ -139,6 +139,44 @@ final class CachedUserWithoutAnIdTests: XCTestCase {
         XCTAssertEqual(sentCreateUsers().map(externalId(of:)), [userA_EUID])
     }
 
+    /// Path 3 creates the user after the executor exists. The recovery must not see that user.
+    func testFreshStartSendsOneCreateUser() {
+        OneSignalUserManagerImpl.sharedInstance.start()
+
+        OneSignalCoreMocks.waitUntil("The anonymous user was not created") {
+            self.client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        OneSignalCoreMocks.waitUntil("A Create User is still queued") {
+            OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.contains { $0 is OSRequestCreateUser } == false
+        }
+        XCTAssertEqual(sentCreateUsers().count, 1)
+    }
+
+    /// Path 2 creates the user after the executor exists too, and a Create User ahead of its Fetch Identity
+    /// By Subscription would make a new user instead of adopting the 3.x player.
+    func testLegacyPlayerStartQueuesNoCreateUser() {
+        let legacyPlayerId = "legacy_player_id"
+        let legacyOnesignalId = "legacy_player_onesignal_id"
+        OneSignalUserDefaults.initShared().saveString(forKey: OSUD_LEGACY_PLAYER_ID, withValue: legacyPlayerId)
+        client.setMockResponseForRequest(
+            request: "OSRequestFetchIdentityBySubscription with subscriptionId: \(legacyPlayerId)",
+            response: MockUserRequests.testIdentityPayload(onesignalId: legacyOnesignalId, externalId: nil)
+        )
+        client.setMockResponseForRequest(
+            request: "<OSRequestFetchUser with onesignal_id: \(legacyOnesignalId)>",
+            response: MockUserRequests.testIdentityPayload(onesignalId: legacyOnesignalId, externalId: nil)
+        )
+
+        OneSignalUserManagerImpl.sharedInstance.start()
+
+        OneSignalCoreMocks.waitUntil("The legacy player's identity was not fetched") {
+            self.client.hasCompletedRequestOfType(OSRequestFetchIdentityBySubscription.self)
+        }
+        XCTAssertTrue(sentCreateUsers().isEmpty)
+        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.contains { $0 is OSRequestCreateUser } ?? true)
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance._user?.identityModel.onesignalId, legacyOnesignalId)
+    }
+
     func testStartLeavesACachedAnonymousUserAloneUnderIdentityVerification() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         cacheUser(externalId: nil)

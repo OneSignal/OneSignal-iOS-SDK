@@ -50,7 +50,7 @@ class OSUserExecutor {
         self.auth = auth
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
-        createUserIfNeverCreated()
+        createUserIfNeverCreated(OneSignalUserManagerImpl.sharedInstance._user)
 
         identityVerificationService.addOnJwtConfigHydratedHandler(for: .userExecutor) { [weak self] _ in
             // Including an unchanged value: Requests held while `requirement` was unknown wait on this.
@@ -247,12 +247,15 @@ class OSUserExecutor {
 
     /// A cached user with no `onesignal_id` never reached the server, and only a Create User gets it there.
     /// Queue one unless a queued Request already exists. Skip an anonymous user under Identity
-    /// Verification, where `reshapeInvalidRequests` would drop the Create User anyway. Runs on the executor
-    /// queue so it sees what `migrateTransferSubscriptionRequests` appended.
-    private func createUserIfNeverCreated() {
+    /// Verification, where `reshapeInvalidRequests` would drop the Create User anyway. `cachedUser` is the
+    /// user `start()` loaded from the cache, read in `init` before Path 2 or 3 can replace it. The check runs
+    /// on the executor queue so it sees what `migrateTransferSubscriptionRequests` appended.
+    private func createUserIfNeverCreated(_ cachedUser: OSUserInternal?) {
+        guard let user = cachedUser else {
+            return
+        }
         dispatchQueue.async {
-            guard let user = OneSignalUserManagerImpl.sharedInstance._user,
-                  user.identityModel.onesignalId == nil,
+            guard user.identityModel.onesignalId == nil,
                   user.identityModel.externalId != nil || !self.identityVerificationService.ivBehaviorActive,
                   !self.queueSuppliesAnId(for: user.identityModel.modelId)
             else {
