@@ -1,0 +1,66 @@
+/*
+ Modified MIT License
+
+ Copyright 2026 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import XCTest
+@testable import OneSignalOSCore
+
+final class OSInputGuardTests: XCTestCase {
+    func testIsMissingRejectsNilAndEmptyAndKeepsWhitespace() {
+        XCTAssertTrue(OSInputGuard.isMissing(nil, "login: externalId"))
+        XCTAssertTrue(OSInputGuard.isMissing("", "login: externalId"))
+        XCTAssertFalse(OSInputGuard.isMissing(" ", "login: externalId"))
+        XCTAssertFalse(OSInputGuard.isMissing("user", "login: externalId"))
+        XCTAssertTrue(OSInputGuard.isMissing("\u{0000}: 1", "login: externalId"))
+        XCTAssertTrue(OSInputGuard.isMissing("abc\u{0000}", "addAlias: id"))
+    }
+
+    func testIsMissingAnyRejectsABlankEntryAndANilCollection() {
+        XCTAssertTrue(OSInputGuard.isMissingAny(nil as NSArray?, "removeTags: key"))
+        XCTAssertTrue(OSInputGuard.isMissingAny(nil as [String]?, "removeTags: key"))
+        XCTAssertTrue(OSInputGuard.isMissingAny(["ok", ""], "removeTags: key"))
+        XCTAssertFalse(OSInputGuard.isMissingAny(["ok", " "], "removeTags: key"))
+    }
+
+    func testHasMissingEntriesRejectsBlankKeysAndBlankAliasIds() {
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(nil as [String: String]?, "addAliases", allowEmptyValue: false))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["": "id"], "addAliases", allowEmptyValue: false))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["label": ""], "addAliases", allowEmptyValue: false))
+        XCTAssertFalse(OSInputGuard.hasMissingEntries(["label": "id"], "addAliases", allowEmptyValue: false))
+        XCTAssertFalse(OSInputGuard.hasMissingEntries(["label": " "], "addAliases", allowEmptyValue: false))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["external_id": "\u{0000}: 1"], "addAliases", allowEmptyValue: false))
+    }
+
+    func testHasMissingEntriesAllowsAnEmptyTagValueAndRejectsNull() {
+        XCTAssertFalse(OSInputGuard.hasMissingEntries(["key": ""], "addTags", allowEmptyValue: true))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["": "value"], "addTags", allowEmptyValue: true))
+        let tags = NSMutableDictionary()
+        tags["key"] = NSNull()
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(tags, "addTags", allowEmptyValue: true))
+        XCTAssertFalse(OSInputGuard.hasMissingEntries(["key": "a\u{0000}b"], "addTags", allowEmptyValue: true))
+        XCTAssertTrue(OSInputGuard.hasMissingEntries(["a\u{0000}": "value"], "addTags", allowEmptyValue: true))
+    }
+}

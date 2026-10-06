@@ -243,6 +243,10 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
  Note: wrappers may call this method with a null appId.
  */
 + (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions {
+    // "" is rejected. nil still means the app id has not been provided.
+    if (newAppId != nil && [OSInputGuard isMissing:newAppId api:@"initialize: appId"]) {
+        return;
+    }
     [OSRemoteLoggingController configureFromCacheForAppId:newAppId ?: OneSignalIdentifiers.storedAppId];
     [self setAppId:newAppId];
     [self setLaunchOptions:launchOptions];
@@ -258,7 +262,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (void)setAppId:(nullable NSString*)newAppId {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId called with appId: %@!", newAppId]];
 
-    if (!newAppId || newAppId.length == 0) {
+    // "" is rejected. nil still falls back to the cached app id.
+    if (newAppId != nil && [OSInputGuard isMissing:newAppId api:@"initialize: appId"]) {
+        return;
+    }
+
+    if (!newAppId) {
         NSString* cachedAppId = OneSignalIdentifiers.storedAppId;
         if (cachedAppId) {
             [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", cachedAppId]];

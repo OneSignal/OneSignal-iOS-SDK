@@ -28,6 +28,14 @@ with services provided by OneSignal.
 #import <XCTest/XCTest.h>
 #import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessagingRequests.h"
+#import "OneSignalInAppMessages.h"
+#import "OSMessagingController.h"
+#import "OSTriggerController.h"
+
+@interface OSMessagingController (InputGuardTests)
+@property (strong, nonatomic, nonnull) NSMutableSet<NSString *> *earlySessionTriggers;
+@property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@end
 
 @interface IAMRequestTests : XCTestCase
 
@@ -177,6 +185,18 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
        @"click_id": testClickResult.clickId ?: @"",
        @"first_click": @(testClickResult.firstClick)
    }));
+}
+
+- (void)testNilTriggerValueIsNotStored {
+    [OneSignalInAppMessages addTrigger:@"nil-kept" withValue:@"yes"];
+    [OneSignalInAppMessages addTrigger:@"nil-value" withValue:nil];
+
+    NSDictionary *triggers = [OSMessagingController.sharedInstance.triggerController getTriggers];
+    XCTAssertEqualObjects(triggers[@"nil-kept"], @"yes");
+    XCTAssertNil(triggers[@"nil-value"]);
+
+    [OneSignalInAppMessages removeTrigger:@"nil-kept"];
+    [OSMessagingController.sharedInstance.earlySessionTriggers removeObject:@"nil-kept"];
 }
 
 @end
