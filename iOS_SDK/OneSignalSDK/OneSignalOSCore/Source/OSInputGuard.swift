@@ -34,13 +34,13 @@ public final class OSInputGuard: NSObject {
     public static func isMissing(_ value: String?, _ api: String) -> Bool {
         // A NUL cannot be stored in a text column, so it is never a usable value.
         if let value, value.contains("\u{0000}") {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "[OneSignal] \(api) contains a null byte")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "\(api) contains a null byte")
             return true
         }
         if let value, !value.isEmpty {
             return false
         }
-        OneSignalLog.onesignalLog(.LL_ERROR, message: "[OneSignal] \(api) is required")
+        OneSignalLog.onesignalLog(.LL_ERROR, message: "\(api) is required")
         return true
     }
 
