@@ -238,6 +238,23 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
     }
 
+    /// The 5.3.0-beta builds parked Requests awaiting a JWT under these keys and never trimmed them, so an
+    /// upgrading device can carry a large blob nothing reads anymore.
+    private func removeIdentityVerificationBetaCaches() {
+        let defaults = OneSignalUserDefaults.initShared()
+        let keys = [
+            OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY
+        ]
+        for key in keys where defaults.keyExists(key) {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager removing the Identity Verification beta cache \(key)")
+            defaults.removeValue(forKey: key)
+        }
+    }
+
     @objc
     public func start() {
         guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -251,6 +268,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
 
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
+            removeIdentityVerificationBetaCaches()
 
             // The model stores load their in-memory `models` dict once in their initializer.
             // If the singleton was first touched while protected data was unavailable (iOS app

@@ -378,6 +378,17 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY                           @"OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY                         @"OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY"
 
+// A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
+// decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.
+#define OS_USER_DEFAULTS_MAX_VALUE_BYTES                                    1048576
+
+// Written only by the 5.3.0-beta Identity Verification builds. Nothing reads them anymore.
+#define OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY                          @"OS_USER_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY                      @"OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY                    @"OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY                  @"OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY                 @"OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY"
+
 // Live Activies Executor
 #define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"
 #define OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY                        @"OS_LIVE_ACTIVITIES_EXECUTOR_START_TOKENS_KEY"
