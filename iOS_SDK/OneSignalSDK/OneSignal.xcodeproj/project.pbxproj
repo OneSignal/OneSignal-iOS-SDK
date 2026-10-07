@@ -226,6 +226,7 @@
 		3CC063E62B6D7F96002BB07F /* OneSignalUserMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063E52B6D7F96002BB07F /* OneSignalUserMocks.swift */; };
 		3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */; };
 		A5426001A1B2C3D4E5F60006 /* InputGuardUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5426001A1B2C3D4E5F60005 /* InputGuardUserTests.swift */; };
+		A5172F01A1B2C3D4E5F60006 /* SessionRecordUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5172F01A1B2C3D4E5F60005 /* SessionRecordUserTests.swift */; };
 		3CC063EF2B6D7FE8002BB07F /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */; };
 		3CC9A6342AFA1FDE008F68FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */; };
@@ -1517,6 +1518,7 @@
 		3CC063EB2B6D7FE8002BB07F /* OneSignalUserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneSignalUserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserTests.swift; sourceTree = "<group>"; };
 		A5426001A1B2C3D4E5F60005 /* InputGuardUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputGuardUserTests.swift; sourceTree = "<group>"; };
+		A5172F01A1B2C3D4E5F60005 /* SessionRecordUserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRecordUserTests.swift; sourceTree = "<group>"; };
 		3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserConcurrencyTests.swift; sourceTree = "<group>"; };
 		3CC9A6332AFA1FDD008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3CC9A6352AFA26E7008F68FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -2553,6 +2555,7 @@
 				3CF11E3E2C6D61AC002856F5 /* Executors */,
 				3CC063ED2B6D7FE8002BB07F /* OneSignalUserTests.swift */,
 				A5426001A1B2C3D4E5F60005 /* InputGuardUserTests.swift */,
+				A5172F01A1B2C3D4E5F60005 /* SessionRecordUserTests.swift */,
 				3CA93BC6300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift */,
 				3CC890342C5BF9A7002CB4CC /* UserConcurrencyTests.swift */,
 				3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */,
@@ -4757,6 +4760,7 @@
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				A5426001A1B2C3D4E5F60006 /* InputGuardUserTests.swift in Sources */,
+				A5172F01A1B2C3D4E5F60006 /* SessionRecordUserTests.swift in Sources */,
 				3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,

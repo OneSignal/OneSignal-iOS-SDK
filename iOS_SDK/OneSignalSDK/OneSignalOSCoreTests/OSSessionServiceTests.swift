@@ -183,6 +183,40 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.activeDuration, 15)
     }
 
+    /// Resuming past the new-session threshold: the tracker reports focus, then the session
+    /// starts asynchronously on the main queue.
+    func testNewSessionStartedAfterFocusCountsFromSessionStart() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        monotonicNow += 10
+        service.onUnfocus()
+        let previousSessionId = service.currentRecord?.sessionId
+
+        monotonicNow += 60
+        service.onFocus()
+        monotonicNow += 1
+        service.startNewSession(userProvider: user)
+        monotonicNow += 20
+        service.onUnfocus()
+
+        XCTAssertNotEqual(service.currentRecord?.sessionId, previousSessionId)
+        XCTAssertEqual(service.currentRecord?.activeDuration, 20)
+    }
+
+    /// A launch in the background starts the session before the app becomes active, so the time
+    /// spent in the background must not count.
+    func testFocusAfterBackgroundSessionStartCountsFromFocus() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+
+        monotonicNow += 100
+        service.onFocus()
+        monotonicNow += 5
+        service.onUnfocus()
+
+        XCTAssertEqual(service.currentRecord?.activeDuration, 5)
+    }
+
     func testUnfocusWithoutFocusAddsNothing() {
         let service = makeService()
         service.startNewSession(userProvider: user)
