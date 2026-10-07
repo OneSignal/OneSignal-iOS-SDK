@@ -331,6 +331,10 @@ SWIFT_PROTOCOL("_TtP15OneSignalOSCore11OSCondition_")
 @property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
 - (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
 - (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
+@optional
+/// Called once a waiter on this condition has been released, so a condition that raised its own bar
+/// for that wait can lower it again instead of holding every later waiter to it.
+- (void)onConditionSatisfied;
 @end
 
 
@@ -340,8 +344,12 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSConsistenc
 + (OSConsistencyManager * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+/// Blocks the caller until the condition is met or <code>waitTimeout</code> elapses, then returns the newest
+/// token the condition accepts, which is nil when it was released without one.
 - (OSReadYourWriteData * _Nullable)getRywTokenFromAwaitableCondition:(id <OSCondition> _Nonnull)condition forId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
-- (void)resolveConditionsWithIDWithId:(NSString * _Nonnull)id;
+/// Releases waiters on <code>conditionId</code> registered under <code>id</code> (e.g. onesignalId). Used when that user’s
+/// response carried no <code>ryw_token</code>, so those waiters have nothing left to wait for.
+- (void)resolveConditionsWithConditionId:(NSString * _Nonnull)conditionId forId:(NSString * _Nonnull)id;
 @end
 
 @class NSCoder;
@@ -351,6 +359,32 @@ SWIFT_CLASS("_TtC15OneSignalOSCore7OSDelta")
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (void)encodeWithCoder:(NSCoder * _Nonnull)coder;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)coder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// Detects the test-device gesture: <code>requiredCycles</code> background/foreground cycles within
+/// <code>windowSeconds</code>, then copies the push subscription ID to the general pasteboard, prefixed
+/// <code>os:</code> (see <code>clipText</code>), so the person can paste it into the dashboard. Without a subscription
+/// it copies <code>noSubscriptionClipText</code> instead, so someone following the docs can tell the gesture
+/// worked.
+/// A cycle is a <code>didEnterBackground</code>/<code>didBecomeActive</code> pair whose background phase lasts at
+/// least <code>minBackgroundDwellSeconds</code>. Pairing keeps <code>willResignActive</code>-only blips (Control
+/// Center, Face ID) from counting; the floor matches Android, where rotation emits a
+/// synthetic sub-millisecond pair. The window is the only rate rule; six cycles fit inside it
+/// at round trips of five seconds or faster.
+/// The <code>remoteKillSwitchKey</code> catalog flag turns the gesture off. Absent means enabled, so a device
+/// that has never fetched flags still has it. An app can also opt out for good with the
+/// Info.plist key <code>disableInfoPlistKey</code>; then the detector never starts, so nothing is counted
+/// or recorded.
+/// Every recognised gesture also records <code>OSObservabilityEvent.deviceGesture</code>, with its outcome
+/// and the copied ID, so the gesture’s usage can be measured.
+SWIFT_CLASS_NAMED("OSDeviceGestureDetector")
+@interface OSDeviceGestureDetector : NSObject
+/// Idempotent: registers the lifecycle observers once and keeps counting from there.
++ (void)start;
++ (void)reset;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -414,10 +448,17 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSFeatureMan
 
 SWIFT_CLASS("_TtC15OneSignalOSCore24OSIamFetchReadyCondition")
 @interface OSIamFetchReadyCondition : NSObject <OSCondition>
+/// One condition per id, so a fetch waits on the same object the subscription listener armed, and a
+/// fetch for a user who just switched in is not answered by the previous user’s tokens.
 + (OSIamFetchReadyCondition * _Nonnull)sharedInstanceWithId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
+/// Test seam; the instances otherwise live as long as the process.
++ (void)reset;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull CONDITIONID;)
 + (NSString * _Nonnull)CONDITIONID SWIFT_WARN_UNUSED_RESULT;
 @property (nonatomic, readonly, copy) NSString * _Nonnull conditionId;
+/// The fetch this was raised for has been released, so later fetches stop waiting on a subscription
+/// token that has no update behind it.
+- (void)onConditionSatisfied;
 - (BOOL)isMetWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
 - (OSReadYourWriteData * _Nullable)getNewestTokenWithIndexedTokens:(NSDictionary<NSString *, NSDictionary<NSNumber *, OSReadYourWriteData *> *> * _Nonnull)indexedTokens SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;

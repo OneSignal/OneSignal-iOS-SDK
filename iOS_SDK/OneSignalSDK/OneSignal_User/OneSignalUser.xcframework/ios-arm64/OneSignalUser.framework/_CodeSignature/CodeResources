@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalUser-Swift.h</key>
 		<data>
-		bNTjsqjJ4lfS0DNLAcBlG+PGS04=
+		sWtNrfos1B/V9HCypfjef6cvmMk=
 		</data>
 		<key>Headers/OneSignalUser.h</key>
 		<data>
@@ -14,23 +14,23 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		oT1JhWF1K2J+jN1vORplXbxBRoU=
+		5803AHPYbwsN5tLbK0FGQw/+U8E=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.abi.json</key>
 		<data>
-		ucH5BF+KKcW87p7w6ipy4CbsW4I=
+		e7YKee73w/sEoJT05Ukip9EAQ0Q=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.private.swiftinterface</key>
 		<data>
-		V437GaaLRjJUxZqC0ClFH94ruy8=
+		TiuLnEL3hKEi8yzcJO9PmxBUnnE=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<data>
-		0euKwEKFNd//4kpUCexsoGdrWyk=
+		o7TtGGEFduGR3N3PJY3tL5g5xwo=
 		</data>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<data>
-		IkUQqNkrTZC6utmluI2bknNul2Q=
+		Adl2gioHx9b8mjnUTK+b77V/k8g=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -47,7 +47,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PSYJ5RafFBgh/Hn8zV3f0Nq9u3rh+iJN/TIgXzd6D9w=
+			zgajCBNe3I/X8Qao7pzgyJukkdkINbUt/rbM04MxGQs=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -61,28 +61,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			h3oLkgZcBUjMDaH8vDDqo2MzWgOEBlV/yDN28Zq+bJE=
+			RBfxBwf6eRYdLPHg27lHy94QfWmpVx1HS535MnTzyp4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			QUawGZr0wLlA1mLhV/ihCLDOzz3q3CIw73YbzQfhuZE=
+			ypqXRlHodJ5vnKgmUcdOeByuRWW4WFJSIuCXwxJM/cg=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			NCS9qLICarFcNORS327HT/F5b1s4X09Pwb2aBVdZMFs=
+			/x6hsDxPm/SPn7RIkZ5ePH1UDZIStVDMhKdo4sSmmOw=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			D5UP0iy+2YYjjrXhQFLA26ymlSOWRBZ7/W00AZMxFlQ=
+			5+iK+4ln+zT9zz3rg8v6hvOX54Z1L7j8WbhzaTKeUUU=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

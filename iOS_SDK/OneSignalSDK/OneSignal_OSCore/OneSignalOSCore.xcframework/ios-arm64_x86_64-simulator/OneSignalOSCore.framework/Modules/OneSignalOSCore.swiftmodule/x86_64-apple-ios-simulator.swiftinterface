@@ -1,6 +1,6 @@
 // swift-interface-format-version: 1.0
 // swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
-// swift-module-flags: -target x86_64-apple-ios12.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
+// swift-module-flags: -target x86_64-apple-ios15.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalOSCore
 // swift-module-flags-ignorable: -enable-bare-slash-regex
 import Darwin
 import Foundation
@@ -39,6 +39,11 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   }
   @objc final public class func start(isInForeground: Swift.Bool)
   @objc final public class func reset()
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc(OSDeviceGestureDetector) final public class OSDeviceGestureDetector : ObjectiveC.NSObject {
+  @objc public static func start()
+  @objc public static func reset()
   @objc deinit
 }
 @objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
@@ -88,13 +93,14 @@ extension OneSignalOSCore.OSRemoteLoggerProtocol {
   @objc var conditionId: Swift.String { get }
   @objc func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
   @objc func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
+  @objc optional func onConditionSatisfied()
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OSConsistencyManager : ObjectiveC.NSObject {
   @objc public static let shared: OneSignalOSCore.OSConsistencyManager
   public func reset()
   public func setRywTokenAndDelay(id: Swift.String, key: any OneSignalOSCore.OSConsistencyKeyEnum, value: OneSignalOSCore.OSReadYourWriteData)
   @objc public func getRywTokenFromAwaitableCondition(_ condition: any OneSignalOSCore.OSCondition, forId id: Swift.String) -> OneSignalOSCore.OSReadYourWriteData?
-  @objc public func resolveConditionsWithID(id: Swift.String)
+  @objc(resolveConditionsWithConditionId:forId:) public func resolveConditions(conditionId: Swift.String, forId id: Swift.String)
   @objc deinit
 }
 @_inheritsConvenienceInitializers @objc(OneSignalIdentifiers) final public class OneSignalIdentifiers : ObjectiveC.NSObject {
@@ -201,11 +207,13 @@ extension OneSignalOSCore.OSModelStoreListener {
 }
 @_hasMissingDesignatedInitializers @objc public class OSIamFetchReadyCondition : ObjectiveC.NSObject, OneSignalOSCore.OSCondition {
   @objc public static func sharedInstance(withId id: Swift.String) -> OneSignalOSCore.OSIamFetchReadyCondition
+  @objc public static func reset()
   @objc public static let CONDITIONID: Swift.String
   @objc public var conditionId: Swift.String {
     @objc get
   }
   public func setSubscriptionUpdatePending(value: Swift.Bool)
+  @objc public func onConditionSatisfied()
   @objc public func isMet(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> Swift.Bool
   @objc public func getNewestToken(indexedTokens: [Swift.String : [Foundation.NSNumber : OneSignalOSCore.OSReadYourWriteData]]) -> OneSignalOSCore.OSReadYourWriteData?
   @objc deinit
