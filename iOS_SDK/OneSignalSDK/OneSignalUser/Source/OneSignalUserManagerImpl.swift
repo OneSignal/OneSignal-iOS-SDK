@@ -686,6 +686,7 @@ extension OneSignalUserManagerImpl {
         userExecutor!.executePendingRequests()
         operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
+        OSSessionService.shared.startNewSession(userProvider: self)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -744,6 +745,15 @@ extension OneSignalUserManagerImpl {
         operationRepo.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
+extension OneSignalUserManagerImpl: OSSessionUserProvider {
+    public var sessionIdentityModelId: String? { _user?.identityModel.modelId }
+    public var sessionPushSubscriptionId: String? { pushSubscriptionId }
+
+    public func sessionOnesignalId(identityModelId: String) -> String? {
+        identityModelRepo.get(modelId: identityModelId)?.onesignalId
+    }
+}
+
 extension OneSignalUserManagerImpl: OSUser {
     public var User: OSUser {
         start()
