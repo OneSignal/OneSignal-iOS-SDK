@@ -29,13 +29,25 @@ import Foundation
 import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
+public struct OSSessionUser {
+    /// Local ID of the user's identity model. It survives that user being created on the
+    /// backend, and every login gets a new one.
+    public let identityModelId: String?
+    public let onesignalId: String?
+    public let pushSubscriptionId: String?
+
+    public init(identityModelId: String?, onesignalId: String?, pushSubscriptionId: String?) {
+        self.identityModelId = identityModelId
+        self.onesignalId = onesignalId
+        self.pushSubscriptionId = pushSubscriptionId
+    }
+}
+
 /// The user a session belongs to, supplied by the User module.
 public protocol OSSessionUserProvider: AnyObject {
-    /// Local ID of the current user's identity model. It survives that user being created on
-    /// the backend, and every login gets a new one.
-    var sessionIdentityModelId: String? { get }
+    /// Taken from one read of the current user, so a concurrent login cannot mix two users.
+    var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
-    var sessionPushSubscriptionId: String? { get }
 }
 
 public struct OSSessionRecord: Codable, Equatable {
@@ -112,6 +124,12 @@ public final class OSSessionService: NSObject {
         lock.withLock { _shared = nil }
     }
 
+    /// The stored record belongs to the previous app, so it must not outlive an app-id change.
+    @objc public static func resetAndClearStoredRecord() {
+        reset()
+        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
+    }
+
     public var currentRecord: OSSessionRecord? {
         let ids = pinnableIds()
         return stateLock.withLock {
@@ -121,24 +139,25 @@ public final class OSSessionService: NSObject {
         }
     }
 
+    /// Leaves any open foreground interval running: the tracker reports focus before the session
+    /// starts asynchronously, and that visit belongs to the new session. A launch in the
+    /// background has no interval open, so nothing counts until the app becomes active.
     public func startNewSession(userProvider: OSSessionUserProvider) {
-        let identityModelId = userProvider.sessionIdentityModelId
+        let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
             startTime: wallNow(),
             activeDuration: 0,
             usesSessionsApi: featureManager().isEnabled(featureKey: FeatureFlag.sdkSessionsV2ApiCutover.key),
-            identityModelId: identityModelId,
-            onesignalId: identityModelId.flatMap { userProvider.sessionOnesignalId(identityModelId: $0) },
-            subscriptionId: userProvider.sessionPushSubscriptionId,
+            identityModelId: user.identityModelId,
+            onesignalId: user.onesignalId,
+            subscriptionId: user.pushSubscriptionId,
             serverSessionId: nil
         )
-        let now = monotonicNow()
         stateLock.withLock {
             self.userProvider = userProvider
             loaded = true
             record = newRecord
-            focusedAt = now
             persist()
         }
     }
@@ -169,8 +188,7 @@ public final class OSSessionService: NSObject {
     private struct PinnableIds {
         let identityModelId: String
         let onesignalId: String?
-        let currentIdentityModelId: String?
-        let pushSubscriptionId: String?
+        let currentUser: OSSessionUser
     }
 
     /// Read outside `stateLock` because the provider takes the User module's locks.
@@ -188,14 +206,14 @@ public final class OSSessionService: NSObject {
         return PinnableIds(
             identityModelId: identityModelId,
             onesignalId: provider.sessionOnesignalId(identityModelId: identityModelId),
-            currentIdentityModelId: provider.sessionIdentityModelId,
-            pushSubscriptionId: provider.sessionPushSubscriptionId
+            currentUser: provider.sessionCurrentUser
         )
     }
 
     /// A session that starts before its user is created has no IDs to pin yet. Fill them in once
-    /// the backend assigns them, but only for the session's own user: after a login, the push
-    /// subscription is created for the new user, not the one pinned here.
+    /// the backend assigns them, but only for the session's own user. The push subscription is
+    /// carried across logins, but one first created after a login belongs to the new user, unless
+    /// that login identified the same backend user.
     private func fillPinnedIds(_ ids: PinnableIds?) {
         guard let ids, var current = record, current.identityModelId == ids.identityModelId else {
             return
@@ -203,8 +221,11 @@ public final class OSSessionService: NSObject {
         if current.onesignalId == nil {
             current.onesignalId = ids.onesignalId
         }
-        if current.subscriptionId == nil, ids.currentIdentityModelId == ids.identityModelId {
-            current.subscriptionId = ids.pushSubscriptionId
+        let currentUser = ids.currentUser
+        let isSameUser = currentUser.identityModelId == ids.identityModelId
+            || (currentUser.onesignalId != nil && currentUser.onesignalId == current.onesignalId)
+        if current.subscriptionId == nil, isSameUser {
+            current.subscriptionId = currentUser.pushSubscriptionId
         }
         guard current != record else {
             return

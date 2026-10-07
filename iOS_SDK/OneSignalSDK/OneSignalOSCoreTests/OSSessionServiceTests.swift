@@ -32,9 +32,17 @@ import OneSignalKMP
 import XCTest
 
 private final class FakeUserProvider: OSSessionUserProvider {
-    var sessionIdentityModelId: String?
+    var identityModelId: String?
     var onesignalIds: [String: String] = [:]
-    var sessionPushSubscriptionId: String?
+    var pushSubscriptionId: String?
+
+    var sessionCurrentUser: OSSessionUser {
+        OSSessionUser(
+            identityModelId: identityModelId,
+            onesignalId: identityModelId.flatMap { onesignalIds[$0] },
+            pushSubscriptionId: pushSubscriptionId
+        )
+    }
 
     func sessionOnesignalId(identityModelId: String) -> String? {
         onesignalIds[identityModelId]
@@ -44,6 +52,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
 final class OSSessionServiceTests: XCTestCase {
     private let flagKey = FeatureFlag.sdkSessionsV2ApiCutover.key
     private var flagsStore: OSFeatureFlagsStore!
+    private var featureManager: OSFeatureManager!
     private var monotonicNow: TimeInterval = 1_000
     private var user: FakeUserProvider!
 
@@ -52,61 +61,71 @@ final class OSSessionServiceTests: XCTestCase {
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
         flagsStore = OSFeatureFlagsStore()
+        featureManager = nil
         monotonicNow = 1_000
         user = FakeUserProvider()
-        user.sessionIdentityModelId = "model-a"
+        user.identityModelId = "model-a"
         user.onesignalIds = ["model-a": "onesignal-a"]
-        user.sessionPushSubscriptionId = "subscription-a"
+        user.pushSubscriptionId = "subscription-a"
     }
 
     override func tearDown() {
+        OSSessionService.reset()
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
         super.tearDown()
     }
 
     private func makeService() -> OSSessionService {
-        let featureManager = OSFeatureManager(store: flagsStore)
+        let manager = featureManager ?? OSFeatureManager(store: flagsStore)
+        featureManager = manager
         return OSSessionService(
-            featureManager: { featureManager },
+            featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
             wallNow: { 5_000 }
         )
     }
 
+    /// The tracker reports focus, then the session starts asynchronously on the main queue.
+    private func makeForegroundSession() -> OSSessionService {
+        let service = makeService()
+        service.onFocus()
+        service.startNewSession(userProvider: user)
+        return service
+    }
+
+    // MARK: - Feature flag
+
     func testNewSessionUsesSessionsApiWhenFlagIsOn() {
         flagsStore.applyRemoteFlags([flagKey], metadata: nil)
-        let service = makeService()
 
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
 
         XCTAssertEqual(service.currentRecord?.usesSessionsApi, true)
     }
 
     func testNewSessionUsesLegacyPathWhenFlagIsOff() {
-        let service = makeService()
-
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
 
         XCTAssertEqual(service.currentRecord?.usesSessionsApi, false)
     }
 
     func testSessionsApiChoiceDoesNotChangeMidSession() {
         flagsStore.applyRemoteFlags([flagKey], metadata: nil)
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
 
         flagsStore.applyRemoteFlags([], metadata: nil)
         service.onUnfocus()
         service.onFocus()
 
+        XCTAssertFalse(featureManager.isEnabled(featureKey: flagKey))
         XCTAssertEqual(service.currentRecord?.usesSessionsApi, true)
     }
 
-    func testNewSessionPinsIdsAndHasNoServerSessionId() {
-        let service = makeService()
+    // MARK: - Record
 
-        service.startNewSession(userProvider: user)
+    func testNewSessionPinsIdsAndHasNoServerSessionId() {
+        let service = makeForegroundSession()
 
         let record = service.currentRecord
         XCTAssertEqual(record?.onesignalId, "onesignal-a")
@@ -117,8 +136,7 @@ final class OSSessionServiceTests: XCTestCase {
     }
 
     func testEachNewSessionGetsANewSessionId() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
         let first = service.currentRecord?.sessionId
 
         service.startNewSession(userProvider: user)
@@ -127,13 +145,35 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertNotEqual(service.currentRecord?.sessionId, first)
     }
 
-    func testPinnedIdsStayTheSameAfterLogin() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+    func testRecordSurvivesARestart() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let service = makeForegroundSession()
+        monotonicNow += 10
+        service.onUnfocus()
+        let saved = service.currentRecord
 
-        user.sessionIdentityModelId = "model-b"
+        let restarted = makeService()
+
+        XCTAssertNotNil(saved)
+        XCTAssertEqual(restarted.currentRecord, saved)
+    }
+
+    func testClearingTheStoredRecordDropsIt() {
+        _ = makeForegroundSession()
+
+        OSSessionService.resetAndClearStoredRecord()
+
+        XCTAssertNil(makeService().currentRecord)
+    }
+
+    // MARK: - Pinned IDs
+
+    func testPinnedIdsStayTheSameAfterLogin() {
+        let service = makeForegroundSession()
+
+        user.identityModelId = "model-b"
         user.onesignalIds["model-b"] = "onesignal-b"
-        user.sessionPushSubscriptionId = "subscription-b"
+        user.pushSubscriptionId = "subscription-b"
         service.onUnfocus()
 
         XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
@@ -142,14 +182,13 @@ final class OSSessionServiceTests: XCTestCase {
 
     func testIdsAreFilledInOnceTheSessionUserIsCreated() {
         user.onesignalIds = [:]
-        user.sessionPushSubscriptionId = nil
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        user.pushSubscriptionId = nil
+        let service = makeForegroundSession()
         XCTAssertNil(service.currentRecord?.onesignalId)
         XCTAssertNil(service.currentRecord?.subscriptionId)
 
         user.onesignalIds["model-a"] = "onesignal-a"
-        user.sessionPushSubscriptionId = "subscription-a"
+        user.pushSubscriptionId = "subscription-a"
 
         XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
         XCTAssertEqual(service.currentRecord?.subscriptionId, "subscription-a")
@@ -157,21 +196,35 @@ final class OSSessionServiceTests: XCTestCase {
 
     func testSubscriptionIdIsNotFilledInAfterLoginToAnotherUser() {
         user.onesignalIds = [:]
-        user.sessionPushSubscriptionId = nil
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        user.pushSubscriptionId = nil
+        let service = makeForegroundSession()
 
-        user.sessionIdentityModelId = "model-b"
+        user.identityModelId = "model-b"
         user.onesignalIds = ["model-a": "onesignal-a", "model-b": "onesignal-b"]
-        user.sessionPushSubscriptionId = "subscription-b"
+        user.pushSubscriptionId = "subscription-b"
 
         XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
         XCTAssertNil(service.currentRecord?.subscriptionId)
     }
 
+    /// Identifying the anonymous user gives the new identity model the same backend user.
+    func testSubscriptionIdIsFilledInAfterLoginIdentifiesTheSameUser() {
+        user.onesignalIds = [:]
+        user.pushSubscriptionId = nil
+        let service = makeForegroundSession()
+
+        user.identityModelId = "model-b"
+        user.onesignalIds = ["model-a": "onesignal-a", "model-b": "onesignal-a"]
+        user.pushSubscriptionId = "subscription-a"
+
+        XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
+        XCTAssertEqual(service.currentRecord?.subscriptionId, "subscription-a")
+    }
+
+    // MARK: - Active duration
+
     func testActiveDurationAddsEachForegroundInterval() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
 
         monotonicNow += 10
         service.onUnfocus()
@@ -183,11 +236,10 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.activeDuration, 15)
     }
 
-    /// Resuming past the new-session threshold: the tracker reports focus, then the session
-    /// starts asynchronously on the main queue.
-    func testNewSessionStartedAfterFocusCountsFromSessionStart() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+    /// Resuming past the new-session threshold: the visit that started the session counts from
+    /// focus, not from when the session start ran on the main queue.
+    func testNewSessionStartedAfterFocusCountsFromFocus() {
+        let service = makeForegroundSession()
         monotonicNow += 10
         service.onUnfocus()
         let previousSessionId = service.currentRecord?.sessionId
@@ -200,12 +252,10 @@ final class OSSessionServiceTests: XCTestCase {
         service.onUnfocus()
 
         XCTAssertNotEqual(service.currentRecord?.sessionId, previousSessionId)
-        XCTAssertEqual(service.currentRecord?.activeDuration, 20)
+        XCTAssertEqual(service.currentRecord?.activeDuration, 21)
     }
 
-    /// A launch in the background starts the session before the app becomes active, so the time
-    /// spent in the background must not count.
-    func testFocusAfterBackgroundSessionStartCountsFromFocus() {
+    func testSessionStartedInTheBackgroundCountsFromFocus() {
         let service = makeService()
         service.startNewSession(userProvider: user)
 
@@ -218,8 +268,7 @@ final class OSSessionServiceTests: XCTestCase {
     }
 
     func testUnfocusWithoutFocusAddsNothing() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        let service = makeForegroundSession()
         monotonicNow += 10
         service.onUnfocus()
 
@@ -229,23 +278,8 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.activeDuration, 10)
     }
 
-    func testRecordSurvivesARestart() {
-        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
-        let service = makeService()
-        service.startNewSession(userProvider: user)
-        monotonicNow += 10
-        service.onUnfocus()
-        let saved = service.currentRecord
-
-        let restarted = makeService()
-
-        XCTAssertNotNil(saved)
-        XCTAssertEqual(restarted.currentRecord, saved)
-    }
-
     func testUnfocusInANewProcessDoesNotCountTimeFromThePreviousOne() {
-        let service = makeService()
-        service.startNewSession(userProvider: user)
+        _ = makeForegroundSession()
 
         let restarted = makeService()
         monotonicNow += 10

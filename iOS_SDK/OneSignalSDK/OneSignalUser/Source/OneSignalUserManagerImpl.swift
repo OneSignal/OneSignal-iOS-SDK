@@ -745,15 +745,6 @@ extension OneSignalUserManagerImpl {
         operationRepo.addFlushDeltaQueueToDispatchQueue(inBackground: true)
     }
 }
-extension OneSignalUserManagerImpl: OSSessionUserProvider {
-    public var sessionIdentityModelId: String? { _user?.identityModel.modelId }
-    public var sessionPushSubscriptionId: String? { pushSubscriptionId }
-
-    public func sessionOnesignalId(identityModelId: String) -> String? {
-        identityModelRepo.get(modelId: identityModelId)?.onesignalId
-    }
-}
-
 extension OneSignalUserManagerImpl: OSUser {
     public var User: OSUser {
         start()

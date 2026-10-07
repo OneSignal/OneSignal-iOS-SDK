@@ -56,6 +56,7 @@
 		D9F1B3E5A7C2495FC1E6B8D3 /* ExecutorRequestAgingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E5A1D7F2B9461EB8D4A6C2 /* ExecutorRequestAgingTests.swift */; };
 		23D66BEB40CE76DFF89744A3 /* RequestPathEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3016921C1F6B7B7793F67567 /* RequestPathEncodingTests.swift */; };
 		257E219608960B8545199057 /* OneSignalUserManagerImpl+Jwt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */; };
+		A5182F01A1B2C3D4E5F60002 /* OneSignalUserManagerImpl+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5182F01A1B2C3D4E5F60001 /* OneSignalUserManagerImpl+Session.swift */; };
 		2DB99C76F3532383C3B81D09 /* OSUserJwtRepoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5809B47EB4F2478099697CE /* OSUserJwtRepoTests.swift */; };
 		322B62F85070DCB5C5599D6D /* OSOperationRepoIdentityVerificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBB451F692A15639A1A08AE /* OSOperationRepoIdentityVerificationTests.swift */; };
 		32601EF1960CD92605D1ABF9 /* OSRequestAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF72AAEB5284C97B864A1A8 /* OSRequestAuth.swift */; };
@@ -1604,6 +1605,7 @@
 		475F47202B8E398E00EC05B3 /* OneSignalLiveActivities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLiveActivities.h; sourceTree = "<group>"; };
 		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Jwt.swift"; sourceTree = "<group>"; };
+		A5182F01A1B2C3D4E5F60001 /* OneSignalUserManagerImpl+Session.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Session.swift"; sourceTree = "<group>"; };
 		5221EEDBA5A74BD565490D52 /* OSOperationRepoTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSOperationRepoTestSupport.swift; sourceTree = "<group>"; };
 		557653D2007BFF86EA8342E4 /* OSDeltaTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSDeltaTests.swift; sourceTree = "<group>"; };
 		5953656ACCC21358BC0CF2F0 /* OSIdentityModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIdentityModelTests.swift; sourceTree = "<group>"; };
@@ -2977,6 +2979,7 @@
 				2F2FC6C922FF8104F3197DD4 /* OSUserJwtInvalidatedEvent.swift */,
 				6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */,
 				4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */,
+				A5182F01A1B2C3D4E5F60001 /* OneSignalUserManagerImpl+Session.swift */,
 				E78603AF16454A648A96DF7B /* OSPushSubscriptionImpl.swift */,
 				9BF72AAEB5284C97B864A1A8 /* OSRequestAuth.swift */,
 				A1C4E7F2B9D3468CA5E1F0B2 /* OSRequestAging.swift */,
@@ -4999,6 +5002,7 @@
 				DAF9C81134248FCDB0C12E5B /* OSUserJwtInvalidatedEvent.swift in Sources */,
 				FD1F1FCA05D555623DD53B54 /* OSUserJwtRepo.swift in Sources */,
 				257E219608960B8545199057 /* OneSignalUserManagerImpl+Jwt.swift in Sources */,
+				A5182F01A1B2C3D4E5F60002 /* OneSignalUserManagerImpl+Session.swift in Sources */,
 				DDE652EF2123473B808F8CCA /* OSPushSubscriptionImpl.swift in Sources */,
 				32601EF1960CD92605D1ABF9 /* OSRequestAuth.swift in Sources */,
 				B7D2A9C4E6F1483DA2C5E9F1 /* OSRequestAging.swift in Sources */,
