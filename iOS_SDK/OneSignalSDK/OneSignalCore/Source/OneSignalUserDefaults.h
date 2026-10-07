@@ -69,7 +69,11 @@
 - (void)saveObjectForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
 // NSUserDefaults for storing and getting saved codeable data (custom objects)
+/// A blob that is not archived data or cannot be decoded is logged, left in place and `value` returned.
 - (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
+/// Same, except that a blob larger than `maxBytes`, not archived data or undecodable is removed. 0 means no limit, and nothing is removed.
+- (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value maxBytes:(NSUInteger)maxBytes;
+/// A value whose archive is larger than `OS_USER_DEFAULTS_MAX_VALUE_BYTES` is not written and the key is removed.
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
 @end

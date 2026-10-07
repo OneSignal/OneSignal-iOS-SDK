@@ -281,42 +281,51 @@ class OSConsistencyManagerTests: XCTestCase {
         XCTAssertEqual(rywData?.rywToken, "456")
     }
 
-    // MARK: - Releasing waiters
+    // MARK: - Writes that came back without a token
 
-    /// A response with no `ryw_token` releases waiters for that user only.
-    func testResolvingByConditionIdReleasesWaitersForThatId() {
+    private let blank = OSReadYourWriteData(rywToken: nil, rywDelay: nil)
+
+    /// A write that completed with no `ryw_token` is filed like any other, so a waiter that registers
+    /// afterwards has nothing left to wait for.
+    func testAWaiterRegisteredAfterATokenlessWriteIsReleasedAtOnce() {
+        let id = "onesignal-id"
+        let key = NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue)
+        consistencyManager.setRywTokenAndDelay(id: id, key: OSIamFetchOffsetKey.userUpdate, value: blank)
+
+        let condition = TestMetCondition(expectedTokens: [id: [key: blank]])
         let returned = expectation(description: "waiter returned")
         DispatchQueue.global().async {
-            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
             returned.fulfill()
         }
-        OneSignalCoreMocks.waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-        consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: "onesignal-id")
-
+        // The timeout is the full 30 seconds here, so only a release brings the waiter back in time.
         wait(for: [returned], timeout: 2.0)
         XCTAssertEqual(consistencyManager.waiterCount, 0)
     }
 
-    /// Resolving user B leaves user A's waiter registered.
-    func testResolvingOneIdLeavesAnotherIdsWaiterWaiting() {
+    /// The entry is filed under its id, so user B's tokenless write does not release user A.
+    func testATokenlessWriteForOneIdLeavesAnotherIdsWaiterWaiting() {
         OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let key = NSNumber(value: OSIamFetchOffsetKey.userUpdate.rawValue)
         let userA = "onesignal-id-a"
         let userB = "onesignal-id-b"
+        let conditionA = TestMetCondition(expectedTokens: [userA: [key: blank]])
+        let conditionB = TestMetCondition(expectedTokens: [userB: [key: blank]])
 
         let aReturned = expectation(description: "user A waiter returned")
         let bReturned = expectation(description: "user B waiter returned")
         DispatchQueue.global().async {
-            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: userA)
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(conditionA, forId: userA)
             aReturned.fulfill()
         }
         DispatchQueue.global().async {
-            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: userB)
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(conditionB, forId: userB)
             bReturned.fulfill()
         }
         OneSignalCoreMocks.waitUntil("both waiters registered") { self.consistencyManager.waiterCount == 2 }
 
-        consistencyManager.resolveConditions(conditionId: TestUnmetCondition.CONDITIONID, forId: userB)
+        consistencyManager.setRywTokenAndDelay(id: userB, key: OSIamFetchOffsetKey.userUpdate, value: blank)
 
         wait(for: [bReturned], timeout: 2.0)
         XCTAssertEqual(consistencyManager.waiterCount, 1, "user A's waiter must still be registered")
@@ -324,16 +333,20 @@ class OSConsistencyManagerTests: XCTestCase {
         wait(for: [aReturned], timeout: 2.0)
     }
 
-    func testResolvingADifferentConditionLeavesTheWaiterWaiting() {
+    /// The entry is filed under the writer's key, so a waiter that needs a different write keeps waiting.
+    func testATokenlessWriteUnderAnotherKeyLeavesTheWaiterWaiting() {
         OSConsistencyManager.waitTimeout = .milliseconds(200)
+        let id = "onesignal-id"
+        let subscriptionKey = NSNumber(value: OSIamFetchOffsetKey.subscriptionUpdate.rawValue)
+        let condition = TestMetCondition(expectedTokens: [id: [subscriptionKey: blank]])
         let returned = expectation(description: "waiter returned")
         DispatchQueue.global().async {
-            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(TestUnmetCondition(), forId: "onesignal-id")
+            _ = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
             returned.fulfill()
         }
         OneSignalCoreMocks.waitUntil("waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-        consistencyManager.resolveConditions(conditionId: "SomeOtherCondition", forId: "onesignal-id")
+        consistencyManager.setRywTokenAndDelay(id: id, key: OSIamFetchOffsetKey.userUpdate, value: blank)
 
         XCTAssertEqual(consistencyManager.waiterCount, 1)
         // Drain the timeout so the thread is not left blocked after the test.

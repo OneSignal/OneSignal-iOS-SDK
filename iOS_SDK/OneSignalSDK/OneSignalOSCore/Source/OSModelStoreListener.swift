@@ -33,7 +33,10 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
 
     var store: OSModelStore<TModel> { get }
 
-    init(store: OSModelStore<TModel>)
+    // Injected: the shared enqueue below lives in OSCore, which cannot reach the User Manager.
+    var operationRepo: OSOperationRepo { get }
+
+    init(store: OSModelStore<TModel>, operationRepo: OSOperationRepo)
 
     func getAddModelDelta(_ model: TModel) -> OSDelta?
 
@@ -57,13 +60,13 @@ extension OSModelStoreListener {
             return
         }
         if let delta = getAddModelDelta(addedModel) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
         if let delta = getUpdateModelDelta(args) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 
@@ -74,7 +77,7 @@ extension OSModelStoreListener {
             return
         }
         if let delta = getRemoveModelDelta(removedModel) {
-            OSOperationRepo.sharedInstance.enqueueDelta(delta)
+            operationRepo.enqueueDelta(delta)
         }
     }
 }

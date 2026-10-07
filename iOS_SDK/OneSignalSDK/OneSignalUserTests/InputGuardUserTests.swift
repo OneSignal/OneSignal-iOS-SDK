@@ -41,7 +41,7 @@ final class InputGuardUserTests: XCTestCase {
         previousAppId = OneSignalIdentifiers.currentAppId
         OneSignalIdentifiers.currentAppId = "b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
         OneSignalCoreImpl.setSharedClient(MockOneSignalClient())
-        OSOperationRepo.sharedInstance.paused = true
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
     }
 
     override func tearDownWithError() throws {
@@ -133,7 +133,7 @@ final class InputGuardUserTests: XCTestCase {
 
     func testBlankEventNameIsNotEnqueued() {
         let manager = OneSignalUserManagerImpl.sharedInstance
-        let repo = OSOperationRepo.sharedInstance
+        let repo = OneSignalUserManagerImpl.sharedInstance.operationRepo
         manager.trackEvent(name: "kept-event", properties: nil)
         repo.flushAndWait()
         let before = repo.deltaQueue.filter { $0.name == OS_CUSTOM_EVENT_DELTA }.count

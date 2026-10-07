@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalLog.h"
 
 @implementation OneSignalUserDefaults : NSObject
 
@@ -152,15 +153,65 @@
 }
 
 - (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
-    if ([self keyExists:key])
-        return [NSKeyedUnarchiver unarchiveObjectWithData:[self.userDefaults objectForKey:key]];
-    
-    return value;
+    return [self getSavedCodeableDataForKey:key defaultValue:value maxBytes:0];
+}
+
+- (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value maxBytes:(NSUInteger)maxBytes {
+    if (![self keyExists:key])
+        return value;
+
+    id stored = [self.userDefaults objectForKey:key];
+    if (![stored isKindOfClass:[NSData class]]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults cannot decode %@: not archived data", key]];
+        [self removeUndecodableValueForKey:key maxBytes:maxBytes];
+        return value;
+    }
+    NSData *data = stored;
+    if (maxBytes > 0 && data.length > maxBytes) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults dropping %@: %lu bytes, limit %lu", key, (unsigned long)data.length, (unsigned long)maxBytes]];
+        [self removeValueForKey:key];
+        return value;
+    }
+    @try {
+        // A blob that decodes to nil is treated like a missing key.
+        return [NSKeyedUnarchiver unarchiveObjectWithData:data] ?: value;
+    } @catch (NSException *exception) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults cannot decode %@: %@", key, exception.reason]];
+        [self removeUndecodableValueForKey:key maxBytes:maxBytes];
+        return value;
+    }
+}
+
+/// Only a capped read, a queue of this SDK's own Requests, heals by deletion. An uncapped read leaves the blob to
+/// whichever module wrote it; a model store, for one, is overwritten by the user the SDK creates in its place.
+- (void)removeUndecodableValueForKey:(NSString *)key maxBytes:(NSUInteger)maxBytes {
+    if (maxBytes > 0) {
+        [self removeValueForKey:key];
+    }
 }
 
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value {
-    [self.userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
-    [self.userDefaults synchronize];
+    NSData *data;
+    @try {
+        data = [NSKeyedArchiver archivedDataWithRootObject:value];
+    } @catch (NSException *exception) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not archive %@: %@", key, exception.reason]];
+        return;
+    }
+    // Nothing the SDK caches is legitimately this large: a queue that reached it is the bloat the read cap drops,
+    // so the previous blob goes too rather than resend the Requests it held. CFPreferences refuses a value of 4 MB
+    // or more and can stop persisting the suite afterwards.
+    if (data.length > OS_USER_DEFAULTS_MAX_VALUE_BYTES) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults not caching %@: %lu bytes", key, (unsigned long)data.length]];
+        [self removeValueForKey:key];
+        return;
+    }
+    @try {
+        [self.userDefaults setObject:data forKey:key];
+        [self.userDefaults synchronize];
+    } @catch (NSException *exception) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalUserDefaults could not cache %@: %@", key, exception.reason]];
+    }
 }
 
 //gets the NSBundle of the primary application - NOT the app extension

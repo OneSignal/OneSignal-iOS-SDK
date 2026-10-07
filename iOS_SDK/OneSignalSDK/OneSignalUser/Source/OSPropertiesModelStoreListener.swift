@@ -31,9 +31,11 @@ import OneSignalOSCore
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSPropertiesModel>) {
+    required init(store: OSModelStore<OSPropertiesModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
@@ -45,15 +47,19 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        // Drop if this isn't the current user's properties model, the user has switched since
         guard let _ = OSPropertiesSupportedProperty(rawValue: args.property),
-              let userInstance = OneSignalUserManagerImpl.sharedInstance._user
+              let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
+              userInstance.propertiesModel.modelId == args.model.modelId
         else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property) or no user instance")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property), no user instance, or a properties model that is not the current user's")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_UPDATE_PROPERTIES_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: args.model,
             property: args.property,
             value: args.newValue

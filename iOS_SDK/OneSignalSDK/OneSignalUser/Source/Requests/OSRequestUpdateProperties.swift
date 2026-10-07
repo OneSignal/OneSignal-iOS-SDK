@@ -37,24 +37,29 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     var identityModel: OSIdentityModel
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     // TODO: Decide if addPushSubscriptionIdToAdditionalHeadersIfNeeded should block.
     // Note Android adds it to requests, if the push sub ID exists
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId)),
+           let aliasId = OSUrlPath.segment(alias.id)
         {
             _ = self.addPushSubscriptionIdToAdditionalHeaders()
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasId)"
             return true
         } else {
             return false
         }
     }
 
-    init(params: [String: Any], identityModel: OSIdentityModel) {
+    init(params: [String: Any], identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.identityModel = identityModel
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestUpdateProperties with parameters: \(params)>"
         super.init()
         self.parameters = params
@@ -63,6 +68,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -79,6 +85,8 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
+        // Absent in caches written before ownership was stamped; nil reads as anonymous.
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestUpdateProperties with parameters: \(parameters)>"
         super.init()
         self.parameters = parameters

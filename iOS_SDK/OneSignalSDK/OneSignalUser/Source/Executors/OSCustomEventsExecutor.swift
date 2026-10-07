@@ -49,19 +49,24 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     private var deltaQueue: [OSDelta] = []
     private var requestQueue: [OSRequestCustomEvents] = []
     private let newRecordsState: OSNewRecordsState
+    private let auth: OSRequestAuthorizing
+    private let nowProvider: () -> Date
 
     // The executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `requestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSCustomEventsExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState) {
+    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
         self.newRecordsState = newRecordsState
+        self.auth = auth
+        self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheRequests()
     }
 
     private func uncacheDeltas() {
-        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_USER_DEFAULTS_MAX_VALUE_BYTES)) as? [OSDelta] {
+            _ = removeStaleDeltas(from: &deltaQueue)
             for (index, delta) in deltaQueue.enumerated().reversed() {
                 if OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil {
                     // The identity model does not exist, drop this Delta
@@ -79,14 +84,16 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     private func uncacheRequests() {
-        if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCustomEvents] {
+        if var requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: [], maxBytes: UInt(OS_USER_DEFAULTS_MAX_VALUE_BYTES)) as? [OSRequestCustomEvents] {
+            // Before the hook-up, so it does not restore an identity model for a Request that is dropped anyway.
+            _ = removeStaleRequests(from: &requestQueue)
             // Hook each uncached Request to the model in the store
             for (index, request) in requestQueue.enumerated().reversed() {
                 if let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(request.identityModel.modelId) {
                     // 1. The identity model exist in the repo, set it to be the Request's model
                     request.identityModel = identityModel
-                } else if request.prepareForExecution(newRecordsState: newRecordsState) {
-                    // 2. The request can be sent, add the model to the repo
+                } else if auth.keepUncachedOwned(request) || request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
+                    // 2. Owned while Identity Verification is on, so a token can still arrive; or it can be sent as is
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The identitymodel do not exist AND this request cannot be sent, drop this Request
@@ -116,10 +123,31 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 
+    func removeOperationsWithoutExternalId() {
+        self.dispatchQueue.async {
+            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
+            if remainingDeltas.count != self.deltaQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
+                self.deltaQueue = remainingDeltas
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
+
+            let remainingRequests = self.requestQueue.filter { $0.ownerExternalId != nil }
+            if remainingRequests.count != self.requestQueue.count {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor dropped \(self.requestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
+                self.requestQueue = remainingRequests
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            }
+        }
+    }
+
     /// The `deltaQueue` can contain events for multiple users. They will remain as Deltas if there is no onesignal ID yet for its user.
     /// This method will be used in an upcoming release that combine multiple events.
     func processDeltaQueueWithBatching(inBackground: Bool) {
         self.dispatchQueue.async {
+            if self.removeStaleDeltas(from: &self.deltaQueue) {
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
                 self.processRequestQueue(inBackground: inBackground)
@@ -127,8 +155,8 @@ class OSCustomEventsExecutor: OSOperationExecutor {
             }
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSCustomEventsExecutor processDeltaQueue with queue: \(self.deltaQueue)")
 
-            // Holds mapping of identity model ID to the events for it
-            var combinedEvents: [String: [[String: Any]]] = [:]
+            // Holds mapping of identity model ID to the events for it, with the owner the Deltas stamped
+            var combinedEvents: [String: (events: [[String: Any]], ownerExternalId: String?, timestamp: Date)] = [:]
 
             // 1. Combine the events for every distinct user
             for (index, delta) in self.deltaQueue.enumerated().reversed() {
@@ -154,21 +182,27 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                     EventConstants.payload: self.addSdkMetadata(properties: properties)
                 ]
 
-                combinedEvents[identityModel.modelId, default: []].append(event)
+                var combined = combinedEvents[identityModel.modelId, default: ([], delta.externalId, delta.timestamp)]
+                combined.events.append(event)
+                combined.timestamp = min(combined.timestamp, delta.timestamp)
+                combinedEvents[identityModel.modelId] = combined
                 self.deltaQueue.remove(at: index)
             }
 
             // 2. Turn each user's events into a Request
-            for (modelId, events) in combinedEvents {
+            for (modelId, combined) in combinedEvents {
                 guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(modelId)
                 else {
                     // This should never happen as we already checked this during Deltas processing above
                     continue
                 }
                 let request = OSRequestCustomEvents(
-                    events: events,
-                    identityModel: identityModel
+                    events: combined.events,
+                    identityModel: identityModel,
+                    ownerExternalId: combined.ownerExternalId
                 )
+                // Aged from the oldest event, not from when its user got an onesignal_id.
+                request.timestamp = combined.timestamp
                 self.requestQueue.append(request)
             }
 
@@ -182,6 +216,9 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
+            if self.removeStaleDeltas(from: &self.deltaQueue) {
+                OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
+            }
             if self.deltaQueue.isEmpty {
                 // Delta queue is empty but there may be pending requests
                 self.processRequestQueue(inBackground: inBackground)
@@ -216,8 +253,11 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
                 let request = OSRequestCustomEvents(
                     events: [event],
-                    identityModel: identityModel
+                    identityModel: identityModel,
+                    ownerExternalId: delta.externalId
                 )
+                // Aged from the event, not from when its user got an onesignal_id.
+                request.timestamp = delta.timestamp
                 self.requestQueue.append(request)
             }
 
@@ -249,6 +289,10 @@ class OSCustomEventsExecutor: OSOperationExecutor {
 
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     private func processRequestQueue(inBackground: Bool) {
+        if removeStaleRequests(from: &requestQueue) {
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: requestQueue)
+        }
+
         if requestQueue.isEmpty {
             return
         }
@@ -258,11 +302,31 @@ class OSCustomEventsExecutor: OSOperationExecutor {
         }
     }
 
+    /// See `OSRequestAging`. Deltas wait here until their user has an `onesignal_id`, so they are aged too.
+    private func removeStaleDeltas(from queue: inout [OSDelta]) -> Bool {
+        return queue.removeStaleDeltas(
+            typeLimit: OSRequestAging.customEventRequestMaxAge,
+            now: nowProvider(),
+            currentExternalId: OSRequestAging.currentExternalId,
+            executor: "OSCustomEventsExecutor"
+        )
+    }
+
+    /// See `OSRequestAging`. Returns whether the queue changed, so the caller can rewrite its cache entry.
+    private func removeStaleRequests(from queue: inout [OSRequestCustomEvents]) -> Bool {
+        return queue.removeStaleRequests(
+            typeLimit: OSRequestAging.customEventRequestMaxAge,
+            now: nowProvider(),
+            currentExternalId: OSRequestAging.currentExternalId,
+            executor: "OSCustomEventsExecutor"
+        )
+    }
+
     private func executeRequest(_ request: OSRequestCustomEvents, inBackground: Bool) {
         guard !request.sentToClient else {
             return
         }
-        guard request.prepareForExecution(newRecordsState: newRecordsState) else {
+        guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
             return
         }
         request.sentToClient = true
@@ -284,7 +348,9 @@ class OSCustomEventsExecutor: OSOperationExecutor {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSCustomEventsExecutor request failed with error: \(error.debugDescription)")
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-                if responseType != .retryable {
+                if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor holding \(request) for a new token")
+                } else if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     self.requestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)

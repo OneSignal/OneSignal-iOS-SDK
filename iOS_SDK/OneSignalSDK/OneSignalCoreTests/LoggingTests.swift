@@ -169,4 +169,60 @@ final class LoggingTests: XCTestCase {
         XCTAssertEqual(sink.levels, [.LL_WARN])
         XCTAssertEqual(sink.messages, ["raw message"])
     }
+
+    // MARK: - Credential redaction
+
+    private let bearer = "jwt-a1b2c3"
+
+    /// Headers as `OSRequestAuth` and the User module set them on a signed request.
+    private func signedRequest() -> OneSignalRequest {
+        let request = OneSignalRequest()
+        request.method = GET
+        request.path = "apps/test-app-id/users/by/external_id/user-a"
+        request.parameters = ["app_id": "test-app-id"]
+        request.additionalHeaders = ["Authorization": "Bearer \(bearer)", "OneSignal-Subscription-Id": "sub-a"]
+        return request
+    }
+
+    /// The send log masks the bearer and nothing else.
+    func testSendingASignedRequestLogsTheHeadersWithTheBearerMasked() throws {
+        let listener = TestLogListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        let request = signedRequest()
+
+        XCTAssertTrue(OneSignalClient.shared().validRequest(request))
+
+        let entry = try XCTUnwrap(listener.calls.first { $0.contains("HTTP Request") })
+        XCTAssertFalse(entry.contains(bearer), entry)
+        XCTAssertTrue(entry.contains("Authorization = \"<redacted>\""), entry)
+        XCTAssertTrue(entry.contains("sub-a"), entry)
+        XCTAssertFalse(listener.calls.contains { $0.contains(bearer) }, "\(listener.calls)")
+        XCTAssertEqual(request.urlRequest().value(forHTTPHeaderField: "Authorization"), "Bearer \(bearer)")
+    }
+
+    /// The response log masks the bearer too.
+    func testHandlingAResponseLogsTheHeadersWithTheBearerMasked() throws {
+        let listener = TestLogListener()
+        OneSignalLog.debug().__add(listener)
+        defer { OneSignalLog.debug().__remove(listener) }
+        let request = signedRequest()
+        let url = try XCTUnwrap(request.urlRequest().url)
+        let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
+        let body = try JSONSerialization.data(withJSONObject: ["onesignal_id": "osid-a"])
+        var result: [AnyHashable: Any]?
+
+        OneSignalClient.shared().handleJSONNSURLResponse(
+            response, data: body, error: nil, isAsync: false, with: request,
+            onSuccess: { result = $0 },
+            onFailure: { XCTFail("\($0)") }
+        )
+
+        XCTAssertEqual(result?["onesignal_id"] as? String, "osid-a")
+        let entry = try XCTUnwrap(listener.calls.first { $0.contains("network request") })
+        XCTAssertFalse(entry.contains(bearer), entry)
+        XCTAssertTrue(entry.contains("Authorization = \"<redacted>\""), entry)
+        XCTAssertFalse(listener.calls.contains { $0.contains(bearer) }, "\(listener.calls)")
+        XCTAssertEqual(request.urlRequest().value(forHTTPHeaderField: "Authorization"), "Bearer \(bearer)")
+    }
 }

@@ -175,6 +175,20 @@
     return REATTEMPT_DELAY * pow(3, reattemptCount);
 }
 
+- (NSDictionary<NSString *, NSString *> *)loggableHeadersOfRequest:(OneSignalRequest *)request {
+    NSDictionary<NSString *, NSString *> *headers = request.additionalHeaders;
+    if (!headers) {
+        return nil;
+    }
+    NSMutableDictionary<NSString *, NSString *> *loggable = [headers mutableCopy];
+    for (NSString *name in headers) {
+        if ([name caseInsensitiveCompare:@"Authorization"] == NSOrderedSame) {
+            loggable[name] = @"<redacted>";
+        }
+    }
+    return loggable;
+}
+
 - (void)prettyPrintDebugStatementWithRequest:(OneSignalRequest *)request {
     if (![NSJSONSerialization isValidJSONObject:request.parameters])
         return;
@@ -190,7 +204,7 @@
     
     NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString, request.additionalHeaders]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString, [self loggableHeadersOfRequest:request]]];
 }
 
 - (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock {
@@ -206,7 +220,7 @@
         innerJson[@"httpStatusCode"] = [NSNumber numberWithLong:statusCode];
         innerJson[@"headers"] = headers;
         
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request (%@) with URL %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, request.additionalHeaders]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request (%@) with URL %@ and headers: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, [self loggableHeadersOfRequest:request]]];
 
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
         if (jsonError) {

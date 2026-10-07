@@ -31,19 +31,26 @@ import OneSignalOSCore
 
 class OSSubscriptionModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSSubscriptionModel>
+    let operationRepo: OSOperationRepo
 
-    required init(store: OSModelStore<OSSubscriptionModel>) {
+    required init(store: OSModelStore<OSSubscriptionModel>, operationRepo: OSOperationRepo) {
         self.store = store
+        self.operationRepo = operationRepo
     }
 
     func getAddModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
-        guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance")
+        // Stale - drop if the model is no longer in this store, the user has switched since
+        guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
+              store.getModel(modelId: model.modelId) != nil
+        else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance or the model is not in the current store")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_ADD_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -52,15 +59,18 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
 
     /**
      The `property` and `value` is not needed for a remove operation, so just pass in some model data as placeholders.
+     Stamps the current user: `onRemoved` runs after the model has left the store, so membership can't be checked.
      */
     func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
         guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getRemoveModelDelta has no user instance")
             return nil
         }
+        let identityModel = userInstance.identityModel
         return OSDelta(
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: model,
             property: model.type.rawValue, // push, email, sms
             value: model.address ?? ""
@@ -78,14 +88,16 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getUpdateModelDelta has no user instance")
             return nil
         }
-        if let onesignalId = userInstance.identityModel.onesignalId {
+        let identityModel = userInstance.identityModel
+        if let onesignalId = identityModel.onesignalId {
             let condition = OSIamFetchReadyCondition.sharedInstance(withId: onesignalId)
             condition.setSubscriptionUpdatePending(value: true)
         }
 
         return OSDelta(
             name: OS_UPDATE_SUBSCRIPTION_DELTA,
-            identityModelId: userInstance.identityModel.modelId,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
             model: args.model,
             property: args.property,
             value: args.newValue

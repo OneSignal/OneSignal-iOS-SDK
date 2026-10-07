@@ -36,6 +36,19 @@ struct AddItemDialog: View {
     @State private var keyText: String = ""
     @State private var valueText: String = ""
 
+    /// `initialKey` prefills the first field.
+    init(
+        itemType: AddItemType,
+        initialKey: String = "",
+        onAdd: @escaping (String, String) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.itemType = itemType
+        self.onAdd = onAdd
+        self.onCancel = onCancel
+        _keyText = State(initialValue: initialKey)
+    }
+
     var body: some View {
         OSDialog(
             title: itemType.title,

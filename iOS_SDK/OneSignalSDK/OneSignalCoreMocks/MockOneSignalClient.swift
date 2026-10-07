@@ -203,12 +203,16 @@ public class MockOneSignalClient: NSObject, IOneSignalClient {
         executionQueue.sync {}
     }
 
+    // A request has one outcome: whichever of these was called for it last. Otherwise a test could not
+    // override a default its setUp registered, nor let a retry succeed after the first attempt failed.
     public func setMockResponseForRequest(request: String, response: [String: Any]) {
         mockResponses[request] = response
+        mockFailureResponses.removeValue(forKey: request)
     }
 
     public func setMockFailureResponseForRequest(request: String, error: OneSignalClientError) {
         mockFailureResponses[request] = error
+        mockResponses.removeValue(forKey: request)
     }
 }
 
@@ -278,5 +282,10 @@ extension MockOneSignalClient {
         return requests.filter { request in
             request.isKind(of: type)
         }.count
+    }
+
+    /// Held requests count as in flight. Read under the lock, so safe from the test thread.
+    public var isIdle: Bool {
+        return lock.withLock { startedRequests.count == completedRequests.count }
     }
 }

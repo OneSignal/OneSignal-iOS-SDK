@@ -38,23 +38,28 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     let aliases: [String: String]
 
+    /// See the ownership convention in `OSUserRequest.swift`.
+    let ownerExternalId: String?
+
     /// requires a `onesignal_id` to send this request
-    func prepareForExecution(newRecordsState: OSNewRecordsState) -> Bool {
+    func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
         if let onesignalId = identityModel.onesignalId,
            newRecordsState.canAccess(onesignalId),
-           let appId = OneSignalIdentifiers.currentAppId
+           let appId = OneSignalIdentifiers.currentAppId,
+           let alias = auth.authorizeUserScoped(self, legacyAlias: OSAliasPair(OS_ONESIGNAL_ID, onesignalId)),
+           let aliasId = OSUrlPath.segment(alias.id)
         {
-            self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            self.path = "apps/\(appId)/users/by/\(alias.label)/\(aliasId)/identity"
             return true
         } else {
             return false
         }
     }
 
-    init(aliases: [String: String], identityModel: OSIdentityModel) {
+    init(aliases: [String: String], identityModel: OSIdentityModel, ownerExternalId: String?) {
         self.identityModel = identityModel
         self.aliases = aliases
+        self.ownerExternalId = ownerExternalId
         self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = ["identity": aliases]
@@ -63,6 +68,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(aliases, forKey: "aliases")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
@@ -82,6 +88,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         }
         self.identityModel = identityModel
         self.aliases = aliases
+        self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.stringDescription = "<OSRequestAddAliases with aliases: \(aliases)>"
         super.init()
         self.parameters = parameters

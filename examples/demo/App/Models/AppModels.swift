@@ -80,6 +80,7 @@ enum AddItemType {
     case tag
     case trigger
     case externalUserId
+    case updateUserJwt
 
     var title: String {
         switch self {
@@ -89,12 +90,13 @@ enum AddItemType {
         case .tag: return "Add Tag"
         case .trigger: return "Add Trigger"
         case .externalUserId: return "Login User"
+        case .updateUserJwt: return "Update User JWT"
         }
     }
 
     var requiresKeyValue: Bool {
         switch self {
-        case .alias, .tag, .trigger: return true
+        case .alias, .tag, .trigger, .updateUserJwt: return true
         case .email, .sms, .externalUserId: return false
         }
     }
@@ -103,6 +105,7 @@ enum AddItemType {
         switch self {
         case .alias: return "Label"
         case .tag, .trigger: return "Key"
+        case .updateUserJwt: return "External User Id"
         default: return "Key"
         }
     }
@@ -114,6 +117,7 @@ enum AddItemType {
         case .sms: return "Phone Number"
         case .tag, .trigger: return "Value"
         case .externalUserId: return "External User Id"
+        case .updateUserJwt: return "JWT Token"
         }
     }
 
@@ -141,6 +145,7 @@ enum AddItemType {
         case .tag: return "tag"
         case .trigger: return "trigger"
         case .externalUserId: return "login_user_id"
+        case .updateUserJwt: return "update_jwt"
         }
     }
 
@@ -152,6 +157,7 @@ enum AddItemType {
         case .alias: return "alias_label_input"
         case .tag: return "tag_key_input"
         case .trigger: return "trigger_key_input"
+        case .updateUserJwt: return "update_jwt_external_id_input"
         default: return "\(accessibilityKey)_key_input"
         }
     }
@@ -165,6 +171,7 @@ enum AddItemType {
         case .alias: return "alias_id_input"
         case .tag: return "tag_value_input"
         case .trigger: return "trigger_value_input"
+        case .updateUserJwt: return "update_jwt_token_input"
         default: return "\(accessibilityKey)_input"
         }
     }

@@ -38,12 +38,55 @@ class OSIdentityModel: OSModel {
         return internalGetAlias(OS_EXTERNAL_ID)
     }
 
-    // All access to aliases should go through helper methods with locking
+    // All access to aliases and the JWT bearer token must go through the lock
     var aliases: [String: String] = [:]
-    private let aliasesLock = NSRecursiveLock()
+    private let lock = NSRecursiveLock()
 
-    // TODO: We need to make this token secure
-    public var jwtBearerToken: String?
+    // MARK: - JWT
+
+    private var jwtBearerTokenLocked: String?
+    public var jwtBearerToken: String? {
+        get {
+            lock.withLock { jwtBearerTokenLocked }
+        }
+        set {
+            // Notify outside the lock: the change notifier fires synchronously into listeners that
+            // take locks of their own.
+            let changed = lock.withLock {
+                guard newValue != jwtBearerTokenLocked else { return false }
+                jwtBearerTokenLocked = newValue
+                return true
+            }
+            if changed {
+                self.set(property: OS_JWT_BEARER_TOKEN, newValue: newValue, preventServerUpdate: true)
+            }
+        }
+    }
+
+    /// Returns the bearer token if it is valid, otherwise nil, snapshots once
+    func getValidJwt() -> String? {
+        let token = jwtBearerToken
+        guard let token = token, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
+            return nil
+        }
+        return token
+    }
+
+    /// Returns `true` if the transition occurred, `false` if `rejectedToken` is no longer the stored
+    /// token. Comparing against the rejected token rather than the sentinel is what keeps a failure
+    /// response that was already in flight from parking the replacement supplied after it left.
+    @discardableResult
+    func invalidateJwtBearerToken(rejectedToken: String) -> Bool {
+        let changed = lock.withLock {
+            guard jwtBearerTokenLocked == rejectedToken else { return false }
+            jwtBearerTokenLocked = OS_JWT_TOKEN_INVALID
+            return true
+        }
+        if changed {
+            self.set(property: OS_JWT_BEARER_TOKEN, newValue: OS_JWT_TOKEN_INVALID, preventServerUpdate: true)
+        }
+        return changed
+    }
 
     // MARK: - Initialization
 
@@ -54,9 +97,10 @@ class OSIdentityModel: OSModel {
     }
 
     override func encode(with coder: NSCoder) {
-        aliasesLock.withLock {
+        lock.withLock {
             super.encode(with: coder)
             coder.encode(aliases, forKey: "aliases")
+            coder.encode(jwtBearerTokenLocked, forKey: OS_JWT_BEARER_TOKEN)
         }
     }
 
@@ -66,19 +110,20 @@ class OSIdentityModel: OSModel {
             // log error
             return nil
         }
+        self.jwtBearerTokenLocked = coder.decodeObject(forKey: OS_JWT_BEARER_TOKEN) as? String
         self.aliases = aliases
     }
 
     /** Threadsafe getter for an alias */
     private func internalGetAlias(_ label: String) -> String? {
-        aliasesLock.withLock {
+        lock.withLock {
             return self.aliases[label]
         }
     }
 
     /** Threadsafe setter or removal for aliases */
     private func internalAddAliases(_ aliases: [String: String]) {
-        aliasesLock.withLock {
+        lock.withLock {
             for (label, id) in aliases {
                 // Remove the alias if the ID field is ""
                 self.aliases[label] = id.isEmpty ? nil : id
@@ -88,11 +133,15 @@ class OSIdentityModel: OSModel {
     }
 
     /**
-     Called to clear the model's data in preparation for hydration via a fetch user call.
+     Keeps `onesignal_id` and `external_id` and drops every other alias, ahead of the Fetch User response
+     that fills the model back in. The fetch is addressed by one of those two, so neither can change, and
+     work built on another queue before the response lands has to keep reading this user as created and
+     identified. A response that omits `external_id` therefore leaves it in place; a same-user `login` is
+     a no-op, so only a login as someone else replaces it.
      */
     func clearData() {
-        aliasesLock.withLock {
-            self.aliases = [:]
+        lock.withLock {
+            self.aliases = self.aliases.filter { $0.key == OS_ONESIGNAL_ID || $0.key == OS_EXTERNAL_ID }
         }
     }
 
@@ -116,18 +165,37 @@ class OSIdentityModel: OSModel {
         }
 
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel with aliases: \(remoteAliases)")
-        let newOnesignalId = remoteAliases[OS_ONESIGNAL_ID]
-        let newExternalId = remoteAliases[OS_EXTERNAL_ID]
-
+        // Reporting the user to the app is the executor's call, since only a current user may be reported.
         internalAddAliases(remoteAliases)
-        fireUserStateChanged(newOnesignalId: newOnesignalId, newExternalId: newExternalId)
+    }
+}
+
+/**
+ Owns the last user state the app was told about, so the observer only hears real changes.
+
+ The User executor reports a hydrated current user through `fireUserStateChangedIfCurrent`, and `logout`
+ under Identity Verification also reports here: it creates no user on the server, so there is no
+ hydration to carry the news that nobody is signed in.
+ */
+enum OSUserStateSnapshot {
+    /**
+     Reports the hydrated user to the app, but only while that user is still current. A Create User or
+     Identify User for a user the app has since switched away from still hydrates its model, since the
+     Requests queued behind it need the `onesignal_id`, but the app must not hear that user as signed in,
+     and the persisted pair must keep naming the current user, or the current user's real state would
+     later read as unchanged and go unreported.
+     */
+    static func fireUserStateChangedIfCurrent(_ identityModel: OSIdentityModel) {
+        guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: identityModel.modelId) != nil else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserStateSnapshot not reporting a hydrated user who is no longer current")
+            return
+        }
+        fireUserStateChanged(newOnesignalId: identityModel.onesignalId, newExternalId: identityModel.externalId)
     }
 
-    /**
-     Fires the user observer if `onesignal_id` OR `external_id` has changed from the previous snapshot (previous hydration).
-     */
-    private func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
-        let prevOnesignalId  = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
+    /// Fires the user observer if `onesignal_id` OR `external_id` differs from the last reported pair.
+    static func fireUserStateChanged(newOnesignalId: String?, newExternalId: String?) {
+        let prevOnesignalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil)
         let prevExternalId = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_EXTERNAL_ID, defaultValue: nil)
 
         guard prevOnesignalId != newOnesignalId || prevExternalId != newExternalId else {

@@ -1,0 +1,204 @@
+/*
+ Modified MIT License
+
+ Copyright 2026 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import OneSignalCore
+import OneSignalOSCore
+
+/**
+ The app's JWT listeners, and whether one was ever added. An ask nobody hears is replayed when a listener
+ is added, so before the first registration it is the cold-start order and logs at debug; after one, the
+ app has let its listener go (they are held weakly) and only the warning tells it.
+ */
+final class OSUserJwtInvalidatedListeners {
+    private let observer = OSObservable<OSUserJwtInvalidatedListener, OSUserJwtInvalidatedEvent>(
+        change: #selector(OSUserJwtInvalidatedListener.onUserJwtInvalidated(event:))
+    )
+    private let lock = NSLock()
+    private var everRegistered = false
+
+    func add(_ listener: OSUserJwtInvalidatedListener) {
+        // Observer first, so an ask that lands between the two is heard rather than logged as a lost listener.
+        observer.addObserver(listener)
+        lock.withLock { everRegistered = true }
+    }
+
+    func remove(_ listener: OSUserJwtInvalidatedListener) {
+        observer.removeObserver(listener)
+    }
+
+    func notify(externalId: String) {
+        // Read first: a listener added during delivery is told by the replay, not by this warning.
+        let hadListener = lock.withLock { everRegistered }
+        if observer.notifyChange(OSUserJwtInvalidatedEvent(externalId: externalId)) {
+            return
+        }
+        let unheard = "asked for a JWT for externalId \(externalId)"
+        let replayed = "the ask is replayed when a listener is added"
+        if hadListener {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "\(unheard) but the OSUserJwtInvalidatedListener registered earlier is gone; \(replayed)")
+        } else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "\(unheard) before any OSUserJwtInvalidatedListener was registered; \(replayed)")
+        }
+    }
+}
+
+/**
+ The Identity Verification surface the app talks to: it hands the SDK a token for a user, and the SDK
+ tells it when that token stopped being accepted.
+ */
+extension OneSignalUserManagerImpl {
+    /**
+     Whether `login` may promote the current anonymous user with Identify User instead of creating a new one.
+
+     Identify User adds an `external_id` to a user that has none, and under Identity Verification no such
+     user is ever sent to the server, so every login has to create its user instead. While the requirement is
+     unknown this still promotes: the queue is held until it is known, and `OSUserExecutor` then turns the
+     promotion into the Create User it should have been if the app turns out to require auth.
+     */
+    var canPromoteAnonymousUser: Bool {
+        return !identityVerificationService.ivBehaviorActive
+    }
+
+    /**
+     Stores a token for `externalId` and releases everything held for want of one, so it goes out now:
+     the Repo's Deltas, the User executor's own queue (which is not Repo-driven), and — over the
+     notification — the work that travels through neither.
+
+     Every app-supplied token arrives here, from `login` as well as `updateUserJwt`, so that the pending
+     ask for this user is cleared and a later rejection can ask again. Returns whether the token was
+     stored; the repo refuses an unusable one.
+     */
+    @discardableResult
+    func storeJwt(externalId: String, token: String) -> Bool {
+        guard userJwtRepo.updateJwt(externalId: externalId, token: token) else {
+            return false
+        }
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager stored a JWT for externalId: \(externalId)")
+        guard identityVerificationService.newCodePathsRun else {
+            return true
+        }
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
+        userExecutor?.executePendingRequests()
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_JWT_UPDATED), object: nil)
+        return true
+    }
+
+    /// `storeJwt` clears the ask itself when it stores; a login with no usable token rearms it instead.
+    func storeJwtOrRearmAsk(externalId: String, token: String?) {
+        if let token = token, storeJwt(externalId: externalId, token: token) {
+            return
+        }
+        userJwtRepo.clearAsk(externalId: externalId)
+    }
+
+    /**
+     Replays any ask that already fired this session, so a listener registered after `start` or `login`
+     still hears who currently owes a token. The listener is held weakly, so the app has to keep its own
+     reference to it.
+     */
+    @objc
+    public func addUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedListeners.add(listener)
+        let pending = userJwtRepo.pendingTokenAsks()
+        guard !pending.isEmpty else {
+            return
+        }
+        // Same queue as OSObservable; skip any ask answered between registration and delivery.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else {
+                return
+            }
+            let stillPending = Set(self.userJwtRepo.pendingTokenAsks())
+            for externalId in pending where stillPending.contains(externalId) {
+                listener.onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent(externalId: externalId))
+            }
+        }
+    }
+
+    @objc
+    public func removeUserJwtInvalidatedListener(_ listener: OSUserJwtInvalidatedListener) {
+        self.userJwtInvalidatedListeners.remove(listener)
+    }
+
+    @objc
+    public func updateUserJwt(externalId: String, token: String) {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "updateUserJwt") else {
+            return
+        }
+        guard !externalId.isEmpty, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.updateUserJwt called with empty externalId or an unusable token. This is not allowed.")
+            return
+        }
+        OneSignalLog.onesignalLog(
+            .LL_VERBOSE,
+            message: "OneSignal.updateUserJwt called for externalId: \(externalId) with token: ...\(token.suffix(8))"
+        )
+
+        storeJwt(externalId: externalId, token: token)
+    }
+
+    /// Rollout flag, or always when the app requires Identity Verification.
+    @objc public var newCodePathsRun: Bool {
+        identityVerificationService.newCodePathsRun
+    }
+
+    /**
+     How another module should address and sign a user-scoped call for the current user, decided in one
+     read so the alias and the token cannot come from different users.
+
+     Returns nil when the call cannot be sent yet — the requirement is still unknown, nobody is logged in
+     under Identity Verification, or the app owes a token, which this asks for. Callers reattempt when
+     `OS_ON_JWT_CONFIG_HYDRATED` or `OS_ON_USER_JWT_UPDATED` is posted.
+     */
+    @objc
+    public func authorizationForCurrentUser() -> OSUserRequestAuthorization? {
+        // `_user` rather than `user`, which would create a guest user for a caller that only reads.
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil),
+              let identityModel = _user?.identityModel
+        else {
+            return nil
+        }
+        return requestAuth.authorization(onesignalId: identityModel.onesignalId, externalId: identityModel.externalId)
+    }
+
+    /// The 5.3.0-beta builds parked Requests awaiting a JWT under these keys and never trimmed them, so an
+    /// upgrading device can carry a large blob nothing reads anymore.
+    func removeIdentityVerificationBetaCaches() {
+        let defaults = OneSignalUserDefaults.initShared()
+        let keys = [
+            OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY,
+            OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY
+        ]
+        for key in keys where defaults.keyExists(key) {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManager removing the Identity Verification beta cache \(key)")
+            defaults.removeValue(forKey: key)
+        }
+    }
+}

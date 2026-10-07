@@ -101,11 +101,12 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
 
     func testTheManagerLowersTheBarWhenItReleasesTheWaiter() {
         let manager = OSConsistencyManager.shared
-        OSIamFetchReadyCondition.sharedInstance(withId: userA).setSubscriptionUpdatePending(value: true)
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        condition.setSubscriptionUpdatePending(value: true)
 
         let firstReturned = expectation(description: "first fetch released")
         DispatchQueue.global().async {
-            _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
             firstReturned.fulfill()
         }
         OneSignalCoreMocks.waitUntil("first fetch waiting") { manager.waiterCount == 1 }
@@ -115,33 +116,61 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
 
         manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.subscriptionUpdate, value: token("200"))
         wait(for: [firstReturned], timeout: 2.0)
+        XCTAssertTrue(condition.isMet(indexedTokens: [userA: userUpdateToken()]), "the release has to lower the bar")
 
-        // The next fetch has no subscription update behind it, so the user token alone releases it.
+        // Forget the tokens, so the subscription token still on file cannot be what releases the next fetch.
+        manager.reset()
         let secondReturned = expectation(description: "second fetch released")
         DispatchQueue.global().async {
-            _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
             secondReturned.fulfill()
         }
+        OneSignalCoreMocks.waitUntil("second fetch waiting") { manager.waiterCount == 1 }
+
+        // The next fetch has no subscription update behind it, so the user token alone releases it.
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("300"))
         wait(for: [secondReturned], timeout: 2.0)
     }
 
-    /// The `ryw_token`-missing fallback the executors call for that user.
-    func testResolvingTheConditionReleasesTheFetch() {
+    /// A write that came back with no `ryw_token` is filed as a blank entry, and the condition only asks
+    /// whether the entry is there, so the fetch goes out without a token rather than waiting for one.
+    func testAWriteWithNoTokenReleasesTheFetch() {
         let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
         let returned = expectation(description: "fetch released")
+        var rywData: OSReadYourWriteData?
         DispatchQueue.global().async {
-            _ = manager.getRywTokenFromAwaitableCondition(OSIamFetchReadyCondition.sharedInstance(withId: self.userA), forId: self.userA)
+            rywData = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
             returned.fulfill()
         }
         OneSignalCoreMocks.waitUntil("fetch waiting") { manager.waiterCount == 1 }
 
-        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userA)
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: blank())
 
         wait(for: [returned], timeout: 2.0)
+        XCTAssertNil(rywData?.rywToken)
     }
 
-    /// Resolving user B leaves user A's subscription bar raised.
-    func testResolvingOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
+    /// The entry stays on file, so a fetch that registers after the tokenless write is released at once
+    /// instead of waiting the full timeout for a token that is never coming.
+    func testAFetchThatRegistersAfterATokenlessWriteDoesNotWait() {
+        let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: blank())
+
+        let returned = expectation(description: "fetch released")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            returned.fulfill()
+        }
+
+        // The timeout is the full 30 seconds here, so only a release brings the fetch back in time.
+        wait(for: [returned], timeout: 2.0)
+        XCTAssertEqual(manager.waiterCount, 0)
+    }
+
+    /// User B's tokenless write leaves user A's subscription bar raised.
+    func testATokenlessWriteForOneUserDoesNotLowerAnotherUsersSubscriptionBar() {
         let manager = OSConsistencyManager.shared
         let conditionA = OSIamFetchReadyCondition.sharedInstance(withId: userA)
         let conditionB = OSIamFetchReadyCondition.sharedInstance(withId: userB)
@@ -155,13 +184,14 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         }
         OneSignalCoreMocks.waitUntil("user B waiting") { manager.waiterCount == 1 }
 
-        manager.resolveConditions(conditionId: OSIamFetchReadyCondition.CONDITIONID, forId: userB)
+        // A completed Create User is enough on its own, bar or no bar.
+        manager.setRywTokenAndDelay(id: userB, key: OSIamFetchOffsetKey.userCreate, value: blank())
         wait(for: [bReturned], timeout: 2.0)
 
         XCTAssertFalse(conditionA.isMet(indexedTokens: [userA: userUpdateToken()]),
                        "user A's subscription bar must still be up")
         XCTAssertTrue(conditionB.isMet(indexedTokens: [userB: userUpdateToken()]),
-                      "user B's bar comes down with its own resolve")
+                      "user B's bar comes down with its own release")
     }
 
     /// After a timeout, a later fetch for the same id is released by the user token alone.
@@ -177,7 +207,10 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
             firstReturned.fulfill()
         }
         wait(for: [firstReturned], timeout: 2.0)
+        XCTAssertTrue(condition.isMet(indexedTokens: [userA: userUpdateToken()]), "the timeout has to lower the bar")
 
+        // Back to the full timeout, so the second fetch can only return by being released.
+        OSConsistencyManager.waitTimeout = .seconds(30)
         manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("100"))
 
         let secondReturned = expectation(description: "second fetch released by user token alone")
@@ -188,10 +221,50 @@ final class OSIamFetchReadyConditionTests: XCTestCase {
         wait(for: [secondReturned], timeout: 2.0)
     }
 
+    /// The bar is shared by every fetch waiting on the id, so lowering it on one timeout can be all a sibling
+    /// was missing. That sibling goes out with the user token it already had, not after a timeout of its own.
+    func testATimeoutReleasesASiblingThatAlreadyHasItsUserToken() {
+        let manager = OSConsistencyManager.shared
+        let condition = OSIamFetchReadyCondition.sharedInstance(withId: userA)
+        condition.setSubscriptionUpdatePending(value: true)
+
+        OSConsistencyManager.waitTimeout = .seconds(1)
+        let firstReturned = expectation(description: "first fetch timed out")
+        DispatchQueue.global().async {
+            _ = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            firstReturned.fulfill()
+        }
+        OneSignalCoreMocks.waitUntil("first fetch waiting") { manager.waiterCount == 1 }
+
+        // Left to itself, the sibling would sit out the full timeout.
+        OSConsistencyManager.waitTimeout = .seconds(30)
+        let siblingReturned = expectation(description: "sibling fetch released")
+        var siblingData: OSReadYourWriteData?
+        DispatchQueue.global().async {
+            siblingData = manager.getRywTokenFromAwaitableCondition(condition, forId: self.userA)
+            siblingReturned.fulfill()
+        }
+        OneSignalCoreMocks.waitUntil("sibling fetch waiting") { manager.waiterCount == 2 }
+
+        // A user token alone satisfies neither while the bar is up.
+        manager.setRywTokenAndDelay(id: userA, key: OSIamFetchOffsetKey.userUpdate, value: token("100"))
+        XCTAssertEqual(manager.waiterCount, 2)
+
+        wait(for: [firstReturned], timeout: 2.0)
+        wait(for: [siblingReturned], timeout: 2.0)
+        XCTAssertEqual(siblingData?.rywToken, "100", "the sibling proceeds with the token it already had")
+        XCTAssertEqual(manager.waiterCount, 0)
+    }
+
     // MARK: - Helpers
 
     private func token(_ value: String) -> OSReadYourWriteData {
         return OSReadYourWriteData(rywToken: value, rywDelay: 0)
+    }
+
+    /// What a write that came back with no `ryw_token` files.
+    private func blank() -> OSReadYourWriteData {
+        return OSReadYourWriteData(rywToken: nil, rywDelay: nil)
     }
 
     private func userCreateToken() -> [NSNumber: OSReadYourWriteData] {

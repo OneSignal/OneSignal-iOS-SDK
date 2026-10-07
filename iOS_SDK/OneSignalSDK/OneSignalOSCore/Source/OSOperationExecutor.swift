@@ -36,4 +36,10 @@ public protocol OSOperationExecutor {
     func enqueueDelta(_ delta: OSDelta)
     func cacheDeltaQueue()
     func processDeltaQueue(inBackground: Bool)
+
+    /**
+     Drop queued Deltas and Requests that belong to an anonymous user. Driven by `OSOperationRepo`
+     so the policy stays there; only the storage is per-executor.
+     */
+    func removeOperationsWithoutExternalId()
 }

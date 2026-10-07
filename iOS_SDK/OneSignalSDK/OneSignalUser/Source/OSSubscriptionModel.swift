@@ -131,6 +131,7 @@ class OSSubscriptionModel: OSModel {
         var subscriptionId: String?
         var reachable: Bool
         var isDisabled: Bool
+        var isDisabledInternally: Bool
         var notificationTypes: Int
         var testType: Int?
         var deviceOs: String
@@ -309,6 +310,59 @@ class OSSubscriptionModel: OSModel {
     }
 
     /**
+     Set by the SDK on `logout` under Identity Verification, where no anonymous user is created to send to.
+     Only `reportedEnablement` reads it, so `_isDisabled` and `notificationTypes` keep the app's own opt-in
+     state and clearing this restores what the app asked for.
+
+     The app's push subscription observer does not fire — its opt-in preference has not changed, only what
+     the SDK reports while there is no user to report it for — but setting this does queue an Update
+     Subscription, which is how the server learns the device stopped listening.
+     */
+    var _isDisabledInternally: Bool {
+        get { stateLock.withLock { state.isDisabledInternally } }
+        set { setDisabledInternally(newValue, sendUpdate: true) }
+    }
+
+    /// Restores reporting without an Update Subscription, for `login`: its Create User already carries
+    /// the re-enabled subscription.
+    func clearDisabledInternallyForLogin() {
+        setDisabledInternally(false, sendUpdate: false)
+    }
+
+    private func setDisabledInternally(_ disabled: Bool, sendUpdate: Bool) {
+        let oldValue = swapValue(\.isDisabledInternally, to: disabled)
+        guard disabled != oldValue else {
+            return
+        }
+        self.set(property: "isDisabledInternally", newValue: disabled, preventServerUpdate: !sendUpdate)
+    }
+
+    /**
+     The `enabled` and `notification_types` to report, which the server reads as a pair. An internal
+     disable overrides both; otherwise a recorded remote disable holds `enabled` false and echoes its
+     code. `notificationTypes` is nil when there is no value to send.
+
+     Taken from one snapshot so the two cannot disagree, and shared with Update Subscription so a
+     subscription reports the same thing however the Request was built.
+     */
+    func reportedEnablement() -> (enabled: Bool, notificationTypes: Int?) {
+        return reportedEnablement(from: snapshot())
+    }
+
+    private func reportedEnablement(from state: State) -> (enabled: Bool, notificationTypes: Int?) {
+        guard !state.isDisabledInternally else {
+            return (false, -2)
+        }
+        let enabled = calculateIsEnabled(
+            address: state.address,
+            reachable: state.reachable,
+            isDisabled: state.isDisabled,
+            remoteDisabledReason: state.remoteDisabledReason
+        )
+        return (enabled, outboundNotificationTypes(state))
+    }
+
+    /**
      The server's remote disable code, either -22 (unsubscribed by hand from the dashboard) or -31
      (disabled through the REST API), or nil when the server has not disabled this subscription. The
      two codes are kept apart so payloads echo back the one the server sent rather than collapsing
@@ -328,7 +382,162 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    // Properties for push subscription
+    // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
+    init(type: OSSubscriptionType,
+         address: String?,
+         subscriptionId: String?,
+         reachable: Bool,
+         isDisabled: Bool,
+         changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        var testType: Int?
+        var notificationTypes = -1
+
+        // Set test_type if subscription model is PUSH, and update notificationTypes
+        if type == .push {
+            let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
+            #if targetEnvironment(simulator)
+            if releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown {
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+            }
+            #endif
+            // Workaround to unsure how to extract the Int value in 1 step...
+            if releaseMode == .UIApplicationReleaseDev {
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
+            }
+            if releaseMode == .UIApplicationReleaseAdHoc {
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
+            }
+            if releaseMode == .UIApplicationReleaseWildcard {
+                testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
+            }
+            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(isDisabled))
+        }
+
+        self.state = State(
+            type: type,
+            address: address,
+            subscriptionId: subscriptionId,
+            reachable: reachable,
+            isDisabled: isDisabled,
+            isDisabledInternally: false,
+            notificationTypes: notificationTypes,
+            testType: testType,
+            deviceOs: UIDevice.current.systemVersion,
+            sdk: ONESIGNAL_VERSION,
+            deviceModel: OSDeviceUtils.getDeviceVariant(),
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+            netType: OSNetworkingUtils.getNetType() as? Int,
+            remoteDisabledReason: nil,
+            remoteDisableClearedByUser: false
+        )
+
+        super.init(changeNotifier: changeNotifier)
+    }
+
+    override func encode(with coder: NSCoder) {
+        // Encode from one consistent snapshot; other threads may mutate this model mid-archive.
+        let state = snapshot()
+        super.encode(with: coder)
+        coder.encode(state.type.rawValue, forKey: "type") // Encodes as String
+        coder.encode(state.address, forKey: "address")
+        coder.encode(state.subscriptionId, forKey: "subscriptionId")
+        coder.encode(state.reachable, forKey: "_reachable")
+        coder.encode(state.isDisabled, forKey: "_isDisabled")
+        coder.encode(state.isDisabledInternally, forKey: "isDisabledInternally")
+        coder.encode(state.notificationTypes, forKey: "notificationTypes")
+        coder.encode(state.testType, forKey: "testType")
+        coder.encode(state.deviceOs, forKey: "deviceOs")
+        coder.encode(state.sdk, forKey: "sdk")
+        coder.encode(state.deviceModel, forKey: "deviceModel")
+        coder.encode(state.appVersion, forKey: "appVersion")
+        coder.encode(state.netType, forKey: "netType")
+        coder.encode(state.remoteDisabledReason, forKey: "remoteDisabledReason")
+    }
+
+    required init?(coder: NSCoder) {
+        guard
+            let rawType = coder.decodeObject(forKey: "type") as? String,
+            let type = OSSubscriptionType(rawValue: rawType)
+        else {
+            // Log error
+            return nil
+        }
+        self.state = State(
+            type: type,
+            address: coder.decodeObject(forKey: "address") as? String,
+            subscriptionId: coder.decodeObject(forKey: "subscriptionId") as? String,
+            reachable: coder.decodeBool(forKey: "_reachable"),
+            isDisabled: coder.decodeBool(forKey: "_isDisabled"),
+            // A model archived while logged out under Identity Verification stays internally disabled
+            // until the next login clears it.
+            isDisabledInternally: coder.decodeBool(forKey: "isDisabledInternally"),
+            notificationTypes: coder.decodeInteger(forKey: "notificationTypes"),
+            testType: coder.decodeObject(forKey: "testType") as? Int,
+            deviceOs: coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion,
+            sdk: coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION,
+            deviceModel: coder.decodeObject(forKey: "deviceModel") as? String,
+            appVersion: coder.decodeObject(forKey: "appVersion") as? String,
+            netType: coder.decodeObject(forKey: "netType") as? Int,
+            remoteDisabledReason: coder.decodeObject(forKey: "remoteDisabledReason") as? Int,
+            remoteDisableClearedByUser: false
+        )
+
+        super.init(coder: coder)
+    }
+
+    public override func hydrateModel(_ response: [String: Any]) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionModel hydrateModel()")
+        for property in response {
+            switch property.key {
+            case "id":
+                self.subscriptionId = property.value as? String
+            case "type":
+                if let type = OSSubscriptionType(rawValue: property.value as? String ?? "") {
+                    self.type = type
+                }
+            // case "token":
+                // TODO: For now, don't hydrate token
+                // self.address = property.value as? String
+            case "enabled":
+                if let enabled = property.value as? Bool {
+                    hydrateEnabled(enabled, response: response)
+                }
+            case "notification_types":
+                if let notificationTypes = property.value as? Int {
+                    hydrateNotificationTypes(notificationTypes)
+                }
+            default:
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Unused property on subscription model")
+            }
+        }
+    }
+
+    // Using snake_case so we can use this in request bodies
+    public func jsonRepresentation() -> [String: Any] {
+        let state = snapshot()
+        var json: [String: Any] = [:]
+        json["id"] = state.subscriptionId
+        json["type"] = state.type.rawValue
+        json["token"] = state.address
+        json["test_type"] = state.testType
+        json["device_os"] = state.deviceOs
+        json["sdk"] = state.sdk
+        json["device_model"] = state.deviceModel
+        json["app_version"] = state.appVersion
+        json["net_type"] = state.netType
+
+        let enablement = reportedEnablement(from: state)
+        json["enabled"] = enablement.enabled
+        if let notificationTypes = enablement.notificationTypes {
+            json["notification_types"] = notificationTypes
+        }
+        return json
+    }
+
+}
+
+// Device and SDK metadata reported alongside the subscription.
+extension OSSubscriptionModel {
     var testType: Int? {
         get { stateLock.withLock { state.testType } }
         set {
@@ -394,155 +603,6 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "netType", newValue: newValue)
         }
     }
-
-    // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
-    init(type: OSSubscriptionType,
-         address: String?,
-         subscriptionId: String?,
-         reachable: Bool,
-         isDisabled: Bool,
-         changeNotifier: OSEventProducer<OSModelChangedHandler>) {
-        var testType: Int?
-        var notificationTypes = -1
-
-        // Set test_type if subscription model is PUSH, and update notificationTypes
-        if type == .push {
-            let releaseMode: OSUIApplicationReleaseMode = OneSignalMobileProvision.releaseMode()
-            #if targetEnvironment(simulator)
-            if releaseMode == OSUIApplicationReleaseMode.UIApplicationReleaseUnknown {
-                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
-            }
-            #endif
-            // Workaround to unsure how to extract the Int value in 1 step...
-            if releaseMode == .UIApplicationReleaseDev {
-                testType = OSUIApplicationReleaseMode.UIApplicationReleaseDev.rawValue
-            }
-            if releaseMode == .UIApplicationReleaseAdHoc {
-                testType = OSUIApplicationReleaseMode.UIApplicationReleaseAdHoc.rawValue
-            }
-            if releaseMode == .UIApplicationReleaseWildcard {
-                testType = OSUIApplicationReleaseMode.UIApplicationReleaseWildcard.rawValue
-            }
-            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(isDisabled))
-        }
-
-        self.state = State(
-            type: type,
-            address: address,
-            subscriptionId: subscriptionId,
-            reachable: reachable,
-            isDisabled: isDisabled,
-            notificationTypes: notificationTypes,
-            testType: testType,
-            deviceOs: UIDevice.current.systemVersion,
-            sdk: ONESIGNAL_VERSION,
-            deviceModel: OSDeviceUtils.getDeviceVariant(),
-            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-            netType: OSNetworkingUtils.getNetType() as? Int,
-            remoteDisabledReason: nil,
-            remoteDisableClearedByUser: false
-        )
-
-        super.init(changeNotifier: changeNotifier)
-    }
-
-    override func encode(with coder: NSCoder) {
-        // Encode from one consistent snapshot; other threads may mutate this model mid-archive.
-        let state = snapshot()
-        super.encode(with: coder)
-        coder.encode(state.type.rawValue, forKey: "type") // Encodes as String
-        coder.encode(state.address, forKey: "address")
-        coder.encode(state.subscriptionId, forKey: "subscriptionId")
-        coder.encode(state.reachable, forKey: "_reachable")
-        coder.encode(state.isDisabled, forKey: "_isDisabled")
-        coder.encode(state.notificationTypes, forKey: "notificationTypes")
-        coder.encode(state.testType, forKey: "testType")
-        coder.encode(state.deviceOs, forKey: "deviceOs")
-        coder.encode(state.sdk, forKey: "sdk")
-        coder.encode(state.deviceModel, forKey: "deviceModel")
-        coder.encode(state.appVersion, forKey: "appVersion")
-        coder.encode(state.netType, forKey: "netType")
-        coder.encode(state.remoteDisabledReason, forKey: "remoteDisabledReason")
-    }
-
-    required init?(coder: NSCoder) {
-        guard
-            let rawType = coder.decodeObject(forKey: "type") as? String,
-            let type = OSSubscriptionType(rawValue: rawType)
-        else {
-            // Log error
-            return nil
-        }
-        self.state = State(
-            type: type,
-            address: coder.decodeObject(forKey: "address") as? String,
-            subscriptionId: coder.decodeObject(forKey: "subscriptionId") as? String,
-            reachable: coder.decodeBool(forKey: "_reachable"),
-            isDisabled: coder.decodeBool(forKey: "_isDisabled"),
-            notificationTypes: coder.decodeInteger(forKey: "notificationTypes"),
-            testType: coder.decodeObject(forKey: "testType") as? Int,
-            deviceOs: coder.decodeObject(forKey: "deviceOs") as? String ?? UIDevice.current.systemVersion,
-            sdk: coder.decodeObject(forKey: "sdk") as? String ?? ONESIGNAL_VERSION,
-            deviceModel: coder.decodeObject(forKey: "deviceModel") as? String,
-            appVersion: coder.decodeObject(forKey: "appVersion") as? String,
-            netType: coder.decodeObject(forKey: "netType") as? Int,
-            remoteDisabledReason: coder.decodeObject(forKey: "remoteDisabledReason") as? Int,
-            remoteDisableClearedByUser: false
-        )
-
-        super.init(coder: coder)
-    }
-
-    public override func hydrateModel(_ response: [String: Any]) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionModel hydrateModel()")
-        for property in response {
-            switch property.key {
-            case "id":
-                self.subscriptionId = property.value as? String
-            case "type":
-                if let type = OSSubscriptionType(rawValue: property.value as? String ?? "") {
-                    self.type = type
-                }
-            // case "token":
-                // TODO: For now, don't hydrate token
-                // self.address = property.value as? String
-            case "enabled":
-                if let enabled = property.value as? Bool {
-                    hydrateEnabled(enabled, response: response)
-                }
-            case "notification_types":
-                if let notificationTypes = property.value as? Int {
-                    hydrateNotificationTypes(notificationTypes)
-                }
-            default:
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Unused property on subscription model")
-            }
-        }
-    }
-
-    // Using snake_case so we can use this in request bodies
-    public func jsonRepresentation() -> [String: Any] {
-        let state = snapshot()
-        var json: [String: Any] = [:]
-        json["id"] = state.subscriptionId
-        json["type"] = state.type.rawValue
-        json["token"] = state.address
-        json["enabled"] = calculateIsEnabled(
-            address: state.address,
-            reachable: state.reachable,
-            isDisabled: state.isDisabled,
-            remoteDisabledReason: state.remoteDisabledReason
-        )
-        json["test_type"] = state.testType
-        json["device_os"] = state.deviceOs
-        json["sdk"] = state.sdk
-        json["device_model"] = state.deviceModel
-        json["app_version"] = state.appVersion
-        json["net_type"] = state.netType
-        json["notification_types"] = outboundNotificationTypes(state)
-        return json
-    }
-
 }
 
 // Push Subscription related
@@ -671,13 +731,11 @@ extension OSSubscriptionModel {
         params["device_os"] = state.deviceOs
         params["sdk"] = state.sdk
         params["app_version"] = state.appVersion
-        params["notification_types"] = outboundNotificationTypes(state)
-        params["enabled"] = calculateIsEnabled(
-            address: state.address,
-            reachable: state.reachable,
-            isDisabled: state.isDisabled,
-            remoteDisabledReason: state.remoteDisabledReason
-        )
+        let enablement = reportedEnablement(from: state)
+        params["enabled"] = enablement.enabled
+        if let notificationTypes = enablement.notificationTypes {
+            params["notification_types"] = notificationTypes
+        }
         return params
     }
 
