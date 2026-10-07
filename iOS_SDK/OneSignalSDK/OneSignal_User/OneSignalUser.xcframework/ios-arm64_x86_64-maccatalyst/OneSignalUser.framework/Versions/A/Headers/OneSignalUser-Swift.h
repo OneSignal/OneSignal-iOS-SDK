@@ -332,6 +332,23 @@ SWIFT_CLASS("_TtC13OneSignalUser30OSPushSubscriptionChangedState")
 @end
 
 
+/// Implements the push subscription namespace. Lives on <code>OneSignalUserManagerImpl</code> so User and Push
+/// Subscription can both expose <code>addObserver</code> without colliding on one type.
+SWIFT_CLASS("_TtC13OneSignalUser22OSPushSubscriptionImpl")
+@interface OSPushSubscriptionImpl : NSObject <OSPushSubscription>
+- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+@property (nonatomic, readonly, copy) NSString * _Nullable id;
+@property (nonatomic, readonly, copy) NSString * _Nullable token;
+@property (nonatomic, readonly) BOOL optedIn;
+/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
+- (void)optIn;
+- (void)optOut;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP13OneSignalUser26OSPushSubscriptionObserver_")
 @protocol OSPushSubscriptionObserver
 - (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state;
@@ -385,7 +402,6 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 /// \param properties Optional properties specific to the event. For example, an event with the name ‘Started Free Trial’ might have properties like promo code used or expiration date.
 ///
 - (void)trackEventWithName:(NSString * _Nonnull)name properties:(NSDictionary<NSString *, id> * _Nullable)properties;
-- (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @end
 
 @class OSUserState;
@@ -395,6 +411,39 @@ SWIFT_CLASS("_TtC13OneSignalUser18OSUserChangedState")
 @property (nonatomic, readonly, strong) OSUserState * _Nonnull current;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// Tells the app that the JWT it supplied for <code>externalId</code> is no longer accepted, so it should mint a
+/// fresh one and hand it back through <code>OneSignal.updateUserJwt(externalId:token:)</code>.
+SWIFT_CLASS("_TtC13OneSignalUser25OSUserJwtInvalidatedEvent")
+@interface OSUserJwtInvalidatedEvent : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull externalId;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_PROTOCOL("_TtP13OneSignalUser28OSUserJwtInvalidatedListener_")
+@protocol OSUserJwtInvalidatedListener
+- (void)onUserJwtInvalidatedWithEvent:(OSUserJwtInvalidatedEvent * _Nonnull)event;
+@end
+
+@class OSAliasPair;
+
+/// How another module should address and sign one user-scoped call.
+/// <code>alias</code> nil means address it the way it was addressed before Identity Verification: no user in the
+/// path and nothing to sign with.
+SWIFT_CLASS_NAMED("OSUserRequestAuthorization")
+@interface OSUserRequestAuthorization : NSObject
+@property (nonatomic, readonly, strong) OSAliasPair * _Nullable alias;
+/// Merge into the request’s headers. Empty unless the call is signed.
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> * _Nonnull headers;
+/// The token <code>headers</code> signs with, nil when the call is unsigned.
+@property (nonatomic, readonly, copy) NSString * _Nullable token;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -417,7 +466,6 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser19OSUserStateObserver_")
 @end
 
 
-@class OSPushSubscriptionImpl;
 
 SWIFT_CLASS("_TtC13OneSignalUser24OneSignalUserManagerImpl")
 @interface OneSignalUserManagerImpl : NSObject
@@ -426,36 +474,12 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 @property (nonatomic, readonly, copy) NSString * _Nullable pushSubscriptionId;
 @property (nonatomic, readonly, copy) NSString * _Nullable language;
 @property (nonatomic, readonly, strong) OSPushSubscriptionImpl * _Nonnull pushSubscriptionImpl;
-@property (nonatomic) BOOL requiresUserAuth;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (void)start;
 - (void)loginWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nullable)token;
 /// The SDK needs to have a user at all times, so this method will create a new anonymous user. If the current user is already anonymous, calling <code>logout</code> results in a no-op.
 - (void)logout;
-- (void)clearAllModelsFromStores;
-- (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
-- (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
-- (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
-@end
-
-
-@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
-@end
-
-
-SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionImpl")
-@interface OSPushSubscriptionImpl : NSObject <OSPushSubscription>
-- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-@property (nonatomic, readonly, copy) NSString * _Nullable id;
-@property (nonatomic, readonly, copy) NSString * _Nullable token;
-@property (nonatomic, readonly) BOOL optedIn;
-/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
-- (void)optIn;
-- (void)optOut;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -476,8 +500,33 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 @end
 
 
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
+- (void)clearAllModelsFromStores;
+- (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
+- (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
+- (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
+@end
+
+
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
+/// Replays any ask that already fired this session, so a listener registered after <code>start</code> or <code>login</code>
+/// still hears who currently owes a token. The listener is held weakly, so the app has to keep its own
+/// reference to it.
+- (void)addUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
+- (void)removeUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
+- (void)updateUserJwtWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nonnull)token;
+/// Rollout flag, or always when the app requires Identity Verification.
+@property (nonatomic, readonly) BOOL newCodePathsRun;
+/// How another module should address and sign a user-scoped call for the current user, decided in one
+/// read so the alias and the token cannot come from different users.
+/// Returns nil when the call cannot be sent yet — the requirement is still unknown, nobody is logged in
+/// under Identity Verification, or the app owes a token, which this asks for. Callers reattempt when
+/// <code>OS_ON_JWT_CONFIG_HYDRATED</code> or <code>OS_ON_USER_JWT_UPDATED</code> is posted.
+- (OSUserRequestAuthorization * _Nullable)authorizationForCurrentUser SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OSUser>
-- (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @property (nonatomic, readonly, strong) id <OSUser> _Nonnull User;
 @property (nonatomic, readonly, strong) id <OSPushSubscription> _Nonnull pushSubscription;
 @property (nonatomic, readonly, copy) NSString * _Nullable externalId;
@@ -853,6 +902,23 @@ SWIFT_CLASS("_TtC13OneSignalUser30OSPushSubscriptionChangedState")
 @end
 
 
+/// Implements the push subscription namespace. Lives on <code>OneSignalUserManagerImpl</code> so User and Push
+/// Subscription can both expose <code>addObserver</code> without colliding on one type.
+SWIFT_CLASS("_TtC13OneSignalUser22OSPushSubscriptionImpl")
+@interface OSPushSubscriptionImpl : NSObject <OSPushSubscription>
+- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
+@property (nonatomic, readonly, copy) NSString * _Nullable id;
+@property (nonatomic, readonly, copy) NSString * _Nullable token;
+@property (nonatomic, readonly) BOOL optedIn;
+/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
+- (void)optIn;
+- (void)optOut;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP13OneSignalUser26OSPushSubscriptionObserver_")
 @protocol OSPushSubscriptionObserver
 - (void)onPushSubscriptionDidChangeWithState:(OSPushSubscriptionChangedState * _Nonnull)state;
@@ -906,7 +972,6 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser6OSUser_")
 /// \param properties Optional properties specific to the event. For example, an event with the name ‘Started Free Trial’ might have properties like promo code used or expiration date.
 ///
 - (void)trackEventWithName:(NSString * _Nonnull)name properties:(NSDictionary<NSString *, id> * _Nullable)properties;
-- (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @end
 
 @class OSUserState;
@@ -916,6 +981,39 @@ SWIFT_CLASS("_TtC13OneSignalUser18OSUserChangedState")
 @property (nonatomic, readonly, strong) OSUserState * _Nonnull current;
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 - (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// Tells the app that the JWT it supplied for <code>externalId</code> is no longer accepted, so it should mint a
+/// fresh one and hand it back through <code>OneSignal.updateUserJwt(externalId:token:)</code>.
+SWIFT_CLASS("_TtC13OneSignalUser25OSUserJwtInvalidatedEvent")
+@interface OSUserJwtInvalidatedEvent : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull externalId;
+- (NSDictionary * _Nonnull)jsonRepresentation SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_PROTOCOL("_TtP13OneSignalUser28OSUserJwtInvalidatedListener_")
+@protocol OSUserJwtInvalidatedListener
+- (void)onUserJwtInvalidatedWithEvent:(OSUserJwtInvalidatedEvent * _Nonnull)event;
+@end
+
+@class OSAliasPair;
+
+/// How another module should address and sign one user-scoped call.
+/// <code>alias</code> nil means address it the way it was addressed before Identity Verification: no user in the
+/// path and nothing to sign with.
+SWIFT_CLASS_NAMED("OSUserRequestAuthorization")
+@interface OSUserRequestAuthorization : NSObject
+@property (nonatomic, readonly, strong) OSAliasPair * _Nullable alias;
+/// Merge into the request’s headers. Empty unless the call is signed.
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> * _Nonnull headers;
+/// The token <code>headers</code> signs with, nil when the call is unsigned.
+@property (nonatomic, readonly, copy) NSString * _Nullable token;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -938,7 +1036,6 @@ SWIFT_PROTOCOL("_TtP13OneSignalUser19OSUserStateObserver_")
 @end
 
 
-@class OSPushSubscriptionImpl;
 
 SWIFT_CLASS("_TtC13OneSignalUser24OneSignalUserManagerImpl")
 @interface OneSignalUserManagerImpl : NSObject
@@ -947,36 +1044,12 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OneSignalUse
 @property (nonatomic, readonly, copy) NSString * _Nullable pushSubscriptionId;
 @property (nonatomic, readonly, copy) NSString * _Nullable language;
 @property (nonatomic, readonly, strong) OSPushSubscriptionImpl * _Nonnull pushSubscriptionImpl;
-@property (nonatomic) BOOL requiresUserAuth;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (void)start;
 - (void)loginWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nullable)token;
 /// The SDK needs to have a user at all times, so this method will create a new anonymous user. If the current user is already anonymous, calling <code>logout</code> results in a no-op.
 - (void)logout;
-- (void)clearAllModelsFromStores;
-- (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
-- (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
-- (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
-@end
-
-
-@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
-@end
-
-
-SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionImpl")
-@interface OSPushSubscriptionImpl : NSObject <OSPushSubscription>
-- (void)addObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-- (void)removeObserver:(id <OSPushSubscriptionObserver> _Nonnull)observer;
-@property (nonatomic, readonly, copy) NSString * _Nullable id;
-@property (nonatomic, readonly, copy) NSString * _Nullable token;
-@property (nonatomic, readonly) BOOL optedIn;
-/// Enable the push subscription, and prompts if needed. <code>optedIn</code> can still be <code>false</code> after <code>optIn()</code> is called if permission is not granted.
-- (void)optIn;
-- (void)optOut;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -997,8 +1070,33 @@ SWIFT_CLASS("_TtCC13OneSignalUser24OneSignalUserManagerImpl22OSPushSubscriptionI
 @end
 
 
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
+- (void)clearAllModelsFromStores;
+- (NSDictionary<NSString *, NSString *> * _Nullable)getTagsInternal SWIFT_WARN_UNUSED_RESULT;
+- (void)setLocationWithLatitude:(float)latitude longitude:(float)longitude;
+- (void)sendPurchases:(NSArray<NSDictionary<NSString *, id> *> * _Nonnull)purchases;
+@end
+
+
+@interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser))
+/// Replays any ask that already fired this session, so a listener registered after <code>start</code> or <code>login</code>
+/// still hears who currently owes a token. The listener is held weakly, so the app has to keep its own
+/// reference to it.
+- (void)addUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
+- (void)removeUserJwtInvalidatedListener:(id <OSUserJwtInvalidatedListener> _Nonnull)listener;
+- (void)updateUserJwtWithExternalId:(NSString * _Nonnull)externalId token:(NSString * _Nonnull)token;
+/// Rollout flag, or always when the app requires Identity Verification.
+@property (nonatomic, readonly) BOOL newCodePathsRun;
+/// How another module should address and sign a user-scoped call for the current user, decided in one
+/// read so the alias and the token cannot come from different users.
+/// Returns nil when the call cannot be sent yet — the requirement is still unknown, nobody is logged in
+/// under Identity Verification, or the app owes a token, which this asks for. Callers reattempt when
+/// <code>OS_ON_JWT_CONFIG_HYDRATED</code> or <code>OS_ON_USER_JWT_UPDATED</code> is posted.
+- (OSUserRequestAuthorization * _Nullable)authorizationForCurrentUser SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
 @interface OneSignalUserManagerImpl (SWIFT_EXTENSION(OneSignalUser)) <OSUser>
-- (void)onJwtExpiredWithExpiredHandler:(void (^ _Nonnull)(NSString * _Nonnull, SWIFT_NOESCAPE void (^ _Nonnull)(NSString * _Nonnull)))expiredHandler;
 @property (nonatomic, readonly, strong) id <OSUser> _Nonnull User;
 @property (nonatomic, readonly, strong) id <OSPushSubscription> _Nonnull pushSubscription;
 @property (nonatomic, readonly, copy) NSString * _Nullable externalId;

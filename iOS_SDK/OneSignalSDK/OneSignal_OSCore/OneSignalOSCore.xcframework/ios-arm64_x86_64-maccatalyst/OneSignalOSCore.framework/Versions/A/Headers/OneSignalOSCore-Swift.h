@@ -304,6 +304,17 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 @class NSString;
 
+/// Requests address a user by one alias or the other depending on Identity Verification: <code>external_id</code>
+/// when it is active, <code>onesignal_id</code> otherwise.
+SWIFT_CLASS("_TtC15OneSignalOSCore11OSAliasPair")
+@interface OSAliasPair : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull label;
+@property (nonatomic, readonly, copy) NSString * _Nonnull id;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSBackgroundTaskHandler_")
 @protocol OSBackgroundTaskHandler
 - (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
@@ -347,9 +358,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSConsistenc
 /// Blocks the caller until the condition is met or <code>waitTimeout</code> elapses, then returns the newest
 /// token the condition accepts, which is nil when it was released without one.
 - (OSReadYourWriteData * _Nullable)getRywTokenFromAwaitableCondition:(id <OSCondition> _Nonnull)condition forId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
-/// Releases waiters on <code>conditionId</code> registered under <code>id</code> (e.g. onesignalId). Used when that user’s
-/// response carried no <code>ryw_token</code>, so those waiters have nothing left to wait for.
-- (void)resolveConditionsWithConditionId:(NSString * _Nonnull)conditionId forId:(NSString * _Nonnull)id;
 @end
 
 @class NSCoder;
@@ -465,6 +473,16 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _No
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+
+SWIFT_CLASS_NAMED("OSInputGuard")
+@interface OSInputGuard : NSObject
++ (BOOL)isMissing:(NSString * _Nullable)value api:(NSString * _Nonnull)api SWIFT_WARN_UNUSED_RESULT;
++ (BOOL)isMissingAny:(NSArray * _Nullable)values api:(NSString * _Nonnull)api SWIFT_WARN_UNUSED_RESULT;
+/// <code>allowEmptyValue</code> keeps “” and a value containing a null byte. A null value is still rejected.
++ (BOOL)hasMissingEntries:(NSDictionary * _Nullable)values api:(NSString * _Nonnull)api allowEmptyValue:(BOOL)allowEmptyValue SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
 @class NSURL;
 
 /// Provides access to OneSignal LiveActivities.
@@ -528,12 +546,15 @@ SWIFT_CLASS("_TtC15OneSignalOSCore18OSModelChangedArgs")
 @end
 
 
-/// The OSOperationRepo is a static singleton.
-/// OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
+/// Enqueues OSDeltas from model-store observers and routes them to executors.
+/// Also owns Identity Verification decisions for queued work: hold flushes until <code>requirement</code> is known,
+/// and drop anonymous Deltas while IV is active — except push subscription updates, which stay unsigned
+/// and have to keep flowing with or without an identified user.
 SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
 - (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -591,6 +612,43 @@ SWIFT_CLASS("_TtC15OneSignalOSCore20OSStubLiveActivities")
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
 + (NSURL * _Nullable)trackClickAndReturnOriginal:(NSURL * _Nonnull)url SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Shared path-segment encoding for Swift and ObjC request builders.
+SWIFT_CLASS_NAMED("OSUrlPath")
+@interface OSUrlPath : NSObject
+/// Returns <code>value</code> percent-encoded for use as one path segment, or nil if it cannot be encoded.
+/// <code>urlUserAllowed</code> rather than <code>urlPathAllowed</code>, which leaves <code>/</code> alone: the values the SDK
+/// interpolates into a path — <code>external_id</code>, alias labels, Live Activity types — come from the app,
+/// and one containing a slash, <code>?</code>, <code>#</code> or <code>%</code> would otherwise reach a different endpoint than intended.
+/// Encode once, where the path is built. A value that has already been through this comes back with its
+/// <code>%</code> escaped again.
++ (NSString * _Nullable)segment:(NSString * _Nonnull)value SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Holds the Identity Verification requirement and caches it across launches.
+/// Deliberately knows nothing about gating: <code>OSIdentityVerificationService</code> makes every such decision
+/// and is the only observer here.
+SWIFT_CLASS_NAMED("OSUserJwtConfig")
+@interface OSUserJwtConfig : NSObject
+/// Remote params hydrate the requirement from <code>OneSignal.m</code>, which runs before the User Manager is
+/// started, and keeps running in sessions where it never starts at all because consent is pending.
+/// Reaching the requirement through a shared instance keeps that path from constructing the User
+/// Manager just to hand over a boolean.
+/// Only <code>OneSignal.m</code> and <code>OneSignalUserManagerImpl</code> should reference this. Everything below them —
+/// the operation repo, the executors, the request layer — is handed the config when it is created,
+/// which keeps the shared instance contained to the two places that cannot avoid it.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSUserJwtConfig * _Nonnull shared;)
++ (OSUserJwtConfig * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+/// Applies the requirement carried by a successful remote params response. A response that omits
+/// <code>jwt_required</code> means the app has Identity Verification off, so callers pass <code>false</code> for it rather
+/// than leaving the requirement unknown. A response with no body at all answers nothing, so callers
+/// skip this and leave the cached requirement in place.
+- (void)hydrateWithRequiresUserAuth:(BOOL)requiresUserAuth;
 @end
 
 
@@ -958,6 +1016,17 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 @class NSString;
 
+/// Requests address a user by one alias or the other depending on Identity Verification: <code>external_id</code>
+/// when it is active, <code>onesignal_id</code> otherwise.
+SWIFT_CLASS("_TtC15OneSignalOSCore11OSAliasPair")
+@interface OSAliasPair : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull label;
+@property (nonatomic, readonly, copy) NSString * _Nonnull id;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP15OneSignalOSCore23OSBackgroundTaskHandler_")
 @protocol OSBackgroundTaskHandler
 - (void)beginBackgroundTask:(NSString * _Nonnull)taskIdentifier;
@@ -1001,9 +1070,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSConsistenc
 /// Blocks the caller until the condition is met or <code>waitTimeout</code> elapses, then returns the newest
 /// token the condition accepts, which is nil when it was released without one.
 - (OSReadYourWriteData * _Nullable)getRywTokenFromAwaitableCondition:(id <OSCondition> _Nonnull)condition forId:(NSString * _Nonnull)id SWIFT_WARN_UNUSED_RESULT;
-/// Releases waiters on <code>conditionId</code> registered under <code>id</code> (e.g. onesignalId). Used when that user’s
-/// response carried no <code>ryw_token</code>, so those waiters have nothing left to wait for.
-- (void)resolveConditionsWithConditionId:(NSString * _Nonnull)conditionId forId:(NSString * _Nonnull)id;
 @end
 
 @class NSCoder;
@@ -1119,6 +1185,16 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _No
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+
+SWIFT_CLASS_NAMED("OSInputGuard")
+@interface OSInputGuard : NSObject
++ (BOOL)isMissing:(NSString * _Nullable)value api:(NSString * _Nonnull)api SWIFT_WARN_UNUSED_RESULT;
++ (BOOL)isMissingAny:(NSArray * _Nullable)values api:(NSString * _Nonnull)api SWIFT_WARN_UNUSED_RESULT;
+/// <code>allowEmptyValue</code> keeps “” and a value containing a null byte. A null value is still rejected.
++ (BOOL)hasMissingEntries:(NSDictionary * _Nullable)values api:(NSString * _Nonnull)api allowEmptyValue:(BOOL)allowEmptyValue SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
 @class NSURL;
 
 /// Provides access to OneSignal LiveActivities.
@@ -1182,12 +1258,15 @@ SWIFT_CLASS("_TtC15OneSignalOSCore18OSModelChangedArgs")
 @end
 
 
-/// The OSOperationRepo is a static singleton.
-/// OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
+/// Enqueues OSDeltas from model-store observers and routes them to executors.
+/// Also owns Identity Verification decisions for queued work: hold flushes until <code>requirement</code> is known,
+/// and drop anonymous Deltas while IV is active — except push subscription updates, which stay unsigned
+/// and have to keep flowing with or without an identified user.
 SWIFT_CLASS("_TtC15OneSignalOSCore15OSOperationRepo")
 @interface OSOperationRepo : NSObject
 - (void)addFlushDeltaQueueToDispatchQueueInBackground:(BOOL)inBackground;
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -1245,6 +1324,43 @@ SWIFT_CLASS("_TtC15OneSignalOSCore20OSStubLiveActivities")
 + (void)exit:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)withSuccess withFailure:(OSFailureBlock _Nullable)withFailure;
 + (NSURL * _Nullable)trackClickAndReturnOriginal:(NSURL * _Nonnull)url SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Shared path-segment encoding for Swift and ObjC request builders.
+SWIFT_CLASS_NAMED("OSUrlPath")
+@interface OSUrlPath : NSObject
+/// Returns <code>value</code> percent-encoded for use as one path segment, or nil if it cannot be encoded.
+/// <code>urlUserAllowed</code> rather than <code>urlPathAllowed</code>, which leaves <code>/</code> alone: the values the SDK
+/// interpolates into a path — <code>external_id</code>, alias labels, Live Activity types — come from the app,
+/// and one containing a slash, <code>?</code>, <code>#</code> or <code>%</code> would otherwise reach a different endpoint than intended.
+/// Encode once, where the path is built. A value that has already been through this comes back with its
+/// <code>%</code> escaped again.
++ (NSString * _Nullable)segment:(NSString * _Nonnull)value SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+/// Holds the Identity Verification requirement and caches it across launches.
+/// Deliberately knows nothing about gating: <code>OSIdentityVerificationService</code> makes every such decision
+/// and is the only observer here.
+SWIFT_CLASS_NAMED("OSUserJwtConfig")
+@interface OSUserJwtConfig : NSObject
+/// Remote params hydrate the requirement from <code>OneSignal.m</code>, which runs before the User Manager is
+/// started, and keeps running in sessions where it never starts at all because consent is pending.
+/// Reaching the requirement through a shared instance keeps that path from constructing the User
+/// Manager just to hand over a boolean.
+/// Only <code>OneSignal.m</code> and <code>OneSignalUserManagerImpl</code> should reference this. Everything below them —
+/// the operation repo, the executors, the request layer — is handed the config when it is created,
+/// which keeps the shared instance contained to the two places that cannot avoid it.
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) OSUserJwtConfig * _Nonnull shared;)
++ (OSUserJwtConfig * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+/// Applies the requirement carried by a successful remote params response. A response that omits
+/// <code>jwt_required</code> means the app has Identity Verification off, so callers pass <code>false</code> for it rather
+/// than leaving the requirement unknown. A response with no body at all answers nothing, so callers
+/// skip this and leave the cached requirement in place.
+- (void)hydrateWithRequiresUserAuth:(BOOL)requiresUserAuth;
 @end
 
 
