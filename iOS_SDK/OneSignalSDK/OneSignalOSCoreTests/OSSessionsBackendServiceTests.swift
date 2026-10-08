@@ -58,7 +58,7 @@ final class OSSessionsBackendServiceTests: XCTestCase {
     private let createBody = OSCreateSessionRequestBody(
         onesignalId: "onesignal-id",
         subscriptionId: "subscription-id",
-        startTime: 1_700_000_000,
+        startTime: Date(timeIntervalSince1970: 1_700_000_000),
         idempotencyKey: "create-key"
     )
     private let updateBody = OSUpdateSessionRequestBody(
@@ -118,7 +118,7 @@ final class OSSessionsBackendServiceTests: XCTestCase {
             "onesignal_id": "onesignal-id",
             "subscription_id": "subscription-id",
             "device_type": 0,
-            "start_time": 1_700_000_000,
+            "start_time": "2023-11-14T22:13:20.000Z",
             "idempotency_key": "create-key"
         ])
     }
@@ -129,7 +129,7 @@ final class OSSessionsBackendServiceTests: XCTestCase {
         _ = create(OSCreateSessionRequestBody(
             onesignalId: "onesignal-id",
             subscriptionId: "subscription-id",
-            startTime: 1_700_000_000,
+            startTime: Date(timeIntervalSince1970: 1_700_000_000),
             idempotencyKey: "create-key",
             directAttributionId: "notification-id"
         ))
@@ -189,10 +189,10 @@ final class OSSessionsBackendServiceTests: XCTestCase {
             subscriptionId: "subscription-id",
             durationSeconds: 42,
             idempotencyKey: "update-key",
-            endTime: 1_700_000_042
+            endTime: Date(timeIntervalSince1970: 1_700_000_042.5)
         ))
 
-        XCTAssertEqual(client.requests.first?.parameters?["end_time"] as? Int64, 1_700_000_042)
+        XCTAssertEqual(client.requests.first?.parameters?["end_time"] as? String, "2023-11-14T22:14:02.500Z")
     }
 
     func testUpdateSessionSucceedsWithUnparsableSuccessBody() {
@@ -201,8 +201,8 @@ final class OSSessionsBackendServiceTests: XCTestCase {
         assertUpdate(update(), matches: .success(""))
     }
 
-    func testFailuresAreRetriedOnNetworkError5xx408And429() {
-        for code in [-1, 0, 408, 500, 502, 503] {
+    func testFailuresAreRetriedOnNoResponse5xx408And429() {
+        for code in [0, 408, 500, 502, 503] {
             client.outcome = .failure(code: code, headers: nil)
 
             XCTAssertEqual(create(), .retry(statusCode: code, retryAfterSeconds: nil), "\(code)")
@@ -212,8 +212,8 @@ final class OSSessionsBackendServiceTests: XCTestCase {
         XCTAssertEqual(create(), .retry(statusCode: 429, retryAfterSeconds: OSSessionsBackendService.defaultRetryAfterSeconds))
     }
 
-    func testOther4xxFailuresAreDropped() {
-        for code in [400, 401, 403, 404, 409, 410, 422] {
+    func testOther4xxAndMissingAppIdFailuresAreDropped() {
+        for code in [-1, 400, 401, 403, 404, 409, 410, 422] {
             client.outcome = .failure(code: code, headers: ["Retry-After": "10"])
 
             XCTAssertEqual(create(), .drop(statusCode: code), "\(code)")
