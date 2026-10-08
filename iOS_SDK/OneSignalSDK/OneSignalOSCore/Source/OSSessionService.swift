@@ -139,6 +139,14 @@ public final class OSSessionService: NSObject {
         }
     }
 
+    /// The User module calls this as soon as the backend assigns a user or subscription ID. Filling
+    /// only on the next read could be too late: a login in between switches the current user, and
+    /// the subscription can then no longer be attributed to this session's user.
+    public func refreshPinnedIds() {
+        let ids = pinnableIds()
+        stateLock.withLock { fillPinnedIds(ids) }
+    }
+
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.

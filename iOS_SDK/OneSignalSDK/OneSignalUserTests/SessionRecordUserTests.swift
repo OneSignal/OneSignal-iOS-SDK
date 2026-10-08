@@ -66,7 +66,8 @@ final class SessionRecordUserTests: XCTestCase {
     func testPinnedIdsStayTheSameAfterLoginsWithinASession() {
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
         OneSignalCoreMocks.waitUntil("Anonymous user was not created") {
-            OSSessionService.shared.currentRecord?.onesignalId == anonUserOSID
+            let record = OSSessionService.shared.currentRecord
+            return record?.onesignalId == anonUserOSID && record?.subscriptionId == testPushSubId
         }
         let pinned = OSSessionService.shared.currentRecord
 
@@ -80,6 +81,26 @@ final class SessionRecordUserTests: XCTestCase {
         XCTAssertEqual(record?.sessionId, pinned?.sessionId)
         XCTAssertEqual(record?.onesignalId, anonUserOSID)
         XCTAssertEqual(record?.subscriptionId, pinned?.subscriptionId)
+    }
+
+    /// Reading the record fills it, so this waits on the User module instead and reads only at the end.
+    func testIdsAssignedBeforeALoginArePinnedWithoutTheRecordBeingRead() {
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        OneSignalCoreMocks.waitUntil("Anonymous user was not created") {
+            OneSignalUserManagerImpl.sharedInstance.onesignalId == anonUserOSID
+                && OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId == testPushSubId
+        }
+
+        // An existing external ID: Identify User conflicts, and a new user is created for it.
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userB_EUID, conflicted: true)
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
+        OneSignalCoreMocks.waitUntil("User B was not created") {
+            OneSignalUserManagerImpl.sharedInstance.onesignalId == userB_OSID
+        }
+
+        let record = OSSessionService.shared.currentRecord
+        XCTAssertEqual(record?.onesignalId, anonUserOSID)
+        XCTAssertEqual(record?.subscriptionId, testPushSubId)
     }
 
     func testNewSessionAfterLoginPinsTheNewUser() {

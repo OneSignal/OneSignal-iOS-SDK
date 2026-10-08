@@ -207,6 +207,21 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertNil(service.currentRecord?.subscriptionId)
     }
 
+    func testIdsRefreshedBeforeLoginToAnotherUserStayPinned() {
+        user.onesignalIds = [:]
+        user.pushSubscriptionId = nil
+        let service = makeForegroundSession()
+
+        user.onesignalIds["model-a"] = "onesignal-a"
+        user.pushSubscriptionId = "subscription-a"
+        service.refreshPinnedIds()
+        user.identityModelId = "model-b"
+        user.onesignalIds["model-b"] = "onesignal-b"
+
+        XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
+        XCTAssertEqual(service.currentRecord?.subscriptionId, "subscription-a")
+    }
+
     /// Identifying the anonymous user gives the new identity model the same backend user.
     func testSubscriptionIdIsFilledInAfterLoginIdentifiesTheSameUser() {
         user.onesignalIds = [:]
