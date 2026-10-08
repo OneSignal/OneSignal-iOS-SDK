@@ -28,6 +28,19 @@
 import Foundation
 import OneSignalCore
 
+/// RFC 3339 in UTC with milliseconds, e.g. `2023-11-14T22:13:20.000Z`.
+enum OSSessionTimestamp {
+    private static let formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static func string(from date: Date) -> String {
+        formatter.string(from: date)
+    }
+}
+
 /// `POST apps/{app_id}/sessions`
 final class OSRequestCreateSession: OneSignalRequest {
     override var description: String {
@@ -40,7 +53,7 @@ final class OSRequestCreateSession: OneSignalRequest {
             "onesignal_id": body.onesignalId,
             "subscription_id": body.subscriptionId,
             "device_type": DEVICE_TYPE_PUSH,
-            "start_time": body.startTime,
+            "start_time": OSSessionTimestamp.string(from: body.startTime),
             "idempotency_key": body.idempotencyKey
         ]
         if let directAttributionId = body.directAttributionId {
@@ -67,7 +80,7 @@ final class OSRequestUpdateSession: OneSignalRequest {
             "idempotency_key": body.idempotencyKey
         ]
         if let endTime = body.endTime {
-            parameters["end_time"] = endTime
+            parameters["end_time"] = OSSessionTimestamp.string(from: endTime)
         }
         self.parameters = parameters
         self.method = PATCH

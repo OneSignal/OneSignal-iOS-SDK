@@ -28,15 +28,14 @@
 import Foundation
 import OneSignalCore
 
-public struct OSCreateSessionRequestBody: Equatable {
-    public let onesignalId: String
-    public let subscriptionId: String
-    /// Seconds since 1970.
-    public let startTime: Int64
-    public let idempotencyKey: String
-    public let directAttributionId: String?
+struct OSCreateSessionRequestBody: Equatable {
+    let onesignalId: String
+    let subscriptionId: String
+    let startTime: Date
+    let idempotencyKey: String
+    let directAttributionId: String?
 
-    public init(onesignalId: String, subscriptionId: String, startTime: Int64, idempotencyKey: String, directAttributionId: String? = nil) {
+    init(onesignalId: String, subscriptionId: String, startTime: Date, idempotencyKey: String, directAttributionId: String? = nil) {
         self.onesignalId = onesignalId
         self.subscriptionId = subscriptionId
         self.startTime = startTime
@@ -45,16 +44,16 @@ public struct OSCreateSessionRequestBody: Equatable {
     }
 }
 
-public struct OSUpdateSessionRequestBody: Equatable {
-    public let onesignalId: String
-    public let subscriptionId: String
+struct OSUpdateSessionRequestBody: Equatable {
+    let onesignalId: String
+    let subscriptionId: String
     /// Cumulative for the whole session, so a retried or reordered update cannot double count.
-    public let durationSeconds: Int64
-    public let idempotencyKey: String
-    /// Seconds since 1970. Set only on the update that ends the session.
-    public let endTime: Int64?
+    let durationSeconds: Int64
+    let idempotencyKey: String
+    /// Set only on the update that ends the session.
+    let endTime: Date?
 
-    public init(onesignalId: String, subscriptionId: String, durationSeconds: Int64, idempotencyKey: String, endTime: Int64? = nil) {
+    init(onesignalId: String, subscriptionId: String, durationSeconds: Int64, idempotencyKey: String, endTime: Date? = nil) {
         self.onesignalId = onesignalId
         self.subscriptionId = subscriptionId
         self.durationSeconds = durationSeconds
@@ -63,24 +62,24 @@ public struct OSUpdateSessionRequestBody: Equatable {
     }
 }
 
-public enum OSSessionsApiResult<Value> {
+enum OSSessionsApiResult<Value> {
     case success(Value)
-    /// Network error, 5xx, 408, 429, or a create success without a session ID.
+    /// No response, 5xx, 408, 429, or a create success without a session ID.
     /// Wait at least `retryAfterSeconds` when set.
     case retry(statusCode: Int, retryAfterSeconds: Int?)
-    /// Any other 4xx. The request will never succeed as sent.
+    /// Any other 4xx, or a request the client rejected before sending. It will never succeed as sent.
     case drop(statusCode: Int)
 }
 
 extension OSSessionsApiResult: Equatable where Value: Equatable {}
 
-/// Typed client for the public sessions API.
-public final class OSSessionsBackendService {
+/// Typed client for the sessions API.
+final class OSSessionsBackendService {
     static let defaultRetryAfterSeconds = 60
 
     private let client: () -> IOneSignalClient
 
-    public convenience init() {
+    convenience init() {
         self.init(client: { OneSignalCoreImpl.sharedClient() })
     }
 
@@ -89,7 +88,7 @@ public final class OSSessionsBackendService {
     }
 
     /// On success the result holds the backend session ID.
-    public func createSession(
+    func createSession(
         appId: String,
         body: OSCreateSessionRequestBody,
         completion: @escaping (OSSessionsApiResult<String>) -> Void
@@ -109,7 +108,7 @@ public final class OSSessionsBackendService {
     }
 
     /// Reports the session's cumulative duration, and ends it when `body.endTime` is set.
-    public func updateSession(
+    func updateSession(
         appId: String,
         sessionId: String,
         body: OSUpdateSessionRequestBody,
@@ -146,8 +145,9 @@ public final class OSSessionsBackendService {
         if (200..<300).contains(code) {
             return emptySuccess
         }
-        // Non-positive codes mean no HTTP response: no network, timeout, or missing privacy consent.
-        if code <= 0 || code == 408 || code == 429 || code >= 500 {
+        // 0 means no HTTP response: no network, timeout, or missing privacy consent. The client's
+        // only negative code is a missing app ID, which a retry cannot fix.
+        if code == 0 || code == 408 || code == 429 || code >= 500 {
             return .retry(statusCode: code, retryAfterSeconds: retryAfterSeconds(error))
         }
         return .drop(statusCode: code)
