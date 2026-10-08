@@ -116,6 +116,7 @@ public final class OSSessionService: NSObject {
 
     @objc public static func onFocus() {
         shared.onFocus()
+        OSSessionRequestQueue.shared.retryNow()
     }
 
     @objc public static func onUnfocus() {
@@ -154,6 +155,8 @@ public final class OSSessionService: NSObject {
     public func refreshPinnedIds() {
         let ids = pinnableIds()
         stateLock.withLock { fillPinnedIds(ids) }
+        // Queued session requests wait for these IDs, including those of an earlier session's user.
+        OSSessionRequestQueue.shared.retryNow()
     }
 
     /// Leaves any open foreground interval running: the tracker reports focus before the session
@@ -246,6 +249,37 @@ public final class OSSessionService: NSObject {
         }
         record = current
         persist()
+    }
+
+    /// The pinned IDs for a queued request. The current session's come from its record, so the
+    /// request and the record always agree. An earlier session's are filled by the same rules.
+    func pinnedIds(
+        sessionId: String,
+        identityModelId: String?,
+        onesignalId: String?,
+        subscriptionId: String?
+    ) -> (onesignalId: String?, subscriptionId: String?) {
+        if let record = currentRecord, record.sessionId == sessionId {
+            return (onesignalId ?? record.onesignalId, subscriptionId ?? record.subscriptionId)
+        }
+        guard let identityModelId, let provider = stateLock.withLock({ userProvider }) else {
+            return (onesignalId, subscriptionId)
+        }
+        return (
+            onesignalId ?? provider.sessionOnesignalId(identityModelId: identityModelId),
+            subscriptionId ?? provider.sessionCurrentUser.pushSubscriptionId
+        )
+    }
+
+    func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
+        stateLock.withLock {
+            loadIfNeeded()
+            guard record?.sessionId == sessionId, record?.serverSessionId == nil else {
+                return
+            }
+            record?.serverSessionId = serverSessionId
+            persist()
+        }
     }
 
     private func loadIfNeeded() {

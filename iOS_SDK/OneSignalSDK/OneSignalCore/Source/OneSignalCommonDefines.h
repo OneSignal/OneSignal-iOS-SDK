@@ -113,6 +113,7 @@
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
 #define OSUD_SESSION_RECORD                                                 @"OSUD_SESSION_RECORD"
+#define OSUD_SESSION_REQUEST_QUEUE                                          @"OSUD_SESSION_REQUEST_QUEUE"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
