@@ -205,7 +205,7 @@ public final class OSSessionService: NSObject {
     private struct PinnableIds {
         let identityModelId: String
         let onesignalId: String?
-        let currentUser: OSSessionUser
+        let pushSubscriptionId: String?
     }
 
     /// Read outside `stateLock` because the provider takes the User module's locks.
@@ -223,14 +223,14 @@ public final class OSSessionService: NSObject {
         return PinnableIds(
             identityModelId: identityModelId,
             onesignalId: provider.sessionOnesignalId(identityModelId: identityModelId),
-            currentUser: provider.sessionCurrentUser
+            pushSubscriptionId: provider.sessionCurrentUser.pushSubscriptionId
         )
     }
 
     /// A session that starts before its user is created has no IDs to pin yet. Fill them in once
-    /// the backend assigns them, but only for the session's own user. The push subscription is
-    /// carried across logins, but one first created after a login belongs to the new user, unless
-    /// that login identified the same backend user.
+    /// the backend assigns them. The onesignal_id is the session's own user's. The push
+    /// subscription is the same device subscription across logins, even when a login conflict
+    /// moves it to another user, so it is filled from the current one.
     private func fillPinnedIds(_ ids: PinnableIds?) {
         guard let ids, var current = record, current.identityModelId == ids.identityModelId else {
             return
@@ -238,11 +238,8 @@ public final class OSSessionService: NSObject {
         if current.onesignalId == nil {
             current.onesignalId = ids.onesignalId
         }
-        let currentUser = ids.currentUser
-        let isSameUser = currentUser.identityModelId == ids.identityModelId
-            || (currentUser.onesignalId != nil && currentUser.onesignalId == current.onesignalId)
-        if current.subscriptionId == nil, isSameUser {
-            current.subscriptionId = currentUser.pushSubscriptionId
+        if current.subscriptionId == nil {
+            current.subscriptionId = ids.pushSubscriptionId
         }
         guard current != record else {
             return

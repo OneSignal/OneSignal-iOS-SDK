@@ -229,17 +229,18 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.subscriptionId, "subscription-a")
     }
 
-    func testSubscriptionIdIsNotFilledInAfterLoginToAnotherUser() {
+    /// The push subscription is carried to the new user, so its ID is still this device's.
+    func testSubscriptionIdIsFilledInAfterLoginToAnotherUser() {
         user.onesignalIds = [:]
         user.pushSubscriptionId = nil
         let service = makeForegroundSession()
 
         user.identityModelId = "model-b"
         user.onesignalIds = ["model-a": "onesignal-a", "model-b": "onesignal-b"]
-        user.pushSubscriptionId = "subscription-b"
+        user.pushSubscriptionId = "subscription-a"
 
         XCTAssertEqual(service.currentRecord?.onesignalId, "onesignal-a")
-        XCTAssertNil(service.currentRecord?.subscriptionId)
+        XCTAssertEqual(service.currentRecord?.subscriptionId, "subscription-a")
     }
 
     func testIdsRefreshedBeforeLoginToAnotherUserStayPinned() {

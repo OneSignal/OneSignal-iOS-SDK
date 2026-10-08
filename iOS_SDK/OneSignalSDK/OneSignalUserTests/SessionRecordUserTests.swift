@@ -103,6 +103,26 @@ final class SessionRecordUserTests: XCTestCase {
         XCTAssertEqual(record?.subscriptionId, testPushSubId)
     }
 
+    /// A new install that logs in to an existing user before its anonymous user is created.
+    func testLoginConflictBeforeTheAnonymousUserIsCreatedStillFillsTheSession() {
+        client.holdResponses = true
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        OneSignalCoreMocks.waitUntil("Create User was not sent") {
+            self.client.startedRequestCount(ofType: OSRequestCreateUser.self) == 1
+        }
+
+        MockUserRequests.setDefaultIdentifyUserResponses(with: client, externalId: userB_EUID, conflicted: true)
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
+        client.releaseHeldResponses()
+        OneSignalCoreMocks.waitUntil("User B was not created") {
+            OneSignalUserManagerImpl.sharedInstance.onesignalId == userB_OSID
+        }
+
+        let record = OSSessionService.shared.currentRecord
+        XCTAssertEqual(record?.onesignalId, anonUserOSID)
+        XCTAssertEqual(record?.subscriptionId, testPushSubId)
+    }
+
     /// The last process started a session and was killed before its anonymous user was created.
     func testRecordFromThePreviousProcessIsFilledInOnceTheUserIsCreated() {
         let manager = OneSignalUserManagerImpl.sharedInstance
