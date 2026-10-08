@@ -53,7 +53,18 @@ public final class OSSessionRequestQueue: NSObject {
     }
 
     @objc public static func reset() {
-        lock.withLock { _shared = nil }
+        let retired = lock.withLock {
+            let existing = _shared
+            _shared = nil
+            return existing
+        }
+        retired?.retire()
+    }
+
+    /// Saved requests carry the previous app's ID, so they must not outlive an app-id change.
+    @objc public static func resetAndClearStoredQueue() {
+        reset()
+        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_REQUEST_QUEUE)
     }
 
     private let storage: OneSignalUserDefaults
@@ -75,8 +86,10 @@ public final class OSSessionRequestQueue: NSObject {
     private var consecutiveFailures = 0
     private var isBackingOff = false
     private var backoffGeneration = 0
-    /// A backend `Retry-After` that `retryNow` must not cut short.
+    /// A backend `Retry-After` that `retryNow` must not cut short, on the `now` clock.
     private var notBefore: TimeInterval = 0
+    /// Set once the queue is replaced, so a late completion cannot write its requests back.
+    private var isRetired = false
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -84,7 +97,10 @@ public final class OSSessionRequestQueue: NSObject {
         sessionService: @escaping () -> OSSessionService = { .shared },
         appId: @escaping () -> String? = { OneSignalIdentifiers.currentAppId },
         networkMonitor: OSSessionNetworkMonitoring = OSSessionNetworkMonitor(),
-        now: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 },
+        // The same clock as `DispatchTime`, so `notBefore` agrees with the scheduled retry.
+        now: @escaping () -> TimeInterval = {
+            TimeInterval(clock_gettime_nsec_np(CLOCK_UPTIME_RAW)) / TimeInterval(NSEC_PER_SEC)
+        },
         jitter: @escaping () -> Double = { Double.random(in: 0.5...1) },
         schedule: ((TimeInterval, @escaping () -> Void) -> Void)? = nil
     ) {
@@ -103,6 +119,14 @@ public final class OSSessionRequestQueue: NSObject {
         dispatchQueue.async {
             self.load()
             self.updateNetworkMonitoring()
+            self.processNext()
+        }
+    }
+
+    private func retire() {
+        dispatchQueue.sync {
+            isRetired = true
+            networkMonitor.stop()
         }
     }
 }
@@ -122,7 +146,8 @@ extension OSSessionRequestQueue {
             onesignalId: record.onesignalId,
             subscriptionId: record.subscriptionId,
             kind: .create(startTime: record.startTime, directAttributionId: directAttributionId),
-            idempotencyKey: UUID().uuidString
+            // Derived from the session, so a create enqueued again after being dropped is still deduplicated.
+            idempotencyKey: record.sessionId
         )
         dispatchQueue.async {
             let isCreated = record.serverSessionId != nil || self.serverSessionIds[record.sessionId] != nil
@@ -183,6 +208,16 @@ extension OSSessionRequestQueue {
         }
         let removedKeys = Set(queued.map(\.idempotencyKey))
         requests.removeAll { removedKeys.contains($0.idempotencyKey) }
+        // An unchanged body keeps its key, so a retry the backend may already have applied stays
+        // deduplicated. Either way the attempts carry over, or a session that keeps reporting
+        // would never reach the drop limit.
+        let failedAttempts = queued.map(\.failedAttempts).max() ?? 0
+        if let unchanged = queued.first(where: { $0.kind == request.kind }) {
+            let serverSessionId = request.serverSessionId
+            request = unchanged
+            request.serverSessionId = unchanged.serverSessionId ?? serverSessionId
+        }
+        request.failedAttempts = max(request.failedAttempts, failedAttempts)
         OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionRequestQueue coalesced \(queued.count) update(s) for \(request.localSessionId)")
         return true
     }
@@ -200,7 +235,7 @@ extension OSSessionRequestQueue {
               let oldest = requests.first(where: { $0.idempotencyKey != inFlightKey }) {
             OneSignalLog.onesignalLog(
                 .LL_WARN,
-                message: "OSSessionRequestQueue more than \(Self.maxQueuedRequests) requests queued, dropping oldest: \(oldest)"
+                message: "OSSessionRequestQueue more than \(Self.maxQueuedRequests) requests queued, dropping oldest: \(oldest.logDescription)"
             )
             remove(oldest)
         }
@@ -246,6 +281,10 @@ extension OSSessionRequestQueue {
     }
 
     private func processNext() {
+        guard !isRetired else {
+            return
+        }
+        dropUnsendable()
         guard inFlightKey == nil, !isBackingOff else {
             return
         }
@@ -261,6 +300,23 @@ extension OSSessionRequestQueue {
                 return
             }
         }
+    }
+
+    /// A create still waiting on a `onesignal_id` its user will never get, which happens to an
+    /// anonymous user under required Identity Verification. Its updates go with it.
+    private func dropUnsendable() {
+        let service = sessionService()
+        let unsendable = requests.filter {
+            $0.isCreate && $0.onesignalId == nil && $0.idempotencyKey != inFlightKey
+                && !service.canCreateUser(identityModelId: $0.identityModelId)
+        }
+        guard !unsendable.isEmpty else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionRequestQueue dropping \(unsendable.count) create(s) for a user that is never created")
+        unsendable.forEach(remove)
+        persist()
+        updateNetworkMonitoring()
     }
 
     private func readyRequest(at index: Int) -> OSSessionRequest? {
@@ -344,7 +400,7 @@ extension OSSessionRequestQueue {
             }
         case .drop(let statusCode):
             consecutiveFailures = 0
-            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionRequestQueue request failed with \(statusCode), dropping: \(request)")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionRequestQueue dropping after a \(statusCode): \(request.logDescription)")
             remove(request)
         case .retry(let statusCode, let retryAfterSeconds):
             // 0 means no response, e.g. offline, which must keep retrying until the network returns.
@@ -352,17 +408,20 @@ extension OSSessionRequestQueue {
                 request.failedAttempts += 1
             }
             if request.failedAttempts >= Self.maxFailedAttempts {
-                OneSignalLog.onesignalLog(
-                    .LL_WARN,
-                    message: "OSSessionRequestQueue request failed \(request.failedAttempts) times, dropping: \(request)"
-                )
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionRequestQueue dropping after too many failures: \(request.logDescription)")
                 remove(request)
             } else {
                 requests[index] = request
-                persist()
-                backOff(retryAfterSeconds: retryAfterSeconds)
-                return
             }
+            persist()
+            updateNetworkMonitoring()
+            // A dropped request still honors `Retry-After`, which applies to the next request too.
+            if request.failedAttempts < Self.maxFailedAttempts || retryAfterSeconds != nil {
+                backOff(retryAfterSeconds: retryAfterSeconds)
+            } else {
+                processNext()
+            }
+            return
         }
         persist()
         updateNetworkMonitoring()
@@ -419,13 +478,18 @@ extension OSSessionRequestQueue {
         }
         do {
             requests = try JSONDecoder().decode([OSSessionRequest].self, from: data)
+            for request in requests {
+                if let serverSessionId = request.serverSessionId {
+                    serverSessionIds[request.localSessionId] = serverSessionId
+                }
+            }
         } catch {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSessionRequestQueue failed to read saved requests: \(error)")
         }
     }
 
     private func persist() {
-        guard let data = try? JSONEncoder().encode(requests) else {
+        guard !isRetired, let data = try? JSONEncoder().encode(requests) else {
             return
         }
         storage.saveObject(forKey: OSUD_SESSION_REQUEST_QUEUE, withValue: data)
@@ -446,6 +510,10 @@ extension OSSessionRequestQueue {
 extension OSSessionRequestQueue {
     func waitUntilIdle() {
         dispatchQueue.sync {}
+    }
+
+    func retireForTesting() {
+        retire()
     }
 
     var queuedRequests: [OSSessionRequest] {

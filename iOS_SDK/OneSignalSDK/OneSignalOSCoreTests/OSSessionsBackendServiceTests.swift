@@ -123,6 +123,16 @@ final class OSSessionsBackendServiceTests: XCTestCase {
         ])
     }
 
+    func testSessionRequestsSkipClientRetries() {
+        _ = create()
+        _ = update()
+
+        // `MAX_ATTEMPT_COUNT` depends on `OS_TEST`, which this target and the SDK set differently.
+        for request in client.requests {
+            XCTAssertGreaterThan(request.reattemptCount, 0)
+        }
+    }
+
     func testCreateSessionIncludesDirectAttributionWhenSet() {
         client.outcome = .success(["data": ["session_id": "server-id"]])
 

@@ -47,6 +47,10 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionOnesignalId(identityModelId: String) -> String? {
         onesignalIds[identityModelId]
     }
+
+    func sessionUserCanBeCreated(identityModelId: String) -> Bool {
+        true
+    }
 }
 
 final class OSSessionServiceTests: XCTestCase {
@@ -71,6 +75,8 @@ final class OSSessionServiceTests: XCTestCase {
 
     override func tearDown() {
         OSSessionService.reset()
+        // `refreshPinnedIds` wakes the shared queue.
+        OSSessionRequestQueue.resetAndClearStoredQueue()
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
         super.tearDown()
