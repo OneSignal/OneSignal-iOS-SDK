@@ -50,6 +50,8 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
 }
 
+/// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
+/// decoding fails on a missing non-Optional field even when it has a default value.
 public struct OSSessionRecord: Codable, Equatable {
     public let sessionId: String
     /// Seconds since 1970.
@@ -257,7 +259,11 @@ public final class OSSessionService: NSObject {
         guard let data = storage.getSavedObject(forKey: OSUD_SESSION_RECORD, defaultValue: nil) as? Data else {
             return
         }
-        record = try? JSONDecoder().decode(OSSessionRecord.self, from: data)
+        do {
+            record = try JSONDecoder().decode(OSSessionRecord.self, from: data)
+        } catch {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionService dropping a stored session record it cannot decode: \(error)")
+        }
     }
 
     private func persist() {

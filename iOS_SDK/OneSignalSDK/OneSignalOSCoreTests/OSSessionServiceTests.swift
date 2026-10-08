@@ -173,6 +173,26 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(restarted.currentRecord?.subscriptionId, "subscription-a")
     }
 
+    /// A record as stored by the first version. If this fails, a new field was not made Optional, and
+    /// upgrading mid-session would drop the session.
+    func testRecordStoredByTheFirstVersionStillDecodes() {
+        let stored = """
+        {"sessionId":"session-1","startTime":5000,"activeDuration":12,"usesSessionsApi":true,\
+        "identityModelId":"model-a","onesignalId":"onesignal-a","subscriptionId":"subscription-a"}
+        """
+        OneSignalUserDefaults.initStandard().saveObject(forKey: OSUD_SESSION_RECORD, withValue: Data(stored.utf8))
+
+        let record = makeService().currentRecord
+
+        XCTAssertEqual(record?.sessionId, "session-1")
+        XCTAssertEqual(record?.startTime, 5_000)
+        XCTAssertEqual(record?.activeDuration, 12)
+        XCTAssertEqual(record?.usesSessionsApi, true)
+        XCTAssertEqual(record?.onesignalId, "onesignal-a")
+        XCTAssertEqual(record?.subscriptionId, "subscription-a")
+        XCTAssertNil(record?.serverSessionId)
+    }
+
     func testClearingTheStoredRecordDropsIt() {
         _ = makeForegroundSession()
 
