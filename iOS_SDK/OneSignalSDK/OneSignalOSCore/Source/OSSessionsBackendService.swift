@@ -73,8 +73,13 @@ enum OSSessionsApiResult<Value> {
 
 extension OSSessionsApiResult: Equatable where Value: Equatable {}
 
+protocol OSSessionsBackend {
+    func createSession(appId: String, body: OSCreateSessionRequestBody, completion: @escaping (OSSessionsApiResult<String>) -> Void)
+    func updateSession(appId: String, sessionId: String, body: OSUpdateSessionRequestBody, completion: @escaping (OSSessionsApiResult<Void>) -> Void)
+}
+
 /// Typed client for the sessions API.
-final class OSSessionsBackendService {
+final class OSSessionsBackendService: OSSessionsBackend {
     static let defaultRetryAfterSeconds = 60
 
     private let client: () -> IOneSignalClient

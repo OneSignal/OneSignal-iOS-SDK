@@ -116,6 +116,7 @@ public final class OSSessionService: NSObject {
 
     @objc public static func onFocus() {
         shared.onFocus()
+        OSSessionRequestQueue.shared.retryNow()
     }
 
     @objc public static func onUnfocus() {
@@ -154,6 +155,8 @@ public final class OSSessionService: NSObject {
     public func refreshPinnedIds() {
         let ids = pinnableIds()
         stateLock.withLock { fillPinnedIds(ids) }
+        // Queued session requests wait for these IDs, including those of an earlier session's user.
+        OSSessionRequestQueue.shared.retryNow()
     }
 
     /// Leaves any open foreground interval running: the tracker reports focus before the session
@@ -228,27 +231,69 @@ public final class OSSessionService: NSObject {
     }
 
     /// A session that starts before its user is created has no IDs to pin yet. Fill them in once
-    /// the backend assigns them, but only for the session's own user. The push subscription is
-    /// carried across logins, but one first created after a login belongs to the new user, unless
-    /// that login identified the same backend user.
+    /// the backend assigns them, but only for the session's own user.
     private func fillPinnedIds(_ ids: PinnableIds?) {
         guard let ids, var current = record, current.identityModelId == ids.identityModelId else {
             return
         }
-        if current.onesignalId == nil {
-            current.onesignalId = ids.onesignalId
-        }
-        let currentUser = ids.currentUser
-        let isSameUser = currentUser.identityModelId == ids.identityModelId
-            || (currentUser.onesignalId != nil && currentUser.onesignalId == current.onesignalId)
-        if current.subscriptionId == nil, isSameUser {
-            current.subscriptionId = currentUser.pushSubscriptionId
-        }
+        (current.onesignalId, current.subscriptionId) = Self.filling(
+            onesignalId: current.onesignalId,
+            subscriptionId: current.subscriptionId,
+            with: ids
+        )
         guard current != record else {
             return
         }
         record = current
         persist()
+    }
+
+    /// The push subscription is carried across logins, but one first created after a login belongs
+    /// to the new user, unless that login identified the same backend user.
+    private static func filling(
+        onesignalId: String?,
+        subscriptionId: String?,
+        with ids: PinnableIds
+    ) -> (onesignalId: String?, subscriptionId: String?) {
+        let onesignalId = onesignalId ?? ids.onesignalId
+        let currentUser = ids.currentUser
+        let isSameUser = currentUser.identityModelId == ids.identityModelId
+            || (currentUser.onesignalId != nil && currentUser.onesignalId == onesignalId)
+        let subscriptionId = subscriptionId ?? (isSameUser ? currentUser.pushSubscriptionId : nil)
+        return (onesignalId, subscriptionId)
+    }
+
+    /// The pinned IDs for a queued request. The current session's come from its record, so the
+    /// request and the record always agree. An earlier session's are filled by the same rules.
+    func pinnedIds(
+        sessionId: String,
+        identityModelId: String?,
+        onesignalId: String?,
+        subscriptionId: String?
+    ) -> (onesignalId: String?, subscriptionId: String?) {
+        if let record = currentRecord, record.sessionId == sessionId {
+            return (onesignalId ?? record.onesignalId, subscriptionId ?? record.subscriptionId)
+        }
+        guard let identityModelId, let provider = stateLock.withLock({ userProvider }) else {
+            return (onesignalId, subscriptionId)
+        }
+        let ids = PinnableIds(
+            identityModelId: identityModelId,
+            onesignalId: provider.sessionOnesignalId(identityModelId: identityModelId),
+            currentUser: provider.sessionCurrentUser
+        )
+        return Self.filling(onesignalId: onesignalId, subscriptionId: subscriptionId, with: ids)
+    }
+
+    func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
+        stateLock.withLock {
+            loadIfNeeded()
+            guard record?.sessionId == sessionId, record?.serverSessionId == nil else {
+                return
+            }
+            record?.serverSessionId = serverSessionId
+            persist()
+        }
     }
 
     private func loadIfNeeded() {
