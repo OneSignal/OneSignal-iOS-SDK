@@ -166,7 +166,7 @@ final class OSSessionRequestQueueTests: XCTestCase {
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
     }
 
-    private func makeQueue() -> OSSessionRequestQueue {
+    private func makeQueue(postCreateDelay: TimeInterval = 0) -> OSSessionRequestQueue {
         OSSessionRequestQueue(
             backend: backend,
             sessionService: { [unowned self] in self.service },
@@ -174,7 +174,8 @@ final class OSSessionRequestQueueTests: XCTestCase {
             networkMonitor: monitor,
             now: { [unowned self] in self.now },
             jitter: { 1 },
-            schedule: { [unowned self] delay, block in self.scheduled.append((delay, block)) }
+            schedule: { [unowned self] delay, block in self.scheduled.append((delay, block)) },
+            postCreateDelay: postCreateDelay
         )
     }
 
@@ -432,6 +433,39 @@ final class OSSessionRequestQueueTests: XCTestCase {
         XCTAssertEqual(queue.queuedRequests.first?.failedAttempts, 1)
     }
 
+    func testInFlightUpdateCountsTowardHighestDuration() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        settle()
+        backend.respondToLast(createdSessionId: "server-1")
+        settle()
+        queue.enqueueUpdate(record: self.record(duration: 30, from: record))
+        settle()
+
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+
+        XCTAssertEqual(queue.queuedRequests.last?.activeDuration, 30)
+    }
+
+    func testUpdateWaitsOutPostCreateDelay() {
+        queue = makeQueue(postCreateDelay: 5)
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+        backend.respondToLast(createdSessionId: "server-1")
+        settle()
+        XCTAssertEqual(backend.calls.count, 1)
+        XCTAssertEqual(scheduled.last?.delay, 5)
+
+        now += 5
+        scheduled.last?.block()
+        settle()
+
+        XCTAssertEqual(updateDurations, [10])
+    }
+
     func testInFlightUpdateIsNotCoalesced() {
         let record = startSession()
         queue.enqueueCreate(record: record)
@@ -540,6 +574,19 @@ extension OSSessionRequestQueueTests {
         scheduled.last?.block()
         settle()
         XCTAssertEqual(backend.calls.count, 3)
+    }
+
+    func testProcessPendingLeavesBackoffRunning() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        settle()
+        backend.failLast(.retry(statusCode: 503, retryAfterSeconds: nil))
+        settle()
+
+        queue.processPending()
+        settle()
+
+        XCTAssertEqual(backend.calls.count, 1)
     }
 
     func testRetryAfterIsHonoredByRetryNow() {

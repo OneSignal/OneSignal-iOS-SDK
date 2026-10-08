@@ -42,9 +42,14 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
     }
 
-    /// While the requirement is still unknown the user may yet be created, so only `.on` says no.
+    /// Says no only when it knows: the requirement is `.on` and the user's model is loaded and
+    /// anonymous. A model that is not loaded may still be restored.
     public func sessionUserCanBeCreated(identityModelId: String) -> Bool {
-        identityVerificationService.requirement != .on
-            || identityModelRepo.get(modelId: identityModelId)?.externalId != nil
+        guard identityVerificationService.requirement == .on,
+              let identityModel = identityModelRepo.get(modelId: identityModelId)
+        else {
+            return true
+        }
+        return identityModel.externalId != nil
     }
 }

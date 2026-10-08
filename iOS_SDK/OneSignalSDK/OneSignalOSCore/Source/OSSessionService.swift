@@ -159,7 +159,7 @@ public final class OSSessionService: NSObject {
         let ids = pinnableIds()
         stateLock.withLock { fillPinnedIds(ids) }
         // Queued session requests wait for these IDs, including those of an earlier session's user.
-        OSSessionRequestQueue.shared.retryNow()
+        OSSessionRequestQueue.shared.processPending()
     }
 
     /// Leaves any open foreground interval running: the tracker reports focus before the session

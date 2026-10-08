@@ -63,8 +63,12 @@ public final class OSSessionRequestQueue: NSObject {
 
     /// Saved requests carry the previous app's ID, so they must not outlive an app-id change.
     @objc public static func resetAndClearStoredQueue() {
-        reset()
-        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_REQUEST_QUEUE)
+        // Under the lock, so a new queue cannot load the old requests before they are removed.
+        lock.withLock {
+            _shared?.retire()
+            _shared = nil
+            OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_REQUEST_QUEUE)
+        }
     }
 
     private let storage: OneSignalUserDefaults
@@ -75,6 +79,7 @@ public final class OSSessionRequestQueue: NSObject {
     private let now: () -> TimeInterval
     private let jitter: () -> Double
     private let schedule: (TimeInterval, @escaping () -> Void) -> Void
+    private let postCreateDelay: TimeInterval
 
     // Serial. Synchronizes all state below.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSessionRequestQueue", target: .global())
@@ -88,6 +93,9 @@ public final class OSSessionRequestQueue: NSObject {
     private var backoffGeneration = 0
     /// A backend `Retry-After` that `retryNow` must not cut short, on the `now` clock.
     private var notBefore: TimeInterval = 0
+    /// Updates for a just-created session wait until this time, on the `now` clock, so the backend
+    /// has replicated the session before it is patched.
+    private var updatesAllowedAt: [String: TimeInterval] = [:]
     /// Set once the queue is replaced, so a late completion cannot write its requests back.
     private var isRetired = false
 
@@ -102,7 +110,8 @@ public final class OSSessionRequestQueue: NSObject {
             TimeInterval(clock_gettime_nsec_np(CLOCK_UPTIME_RAW)) / TimeInterval(NSEC_PER_SEC)
         },
         jitter: @escaping () -> Double = { Double.random(in: 0.5...1) },
-        schedule: ((TimeInterval, @escaping () -> Void) -> Void)? = nil
+        schedule: ((TimeInterval, @escaping () -> Void) -> Void)? = nil,
+        postCreateDelay: TimeInterval = TimeInterval(OP_REPO_POST_CREATE_DELAY_SECONDS)
     ) {
         self.storage = storage
         self.backend = backend
@@ -111,6 +120,7 @@ public final class OSSessionRequestQueue: NSObject {
         self.networkMonitor = networkMonitor
         self.now = now
         self.jitter = jitter
+        self.postCreateDelay = postCreateDelay
         let dispatchQueue = self.dispatchQueue
         self.schedule = schedule ?? { delay, block in
             dispatchQueue.asyncAfter(deadline: .now() + delay, execute: block)
@@ -198,13 +208,14 @@ extension OSSessionRequestQueue {
             return false
         }
 
+        // An in-flight update counts toward the highest duration, so a stale snapshot cannot lower it.
+        if case .update(let activeDuration, let endTime) = request.kind {
+            let highest = session.compactMap(\.activeDuration).max() ?? activeDuration
+            request.kind = .update(activeDuration: max(activeDuration, highest), endTime: endTime)
+        }
         let queued = session.filter { !$0.isCreate && $0.idempotencyKey != inFlightKey }
         guard !queued.isEmpty else {
             return true
-        }
-        if case .update(let activeDuration, let endTime) = request.kind {
-            let highest = queued.compactMap(\.activeDuration).max() ?? activeDuration
-            request.kind = .update(activeDuration: max(activeDuration, highest), endTime: endTime)
         }
         let removedKeys = Set(queued.map(\.idempotencyKey))
         requests.removeAll { removedKeys.contains($0.idempotencyKey) }
@@ -213,9 +224,11 @@ extension OSSessionRequestQueue {
         // would never reach the drop limit.
         let failedAttempts = queued.map(\.failedAttempts).max() ?? 0
         if let unchanged = queued.first(where: { $0.kind == request.kind }) {
-            let serverSessionId = request.serverSessionId
+            let incoming = request
             request = unchanged
-            request.serverSessionId = unchanged.serverSessionId ?? serverSessionId
+            request.serverSessionId = unchanged.serverSessionId ?? incoming.serverSessionId
+            request.onesignalId = unchanged.onesignalId ?? incoming.onesignalId
+            request.subscriptionId = unchanged.subscriptionId ?? incoming.subscriptionId
         }
         request.failedAttempts = max(request.failedAttempts, failedAttempts)
         OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionRequestQueue coalesced \(queued.count) update(s) for \(request.localSessionId)")
@@ -280,6 +293,14 @@ extension OSSessionRequestQueue {
         }
     }
 
+    /// Sends what has become ready, such as a request that was waiting on IDs. Unlike `retryNow`,
+    /// it leaves a failure backoff running, since it is called far more often than the app opens.
+    public func processPending() {
+        dispatchQueue.async {
+            self.processNext()
+        }
+    }
+
     private func processNext() {
         guard !isRetired else {
             return
@@ -336,8 +357,13 @@ extension OSSessionRequestQueue {
         guard request.onesignalId != nil, request.subscriptionId != nil else {
             return nil
         }
-        if !request.isCreate, request.serverSessionId == nil {
-            return nil
+        if !request.isCreate {
+            guard request.serverSessionId != nil else {
+                return nil
+            }
+            if let allowedAt = updatesAllowedAt[request.localSessionId], now() < allowedAt {
+                return nil
+            }
         }
         return request
     }
@@ -384,6 +410,9 @@ extension OSSessionRequestQueue {
     }
 
     private func handle(_ result: OSSessionsApiResult<String?>, for sent: OSSessionRequest) {
+        guard !isRetired else {
+            return
+        }
         inFlightKey = nil
         guard let index = requests.firstIndex(where: { $0.idempotencyKey == sent.idempotencyKey }) else {
             processNext()
@@ -436,6 +465,13 @@ extension OSSessionRequestQueue {
             requests[index].subscriptionId = requests[index].subscriptionId ?? create.subscriptionId
         }
         sessionService().setServerSessionId(serverSessionId, forSessionId: create.localSessionId)
+        guard postCreateDelay > 0 else {
+            return
+        }
+        updatesAllowedAt[create.localSessionId] = now() + postCreateDelay
+        schedule(postCreateDelay) { [weak self] in
+            self?.processPending()
+        }
     }
 }
 
