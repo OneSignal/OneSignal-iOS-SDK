@@ -65,6 +65,12 @@ struct OSSessionRequest: Codable, Equatable {
         return false
     }
 
+    /// Leaves out the user and subscription IDs, since WARN logs can be uploaded.
+    var logDescription: String {
+        let kindName = isCreate ? "create" : (isEnd ? "end" : "update")
+        return "\(kindName) for session \(localSessionId), failed attempts: \(failedAttempts)"
+    }
+
     var activeDuration: TimeInterval? {
         if case .update(let activeDuration, _) = kind {
             return activeDuration

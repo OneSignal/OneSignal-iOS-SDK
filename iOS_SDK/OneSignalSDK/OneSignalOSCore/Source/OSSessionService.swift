@@ -48,6 +48,9 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
+    /// False when the user can never get a `onesignal_id`, such as an anonymous user under
+    /// required Identity Verification.
+    func sessionUserCanBeCreated(identityModelId: String) -> Bool
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -283,6 +286,13 @@ public final class OSSessionService: NSObject {
             currentUser: provider.sessionCurrentUser
         )
         return Self.filling(onesignalId: onesignalId, subscriptionId: subscriptionId, with: ids)
+    }
+
+    func canCreateUser(identityModelId: String?) -> Bool {
+        guard let identityModelId, let provider = stateLock.withLock({ userProvider }) else {
+            return true
+        }
+        return provider.sessionUserCanBeCreated(identityModelId: identityModelId)
     }
 
     func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {

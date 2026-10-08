@@ -41,6 +41,14 @@ enum OSSessionTimestamp {
     }
 }
 
+private extension OneSignalRequest {
+    /// `OSSessionRequestQueue` owns retries, with backoff that honors `Retry-After`. Starting at the
+    /// client's last attempt stops `OneSignalClient` from retrying status 0 and 5xx underneath it.
+    func skipClientRetries() {
+        reattemptCount = MAX_ATTEMPT_COUNT - 1
+    }
+}
+
 /// `POST apps/{app_id}/sessions`
 final class OSRequestCreateSession: OneSignalRequest {
     override var description: String {
@@ -61,6 +69,7 @@ final class OSRequestCreateSession: OneSignalRequest {
         }
         self.parameters = parameters
         self.method = POST
+        skipClientRetries()
         self.path = "apps/\(appId)/sessions"
     }
 }
@@ -84,6 +93,7 @@ final class OSRequestUpdateSession: OneSignalRequest {
         }
         self.parameters = parameters
         self.method = PATCH
+        skipClientRetries()
         self.path = "apps/\(appId)/sessions/\(sessionId)"
     }
 }

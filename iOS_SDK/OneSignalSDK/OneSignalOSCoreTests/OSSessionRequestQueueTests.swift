@@ -35,6 +35,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
     var identityModelId: String? = "model-a"
     var onesignalIds: [String: String] = ["model-a": "onesignal-a"]
     var pushSubscriptionId: String? = "subscription-a"
+    var creatableModelIds: Set<String>?
 
     var sessionCurrentUser: OSSessionUser {
         OSSessionUser(
@@ -46,6 +47,10 @@ private final class FakeUserProvider: OSSessionUserProvider {
 
     func sessionOnesignalId(identityModelId: String) -> String? {
         onesignalIds[identityModelId]
+    }
+
+    func sessionUserCanBeCreated(identityModelId: String) -> Bool {
+        creatableModelIds?.contains(identityModelId) ?? true
     }
 }
 
@@ -224,6 +229,64 @@ final class OSSessionRequestQueueTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.serverSessionId, "server-1")
     }
 
+    func testCreateIdempotencyKeyIsTheSessionId() {
+        let record = startSession()
+
+        queue.enqueueCreate(record: record)
+        settle()
+
+        XCTAssertEqual(backend.calls.first?.idempotencyKey, record.sessionId)
+    }
+
+    func testRestartRemembersServerSessionIdOfQueuedUpdates() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+        backend.respondToLast(createdSessionId: "server-1")
+        settle()
+        backend.failLast(.retry(statusCode: 0, retryAfterSeconds: nil))
+        settle()
+
+        queue = makeQueue()
+        // A snapshot taken before the create returned.
+        queue.enqueueCreate(record: record)
+        settle()
+
+        XCTAssertFalse(queue.queuedRequests.contains { $0.isCreate })
+    }
+
+    func testAppIdChangeClearsStoredQueueAndLateCompletionDoesNotRestoreIt() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        settle()
+
+        let retired = queue!
+        let key = OSUD_SESSION_REQUEST_QUEUE
+        retired.retireForTesting()
+        OneSignalUserDefaults.initStandard().removeValue(forKey: key)
+        backend.failLast(.retry(statusCode: 500, retryAfterSeconds: nil))
+        retired.waitUntilIdle()
+
+        XCTAssertNil(OneSignalUserDefaults.initStandard().getSavedObject(forKey: key, defaultValue: nil))
+    }
+
+    func testCreateForUserThatIsNeverCreatedIsDroppedWithItsUpdates() {
+        user.onesignalIds = [:]
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+        XCTAssertEqual(queue.queuedRequests.count, 2)
+
+        user.creatableModelIds = []
+        queue.retryNow()
+        settle()
+
+        XCTAssertTrue(queue.queuedRequests.isEmpty)
+        XCTAssertNil(monitor.onAvailable)
+    }
+
     func testFlagOffEnqueuesNothing() {
         flagsStore.applyRemoteFlags([], metadata: nil)
         let record = startSession()
@@ -343,6 +406,30 @@ final class OSSessionRequestQueueTests: XCTestCase {
         let requests = queue.queuedRequests
         XCTAssertEqual(requests.count, 2)
         XCTAssertEqual(requests.last?.kind, .update(activeDuration: 15, endTime: 1_700_000_100))
+    }
+
+    func testCoalescingKeepsUnchangedRequestAndCarriesFailedAttempts() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        settle()
+        backend.respondToLast(createdSessionId: "server-1")
+        settle()
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+        let key = backend.calls.last?.idempotencyKey
+        backend.failLast(.retry(statusCode: 500, retryAfterSeconds: nil))
+        settle()
+
+        queue.enqueueUpdate(record: self.record(duration: 10, from: record))
+        settle()
+        XCTAssertEqual(queue.queuedRequests.map(\.idempotencyKey), [key])
+        XCTAssertEqual(queue.queuedRequests.first?.failedAttempts, 1)
+
+        queue.enqueueUpdate(record: self.record(duration: 20, from: record))
+        settle()
+        XCTAssertEqual(queue.queuedRequests.count, 1)
+        XCTAssertNotEqual(queue.queuedRequests.first?.idempotencyKey, key)
+        XCTAssertEqual(queue.queuedRequests.first?.failedAttempts, 1)
     }
 
     func testInFlightUpdateIsNotCoalesced() {
@@ -516,6 +603,36 @@ final class OSSessionRequestQueueTests: XCTestCase {
             }
         }
         XCTAssertTrue(queue.queuedRequests.isEmpty)
+    }
+
+    func testDropAtAttemptLimitStillHonorsRetryAfter() {
+        let record = startSession()
+        queue.enqueueCreate(record: record)
+        queue.enqueueCreate(record: startSession())
+        settle()
+        for _ in 1..<OSSessionRequestQueue.maxFailedAttempts {
+            backend.failLast(.retry(statusCode: 500, retryAfterSeconds: nil))
+            queue.retryNow()
+            settle()
+        }
+        let calls = backend.calls.count
+
+        backend.failLast(.retry(statusCode: 429, retryAfterSeconds: 60))
+        settle()
+
+        XCTAssertEqual(queue.queuedRequests.count, 1)
+        XCTAssertEqual(backend.calls.count, calls)
+        XCTAssertGreaterThanOrEqual(scheduled.last?.delay ?? 0, 60)
+
+        now += 30
+        queue.retryNow()
+        settle()
+        XCTAssertEqual(backend.calls.count, calls)
+
+        now += 30
+        queue.retryNow()
+        settle()
+        XCTAssertEqual(backend.calls.count, calls + 1)
     }
 
     func testNonRetryableFailureDropsCreateAndItsUpdates() {
