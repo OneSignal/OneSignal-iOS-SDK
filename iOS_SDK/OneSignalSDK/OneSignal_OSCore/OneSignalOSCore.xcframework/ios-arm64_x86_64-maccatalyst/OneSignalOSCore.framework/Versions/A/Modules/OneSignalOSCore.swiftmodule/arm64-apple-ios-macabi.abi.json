@@ -1294,60 +1294,383 @@
       },
       {
         "kind": "TypeDecl",
-        "name": "OSOperationRepo",
-        "printedName": "OSOperationRepo",
+        "name": "OSInputGuard",
+        "printedName": "OSInputGuard",
         "children": [
           {
-            "kind": "Var",
-            "name": "sharedInstance",
-            "printedName": "sharedInstance",
+            "kind": "Function",
+            "name": "isMissing",
+            "printedName": "isMissing(_:_:)",
             "children": [
               {
                 "kind": "TypeNominal",
-                "name": "OSOperationRepo",
-                "printedName": "OneSignalOSCore.OSOperationRepo",
-                "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
-              }
-            ],
-            "declKind": "Var",
-            "usr": "s:15OneSignalOSCore15OSOperationRepoC14sharedInstanceACvpZ",
-            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC14sharedInstanceACvpZ",
-            "moduleName": "OneSignalOSCore",
-            "static": true,
-            "declAttributes": [
-              "HasInitialValue",
-              "Final",
-              "HasStorage",
-              "AccessControl"
-            ],
-            "isLet": true,
-            "hasStorage": true,
-            "accessors": [
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
               {
-                "kind": "Accessor",
-                "name": "Get",
-                "printedName": "Get()",
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
                 "children": [
                   {
                     "kind": "TypeNominal",
-                    "name": "OSOperationRepo",
-                    "printedName": "OneSignalOSCore.OSOperationRepo",
-                    "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
                   }
                 ],
-                "declKind": "Accessor",
-                "usr": "s:15OneSignalOSCore15OSOperationRepoC14sharedInstanceACvgZ",
-                "mangledName": "$s15OneSignalOSCore15OSOperationRepoC14sharedInstanceACvgZ",
-                "moduleName": "OneSignalOSCore",
-                "static": true,
-                "implicit": true,
-                "declAttributes": [
-                  "Final"
-                ],
-                "accessorKind": "get"
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
               }
-            ]
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard(cm)isMissing:api:",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardC9isMissingySbSSSg_SStFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "objc_name": "isMissing:api:",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
           },
+          {
+            "kind": "Function",
+            "name": "isMissingAny",
+            "printedName": "isMissingAny(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSArray?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSArray",
+                    "printedName": "Foundation.NSArray",
+                    "usr": "c:objc(cs)NSArray"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard(cm)isMissingAny:api:",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardC12isMissingAnyySbSo7NSArrayCSg_SStFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "objc_name": "isMissingAny:api:",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hasMissingEntries",
+            "printedName": "hasMissingEntries(_:_:allowEmptyValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Foundation.NSDictionary?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "NSDictionary",
+                    "printedName": "Foundation.NSDictionary",
+                    "usr": "c:objc(cs)NSDictionary"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard(cm)hasMissingEntries:api:allowEmptyValue:",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardC17hasMissingEntries__15allowEmptyValueSbSo12NSDictionaryCSg_SSSbtFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "objc_name": "hasMissingEntries:api:allowEmptyValue:",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "isMissingAny",
+            "printedName": "isMissingAny(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore12OSInputGuardC12isMissingAnyySbSaySSGSg_SStFZ",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardC12isMissingAnyySbSaySSGSg_SStFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "NonObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hasMissingEntries",
+            "printedName": "hasMissingEntries(_:_:allowEmptyValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : Swift.String]?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : Swift.String]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:SD"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore12OSInputGuardC17hasMissingEntries__15allowEmptyValueSbSDyS2SGSg_SSSbtFZ",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardC17hasMissingEntries__15allowEmptyValueSbSDyS2SGSg_SSSbtFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "NonObjC"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSInputGuard",
+                "printedName": "OneSignalOSCore.OSInputGuard",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard(im)init",
+            "mangledName": "$s15OneSignalOSCore12OSInputGuardCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalOSCore@objc(cs)OSInputGuard",
+        "mangledName": "$s15OneSignalOSCore12OSInputGuardC",
+        "moduleName": "OneSignalOSCore",
+        "objc_name": "OSInputGuard",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "ObjC"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSOperationRepo",
+        "printedName": "OSOperationRepo",
+        "children": [
           {
             "kind": "Var",
             "name": "paused",
@@ -1435,6 +1758,55 @@
             ]
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(identityVerificationService:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSOperationRepo",
+                "printedName": "OneSignalOSCore.OSOperationRepo",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSIdentityVerificationService",
+                "printedName": "OneSignalOSCore.OSIdentityVerificationService",
+                "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore15OSOperationRepoC27identityVerificationServiceAcA010OSIdentitygH0C_tcfc",
+            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC27identityVerificationServiceAcA010OSIdentitygH0C_tcfc",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "refreshIfEmpty",
+            "printedName": "refreshIfEmpty()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore15OSOperationRepoC14refreshIfEmptyyyF",
+            "mangledName": "$s15OneSignalOSCore15OSOperationRepoC14refreshIfEmptyyyF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
             "kind": "Function",
             "name": "start",
             "printedName": "start()",
@@ -1450,8 +1822,7 @@
             "mangledName": "$s15OneSignalOSCore15OSOperationRepoC5startyyF",
             "moduleName": "OneSignalOSCore",
             "declAttributes": [
-              "AccessControl",
-              "RawDocComment"
+              "AccessControl"
             ],
             "funcSelfKind": "NonMutating"
           },
@@ -1582,7 +1953,6 @@
           "ObjC"
         ],
         "superclassUsr": "c:objc(cs)NSObject",
-        "inheritsConvenienceInitializers": true,
         "superclassNames": [
           "ObjectiveC.NSObject"
         ],
@@ -3980,41 +4350,6 @@
             "usr": "c:@M@OneSignalOSCore@objc(cs)OSConsistencyManager(im)getRywTokenFromAwaitableCondition:forId:",
             "mangledName": "$s15OneSignalOSCore20OSConsistencyManagerC33getRywTokenFromAwaitableCondition_5forIdAA19OSReadYourWriteDataCSgAA11OSCondition_p_SStF",
             "moduleName": "OneSignalOSCore",
-            "declAttributes": [
-              "AccessControl",
-              "ObjC",
-              "RawDocComment"
-            ],
-            "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Function",
-            "name": "resolveConditions",
-            "printedName": "resolveConditions(conditionId:forId:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "Void",
-                "printedName": "()"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "String",
-                "printedName": "Swift.String",
-                "usr": "s:SS"
-              }
-            ],
-            "declKind": "Func",
-            "usr": "c:@M@OneSignalOSCore@objc(cs)OSConsistencyManager(im)resolveConditionsWithConditionId:forId:",
-            "mangledName": "$s15OneSignalOSCore20OSConsistencyManagerC17resolveConditions11conditionId03forI0ySS_SStF",
-            "moduleName": "OneSignalOSCore",
-            "objc_name": "resolveConditionsWithConditionId:forId:",
             "declAttributes": [
               "AccessControl",
               "ObjC",
@@ -6913,9 +7248,54 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "operationRepo",
+            "printedName": "operationRepo",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSOperationRepo",
+                "printedName": "OneSignalOSCore.OSOperationRepo",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore20OSModelStoreListenerP13operationRepoAA011OSOperationH0Cvp",
+            "mangledName": "$s15OneSignalOSCore20OSModelStoreListenerP13operationRepoAA011OSOperationH0Cvp",
+            "moduleName": "OneSignalOSCore",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSOperationRepo",
+                    "printedName": "OneSignalOSCore.OSOperationRepo",
+                    "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore20OSModelStoreListenerP13operationRepoAA011OSOperationH0Cvg",
+                "mangledName": "$s15OneSignalOSCore20OSModelStoreListenerP13operationRepoAA011OSOperationH0Cvg",
+                "moduleName": "OneSignalOSCore",
+                "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSModelStoreListener>",
+                "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSModelStoreListener>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(store:)",
+            "printedName": "init(store:operationRepo:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -6934,11 +7314,17 @@
                   }
                 ],
                 "usr": "s:15OneSignalOSCore12OSModelStoreC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSOperationRepo",
+                "printedName": "OneSignalOSCore.OSOperationRepo",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSOperationRepo"
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:15OneSignalOSCore20OSModelStoreListenerP5storexAA0dE0Cy6TModelQzG_tcfc",
-            "mangledName": "$s15OneSignalOSCore20OSModelStoreListenerP5storexAA0dE0Cy6TModelQzG_tcfc",
+            "usr": "s:15OneSignalOSCore20OSModelStoreListenerP5store13operationRepoxAA0dE0Cy6TModelQzG_AA011OSOperationI0Ctcfc",
+            "mangledName": "$s15OneSignalOSCore20OSModelStoreListenerP5store13operationRepoxAA0dE0Cy6TModelQzG_AA011OSOperationI0Ctcfc",
             "moduleName": "OneSignalOSCore",
             "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSModelStoreListener>",
             "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSModelStoreListener>",
@@ -8290,6 +8676,71 @@
           },
           {
             "kind": "Var",
+            "name": "externalId",
+            "printedName": "externalId",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore7OSDeltaC10externalIdSSSgvp",
+            "mangledName": "$s15OneSignalOSCore7OSDeltaC10externalIdSSSgvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore7OSDeltaC10externalIdSSSgvg",
+                "mangledName": "$s15OneSignalOSCore7OSDeltaC10externalIdSSSgvg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
             "name": "model",
             "printedName": "model",
             "children": [
@@ -8523,7 +8974,7 @@
           {
             "kind": "Constructor",
             "name": "init",
-            "printedName": "init(name:identityModelId:model:property:value:)",
+            "printedName": "init(name:identityModelId:externalId:model:property:value:)",
             "children": [
               {
                 "kind": "TypeNominal",
@@ -8545,6 +8996,20 @@
               },
               {
                 "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
                 "name": "OSModel",
                 "printedName": "OneSignalOSCore.OSModel",
                 "usr": "c:@M@OneSignalOSCore@objc(cs)OSModel"
@@ -8562,8 +9027,8 @@
               }
             ],
             "declKind": "Constructor",
-            "usr": "s:15OneSignalOSCore7OSDeltaC4name15identityModelId5model8property5valueACSS_SSAA7OSModelCSSyptcfc",
-            "mangledName": "$s15OneSignalOSCore7OSDeltaC4name15identityModelId5model8property5valueACSS_SSAA7OSModelCSSyptcfc",
+            "usr": "s:15OneSignalOSCore7OSDeltaC4name15identityModelId08externalH05model8property5valueACSS_S2SSgAA7OSModelCSSyptcfc",
+            "mangledName": "$s15OneSignalOSCore7OSDeltaC4name15identityModelId08externalH05model8property5valueACSS_S2SSgAA7OSModelCSSyptcfc",
             "moduleName": "OneSignalOSCore",
             "declAttributes": [
               "AccessControl"
@@ -10097,6 +10562,30 @@
             "protocolReq": true,
             "reqNewWitnessTableEntry": true,
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeOperationsWithoutExternalId",
+            "printedName": "removeOperationsWithoutExternalId()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore19OSOperationExecutorP33removeOperationsWithoutExternalIdyyF",
+            "mangledName": "$s15OneSignalOSCore19OSOperationExecutorP33removeOperationsWithoutExternalIdyyF",
+            "moduleName": "OneSignalOSCore",
+            "genericSig": "<τ_0_0 where τ_0_0 : OneSignalOSCore.OSOperationExecutor>",
+            "sugared_genericSig": "<Self where Self : OneSignalOSCore.OSOperationExecutor>",
+            "protocolReq": true,
+            "declAttributes": [
+              "RawDocComment"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Protocol",
@@ -10106,6 +10595,1415 @@
         "declAttributes": [
           "AccessControl",
           "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalKMP",
+        "printedName": "OneSignalKMP",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "ImplementationOnly"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSJwtConfigHydratedObserver",
+        "printedName": "OSJwtConfigHydratedObserver",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "userExecutor",
+            "printedName": "userExecutor",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSJwtConfigHydratedObserver.Type) -> OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSJwtConfigHydratedObserver",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                    "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSJwtConfigHydratedObserver",
+                        "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                        "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO12userExecutoryA2CmF",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO12userExecutoryA2CmF",
+            "moduleName": "OneSignalOSCore"
+          },
+          {
+            "kind": "Var",
+            "name": "operationRepo",
+            "printedName": "operationRepo",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSJwtConfigHydratedObserver.Type) -> OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSJwtConfigHydratedObserver",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                    "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSJwtConfigHydratedObserver",
+                        "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                        "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO13operationRepoyA2CmF",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO13operationRepoyA2CmF",
+            "moduleName": "OneSignalOSCore"
+          },
+          {
+            "kind": "Var",
+            "name": "userManager",
+            "printedName": "userManager",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSJwtConfigHydratedObserver.Type) -> OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSJwtConfigHydratedObserver",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                    "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSJwtConfigHydratedObserver",
+                        "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                        "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO11userManageryA2CmF",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO11userManageryA2CmF",
+            "moduleName": "OneSignalOSCore"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSJwtConfigHydratedObserver",
+                "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSJwtConfigHydratedObserver",
+                "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO2eeoiySbAC_ACtFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO9hashValueSivp",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO9hashValueSivp",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO9hashValueSivg",
+                "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO9hashValueSivg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO4hash4intoys6HasherVz_tF",
+            "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO4hash4intoys6HasherVz_tF",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO",
+        "mangledName": "$s15OneSignalOSCore27OSJwtConfigHydratedObserverO",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSIdentityVerificationService",
+        "printedName": "OSIdentityVerificationService",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "requirement",
+            "printedName": "requirement",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSRequiresUserAuth",
+                "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC11requirementAA18OSRequiresUserAuthOvp",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC11requirementAA18OSRequiresUserAuthOvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC11requirementAA18OSRequiresUserAuthOvg",
+                "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC11requirementAA18OSRequiresUserAuthOvg",
+                "moduleName": "OneSignalOSCore",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "ivBehaviorActive",
+            "printedName": "ivBehaviorActive",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC16ivBehaviorActiveSbvp",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC16ivBehaviorActiveSbvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC16ivBehaviorActiveSbvg",
+                "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC16ivBehaviorActiveSbvg",
+                "moduleName": "OneSignalOSCore",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "newCodePathsRun",
+            "printedName": "newCodePathsRun",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC15newCodePathsRunSbvp",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC15newCodePathsRunSbvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC15newCodePathsRunSbvg",
+                "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC15newCodePathsRunSbvg",
+                "moduleName": "OneSignalOSCore",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(featureManager:jwtConfig:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSIdentityVerificationService",
+                "printedName": "OneSignalOSCore.OSIdentityVerificationService",
+                "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSFeatureManager",
+                "printedName": "OneSignalOSCore.OSFeatureManager",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSFeatureManager"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtConfig",
+                "printedName": "OneSignalOSCore.OSUserJwtConfig",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC14featureManager9jwtConfigAcA09OSFeatureH0C_AA09OSUserJwtJ0Ctcfc",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC14featureManager9jwtConfigAcA09OSFeatureH0C_AA09OSUserJwtJ0Ctcfc",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "addOnJwtConfigHydratedHandler",
+            "printedName": "addOnJwtConfigHydratedHandler(for:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSJwtConfigHydratedObserver",
+                "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSRequiresUserAuth) -> ()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC29addOnJwtConfigHydratedHandler3for_yAA05OSJwtjK8ObserverO_yAA18OSRequiresUserAuthOctF",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC29addOnJwtConfigHydratedHandler3for_yAA05OSJwtjK8ObserverO_yAA18OSRequiresUserAuthOctF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeOnJwtConfigHydratedHandler",
+            "printedName": "removeOnJwtConfigHydratedHandler(for:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "OSJwtConfigHydratedObserver",
+                "printedName": "OneSignalOSCore.OSJwtConfigHydratedObserver",
+                "usr": "s:15OneSignalOSCore27OSJwtConfigHydratedObserverO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC32removeOnJwtConfigHydratedHandler3foryAA05OSJwtjK8ObserverO_tF",
+            "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC32removeOnJwtConfigHydratedHandler3foryAA05OSJwtjK8ObserverO_tF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:15OneSignalOSCore29OSIdentityVerificationServiceC",
+        "mangledName": "$s15OneSignalOSCore29OSIdentityVerificationServiceC",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "OneSignalCore",
+        "printedName": "OneSignalCore",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore"
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSRequiresUserAuth",
+        "printedName": "OSRequiresUserAuth",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "on",
+            "printedName": "on",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSRequiresUserAuth.Type) -> OneSignalOSCore.OSRequiresUserAuth",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSRequiresUserAuth",
+                        "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                        "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO2onyA2CmF",
+            "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO2onyA2CmF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "RawDocComment"
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "off",
+            "printedName": "off",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSRequiresUserAuth.Type) -> OneSignalOSCore.OSRequiresUserAuth",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSRequiresUserAuth",
+                        "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                        "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO3offyA2CmF",
+            "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO3offyA2CmF",
+            "moduleName": "OneSignalOSCore"
+          },
+          {
+            "kind": "Var",
+            "name": "unknown",
+            "printedName": "unknown",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(OneSignalOSCore.OSRequiresUserAuth.Type) -> OneSignalOSCore.OSRequiresUserAuth",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "OSRequiresUserAuth",
+                        "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                        "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO7unknownyA2CmF",
+            "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO7unknownyA2CmF",
+            "moduleName": "OneSignalOSCore"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "OneSignalOSCore.OSRequiresUserAuth?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO8rawValueACSgSi_tcfc",
+            "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO8rawValueACSgSi_tcfc",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO8rawValueSivp",
+            "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO8rawValueSivp",
+            "moduleName": "OneSignalOSCore",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO8rawValueSivg",
+                "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO8rawValueSivg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO",
+        "mangledName": "$s15OneSignalOSCore18OSRequiresUserAuthO",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "AccessControl",
+          "RawDocComment"
+        ],
+        "enumRawTypeName": "Int",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "children": [
+              {
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ]
+              }
+            ],
+            "usr": "s:SY",
+            "mangledName": "$sSY"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSUserJwtConfig",
+        "printedName": "OSUserJwtConfig",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "shared",
+            "printedName": "shared",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtConfig",
+                "printedName": "OneSignalOSCore.OSUserJwtConfig",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig(cpy)shared",
+            "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC6sharedACvpZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSUserJwtConfig",
+                    "printedName": "OneSignalOSCore.OSUserJwtConfig",
+                    "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig(cm)shared",
+                "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC6sharedACvgZ",
+                "moduleName": "OneSignalOSCore",
+                "static": true,
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "requirement",
+            "printedName": "requirement",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSRequiresUserAuth",
+                "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:15OneSignalOSCore15OSUserJwtConfigC11requirementAA18OSRequiresUserAuthOvp",
+            "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC11requirementAA18OSRequiresUserAuthOvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "OSRequiresUserAuth",
+                    "printedName": "OneSignalOSCore.OSRequiresUserAuth",
+                    "usr": "s:15OneSignalOSCore18OSRequiresUserAuthO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:15OneSignalOSCore15OSUserJwtConfigC11requirementAA18OSRequiresUserAuthOvg",
+                "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC11requirementAA18OSRequiresUserAuthOvg",
+                "moduleName": "OneSignalOSCore",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSUserJwtConfig",
+                "printedName": "OneSignalOSCore.OSUserJwtConfig",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig(im)init",
+            "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "overriding": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override",
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "hydrate",
+            "printedName": "hydrate(requiresUserAuth:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig(im)hydrateWithRequiresUserAuth:",
+            "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC7hydrate16requiresUserAuthySb_tF",
+            "moduleName": "OneSignalOSCore",
+            "objc_name": "hydrateWithRequiresUserAuth:",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "refreshIfUnknown",
+            "printedName": "refreshIfUnknown()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:15OneSignalOSCore15OSUserJwtConfigC16refreshIfUnknownyyF",
+            "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC16refreshIfUnknownyyF",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalOSCore@objc(cs)OSUserJwtConfig",
+        "mangledName": "$s15OneSignalOSCore15OSUserJwtConfigC",
+        "moduleName": "OneSignalOSCore",
+        "objc_name": "OSUserJwtConfig",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "Import",
+        "name": "Foundation",
+        "printedName": "Foundation",
+        "declKind": "Import",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "RawDocComment"
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSUrlPath",
+        "printedName": "OSUrlPath",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "segment",
+            "printedName": "segment(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSUrlPath(cm)segment:",
+            "mangledName": "$s15OneSignalOSCore9OSUrlPathC7segmentySSSgSSFZ",
+            "moduleName": "OneSignalOSCore",
+            "static": true,
+            "objc_name": "segment:",
+            "declAttributes": [
+              "Final",
+              "AccessControl",
+              "ObjC",
+              "RawDocComment"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSUrlPath",
+                "printedName": "OneSignalOSCore.OSUrlPath",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSUrlPath"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSUrlPath(im)init",
+            "mangledName": "$s15OneSignalOSCore9OSUrlPathCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalOSCore@objc(cs)OSUrlPath",
+        "mangledName": "$s15OneSignalOSCore9OSUrlPathC",
+        "moduleName": "OneSignalOSCore",
+        "objc_name": "OSUrlPath",
+        "declAttributes": [
+          "Final",
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "inheritsConvenienceInitializers": true,
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "OSAliasPair",
+        "printedName": "OSAliasPair",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "label",
+            "printedName": "label",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair(py)label",
+            "mangledName": "$s15OneSignalOSCore11OSAliasPairC5labelSSvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair(im)label",
+                "mangledName": "$s15OneSignalOSCore11OSAliasPairC5labelSSvg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "id",
+            "printedName": "id",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair(py)id",
+            "mangledName": "$s15OneSignalOSCore11OSAliasPairC2idSSvp",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "AccessControl",
+              "ObjC"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair(im)id",
+                "mangledName": "$s15OneSignalOSCore11OSAliasPairC2idSSvg",
+                "moduleName": "OneSignalOSCore",
+                "implicit": true,
+                "declAttributes": [
+                  "Final",
+                  "ObjC"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSAliasPair",
+                "printedName": "OneSignalOSCore.OSAliasPair",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:15OneSignalOSCore11OSAliasPairCyACSS_SStcfc",
+            "mangledName": "$s15OneSignalOSCore11OSAliasPairCyACSS_SStcfc",
+            "moduleName": "OneSignalOSCore",
+            "declAttributes": [
+              "AccessControl"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "OSAliasPair",
+                "printedName": "OneSignalOSCore.OSAliasPair",
+                "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair(im)init",
+            "mangledName": "$s15OneSignalOSCore11OSAliasPairCACycfc",
+            "moduleName": "OneSignalOSCore",
+            "overriding": true,
+            "implicit": true,
+            "objc_name": "init",
+            "declAttributes": [
+              "Dynamic",
+              "ObjC",
+              "Override"
+            ],
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "c:@M@OneSignalOSCore@objc(cs)OSAliasPair",
+        "mangledName": "$s15OneSignalOSCore11OSAliasPairC",
+        "moduleName": "OneSignalOSCore",
+        "declAttributes": [
+          "AccessControl",
+          "ObjC",
+          "RawDocComment"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP",
+            "mangledName": "$ss7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObservingPublishing",
+            "printedName": "_KeyValueCodingAndObservingPublishing",
+            "usr": "s:10Foundation37_KeyValueCodingAndObservingPublishingP",
+            "mangledName": "$s10Foundation37_KeyValueCodingAndObservingPublishingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "_KeyValueCodingAndObserving",
+            "printedName": "_KeyValueCodingAndObserving",
+            "usr": "s:10Foundation27_KeyValueCodingAndObservingP",
+            "mangledName": "$s10Foundation27_KeyValueCodingAndObservingP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP",
+            "mangledName": "$ss28CustomDebugStringConvertibleP"
+          }
         ]
       },
       {
@@ -11877,158 +13775,368 @@
       "value": "\"OneSignalOSCore.OSDeviceGestureDetector\""
     },
     {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 1550,
+      "length": 10,
+      "value": "\"\u0000\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 1622,
+      "length": 29,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 1629,
+      "length": 8,
+      "value": "\" contains a null byte\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
       "kind": "BooleanLiteral",
-      "offset": 1573,
+      "offset": 1672,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1745,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 1815,
+      "length": 20,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 1822,
+      "length": 2,
+      "value": "\" is required\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 1852,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2141,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2171,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2639,
+      "length": 13,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2646,
+      "length": 1,
+      "value": "\": key\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2679,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2809,
+      "length": 15,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2816,
+      "length": 1,
+      "value": "\": value\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2925,
+      "length": 15,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "StringLiteral",
+      "offset": 2932,
+      "length": 1,
+      "value": "\": value\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2967,
+      "length": 4,
+      "value": "true"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSInputGuard.swift",
+      "kind": "BooleanLiteral",
+      "offset": 3011,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 1747,
+      "offset": 2127,
       "length": 27,
       "value": "\"OneSignal.OSOperationRepo\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2209,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "BooleanLiteral",
+      "offset": 2251,
+      "length": 5,
+      "value": "false"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Dictionary",
-      "offset": 1927,
+      "offset": 2319,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 1974,
+      "offset": 2366,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 2009,
+      "offset": 2401,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 2203,
+      "offset": 2595,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "Array",
+      "offset": 3510,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 3643,
+      "length": 57,
+      "value": "\"OSOperationRepo is unable to uncache the OSDelta queue.\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 3815,
+      "length": 48,
+      "value": "\"OSOperationRepo uncached deltaQueue: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 3862,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 4526,
+      "length": 87,
+      "value": "\"OSOperationRepo.start() deferred until the Identity Verification requirement is known\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 2747,
+      "offset": 4669,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 2809,
+      "offset": 4731,
       "length": 33,
       "value": "\"OSOperationRepo calling start()\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "Array",
-      "offset": 3388,
-      "length": 2,
-      "value": "[]"
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3509,
-      "length": 56,
-      "value": "\"OSOperationRepo.start() with deltaQueue: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3564,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
-      "kind": "StringLiteral",
-      "offset": 3642,
-      "length": 65,
-      "value": "\"OSOperationRepo.start() is unable to uncache the OSDelta queue.\""
+      "kind": "BooleanLiteral",
+      "offset": 5034,
+      "length": 4,
+      "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 4838,
+      "offset": 7552,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5085,
+      "offset": 8026,
+      "length": 87,
+      "value": "\"OSOperationRepo dropping anonymous Delta, Identity Verification is required: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 8112,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 8213,
       "length": 40,
       "value": "\"OSOperationRepo enqueueDelta: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5124,
+      "offset": 8252,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 5543,
+      "offset": 8604,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "BooleanLiteral",
-      "offset": 5821,
+      "offset": 10105,
       "length": 5,
       "value": "false"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 5917,
+      "offset": 10201,
       "length": 56,
       "value": "\"OSOperationRepo not flushing queue due to being paused\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "IntegerLiteral",
+      "offset": 10843,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6378,
+      "offset": 10909,
+      "length": 76,
+      "value": "\"OSOperationRepo holding \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 10946,
+      "length": 6,
+      "value": "\" Deltas until the requirement is known\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 11254,
       "length": 95,
       "value": "\"OSOperationRepo flushDeltaQueue in background: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6441,
+      "offset": 11317,
       "length": 4,
       "value": "\" with queue: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "StringLiteral",
-      "offset": 6472,
+      "offset": 11348,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
       "kind": "Array",
-      "offset": 6521,
+      "offset": 11532,
       "length": 2,
       "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 11710,
+      "length": 87,
+      "value": "\"OSOperationRepo dropping anonymous Delta, Identity Verification is required: \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 11796,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSOperationRepo.swift",
+      "kind": "StringLiteral",
+      "offset": 1631,
+      "length": 15,
+      "value": "\"OneSignalOSCore.OSOperationRepo\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Logging\/OSLogCrashHandler.swift",
@@ -12523,147 +14631,126 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 1590,
+      "offset": 1599,
       "length": 30,
       "value": "\"com.consistencyManager.queue\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 1697,
+      "offset": 1698,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 1877,
+      "offset": 1855,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "IntegerLiteral",
-      "offset": 2306,
+      "offset": 2284,
       "length": 2,
       "value": "30"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 2504,
+      "offset": 2482,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 2545,
+      "offset": 2523,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Dictionary",
-      "offset": 2895,
+      "offset": 3242,
       "length": 3,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "IntegerLiteral",
-      "offset": 3444,
+      "offset": 3925,
       "length": 1,
       "value": "0"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Array",
-      "offset": 3516,
+      "offset": 3997,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 3766,
+      "offset": 4222,
       "length": 82,
       "value": "\"OSConsistencyManager timed out waiting on \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 3833,
+      "offset": 4289,
       "length": 3,
       "value": "\" for id: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 3847,
+      "offset": 4303,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "BooleanLiteral",
-      "offset": 4043,
+      "offset": 4499,
       "length": 4,
       "value": "true"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 5097,
-      "length": 49,
-      "value": "\"Condition \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 5122,
-      "length": 8,
-      "value": "\" resolved for id: \""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
-      "kind": "StringLiteral",
-      "offset": 5145,
-      "length": 2,
-      "value": "\"\""
-    },
-    {
-      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "Array",
-      "offset": 5604,
+      "offset": 5580,
       "length": 2,
       "value": "[]"
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 5779,
+      "offset": 5755,
       "length": 29,
       "value": "\"Condition met for id: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 5807,
+      "offset": 5783,
       "length": 2,
       "value": "\"\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 5938,
+      "offset": 5914,
       "length": 33,
       "value": "\"Condition not met for id: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Consistency\/OSConsistencyManager.swift",
       "kind": "StringLiteral",
-      "offset": 5970,
+      "offset": 5946,
       "length": 2,
       "value": "\"\""
     },
@@ -13048,14 +15135,14 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStoreListener.swift",
       "kind": "StringLiteral",
-      "offset": 2418,
+      "offset": 2560,
       "length": 61,
       "value": "\"OSModelStoreListener.onRemoved() called with model \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSModelStoreListener.swift",
       "kind": "StringLiteral",
-      "offset": 2478,
+      "offset": 2620,
       "length": 2,
       "value": "\"\""
     },
@@ -13188,135 +15275,149 @@
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 1783,
+      "offset": 1914,
       "length": 62,
       "value": "\"<OSDelta \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 1800,
+      "offset": 1931,
       "length": 4,
       "value": "\" with property: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 1827,
+      "offset": 1958,
       "length": 5,
       "value": "\" value: \""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 1843,
+      "offset": 1974,
       "length": 1,
       "value": "\">\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2276,
+      "offset": 2465,
       "length": 6,
       "value": "\"name\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2322,
+      "offset": 2511,
       "length": 9,
       "value": "\"deltaId\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2373,
+      "offset": 2562,
       "length": 11,
       "value": "\"timestamp\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2432,
+      "offset": 2621,
       "length": 17,
       "value": "\"identityModelId\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2487,
+      "offset": 2681,
+      "length": 12,
+      "value": "\"externalId\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
+      "kind": "StringLiteral",
+      "offset": 2731,
       "length": 7,
       "value": "\"model\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2535,
+      "offset": 2779,
       "length": 10,
       "value": "\"property\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2583,
+      "offset": 2827,
       "length": 7,
       "value": "\"value\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2695,
+      "offset": 2939,
       "length": 6,
       "value": "\"name\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2770,
+      "offset": 3014,
       "length": 9,
       "value": "\"deltaId\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2850,
+      "offset": 3094,
       "length": 11,
       "value": "\"timestamp\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 2936,
+      "offset": 3180,
       "length": 17,
       "value": "\"identityModelId\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 3020,
+      "offset": 3264,
       "length": 7,
       "value": "\"model\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 3098,
+      "offset": 3342,
       "length": 10,
       "value": "\"property\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 3175,
+      "offset": 3419,
       "length": 7,
       "value": "\"value\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
       "kind": "StringLiteral",
-      "offset": 3257,
+      "offset": 3501,
       "length": 35,
       "value": "\"Unable to init OSDelta from cache\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
+      "kind": "StringLiteral",
+      "offset": 3763,
+      "length": 12,
+      "value": "\"externalId\""
     },
     {
       "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/OSDelta.swift",
@@ -13828,6 +15929,118 @@
       "offset": 12505,
       "length": 9,
       "value": "1000000"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSIdentityVerificationService.swift",
+      "kind": "Array",
+      "offset": 2566,
+      "length": 2,
+      "value": "[]"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1657,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1674,
+      "length": 2,
+      "value": "-1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1696,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1657,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1674,
+      "length": 1,
+      "value": "-1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1696,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1657,
+      "length": 1,
+      "value": "1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1674,
+      "length": 1,
+      "value": "-1"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "IntegerLiteral",
+      "offset": 1696,
+      "length": 1,
+      "value": "0"
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "StringLiteral",
+      "offset": 4688,
+      "length": 69,
+      "value": "\"OSUserJwtConfig requirement changed from \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "StringLiteral",
+      "offset": 4741,
+      "length": 2,
+      "value": "\" to \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "StringLiteral",
+      "offset": 4756,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "StringLiteral",
+      "offset": 5930,
+      "length": 70,
+      "value": "\"OSUserJwtConfig requirement refreshed from the cache to \""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSUserJwtConfig.swift",
+      "kind": "StringLiteral",
+      "offset": 5999,
+      "length": 2,
+      "value": "\"\""
+    },
+    {
+      "filePath": "\/Users\/runner\/work\/OneSignal-iOS-SDK\/OneSignal-iOS-SDK\/iOS_SDK\/OneSignalSDK\/OneSignalOSCore\/Source\/Jwt\/OSAliasPair.swift",
+      "kind": "StringLiteral",
+      "offset": 1398,
+      "length": 11,
+      "value": "\"OneSignalOSCore.OSAliasPair\""
     }
   ]
 }

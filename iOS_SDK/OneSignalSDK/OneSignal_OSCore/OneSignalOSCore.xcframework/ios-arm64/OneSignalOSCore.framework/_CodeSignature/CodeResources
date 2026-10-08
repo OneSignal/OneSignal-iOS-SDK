@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalOSCore-Swift.h</key>
 		<data>
-		nzqQ4OcyCd5Se20MyaQX+Bj670w=
+		sm/ZQX7pmhAAnhgRSEtbh+bHiWk=
 		</data>
 		<key>Headers/OneSignalOSCore.h</key>
 		<data>
@@ -18,19 +18,19 @@
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.abi.json</key>
 		<data>
-		cIkNJHW3yg0VGSi3AoK0V2g4nEI=
+		uT5uqruAAMRV5wHc5hZts/UvpqI=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.private.swiftinterface</key>
 		<data>
-		7ChjiXundY8NtP4v3O4nBeqJMEs=
+		CMycbIgPa39prF1iWMqwqP0MVys=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<data>
-		hz5iYODyag9mvdUHfoyCYSCyZ30=
+		yCMIm8AZ2UW+5UuJ8SLp+D1vVNc=
 		</data>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<data>
-		wxoAbSYNCl9gSQ7PwZkboQggXXA=
+		qV/Sb5ezcJSdB7KJu7OA4OLbzB4=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -47,7 +47,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			0PfaOmADV5O3N9ut6xWAS1R/Gyfwtirce5iOd+lS/vU=
+			9/bleIOFRp58vatIEFTZ9BkbTwJSNs2gpUW4nn3cXs0=
 			</data>
 		</dict>
 		<key>Headers/OneSignalOSCore.h</key>
@@ -61,28 +61,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			TzKnRbSjHfZoHcH6PprLoXGWYX1AruyLr4qj+WMTLRk=
+			Y3S7jiXv2yTaNe4nODLti1mSUuAu7bMKEFGy20PsvII=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			qgiFY5C6/QG96s8SAtoMiEKkgfeE1c37utQi4aDh43s=
+			08oOdp/qZH69U3UKfQWvYuqLGmlfss+xLEjzbkHhjiI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lw0ucTTjAHZSzfLIyXFsKwwalc9XqF+lcYNw3c635D4=
+			E+21lPwYrclfWhEp0+7CoRgR77aa5boGZj0VmeBu/JQ=
 			</data>
 		</dict>
 		<key>Modules/OneSignalOSCore.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lnwauttOqVZCSbv4uM3L/kMUVDLud7gZgobO19eKO+0=
+			g/esc+M94ENuMBwDr5s9TB5sTO3k0RNMGVjlsYEEJ6g=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"050700"
+#define ONESIGNAL_VERSION                                                   @"050800"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
@@ -79,6 +79,7 @@
 // Remote SDK feature flags (Turbine GET apps/{app_id}/sdk/features/{platform}/{sdk_version})
 #define OSUD_SDK_REMOTE_FEATURE_FLAGS                                       @"OSUD_SDK_REMOTE_FEATURE_FLAGS"
 #define OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA                               @"OSUD_SDK_REMOTE_FEATURE_FLAG_METADATA"
+#define OSUD_USE_IDENTITY_VERIFICATION                                      @"OSUD_USE_IDENTITY_VERIFICATION"
 // Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
@@ -132,7 +133,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_SMS_AUTHENTICATION @"require_sms_auth"
-#define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth"
+#define IOS_JWT_REQUIRED @"jwt_required"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 #define IOS_LOCATION_SHARED @"location_shared"
@@ -321,6 +322,15 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_SNAPSHOT_ONESIGNAL_ID                                            @"OS_SNAPSHOT_ONESIGNAL_ID"
 #define OS_SNAPSHOT_EXTERNAL_ID                                             @"OS_SNAPSHOT_EXTERNAL_ID"
 
+/* Identity Verification */
+#define OS_JWT_BEARER_TOKEN                                                 @"OS_JWT_BEARER_TOKEN"
+#define OS_JWT_TOKEN_INVALID                                                @"OS_JWT_TOKEN_INVALID"
+
+// Posted when work held for want of an answer can be reattempted: the requirement hydrated, or the app
+// supplied a token. Listeners re-read the current state rather than take anything from the post.
+#define OS_ON_JWT_CONFIG_HYDRATED                                           @"OS_ON_JWT_CONFIG_HYDRATED"
+#define OS_ON_USER_JWT_UPDATED                                              @"OS_ON_USER_JWT_UPDATED"
+
 // Models and Model Stores
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
@@ -367,6 +377,17 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // Custom Events Executor
 #define OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY                           @"OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY                         @"OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY"
+
+// A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
+// decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.
+#define OS_USER_DEFAULTS_MAX_VALUE_BYTES                                    1048576
+
+// Written only by the 5.3.0-beta Identity Verification builds. Nothing reads them anymore.
+#define OS_IV_BETA_USER_EXECUTOR_PENDING_QUEUE_KEY                          @"OS_USER_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY                      @"OS_IDENTITY_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY                    @"OS_PROPERTIES_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY                  @"OS_SUBSCRIPTION_EXECUTOR_PENDING_QUEUE_KEY"
+#define OS_IV_BETA_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY                 @"OS_CUSTOM_EVENTS_EXECUTOR_PENDING_QUEUE_KEY"
 
 // Live Activies Executor
 #define OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY                       @"OS_LIVE_ACTIVITIES_EXECUTOR_UPDATE_TOKENS_KEY"

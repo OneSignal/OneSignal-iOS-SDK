@@ -46,14 +46,23 @@ public protocol OSConsistencyKeyEnum : Swift.RawRepresentable where Self.RawValu
   @objc public static func reset()
   @objc deinit
 }
-@objc @_inheritsConvenienceInitializers public class OSOperationRepo : ObjectiveC.NSObject {
-  public static let sharedInstance: OneSignalOSCore.OSOperationRepo
+@_inheritsConvenienceInitializers @objc(OSInputGuard) final public class OSInputGuard : ObjectiveC.NSObject {
+  @objc(isMissing:api:) public static func isMissing(_ value: Swift.String?, _ api: Swift.String) -> Swift.Bool
+  @objc(isMissingAny:api:) public static func isMissingAny(_ values: Foundation.NSArray?, _ api: Swift.String) -> Swift.Bool
+  @objc(hasMissingEntries:api:allowEmptyValue:) public static func hasMissingEntries(_ values: Foundation.NSDictionary?, _ api: Swift.String, allowEmptyValue: Swift.Bool) -> Swift.Bool
+  @nonobjc public static func isMissingAny(_ values: [Swift.String]?, _ api: Swift.String) -> Swift.Bool
+  @nonobjc public static func hasMissingEntries(_ values: [Swift.String : Swift.String]?, _ api: Swift.String, allowEmptyValue: Swift.Bool) -> Swift.Bool
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc public class OSOperationRepo : ObjectiveC.NSObject {
   public var paused: Swift.Bool
+  public init(identityVerificationService: OneSignalOSCore.OSIdentityVerificationService)
+  public func refreshIfEmpty()
   public func start()
   public func addExecutor(_ executor: any OneSignalOSCore.OSOperationExecutor)
   public func enqueueDelta(_ delta: OneSignalOSCore.OSDelta, flush: Swift.Bool = false)
   @objc public func addFlushDeltaQueueToDispatchQueue(inBackground: Swift.Bool = false)
-  @objc override dynamic public init()
   @objc deinit
 }
 public protocol OSRemoteLoggerProtocol : AnyObject {
@@ -100,7 +109,6 @@ extension OneSignalOSCore.OSRemoteLoggerProtocol {
   public func reset()
   public func setRywTokenAndDelay(id: Swift.String, key: any OneSignalOSCore.OSConsistencyKeyEnum, value: OneSignalOSCore.OSReadYourWriteData)
   @objc public func getRywTokenFromAwaitableCondition(_ condition: any OneSignalOSCore.OSCondition, forId id: Swift.String) -> OneSignalOSCore.OSReadYourWriteData?
-  @objc(resolveConditionsWithConditionId:forId:) public func resolveConditions(conditionId: Swift.String, forId id: Swift.String)
   @objc deinit
 }
 @_inheritsConvenienceInitializers @objc(OneSignalIdentifiers) final public class OneSignalIdentifiers : ObjectiveC.NSObject {
@@ -187,7 +195,8 @@ public class OSNewRecordsState {
 public protocol OSModelStoreListener : OneSignalOSCore.OSModelStoreChangedHandler {
   associatedtype TModel : OneSignalOSCore.OSModel
   var store: OneSignalOSCore.OSModelStore<Self.TModel> { get }
-  init(store: OneSignalOSCore.OSModelStore<Self.TModel>)
+  var operationRepo: OneSignalOSCore.OSOperationRepo { get }
+  init(store: OneSignalOSCore.OSModelStore<Self.TModel>, operationRepo: OneSignalOSCore.OSOperationRepo)
   func getAddModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getRemoveModelDelta(_ model: Self.TModel) -> OneSignalOSCore.OSDelta?
   func getUpdateModelDelta(_ args: OneSignalOSCore.OSModelChangedArgs) -> OneSignalOSCore.OSDelta?
@@ -228,13 +237,14 @@ public protocol OSModelStoreChangedHandler {
   final public let deltaId: Swift.String
   final public let timestamp: Foundation.Date
   final public let identityModelId: Swift.String
+  final public let externalId: Swift.String?
   public var model: OneSignalOSCore.OSModel
   final public let property: Swift.String
   final public let value: Any
   @objc override dynamic open var description: Swift.String {
     @objc get
   }
-  public init(name: Swift.String, identityModelId: Swift.String, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
+  public init(name: Swift.String, identityModelId: Swift.String, externalId: Swift.String?, model: OneSignalOSCore.OSModel, property: Swift.String, value: Any)
   @objc public func encode(with coder: Foundation.NSCoder)
   @objc required public init?(coder: Foundation.NSCoder)
   @objc deinit
@@ -288,6 +298,68 @@ public protocol OSOperationExecutor {
   func enqueueDelta(_ delta: OneSignalOSCore.OSDelta)
   func cacheDeltaQueue()
   func processDeltaQueue(inBackground: Swift.Bool)
+  func removeOperationsWithoutExternalId()
+}
+public enum OSJwtConfigHydratedObserver {
+  case userExecutor
+  case operationRepo
+  case userManager
+  public static func == (a: OneSignalOSCore.OSJwtConfigHydratedObserver, b: OneSignalOSCore.OSJwtConfigHydratedObserver) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
+  public var hashValue: Swift.Int {
+    get
+  }
+}
+final public class OSIdentityVerificationService {
+  final public var requirement: OneSignalOSCore.OSRequiresUserAuth {
+    get
+  }
+  final public var ivBehaviorActive: Swift.Bool {
+    get
+  }
+  final public var newCodePathsRun: Swift.Bool {
+    get
+  }
+  public init(featureManager: OneSignalOSCore.OSFeatureManager, jwtConfig: OneSignalOSCore.OSUserJwtConfig)
+  final public func addOnJwtConfigHydratedHandler(for observer: OneSignalOSCore.OSJwtConfigHydratedObserver, _ handler: @escaping (OneSignalOSCore.OSRequiresUserAuth) -> Swift.Void)
+  final public func removeOnJwtConfigHydratedHandler(for observer: OneSignalOSCore.OSJwtConfigHydratedObserver)
+  @objc deinit
+}
+public enum OSRequiresUserAuth : Swift.Int {
+  case on
+  case off
+  case unknown
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@_inheritsConvenienceInitializers @objc(OSUserJwtConfig) final public class OSUserJwtConfig : ObjectiveC.NSObject {
+  @objc public static let shared: OneSignalOSCore.OSUserJwtConfig
+  final public var requirement: OneSignalOSCore.OSRequiresUserAuth {
+    get
+  }
+  @objc override dynamic public init()
+  @objc final public func hydrate(requiresUserAuth: Swift.Bool)
+  final public func refreshIfUnknown()
+  @objc deinit
+}
+@_inheritsConvenienceInitializers @objc(OSUrlPath) final public class OSUrlPath : ObjectiveC.NSObject {
+  @objc(segment:) public static func segment(_ value: Swift.String) -> Swift.String?
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc public class OSAliasPair : ObjectiveC.NSObject {
+  @objc final public let label: Swift.String
+  @objc final public let id: Swift.String
+  public init(_ label: Swift.String, _ id: Swift.String)
+  @objc deinit
 }
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Equatable {}
 extension OneSignalOSCore.OSIamFetchOffsetKey : Swift.Hashable {}
+extension OneSignalOSCore.OSJwtConfigHydratedObserver : Swift.Equatable {}
+extension OneSignalOSCore.OSJwtConfigHydratedObserver : Swift.Hashable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Equatable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.Hashable {}
+extension OneSignalOSCore.OSRequiresUserAuth : Swift.RawRepresentable {}
