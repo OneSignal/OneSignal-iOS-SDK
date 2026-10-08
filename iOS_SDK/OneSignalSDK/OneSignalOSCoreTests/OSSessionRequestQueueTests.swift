@@ -473,7 +473,11 @@ final class OSSessionRequestQueueTests: XCTestCase {
         XCTAssertEqual(queue.queuedRequests.count, 4)
     }
 
-    // MARK: - Cap
+}
+
+// MARK: - Cap
+
+extension OSSessionRequestQueueTests {
 
     func testCapDropsOldestAndItsUpdates() {
         user.onesignalIds = [:]
@@ -490,7 +494,11 @@ final class OSSessionRequestQueueTests: XCTestCase {
         XCTAssertFalse(requests.contains { $0.localSessionId == first.sessionId })
     }
 
-    // MARK: - Retry
+}
+
+// MARK: - Retry
+
+extension OSSessionRequestQueueTests {
 
     func testRetryKeepsIdempotencyKeyAcrossRestart() {
         let record = startSession()
