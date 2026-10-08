@@ -139,6 +139,13 @@ public final class OSSessionService: NSObject {
         }
     }
 
+    /// Set at launch, not only when a session starts: a record loaded from disk still needs its IDs
+    /// filled in if the previous process exited before the backend assigned them.
+    public func setUserProvider(_ userProvider: OSSessionUserProvider) {
+        stateLock.withLock { self.userProvider = userProvider }
+        refreshPinnedIds()
+    }
+
     /// The User module calls this as soon as the backend assigns a user or subscription ID. Filling
     /// only on the next read could be too late: a login in between switches the current user, and
     /// the subscription can then no longer be attributed to this session's user.

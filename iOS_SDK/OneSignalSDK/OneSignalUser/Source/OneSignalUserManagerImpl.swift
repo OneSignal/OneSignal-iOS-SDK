@@ -308,6 +308,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 self?.pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?._isDisabledInternally = false
             }
 
+            // Before the executors, so a hydrate they cause can fill a session record left by the last process.
+            OSSessionService.shared.setUserProvider(self)
+
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
             self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService, auth: requestAuth)

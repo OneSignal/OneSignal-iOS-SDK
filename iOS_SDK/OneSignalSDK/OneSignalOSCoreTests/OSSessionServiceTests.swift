@@ -158,6 +158,21 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(restarted.currentRecord, saved)
     }
 
+    func testIdsAreFilledInAfterARestartBeforeTheUserIsCreated() {
+        user.onesignalIds = [:]
+        user.pushSubscriptionId = nil
+        _ = makeForegroundSession()
+
+        let restarted = makeService()
+        restarted.setUserProvider(user)
+        user.onesignalIds["model-a"] = "onesignal-a"
+        user.pushSubscriptionId = "subscription-a"
+        restarted.refreshPinnedIds()
+
+        XCTAssertEqual(restarted.currentRecord?.onesignalId, "onesignal-a")
+        XCTAssertEqual(restarted.currentRecord?.subscriptionId, "subscription-a")
+    }
+
     func testClearingTheStoredRecordDropsIt() {
         _ = makeForegroundSession()
 

@@ -103,6 +103,21 @@ final class SessionRecordUserTests: XCTestCase {
         XCTAssertEqual(record?.subscriptionId, testPushSubId)
     }
 
+    /// The last process started a session and was killed before its anonymous user was created.
+    func testRecordFromThePreviousProcessIsFilledInOnceTheUserIsCreated() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.setNewInternalUser(externalId: nil, pushSubscriptionModel: nil)
+        OSSessionService.shared.startNewSession(userProvider: manager)
+        OSSessionService.reset()
+
+        manager.start()
+
+        OneSignalCoreMocks.waitUntil("Session record was not filled in") {
+            let record = OSSessionService.shared.currentRecord
+            return record?.onesignalId == anonUserOSID && record?.subscriptionId == testPushSubId
+        }
+    }
+
     func testNewSessionAfterLoginPinsTheNewUser() {
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
