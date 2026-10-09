@@ -104,6 +104,7 @@
 		A5162F01A1B2C3D4E5F60004 /* OSSessionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */; };
 		A5162F01A1B2C3D4E5F60016 /* OSSessionsBackendServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */; };
 		A5162F01A1B2C3D4E5F6001A /* OSSessionRequestQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60019 /* OSSessionRequestQueueTests.swift */; };
+		A5162F01A1B2C3D4E5F6002B /* OSSessionHeartbeatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F6002A /* OSSessionHeartbeatTests.swift */; };
 		C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */; };
 		32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */; };
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
@@ -1925,6 +1926,7 @@
 		A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionServiceTests.swift; sourceTree = "<group>"; };
 		A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionsBackendServiceTests.swift; sourceTree = "<group>"; };
 		A5162F01A1B2C3D4E5F60019 /* OSSessionRequestQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionRequestQueueTests.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F6002A /* OSSessionHeartbeatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionHeartbeatTests.swift; sourceTree = "<group>"; };
 		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
 		9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogStoreRetentionTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
@@ -2765,6 +2767,7 @@
 				A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */,
 				A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */,
 				A5162F01A1B2C3D4E5F60019 /* OSSessionRequestQueueTests.swift */,
+				A5162F01A1B2C3D4E5F6002A /* OSSessionHeartbeatTests.swift */,
 				A5426001A1B2C3D4E5F60003 /* OSInputGuardTests.swift */,
 				3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */,
 				9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */,
@@ -4888,6 +4891,7 @@
 				A5162F01A1B2C3D4E5F60004 /* OSSessionServiceTests.swift in Sources */,
 				A5162F01A1B2C3D4E5F60016 /* OSSessionsBackendServiceTests.swift in Sources */,
 				A5162F01A1B2C3D4E5F6001A /* OSSessionRequestQueueTests.swift in Sources */,
+				A5162F01A1B2C3D4E5F6002B /* OSSessionHeartbeatTests.swift in Sources */,
 				A5426001A1B2C3D4E5F60004 /* OSInputGuardTests.swift in Sources */,
 				C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */,
 				32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */,
