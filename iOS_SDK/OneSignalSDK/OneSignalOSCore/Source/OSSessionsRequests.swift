@@ -1,0 +1,89 @@
+/*
+ Modified MIT License
+
+ Copyright 2026 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import Foundation
+import OneSignalCore
+
+/// RFC 3339 in UTC with milliseconds, e.g. `2023-11-14T22:13:20.000Z`.
+enum OSSessionTimestamp {
+    private static let formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static func string(from date: Date) -> String {
+        formatter.string(from: date)
+    }
+}
+
+/// `POST apps/{app_id}/sessions`
+final class OSRequestCreateSession: OneSignalRequest {
+    override var description: String {
+        "<OSRequestCreateSession with parameters: \(parameters ?? [:])>"
+    }
+
+    init(appId: String, body: OSCreateSessionRequestBody) {
+        super.init()
+        var parameters: [String: Any] = [
+            "onesignal_id": body.onesignalId,
+            "subscription_id": body.subscriptionId,
+            "device_type": DEVICE_TYPE_PUSH,
+            "start_time": OSSessionTimestamp.string(from: body.startTime),
+            "idempotency_key": body.idempotencyKey
+        ]
+        if let directAttributionId = body.directAttributionId {
+            parameters["direct_attribution_id"] = directAttributionId
+        }
+        self.parameters = parameters
+        self.method = POST
+        self.path = "apps/\(appId)/sessions"
+    }
+}
+
+/// `PATCH apps/{app_id}/sessions/{session_id}`
+final class OSRequestUpdateSession: OneSignalRequest {
+    override var description: String {
+        "<OSRequestUpdateSession with parameters: \(parameters ?? [:])>"
+    }
+
+    init(appId: String, sessionId: String, body: OSUpdateSessionRequestBody) {
+        super.init()
+        var parameters: [String: Any] = [
+            "onesignal_id": body.onesignalId,
+            "subscription_id": body.subscriptionId,
+            "duration_seconds": body.durationSeconds,
+            "idempotency_key": body.idempotencyKey
+        ]
+        if let endTime = body.endTime {
+            parameters["end_time"] = OSSessionTimestamp.string(from: endTime)
+        }
+        self.parameters = parameters
+        self.method = PATCH
+        self.path = "apps/\(appId)/sessions/\(sessionId)"
+    }
+}
