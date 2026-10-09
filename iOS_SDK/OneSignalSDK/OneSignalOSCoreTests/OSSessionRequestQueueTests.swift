@@ -136,6 +136,8 @@ final class OSSessionRequestQueueTests: XCTestCase {
     private var service: OSSessionService!
     private var flagsStore: OSFeatureFlagsStore!
     private var now: TimeInterval = 10_000
+    private var monotonicNow: TimeInterval = 0
+    private var wallNow: TimeInterval = 1_700_000_000
     private var scheduled: [(delay: TimeInterval, block: () -> Void)] = []
     private var queue: OSSessionRequestQueue!
 
@@ -147,6 +149,8 @@ final class OSSessionRequestQueueTests: XCTestCase {
         monitor = FakeNetworkMonitor()
         flagsStore = OSFeatureFlagsStore()
         flagsStore.applyRemoteFlags([FeatureFlag.sdkSessionsV2ApiCutover.key], metadata: nil)
+        monotonicNow = 0
+        wallNow = 1_700_000_000
         service = makeService()
         now = 10_000
         scheduled = []
@@ -165,14 +169,14 @@ final class OSSessionRequestQueueTests: XCTestCase {
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
     }
 
-    /// Most tests enqueue the create themselves, so by default starting a session does not.
-    private func makeService(enqueuesCreates: Bool = false) -> OSSessionService {
+    /// Most tests enqueue requests themselves, so by default starting a session does not.
+    private func makeService(enqueuesRequests: Bool = false) -> OSSessionService {
         let manager = OSFeatureManager(store: flagsStore)
         return OSSessionService(
             featureManager: { manager },
-            monotonicNow: { 0 },
-            wallNow: { 1_700_000_000 },
-            requestQueue: { [unowned self] in enqueuesCreates ? self.queue : nil }
+            monotonicNow: { [unowned self] in self.monotonicNow },
+            wallNow: { [unowned self] in self.wallNow },
+            requestQueue: { [unowned self] in enqueuesRequests ? self.queue : nil }
         )
     }
 
@@ -730,7 +734,7 @@ extension OSSessionRequestQueueTests {
 
 extension OSSessionRequestQueueTests {
     func testNewSessionEnqueuesCreateWithStartTimeAndPinnedIds() {
-        service = makeService(enqueuesCreates: true)
+        service = makeService(enqueuesRequests: true)
 
         let record = startSession()
         settle()
@@ -748,7 +752,7 @@ extension OSSessionRequestQueueTests {
     }
 
     func testEachNewSessionEnqueuesItsOwnCreate() {
-        service = makeService(enqueuesCreates: true)
+        service = makeService(enqueuesRequests: true)
 
         let first = startSession()
         let second = startSession()
@@ -760,7 +764,7 @@ extension OSSessionRequestQueueTests {
     }
 
     func testResumingASessionDoesNotEnqueueAnotherCreate() {
-        service = makeService(enqueuesCreates: true)
+        service = makeService(enqueuesRequests: true)
         service.onFocus()
         _ = startSession()
 
@@ -773,12 +777,149 @@ extension OSSessionRequestQueueTests {
 
     func testNewSessionEnqueuesNothingWhenFlagIsOff() {
         flagsStore.applyRemoteFlags([], metadata: nil)
-        service = makeService(enqueuesCreates: true)
+        service = makeService(enqueuesRequests: true)
 
         _ = startSession()
         settle()
 
         XCTAssertTrue(queue.queuedRequests.isEmpty)
         XCTAssertTrue(backend.calls.isEmpty)
+    }
+}
+
+// MARK: - Session end
+
+extension OSSessionRequestQueueTests {
+    /// A foreground visit of `duration` seconds that leaves the foreground at `unfocusAt`.
+    private func visit(duration: TimeInterval, unfocusAt: TimeInterval) {
+        service.onFocus()
+        monotonicNow += duration
+        wallNow = unfocusAt
+        service.onUnfocus()
+    }
+
+    func testNewSessionEndsThePreviousOneAtItsLastUnfocusWithItsFinalDuration() {
+        service = makeService(enqueuesRequests: true)
+        let first = startSession()
+        settle()
+        backend.respondToLast(createdSessionId: "server-1")
+        visit(duration: 30, unfocusAt: 1_700_000_100)
+        visit(duration: 12, unfocusAt: 1_700_000_200)
+
+        wallNow = 1_700_000_500
+        let second = startSession()
+        settle()
+
+        guard case .update(let appId, let sessionId, let body, _) = backend.calls.last else {
+            return XCTFail("expected an end")
+        }
+        XCTAssertEqual(appId, "app-id")
+        XCTAssertEqual(sessionId, "server-1")
+        XCTAssertEqual(body.durationSeconds, 42)
+        XCTAssertEqual(body.endTime, Date(timeIntervalSince1970: 1_700_000_200))
+        XCTAssertEqual(body.onesignalId, "onesignal-a")
+        XCTAssertEqual(body.subscriptionId, "subscription-a")
+
+        backend.respondToLastUpdate()
+        settle()
+
+        guard case .create(_, let createBody, _) = backend.calls.last else {
+            return XCTFail("expected the next session's create")
+        }
+        XCTAssertNotEqual(first.sessionId, second.sessionId)
+        XCTAssertEqual(createBody.idempotencyKey, second.sessionId)
+    }
+
+    /// The previous process ended before the user was created, and nothing set the user provider
+    /// in this one before the next session started.
+    func testSessionWithIncompleteIdsFromAnEarlierProcessIsStillEnded() {
+        user.onesignalIds = [:]
+        service = makeService(enqueuesRequests: true)
+        let first = startSession()
+        visit(duration: 20, unfocusAt: 1_700_000_100)
+        settle()
+        XCTAssertTrue(backend.calls.isEmpty)
+
+        service = makeService(enqueuesRequests: true)
+        user.onesignalIds["model-a"] = "onesignal-a"
+        _ = startSession()
+        settle()
+
+        guard case .create(_, let createBody, _) = backend.calls.last else {
+            return XCTFail("expected the previous session's create")
+        }
+        XCTAssertEqual(createBody.idempotencyKey, first.sessionId)
+        XCTAssertEqual(createBody.onesignalId, "onesignal-a")
+        backend.respondToLast(createdSessionId: "server-1")
+        settle()
+
+        guard case .update(_, let sessionId, let body, _) = backend.calls.last else {
+            return XCTFail("expected an end")
+        }
+        XCTAssertEqual(sessionId, "server-1")
+        XCTAssertEqual(body.onesignalId, "onesignal-a")
+        XCTAssertEqual(body.durationSeconds, 20)
+        XCTAssertEqual(body.endTime, Date(timeIntervalSince1970: 1_700_000_100))
+    }
+
+    func testEndReplacesUnsentUpdateAndBlocksLaterOnes() {
+        user.onesignalIds = [:]
+        service = makeService(enqueuesRequests: true)
+        let first = startSession()
+        visit(duration: 10, unfocusAt: 1_700_000_100)
+        queue.enqueueUpdate(record: service.currentRecord!)
+        visit(duration: 5, unfocusAt: 1_700_000_200)
+
+        _ = startSession()
+        queue.enqueueUpdate(record: record(duration: 99, from: first))
+        settle()
+
+        let requests = queue.queuedRequests.filter { $0.localSessionId == first.sessionId }
+        XCTAssertEqual(requests.count, 2)
+        XCTAssertTrue(requests.first?.isCreate == true)
+        XCTAssertEqual(requests.last?.kind, .update(activeDuration: 15, endTime: 1_700_000_200))
+    }
+
+    func testEndDurationIsNotLowerThanAQueuedUpdate() {
+        user.onesignalIds = [:]
+        service = makeService(enqueuesRequests: true)
+        let first = startSession()
+        queue.enqueueUpdate(record: record(duration: 50, from: first))
+        visit(duration: 40, unfocusAt: 1_700_000_100)
+
+        _ = startSession()
+        settle()
+
+        let end = queue.queuedRequests.first { $0.localSessionId == first.sessionId && $0.isEnd }
+        XCTAssertEqual(end?.activeDuration, 50)
+    }
+
+    func testSessionKilledInTheForegroundEndsAtItsStartTime() {
+        service = makeService(enqueuesRequests: true)
+        let first = startSession()
+        service.onFocus()
+        monotonicNow += 30
+
+        wallNow = 1_700_000_500
+        service = makeService(enqueuesRequests: true)
+        _ = startSession()
+        settle()
+
+        let end = queue.queuedRequests.first { $0.localSessionId == first.sessionId && $0.isEnd }
+        XCTAssertEqual(end?.kind, .update(activeDuration: 0, endTime: first.startTime))
+    }
+
+    func testLegacySessionIsNotEndedThroughTheSessionsApi() {
+        flagsStore.applyRemoteFlags([], metadata: nil)
+        service = makeService(enqueuesRequests: true)
+        let legacy = startSession()
+        visit(duration: 10, unfocusAt: 1_700_000_100)
+
+        flagsStore.applyRemoteFlags([FeatureFlag.sdkSessionsV2ApiCutover.key], metadata: nil)
+        _ = startSession()
+        settle()
+
+        XCTAssertFalse(queue.queuedRequests.contains { $0.localSessionId == legacy.sessionId })
+        XCTAssertEqual(queue.queuedRequests.map(\.isCreate), [true])
     }
 }

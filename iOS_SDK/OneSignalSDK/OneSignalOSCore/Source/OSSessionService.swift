@@ -70,6 +70,9 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var subscriptionId: String?
     /// Nil until the sessions API creates this session.
     public internal(set) var serverSessionId: String?
+    /// Seconds since 1970 when the app last left the foreground, which becomes the session's end
+    /// time. Nil until then.
+    public internal(set) var lastUnfocusTime: TimeInterval?
 }
 
 /// Owns the persisted record of the current session. Nothing reads the record while
@@ -168,9 +171,10 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
-    /// With the sessions API, the create is enqueued here. The queue holds it until the session's
-    /// IDs are assigned.
+    /// With the sessions API, the previous session's end and the new session's create are enqueued
+    /// here. The queue holds them until their IDs are assigned.
     public func startNewSession(userProvider: OSSessionUserProvider) {
+        let previousIds = pinnableIds()
         let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
@@ -182,11 +186,19 @@ public final class OSSessionService: NSObject {
             subscriptionId: user.pushSubscriptionId,
             serverSessionId: nil
         )
-        stateLock.withLock {
+        let previous: OSSessionRecord? = stateLock.withLock {
+            loadIfNeeded()
+            fillPinnedIds(previousIds)
+            let previous = record
             self.userProvider = userProvider
-            loaded = true
             record = newRecord
             persist()
+            return previous
+        }
+        if let previous, previous.usesSessionsApi {
+            // A session killed before its first unfocus ends at its start. Its foreground time was
+            // never added to the duration either.
+            requestQueue()?.enqueueUpdate(record: previous, endTime: previous.lastUnfocusTime ?? previous.startTime)
         }
         if newRecord.usesSessionsApi {
             requestQueue()?.enqueueCreate(record: newRecord)
@@ -200,6 +212,7 @@ public final class OSSessionService: NSObject {
 
     func onUnfocus() {
         let now = monotonicNow()
+        let wallNow = wallNow()
         let ids = pinnableIds()
         stateLock.withLock {
             guard let start = focusedAt else {
@@ -211,6 +224,7 @@ public final class OSSessionService: NSObject {
                 return
             }
             record?.activeDuration += max(0, now - start)
+            record?.lastUnfocusTime = wallNow
             fillPinnedIds(ids)
             persist()
         }

@@ -198,6 +198,7 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.onesignalId, "onesignal-a")
         XCTAssertEqual(record?.subscriptionId, "subscription-a")
         XCTAssertNil(record?.serverSessionId)
+        XCTAssertNil(record?.lastUnfocusTime)
     }
 
     func testClearingTheStoredRecordDropsIt() {
@@ -292,6 +293,7 @@ final class OSSessionServiceTests: XCTestCase {
         service.onUnfocus()
 
         XCTAssertEqual(service.currentRecord?.activeDuration, 15)
+        XCTAssertEqual(service.currentRecord?.lastUnfocusTime, 5_000)
     }
 
     /// Resuming past the new-session threshold: the visit that started the session counts from
@@ -344,5 +346,6 @@ final class OSSessionServiceTests: XCTestCase {
         restarted.onUnfocus()
 
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
+        XCTAssertNil(restarted.currentRecord?.lastUnfocusTime)
     }
 }
