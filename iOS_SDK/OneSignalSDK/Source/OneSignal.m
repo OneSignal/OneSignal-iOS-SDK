@@ -152,6 +152,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSRemoteLoggingController reset];
     [OSFeatureFlagsRefreshService reset];
     [OSDeviceGestureDetector reset];
+    [OSSessionService reset];
     [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
@@ -755,6 +756,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         // Flags are app-scoped but stored unscoped, and APP_STARTUP flags never unlatch
         // within a process, so both the cache and the latch have to go.
         [OSFeatureManager resetAndClearCachedFlags];
+        [OSSessionService resetAndClearStoredRecord];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 

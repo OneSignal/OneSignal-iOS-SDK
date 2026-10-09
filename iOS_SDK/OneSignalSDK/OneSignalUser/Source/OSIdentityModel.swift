@@ -167,6 +167,7 @@ class OSIdentityModel: OSModel {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel with aliases: \(remoteAliases)")
         // Reporting the user to the app is the executor's call, since only a current user may be reported.
         internalAddAliases(remoteAliases)
+        OSSessionService.shared.refreshPinnedIds()
     }
 }
 
