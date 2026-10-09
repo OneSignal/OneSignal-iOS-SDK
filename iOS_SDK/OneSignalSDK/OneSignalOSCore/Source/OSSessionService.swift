@@ -94,6 +94,7 @@ public final class OSSessionService: NSObject {
     private let featureManager: () -> OSFeatureManager
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
+    private let requestQueue: () -> OSSessionRequestQueue?
 
     private let stateLock = NSLock()
     private weak var userProvider: OSSessionUserProvider?
@@ -108,12 +109,14 @@ public final class OSSessionService: NSObject {
         monotonicNow: @escaping () -> TimeInterval = {
             TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / TimeInterval(NSEC_PER_SEC)
         },
-        wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 }
+        wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 },
+        requestQueue: @escaping () -> OSSessionRequestQueue? = { .shared }
     ) {
         self.storage = storage
         self.featureManager = featureManager
         self.monotonicNow = monotonicNow
         self.wallNow = wallNow
+        self.requestQueue = requestQueue
         super.init()
     }
 
@@ -165,6 +168,8 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
+    /// With the sessions API, the create is enqueued here. The queue holds it until the session's
+    /// IDs are assigned.
     public func startNewSession(userProvider: OSSessionUserProvider) {
         let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
@@ -182,6 +187,9 @@ public final class OSSessionService: NSObject {
             loaded = true
             record = newRecord
             persist()
+        }
+        if newRecord.usesSessionsApi {
+            requestQueue()?.enqueueCreate(record: newRecord)
         }
     }
 

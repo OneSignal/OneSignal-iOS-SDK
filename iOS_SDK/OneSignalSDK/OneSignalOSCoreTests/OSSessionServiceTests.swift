@@ -88,7 +88,8 @@ final class OSSessionServiceTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { 5_000 }
+            wallNow: { 5_000 },
+            requestQueue: { nil }
         )
     }
 

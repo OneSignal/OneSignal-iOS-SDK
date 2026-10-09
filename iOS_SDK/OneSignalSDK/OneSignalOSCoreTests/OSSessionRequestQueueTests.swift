@@ -147,8 +147,7 @@ final class OSSessionRequestQueueTests: XCTestCase {
         monitor = FakeNetworkMonitor()
         flagsStore = OSFeatureFlagsStore()
         flagsStore.applyRemoteFlags([FeatureFlag.sdkSessionsV2ApiCutover.key], metadata: nil)
-        let manager = OSFeatureManager(store: flagsStore)
-        service = OSSessionService(featureManager: { manager }, monotonicNow: { 0 }, wallNow: { 1_700_000_000 })
+        service = makeService()
         now = 10_000
         scheduled = []
         queue = makeQueue()
@@ -164,6 +163,17 @@ final class OSSessionRequestQueueTests: XCTestCase {
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_REQUEST_QUEUE)
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_SDK_REMOTE_FEATURE_FLAGS)
+    }
+
+    /// Most tests enqueue the create themselves, so by default starting a session does not.
+    private func makeService(enqueuesCreates: Bool = false) -> OSSessionService {
+        let manager = OSFeatureManager(store: flagsStore)
+        return OSSessionService(
+            featureManager: { manager },
+            monotonicNow: { 0 },
+            wallNow: { 1_700_000_000 },
+            requestQueue: { [unowned self] in enqueuesCreates ? self.queue : nil }
+        )
     }
 
     private func makeQueue(postCreateDelay: TimeInterval = 0) -> OSSessionRequestQueue {
@@ -713,5 +723,62 @@ extension OSSessionRequestQueueTests {
         settle()
 
         XCTAssertNil(service.currentRecord?.serverSessionId)
+    }
+}
+
+// MARK: - Session start
+
+extension OSSessionRequestQueueTests {
+    func testNewSessionEnqueuesCreateWithStartTimeAndPinnedIds() {
+        service = makeService(enqueuesCreates: true)
+
+        let record = startSession()
+        settle()
+
+        guard case .create(let appId, let body, _) = backend.calls.first else {
+            return XCTFail("expected a create")
+        }
+        XCTAssertEqual(backend.calls.count, 1)
+        XCTAssertEqual(appId, "app-id")
+        XCTAssertEqual(body.idempotencyKey, record.sessionId)
+        XCTAssertEqual(body.onesignalId, "onesignal-a")
+        XCTAssertEqual(body.subscriptionId, "subscription-a")
+        XCTAssertEqual(body.startTime, Date(timeIntervalSince1970: 1_700_000_000))
+        XCTAssertNil(body.directAttributionId)
+    }
+
+    func testEachNewSessionEnqueuesItsOwnCreate() {
+        service = makeService(enqueuesCreates: true)
+
+        let first = startSession()
+        let second = startSession()
+        settle()
+
+        let creates = queue.queuedRequests.filter { $0.isCreate }
+        XCTAssertEqual(creates.map { $0.localSessionId }, [first.sessionId, second.sessionId])
+        XCTAssertNotEqual(creates.first?.idempotencyKey, creates.last?.idempotencyKey)
+    }
+
+    func testResumingASessionDoesNotEnqueueAnotherCreate() {
+        service = makeService(enqueuesCreates: true)
+        service.onFocus()
+        _ = startSession()
+
+        service.onUnfocus()
+        service.onFocus()
+        settle()
+
+        XCTAssertEqual(queue.queuedRequests.filter { $0.isCreate }.count, 1)
+    }
+
+    func testNewSessionEnqueuesNothingWhenFlagIsOff() {
+        flagsStore.applyRemoteFlags([], metadata: nil)
+        service = makeService(enqueuesCreates: true)
+
+        _ = startSession()
+        settle()
+
+        XCTAssertTrue(queue.queuedRequests.isEmpty)
+        XCTAssertTrue(backend.calls.isEmpty)
     }
 }
