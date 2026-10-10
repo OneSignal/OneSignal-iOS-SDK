@@ -448,4 +448,29 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(sessionDeltas.first?.property, "session-1")
         XCTAssertEqual(sessionDeltas.first?.externalId, externalId)
     }
+
+    func testSessionWhoseUserIsNoLongerLoadedIsSentWithItsPinnedOnesignalId() throws {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let record = { (onesignalId: String?) in
+            OSSessionRecord(
+                sessionId: onesignalId ?? "never-created",
+                startTime: 1_700_000_000,
+                activeDuration: 12,
+                usesSessionsApi: true,
+                identityModelId: "unloaded-model",
+                onesignalId: onesignalId,
+                subscriptionId: nil,
+                serverSessionId: "server-1"
+            )
+        }
+
+        manager.enqueueSessionUpdate(record("pinned-onesignal-id"), endTime: 1_700_000_100)
+        manager.enqueueSessionUpdate(record(nil), endTime: 1_700_000_100)
+        manager.operationRepo.dispatchQueue.sync {}
+
+        let sessionDeltas = manager.operationRepo.deltaQueue.filter { $0.name == OS_UPDATE_SESSION_DELTA }
+        XCTAssertEqual(sessionDeltas.map(\.property), ["pinned-onesignal-id"])
+        let identityModel = try XCTUnwrap(manager.getIdentityModel(sessionDeltas[0].identityModelId))
+        XCTAssertEqual(identityModel.onesignalId, "pinned-onesignal-id")
+    }
 }

@@ -59,8 +59,7 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
 
     private func enqueueSessionDelta(_ name: String, record: OSSessionRecord, value: [String: Any]) {
         guard record.usesSessionsApi,
-              let identityModelId = record.identityModelId,
-              let identityModel = identityModelRepo.get(modelId: identityModelId),
+              let identityModel = sessionIdentityModel(for: record),
               let appId = OneSignalIdentifiers.currentAppId
         else {
             return
@@ -71,12 +70,27 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         value[OSSessionDeltaKey.subscriptionId] = record.subscriptionId
         let delta = OSDelta(
             name: name,
-            identityModelId: identityModelId,
+            identityModelId: identityModel.modelId,
             externalId: identityModel.externalId,
             model: identityModel,
             property: record.sessionId,
             value: value
         )
         operationRepo.enqueueDelta(delta)
+    }
+
+    /// The session's user. One no longer loaded, such as the user before a login in an earlier
+    /// process, is restored from the session's pinned `onesignal_id` so its requests can still be sent.
+    private func sessionIdentityModel(for record: OSSessionRecord) -> OSIdentityModel? {
+        if let identityModelId = record.identityModelId, let identityModel = identityModelRepo.get(modelId: identityModelId) {
+            return identityModel
+        }
+        guard let onesignalId = record.onesignalId else {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignalUserManagerImpl dropping a request for session \(record.sessionId), its user is gone and was never created")
+            return nil
+        }
+        let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: onesignalId], changeNotifier: OSEventProducer())
+        addIdentityModelToRepo(identityModel)
+        return identityModel
     }
 }

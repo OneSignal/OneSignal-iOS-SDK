@@ -49,12 +49,19 @@ private final class FakeUserProvider: OSSessionUserProvider {
     }
 
     private(set) var createdSessions: [OSSessionRecord] = []
+    private(set) var updatedSessions: [(record: OSSessionRecord, endTime: TimeInterval?)] = []
+    /// Local session IDs in the order their requests were enqueued.
+    private(set) var enqueuedSessionIds: [String] = []
 
     func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String?) {
         createdSessions.append(record)
+        enqueuedSessionIds.append(record.sessionId)
     }
 
-    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: TimeInterval?) {}
+    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: TimeInterval?) {
+        updatedSessions.append((record, endTime))
+        enqueuedSessionIds.append(record.sessionId)
+    }
 }
 
 final class OSSessionServiceTests: XCTestCase {
@@ -62,6 +69,7 @@ final class OSSessionServiceTests: XCTestCase {
     private var flagsStore: OSFeatureFlagsStore!
     private var featureManager: OSFeatureManager!
     private var monotonicNow: TimeInterval = 1_000
+    private var wallNow: TimeInterval = 5_000
     private var user: FakeUserProvider!
 
     override func setUp() {
@@ -71,6 +79,7 @@ final class OSSessionServiceTests: XCTestCase {
         flagsStore = OSFeatureFlagsStore()
         featureManager = nil
         monotonicNow = 1_000
+        wallNow = 5_000
         user = FakeUserProvider()
         user.identityModelId = "model-a"
         user.onesignalIds = ["model-a": "onesignal-a"]
@@ -90,7 +99,7 @@ final class OSSessionServiceTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { 5_000 }
+            wallNow: { [unowned self] in self.wallNow }
         )
     }
 
@@ -141,6 +150,7 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.startTime, 5_000)
         XCTAssertEqual(record?.activeDuration, 0)
         XCTAssertNil(record?.serverSessionId)
+        XCTAssertNil(record?.lastUnfocusTime)
     }
 
     func testEachNewSessionGetsANewSessionId() {
@@ -199,6 +209,7 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.onesignalId, "onesignal-a")
         XCTAssertEqual(record?.subscriptionId, "subscription-a")
         XCTAssertNil(record?.serverSessionId)
+        XCTAssertNil(record?.lastUnfocusTime)
     }
 
     func testClearingTheStoredRecordDropsIt() {
@@ -293,6 +304,7 @@ final class OSSessionServiceTests: XCTestCase {
         service.onUnfocus()
 
         XCTAssertEqual(service.currentRecord?.activeDuration, 15)
+        XCTAssertEqual(service.currentRecord?.lastUnfocusTime, 5_000)
     }
 
     /// Resuming past the new-session threshold: the visit that started the session counts from
@@ -345,6 +357,7 @@ final class OSSessionServiceTests: XCTestCase {
         restarted.onUnfocus()
 
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
+        XCTAssertNil(restarted.currentRecord?.lastUnfocusTime)
     }
 
     // MARK: - Session start
@@ -387,5 +400,72 @@ final class OSSessionServiceTests: XCTestCase {
         service.startNewSession(userProvider: user)
 
         XCTAssertTrue(user.createdSessions.isEmpty)
+    }
+
+    // MARK: - Session end
+
+    /// A foreground visit of `duration` seconds that leaves the foreground at `unfocusAt`.
+    private func visit(_ service: OSSessionService, duration: TimeInterval, unfocusAt: TimeInterval) {
+        service.onFocus()
+        monotonicNow += duration
+        wallNow = unfocusAt
+        service.onUnfocus()
+    }
+
+    func testNewSessionEndsThePreviousOneAtItsLastUnfocusBeforeTheNextCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        let first = service.currentRecord!
+        visit(service, duration: 30, unfocusAt: 6_000)
+        visit(service, duration: 12, unfocusAt: 7_000)
+
+        wallNow = 9_000
+        service.startNewSession(userProvider: user)
+
+        let end = user.updatedSessions.last
+        XCTAssertEqual(end?.record.sessionId, first.sessionId)
+        XCTAssertEqual(end?.record.activeDuration, 42)
+        XCTAssertEqual(end?.endTime, 7_000)
+        XCTAssertEqual(user.enqueuedSessionIds, [first.sessionId, first.sessionId, service.currentRecord!.sessionId])
+    }
+
+    func testSessionKilledInTheForegroundEndsAtItsStartTime() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let first = makeForegroundSession().currentRecord!
+        monotonicNow += 30
+
+        wallNow = 9_000
+        makeService().startNewSession(userProvider: user)
+
+        let end = user.updatedSessions.last
+        XCTAssertEqual(end?.record.sessionId, first.sessionId)
+        XCTAssertEqual(end?.record.activeDuration, 0)
+        XCTAssertEqual(end?.endTime, first.startTime)
+    }
+
+    /// The previous process ended before the user was created, and nothing set the user provider
+    /// in this one before the next session started.
+    func testSessionWithIncompleteIdsFromAnEarlierProcessIsEndedWithItsIds() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        user.onesignalIds = [:]
+        makeService().startNewSession(userProvider: user)
+
+        user.onesignalIds = ["model-a": "onesignal-a"]
+        makeService().startNewSession(userProvider: user)
+
+        XCTAssertEqual(user.updatedSessions.last?.record.onesignalId, "onesignal-a")
+    }
+
+    func testLegacySessionIsNotEndedThroughTheSessionsApi() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 10, unfocusAt: 6_000)
+
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        service.startNewSession(userProvider: user)
+
+        XCTAssertTrue(user.updatedSessions.isEmpty)
+        XCTAssertEqual(user.createdSessions.count, 1)
     }
 }
