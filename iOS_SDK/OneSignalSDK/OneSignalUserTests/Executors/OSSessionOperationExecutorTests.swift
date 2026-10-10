@@ -375,7 +375,7 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertTrue(flush(executor).isEmpty)
     }
 
-    func testAnonymousRequestsAreRemovedUnderIdentityVerification() {
+    func testAnonymousRequestsAreKeptUnderIdentityVerification() {
         user.identityModel.removeAliases([OS_ONESIGNAL_ID])
         let anonymous = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(anonymous)
@@ -384,7 +384,7 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
         executor.removeOperationsWithoutExternalId()
 
-        XCTAssertEqual(executor.queuedRequests.map(\.localSessionId), ["identified"])
+        XCTAssertEqual(executor.queuedRequests.map(\.localSessionId), ["identified", "anonymous"])
     }
 
     // MARK: - Enqueueing

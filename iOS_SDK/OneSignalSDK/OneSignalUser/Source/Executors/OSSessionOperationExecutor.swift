@@ -140,24 +140,8 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         }
     }
 
-    func removeOperationsWithoutExternalId() {
-        self.dispatchQueue.async {
-            let remainingDeltas = self.deltaQueue.filter { $0.externalId != nil }
-            if remainingDeltas.count != self.deltaQueue.count {
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(self.deltaQueue.count - remainingDeltas.count) anonymous Deltas, Identity Verification is required")
-                self.deltaQueue = remainingDeltas
-                self.cacheDeltas()
-            }
-
-            let remainingRequests = self.requestQueue.filter { $0.ownerExternalId != nil }
-            if remainingRequests.count != self.requestQueue.count {
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(self.requestQueue.count - remainingRequests.count) anonymous Requests, Identity Verification is required")
-                self.requestQueue = remainingRequests
-                self.removeOrphanedUpdates()
-                self.cacheRequests()
-            }
-        }
-    }
+    /// The sessions API takes no user JWT, so Identity Verification does not apply to session Requests.
+    func removeOperationsWithoutExternalId() {}
 
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {

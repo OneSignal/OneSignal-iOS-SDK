@@ -232,10 +232,19 @@ public class OSOperationRepo: NSObject {
      added and removed, never updated. Should an update path for them appear, this has to narrow to the
      push type, which the repo cannot see from here: `OSSubscriptionModel` lives in OneSignalUser, so
      the Delta would have to carry the distinction the way it carries `externalId`.
+
+     Session Deltas are exempt too: the sessions API takes no user JWT, so Identity Verification does
+     not apply to it.
      */
     private func shouldDropAnonymousDelta(_ delta: OSDelta, ivActive: Bool) -> Bool {
-        return ivActive && delta.externalId == nil && delta.name != OS_UPDATE_SUBSCRIPTION_DELTA
+        return ivActive && delta.externalId == nil && !Self.deltasExemptFromIdentityVerification.contains(delta.name)
     }
+
+    private static let deltasExemptFromIdentityVerification: Set<String> = [
+        OS_UPDATE_SUBSCRIPTION_DELTA,
+        OS_CREATE_SESSION_DELTA,
+        OS_UPDATE_SESSION_DELTA
+    ]
 
     private func flushDeltaQueue(inBackground: Bool = false) {
         guard !paused else {
