@@ -61,7 +61,7 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Fixed for the whole session so it never mixes paths. Read this rather than the feature
     /// manager, whose value can change mid-session.
     public let usesSessionsApi: Bool
-    let identityModelId: String?
+    public let identityModelId: String?
     /// Pinned at session start, so it stays the same after a login or user switch.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
@@ -246,6 +246,18 @@ public final class OSSessionService: NSObject {
         }
         record = current
         persist()
+    }
+
+    /// Set once the sessions API creates the session, if it is still the current one.
+    public func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
+        stateLock.withLock {
+            loadIfNeeded()
+            guard record?.sessionId == sessionId, record?.serverSessionId == nil else {
+                return
+            }
+            record?.serverSessionId = serverSessionId
+            persist()
+        }
     }
 
     private func loadIfNeeded() {

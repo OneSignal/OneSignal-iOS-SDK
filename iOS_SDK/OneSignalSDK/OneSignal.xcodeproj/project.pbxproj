@@ -94,13 +94,13 @@
 		A5048F01A1B2C3D4E5F6100B /* OSFeatureFlagsRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */; };
 		A5062F01A1B2C3D4E5F60002 /* OSDeviceGestureDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5062F01A1B2C3D4E5F60001 /* OSDeviceGestureDetector.swift */; };
 		A5162F01A1B2C3D4E5F60002 /* OSSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60001 /* OSSessionService.swift */; };
-		A5162F01A1B2C3D4E5F60014 /* OSSessionsRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60013 /* OSSessionsRequests.swift */; };
-		A5162F01A1B2C3D4E5F60012 /* OSSessionsBackendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60011 /* OSSessionsBackendService.swift */; };
+		A5162F01A1B2C3D4E5F6001C /* OSOperationRetryTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F6001B /* OSOperationRetryTrigger.swift */; };
+		A5162F01A1B2C3D4E5F60014 /* OSSessionRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60013 /* OSSessionRequests.swift */; };
 		A5426001A1B2C3D4E5F60002 /* OSInputGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5426001A1B2C3D4E5F60001 /* OSInputGuard.swift */; };
 		A5426001A1B2C3D4E5F60004 /* OSInputGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5426001A1B2C3D4E5F60003 /* OSInputGuardTests.swift */; };
 		A5062F01A1B2C3D4E5F60004 /* OSDeviceGestureDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5062F01A1B2C3D4E5F60003 /* OSDeviceGestureDetectorTests.swift */; };
 		A5162F01A1B2C3D4E5F60004 /* OSSessionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */; };
-		A5162F01A1B2C3D4E5F60016 /* OSSessionsBackendServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */; };
+		A5162F01A1B2C3D4E5F6001E /* OSOperationRetryTriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F6001D /* OSOperationRetryTriggerTests.swift */; };
 		C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */; };
 		32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */; };
 		B96A3B6BA8CC49EE4796D9BF /* OSRemoteLoggingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */; };
@@ -157,6 +157,7 @@
 		3C64C3322F1066D700693230 /* LiveActivitiesManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C64C3312F1066D700693230 /* LiveActivitiesManagerTests.swift */; };
 		3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */; };
 		3C68EFE52D93195E00F0896B /* OSCustomEventsExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */; };
+		A5162F01A1B2C3D4E5F60018 /* OSSessionOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60017 /* OSSessionOperationExecutor.swift */; };
 		3C68EFE72D931BA600F0896B /* OSRequestCustomEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */; };
 		3C7021E32ECF0821001768C6 /* OneSignalFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; };
 		3C7021E42ECF0821001768C6 /* OneSignalFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2400381D4FFC31008BDE70 /* OneSignalFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -216,6 +217,7 @@
 		3CAA4BB72F0BAFBA00A16682 /* TriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */; };
 		3CB331682F281679000E1801 /* CustomEventsIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */; };
 		3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */; };
+		A5162F01A1B2C3D4E5F6001A /* OSSessionOperationExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5162F01A1B2C3D4E5F60019 /* OSSessionOperationExecutorTests.swift */; };
 		3CB35FCB2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */; };
 		3CBB6C262ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CBB6C252ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift */; };
 		3CC063942B6D6B6B002BB07F /* OneSignalCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CC063932B6D6B6B002BB07F /* OneSignalCore.m */; };
@@ -1467,6 +1469,7 @@
 		3C64C3312F1066D700693230 /* LiveActivitiesManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitiesManagerTests.swift; sourceTree = "<group>"; };
 		3C67F7792BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchUserIntegrationTests.swift; sourceTree = "<group>"; };
 		3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCustomEventsExecutor.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F60017 /* OSSessionOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionOperationExecutor.swift; sourceTree = "<group>"; };
 		3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestCustomEvents.swift; sourceTree = "<group>"; };
 		3C7021E72ECF0CF3001768C6 /* OneSignalInAppMessagesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalInAppMessagesTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C7021E82ECF0CF4001768C6 /* IAMIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAMIntegrationTests.swift; sourceTree = "<group>"; };
@@ -1507,6 +1510,7 @@
 		3CAA4BB62F0BAFBA00A16682 /* TriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerTests.swift; sourceTree = "<group>"; };
 		3CB331672F281679000E1801 /* CustomEventsIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEventsIntegrationTests.swift; sourceTree = "<group>"; };
 		3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSCustomEventsExecutorTests.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F60019 /* OSSessionOperationExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionOperationExecutorTests.swift; sourceTree = "<group>"; };
 		3CB35FCA2F0FA20B000E6E0F /* OSMessagingControllerUserStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSMessagingControllerUserStateTests.swift; sourceTree = "<group>"; };
 		3CBB6C252ED59CCC000FEB02 /* ConsistencyManagerTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsistencyManagerTestHelpers.swift; sourceTree = "<group>"; };
 		3CC063932B6D6B6B002BB07F /* OneSignalCore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCore.m; sourceTree = "<group>"; };
@@ -1912,13 +1916,13 @@
 		A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSFeatureFlagsRefreshServiceTests.swift; sourceTree = "<group>"; };
 		A5062F01A1B2C3D4E5F60001 /* OSDeviceGestureDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDeviceGestureDetector.swift; sourceTree = "<group>"; };
 		A5162F01A1B2C3D4E5F60001 /* OSSessionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionService.swift; sourceTree = "<group>"; };
-		A5162F01A1B2C3D4E5F60013 /* OSSessionsRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionsRequests.swift; sourceTree = "<group>"; };
-		A5162F01A1B2C3D4E5F60011 /* OSSessionsBackendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionsBackendService.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F6001B /* OSOperationRetryTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRetryTrigger.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F60013 /* OSSessionRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionRequests.swift; sourceTree = "<group>"; };
 		A5426001A1B2C3D4E5F60001 /* OSInputGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSInputGuard.swift; sourceTree = "<group>"; };
 		A5426001A1B2C3D4E5F60003 /* OSInputGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSInputGuardTests.swift; sourceTree = "<group>"; };
 		A5062F01A1B2C3D4E5F60003 /* OSDeviceGestureDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDeviceGestureDetectorTests.swift; sourceTree = "<group>"; };
 		A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionServiceTests.swift; sourceTree = "<group>"; };
-		A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSessionsBackendServiceTests.swift; sourceTree = "<group>"; };
+		A5162F01A1B2C3D4E5F6001D /* OSOperationRetryTriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRetryTriggerTests.swift; sourceTree = "<group>"; };
 		3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogCrashHandlerTests.swift; sourceTree = "<group>"; };
 		9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogStoreRetentionTests.swift; sourceTree = "<group>"; };
 		8A72F938F8A3808AC1FF7F3C /* OSRemoteLoggingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRemoteLoggingController.swift; sourceTree = "<group>"; };
@@ -2424,8 +2428,7 @@
 				4710EA522B8FCFB200435356 /* OSDispatchQueue.swift */,
 				A5062F01A1B2C3D4E5F60001 /* OSDeviceGestureDetector.swift */,
 				A5162F01A1B2C3D4E5F60001 /* OSSessionService.swift */,
-				A5162F01A1B2C3D4E5F60013 /* OSSessionsRequests.swift */,
-				A5162F01A1B2C3D4E5F60011 /* OSSessionsBackendService.swift */,
+				A5162F01A1B2C3D4E5F6001B /* OSOperationRetryTrigger.swift */,
 				A5426001A1B2C3D4E5F60001 /* OSInputGuard.swift */,
 				DEFB3E642BB7346D00E65DAD /* OSLiveActivities.swift */,
 				DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */,
@@ -2496,6 +2499,7 @@
 			children = (
 				3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */,
 				3C68EFE42D93195E00F0896B /* OSCustomEventsExecutor.swift */,
+				A5162F01A1B2C3D4E5F60017 /* OSSessionOperationExecutor.swift */,
 				3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */,
 				3CE795FA28DBDCE700736BD4 /* OSSubscriptionOperationExecutor.swift */,
 				3C9AD6BB2B2285FB00BC1540 /* OSUserExecutor.swift */,
@@ -2519,6 +2523,7 @@
 				3C9AD6C02B22886600BC1540 /* OSRequestUpdateSubscription.swift */,
 				3C9AD6C42B228A7300BC1540 /* OSRequestDeleteSubscription.swift */,
 				3C68EFE62D931BA600F0896B /* OSRequestCustomEvents.swift */,
+				A5162F01A1B2C3D4E5F60013 /* OSSessionRequests.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -2604,6 +2609,7 @@
 				C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */,
 				3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */,
 				3CB331692F281692000E1801 /* OSCustomEventsExecutorTests.swift */,
+				A5162F01A1B2C3D4E5F60019 /* OSSessionOperationExecutorTests.swift */,
 				FE740F9E6B87D215510B5982 /* ExecutorAnonymousPurgeTests.swift */,
 				C3E5A1D7F2B9461EB8D4A6C2 /* ExecutorRequestAgingTests.swift */,
 			);
@@ -2755,7 +2761,7 @@
 				A5048F01A1B2C3D4E5F6100A /* OSFeatureFlagsRefreshServiceTests.swift */,
 				A5062F01A1B2C3D4E5F60003 /* OSDeviceGestureDetectorTests.swift */,
 				A5162F01A1B2C3D4E5F60003 /* OSSessionServiceTests.swift */,
-				A5162F01A1B2C3D4E5F60015 /* OSSessionsBackendServiceTests.swift */,
+				A5162F01A1B2C3D4E5F6001D /* OSOperationRetryTriggerTests.swift */,
 				A5426001A1B2C3D4E5F60003 /* OSInputGuardTests.swift */,
 				3B6A59620B83538CEFF77269 /* OSLogCrashHandlerTests.swift */,
 				9CC252C94ECB485E8D0380E9 /* FileLogStoreRetentionTests.swift */,
@@ -4676,8 +4682,7 @@
 				A5048F01A1B2C3D4E5F60008 /* OSFeatureFlagsRefreshService.swift in Sources */,
 				A5062F01A1B2C3D4E5F60002 /* OSDeviceGestureDetector.swift in Sources */,
 				A5162F01A1B2C3D4E5F60002 /* OSSessionService.swift in Sources */,
-				A5162F01A1B2C3D4E5F60014 /* OSSessionsRequests.swift in Sources */,
-				A5162F01A1B2C3D4E5F60012 /* OSSessionsBackendService.swift in Sources */,
+				A5162F01A1B2C3D4E5F6001C /* OSOperationRetryTrigger.swift in Sources */,
 				A5426001A1B2C3D4E5F60002 /* OSInputGuard.swift in Sources */,
 				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C14E3B02FAE54C006ED053 /* IOSLogger.swift in Sources */,
@@ -4778,6 +4783,7 @@
 				3CA93BC7300B0100000724B3 /* SubscriptionModelConcurrencyTests.swift in Sources */,
 				3CC890352C5BF9A7002CB4CC /* UserConcurrencyTests.swift in Sources */,
 				3CB3316A2F281692000E1801 /* OSCustomEventsExecutorTests.swift in Sources */,
+				A5162F01A1B2C3D4E5F6001A /* OSSessionOperationExecutorTests.swift in Sources */,
 				3CA93BC4300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift in Sources */,
 				E85C1C500D87196C5E20144F /* ExecutorReadYourWriteTests.swift in Sources */,
 				3C5181A1B2C3D4E5F6A7B802 /* SubscriptionCreateResponseTests.swift in Sources */,
@@ -4875,7 +4881,7 @@
 				A5048F01A1B2C3D4E5F6100B /* OSFeatureFlagsRefreshServiceTests.swift in Sources */,
 				A5062F01A1B2C3D4E5F60004 /* OSDeviceGestureDetectorTests.swift in Sources */,
 				A5162F01A1B2C3D4E5F60004 /* OSSessionServiceTests.swift in Sources */,
-				A5162F01A1B2C3D4E5F60016 /* OSSessionsBackendServiceTests.swift in Sources */,
+				A5162F01A1B2C3D4E5F6001E /* OSOperationRetryTriggerTests.swift in Sources */,
 				A5426001A1B2C3D4E5F60004 /* OSInputGuardTests.swift in Sources */,
 				C781A33FED62B4B54221A09A /* OSLogCrashHandlerTests.swift in Sources */,
 				32D3A6EA8AD44274B5CE378A /* FileLogStoreRetentionTests.swift in Sources */,
@@ -4996,6 +5002,8 @@
 				3C0EF49E28A1DBCB00E5434B /* OSUserInternalImpl.swift in Sources */,
 				3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */,
 				3C68EFE52D93195E00F0896B /* OSCustomEventsExecutor.swift in Sources */,
+				A5162F01A1B2C3D4E5F60018 /* OSSessionOperationExecutor.swift in Sources */,
+				A5162F01A1B2C3D4E5F60014 /* OSSessionRequests.swift in Sources */,
 				3C9AD6CB2B228B5200BC1540 /* OSRequestIdentifyUser.swift in Sources */,
 				3C9AD6BC2B2285FB00BC1540 /* OSUserExecutor.swift in Sources */,
 				3C9AD6C32B22887700BC1540 /* OSRequestCreateUser.swift in Sources */,
