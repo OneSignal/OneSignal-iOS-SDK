@@ -48,6 +48,11 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
+    /// Queues the sessions API create for a session.
+    func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String?)
+    /// Queues a session's cumulative duration, ending the session when `endTime` (seconds since
+    /// 1970) is set.
+    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: TimeInterval?)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -159,6 +164,8 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
+    /// With the sessions API, the create is enqueued here. The executor holds it until the
+    /// session's IDs are assigned.
     public func startNewSession(userProvider: OSSessionUserProvider) {
         let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
@@ -176,6 +183,9 @@ public final class OSSessionService: NSObject {
             loaded = true
             record = newRecord
             persist()
+        }
+        if newRecord.usesSessionsApi {
+            userProvider.enqueueSessionCreate(newRecord, directAttributionId: nil)
         }
     }
 

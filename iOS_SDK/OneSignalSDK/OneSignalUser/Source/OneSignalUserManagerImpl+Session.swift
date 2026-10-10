@@ -42,17 +42,17 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
     }
 
-    /// Queues the session's create. Does nothing unless the session uses the sessions API.
-    func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
+    /// Does nothing unless the session uses the sessions API.
+    public func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String?) {
         var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
         value[OSSessionDeltaKey.directAttributionId] = directAttributionId
         enqueueSessionDelta(OS_CREATE_SESSION_DELTA, record: record, value: value)
     }
 
-    /// Queues the session's cumulative foreground time, ending the session when `endTime` is set.
-    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
+    /// Does nothing unless the session uses the sessions API.
+    public func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: TimeInterval?) {
         var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
-        value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
+        value[OSSessionDeltaKey.endTime] = endTime
         value[OSSessionDeltaKey.serverSessionId] = record.serverSessionId
         enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
     }
