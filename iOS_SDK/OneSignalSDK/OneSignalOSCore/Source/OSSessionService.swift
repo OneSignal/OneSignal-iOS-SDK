@@ -48,9 +48,6 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
-    /// False when the user can never get a `onesignal_id`, such as an anonymous user under
-    /// required Identity Verification.
-    func sessionUserCanBeCreated(identityModelId: String) -> Bool
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -64,7 +61,7 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Fixed for the whole session so it never mixes paths. Read this rather than the feature
     /// manager, whose value can change mid-session.
     public let usesSessionsApi: Bool
-    let identityModelId: String?
+    public let identityModelId: String?
     /// Pinned at session start, so it stays the same after a login or user switch.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
@@ -119,7 +116,6 @@ public final class OSSessionService: NSObject {
 
     @objc public static func onFocus() {
         shared.onFocus()
-        OSSessionRequestQueue.shared.retryNow()
     }
 
     @objc public static func onUnfocus() {
@@ -158,8 +154,6 @@ public final class OSSessionService: NSObject {
     public func refreshPinnedIds() {
         let ids = pinnableIds()
         stateLock.withLock { fillPinnedIds(ids) }
-        // Queued session requests wait for these IDs, including those of an earlier session's user.
-        OSSessionRequestQueue.shared.processPending()
     }
 
     /// Leaves any open foreground interval running: the tracker reports focus before the session
@@ -254,34 +248,8 @@ public final class OSSessionService: NSObject {
         persist()
     }
 
-    /// The pinned IDs for a queued request. The current session's come from its record, so the
-    /// request and the record always agree. An earlier session's are filled by the same rules.
-    func pinnedIds(
-        sessionId: String,
-        identityModelId: String?,
-        onesignalId: String?,
-        subscriptionId: String?
-    ) -> (onesignalId: String?, subscriptionId: String?) {
-        if let record = currentRecord, record.sessionId == sessionId {
-            return (onesignalId ?? record.onesignalId, subscriptionId ?? record.subscriptionId)
-        }
-        guard let identityModelId, let provider = stateLock.withLock({ userProvider }) else {
-            return (onesignalId, subscriptionId)
-        }
-        return (
-            onesignalId ?? provider.sessionOnesignalId(identityModelId: identityModelId),
-            subscriptionId ?? provider.sessionCurrentUser.pushSubscriptionId
-        )
-    }
-
-    func canCreateUser(identityModelId: String?) -> Bool {
-        guard let identityModelId, let provider = stateLock.withLock({ userProvider }) else {
-            return true
-        }
-        return provider.sessionUserCanBeCreated(identityModelId: identityModelId)
-    }
-
-    func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
+    /// Set once the sessions API creates the session, if it is still the current one.
+    public func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
         stateLock.withLock {
             loadIfNeeded()
             guard record?.sessionId == sessionId, record?.serverSessionId == nil else {

@@ -153,7 +153,6 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSFeatureFlagsRefreshService reset];
     [OSDeviceGestureDetector reset];
     [OSSessionService reset];
-    [OSSessionRequestQueue reset];
     [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
@@ -758,7 +757,6 @@ static BOOL ComputeInitialStorageReadable(void) {
         // within a process, so both the cache and the latch have to go.
         [OSFeatureManager resetAndClearCachedFlags];
         [OSSessionService resetAndClearStoredRecord];
-        [OSSessionRequestQueue resetAndClearStoredQueue];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 

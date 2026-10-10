@@ -42,14 +42,41 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
     }
 
-    /// Says no only when it knows: the requirement is `.on` and the user's model is loaded and
-    /// anonymous. A model that is not loaded may still be restored.
-    public func sessionUserCanBeCreated(identityModelId: String) -> Bool {
-        guard identityVerificationService.requirement == .on,
-              let identityModel = identityModelRepo.get(modelId: identityModelId)
+    /// Queues the session's create. Does nothing unless the session uses the sessions API.
+    func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
+        var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
+        value[OSSessionDeltaKey.directAttributionId] = directAttributionId
+        enqueueSessionDelta(OS_CREATE_SESSION_DELTA, record: record, value: value)
+    }
+
+    /// Queues the session's cumulative foreground time, ending the session when `endTime` is set.
+    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
+        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
+        value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
+        value[OSSessionDeltaKey.serverSessionId] = record.serverSessionId
+        enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
+    }
+
+    private func enqueueSessionDelta(_ name: String, record: OSSessionRecord, value: [String: Any]) {
+        guard record.usesSessionsApi,
+              let identityModelId = record.identityModelId,
+              let identityModel = identityModelRepo.get(modelId: identityModelId),
+              let appId = OneSignalIdentifiers.currentAppId
         else {
-            return true
+            return
         }
-        return identityModel.externalId != nil
+        var value = value
+        value[OSSessionDeltaKey.appId] = appId
+        value[OSSessionDeltaKey.onesignalId] = record.onesignalId
+        value[OSSessionDeltaKey.subscriptionId] = record.subscriptionId
+        let delta = OSDelta(
+            name: name,
+            identityModelId: identityModelId,
+            externalId: identityModel.externalId,
+            model: identityModel,
+            property: record.sessionId,
+            value: value
+        )
+        operationRepo.enqueueDelta(delta)
     }
 }
