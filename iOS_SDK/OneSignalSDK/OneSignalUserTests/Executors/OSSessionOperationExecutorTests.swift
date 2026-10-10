@@ -439,8 +439,8 @@ final class OSSessionOperationExecutorTests: XCTestCase {
             )
         }
 
-        manager.enqueueSessionCreate(record(false))
-        manager.enqueueSessionCreate(record(true))
+        manager.enqueueSessionCreate(record(false), directAttributionId: nil)
+        manager.enqueueSessionCreate(record(true), directAttributionId: nil)
         manager.operationRepo.dispatchQueue.sync {}
 
         let sessionDeltas = manager.operationRepo.deltaQueue.filter { $0.name == OS_CREATE_SESSION_DELTA }

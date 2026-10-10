@@ -47,6 +47,14 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionOnesignalId(identityModelId: String) -> String? {
         onesignalIds[identityModelId]
     }
+
+    private(set) var createdSessions: [OSSessionRecord] = []
+
+    func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String?) {
+        createdSessions.append(record)
+    }
+
+    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: TimeInterval?) {}
 }
 
 final class OSSessionServiceTests: XCTestCase {
@@ -337,5 +345,47 @@ final class OSSessionServiceTests: XCTestCase {
         restarted.onUnfocus()
 
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
+    }
+
+    // MARK: - Session start
+
+    func testNewSessionEnqueuesItsCreateWithPinnedIds() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let service = makeService()
+
+        service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(user.createdSessions, [service.currentRecord!])
+        XCTAssertEqual(user.createdSessions.first?.startTime, 5_000)
+        XCTAssertEqual(user.createdSessions.first?.onesignalId, "onesignal-a")
+        XCTAssertEqual(user.createdSessions.first?.subscriptionId, "subscription-a")
+    }
+
+    func testEachNewSessionEnqueuesItsOwnCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let service = makeService()
+
+        service.startNewSession(userProvider: user)
+        service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(Set(user.createdSessions.map(\.sessionId)).count, 2)
+    }
+
+    func testResumingASessionDoesNotEnqueueAnotherCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        let service = makeForegroundSession()
+
+        service.onUnfocus()
+        service.onFocus()
+
+        XCTAssertEqual(user.createdSessions.count, 1)
+    }
+
+    func testNewSessionEnqueuesNothingWhenFlagIsOff() {
+        let service = makeService()
+
+        service.startNewSession(userProvider: user)
+
+        XCTAssertTrue(user.createdSessions.isEmpty)
     }
 }
