@@ -400,16 +400,26 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertTrue(flush(executor).isEmpty)
     }
 
-    func testAnonymousRequestsAreKeptUnderIdentityVerification() {
+    func testAnonymousRequestsThatCanStillBeSentAreKeptUnderIdentityVerification() {
         user.identityModel.removeAliases([OS_ONESIGNAL_ID])
-        let anonymous = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
-        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(anonymous)
+        let createdAnonymous = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: "anonymous-onesignal-id"], changeNotifier: OSEventProducer())
+        let neverCreated = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(createdAnonymous)
+        OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(neverCreated)
+        newRecordsState.holdWhilePresent = true
+        newRecordsState.add("anonymous-onesignal-id")
         let executor = makeExecutor()
-        flush(executor, createDelta(session: "identified"), createDelta(session: "anonymous", identityModel: anonymous))
+        flush(
+            executor,
+            createDelta(session: "identified"),
+            createDelta(session: "created-anonymous", identityModel: createdAnonymous),
+            createDelta(session: "never-created", identityModel: neverCreated),
+            updateDelta(session: "never-created", duration: 10)
+        )
 
         executor.removeOperationsWithoutExternalId()
 
-        XCTAssertEqual(executor.queuedRequests.map(\.localSessionId), ["identified", "anonymous"])
+        XCTAssertEqual(executor.queuedRequests.map(\.localSessionId), ["identified", "created-anonymous"])
     }
 
     // MARK: - Enqueueing

@@ -140,8 +140,27 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         }
     }
 
-    /// The sessions API takes no user JWT, so Identity Verification does not apply to session Requests.
-    func removeOperationsWithoutExternalId() {}
+    /**
+     The sessions API takes no user JWT, so Identity Verification does not apply to session Requests.
+     But an anonymous user is never created while it is required, so a create still waiting for that
+     user's `onesignal_id` can never be sent. Drop those, with their updates.
+     */
+    func removeOperationsWithoutExternalId() {
+        self.dispatchQueue.async {
+            let countBefore = self.requestQueue.count
+            self.requestQueue.removeAll { request in
+                request is OSRequestCreateSession
+                    && request.identityModel.externalId == nil
+                    && request.identityModel.onesignalId == nil
+            }
+            guard self.requestQueue.count != countBefore else {
+                return
+            }
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(countBefore - self.requestQueue.count) creates for anonymous users that will never be created")
+            self.removeOrphanedUpdates()
+            self.cacheRequests()
+        }
+    }
 
     func retryNow() {
         self.dispatchQueue.async {
