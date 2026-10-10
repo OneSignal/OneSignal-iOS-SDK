@@ -143,6 +143,14 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     /// The sessions API takes no user JWT, so Identity Verification does not apply to session Requests.
     func removeOperationsWithoutExternalId() {}
 
+    func retryNow() {
+        self.dispatchQueue.async {
+            for request in self.requestQueue {
+                request.retryNotBefore = request.retryAfterNotBefore
+            }
+        }
+    }
+
     func processDeltaQueue(inBackground: Bool) {
         self.dispatchQueue.async {
             if !self.deltaQueue.isEmpty {
@@ -399,7 +407,8 @@ private extension OSSessionOperationExecutor {
     }
 
     /// Backs off exponentially, waiting at least `retryAfter`. Only attempts the backend answered count
-    /// toward the limit, so a Request made offline keeps retrying until the network returns.
+    /// toward the limit, so a Request made offline keeps retrying until the network returns, when
+    /// `retryNow` ends the backoff.
     func retry(_ request: OSSessionRequest, statusCode: Int, retryAfter: TimeInterval?) {
         request.sentToClient = false
         if statusCode != 0 {
@@ -414,7 +423,9 @@ private extension OSSessionOperationExecutor {
         request.retryAttempts += 1
         let exponential = Self.baseBackoffSeconds * pow(2, Double(request.retryAttempts - 1))
         let backoff = min(exponential, Self.maxBackoffSeconds) * jitter()
-        request.retryNotBefore = uptime() + max(backoff, retryAfter ?? 0)
+        let now = uptime()
+        request.retryAfterNotBefore = retryAfter.map { now + $0 }
+        request.retryNotBefore = max(now + backoff, request.retryAfterNotBefore ?? 0)
         cacheRequests()
     }
 

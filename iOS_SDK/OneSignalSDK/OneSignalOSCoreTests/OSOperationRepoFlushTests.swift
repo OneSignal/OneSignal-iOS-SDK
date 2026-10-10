@@ -141,4 +141,17 @@ final class OSOperationRepoFlushTests: XCTestCase {
     private func makeDelta(name: String, property: String) -> OSDelta {
         OSOperationRepoTestEnvironment.makeDelta(name: name, externalId: nil, property: property)
     }
+
+    func testRetryNowEndsExecutorBackoffBeforeFlushing() {
+        let executor = MockOperationExecutor(supportedDeltas: [knownDelta])
+        var retryNowCallsAtFlush: [Int] = []
+        executor.onProcessDeltaQueue = { retryNowCallsAtFlush.append(executor.retryNowCallCount) }
+        repo.addExecutor(executor)
+        repo.paused = false
+
+        repo.retryNow()
+        repo.flushAndWait()
+
+        XCTAssertEqual(retryNowCallsAtFlush.first, 1)
+    }
 }

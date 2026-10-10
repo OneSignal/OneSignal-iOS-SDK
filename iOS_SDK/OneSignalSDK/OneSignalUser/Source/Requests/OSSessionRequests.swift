@@ -55,6 +55,8 @@ protocol OSSessionRequest: OSUserRequest {
     var retryAttempts: Int { get set }
     /// System uptime before which a retry is not sent.
     var retryNotBefore: TimeInterval? { get set }
+    /// The part of `retryNotBefore` a backend `Retry-After` asked for, which `retryNow` keeps.
+    var retryAfterNotBefore: TimeInterval? { get set }
 }
 
 private extension OneSignalRequest {
@@ -92,6 +94,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     var failedAttempts = 0
     var retryAttempts = 0
     var retryNotBefore: TimeInterval?
+    var retryAfterNotBefore: TimeInterval?
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }
@@ -206,6 +209,7 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     var failedAttempts = 0
     var retryAttempts = 0
     var retryNotBefore: TimeInterval?
+    var retryAfterNotBefore: TimeInterval?
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }

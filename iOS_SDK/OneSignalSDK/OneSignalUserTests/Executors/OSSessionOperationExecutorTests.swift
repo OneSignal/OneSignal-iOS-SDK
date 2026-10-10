@@ -295,6 +295,31 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(client.requests.count, 2)
     }
 
+    func testRetryNowEndsTheBackoffEarly() {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+        fail(executor, code: 500)
+
+        executor.retryNow()
+        flush(executor)
+
+        XCTAssertEqual(client.requests.count, 2)
+    }
+
+    func testRetryNowStillWaitsOutRetryAfter() {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+        fail(executor, code: 429, headers: ["Retry-After": "120"])
+
+        executor.retryNow()
+        flush(executor)
+        XCTAssertEqual(client.requests.count, 1)
+
+        uptime += 120
+        flush(executor)
+        XCTAssertEqual(client.requests.count, 2)
+    }
+
     func testNoResponseDoesNotCountTowardTheAttemptLimit() {
         let executor = makeExecutor()
         flush(executor, createDelta())

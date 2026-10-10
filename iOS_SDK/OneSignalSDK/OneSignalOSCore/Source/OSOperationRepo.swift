@@ -57,10 +57,17 @@ public class OSOperationRepo: NSObject {
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
 
+    /// Driven by app focus. Calls `retryNow` on foreground and when the network returns.
+    public let retryTrigger: OSOperationRetryTrigger
+
     // Uncache in init so an enqueue before start cannot persist over a previous session's queue.
     public init(identityVerificationService: OSIdentityVerificationService) {
         self.identityVerificationService = identityVerificationService
+        self.retryTrigger = OSOperationRetryTrigger()
         super.init()
+        retryTrigger.onRetry = { [weak self] in
+            self?.retryNow()
+        }
         uncacheDeltaQueue()
     }
 
@@ -202,6 +209,19 @@ public class OSOperationRepo: NSObject {
             if flush {
                 self.flushDeltaQueue()
             }
+        }
+    }
+
+    /// Ends executors' failure backoff early and flushes. A backend `Retry-After` is still waited out.
+    public func retryNow() {
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        dispatchQueue.async {
+            for executor in self.executors {
+                executor.retryNow()
+            }
+            self.flushDeltaQueue()
         }
     }
 

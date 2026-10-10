@@ -76,6 +76,7 @@ final class MockOperationExecutor: OSOperationExecutor {
     let supportedDeltas: [String]
     private(set) var enqueued: [OSDelta] = []
     private(set) var removeOperationsWithoutExternalIdCallCount = 0
+    private(set) var retryNowCallCount = 0
     var onProcessDeltaQueue: (() -> Void)?
 
     init(supportedDeltas: [String]) {
@@ -94,5 +95,9 @@ final class MockOperationExecutor: OSOperationExecutor {
 
     func removeOperationsWithoutExternalId() {
         removeOperationsWithoutExternalIdCallCount += 1
+    }
+
+    func retryNow() {
+        retryNowCallCount += 1
     }
 }

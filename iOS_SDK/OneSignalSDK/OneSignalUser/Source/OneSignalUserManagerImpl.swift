@@ -743,6 +743,17 @@ extension OneSignalUserManagerImpl {
         updatePropertiesDeltas(property: .session_time, value: sessionTime.intValue)
     }
 
+    /// Retries failed operations right away, and again whenever the network returns while focused.
+    @objc
+    public func onFocus() {
+        operationRepo.retryTrigger.onFocus()
+    }
+
+    @objc
+    public func onUnfocus() {
+        operationRepo.retryTrigger.onUnfocus()
+    }
+
     /**
      App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
      Need to consider app killed vs app backgrounded and handle gracefully.

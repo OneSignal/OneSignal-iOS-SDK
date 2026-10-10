@@ -42,4 +42,12 @@ public protocol OSOperationExecutor {
      so the policy stays there; only the storage is per-executor.
      */
     func removeOperationsWithoutExternalId()
+
+    /// End any failure backoff early, still waiting out a backend `Retry-After`. Driven by
+    /// `OSOperationRepo.retryNow`, which flushes right after.
+    func retryNow()
+}
+
+public extension OSOperationExecutor {
+    func retryNow() {}
 }
