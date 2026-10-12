@@ -29,8 +29,8 @@ import Foundation
 
 /// `UserDefaults`-backed cache for state the demo restores across cold launches:
 /// consent flags, IAM paused, location shared, the last-logged-in external user id,
-/// the Identity Verification toggle, and the demo REST JWT. The JWT is only for the
-/// demo's `/users` fetch — it is not automatically passed to `login` / `updateUserJwt`.
+/// the Identity Verification toggle, and the demo's JWTs. The JWTs are only for the
+/// demo's `/users` fetch. The demo never passes them to `login` or `updateUserJwt` on its own.
 final class PreferencesService {
 
     static let shared = PreferencesService()
@@ -48,7 +48,9 @@ final class PreferencesService {
         static let locationShared  = "onesignal.demo.locationShared"
         static let externalUserId  = "onesignal.demo.externalUserId"
         static let useIdentityVerification = "onesignal.demo.useIdentityVerification"
-        static let sessionJwtToken = "onesignal.demo.sessionJwtToken"
+        static let jwtTokens = "onesignal.demo.jwtTokens"
+        /// The single token the demo kept before `jwtTokens`. Deleted on first read.
+        static let legacySessionJwtToken = "onesignal.demo.sessionJwtToken"
         static let language        = "onesignal.demo.language"
     }
 
@@ -92,19 +94,29 @@ final class PreferencesService {
     func getUseIdentityVerification() -> Bool { defaults.bool(forKey: Key.useIdentityVerification) }
     func setUseIdentityVerification(_ value: Bool) { defaults.set(value, forKey: Key.useIdentityVerification) }
 
-    func getSessionJwtToken() -> String? {
-        guard let value = defaults.string(forKey: Key.sessionJwtToken), !value.isEmpty else {
+    // Every JWT the tester handed the SDK, keyed by external id. Plaintext UserDefaults is fine
+    // for a demo and not a pattern for real apps.
+
+    func getJwtToken(externalId: String) -> String? {
+        guard let value = jwtTokens()[externalId], !value.isEmpty else {
             return nil
         }
         return value
     }
 
-    func setSessionJwtToken(_ value: String?) {
-        if let value = value, !value.isEmpty {
-            defaults.set(value, forKey: Key.sessionJwtToken)
-        } else {
-            defaults.removeObject(forKey: Key.sessionJwtToken)
-        }
+    func setJwtToken(_ token: String, externalId: String) {
+        var tokens = jwtTokens()
+        tokens[externalId] = token
+        defaults.set(tokens, forKey: Key.jwtTokens)
+    }
+
+    func clearJwtTokens() {
+        defaults.removeObject(forKey: Key.jwtTokens)
+    }
+
+    private func jwtTokens() -> [String: String] {
+        defaults.removeObject(forKey: Key.legacySessionJwtToken)
+        return defaults.dictionary(forKey: Key.jwtTokens) as? [String: String] ?? [:]
     }
 
     // MARK: - Language
