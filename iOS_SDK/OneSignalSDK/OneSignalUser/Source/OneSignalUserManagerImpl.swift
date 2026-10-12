@@ -210,8 +210,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
     let pushSubscriptionModelStoreListener: OSSubscriptionModelStoreListener
-    private let retryBackoff = OSRequestRetryBackoff()
-    private let retryTrigger = OSOperationRetryTrigger()
+    let retryBackoff = OSRequestRetryBackoff()
+    let retryTrigger = OSOperationRetryTrigger()
 
     // Executors must be initialize after sharedInstance is initialized
     var userExecutor: OSUserExecutor?
@@ -326,11 +326,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Cannot initialize these executors in `init` as they reference the sharedInstance
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
-            let subscriptionExecutor = OSSubscriptionOperationExecutor(
-                newRecordsState: newRecordsState,
-                auth: requestAuth,
-                retryBackoff: retryBackoff
-            )
+            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
@@ -748,23 +744,6 @@ extension OneSignalUserManagerImpl {
             return
         }
         updatePropertiesDeltas(property: .session_time, value: sessionTime.intValue)
-    }
-
-    @objc
-    public func onFocus() {
-        retryTrigger.onFocus()
-    }
-
-    @objc
-    public func onUnfocus() {
-        retryTrigger.onUnfocus()
-    }
-
-    /// Sends failed Requests now instead of waiting out their backoff.
-    private func retryNow() {
-        retryBackoff.retryNow()
-        userExecutor?.executePendingRequests()
-        operationRepo.addFlushDeltaQueueToDispatchQueue()
     }
 
     /**
