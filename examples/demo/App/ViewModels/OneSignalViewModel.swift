@@ -46,7 +46,8 @@ final class OneSignalViewModel: ObservableObject {
     @Published var aliases: [KeyValueItem] = []
     @Published var useIdentityVerification: Bool = false
     /// External id the SDK is waiting on a JWT for. Drives the banner in `UserSection`.
-    @Published var jwtAskExternalId: String?
+    /// Mirrors `JwtAskStore`, which the listener registered in `AppDelegate` fills.
+    @Published private(set) var jwtAskExternalId: String?
     /// Outcome of the last demo /users fetch, "OK" or the failure reason.
     @Published var userFetchStatus: String?
 
@@ -97,9 +98,10 @@ final class OneSignalViewModel: ObservableObject {
     private let prefs: PreferencesService
     private var observers = Observers()
 
-    /// Monotonically incremented on every `fetchUserDataFromApi` call. The
-    /// value captured at entry guards the post-await write so a slow fetch
-    /// for an old `onesignalId` cannot overwrite a newer fetch's results.
+    /// Monotonically incremented on every `fetchUserDataFromApi` call, and by
+    /// `resetUserFetch` on a user switch or logout. The value captured at entry
+    /// guards the post-await write so a slow fetch for an old user cannot
+    /// overwrite newer state.
     private var requestSequence: UInt64 = 0
 
     // MARK: - Init
@@ -116,6 +118,7 @@ final class OneSignalViewModel: ObservableObject {
         self.hasNotificationPermission = service.hasNotificationPermission
         refreshState()
         setupObservers()
+        JwtAskStore.shared.$externalId.assign(to: &$jwtAskExternalId)
 
         TooltipService.shared.loadIfNeeded()
 
@@ -151,13 +154,15 @@ final class OneSignalViewModel: ObservableObject {
 
         if useIdentityVerification {
             guard let externalId = externalUserId ?? service.externalId, !externalId.isEmpty else {
+                userFetchStatus = nil
                 return
             }
             aliasLabel = "external_id"
             aliasValue = externalId
-            jwt = service.sessionJwtToken
+            jwt = service.jwtToken(for: externalId)
         } else {
             guard let onesignalId = service.onesignalId, !onesignalId.isEmpty else {
+                userFetchStatus = nil
                 return
             }
             aliasLabel = "onesignal_id"
@@ -222,13 +227,14 @@ final class OneSignalViewModel: ObservableObject {
         service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
         resetLanguagePicker()
-        if jwtToken != nil, jwtAskExternalId == trimmed {
-            jwtAskExternalId = nil
+        if jwtToken != nil {
+            JwtAskStore.shared.answered(externalId: trimmed)
         }
         if sameUser {
             // No user-state event fires for the same user, so refetch here instead.
             Task { await fetchUserDataFromApi() }
         } else {
+            resetUserFetch()
             clearUserData()
         }
     }
@@ -237,33 +243,31 @@ final class OneSignalViewModel: ObservableObject {
         let trimmedId = externalId.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedId.isEmpty, !trimmedToken.isEmpty else { return }
-        // Same condition the service uses to decide whether to store the bearer.
-        let currentUser = trimmedId == service.externalId
         service.updateUserJwt(externalId: trimmedId, token: trimmedToken)
-        if jwtAskExternalId == trimmedId {
-            jwtAskExternalId = nil
-        }
+        JwtAskStore.shared.answered(externalId: trimmedId)
         LogService.info("Updated JWT for: \(trimmedId)")
-        if currentUser {
-            // The demo now holds a fresh bearer for this user, and no user-state
-            // event is guaranteed, so refetch instead of leaving the stale failure.
+        if trimmedId == service.externalId {
+            // updateUserJwt may not fire a user-state event, so refetch instead of leaving
+            // the last failure on screen.
             Task { await fetchUserDataFromApi() }
         }
-    }
-
-    /// The SDK parked this user's requests for want of a token. Drop the demo's stale copy and show the ask.
-    func handleJwtInvalidated(externalId: String) {
-        service.clearSessionJwtToken()
-        jwtAskExternalId = externalId
-        LogService.info("JWT invalidated for externalId: \(externalId)")
     }
 
     func logout() {
         service.logout()
         externalUserId = nil
-        jwtAskExternalId = nil
+        JwtAskStore.shared.clear()
+        resetUserFetch()
         resetLanguagePicker()
         clearUserData()
+    }
+
+    /// A fetch still in flight belongs to the previous user, so drop its result. Clear the row
+    /// too, because a new user's create can wait on a JWT, and then no user-state event comes
+    /// to refetch.
+    private func resetUserFetch() {
+        requestSequence &+= 1
+        userFetchStatus = nil
     }
 
     func setLanguage(_ language: String) {
@@ -424,7 +428,6 @@ final class OneSignalViewModel: ObservableObject {
         service.addPushSubscriptionObserver(observers)
         service.addUserObserver(observers)
         service.addPermissionObserver(observers)
-        service.addUserJwtInvalidatedListener(observers)
     }
 }
 
@@ -566,8 +569,7 @@ extension OneSignalViewModel {
 private final class Observers: NSObject,
                                 OSPushSubscriptionObserver,
                                 OSUserStateObserver,
-                                OSNotificationPermissionObserver,
-                                OSUserJwtInvalidatedListener {
+                                OSNotificationPermissionObserver {
     weak var viewModel: OneSignalViewModel?
 
     func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
@@ -600,12 +602,6 @@ private final class Observers: NSObject,
         Task { @MainActor in
             viewModel?.hasNotificationPermission = permission
             viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
-        }
-    }
-
-    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
-        Task { @MainActor in
-            viewModel?.handleJwtInvalidated(externalId: event.externalId)
         }
     }
 
