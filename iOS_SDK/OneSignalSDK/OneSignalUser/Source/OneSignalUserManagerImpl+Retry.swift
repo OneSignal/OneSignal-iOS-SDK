@@ -39,9 +39,12 @@ extension OneSignalUserManagerImpl {
         retryTrigger.onUnfocus()
     }
 
-    /// Sends failed Requests now instead of waiting out their backoff.
+    /// Sends failed Requests now instead of waiting out their backoff. Does nothing if none are waiting,
+    /// so a brief resign-active does not resend work held for other reasons.
     func retryNow() {
-        retryBackoff.retryNow()
+        guard retryBackoff.retryNow() else {
+            return
+        }
         userExecutor?.executePendingRequests()
         operationRepo.addFlushDeltaQueueToDispatchQueue()
     }

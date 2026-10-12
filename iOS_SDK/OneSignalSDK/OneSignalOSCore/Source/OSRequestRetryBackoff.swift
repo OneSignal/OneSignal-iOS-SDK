@@ -39,6 +39,7 @@ public final class OSRequestRetryBackoff {
     static let baseDelaySeconds: TimeInterval = 5
     static let maxDelaySeconds: TimeInterval = 300
     static let defaultRetryAfterSeconds: TimeInterval = 60
+    static let maxRetryAfterSeconds: TimeInterval = 3600
 
     private final class Entry {
         var failures = 0
@@ -52,7 +53,8 @@ public final class OSRequestRetryBackoff {
     private let jitter: () -> Double
 
     public convenience init() {
-        self.init(uptime: { ProcessInfo.processInfo.systemUptime }, jitter: { Double.random(in: 0.5...1) })
+        // CLOCK_MONOTONIC keeps counting while the device sleeps, unlike `systemUptime`.
+        self.init(uptime: { TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC)) / 1e9 }, jitter: { Double.random(in: 0.5...1) })
     }
 
     init(uptime: @escaping () -> TimeInterval, jitter: @escaping () -> Double) {
@@ -82,23 +84,36 @@ public final class OSRequestRetryBackoff {
         }
     }
 
-    /// Ends every backoff early, except what a server's `Retry-After` asked for.
-    public func retryNow() {
+    /// Ends every backoff early, except what a server's `Retry-After` asked for. Returns whether any
+    /// Request can now be sent sooner.
+    @discardableResult
+    public func retryNow() -> Bool {
         lock.withLock {
+            let now = uptime()
+            var endedAWait = false
             let enumerator = entries.objectEnumerator()
             while let entry = enumerator?.nextObject() as? Entry {
-                entry.retryAt = entry.retryAfterAt
+                if entry.retryAt > max(now, entry.retryAfterAt) {
+                    entry.retryAt = entry.retryAfterAt
+                    endedAWait = true
+                }
             }
+            return endedAWait
         }
     }
 
-    /// Only the delay-seconds form is supported, not the HTTP-date form.
+    /// Only the delay-seconds form is supported, not the HTTP-date form. Capped, so a bad header cannot
+    /// hold a queue for the rest of the run.
     static func retryAfterSeconds(_ error: OneSignalClientError) -> TimeInterval? {
         let value = error.responseHeaders?.first { key, _ in
             (key as? String)?.caseInsensitiveCompare("Retry-After") == .orderedSame
         }?.value
         if let value {
-            return TimeInterval("\(value)".trimmingCharacters(in: .whitespaces)) ?? defaultRetryAfterSeconds
+            guard let seconds = TimeInterval("\(value)".trimmingCharacters(in: .whitespaces)),
+                  seconds.isFinite, seconds >= 0 else {
+                return defaultRetryAfterSeconds
+            }
+            return min(seconds, maxRetryAfterSeconds)
         }
         return error.code == 429 ? defaultRetryAfterSeconds : nil
     }

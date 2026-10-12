@@ -83,6 +83,34 @@ final class OSRequestRetryBackoffTests: XCTestCase {
         XCTAssertEqual(backoff.recordFailure(NSObject(), error: error(429)), OSRequestRetryBackoff.defaultRetryAfterSeconds)
     }
 
+    func testRetryAfterThatIsNotAFiniteDelayWaitsTheDefault() {
+        for value in ["inf", "nan", "-5", "Wed, 21 Oct 2026 07:28:00 GMT"] {
+            let delay = backoff.recordFailure(NSObject(), error: error(503, headers: ["Retry-After": value]))
+            XCTAssertEqual(delay, OSRequestRetryBackoff.defaultRetryAfterSeconds, value)
+        }
+    }
+
+    func testRetryAfterIsCapped() {
+        let delay = backoff.recordFailure(NSObject(), error: error(503, headers: ["Retry-After": "1e400"]))
+        XCTAssertEqual(delay, OSRequestRetryBackoff.defaultRetryAfterSeconds, "1e400 overflows to inf")
+
+        let capped = backoff.recordFailure(NSObject(), error: error(503, headers: ["Retry-After": "86400"]))
+        XCTAssertEqual(capped, OSRequestRetryBackoff.maxRetryAfterSeconds)
+    }
+
+    func testRetryNowReportsWhetherItEndedAWait() {
+        XCTAssertFalse(backoff.retryNow(), "nothing is waiting")
+
+        let request = NSObject()
+        backoff.recordFailure(request, error: error(500))
+        XCTAssertTrue(backoff.retryNow())
+        XCTAssertFalse(backoff.retryNow(), "already ended")
+
+        backoff.recordFailure(request, error: error(500))
+        uptime += 60
+        XCTAssertFalse(backoff.retryNow(), "the wait had already passed")
+    }
+
     func testRetryNowEndsTheBackoffButNotRetryAfter() {
         let backingOff = NSObject()
         let rateLimited = NSObject()
