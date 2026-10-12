@@ -68,6 +68,19 @@ public final class OSRequestRetryBackoff {
         }
     }
 
+    func isWaitingOnAny() -> Bool {
+        lock.withLock {
+            let now = uptime()
+            let enumerator = entries.objectEnumerator()
+            while let entry = enumerator?.nextObject() as? Entry {
+                if entry.retryAt > now {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
     /// Returns the seconds until `request` may be sent again.
     @discardableResult
     public func recordFailure(_ request: AnyObject, error: OneSignalClientError) -> TimeInterval {

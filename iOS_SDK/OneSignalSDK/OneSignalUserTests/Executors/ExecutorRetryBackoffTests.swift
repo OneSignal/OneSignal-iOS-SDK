@@ -48,6 +48,7 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         OneSignalIdentifiers.currentAppId = "test-app-id"
 
         client = MockOneSignalClient()
+        client.executeInstantaneously = true
         OneSignalCoreImpl.setSharedClient(client)
         newRecordsState = MockNewRecordsState()
         uptime = 1_000
@@ -77,76 +78,80 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         return client.executedRequests.filter { $0 is OSRequestAddAliases }.count
     }
 
-    private func cachedAddAliasesCount() -> Int {
+    private func cachedAddAliases() -> [OSRequestAddAliases] {
         let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases]
-        return cached?.count ?? 0
+        return cached ?? []
     }
 
-    private func flush(_ executor: OSIdentityOperationExecutor) {
+    /// Flushes, then waits until the attempt has been sent and its response handled.
+    private func flushAndWaitForAttempt(_ executor: OSIdentityOperationExecutor, number: Int) {
         executor.processDeltaQueue(inBackground: false)
-        allowAsyncWorkToRun(seconds: 0.2)
+        OneSignalCoreMocks.waitUntil("Attempt \(number) was not handled") {
+            self.addAliasesCount() == number && self.backoff.isWaitingOnAny()
+        }
+    }
+
+    /// Flushes and gives the executor time to send, for asserting that nothing was sent.
+    private func flushExpectingNoAttempt(_ executor: OSIdentityOperationExecutor) {
+        let before = addAliasesCount()
+        executor.processDeltaQueue(inBackground: false)
+        allowAsyncWorkToRun(seconds: 0.3)
+        XCTAssertEqual(addAliasesCount(), before, "still backing off")
     }
 
     func testARetryableFailureIsResentOnceTheBackoffPasses() {
         let executor = cachedAddAliases(failingWith: error(500))
 
-        flush(executor)
-        XCTAssertEqual(addAliasesCount(), 1)
-
-        flush(executor)
-        XCTAssertEqual(addAliasesCount(), 1, "still backing off")
+        flushAndWaitForAttempt(executor, number: 1)
+        flushExpectingNoAttempt(executor)
 
         uptime += OSRequestRetryBackoff.baseDelaySeconds
-        flush(executor)
-        XCTAssertEqual(addAliasesCount(), 2)
-        XCTAssertEqual(cachedAddAliasesCount(), 1, "kept until it succeeds")
+        flushAndWaitForAttempt(executor, number: 2)
+        XCTAssertEqual(cachedAddAliases().count, 1, "kept until it succeeds")
     }
 
     func testASuccessfulRetryRemovesTheRequest() {
         let executor = cachedAddAliases(failingWith: error(0))
-        flush(executor)
+        flushAndWaitForAttempt(executor, number: 1)
 
         client.setMockResponseForRequest(request: addAliasesDescription, response: [:])
         uptime += OSRequestRetryBackoff.baseDelaySeconds
-        flush(executor)
+        executor.processDeltaQueue(inBackground: false)
 
-        XCTAssertEqual(addAliasesCount(), 2)
-        XCTAssertEqual(cachedAddAliasesCount(), 0)
+        OneSignalCoreMocks.waitUntil("The retried Add Aliases was not removed") {
+            self.addAliasesCount() == 2 && self.cachedAddAliases().isEmpty
+        }
     }
 
     func testANonRetryableFailureIsNotRetried() {
         let executor = cachedAddAliases(failingWith: error(400))
 
-        flush(executor)
+        executor.processDeltaQueue(inBackground: false)
+        OneSignalCoreMocks.waitUntil("The rejected Add Aliases was not removed") {
+            self.addAliasesCount() == 1 && self.cachedAddAliases().isEmpty
+        }
         uptime += OSRequestRetryBackoff.maxDelaySeconds
-        flush(executor)
-
-        XCTAssertEqual(addAliasesCount(), 1)
-        XCTAssertEqual(cachedAddAliasesCount(), 0)
+        flushExpectingNoAttempt(executor)
     }
 
     func testRetryNowEndsTheBackoff() {
         let executor = cachedAddAliases(failingWith: error(500))
-        flush(executor)
+        flushAndWaitForAttempt(executor, number: 1)
 
         backoff.retryNow()
-        flush(executor)
-
-        XCTAssertEqual(addAliasesCount(), 2)
+        flushAndWaitForAttempt(executor, number: 2)
     }
 
     func testRetryNowStillWaitsOutRetryAfter() {
         let executor = cachedAddAliases(failingWith: error(429, headers: ["Retry-After": "120"]))
-        flush(executor)
+        flushAndWaitForAttempt(executor, number: 1)
 
         backoff.retryNow()
         uptime += 119
-        flush(executor)
-        XCTAssertEqual(addAliasesCount(), 1)
+        flushExpectingNoAttempt(executor)
 
         uptime += 1
-        flush(executor)
-        XCTAssertEqual(addAliasesCount(), 2)
+        flushAndWaitForAttempt(executor, number: 2)
     }
 
     /// The User executor is not polled, so it schedules its own retry, and holds the Requests behind it.
