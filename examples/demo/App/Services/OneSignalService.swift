@@ -53,8 +53,8 @@ final class OneSignalService {
     /// location-shared once the SDK is ready. Without this, toggles flip back
     /// to defaults on every cold launch.
     ///
-    /// No login here. The SDK restores the user from its own cache, and the stored JWT
-    /// stays with the demo so the SDK's own ask through `OSUserJwtInvalidatedListener`
+    /// No login here. The SDK restores the user from its own cache, and the stored JWTs
+    /// stay with the demo so the SDK's own ask through `OSUserJwtInvalidatedListener`
     /// stays observable on cold start.
     func initialize(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         OneSignal.Debug.setLogLevel(.LL_VERBOSE)
@@ -96,10 +96,9 @@ final class OneSignalService {
     // MARK: - User
 
     func login(externalId: String, jwtToken: String? = nil) {
-        // Demo REST fetch only. Not replayed to the SDK at launch. A same-user login
-        // without a token keeps the stored one, matching the SDK, which keeps its own.
-        if jwtToken != nil || externalId != OneSignal.User.externalId {
-            prefs.setSessionJwtToken(jwtToken)
+        // A blank token field leaves any token already stored for this user.
+        if let jwtToken = jwtToken {
+            prefs.setJwtToken(jwtToken, externalId: externalId)
         }
         prefs.setExternalUserId(externalId)
         if let jwtToken = jwtToken {
@@ -110,28 +109,21 @@ final class OneSignalService {
     }
 
     func updateUserJwt(externalId: String, token: String) {
-        // The demo's REST bearer belongs to the current user. A token for anyone else
-        // still goes to the SDK, which owns the parked work for that id.
-        if externalId == OneSignal.User.externalId {
-            prefs.setSessionJwtToken(token)
-        }
+        // Stored whoever it's for. The SDK can hold parked requests for a user who isn't the
+        // current one, including one who has logged out.
+        prefs.setJwtToken(token, externalId: externalId)
         OneSignal.updateUserJwt(externalId: externalId, token: token)
     }
 
     func logout() {
         prefs.setExternalUserId(nil)
-        prefs.setSessionJwtToken(nil)
+        prefs.clearJwtTokens()
         OneSignal.logout()
     }
 
     func setLanguage(_ language: String) {
         prefs.setLanguage(language)
         OneSignal.User.setLanguage(language)
-    }
-
-    /// Called when the SDK rejects the token, so the REST fetch stops sending it.
-    func clearSessionJwtToken() {
-        prefs.setSessionJwtToken(nil)
     }
 
     // MARK: - Identity Verification (demo REST fetch)
@@ -142,8 +134,8 @@ final class OneSignalService {
         set { prefs.setUseIdentityVerification(newValue) }
     }
 
-    /// Token from the last login / updateUserJwt, for the demo REST fetch only. Cleared when the SDK rejects it.
-    var sessionJwtToken: String? { prefs.getSessionJwtToken() }
+    /// The last token handed to the SDK for this user, for the demo REST fetch only.
+    func jwtToken(for externalId: String) -> String? { prefs.getJwtToken(externalId: externalId) }
 
     // MARK: - Aliases
 
@@ -283,5 +275,39 @@ final class OneSignalService {
 
     func addInAppMessageLifecycleListener(_ listener: OSInAppMessageLifecycleListener) {
         OneSignal.InAppMessages.addLifecycleListener(listener)
+    }
+}
+
+// MARK: - JWT ask
+
+/// The SDK's pending ask for a JWT. App-scoped so an event caught by the listener `AppDelegate`
+/// registers at launch still reaches the UI, however late the view model starts. The SDK doesn't
+/// replay the event.
+@MainActor
+final class JwtAskStore: ObservableObject {
+
+    static let shared = JwtAskStore()
+
+    /// External id the SDK is waiting on a JWT for, or nil.
+    @Published private(set) var externalId: String?
+
+    private init() {}
+
+    /// Replaces any earlier ask. The stored token stays. The SDK also fires this event when
+    /// requests park without a token, so it doesn't prove the stored token is bad. A token that
+    /// is bad shows up as a 401 in the REST fetch row.
+    func invalidated(externalId: String) {
+        self.externalId = externalId
+    }
+
+    /// A token for `externalId` answers the ask if it is for that user.
+    func answered(externalId: String) {
+        if self.externalId == externalId {
+            self.externalId = nil
+        }
+    }
+
+    func clear() {
+        externalId = nil
     }
 }
