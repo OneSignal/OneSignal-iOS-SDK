@@ -84,14 +84,43 @@ jobs:
           pod spec lint OneSignalXCFramework.podspec --allow-warnings
 
       - name: Publish podspecs to CocoaPods Trunk
+        env:
+          VERSION: ${{ steps.extract_version.outputs.version }}
         run: |
+          # Trunk returns data_url only after the version's commit to CocoaPods/Specs is imported.
+          is_on_trunk() {
+            local body
+            body=$(curl -s --max-time 30 "https://trunk.cocoapods.org/api/v1/pods/$1/versions/$VERSION") || return 1
+            [[ "$body" == *'"data_url"'* ]]
+          }
+
+          wait_for_trunk() {
+            for _ in {1..12}; do
+              is_on_trunk "$1" && return
+              sleep 10
+            done
+            echo "$1 $VERSION still not listed on Trunk after 2 minutes"
+            return 1
+          }
+
           push_podspec() {
             local podspec="$1"
-            echo "Publishing $podspec to CocoaPods Trunk..."
-            OUTPUT=$(pod trunk push "$podspec" --allow-warnings 2>&1) && { echo "$OUTPUT"; return; }
-            echo "$OUTPUT"
-            echo "$OUTPUT" | grep -q "Unable to accept duplicate entry" || exit 1
-            echo "::warning::$podspec already on Trunk (duplicate) — skipped"
+            local pod="${podspec%.podspec}"
+            if is_on_trunk "$pod"; then
+              echo "::warning::$pod $VERSION already on Trunk, skipped"
+              return
+            fi
+            for attempt in 1 2 3; do
+              echo "Publishing $podspec to CocoaPods Trunk (attempt $attempt)..."
+              pod trunk push "$podspec" --allow-warnings && return
+              # A push that times out on Trunk's side often still lands its Specs commit.
+              if wait_for_trunk "$pod"; then
+                echo "::warning::$pod $VERSION push reported an error but the version is on Trunk"
+                return
+              fi
+            done
+            echo "::error::$pod $VERSION not confirmed on Trunk after 3 push attempts"
+            exit 1
           }
 
           push_podspec OneSignal.podspec
