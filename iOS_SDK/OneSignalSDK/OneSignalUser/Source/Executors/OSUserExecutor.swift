@@ -38,16 +38,23 @@ class OSUserExecutor {
     private let newRecordsState: OSNewRecordsState
     private let identityVerificationService: OSIdentityVerificationService
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
     /// The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, identityVerificationService: OSIdentityVerificationService, auth: OSRequestAuthorizing) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        identityVerificationService: OSIdentityVerificationService,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff()
+    ) {
         self.newRecordsState = newRecordsState
         self.identityVerificationService = identityVerificationService
         self.auth = auth
+        self.retryBackoff = retryBackoff
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
         createUserIfNeverCreated(OneSignalUserManagerImpl.sharedInstance._user)
@@ -326,6 +333,17 @@ class OSUserExecutor {
         }
     }
 
+    /// Backs off, then re-sends. Requests behind this one keep waiting, so order is preserved.
+    private func retryLater(_ request: OSUserRequest, error: OneSignalClientError) {
+        let delay = retryBackoff.recordFailure(request, error: error)
+        dispatchQueue.async {
+            request.sentToClient = false
+        }
+        dispatchQueue.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?._executePendingRequests()
+        }
+    }
+
     private func _executePendingRequests() {
         // Hold until known: a Create User sent now would go out unsigned if `requirement` later becomes on.
         guard identityVerificationService.requirement != .unknown else {
@@ -404,7 +422,7 @@ extension OSUserExecutor {
     }
 
     func executeCreateUserRequest(_ request: OSRequestCreateUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -485,6 +503,8 @@ extension OSUserExecutor {
                 // We will retry this request on a new session
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                 request.sentToClient = false
+            } else {
+                self.retryLater(request, error: error)
             }
         }
     }
@@ -500,7 +520,7 @@ extension OSUserExecutor {
      For migrating legacy players from 3.x to 5.x. This request will fetch the identity object for a subscription ID, and we will use the returned onesignalId to fetch and hydrate the local user.
      */
     func executeFetchIdentityBySubscriptionRequest(_ request: OSRequestFetchIdentityBySubscription) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -538,6 +558,8 @@ extension OSUserExecutor {
                 // Fail, no retry, remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 self.removeFromQueue(request)
+            } else {
+                self.retryLater(request, error: error)
             }
             self.executePendingRequests()
         }
@@ -557,7 +579,7 @@ extension OSUserExecutor {
     }
 
     func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -624,6 +646,8 @@ extension OSUserExecutor {
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
+            } else if responseType == .retryable {
+                self.retryLater(request, error: error)
             }
         }
     }
@@ -638,7 +662,7 @@ extension OSUserExecutor {
     }
 
     func executeFetchUserRequest(_ request: OSRequestFetchUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -694,6 +718,8 @@ extension OSUserExecutor {
             } else if responseType != .retryable {
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)
+            } else {
+                self.retryLater(request, error: error)
             }
             self.executePendingRequests()
         }

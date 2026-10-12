@@ -71,14 +71,21 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     private var updateRequestQueue: [OSRequestUpdateProperties] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
     private let nowProvider: () -> Date
 
     // The property executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `updateRequestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSPropertyOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff(),
+        nowProvider: @escaping () -> Date = { Date() }
+    ) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.retryBackoff = retryBackoff
         self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         // Note that we should only have deltas for the current user as old ones are flushed..
@@ -277,7 +284,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -343,6 +350,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)

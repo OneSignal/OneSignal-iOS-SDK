@@ -210,6 +210,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
     let pushSubscriptionModelStoreListener: OSSubscriptionModelStoreListener
+    private let retryBackoff = OSRequestRetryBackoff()
+    private let retryTrigger = OSOperationRetryTrigger()
 
     // Executors must be initialize after sharedInstance is initialized
     var userExecutor: OSUserExecutor?
@@ -236,6 +238,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore, operationRepo: operationRepo)
         self.pushSubscriptionImpl = OSPushSubscriptionImpl(pushSubscriptionModelStore: pushSubscriptionModelStore)
+        super.init()
+        retryTrigger.onRetry = { [weak self] in
+            self?.retryNow()
+        }
     }
 
     @objc
@@ -310,13 +316,22 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
             // Setup the executors
             // The OSUserExecutor has to run first, before other executors
-            self.userExecutor = OSUserExecutor(newRecordsState: newRecordsState, identityVerificationService: identityVerificationService, auth: requestAuth)
+            self.userExecutor = OSUserExecutor(
+                newRecordsState: newRecordsState,
+                identityVerificationService: identityVerificationService,
+                auth: requestAuth,
+                retryBackoff: retryBackoff
+            )
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
-            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
-            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
-            let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth)
-            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth)
+            let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
+            let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
+            let subscriptionExecutor = OSSubscriptionOperationExecutor(
+                newRecordsState: newRecordsState,
+                auth: requestAuth,
+                retryBackoff: retryBackoff
+            )
+            let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
@@ -733,6 +748,23 @@ extension OneSignalUserManagerImpl {
             return
         }
         updatePropertiesDeltas(property: .session_time, value: sessionTime.intValue)
+    }
+
+    @objc
+    public func onFocus() {
+        retryTrigger.onFocus()
+    }
+
+    @objc
+    public func onUnfocus() {
+        retryTrigger.onUnfocus()
+    }
+
+    /// Sends failed Requests now instead of waiting out their backoff.
+    private func retryNow() {
+        retryBackoff.retryNow()
+        userExecutor?.executePendingRequests()
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
     }
 
     /**

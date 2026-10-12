@@ -36,14 +36,21 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     private var removeRequestQueue: [OSRequestRemoveAlias] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
     private let nowProvider: () -> Date
 
     // The Identity executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSIdentityOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff(),
+        nowProvider: @escaping () -> Date = { Date() }
+    ) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.retryBackoff = retryBackoff
         self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
@@ -240,7 +247,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -290,6 +297,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -299,7 +309,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -335,6 +345,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     // A response of .missing could mean the alias doesn't exist on this user OR this user has been deleted
                     self.removeRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
