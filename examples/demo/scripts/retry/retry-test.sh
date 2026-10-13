@@ -17,12 +17,32 @@ PORT="${RETRY_TEST_PORT:-8899}"
 # `manual` only listens; point a physical device's Wi-Fi proxy at this Mac yourself.
 PROXY_MODE="${RETRY_TEST_PROXY_MODE:-system}"
 BUNDLE_ID="${RETRY_TEST_BUNDLE_ID:-com.onesignal.example}"
+# Other demos (Cordova, Capacitor, ...) share the bundle ID, so give the harness its own simulator.
+DEVICE_NAME="${RETRY_TEST_DEVICE:-OneSignal Retry Test}"
 CA_CERT="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
 
 export RETRY_TEST_STATE_DIR="$STATE_DIR"
 mkdir -p "$STATE_DIR"
 
 die() { echo "error: $*" >&2; exit 1; }
+
+# Sets DEVICE to the UDID of DEVICE_NAME (a simulator name or UDID), booting it if needed.
+resolve_device() {
+  DEVICE="$(xcrun simctl list devices -j | python3 -c '
+import json, sys
+want = sys.argv[1]
+devices = [d for r in json.load(sys.stdin)["devices"].values() for d in r if d.get("isAvailable")]
+match = [d for d in devices if want in (d["udid"], d["name"])]
+print(" ".join((match[0]["udid"], match[0]["state"])) if match else "")
+' "$DEVICE_NAME")"
+  [[ -n "$DEVICE" ]] || die "no simulator named '$DEVICE_NAME'. Create it with: xcrun simctl create '$DEVICE_NAME' 'iPhone 17'"
+  local state="${DEVICE#* }"
+  DEVICE="${DEVICE%% *}"
+  if [[ "$state" != "Booted" ]]; then
+    xcrun simctl boot "$DEVICE"
+    open -a Simulator --args -CurrentDeviceUDID "$DEVICE"
+  fi
+}
 
 route_rule() {
   # Prints "<method> <path regex>" for a route name. Paths are relative to https://api.onesignal.com/.
@@ -89,12 +109,9 @@ restore_system_proxy() {
 install_ca() {
   for _ in $(seq 1 50); do [[ -f "$CA_CERT" ]] && break; sleep 0.1; done
   [[ -f "$CA_CERT" ]] || die "mitmproxy CA not generated at $CA_CERT"
-  if xcrun simctl list devices booted | grep -q Booted; then
-    xcrun simctl keychain booted add-root-cert "$CA_CERT"
-    echo "Trusted the mitmproxy CA on the booted simulator(s)."
-  else
-    echo "No booted simulator. Boot one, then run '$0 trust-ca'."
-  fi
+  resolve_device
+  xcrun simctl keychain "$DEVICE" add-root-cert "$CA_CERT"
+  echo "Trusted the mitmproxy CA on '$DEVICE_NAME'."
 }
 
 cmd_start() {
@@ -191,26 +208,54 @@ cmd_fresh() {
   # User and so on), without uninstalling, so an already granted notification permission is kept
   # and the permission prompt does not hold the app inactive.
   local data group plist
-  data="$(xcrun simctl get_app_container booted "$BUNDLE_ID" data)" || die "demo app not installed on the booted simulator"
-  xcrun simctl terminate booted "$BUNDLE_ID" 2>/dev/null || true
+  resolve_device
+  data="$(xcrun simctl get_app_container "$DEVICE" "$BUNDLE_ID" data)" || die "demo app not installed on '$DEVICE_NAME'. Run '$0 install'."
+  xcrun simctl terminate "$DEVICE" "$BUNDLE_ID" 2>/dev/null || true
   # Preferences go through the simulator's cfprefsd, which would write its cached copy back.
   for plist in "$data"/Library/Preferences/*.plist; do
-    [[ -f "$plist" ]] && xcrun simctl spawn booted defaults delete "${plist%.plist}" 2>/dev/null || true
+    [[ -f "$plist" ]] && xcrun simctl spawn "$DEVICE" defaults delete "${plist%.plist}" 2>/dev/null || true
   done
   rm -rf "${data:?}/Documents/"* "${data:?}/Library/Caches/"* "${data:?}/Library/Preferences/"* "${data:?}/tmp/"*
   while read -r _ group; do
     [[ -d "$group" ]] || continue
     for plist in "$group"/Library/Preferences/*.plist; do
-      [[ -f "$plist" ]] && xcrun simctl spawn booted defaults delete "${plist%.plist}" 2>/dev/null || true
+      [[ -f "$plist" ]] && xcrun simctl spawn "$DEVICE" defaults delete "${plist%.plist}" 2>/dev/null || true
     done
     rm -rf "${group:?}/"*
-  done < <(xcrun simctl get_app_container booted "$BUNDLE_ID" groups 2>/dev/null)
+  done < <(xcrun simctl get_app_container "$DEVICE" "$BUNDLE_ID" groups 2>/dev/null)
   echo "Cleared demo app data."
-  xcrun simctl launch booted "$BUNDLE_ID"
+  xcrun simctl launch "$DEVICE" "$BUNDLE_ID"
+}
+
+cmd_install() {
+  resolve_device
+  local root="$SCRIPT_DIR/../../../.." derived="$STATE_DIR/DerivedData"
+  xcodebuild build -quiet \
+    -workspace "$root/iOS_SDK/OneSignalSDK.xcworkspace" -scheme App -configuration Debug \
+    -destination "id=$DEVICE" -derivedDataPath "$derived"
+  xcrun simctl install "$DEVICE" "$derived/Build/Products/Debug-iphonesimulator/App.app"
+  echo "Installed the demo app on '$DEVICE_NAME'. Next: $0 fresh, then $0 tap allow-notifications"
+}
+
+cmd_tap() {
+  # Drives the demo's UI through Maestro flows in flows/, using the demo's accessibility IDs.
+  command -v maestro >/dev/null || die "maestro not found. Install with: brew install mobile-dev-inc/tap/maestro"
+  local action="${1:-}" env=()
+  case "$action" in
+    add-tag|add-alias) [[ $# -eq 3 ]] || die "usage: $0 tap $action <key> <value>"; env=(-e "KEY=$2" -e "VALUE=$3") ;;
+    add-email|login) [[ $# -eq 2 ]] || die "usage: $0 tap $action <value>"; env=(-e "VALUE=$2") ;;
+    logout|toggle-push|allow-notifications) ;;
+    *) die "usage: $0 tap <add-tag|add-alias|add-email|login|logout|toggle-push|allow-notifications> [args]" ;;
+  esac
+  resolve_device
+  MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
+    maestro --device "$DEVICE" test ${env[@]+"${env[@]}"} "$SCRIPT_DIR/flows/$action.yaml" \
+    | grep -E '^ *(>|[A-Z].*(COMPLETED|FAILED|WARNED))' || true
 }
 
 cmd_logs() {
-  xcrun simctl spawn booted log stream --level debug --style compact \
+  resolve_device
+  xcrun simctl spawn "$DEVICE" log stream --level debug --style compact \
     --predicate 'process == "App" AND (eventMessage CONTAINS[c] "request" OR eventMessage CONTAINS[c] "retry" OR eventMessage CONTAINS[c] "re-attempt")'
 }
 
@@ -219,9 +264,9 @@ usage() {
 Usage: $0 <command>
 
 Proxy
-  start                     Start mitmproxy, point the proxy at it, trust its CA on the booted simulator
+  start                     Start mitmproxy, point the proxy at it, trust its CA on the simulator
   stop                      Stop mitmproxy and restore proxy settings
-  trust-ca                  Trust the mitmproxy CA on the booted simulator(s)
+  trust-ca                  Trust the mitmproxy CA on the simulator
 
 Faults (take effect immediately, no relaunch needed)
   fail <route> <status> [--times N] [--retry-after S] [--add]
@@ -238,7 +283,11 @@ Observe
   logs                      Stream the demo app's SDK request/retry logs
 
 App / environment
-  relaunch                  Kill and relaunch the demo app on the booted simulator
+  install                   Build the demo app and install it on the simulator
+  tap <action> [args]       Drive the demo's UI with Maestro:
+                              add-tag <key> <value>, add-alias <label> <id>, add-email <email>,
+                              login <external id>, logout, toggle-push, allow-notifications
+  relaunch                  Kill and relaunch the demo app
   fresh                     Wipe the demo app's data (new SDK user) and relaunch, keeping the
                             notification permission. Allow the prompt once after installing.
   background | foreground   Send the demo app to the background, or bring it back
@@ -246,7 +295,8 @@ App / environment
 
 Routes: create-user fetch-user update-user identity remove-alias create-sub update-sub
         delete-sub identity-by-sub custom-events all
-Env: RETRY_TEST_PORT ($PORT), RETRY_TEST_PROXY_MODE ($PROXY_MODE), RETRY_TEST_BUNDLE_ID ($BUNDLE_ID)
+Env: RETRY_TEST_DEVICE ($DEVICE_NAME), RETRY_TEST_PORT ($PORT),
+     RETRY_TEST_PROXY_MODE ($PROXY_MODE), RETRY_TEST_BUNDLE_ID ($BUNDLE_ID)
 EOF
 }
 
@@ -262,9 +312,11 @@ case "${1:-help}" in
   reset-log) cmd_reset_log ;;
   logs) cmd_logs ;;
   fresh) cmd_fresh ;;
-  relaunch) xcrun simctl terminate booted "$BUNDLE_ID" 2>/dev/null || true; xcrun simctl launch booted "$BUNDLE_ID" ;;
-  background) xcrun simctl launch booted com.apple.Preferences >/dev/null && echo "Demo app backgrounded." ;;
-  foreground) xcrun simctl launch booted "$BUNDLE_ID" >/dev/null && echo "Demo app foregrounded." ;;
+  install) cmd_install ;;
+  tap) shift; cmd_tap "$@" ;;
+  relaunch) resolve_device; xcrun simctl terminate "$DEVICE" "$BUNDLE_ID" 2>/dev/null || true; xcrun simctl launch "$DEVICE" "$BUNDLE_ID" ;;
+  background) resolve_device; xcrun simctl launch "$DEVICE" com.apple.Preferences >/dev/null && echo "Demo app backgrounded." ;;
+  foreground) resolve_device; xcrun simctl launch "$DEVICE" "$BUNDLE_ID" >/dev/null && echo "Demo app foregrounded." ;;
   network-flap) shift; cmd_network_flap "$@" ;;
   help|-h|--help) usage ;;
   *) usage; exit 1 ;;

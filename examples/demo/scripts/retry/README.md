@@ -6,21 +6,25 @@ SDK's `SDK-Version` header. The demo's own REST calls and all other traffic pass
 `onesignal.com` traffic is decrypted.
 
 ```bash
-brew install mitmproxy
+brew install mitmproxy mobile-dev-inc/tap/maestro
 cd examples/demo/scripts/retry
 ./retry-test.sh help
 ```
 
+[Maestro](https://maestro.mobile.dev) drives the demo's UI (`tap`) through the flows in `flows/`.
+
 ## Setup
 
-1. Build and install the demo app on a simulator (see `examples/demo/README.md`), launch it once,
-   and allow notifications. The prompt holds the app inactive, so foreground retries never fire
-   while it is showing. Use `fresh` instead of reinstalling, so the permission is kept.
-2. `./retry-test.sh start` starts mitmproxy on port 8899, points the Mac's Wi-Fi/Ethernet HTTP(S)
-   proxy at it (the simulator uses the Mac's proxy), and trusts its CA on the booted simulator.
-3. `./retry-test.sh fresh` wipes the demo's data and relaunches it as a new install.
-4. In another terminal, `./retry-test.sh watch` follows each SDK request.
-5. When done, **`./retry-test.sh stop`** restores the Mac's proxy settings.
+1. `xcrun simctl create "OneSignal Retry Test" "iPhone 17"`. The harness uses its own simulator
+   (`RETRY_TEST_DEVICE`, by name or UDID) because the other OneSignal demos share the bundle ID.
+2. `./retry-test.sh install` builds the demo and installs it there.
+3. `./retry-test.sh start` starts mitmproxy on port 8899, points the Mac's Wi-Fi/Ethernet HTTP(S)
+   proxy at it (the simulator uses the Mac's proxy), and trusts its CA on the simulator.
+4. `./retry-test.sh fresh`, then `./retry-test.sh tap allow-notifications`. The permission prompt
+   holds the app inactive, so foreground retries never fire while it is showing. `fresh` wipes the
+   demo's data without reinstalling, so the permission is kept from then on.
+5. In another terminal, `./retry-test.sh watch` follows each SDK request.
+6. When done, **`./retry-test.sh stop`** restores the Mac's proxy settings.
 
 Leave the Mac's proxy alone with `RETRY_TEST_PROXY_MODE=local` (mitmproxy captures the `App`
 process, which needs its network extension approved once). For a physical device, use
@@ -34,6 +38,8 @@ process, which needs its network extension approved once). For a physical device
 | `clear` / `rules` | Remove or show the rules |
 | `report [regex]` | Per route: each attempt, the gap since the previous one, and the gap expected |
 | `reset-log` | Forget recorded attempts, for example between scenarios |
+| `tap <action> [args]` | Use the demo: `add-tag <key> <value>`, `add-alias <label> <id>`, `add-email <email>`, `login <external id>`, `logout`, `toggle-push`, `allow-notifications` |
+| `install` | Build the demo and install it on the simulator |
 | `fresh` / `relaunch` | New install without reinstalling / kill and relaunch |
 | `background` / `foreground` | Background the demo by opening Settings / bring it back |
 | `network-flap [s]` | Turn the Mac's Wi-Fi off for `s` seconds (default 10). Drops your Mac's connection too. |
@@ -62,7 +68,8 @@ What the SDK should do:
   (5, 15, 45, 135s) before the executor sees the failure. That count is kept per request for the
   run, so later failures of the same request go straight to the executor backoff. Use a
   retryable status the client does not reattempt, like **408**, to see the executor backoff right
-  away.
+  away. The client resends ignore foreground and network return, so after going offline, requests
+  can wait for the next client resend (up to 135s).
 - **Repo executors** (everything but the User executor) only resend on the 5s poll, so their window
   allows up to 5s more. The User executor wakes itself on time.
 - **Foreground, and network return while in the foreground, end the executor backoff early**, but
@@ -79,29 +86,29 @@ and nothing should need a relaunch.
 
 1. **Exponential backoff, User executor**: `fail create-user 408 --times 4`, then `fresh`. Gaps
    should fall in the windows above, then 201.
-2. **Repo executor**: `fail update-user 408 --times 3`, then add a tag in the demo. The PATCH
+2. **Repo executor**: `fail update-user 408 --times 3`, then `tap add-tag k v`. The PATCH
    retries on the next poll after each backoff.
-3. **Retry-After**: `fail update-user 429 --times 2 --retry-after 20`, then add a tag. Gaps of at
+3. **Retry-After**: `fail update-user 429 --times 2 --retry-after 20`, then `tap add-tag k v`. Gaps of at
    least 20s. `background` then `foreground` during the wait must not cut it short.
-4. **429 without Retry-After**: `fail update-user 429 --times 1`, then add a tag. About 60s.
-5. **5xx**: `fail update-user 503 --times 6`, then add a tag. Four client reattempts (5, 15, 45,
+4. **429 without Retry-After**: `fail update-user 429 --times 1`, then `tap add-tag k v`. About 60s.
+5. **5xx**: `fail update-user 503 --times 6`, then `tap add-tag k v`. Four client reattempts (5, 15, 45,
    135s), then executor backoff. Slow, about 3.5 minutes.
-6. **Offline**: `fail all 0`, change tags, aliases and email, wait for a few failures, then `clear`.
-   Everything goes out by the next backoff, or right away after `foreground`.
+6. **Offline**: `fail all 0`, then `tap add-tag k v`, `tap add-alias l i` and `tap add-email e`.
+   Wait for a few failures, then `clear`. Everything goes out by its next client resend or backoff.
 7. **Foreground ends the backoff**: `fail create-user 408 --times 6`, then `fresh`. After about
    25s, `background`, wait, `foreground`. An attempt goes out right as the app becomes active.
 8. **Network return**: as in 7, but `network-flap 5` with the app in the foreground. An attempt goes
    out when Wi-Fi comes back. Repeat with the app in the background: no attempt then.
-9. **Order is kept**: `fail create-user 408 --times 3`, then `fresh` and log in during the
+9. **Order is kept**: `fail create-user 408 --times 3`, then `fresh` and `tap login <id>` during the
    failures. Identify User (PATCH `.../identity`) is not sent until Create User succeeds.
-10. **Fetch User**: `fail fetch-user 408 --times 3`, then log in to an existing external ID.
+10. **Fetch User**: `fail fetch-user 408 --times 3`, then `tap login <id>`.
     Fetch User retries in the same run, and later user requests wait for it.
-11. **Kill during backoff**: `fail update-user 408`, add a tag, wait for two failures, `clear`,
+11. **Kill during backoff**: `fail update-user 408`, `tap add-tag k v`, wait for two failures, `clear`,
     then `relaunch`. The cached request is sent right after launch.
-12. **Non-retryable is not retried**: `fail update-user 400 --times 1`, then add a tag. One attempt,
+12. **Non-retryable is not retried**: `fail update-user 400 --times 1`, then `tap add-tag k v`. One attempt,
     no retries.
 13. **Update Subscription no longer retries every 5s**: `fail update-sub 408 --times 4`, then
-    toggle push in the demo. Gaps grow instead of repeating every 5s.
-14. **Login/logout while failing**: `fail all 408`, log in, log out, log in as someone else, then
+    `tap toggle-push`. Gaps grow instead of repeating every 5s.
+14. **Login/logout while failing**: `fail all 408`, `tap login b`, `tap logout`, `tap login c`, then
     `clear`. Requests for each user go out in order, with no errors about the wrong user.
 15. **Identity Verification**: repeat 1, 2 and 9 with an app that requires JWT.
