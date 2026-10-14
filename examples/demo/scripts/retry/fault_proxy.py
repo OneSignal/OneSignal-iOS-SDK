@@ -27,6 +27,15 @@ ATTEMPTS_PATH = os.path.join(STATE_DIR, "attempts.jsonl")
 API_PATH_PREFIX = re.compile(r"^/(api/v1/)?")
 
 
+def body_hash(raw):
+    # Key order can change between attempts of the same request, so hash the parsed JSON.
+    try:
+        raw = json.dumps(json.loads(raw), sort_keys=True).encode()
+    except ValueError:
+        pass
+    return hashlib.sha1(raw).hexdigest()[:8]
+
+
 class FaultProxy:
     def __init__(self):
         self.rules_mtime = None
@@ -98,7 +107,7 @@ class FaultProxy:
             "status": status,
             "injected": rule is not None,
             "retry_after": rule.get("retry_after") if rule else None,
-            "body": hashlib.sha1(flow.request.raw_content or b"").hexdigest()[:8],
+            "body": body_hash(flow.request.raw_content or b""),
         }
         with open(ATTEMPTS_PATH, "a") as f:
             f.write(json.dumps(entry) + "\n")

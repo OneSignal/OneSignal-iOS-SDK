@@ -19,10 +19,10 @@ from collections import OrderedDict
 CLIENT_DELAYS = [5, 15, 45, 135]
 POLL_SLACK = 5.5
 CLOCK_SLACK = 1.0
-# Login's Identify User shares PATCH .../identity with Add Aliases, so it is judged with the looser
-# repo executor window.
-USER_EXECUTOR = re.compile(r"^POST apps/[^/]+/users$|^GET apps/[^/]+/users/by/|^GET apps/[^/]+/subscriptions/[^/]+/user/identity$")
-EXECUTOR_ROUTE = re.compile(r"^apps/[^/]+/(users(/by/.*)?|subscriptions/[^/]+|custom_events)$")
+# Login's Identify User shares PATCH .../identity with Add Aliases, so it is labeled a repo executor.
+USER_EXECUTOR = re.compile(r"^POST apps/[^/]+/users$|^GET apps/[^/]+/users/by/[^/]+/[^/]+$|^GET apps/[^/]+/subscriptions/[^/]+/user/identity$")
+# Leaves out the in-app message fetch under users/by/, which has retries of its own.
+EXECUTOR_ROUTE = re.compile(r"^(?!.*/iams$)apps/[^/]+/(users(/by/.*)?|subscriptions/[^/]+|custom_events)$")
 ID_SEGMENT = re.compile(r"(by/[^/]+/|subscriptions/)[^/]+")
 
 
@@ -71,7 +71,7 @@ def main():
         if not EXECUTOR_ROUTE.search(entries[0]["path"]):
             continue
         repo = not is_user_executor(entries[0])
-        print(f"\n{key}  ({'repo executor, 5s poll' if repo else 'User executor'})")
+        print(f"\n{key}  ({'repo executor' if repo else 'User executor'})")
         print(f"  {'#':>3} {'time':>8} {'status':>6} {'body':>8} {'gap':>8} {'expected':>16}  note")
         client_retries = 0
         executor_failures = 0
@@ -110,8 +110,7 @@ def main():
             else:
                 executor_failures += 1
                 low, high, has_floor = executor_window(executor_failures, status, entry.get("retry_after"))
-                if repo:
-                    high += POLL_SLACK
+                high += POLL_SLACK
                 kind = f"executor backoff #{executor_failures}"
                 expected = (low, high, kind + (", Retry-After" if has_floor else ""))
     print("\n* = failure injected by the proxy")
