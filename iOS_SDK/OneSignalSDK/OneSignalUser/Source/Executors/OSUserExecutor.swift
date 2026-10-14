@@ -43,6 +43,8 @@ class OSUserExecutor {
     private var awaitingRetry = false
     /// A Create User the server rejected, held until a new session. Only touched on `dispatchQueue`.
     private var rejectedCreateUsers: [OSRequestCreateUser] = []
+    /// Only touched on `dispatchQueue`.
+    private var sessionCount = 0
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
@@ -361,6 +363,8 @@ class OSUserExecutor {
 
     func executePendingRequestsOnNewSession() {
         dispatchQueue.async {
+            self.sessionCount += 1
+            self.dropRejectedCreateUsersOfPastUsers()
             for request in self.rejectedCreateUsers {
                 request.sentToClient = false
             }
@@ -369,7 +373,25 @@ class OSUserExecutor {
         }
     }
 
+    /// A logged-out user's rejected Create User would otherwise hold the next user's Requests behind it.
+    private func dropRejectedCreateUsersOfPastUsers() {
+        let pastUsers = rejectedCreateUsers.filter {
+            OneSignalUserManagerImpl.sharedInstance.currentUser(matching: $0.identityModel.modelId) == nil
+        }
+        guard !pastUsers.isEmpty else {
+            return
+        }
+        let isPastUser = { (request: OSUserRequest) in pastUsers.contains { $0 === request } }
+        rejectedCreateUsers.removeAll(where: isPastUser)
+        userRequestQueue.removeAll(where: isPastUser)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+        if rejectedCreateUsers.isEmpty {
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        }
+    }
+
     private func _executePendingRequests() {
+        dropRejectedCreateUsersOfPastUsers()
         // Hold until known: a Create User sent now would go out unsigned if `requirement` later becomes on.
         guard identityVerificationService.requirement != .unknown else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(self.userRequestQueue.count) Requests until the Identity Verification requirement is known")
@@ -474,6 +496,7 @@ extension OSUserExecutor {
         }
 
         request.sentToClient = true
+        let sentInSession = sessionCount
 
         OneSignalCoreImpl.sharedClient().execute(request) { response in
             // Create User's response won't send us the user's complete info if this user already exists
@@ -529,7 +552,13 @@ extension OSUserExecutor {
                 // flushes in this run skip it.
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
                 self.dispatchQueue.async {
-                    self.rejectedCreateUsers.append(request)
+                    if self.sessionCount != sentInSession {
+                        // A session started while this was in flight, so this is that session's retry.
+                        request.sentToClient = false
+                        self._executePendingRequests()
+                    } else {
+                        self.rejectedCreateUsers.append(request)
+                    }
                 }
             } else {
                 self.retryLater(request, error: error)
