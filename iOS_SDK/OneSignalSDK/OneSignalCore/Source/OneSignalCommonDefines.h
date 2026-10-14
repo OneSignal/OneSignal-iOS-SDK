@@ -208,6 +208,7 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define PROPERTIES_EXECUTOR_BACKGROUND_TASK     @"PROPERTIES_EXECUTOR_BACKGROUND_TASK_"
 #define SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK   @"SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK_"
 #define CUSTOM_EVENTS_EXECUTOR_BACKGROUND_TASK  @"CUSTOM_EVENTS_EXECUTOR_BACKGROUND_TASK_"
+#define SESSION_EXECUTOR_BACKGROUND_TASK        @"SESSION_EXECUTOR_BACKGROUND_TASK_"
 
 // OneSignal constants
 #define OS_PUSH @"push"
@@ -353,6 +354,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_CUSTOM_EVENT_DELTA                                               @"OS_CUSTOM_EVENT_DELTA"
 
+#define OS_CREATE_SESSION_DELTA                                             @"OS_CREATE_SESSION_DELTA"
+#define OS_UPDATE_SESSION_DELTA                                             @"OS_UPDATE_SESSION_DELTA"
+
 // Operation Repo
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
@@ -378,6 +382,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // Custom Events Executor
 #define OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY                           @"OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY                         @"OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY"
+
+// Session Executor
+#define OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY                                 @"OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY                               @"OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY"
 
 // A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
 // decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.
