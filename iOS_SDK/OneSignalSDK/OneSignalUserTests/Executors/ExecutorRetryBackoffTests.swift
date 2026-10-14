@@ -248,6 +248,23 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
     }
 
+    func testALoginWhileTheRejectedCreateUserIsInFlightIsNotHeldBehindIt() {
+        let executor = userExecutor()
+        let loggedOut = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
+        createUserRejected(executor, for: loggedOut, externalId: userB_EUID) {
+            client.setMockResponseForRequest(request: "<OSRequestCreateUser with external_id: \(userA_EUID)>", response: [:])
+            executor.createUser(aliasLabel: OS_EXTERNAL_ID, aliasId: userA_EUID, identityModel: identityModel)
+            allowAsyncWorkToRun(seconds: 0.3)
+        }
+
+        OneSignalCoreMocks.waitUntil("The current user's Create User was held behind the in-flight logged out one") {
+            self.count(OSRequestCreateUser.self) == 2
+        }
+        OneSignalCoreMocks.waitUntil("The repo was left paused") {
+            !OneSignalUserManagerImpl.sharedInstance.operationRepo.paused
+        }
+    }
+
     func testACreateUserRejectedAfterANewSessionStartedIsResentRightAway() {
         let executor = userExecutor()
         createUserRejected(executor, for: identityModel, externalId: userA_EUID) {

@@ -558,6 +558,8 @@ extension OSUserExecutor {
                         self._executePendingRequests()
                     } else {
                         self.rejectedCreateUsers.append(request)
+                        // A logout or login while this was in flight stopped on it; re-enter so it is dropped.
+                        self._executePendingRequests()
                     }
                 }
             } else {
