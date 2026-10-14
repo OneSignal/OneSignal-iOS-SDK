@@ -277,10 +277,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 case OS_UPDATE_SUBSCRIPTION_DELTA:
                     // Keep at most one unsent UpdateSubscription per subscription (last wins).
                     let modelId = subModel.modelId
-                    self.updateRequestQueue.removeAll { request in
+                    let isUnsent = { (request: OSRequestUpdateSubscription) in
                         !request.sentToClient && request.subscriptionModel.modelId == modelId
                     }
+                    let replaced = self.updateRequestQueue.last(where: isUnsent)
+                    self.updateRequestQueue.removeAll(where: isUnsent)
                     let request = OSRequestUpdateSubscription(subscriptionModel: subModel, identityModel: identityModel)
+                    // Carry a backoff over, or the replacement would skip it.
+                    replaced.map { self.retryBackoff.transferWait(from: $0, to: request) }
                     self.updateRequestQueue.append(request)
 
                 default:

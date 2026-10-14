@@ -39,6 +39,10 @@ class OSUserExecutor {
     private let identityVerificationService: OSIdentityVerificationService
     private let auth: OSRequestAuthorizing
     private let retryBackoff: OSRequestRetryBackoff
+    /// Only touched on `dispatchQueue`.
+    private var awaitingRetry = false
+    /// A Create User the server rejected, held until a new session. Only touched on `dispatchQueue`.
+    private var rejectedCreateUsers: [OSRequestCreateUser] = []
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
@@ -333,14 +337,35 @@ class OSUserExecutor {
         }
     }
 
-    /// Backs off, then re-sends. Requests behind this one keep waiting, so order is preserved.
+    /// Backs off, then `retryIfDue` re-sends. Requests behind this one keep waiting, so order is preserved.
     private func retryLater(_ request: OSUserRequest, error: OneSignalClientError) {
-        let delay = retryBackoff.recordFailure(request, error: error)
+        retryBackoff.recordFailure(request, error: error)
         dispatchQueue.async {
             request.sentToClient = false
+            self.awaitingRetry = true
         }
-        dispatchQueue.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?._executePendingRequests()
+    }
+
+    /// Called on the Operation Repo's poll rather than a timer of its own: the poll re-reads the backoff
+    /// clock, which keeps counting while the device sleeps, so a wait that ended during sleep is not stranded.
+    func retryIfDue() {
+        dispatchQueue.async {
+            guard self.awaitingRetry,
+                  !self.userRequestQueue.contains(where: { self.retryBackoff.isWaiting($0) }) else {
+                return
+            }
+            self.awaitingRetry = false
+            self._executePendingRequests()
+        }
+    }
+
+    func executePendingRequestsOnNewSession() {
+        dispatchQueue.async {
+            for request in self.rejectedCreateUsers {
+                request.sentToClient = false
+            }
+            self.rejectedCreateUsers.removeAll()
+            self._executePendingRequests()
         }
     }
 
@@ -500,9 +525,12 @@ extension OSUserExecutor {
             } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
-                // We will retry this request on a new session
+                // We will retry this request on a new session. Stays marked as sent until then, so other
+                // flushes in this run skip it.
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-                request.sentToClient = false
+                self.dispatchQueue.async {
+                    self.rejectedCreateUsers.append(request)
+                }
             } else {
                 self.retryLater(request, error: error)
             }

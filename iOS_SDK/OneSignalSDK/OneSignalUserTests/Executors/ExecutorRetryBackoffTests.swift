@@ -154,22 +154,28 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         flushAndWaitForAttempt(executor, number: 2)
     }
 
-    /// The User executor is not polled, so it schedules its own retry, and holds the Requests behind it.
-    func testTheUserExecutorRetriesAFailedFetchUserInTheSameRun() {
-        let shortBackoff = OSRequestRetryBackoff(uptime: { ProcessInfo.processInfo.systemUptime }, jitter: { 0.1 })
-        let fetch = "<OSRequestFetchUser with onesignal_id: \(userA_OSID)>"
-        let executor = OSUserExecutor(
+    private func userExecutor() -> OSUserExecutor {
+        return OSUserExecutor(
             newRecordsState: newRecordsState,
             identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService,
             auth: OneSignalUserManagerImpl.sharedInstance.requestAuth,
-            retryBackoff: shortBackoff
+            retryBackoff: backoff
         )
+    }
+
+    private func count(_ type: AnyClass) -> Int {
+        return client.executedRequests.filter { $0.isKind(of: type) }.count
+    }
+
+    /// The User executor re-sends from the Operation Repo's poll, and holds the Requests behind it.
+    func testTheUserExecutorRetriesAFailedFetchUserOnThePollOnceTheBackoffPasses() {
+        let fetch = "<OSRequestFetchUser with onesignal_id: \(userA_OSID)>"
+        let executor = userExecutor()
         client.setMockFailureResponseForRequest(request: fetch, error: error(500))
-        client.holdResponses = true
 
         executor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: userA_OSID, identityModel: identityModel, onNewSession: true)
         OneSignalCoreMocks.waitUntil("The Fetch User was not attempted") {
-            self.client.startedRequests.contains { $0 is OSRequestFetchUser }
+            self.count(OSRequestFetchUser.self) == 1 && self.backoff.isWaitingOnAny()
         }
 
         // Includes this device's subscription, so the on-new-session check does not go on to create one.
@@ -177,13 +183,40 @@ final class ExecutorRetryBackoffTests: XCTestCase {
             "identity": [OS_ONESIGNAL_ID: userA_OSID, OS_EXTERNAL_ID: userA_EUID],
             "subscriptions": [["id": testPushSubId, "type": "iOSPush"]]
         ]
-        // Releasing fails the attempt on this thread, so the success response is in place well before
-        // the retry. A slow runner then cannot push the retries past the wait below.
-        client.releaseHeldResponses()
         client.setMockResponseForRequest(request: fetch, response: response)
+        executor.retryIfDue()
+        allowAsyncWorkToRun(seconds: 0.3)
+        XCTAssertEqual(count(OSRequestFetchUser.self), 1, "still backing off")
+
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
         OneSignalCoreMocks.waitUntil("The Fetch User was not retried until it succeeded") {
-            self.client.executedRequests.filter { $0 is OSRequestFetchUser }.count >= 2 && executor.userRequestQueue.isEmpty
+            executor.retryIfDue()
+            return self.count(OSRequestFetchUser.self) == 2 && executor.userRequestQueue.isEmpty
         }
         allowAsyncWorkToRun()
+    }
+
+    func testARejectedCreateUserIsOnlyResentOnANewSession() {
+        let executor = userExecutor()
+        client.holdResponses = true
+        executor.createUser(aliasLabel: OS_EXTERNAL_ID, aliasId: userB_EUID, identityModel: OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer()))
+        OneSignalCoreMocks.waitUntil("The Create User was not attempted") {
+            self.client.startedRequests.contains { $0 is OSRequestCreateUser }
+        }
+        let createUser = client.startedRequests.first { $0 is OSRequestCreateUser }!
+        client.setMockFailureResponseForRequest(request: createUser.description, error: error(400))
+        client.releaseHeldResponses()
+
+        // A foreground that ends some other backoff flushes the executor.
+        executor.executePendingRequests()
+        executor.retryIfDue()
+        allowAsyncWorkToRun(seconds: 0.3)
+        XCTAssertEqual(count(OSRequestCreateUser.self), 1, "held until a new session")
+
+        executor.executePendingRequestsOnNewSession()
+        OneSignalCoreMocks.waitUntil("The Create User was not resent on the new session") {
+            self.count(OSRequestCreateUser.self) == 2
+        }
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
     }
 }

@@ -322,6 +322,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                 auth: requestAuth,
                 retryBackoff: retryBackoff
             )
+            operationRepo.onEveryPoll { [weak self] in
+                self?.userExecutor?.retryIfDue()
+            }
 
             // Cannot initialize these executors in `init` as they reference the sharedInstance
             let propertyExecutor = OSPropertyOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
@@ -694,7 +697,7 @@ extension OneSignalUserManagerImpl {
         }
         start()
 
-        userExecutor!.executePendingRequests()
+        userExecutor!.executePendingRequestsOnNewSession()
         operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
 

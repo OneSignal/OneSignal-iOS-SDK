@@ -97,6 +97,15 @@ public final class OSRequestRetryBackoff {
         }
     }
 
+    /// Moves `old`'s wait onto `new`, so replacing a Request that is backing off does not skip its wait.
+    public func transferWait(from old: AnyObject, to new: AnyObject) {
+        lock.withLock {
+            if let entry = entries.object(forKey: old) {
+                entries.setObject(entry, forKey: new)
+            }
+        }
+    }
+
     /// Ends every backoff early, except what a server's `Retry-After` asked for. Returns whether any
     /// Request can now be sent sooner.
     @discardableResult

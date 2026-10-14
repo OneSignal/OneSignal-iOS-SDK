@@ -75,6 +75,18 @@ final class OSRequestRetryBackoffTests: XCTestCase {
         XCTAssertFalse(backoff.isWaiting(NSObject()))
     }
 
+    func testAReplacementKeepsTheWaitOfTheRequestItReplaces() {
+        let failed = NSObject()
+        let replacement = NSObject()
+        backoff.recordFailure(failed, error: error(500))
+
+        backoff.transferWait(from: failed, to: replacement)
+        XCTAssertTrue(backoff.isWaiting(replacement))
+
+        uptime += 5
+        XCTAssertFalse(backoff.isWaiting(replacement))
+    }
+
     func testRetryAfterIsTheMinimumWait() {
         XCTAssertEqual(backoff.recordFailure(NSObject(), error: error(503, headers: ["retry-after": "120"])), 120)
     }
