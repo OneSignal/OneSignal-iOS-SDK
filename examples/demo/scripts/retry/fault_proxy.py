@@ -50,11 +50,16 @@ class FaultProxy:
         if mtime == self.rules_mtime:
             return
         self.rules_mtime = mtime
+        old_rules, old_remaining = self.rules, self.remaining
         self.rules = []
         if mtime is not None:
             with open(RULES_PATH) as f:
                 self.rules = json.load(f)
-        self.remaining = [rule.get("times") for rule in self.rules]
+        # `fail --add` rewrites the earlier rules unchanged; keep the counts they have used up.
+        self.remaining = [
+            old_remaining[i] if i < len(old_rules) and old_rules[i] == rule else rule.get("times")
+            for i, rule in enumerate(self.rules)
+        ]
         print(f"[fault] rules: {json.dumps(self.rules) if self.rules else 'none, passing everything'}")
 
     def match(self, flow):

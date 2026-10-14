@@ -78,6 +78,9 @@ What the SDK should do:
   second attempt follows within a second.
 - `body` is a hash of the request body. A new hash on each attempt is normal, since bodies hold
   timestamps.
+- Attempts are grouped by method and path with IDs left out, so two requests on one route in the
+  same window (two logins, or a session update and a tag) share one series. `reset-log` between
+  scenarios, and run one action at a time.
 
 ## Scenarios
 

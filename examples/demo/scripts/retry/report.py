@@ -6,8 +6,10 @@ Expected gaps model the SDK's two retry layers:
   - OneSignalClient re-sends a 5xx or status 0 up to 4 times itself (5, 15, 45, 135s). The count
     lives on the request object, so a request only gets those once per run.
   - Then the executor backs off: 5s doubling to 300s, times jitter in [0.5, 1]. Retry-After, or
-    60s for a 429 without one, is the minimum. Repo executors (everything except the User
-    executor) only resend on their 5s poll, so up to 5s more is allowed.
+    60s for a 429 without one, is the minimum. Executors resend on the operation repo's 5s poll,
+    so up to 5s more is allowed.
+Attempts are grouped by method and path with IDs stripped, so separate requests on one route in
+the same window (two logins, a session update and a tag) share one series.
 A foreground or network return ends an executor backoff early, so short gaps after those are fine.
 """
 
@@ -22,7 +24,7 @@ CLOCK_SLACK = 1.0
 # Login's Identify User shares PATCH .../identity with Add Aliases, so it is labeled a repo executor.
 USER_EXECUTOR = re.compile(r"^POST apps/[^/]+/users$|^GET apps/[^/]+/users/by/[^/]+/[^/]+$|^GET apps/[^/]+/subscriptions/[^/]+/user/identity$")
 # Leaves out the in-app message fetch under users/by/, which has retries of its own.
-EXECUTOR_ROUTE = re.compile(r"^(?!.*/iams$)apps/[^/]+/(users(/by/.*)?|subscriptions/[^/]+|custom_events)$")
+EXECUTOR_ROUTE = re.compile(r"^(?!.*/iams$)apps/[^/]+/(users(/by/.*)?|subscriptions/[^/]+(/user/identity)?|custom_events)$")
 ID_SEGMENT = re.compile(r"(by/[^/]+/|subscriptions/)[^/]+")
 
 

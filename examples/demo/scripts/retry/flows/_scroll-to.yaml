@@ -1,4 +1,4 @@
-appId: com.onesignal.example
+appId: ${APP_ID}
 ---
 - scrollUntilVisible:
     element:

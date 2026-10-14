@@ -79,7 +79,8 @@ set_system_proxy() {
   local service
   service="$(network_service)"
   [[ -n "$service" ]] || die "could not map the default interface to a network service"
-  {
+  # A start after a crashed proxy would otherwise save our own redirect as the original settings.
+  [[ -f "$SAVED_PROXY" ]] || {
     echo "$service"
     networksetup -getwebproxy "$service" | awk -F': ' '/^(Enabled|Server|Port)/ {print $2}' | paste -sd' ' -
     networksetup -getsecurewebproxy "$service" | awk -F': ' '/^(Enabled|Server|Port)/ {print $2}' | paste -sd' ' -
@@ -172,8 +173,10 @@ cmd_fail() {
       *) die "unknown option $1" ;;
     esac
   done
-  local method path
-  read -r method path <<< "$(route_rule "$route")"
+  [[ "$status" == "0" && "$retry_after" != "null" ]] && die "--retry-after needs an HTTP status; status 0 sends no response"
+  local rule method path
+  rule="$(route_rule "$route")" || exit 1
+  read -r method path <<< "$rule"
   [[ "$method" == "-" ]] && method=""
   python3 - "$RULES" "$add" "$route" "$method" "$path" "$status" "$times" "$retry_after" > "$RULES.tmp" <<'PY'
 import json, sys
@@ -201,9 +204,12 @@ cmd_network_flap() {
   device="$(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/ {getline; print $2}')"
   [[ -n "$device" ]] || die "no Wi-Fi interface found"
   echo "Wi-Fi ($device) off for ${seconds}s..."
+  trap "networksetup -setairportpower '$device' on" EXIT
+  trap 'exit 130' INT TERM
   networksetup -setairportpower "$device" off
   sleep "$seconds"
   networksetup -setairportpower "$device" on
+  trap - EXIT INT TERM
   echo "Wi-Fi back on."
 }
 
@@ -262,9 +268,11 @@ cmd_tap() {
     *) die "usage: $0 tap <add-tag|add-alias|add-email|login|update-jwt|logout|toggle-push|pause-iams|allow-notifications> [args]" ;;
   esac
   resolve_device
+  local status=0
   MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
-    maestro --device "$DEVICE" test ${env[@]+"${env[@]}"} "$SCRIPT_DIR/flows/$action.yaml" \
-    | grep -E '^ *(>|[A-Z].*(COMPLETED|FAILED|WARNED))' || true
+    maestro --device "$DEVICE" test -e "APP_ID=$BUNDLE_ID" ${env[@]+"${env[@]}"} "$SCRIPT_DIR/flows/$action.yaml" \
+    | { grep -E '^ *(>|[A-Z].*(COMPLETED|FAILED|WARNED))' || true; } || status=$?
+  [[ $status -eq 0 ]] || die "flow '$action' failed (maestro exit $status)"
 }
 
 cmd_jwt() {
