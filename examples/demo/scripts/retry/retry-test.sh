@@ -19,6 +19,8 @@ PROXY_MODE="${RETRY_TEST_PROXY_MODE:-system}"
 BUNDLE_ID="${RETRY_TEST_BUNDLE_ID:-com.onesignal.example}"
 # Other demos (Cordova, Capacitor, ...) share the bundle ID, so give the harness its own simulator.
 DEVICE_NAME="${RETRY_TEST_DEVICE:-OneSignal Retry Test}"
+IV_APP_ID="${RETRY_TEST_IV_APP_ID:-}"
+IV_KEY="${RETRY_TEST_IV_KEY:-}"
 CA_CERT="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
 
 export RETRY_TEST_STATE_DIR="$STATE_DIR"
@@ -243,7 +245,12 @@ cmd_tap() {
   local action="${1:-}" env=()
   case "$action" in
     add-tag|add-alias) [[ $# -eq 3 ]] || die "usage: $0 tap $action <key> <value>"; env=(-e "KEY=$2" -e "VALUE=$3") ;;
-    add-email|login) [[ $# -eq 2 ]] || die "usage: $0 tap $action <value>"; env=(-e "VALUE=$2") ;;
+    add-email) [[ $# -eq 2 ]] || die "usage: $0 tap $action <value>"; env=(-e "VALUE=$2") ;;
+    login)
+      [[ $# -eq 2 || $# -eq 3 ]] || die "usage: $0 tap login <external id> [jwt]"
+      local jwt="${3:-}"
+      [[ -z "$jwt" && -n "$IV_KEY" ]] && { jwt="$(cmd_jwt "$2")" || exit 1; }
+      env=(-e "VALUE=$2" -e "JWT=$jwt") ;;
     logout|toggle-push|allow-notifications) ;;
     *) die "usage: $0 tap <add-tag|add-alias|add-email|login|logout|toggle-push|allow-notifications> [args]" ;;
   esac
@@ -251,6 +258,12 @@ cmd_tap() {
   MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
     maestro --device "$DEVICE" test ${env[@]+"${env[@]}"} "$SCRIPT_DIR/flows/$action.yaml" \
     | grep -E '^ *(>|[A-Z].*(COMPLETED|FAILED|WARNED))' || true
+}
+
+cmd_jwt() {
+  [[ -n "$IV_APP_ID" && -n "$IV_KEY" ]] || die "set RETRY_TEST_IV_APP_ID and RETRY_TEST_IV_KEY (path to the app's private key)"
+  [[ -r "$IV_KEY" ]] || die "can't read $IV_KEY"
+  python3 "$SCRIPT_DIR/make_jwt.py" "$IV_KEY" "$IV_APP_ID" "$@"
 }
 
 cmd_logs() {
@@ -286,7 +299,10 @@ App / environment
   install                   Build the demo app and install it on the simulator
   tap <action> [args]       Drive the demo's UI with Maestro:
                               add-tag <key> <value>, add-alias <label> <id>, add-email <email>,
-                              login <external id>, logout, toggle-push, allow-notifications
+                              login <external id> [jwt], logout, toggle-push, allow-notifications
+                            With RETRY_TEST_IV_KEY set, login signs a JWT when none is given.
+  jwt <external id> [label=id] [email:addr] [sms:number]
+                            Print an Identity Verification JWT claiming those aliases and subscriptions
   relaunch                  Kill and relaunch the demo app
   fresh                     Wipe the demo app's data (new SDK user) and relaunch, keeping the
                             notification permission. Allow the prompt once after installing.
@@ -296,7 +312,8 @@ App / environment
 Routes: create-user fetch-user update-user identity remove-alias create-sub update-sub
         delete-sub identity-by-sub custom-events all
 Env: RETRY_TEST_DEVICE ($DEVICE_NAME), RETRY_TEST_PORT ($PORT),
-     RETRY_TEST_PROXY_MODE ($PROXY_MODE), RETRY_TEST_BUNDLE_ID ($BUNDLE_ID)
+     RETRY_TEST_PROXY_MODE ($PROXY_MODE), RETRY_TEST_BUNDLE_ID ($BUNDLE_ID),
+     RETRY_TEST_IV_APP_ID and RETRY_TEST_IV_KEY (Identity Verification app and its private key path)
 EOF
 }
 
@@ -314,6 +331,7 @@ case "${1:-help}" in
   fresh) cmd_fresh ;;
   install) cmd_install ;;
   tap) shift; cmd_tap "$@" ;;
+  jwt) shift; cmd_jwt "$@" ;;
   relaunch) resolve_device; xcrun simctl terminate "$DEVICE" "$BUNDLE_ID" 2>/dev/null || true; xcrun simctl launch "$DEVICE" "$BUNDLE_ID" ;;
   background) resolve_device; xcrun simctl launch "$DEVICE" com.apple.Preferences >/dev/null && echo "Demo app backgrounded." ;;
   foreground) resolve_device; xcrun simctl launch "$DEVICE" "$BUNDLE_ID" >/dev/null && echo "Demo app foregrounded." ;;

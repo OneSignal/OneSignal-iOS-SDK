@@ -38,7 +38,8 @@ process, which needs its network extension approved once). For a physical device
 | `clear` / `rules` | Remove or show the rules |
 | `report [regex]` | Per route: each attempt, the gap since the previous one, and the gap expected |
 | `reset-log` | Forget recorded attempts, for example between scenarios |
-| `tap <action> [args]` | Use the demo: `add-tag <key> <value>`, `add-alias <label> <id>`, `add-email <email>`, `login <external id>`, `logout`, `toggle-push`, `allow-notifications` |
+| `tap <action> [args]` | Use the demo: `add-tag <key> <value>`, `add-alias <label> <id>`, `add-email <email>`, `login <external id> [jwt]`, `logout`, `toggle-push`, `allow-notifications`. With `RETRY_TEST_IV_KEY` set, `login` signs a JWT when none is given |
+| `jwt <external id> [label=id] [email:addr] [sms:number]` | Print an Identity Verification JWT, valid for an hour, that claims those aliases and subscriptions |
 | `install` | Build the demo and install it on the simulator |
 | `fresh` / `relaunch` | New install without reinstalling / kill and relaunch |
 | `background` / `foreground` | Background the demo by opening Settings / bring it back |
@@ -111,4 +112,10 @@ and nothing should need a relaunch.
     `tap toggle-push`. Gaps grow instead of repeating every 5s.
 14. **Login/logout while failing**: `fail all 408`, `tap login b`, `tap logout`, `tap login c`, then
     `clear`. Requests for each user go out in order, with no errors about the wrong user.
-15. **Identity Verification**: repeat 1, 2 and 9 with an app that requires JWT.
+15. **Identity Verification**: needs an app with Identity Verification on and its ES256 private
+    key. Ask the SDK team for both and keep the key outside the repo. Set the app's ID as
+    `ONESIGNAL_APP_ID` in `examples/demo/App/Secrets.plist` and `install` again, then set
+    `RETRY_TEST_IV_APP_ID=<app id>` and `RETRY_TEST_IV_KEY=<path to the key>`. `tap login <id>` now
+    signs a JWT. No anonymous Create User is sent, so in 1 and 9 the Create User comes from the
+    login. Repeat 1, 2, 6 and 9. In 6, log in first with a JWT that claims the alias and email:
+    `tap login <id> "$(./retry-test.sh jwt <id> l=i email:e)"`.
