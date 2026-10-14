@@ -56,6 +56,7 @@ public class OSOperationRepo: NSObject {
     // TODO: This could come from a config, plist, method, remote params
     var pollIntervalMilliseconds = Int(POLL_INTERVAL_MS)
     public var paused = false
+    private var pollHandler: (() -> Void)?
 
     // Uncache in init so an enqueue before start cannot persist over a previous session's queue.
     public init(identityVerificationService: OSIdentityVerificationService) {
@@ -149,8 +150,16 @@ public class OSOperationRepo: NSObject {
         }
     }
 
+    /// Runs on every poll, even while paused, for work outside the Delta queue that waits on a backoff.
+    public func onEveryPoll(_ handler: @escaping () -> Void) {
+        dispatchQueue.async {
+            self.pollHandler = handler
+        }
+    }
+
     private func pollFlushQueue() {
         self.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(pollIntervalMilliseconds)) { [weak self] in
+            self?.pollHandler?()
             self?.flushDeltaQueue()
             self?.pollFlushQueue()
         }

@@ -56,6 +56,7 @@
 		D9F1B3E5A7C2495FC1E6B8D3 /* ExecutorRequestAgingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E5A1D7F2B9461EB8D4A6C2 /* ExecutorRequestAgingTests.swift */; };
 		23D66BEB40CE76DFF89744A3 /* RequestPathEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3016921C1F6B7B7793F67567 /* RequestPathEncodingTests.swift */; };
 		257E219608960B8545199057 /* OneSignalUserManagerImpl+Jwt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */; };
+		B5481A0100000000000000AC /* OneSignalUserManagerImpl+Retry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000AB /* OneSignalUserManagerImpl+Retry.swift */; };
 		2DB99C76F3532383C3B81D09 /* OSUserJwtRepoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5809B47EB4F2478099697CE /* OSUserJwtRepoTests.swift */; };
 		322B62F85070DCB5C5599D6D /* OSOperationRepoIdentityVerificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBB451F692A15639A1A08AE /* OSOperationRepoIdentityVerificationTests.swift */; };
 		32601EF1960CD92605D1ABF9 /* OSRequestAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF72AAEB5284C97B864A1A8 /* OSRequestAuth.swift */; };
@@ -122,6 +123,8 @@
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
 		3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */; };
+		B5481A0100000000000000A8 /* OSRequestRetryBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */; };
+		B5481A0100000000000000A6 /* OSOperationRetryTriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A5 /* OSOperationRetryTriggerTests.swift */; };
 		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -260,8 +263,11 @@
 		3CEE93582B7C78FE008440BD /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
 		354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */; };
+		B5481A0100000000000000AA /* ExecutorRetryBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
+		B5481A0100000000000000A4 /* OSRequestRetryBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A3 /* OSRequestRetryBackoff.swift */; };
+		B5481A0100000000000000A2 /* OSOperationRetryTrigger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A1 /* OSOperationRetryTrigger.swift */; };
 		3CF8629E28A183F900776CA4 /* OSIdentityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */; };
 		3CF862A028A1964F00776CA4 /* OSPropertiesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */; };
 		3CF862A228A197D200776CA4 /* OSPropertiesModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */; };
@@ -1440,6 +1446,8 @@
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoFlushTests.swift; sourceTree = "<group>"; };
+		B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRetryBackoffTests.swift; sourceTree = "<group>"; };
+		B5481A0100000000000000A5 /* OSOperationRetryTriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRetryTriggerTests.swift; sourceTree = "<group>"; };
 		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
@@ -1537,8 +1545,11 @@
 		3CEE90A82C000BD500B0FB5B /* OneSignalRequest+UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OneSignalRequest+UnitTests.swift"; sourceTree = "<group>"; };
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
 		6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorRetryTests.swift; sourceTree = "<group>"; };
+		B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutorRetryBackoffTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
+		B5481A0100000000000000A3 /* OSRequestRetryBackoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRetryBackoff.swift; sourceTree = "<group>"; };
+		B5481A0100000000000000A1 /* OSOperationRetryTrigger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRetryTrigger.swift; sourceTree = "<group>"; };
 		3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModel.swift; sourceTree = "<group>"; };
 		3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModel.swift; sourceTree = "<group>"; };
 		3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertiesModelStoreListener.swift; sourceTree = "<group>"; };
@@ -1600,6 +1611,7 @@
 		475F47202B8E398E00EC05B3 /* OneSignalLiveActivities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLiveActivities.h; sourceTree = "<group>"; };
 		475F47482B8E3A4400EC05B3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Jwt.swift"; sourceTree = "<group>"; };
+		B5481A0100000000000000AB /* OneSignalUserManagerImpl+Retry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OneSignalUserManagerImpl+Retry.swift"; sourceTree = "<group>"; };
 		5221EEDBA5A74BD565490D52 /* OSOperationRepoTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSOperationRepoTestSupport.swift; sourceTree = "<group>"; };
 		557653D2007BFF86EA8342E4 /* OSDeltaTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSDeltaTests.swift; sourceTree = "<group>"; };
 		5953656ACCC21358BC0CF2F0 /* OSIdentityModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIdentityModelTests.swift; sourceTree = "<group>"; };
@@ -2399,6 +2411,8 @@
 				3C115186289ADE7700565C41 /* OSModelStoreListener.swift */,
 				3C115184289ADE4F00565C41 /* OSModel.swift */,
 				3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */,
+				B5481A0100000000000000A3 /* OSRequestRetryBackoff.swift */,
+				B5481A0100000000000000A1 /* OSOperationRetryTrigger.swift */,
 				3C11518A289ADEEB00565C41 /* OSEventProducer.swift */,
 				3C11518C289AF5E800565C41 /* OSModelChangedHandler.swift */,
 				3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */,
@@ -2582,6 +2596,7 @@
 			children = (
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
 				6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */,
+				B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */,
 				3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */,
 				C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */,
 				3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */,
@@ -2731,6 +2746,8 @@
 			children = (
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
+				B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */,
+				B5481A0100000000000000A5 /* OSOperationRetryTriggerTests.swift */,
 				3C14E3AE2FAE54C006ED053 /* OSLoggerAdaptersTests.swift */,
 				5156E0E0A1B2C3D4E5F60003 /* OSObservabilityEventRecorderTests.swift */,
 				A5048F01A1B2C3D4E5F60009 /* OSFeatureFlagsTests.swift */,
@@ -2968,6 +2985,7 @@
 				2F2FC6C922FF8104F3197DD4 /* OSUserJwtInvalidatedEvent.swift */,
 				6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */,
 				4CCE2C93100CAFEE8EB39C77 /* OneSignalUserManagerImpl+Jwt.swift */,
+				B5481A0100000000000000AB /* OneSignalUserManagerImpl+Retry.swift */,
 				E78603AF16454A648A96DF7B /* OSPushSubscriptionImpl.swift */,
 				9BF72AAEB5284C97B864A1A8 /* OSRequestAuth.swift */,
 				A1C4E7F2B9D3468CA5E1F0B2 /* OSRequestAging.swift */,
@@ -4669,6 +4687,8 @@
 				3CCC48042FCD619400D77E94 /* OSResilientStorage.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
 				3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */,
+				B5481A0100000000000000A4 /* OSRequestRetryBackoff.swift in Sources */,
+				B5481A0100000000000000A2 /* OSOperationRetryTrigger.swift in Sources */,
 				3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */,
 				5B58F09E2CC1B5C700298493 /* OSReadYourWriteData.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
@@ -4747,6 +4767,7 @@
 				3CB331682F281679000E1801 /* CustomEventsIntegrationTests.swift in Sources */,
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
 				354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */,
+				B5481A0100000000000000AA /* ExecutorRetryBackoffTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				A5426001A1B2C3D4E5F60006 /* InputGuardUserTests.swift in Sources */,
@@ -4844,6 +4865,8 @@
 				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
 				3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */,
+				B5481A0100000000000000A8 /* OSRequestRetryBackoffTests.swift in Sources */,
+				B5481A0100000000000000A6 /* OSOperationRetryTriggerTests.swift in Sources */,
 				3C14E3B52FAE54C006ED053 /* OSLoggerAdaptersTests.swift in Sources */,
 				5156E0E0A1B2C3D4E5F60004 /* OSObservabilityEventRecorderTests.swift in Sources */,
 				A5048F01A1B2C3D4E5F6000A /* OSFeatureFlagsTests.swift in Sources */,
@@ -4987,6 +5010,7 @@
 				DAF9C81134248FCDB0C12E5B /* OSUserJwtInvalidatedEvent.swift in Sources */,
 				FD1F1FCA05D555623DD53B54 /* OSUserJwtRepo.swift in Sources */,
 				257E219608960B8545199057 /* OneSignalUserManagerImpl+Jwt.swift in Sources */,
+				B5481A0100000000000000AC /* OneSignalUserManagerImpl+Retry.swift in Sources */,
 				DDE652EF2123473B808F8CCA /* OSPushSubscriptionImpl.swift in Sources */,
 				32601EF1960CD92605D1ABF9 /* OSRequestAuth.swift in Sources */,
 				B7D2A9C4E6F1483DA2C5E9F1 /* OSRequestAging.swift in Sources */,

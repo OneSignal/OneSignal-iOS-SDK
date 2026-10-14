@@ -38,13 +38,19 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     private var subscriptionModels: [String: OSSubscriptionModel] = [:]
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff()
+    ) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.retryBackoff = retryBackoff
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
         uncacheCreateSubscriptionRequests()
@@ -271,10 +277,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 case OS_UPDATE_SUBSCRIPTION_DELTA:
                     // Keep at most one unsent UpdateSubscription per subscription (last wins).
                     let modelId = subModel.modelId
-                    self.updateRequestQueue.removeAll { request in
+                    let isUnsent = { (request: OSRequestUpdateSubscription) in
                         !request.sentToClient && request.subscriptionModel.modelId == modelId
                     }
+                    let replaced = self.updateRequestQueue.last(where: isUnsent)
+                    self.updateRequestQueue.removeAll(where: isUnsent)
                     let request = OSRequestUpdateSubscription(subscriptionModel: subModel, identityModel: identityModel)
+                    // Carry a backoff over, or the replacement would skip it.
+                    replaced.map { self.retryBackoff.transferWait(from: $0, to: request) }
                     self.updateRequestQueue.append(request)
 
                 default:
@@ -337,7 +347,7 @@ extension OSSubscriptionOperationExecutor {
     }
 
     private func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -402,6 +412,9 @@ extension OSSubscriptionOperationExecutor {
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -411,7 +424,7 @@ extension OSSubscriptionOperationExecutor {
     }
 
     func executeDeleteSubscriptionRequest(_ request: OSRequestDeleteSubscription, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -446,6 +459,9 @@ extension OSSubscriptionOperationExecutor {
                     // If this request returns a missing status, that is ok as this is a delete request
                     self.removeRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 if inBackground {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
@@ -455,7 +471,7 @@ extension OSSubscriptionOperationExecutor {
     }
 
     private func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         // Single-flight: don't send a second UpdateSubscription for the same model while one is in flight.
@@ -506,7 +522,7 @@ extension OSSubscriptionOperationExecutor {
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                     self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
                 } else {
-                    // Make the request eligible for the next flush
+                    self.retryBackoff.recordFailure(request, error: error)
                     request.sentToClient = false
                 }
                 if inBackground {

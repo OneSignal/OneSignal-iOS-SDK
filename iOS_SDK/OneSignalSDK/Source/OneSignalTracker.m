@@ -80,6 +80,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         OSSessionManager.sharedSessionManager.appEntryState = APP_OPEN;
    
     [OSSessionManager.sharedSessionManager setLastOpenedTime:[[NSDate date] timeIntervalSince1970]];
+    [OneSignalUserManagerImpl.sharedInstance onFocus];
     
     // on_session tracking when resumming app.
     if ([OneSignal shouldStartNewSession])
@@ -93,6 +94,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)applicationBackgrounded {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
+    [OneSignalUserManagerImpl.sharedInstance onUnfocus];
     [self updateLastClosedTime];
     
     let timeElapsed = [OSSessionManager.sharedSessionManager getTimeFocusedElapsed];

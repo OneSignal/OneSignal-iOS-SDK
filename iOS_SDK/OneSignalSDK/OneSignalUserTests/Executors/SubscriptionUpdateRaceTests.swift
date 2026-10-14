@@ -214,14 +214,19 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
 
     /**
      A retryable failure (e.g. 500/timeout) must not leave the single-flight gate locked.
-     The failed request becomes resendable and later updates for the model still go out.
+     The failed request becomes resendable and a later update for the model replaces it, keeping its backoff.
      */
     func testRetryableFailureDoesNotBlockSubsequentUpdates() throws {
         let client = MockOneSignalClient()
         client.fireSuccessForAllRequests = true
         OneSignalCoreImpl.setSharedClient(client)
 
-        let executor = OSSubscriptionOperationExecutor(newRecordsState: OSNewRecordsState(), auth: OneSignalUserManagerImpl.sharedInstance.requestAuth)
+        var uptime: TimeInterval = 1_000
+        let executor = OSSubscriptionOperationExecutor(
+            newRecordsState: OSNewRecordsState(),
+            auth: OneSignalUserManagerImpl.sharedInstance.requestAuth,
+            retryBackoff: OSRequestRetryBackoff(uptime: { uptime }, jitter: { 1 })
+        )
         let model = makePushSubscriptionModel(notificationTypes: promptedNeverAnswered, subscriptionId: subscriptionId)
         let identityModelId = UUID().uuidString
 
@@ -260,6 +265,11 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
             property: "notificationTypes",
             value: subscribedNotificationTypes
         ))
+        executor.processDeltaQueue(inBackground: false)
+        allowAsyncWorkToRun(seconds: 0.3)
+        XCTAssertEqual(client.executedRequests.count, 1, "The replacement waits out the failed request's backoff")
+
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
         executor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitUntil("Follow-up subscription update did not complete") {
             client.hasCompletedRequestOfType(OSRequestUpdateSubscription.self, expectedCount: 2)
