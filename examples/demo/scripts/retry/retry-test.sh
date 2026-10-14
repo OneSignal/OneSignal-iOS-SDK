@@ -121,7 +121,9 @@ cmd_start() {
   proxy_running && die "proxy already running (pid $(cat "$PID_FILE")). Run '$0 stop' first."
   : > "$ATTEMPTS"
   [[ -f "$RULES" ]] || echo "[]" > "$RULES"
-  local mode_args=(--listen-port "$PORT")
+  # Loopback only, unless a physical device has to reach it.
+  local mode_args=(--listen-host 127.0.0.1 --listen-port "$PORT")
+  [[ "$PROXY_MODE" == "manual" ]] && mode_args=(--listen-port "$PORT")
   [[ "$PROXY_MODE" == "local" ]] && mode_args=(--mode "local:App")
   # Only onesignal.com is decrypted; everything else on the Mac is tunnelled untouched.
   mitmdump "${mode_args[@]}" \
@@ -251,8 +253,13 @@ cmd_tap() {
       local jwt="${3:-}"
       [[ -z "$jwt" && -n "$IV_KEY" ]] && { jwt="$(cmd_jwt "$2")" || exit 1; }
       env=(-e "VALUE=$2" -e "JWT=$jwt") ;;
-    logout|toggle-push|allow-notifications) ;;
-    *) die "usage: $0 tap <add-tag|add-alias|add-email|login|logout|toggle-push|allow-notifications> [args]" ;;
+    update-jwt)
+      [[ $# -eq 2 || $# -eq 3 ]] || die "usage: $0 tap update-jwt <external id> [jwt]"
+      local token="${3:-}"
+      [[ -n "$token" ]] || { token="$(cmd_jwt "$2")" || exit 1; }
+      env=(-e "KEY=$2" -e "VALUE=$token") ;;
+    logout|toggle-push|pause-iams|allow-notifications) ;;
+    *) die "usage: $0 tap <add-tag|add-alias|add-email|login|update-jwt|logout|toggle-push|pause-iams|allow-notifications> [args]" ;;
   esac
   resolve_device
   MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true \
@@ -299,8 +306,9 @@ App / environment
   install                   Build the demo app and install it on the simulator
   tap <action> [args]       Drive the demo's UI with Maestro:
                               add-tag <key> <value>, add-alias <label> <id>, add-email <email>,
-                              login <external id> [jwt], logout, toggle-push, allow-notifications
-                            With RETRY_TEST_IV_KEY set, login signs a JWT when none is given.
+                              login <external id> [jwt], update-jwt <external id> [jwt], logout,
+                              toggle-push, pause-iams, allow-notifications
+                            With RETRY_TEST_IV_KEY set, login and update-jwt sign a JWT when none is given.
   jwt <external id> [label=id] [email:addr] [sms:number]
                             Print an Identity Verification JWT claiming those aliases and subscriptions
   relaunch                  Kill and relaunch the demo app

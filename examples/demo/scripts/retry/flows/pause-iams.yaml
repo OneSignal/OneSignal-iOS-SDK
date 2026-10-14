@@ -1,0 +1,8 @@
+appId: com.onesignal.example
+---
+- runFlow:
+    file: _scroll-to.yaml
+    env:
+      TARGET: pause_iam_toggle
+- tapOn:
+    id: pause_iam_toggle

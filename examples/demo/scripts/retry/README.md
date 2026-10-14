@@ -38,7 +38,7 @@ process, which needs its network extension approved once). For a physical device
 | `clear` / `rules` | Remove or show the rules |
 | `report [regex]` | Per route: each attempt, the gap since the previous one, and the gap expected |
 | `reset-log` | Forget recorded attempts, for example between scenarios |
-| `tap <action> [args]` | Use the demo: `add-tag <key> <value>`, `add-alias <label> <id>`, `add-email <email>`, `login <external id> [jwt]`, `logout`, `toggle-push`, `allow-notifications`. With `RETRY_TEST_IV_KEY` set, `login` signs a JWT when none is given |
+| `tap <action> [args]` | Use the demo: `add-tag <key> <value>`, `add-alias <label> <id>`, `add-email <email>`, `login <external id> [jwt]`, `update-jwt <external id> [jwt]`, `logout`, `toggle-push`, `pause-iams`, `allow-notifications`. With `RETRY_TEST_IV_KEY` set, `login` and `update-jwt` sign a JWT when none is given |
 | `jwt <external id> [label=id] [email:addr] [sms:number]` | Print an Identity Verification JWT, valid for an hour, that claims those aliases and subscriptions |
 | `install` | Build the demo and install it on the simulator |
 | `fresh` / `relaunch` | New install without reinstalling / kill and relaunch |
@@ -71,8 +71,7 @@ What the SDK should do:
   retryable status the client does not reattempt, like **408**, to see the executor backoff right
   away. The client resends ignore foreground and network return, so after going offline, requests
   can wait for the next client resend (up to 135s).
-- **Repo executors** (everything but the User executor) only resend on the 5s poll, so their window
-  allows up to 5s more. The User executor wakes itself on time.
+- **Every executor resends on the 5s poll**, so the window allows up to 5s more.
 - **Foreground, and network return while in the foreground, end the executor backoff early**, but
   not `Retry-After`. `EARLY` right after those is expected. One case happens without you doing
   anything: at cold start, the first failure often lands just before the app goes active, so the
@@ -117,5 +116,8 @@ and nothing should need a relaunch.
     `ONESIGNAL_APP_ID` in `examples/demo/App/Secrets.plist` and `install` again, then set
     `RETRY_TEST_IV_APP_ID=<app id>` and `RETRY_TEST_IV_KEY=<path to the key>`. `tap login <id>` now
     signs a JWT. No anonymous Create User is sent, so in 1 and 9 the Create User comes from the
-    login. Repeat 1, 2, 6 and 9. In 6, log in first with a JWT that claims the alias and email:
-    `tap login <id> "$(./retry-test.sh jwt <id> l=i email:e)"`.
+    login. If the app has in-app messages, `tap pause-iams` first, or a message can take a `tap`.
+    Repeat 1, 2, 6 and 9. In 6, log in first with a JWT that claims the alias and email:
+    `tap login <id> "$(./retry-test.sh jwt <id> l=i email:e)"`. To see a token rejected in the middle of
+    retries, `fail create-user 408 --times 2` and log in with a token signed by another key. After
+    the 401 nothing is sent until `tap update-jwt <id>`.
