@@ -38,16 +38,29 @@ class OSUserExecutor {
     private let newRecordsState: OSNewRecordsState
     private let identityVerificationService: OSIdentityVerificationService
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
+    /// Only touched on `dispatchQueue`.
+    private var awaitingRetry = false
+    /// A Create User the server rejected, held until a new session. Only touched on `dispatchQueue`.
+    private var rejectedCreateUsers: [OSRequestCreateUser] = []
+    /// Only touched on `dispatchQueue`.
+    private var sessionCount = 0
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
     /// The User executor dispatch queue, serial. This synchronizes access to the request queues.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, identityVerificationService: OSIdentityVerificationService, auth: OSRequestAuthorizing) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        identityVerificationService: OSIdentityVerificationService,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff()
+    ) {
         self.newRecordsState = newRecordsState
         self.identityVerificationService = identityVerificationService
         self.auth = auth
+        self.retryBackoff = retryBackoff
         uncacheUserRequests()
         migrateTransferSubscriptionRequests()
         createUserIfNeverCreated(OneSignalUserManagerImpl.sharedInstance._user)
@@ -326,7 +339,59 @@ class OSUserExecutor {
         }
     }
 
+    /// Backs off, then `retryIfDue` re-sends. Requests behind this one keep waiting, so order is preserved.
+    private func retryLater(_ request: OSUserRequest, error: OneSignalClientError) {
+        retryBackoff.recordFailure(request, error: error)
+        dispatchQueue.async {
+            request.sentToClient = false
+            self.awaitingRetry = true
+        }
+    }
+
+    /// Called on the Operation Repo's poll rather than a timer of its own: the poll re-reads the backoff
+    /// clock, which keeps counting while the device sleeps, so a wait that ended during sleep is not stranded.
+    func retryIfDue() {
+        dispatchQueue.async {
+            guard self.awaitingRetry,
+                  !self.userRequestQueue.contains(where: { self.retryBackoff.isWaiting($0) }) else {
+                return
+            }
+            self.awaitingRetry = false
+            self._executePendingRequests()
+        }
+    }
+
+    func executePendingRequestsOnNewSession() {
+        dispatchQueue.async {
+            self.sessionCount += 1
+            self.dropRejectedCreateUsersOfPastUsers()
+            for request in self.rejectedCreateUsers {
+                request.sentToClient = false
+            }
+            self.rejectedCreateUsers.removeAll()
+            self._executePendingRequests()
+        }
+    }
+
+    /// A logged-out user's rejected Create User would otherwise hold the next user's Requests behind it.
+    private func dropRejectedCreateUsersOfPastUsers() {
+        let pastUsers = rejectedCreateUsers.filter {
+            OneSignalUserManagerImpl.sharedInstance.currentUser(matching: $0.identityModel.modelId) == nil
+        }
+        guard !pastUsers.isEmpty else {
+            return
+        }
+        let isPastUser = { (request: OSUserRequest) in pastUsers.contains { $0 === request } }
+        rejectedCreateUsers.removeAll(where: isPastUser)
+        userRequestQueue.removeAll(where: isPastUser)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+        if rejectedCreateUsers.isEmpty {
+            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        }
+    }
+
     private func _executePendingRequests() {
+        dropRejectedCreateUsersOfPastUsers()
         // Hold until known: a Create User sent now would go out unsigned if `requirement` later becomes on.
         guard identityVerificationService.requirement != .unknown else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(self.userRequestQueue.count) Requests until the Identity Verification requirement is known")
@@ -404,7 +469,7 @@ extension OSUserExecutor {
     }
 
     func executeCreateUserRequest(_ request: OSRequestCreateUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -431,6 +496,7 @@ extension OSUserExecutor {
         }
 
         request.sentToClient = true
+        let sentInSession = sessionCount
 
         OneSignalCoreImpl.sharedClient().execute(request) { response in
             // Create User's response won't send us the user's complete info if this user already exists
@@ -482,9 +548,22 @@ extension OSUserExecutor {
             } else if responseType != .retryable {
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
-                // We will retry this request on a new session
+                // We will retry this request on a new session. Stays marked as sent until then, so other
+                // flushes in this run skip it.
                 OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
-                request.sentToClient = false
+                self.dispatchQueue.async {
+                    if self.sessionCount != sentInSession {
+                        // A session started while this was in flight, so this is that session's retry.
+                        request.sentToClient = false
+                        self._executePendingRequests()
+                    } else {
+                        self.rejectedCreateUsers.append(request)
+                        // A logout or login while this was in flight stopped on it; re-enter so it is dropped.
+                        self._executePendingRequests()
+                    }
+                }
+            } else {
+                self.retryLater(request, error: error)
             }
         }
     }
@@ -500,7 +579,7 @@ extension OSUserExecutor {
      For migrating legacy players from 3.x to 5.x. This request will fetch the identity object for a subscription ID, and we will use the returned onesignalId to fetch and hydrate the local user.
      */
     func executeFetchIdentityBySubscriptionRequest(_ request: OSRequestFetchIdentityBySubscription) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -538,6 +617,8 @@ extension OSUserExecutor {
                 // Fail, no retry, remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 self.removeFromQueue(request)
+            } else {
+                self.retryLater(request, error: error)
             }
             self.executePendingRequests()
         }
@@ -557,7 +638,7 @@ extension OSUserExecutor {
     }
 
     func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -624,6 +705,8 @@ extension OSUserExecutor {
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
+            } else if responseType == .retryable {
+                self.retryLater(request, error: error)
             }
         }
     }
@@ -638,7 +721,7 @@ extension OSUserExecutor {
     }
 
     func executeFetchUserRequest(_ request: OSRequestFetchUser) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
 
@@ -694,6 +777,8 @@ extension OSUserExecutor {
             } else if responseType != .retryable {
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)
+            } else {
+                self.retryLater(request, error: error)
             }
             self.executePendingRequests()
         }

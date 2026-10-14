@@ -50,14 +50,21 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     private var requestQueue: [OSRequestCustomEvents] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
+    private let retryBackoff: OSRequestRetryBackoff
     private let nowProvider: () -> Date
 
     // The executor dispatch queue, serial. This synchronizes access to `deltaQueue` and `requestQueue`.
     private let dispatchQueue = DispatchQueue(label: "OneSignal.OSCustomEventsExecutor", target: .global())
 
-    init(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing, nowProvider: @escaping () -> Date = { Date() }) {
+    init(
+        newRecordsState: OSNewRecordsState,
+        auth: OSRequestAuthorizing,
+        retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff(),
+        nowProvider: @escaping () -> Date = { Date() }
+    ) {
         self.newRecordsState = newRecordsState
         self.auth = auth
+        self.retryBackoff = retryBackoff
         self.nowProvider = nowProvider
         // Read unfinished deltas and requests from cache, if any...
         uncacheDeltas()
@@ -323,7 +330,7 @@ class OSCustomEventsExecutor: OSOperationExecutor {
     }
 
     private func executeRequest(_ request: OSRequestCustomEvents, inBackground: Bool) {
-        guard !request.sentToClient else {
+        guard !request.sentToClient, !retryBackoff.isWaiting(request) else {
             return
         }
         guard request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) else {
@@ -354,6 +361,9 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                     // Fail, no retry, remove from cache and queue
                     self.requestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+                } else {
+                    self.retryBackoff.recordFailure(request, error: error)
+                    request.sentToClient = false
                 }
                 // TODO: Handle payload too large (not necessary for alpha release)
                 if inBackground {
