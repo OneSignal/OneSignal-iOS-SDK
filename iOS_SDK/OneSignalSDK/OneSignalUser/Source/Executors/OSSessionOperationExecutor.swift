@@ -41,8 +41,9 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_CREATE_SESSION_DELTA, OS_UPDATE_SESSION_DELTA]
     private var deltaQueue: [OSDelta] = []
     private var requestQueue: [OSSessionRequest] = []
-    /// By local session ID, for an update built after its create already succeeded.
-    private var createdSessions: [String: OSCreatedSession] = [:]
+    /// By local session ID, oldest first, for an update built after its create already succeeded.
+    /// Persisted, since that update may still be a Delta when the process is killed.
+    private var createdSessions: [(localSessionId: String, session: OSCreatedSession)] = []
     /// By local session ID. An end leaves the queue once sent or dropped, but its session stays ended.
     private var endedSessions: Set<String> = []
     private let newRecordsState: OSNewRecordsState
@@ -63,8 +64,23 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         self.auth = auth
         self.retryBackoff = retryBackoff
         self.nowProvider = nowProvider
+        uncacheCreatedSessions()
         uncacheDeltas()
         uncacheRequests()
+    }
+
+    private func uncacheCreatedSessions() {
+        let cached = OneSignalUserDefaults.initShared().getSavedObject(forKey: OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY, defaultValue: []) as? [[String: String]] ?? []
+        createdSessions = cached.compactMap { entry in
+            guard let localSessionId = entry["localSessionId"],
+                  let serverSessionId = entry["serverSessionId"],
+                  let onesignalId = entry["onesignalId"],
+                  let subscriptionId = entry["subscriptionId"]
+            else {
+                return nil
+            }
+            return (localSessionId, OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId))
+        }
     }
 
     private func uncacheDeltas() {
@@ -103,11 +119,6 @@ class OSSessionOperationExecutor: OSOperationExecutor {
             return false
         }
         removeOrphanedUpdates()
-        for case let update as OSRequestUpdateSession in requestQueue {
-            if let created = update.createdSession {
-                createdSessions[update.localSessionId] = created
-            }
-        }
         cacheRequests()
     }
 
@@ -175,6 +186,18 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     private func cacheRequests() {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: requestQueue)
     }
+
+    private func cacheCreatedSessions() {
+        let entries = createdSessions.map { entry in
+            [
+                "localSessionId": entry.localSessionId,
+                "serverSessionId": entry.session.serverSessionId,
+                "onesignalId": entry.session.onesignalId,
+                "subscriptionId": entry.session.subscriptionId
+            ]
+        }
+        OneSignalUserDefaults.initShared().saveObject(forKey: OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY, withValue: entries)
+    }
 }
 
 // MARK: - Queueing
@@ -211,15 +234,29 @@ private extension OSSessionOperationExecutor {
             identityModel: identityModel,
             ownerExternalId: delta.externalId
         )
-        if let created = createdSessions[localSessionId] {
+        if let created = createdSession(forSession: localSessionId) {
             update.createdSession = created
         } else if let serverSessionId = value[OSSessionDeltaKey.serverSessionId] as? String, let onesignalId, let subscriptionId {
             // The session record holds what the create sent once it succeeded, possibly in an earlier process.
             let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
-            createdSessions[localSessionId] = created
+            recordCreated(created, forSession: localSessionId)
             update.createdSession = created
         }
         return update
+    }
+
+    func createdSession(forSession sessionId: String) -> OSCreatedSession? {
+        createdSessions.last { $0.localSessionId == sessionId }?.session
+    }
+
+    func recordCreated(_ created: OSCreatedSession, forSession sessionId: String) {
+        createdSessions.removeAll { $0.localSessionId == sessionId }
+        createdSessions.append((sessionId, created))
+        // Only updates built while the create was in flight need this, so the newest are enough.
+        if createdSessions.count > Self.maxQueuedRequests {
+            createdSessions.removeFirst(createdSessions.count - Self.maxQueuedRequests)
+        }
+        cacheCreatedSessions()
     }
 
     func admit(_ request: OSSessionRequest) {
@@ -333,7 +370,7 @@ private extension OSSessionOperationExecutor {
             if let currentAppId, request.appId != currentAppId {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(request), it belongs to another app")
                 drop(request)
-            } else if let age = OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: nil, now: now, currentExternalId: currentExternalId) {
+            } else if let age = OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: OSRequestAging.sessionRequestMaxAge, now: now, currentExternalId: currentExternalId) {
                 OSRequestAging.logDrop(of: "\(type(of: request))", owner: request.ownerExternalId, age: age, executor: "OSSessionOperationExecutor")
                 drop(request)
             }
@@ -384,7 +421,7 @@ private extension OSSessionOperationExecutor {
         }
         requestQueue.removeAll { $0 === request }
         let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
-        createdSessions[create.localSessionId] = created
+        recordCreated(created, forSession: create.localSessionId)
         for case let update as OSRequestUpdateSession in requestQueue where update.localSessionId == create.localSessionId {
             update.createdSession = created
         }

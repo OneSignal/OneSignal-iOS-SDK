@@ -87,11 +87,12 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         OneSignalCoreMocks.clearUserDefaults()
     }
 
-    private func makeExecutor() -> OSSessionOperationExecutor {
+    private func makeExecutor(now: @escaping () -> Date = { Date() }) -> OSSessionOperationExecutor {
         OSSessionOperationExecutor(
             newRecordsState: newRecordsState,
             auth: OneSignalUserManagerImpl.sharedInstance.requestAuth,
-            retryBackoff: retryBackoff
+            retryBackoff: retryBackoff,
+            nowProvider: now
         )
     }
 
@@ -522,6 +523,28 @@ extension OSSessionOperationExecutorTests {
 
         XCTAssertEqual(restored.onesignalId, onesignalId)
         XCTAssertEqual(restored.subscriptionId, testPushSubId)
+    }
+
+    func testUpdateBuiltBeforeItsCreateSucceededSurvivesAKill() throws {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+        executor.enqueueDelta(updateDelta(duration: 10))
+        executor.cacheDeltaQueue()
+        createSucceeds(executor)
+
+        flush(makeExecutor())
+
+        let update = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
+        XCTAssertEqual(update.path, "apps/test-app-id/sessions/server-1")
+    }
+
+    func testCurrentUsersRequestIsDroppedPastTheSessionAgeLimit() {
+        user.identityModel.removeAliases([OS_ONESIGNAL_ID])
+        flush(makeExecutor(), createDelta())
+
+        let later = Date().addingTimeInterval(OSRequestAging.sessionRequestMaxAge + 1)
+
+        XCTAssertTrue(flush(makeExecutor(now: { later })).isEmpty)
     }
 
     func testRequestForAnotherAppIsDropped() {
