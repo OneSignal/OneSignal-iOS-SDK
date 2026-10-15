@@ -28,32 +28,21 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-/// Keys of the value an `OS_CREATE_SESSION_DELTA` or `OS_UPDATE_SESSION_DELTA` carries. The Delta's
-/// `property` is the local session ID.
-enum OSSessionDeltaKey {
-    static let appId = "app_id"
-    static let startTime = "start_time"
-    static let directAttributionId = "direct_attribution_id"
-    static let activeDuration = "active_duration"
-    static let endTime = "end_time"
-    static let onesignalId = "onesignal_id"
-    static let subscriptionId = "subscription_id"
-    static let serverSessionId = "server_session_id"
-}
-
 /**
  Sends sessions API Requests: a session's create, then its updates once the create returns the server
  session ID. Only the first queued Request of a session is sent, so they reach the backend in order.
+ Failures are retried through the shared `OSRequestRetryBackoff`.
  */
 class OSSessionOperationExecutor: OSOperationExecutor {
     static let maxQueuedRequests = 100
-    static let maxFailedAttempts = 5
+    /// A create answered without a `session_id` is retried this many times, then dropped.
+    static let maxMissingSessionIdAttempts = 3
 
     var supportedDeltas: [String] = [OS_CREATE_SESSION_DELTA, OS_UPDATE_SESSION_DELTA]
     private var deltaQueue: [OSDelta] = []
     private var requestQueue: [OSSessionRequest] = []
     /// By local session ID, for an update built after its create already succeeded.
-    private var serverSessionIds: [String: String] = [:]
+    private var createdSessions: [String: OSCreatedSession] = [:]
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
     private let retryBackoff: OSRequestRetryBackoff
@@ -113,7 +102,9 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         }
         removeOrphanedUpdates()
         for case let update as OSRequestUpdateSession in requestQueue {
-            serverSessionIds[update.localSessionId] = update.serverSessionId ?? serverSessionIds[update.localSessionId]
+            if let created = update.createdSession {
+                createdSessions[update.localSessionId] = created
+            }
         }
         cacheRequests()
     }
@@ -210,17 +201,23 @@ private extension OSSessionOperationExecutor {
                 subscriptionId: subscriptionId
             )
         }
-        return OSRequestUpdateSession(
+        let update = OSRequestUpdateSession(
             appId: appId,
             localSessionId: localSessionId,
-            serverSessionId: value[OSSessionDeltaKey.serverSessionId] as? String ?? serverSessionIds[localSessionId],
             activeDuration: value[OSSessionDeltaKey.activeDuration] as? TimeInterval ?? 0,
             endTime: (value[OSSessionDeltaKey.endTime] as? TimeInterval).map { Date(timeIntervalSince1970: $0) },
             identityModel: identityModel,
-            ownerExternalId: delta.externalId,
-            onesignalId: onesignalId,
-            subscriptionId: subscriptionId
+            ownerExternalId: delta.externalId
         )
+        if let created = createdSessions[localSessionId] {
+            update.createdSession = created
+        } else if let serverSessionId = value[OSSessionDeltaKey.serverSessionId] as? String, let onesignalId, let subscriptionId {
+            // The session record holds what the create sent once it succeeded, possibly in an earlier process.
+            let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
+            createdSessions[localSessionId] = created
+            update.createdSession = created
+        }
+        return update
     }
 
     func admit(_ request: OSSessionRequest) {
@@ -237,8 +234,7 @@ private extension OSSessionOperationExecutor {
 
     /**
      Folds an update into its session's queued ones, which are all cumulative. Returns false when the
-     update should not be queued: its session already ended, it can never get a server session ID, or
-     a queued update already has the same body.
+     update should not be queued: its session already ended, or it can never get a server session ID.
      */
     func admitUpdate(_ update: OSRequestUpdateSession) -> Bool {
         let sessionId = update.localSessionId
@@ -247,8 +243,7 @@ private extension OSSessionOperationExecutor {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor discarding \(update), the session already ended")
             return false
         }
-        update.serverSessionId = update.serverSessionId ?? queuedUpdates.lazy.compactMap(\.serverSessionId).first
-        guard update.serverSessionId != nil || hasCreate(forSession: sessionId) else {
+        guard update.createdSession != nil || hasCreate(forSession: sessionId) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor discarding \(update), its session has no create or server session ID")
             return false
         }
@@ -256,16 +251,6 @@ private extension OSSessionOperationExecutor {
         update.activeDuration = queuedUpdates.map(\.activeDuration).reduce(update.activeDuration, max)
 
         let pending = queuedUpdates.filter { !$0.sentToClient }
-        update.failedAttempts = pending.map(\.failedAttempts).reduce(update.failedAttempts, max)
-        update.onesignalId = update.onesignalId ?? pending.lazy.compactMap(\.onesignalId).first
-        update.subscriptionId = update.subscriptionId ?? pending.lazy.compactMap(\.subscriptionId).first
-        if pending.count == 1, let queued = pending.first,
-           queued.activeDuration == update.activeDuration, queued.endTime == update.endTime {
-            // Keep the queued update and its idempotency key, since the body did not change.
-            queued.onesignalId = queued.onesignalId ?? update.onesignalId
-            queued.subscriptionId = queued.subscriptionId ?? update.subscriptionId
-            return false
-        }
         requestQueue.removeAll { request in pending.contains { $0 === request } }
         // Carry a backoff over, or the replacement would skip it.
         pending.last.map { retryBackoff.transferWait(from: $0, to: update) }
@@ -287,7 +272,7 @@ private extension OSSessionOperationExecutor {
         let sessionsWithCreate = Set(requestQueue.filter { $0 is OSRequestCreateSession }.map(\.localSessionId))
         requestQueue.removeAll { request in
             guard let update = request as? OSRequestUpdateSession,
-                  update.serverSessionId == nil,
+                  update.createdSession == nil,
                   !sessionsWithCreate.contains(update.localSessionId)
             else {
                 return false
@@ -303,6 +288,10 @@ private extension OSSessionOperationExecutor {
 private extension OSSessionOperationExecutor {
     /// This method is called by `processDeltaQueue` only and does not need to be added to the dispatchQueue.
     func processRequestQueue(inBackground: Bool) {
+        // Without consent the client fails every send with status 0, which would retry forever.
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         if removeUnsendableRequests() {
             cacheRequests()
         }
@@ -370,22 +359,41 @@ private extension OSSessionOperationExecutor {
         }
         guard let data = response?["data"] as? [String: Any],
               let serverSessionId = data["session_id"] as? String,
-              !serverSessionId.isEmpty
+              !serverSessionId.isEmpty,
+              let onesignalId = create.onesignalId,
+              let subscriptionId = create.subscriptionId
         else {
-            // Retrying with the same idempotency key returns the session the backend already created.
-            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor create session response is missing data.session_id")
-            let statusCode = (response?["httpStatusCode"] as? NSNumber)?.intValue ?? 202
-            retry(request, error: OneSignalClientError(code: statusCode, message: "Missing data.session_id", responseHeaders: nil, response: response, underlyingError: nil))
+            retryMissingSessionId(create, response: response)
             return
         }
         requestQueue.removeAll { $0 === request }
-        serverSessionIds[create.localSessionId] = serverSessionId
+        let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
+        createdSessions[create.localSessionId] = created
         for case let update as OSRequestUpdateSession in requestQueue where update.localSessionId == create.localSessionId {
-            update.serverSessionId = update.serverSessionId ?? serverSessionId
+            update.createdSession = created
         }
         // Updates wait out the post-create delay, so the backend has the session first.
         newRecordsState.add(serverSessionId)
-        OSSessionService.shared.setServerSessionId(serverSessionId, forSessionId: create.localSessionId)
+        OSSessionService.shared.setCreatedSession(
+            forSessionId: create.localSessionId,
+            serverSessionId: serverSessionId,
+            onesignalId: onesignalId,
+            subscriptionId: subscriptionId
+        )
+        cacheRequests()
+    }
+
+    /// Retrying with the same idempotency key should return the session the backend already created.
+    func retryMissingSessionId(_ create: OSRequestCreateSession, response: [AnyHashable: Any]?) {
+        create.missingSessionIdAttempts += 1
+        guard create.missingSessionIdAttempts < Self.maxMissingSessionIdAttempts else {
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor dropping \(create), its responses never had a session_id")
+            drop(create)
+            cacheRequests()
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor create session response is missing data.session_id")
+        retry(create, error: OneSignalClientError(code: 202, message: "Missing data.session_id", responseHeaders: nil, response: response, underlyingError: nil))
         cacheRequests()
     }
 
@@ -394,14 +402,9 @@ private extension OSSessionOperationExecutor {
         let code = error.code
         if (200..<300).contains(code) {
             // `OneSignalClient` reports a 2xx whose body failed to parse as a failure.
-            if request is OSRequestCreateSession {
-                retry(request, error: error)
-            } else {
-                requestQueue.removeAll { $0 === request }
-                cacheRequests()
-            }
+            handleSuccess(request, response: nil)
         } else if code == 0 || code == 408 || code == 429 || code >= 500 {
-            // 0 means no HTTP response: no network, timeout, or missing privacy consent.
+            // 0 means no HTTP response: no network or a timeout.
             retry(request, error: error)
         } else {
             // Any other 4xx, or a missing app ID, which the client reports as a negative code.
@@ -411,20 +414,8 @@ private extension OSSessionOperationExecutor {
         }
     }
 
-    /// Backs off through the shared `OSRequestRetryBackoff`. Only attempts the backend answered count
-    /// toward the limit, so a Request made offline keeps retrying until the network returns.
     func retry(_ request: OSSessionRequest, error: OneSignalClientError) {
-        request.sentToClient = false
-        if error.code != 0 {
-            request.failedAttempts += 1
-        }
-        guard request.failedAttempts < Self.maxFailedAttempts else {
-            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor dropping \(request) after too many failures")
-            drop(request)
-            cacheRequests()
-            return
-        }
         retryBackoff.recordFailure(request, error: error)
-        cacheRequests()
+        request.sentToClient = false
     }
 }

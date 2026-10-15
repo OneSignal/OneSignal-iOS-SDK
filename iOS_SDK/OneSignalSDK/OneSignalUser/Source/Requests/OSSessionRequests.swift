@@ -28,6 +28,26 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
+/// Keys of the value an `OS_CREATE_SESSION_DELTA` or `OS_UPDATE_SESSION_DELTA` carries. The Delta's
+/// `property` is the local session ID.
+enum OSSessionDeltaKey {
+    static let appId = "app_id"
+    static let startTime = "start_time"
+    static let directAttributionId = "direct_attribution_id"
+    static let activeDuration = "active_duration"
+    static let endTime = "end_time"
+    static let onesignalId = "onesignal_id"
+    static let subscriptionId = "subscription_id"
+    static let serverSessionId = "server_session_id"
+}
+
+/// What a session's create sent and got back. Its updates must carry exactly these IDs.
+struct OSCreatedSession {
+    let serverSessionId: String
+    let onesignalId: String
+    let subscriptionId: String
+}
+
 /// RFC 3339 in UTC with milliseconds, e.g. `2023-11-14T22:13:20.000Z`.
 enum OSSessionTimestamp {
     private static let formatter: ISO8601DateFormatter = {
@@ -48,20 +68,6 @@ protocol OSSessionRequest: OSUserRequest {
     /// `OSSessionRecord.sessionId`, which stands in for the backend session ID until the create succeeds.
     var localSessionId: String { get }
     var identityModel: OSIdentityModel { get set }
-    /// Failed attempts the backend answered, persisted so the limit holds across restarts.
-    var failedAttempts: Int { get set }
-}
-
-/// The session's pinned user, falling back to the identity model once the backend creates it.
-/// The push subscription is the same device subscription across logins, so it falls back to the
-/// current one.
-private func resolvedIds(onesignalId: String?, subscriptionId: String?, identityModel: OSIdentityModel) -> (String, String)? {
-    guard let onesignalId = onesignalId ?? identityModel.onesignalId,
-          let subscriptionId = subscriptionId ?? OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId
-    else {
-        return nil
-    }
-    return (onesignalId, subscriptionId)
 }
 
 /// `POST apps/{app_id}/sessions`
@@ -74,15 +80,16 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     var identityModel: OSIdentityModel
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
+    /// Fixed by the first send, since the backend does not allow them to change.
     private(set) var onesignalId: String?
     private(set) var subscriptionId: String?
-    var failedAttempts = 0
+    var missingSessionIdAttempts = 0
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }
 
     override var description: String {
-        "<OSRequestCreateSession for session \(localSessionId), failed attempts: \(failedAttempts)>"
+        "<OSRequestCreateSession for session \(localSessionId)>"
     }
 
     init(
@@ -107,8 +114,11 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         self.method = POST
     }
 
+    /// Falls back to the user once the backend creates it. The push subscription is the same device
+    /// subscription across logins, so it falls back to the current one.
     func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
-        guard let (onesignalId, subscriptionId) = resolvedIds(onesignalId: onesignalId, subscriptionId: subscriptionId, identityModel: identityModel),
+        guard let onesignalId = onesignalId ?? identityModel.onesignalId,
+              let subscriptionId = subscriptionId ?? OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId,
               newRecordsState.canAccess(onesignalId),
               newRecordsState.canAccess(subscriptionId),
               auth.authorize(self)
@@ -140,7 +150,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         coder.encode(ownerExternalId, forKey: "ownerExternalId")
         coder.encode(onesignalId, forKey: "onesignalId")
         coder.encode(subscriptionId, forKey: "subscriptionId")
-        coder.encode(failedAttempts, forKey: "failedAttempts")
+        coder.encode(missingSessionIdAttempts, forKey: "missingSessionIdAttempts")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
@@ -161,7 +171,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
         self.onesignalId = coder.decodeObject(forKey: "onesignalId") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
-        self.failedAttempts = coder.decodeInteger(forKey: "failedAttempts")
+        self.missingSessionIdAttempts = coder.decodeInteger(forKey: "missingSessionIdAttempts")
         super.init()
         self.method = POST
         self.timestamp = timestamp
@@ -173,8 +183,8 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     var sentToClient = false
     let appId: String
     let localSessionId: String
-    /// Set once the session's create succeeds.
-    var serverSessionId: String?
+    /// Set once the session's create succeeds. Until then the update waits.
+    var createdSession: OSCreatedSession?
     /// Cumulative for the whole session, so a retried or reordered update cannot double count.
     var activeDuration: TimeInterval
     /// Set only on the update that ends the session.
@@ -182,11 +192,8 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     var identityModel: OSIdentityModel
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
-    var onesignalId: String?
-    var subscriptionId: String?
     /// Generated once and persisted, so every retry, including after a restart, is deduplicated by the backend.
     let idempotencyKey: String
-    var failedAttempts = 0
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }
@@ -194,29 +201,23 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     var isEnd: Bool { endTime != nil }
 
     override var description: String {
-        "<OSRequestUpdateSession \(isEnd ? "ending" : "for") session \(localSessionId), failed attempts: \(failedAttempts)>"
+        "<OSRequestUpdateSession \(isEnd ? "ending" : "for") session \(localSessionId)>"
     }
 
     init(
         appId: String,
         localSessionId: String,
-        serverSessionId: String?,
         activeDuration: TimeInterval,
         endTime: Date?,
         identityModel: OSIdentityModel,
-        ownerExternalId: String?,
-        onesignalId: String?,
-        subscriptionId: String?
+        ownerExternalId: String?
     ) {
         self.appId = appId
         self.localSessionId = localSessionId
-        self.serverSessionId = serverSessionId
         self.activeDuration = activeDuration
         self.endTime = endTime
         self.identityModel = identityModel
         self.ownerExternalId = ownerExternalId
-        self.onesignalId = onesignalId
-        self.subscriptionId = subscriptionId
         self.idempotencyKey = UUID().uuidString
         super.init()
         self.method = PATCH
@@ -224,19 +225,16 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
 
     /// Waits out the post-create delay on the server session ID, so the backend has the session first.
     func prepareForExecution(newRecordsState: OSNewRecordsState, auth: OSRequestAuthorizing) -> Bool {
-        guard let serverSessionId,
-              let sessionIdSegment = OSUrlPath.segment(serverSessionId),
-              newRecordsState.canAccess(serverSessionId),
-              let (onesignalId, subscriptionId) = resolvedIds(onesignalId: onesignalId, subscriptionId: subscriptionId, identityModel: identityModel),
+        guard let createdSession,
+              let sessionIdSegment = OSUrlPath.segment(createdSession.serverSessionId),
+              newRecordsState.canAccess(createdSession.serverSessionId),
               auth.authorize(self)
         else {
             return false
         }
-        self.onesignalId = onesignalId
-        self.subscriptionId = subscriptionId
         var parameters: [String: Any] = [
-            "onesignal_id": onesignalId,
-            "subscription_id": subscriptionId,
+            "onesignal_id": createdSession.onesignalId,
+            "subscription_id": createdSession.subscriptionId,
             "duration_seconds": Int64(activeDuration),
             "idempotency_key": idempotencyKey
         ]
@@ -251,15 +249,14 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     func encode(with coder: NSCoder) {
         coder.encode(appId, forKey: "appId")
         coder.encode(localSessionId, forKey: "localSessionId")
-        coder.encode(serverSessionId, forKey: "serverSessionId")
+        coder.encode(createdSession?.serverSessionId, forKey: "serverSessionId")
+        coder.encode(createdSession?.onesignalId, forKey: "onesignalId")
+        coder.encode(createdSession?.subscriptionId, forKey: "subscriptionId")
         coder.encode(activeDuration, forKey: "activeDuration")
         coder.encode(endTime, forKey: "endTime")
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(ownerExternalId, forKey: "ownerExternalId")
-        coder.encode(onesignalId, forKey: "onesignalId")
-        coder.encode(subscriptionId, forKey: "subscriptionId")
         coder.encode(idempotencyKey, forKey: "idempotencyKey")
-        coder.encode(failedAttempts, forKey: "failedAttempts")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
@@ -274,15 +271,16 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
         }
         self.appId = appId
         self.localSessionId = localSessionId
-        self.serverSessionId = coder.decodeObject(forKey: "serverSessionId") as? String
+        if let serverSessionId = coder.decodeObject(forKey: "serverSessionId") as? String,
+           let onesignalId = coder.decodeObject(forKey: "onesignalId") as? String,
+           let subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String {
+            self.createdSession = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
+        }
         self.activeDuration = coder.decodeDouble(forKey: "activeDuration")
         self.endTime = coder.decodeObject(forKey: "endTime") as? Date
         self.identityModel = identityModel
         self.ownerExternalId = coder.decodeObject(forKey: "ownerExternalId") as? String
-        self.onesignalId = coder.decodeObject(forKey: "onesignalId") as? String
-        self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
         self.idempotencyKey = idempotencyKey
-        self.failedAttempts = coder.decodeInteger(forKey: "failedAttempts")
         super.init()
         self.method = PATCH
         self.timestamp = timestamp

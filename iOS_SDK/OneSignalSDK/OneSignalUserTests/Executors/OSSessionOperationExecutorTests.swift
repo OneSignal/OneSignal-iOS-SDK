@@ -82,6 +82,7 @@ final class OSSessionOperationExecutorTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        OSPrivacyConsentController.setRequiresPrivacyConsent(false)
         OSSessionService.reset()
         OneSignalCoreMocks.clearUserDefaults()
     }
@@ -103,10 +104,20 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         return delta(OS_CREATE_SESSION_DELTA, session: session, value: value, identityModel: identityModel)
     }
 
-    private func updateDelta(session: String = "session-1", duration: TimeInterval, endTime: TimeInterval? = nil, serverSessionId: String? = nil) -> OSDelta {
+    /// A `serverSessionId` stands for a session record its create already filled, so it comes with the
+    /// create's IDs.
+    private func updateDelta(
+        session: String = "session-1",
+        duration: TimeInterval,
+        endTime: TimeInterval? = nil,
+        serverSessionId: String? = nil,
+        subscriptionId: String = testPushSubId
+    ) -> OSDelta {
         var value: [String: Any] = [
             OSSessionDeltaKey.appId: "test-app-id",
-            OSSessionDeltaKey.activeDuration: duration
+            OSSessionDeltaKey.activeDuration: duration,
+            OSSessionDeltaKey.onesignalId: onesignalId,
+            OSSessionDeltaKey.subscriptionId: subscriptionId
         ]
         value[OSSessionDeltaKey.endTime] = endTime
         value[OSSessionDeltaKey.serverSessionId] = serverSessionId
@@ -200,7 +211,47 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
         flush(executor, updateDelta(duration: 10))
 
-        XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.serverSessionId, "server-1")
+        XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.createdSession?.serverSessionId, "server-1")
+    }
+
+    func testUpdatesCarryTheIdsTheCreateSent() throws {
+        OSSessionService.shared.startNewSession(userProvider: OneSignalUserManagerImpl.sharedInstance)
+        let sessionId = try XCTUnwrap(OSSessionService.shared.currentRecord?.sessionId)
+        let executor = makeExecutor()
+        flush(executor, createDelta(session: sessionId), updateDelta(session: sessionId, duration: 10, subscriptionId: "other-subscription-id"))
+        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = "new-subscription-id"
+
+        createSucceeds(executor)
+        flush(executor, updateDelta(session: sessionId, duration: 20, subscriptionId: "other-subscription-id"))
+
+        let update = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
+        XCTAssertEqual(update.parameters?["onesignal_id"] as? String, onesignalId)
+        XCTAssertEqual(update.parameters?["subscription_id"] as? String, testPushSubId)
+        let record = try XCTUnwrap(OSSessionService.shared.currentRecord)
+        XCTAssertEqual(record.serverSessionId, "server-1")
+        XCTAssertEqual(record.subscriptionId, testPushSubId)
+    }
+
+    func testNothingIsSentBeforePrivacyConsent() {
+        OSPrivacyConsentController.setRequiresPrivacyConsent(true)
+        let executor = makeExecutor()
+
+        flush(executor, createDelta())
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.enqueueSessionCreate(OSSessionRecord(
+            sessionId: "session-2",
+            startTime: 1_700_000_000,
+            activeDuration: 0,
+            usesSessionsApi: true,
+            identityModelId: user.identityModel.modelId,
+            onesignalId: nil,
+            subscriptionId: nil,
+            serverSessionId: nil
+        ))
+        manager.operationRepo.dispatchQueue.sync {}
+
+        XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertFalse(manager.operationRepo.deltaQueue.contains { $0.name == OS_CREATE_SESSION_DELTA })
     }
 
     // MARK: - Coalescing
@@ -223,15 +274,6 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(updates.count, 1)
         XCTAssertEqual(updates.first?.activeDuration, 20)
         XCTAssertTrue(updates.first?.isEnd == true)
-    }
-
-    func testUnchangedUpdateKeepsTheQueuedIdempotencyKey() {
-        let executor = makeExecutor()
-        let first = flush(executor, createDelta(), updateDelta(duration: 10)).compactMap { $0 as? OSRequestUpdateSession }
-
-        let second = flush(executor, updateDelta(duration: 10)).compactMap { $0 as? OSRequestUpdateSession }
-
-        XCTAssertEqual(second.map(\.idempotencyKey), first.map(\.idempotencyKey))
     }
 
     func testUpdateInFlightCountsTowardTheHighestDuration() {
@@ -278,7 +320,6 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(client.requests.count, 2)
         let retried = try XCTUnwrap(client.requests.last as? OSRequestCreateSession)
         XCTAssertEqual(retried.parameters?["idempotency_key"] as? String, "session-1")
-        XCTAssertEqual(retried.failedAttempts, 1)
     }
 
     func testRetryAfterIsHonored() {
@@ -333,34 +374,6 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 20)
     }
 
-    func testNoResponseDoesNotCountTowardTheAttemptLimit() {
-        let executor = makeExecutor()
-        flush(executor, createDelta())
-
-        for _ in 0..<OSSessionOperationExecutor.maxFailedAttempts {
-            fail(executor, code: 0)
-            uptime += OSRequestRetryBackoff.maxDelaySeconds
-            flush(executor)
-        }
-
-        XCTAssertEqual(executor.queuedRequests.first?.failedAttempts, 0)
-        XCTAssertEqual(client.requests.count, OSSessionOperationExecutor.maxFailedAttempts + 1)
-    }
-
-    func testCreateIsDroppedWithItsUpdatesAfterTooManyFailures() {
-        let executor = makeExecutor()
-        flush(executor, createDelta(), updateDelta(duration: 10))
-
-        for _ in 0..<OSSessionOperationExecutor.maxFailedAttempts {
-            fail(executor, code: 503)
-            uptime += OSRequestRetryBackoff.maxDelaySeconds
-            flush(executor)
-        }
-
-        XCTAssertTrue(executor.queuedRequests.isEmpty)
-        XCTAssertEqual(client.requests.count, OSSessionOperationExecutor.maxFailedAttempts)
-    }
-
     func testOther4xxDropsTheCreateWithItsUpdates() {
         let executor = makeExecutor()
         flush(executor, createDelta(), updateDelta(duration: 10))
@@ -370,13 +383,34 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertTrue(executor.queuedRequests.isEmpty)
     }
 
-    func testCreateSuccessWithoutASessionIdIsRetried() {
+    func testCreateSuccessWithoutASessionIdIsRetriedWithTheSameKey() throws {
         let executor = makeExecutor()
         flush(executor, createDelta())
 
         client.succeedLast(["data": [:]])
+        flush(executor)
+        XCTAssertEqual(client.requests.count, 1, "Sent again before the backoff passed")
 
-        XCTAssertEqual(executor.queuedRequests.first?.failedAttempts, 1)
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
+        flush(executor)
+        let retried = try XCTUnwrap(client.requests.last as? OSRequestCreateSession)
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(retried.parameters?["idempotency_key"] as? String, "session-1")
+    }
+
+    func testCreateWithoutASessionIdIsDroppedWithItsUpdatesAfterTheCap() {
+        let executor = makeExecutor()
+        flush(executor, createDelta(), updateDelta(duration: 10))
+
+        for _ in 0..<OSSessionOperationExecutor.maxMissingSessionIdAttempts {
+            client.succeedLast(["data": [:]])
+            _ = executor.queuedRequests
+            uptime += OSRequestRetryBackoff.maxDelaySeconds
+            flush(executor)
+        }
+
+        XCTAssertTrue(executor.queuedRequests.isEmpty)
+        XCTAssertEqual(client.requests.count, OSSessionOperationExecutor.maxMissingSessionIdAttempts)
     }
 
     func testUpdateWithAnUnparsableSuccessBodyCompletes() {
@@ -399,7 +433,6 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         let restored = makeExecutor().queuedRequests
 
         XCTAssertEqual(restored.count, 2)
-        XCTAssertEqual((restored.first as? OSRequestCreateSession)?.failedAttempts, 1)
         XCTAssertEqual((restored.last as? OSRequestUpdateSession)?.idempotencyKey, key)
     }
 

@@ -248,14 +248,17 @@ public final class OSSessionService: NSObject {
         persist()
     }
 
-    /// Set once the sessions API creates the session, if it is still the current one.
-    public func setServerSessionId(_ serverSessionId: String, forSessionId sessionId: String) {
+    /// Set once the sessions API creates the session, if it is still the current one. Records the IDs
+    /// the create sent, which the session's updates must repeat.
+    public func setCreatedSession(forSessionId sessionId: String, serverSessionId: String, onesignalId: String, subscriptionId: String) {
         stateLock.withLock {
             loadIfNeeded()
             guard record?.sessionId == sessionId, record?.serverSessionId == nil else {
                 return
             }
             record?.serverSessionId = serverSessionId
+            record?.onesignalId = onesignalId
+            record?.subscriptionId = subscriptionId
             persist()
         }
     }
