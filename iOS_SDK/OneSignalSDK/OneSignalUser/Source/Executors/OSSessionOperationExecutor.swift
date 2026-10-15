@@ -43,6 +43,8 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     private var requestQueue: [OSSessionRequest] = []
     /// By local session ID, for an update built after its create already succeeded.
     private var createdSessions: [String: OSCreatedSession] = [:]
+    /// By local session ID. An end leaves the queue once sent or dropped, but its session stays ended.
+    private var endedSessions: Set<String> = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
     private let retryBackoff: OSRequestRetryBackoff
@@ -239,7 +241,7 @@ private extension OSSessionOperationExecutor {
     func admitUpdate(_ update: OSRequestUpdateSession) -> Bool {
         let sessionId = update.localSessionId
         let queuedUpdates = requestQueue.compactMap { $0 as? OSRequestUpdateSession }.filter { $0.localSessionId == sessionId }
-        guard !queuedUpdates.contains(where: \.isEnd) else {
+        guard !endedSessions.contains(sessionId), !queuedUpdates.contains(where: \.isEnd) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor discarding \(update), the session already ended")
             return false
         }
@@ -264,8 +266,15 @@ private extension OSSessionOperationExecutor {
     /// Removes a Request that will not be sent. A dropped create takes its session's updates with it,
     /// since they could never get a server session ID.
     func drop(_ request: OSSessionRequest) {
+        markEndedIfEnd(request)
         requestQueue.removeAll { $0 === request }
         removeOrphanedUpdates()
+    }
+
+    func markEndedIfEnd(_ request: OSSessionRequest) {
+        if let update = request as? OSRequestUpdateSession, update.isEnd {
+            endedSessions.insert(update.localSessionId)
+        }
     }
 
     func removeOrphanedUpdates() {
@@ -296,6 +305,7 @@ private extension OSSessionOperationExecutor {
             cacheRequests()
         }
         var sessionsSeen = Set<String>()
+        var sentCreate = false
         for request in requestQueue {
             guard sessionsSeen.insert(request.localSessionId).inserted,
                   !request.sentToClient,
@@ -304,7 +314,12 @@ private extension OSSessionOperationExecutor {
             else {
                 continue
             }
+            sentCreate = sentCreate || request is OSRequestCreateSession
             executeRequest(request, inBackground: inBackground)
+        }
+        if sentCreate {
+            // Persists the IDs the create was just sent with, so a replay after a kill cannot change them.
+            cacheRequests()
         }
     }
 
@@ -353,6 +368,7 @@ private extension OSSessionOperationExecutor {
 
     func handleSuccess(_ request: OSSessionRequest, response: [AnyHashable: Any]?) {
         guard let create = request as? OSRequestCreateSession else {
+            markEndedIfEnd(request)
             requestQueue.removeAll { $0 === request }
             cacheRequests()
             return

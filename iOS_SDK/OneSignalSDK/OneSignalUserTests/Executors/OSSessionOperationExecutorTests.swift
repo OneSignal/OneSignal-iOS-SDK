@@ -265,6 +265,17 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(updates.map(\.activeDuration), [10])
     }
 
+    func testUpdateAfterASentEndIsDiscarded() {
+        let executor = makeExecutor()
+        flush(executor, updateDelta(duration: 20, endTime: 1_700_000_100, serverSessionId: "server-1"))
+        client.succeedLast()
+
+        let queued = flush(executor, updateDelta(duration: 30, serverSessionId: "server-1"))
+
+        XCTAssertTrue(queued.isEmpty)
+        XCTAssertEqual(client.requests.count, 1)
+    }
+
     func testEndReplacesQueuedUpdatesAndLaterUpdatesAreDiscarded() {
         let executor = makeExecutor()
 
@@ -422,7 +433,11 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertTrue(executor.queuedRequests.isEmpty)
     }
 
-    // MARK: - Persistence and ownership
+}
+
+// MARK: - Persistence and ownership
+
+extension OSSessionOperationExecutorTests {
 
     func testQueuedRequestsSurviveARestartWithTheSameKeys() throws {
         let executor = makeExecutor()
@@ -434,6 +449,18 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
         XCTAssertEqual(restored.count, 2)
         XCTAssertEqual((restored.last as? OSRequestUpdateSession)?.idempotencyKey, key)
+    }
+
+    func testACreateKeepsItsSentIdsAcrossAKillBeforeTheResponse() throws {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+        XCTAssertEqual(client.requests.count, 1)
+        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = "new-subscription-id"
+
+        let restored = try XCTUnwrap(makeExecutor().queuedRequests.first as? OSRequestCreateSession)
+
+        XCTAssertEqual(restored.onesignalId, onesignalId)
+        XCTAssertEqual(restored.subscriptionId, testPushSubId)
     }
 
     func testRequestForAnotherAppIsDropped() {
@@ -468,7 +495,11 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(executor.queuedRequests.map(\.localSessionId), ["identified", "created-anonymous"])
     }
 
-    // MARK: - Enqueueing
+}
+
+// MARK: - Enqueueing
+
+extension OSSessionOperationExecutorTests {
 
     func testEnqueueIsANoOpWhenTheSessionDoesNotUseTheSessionsApi() {
         let manager = OneSignalUserManagerImpl.sharedInstance
