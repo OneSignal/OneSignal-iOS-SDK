@@ -179,10 +179,10 @@ cmd_fail() {
   read -r method path <<< "$rule"
   [[ "$method" == "-" ]] && method=""
   python3 - "$RULES" "$add" "$route" "$method" "$path" "$status" "$times" "$retry_after" > "$RULES.tmp" <<'PY'
-import json, sys
+import json, sys, uuid
 rules_path, add, route, method, path, status, times, retry_after = sys.argv[1:]
 rules = json.load(open(rules_path)) if add == "true" else []
-rules.append({"route": route, "method": method or None, "path": path, "status": int(status),
+rules.append({"id": uuid.uuid4().hex[:8], "route": route, "method": method or None, "path": path, "status": int(status),
               "times": json.loads(times), "retry_after": json.loads(retry_after)})
 print(json.dumps(rules))
 PY

@@ -6,7 +6,7 @@ Only requests carrying the SDK's `SDK-Version` header are touched, so the demo's
 pass through. Every SDK request is appended to attempts.jsonl for `retry-test.sh report`.
 
 Rules are re-read whenever rules.json changes. Each rule:
-  {"route": "update-user", "method": "PATCH", "path": "<regex>", "status": 503,
+  {"id": "1f3a9c2e", "route": "update-user", "method": "PATCH", "path": "<regex>", "status": 503,
    "retry_after": "30", "times": 3}
 `status` 0 drops the connection (the SDK sees status 0, like being offline). `times` is how many
 matching requests fail before the rule passes them through; null fails forever.
@@ -50,15 +50,16 @@ class FaultProxy:
         if mtime == self.rules_mtime:
             return
         self.rules_mtime = mtime
-        old_rules, old_remaining = self.rules, self.remaining
+        old_remaining = {rule["id"]: left for rule, left in zip(self.rules, self.remaining) if rule.get("id")}
         self.rules = []
         if mtime is not None:
             with open(RULES_PATH) as f:
                 self.rules = json.load(f)
-        # `fail --add` rewrites the earlier rules unchanged; keep the counts they have used up.
+        # `fail --add` rewrites the earlier rules with their ids; keep the counts they have used up.
+        # Every `fail` issues a new id, so re-issuing an identical rule starts a fresh count.
         self.remaining = [
-            old_remaining[i] if i < len(old_rules) and old_rules[i] == rule else rule.get("times")
-            for i, rule in enumerate(self.rules)
+            old_remaining[rule["id"]] if rule.get("id") in old_remaining else rule.get("times")
+            for rule in self.rules
         ]
         print(f"[fault] rules: {json.dumps(self.rules) if self.rules else 'none, passing everything'}")
 
