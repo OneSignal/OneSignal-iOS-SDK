@@ -422,11 +422,25 @@ private extension OSSessionOperationExecutor {
         } else if code == 0 || code == 408 || code == 429 || code >= 500 {
             // 0 means no HTTP response: no network or a timeout.
             retry(request, error: error)
+        } else if code == 404 && isInMissingRetryWindow(request) {
+            // The backend may not have the just-created record yet.
+            retry(request, error: error)
         } else {
             // Any other 4xx, or a missing app ID, which the client reports as a negative code.
             OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor dropping \(request) after a \(code)")
             drop(request)
             cacheRequests()
+        }
+    }
+
+    func isInMissingRetryWindow(_ request: OSSessionRequest) -> Bool {
+        switch request {
+        case let create as OSRequestCreateSession:
+            return [create.onesignalId, create.subscriptionId].contains { $0.map(newRecordsState.isInMissingRetryWindow) ?? false }
+        case let update as OSRequestUpdateSession:
+            return update.createdSession.map { newRecordsState.isInMissingRetryWindow($0.serverSessionId) } ?? false
+        default:
+            return false
         }
     }
 

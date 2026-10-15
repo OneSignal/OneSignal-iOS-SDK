@@ -435,6 +435,67 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
 }
 
+// MARK: - 404 retry window
+
+extension OSSessionOperationExecutorTests {
+    func testCreate404ForANewUserIsRetried() {
+        newRecordsState.add(onesignalId)
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+
+        fail(executor, code: 404)
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
+        flush(executor)
+
+        XCTAssertEqual(client.requests.count, 2)
+    }
+
+    func testCreate404ForAnOldUserIsDropped() {
+        let executor = makeExecutor()
+        flush(executor, createDelta(), updateDelta(duration: 10))
+
+        fail(executor, code: 404)
+
+        XCTAssertTrue(executor.queuedRequests.isEmpty)
+    }
+
+    func testUpdate404ForANewSessionIsRetried() {
+        let executor = makeExecutor()
+        flush(executor, createDelta(), updateDelta(duration: 10))
+        createSucceeds(executor)
+        flush(executor)
+
+        fail(executor, code: 404)
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
+        flush(executor)
+
+        XCTAssertEqual(client.requests.count, 3)
+        XCTAssertTrue(client.requests.last is OSRequestUpdateSession)
+    }
+
+    func testUpdate404AfterTheWindowIsDropped() {
+        let executor = makeExecutor()
+        flush(executor, createDelta(), updateDelta(duration: 10))
+        createSucceeds(executor)
+        flush(executor)
+
+        newRecordsState.now = { Date().addingTimeInterval(TimeInterval(OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS) + 1) }
+        fail(executor, code: 404)
+
+        XCTAssertTrue(executor.queuedRequests.isEmpty)
+    }
+
+    func test409IsDroppedEvenForANewUser() {
+        newRecordsState.add(onesignalId)
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+
+        fail(executor, code: 409)
+
+        XCTAssertTrue(executor.queuedRequests.isEmpty)
+    }
+}
+
 // MARK: - Persistence and ownership
 
 extension OSSessionOperationExecutorTests {

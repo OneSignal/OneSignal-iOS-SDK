@@ -279,6 +279,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
      incorrectlyget a 404 when attempting a GET or PATCH REST API call on something just after it is created.
      */
     #define OP_REPO_POST_CREATE_DELAY_SECONDS 3
+
+    // How long after a record is created a 404 on it is treated as replication lag and retried.
+    #define OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS 60
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -301,6 +304,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // Reduce delay in tests
     #define OP_REPO_POST_CREATE_DELAY_SECONDS 0
+    #define OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS 60
 #endif
 
 // A max timeout for a request, which might include multiple reattempts
