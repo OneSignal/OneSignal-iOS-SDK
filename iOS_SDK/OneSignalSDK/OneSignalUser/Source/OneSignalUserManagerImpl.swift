@@ -696,29 +696,6 @@ extension OneSignalUserManagerImpl {
 // MARK: - Sessions
 
 extension OneSignalUserManagerImpl {
-    @objc
-    public func startNewSession() {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl starting new session")
-        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "_startNewSession") else {
-            return
-        }
-        start()
-
-        userExecutor!.executePendingRequestsOnNewSession()
-        operationRepo.paused = false
-        updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
-        OSSessionService.shared.startNewSession(userProvider: self)
-
-        // Fetch the user's data if there is a onesignal_id
-        if let onesignalId = onesignalId {
-            userExecutor!.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
-        } else {
-            // It is possible to init a user from cache who is missing the onesignalId
-            // This can happen if any createUser or identifyUser requests are cached
-            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignalUserManagerImpl.startNewSession() is unable to fetch user with External ID \(externalId ?? "nil") due to null OneSignal ID")
-        }
-    }
-
     /// This method accepts properties updates that not driven by model changes.
     /// It enqueues an OSDelta to the Operation Repo.
     /// 
