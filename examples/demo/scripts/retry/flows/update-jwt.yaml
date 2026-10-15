@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+---
+- runFlow:
+    file: _scroll-to.yaml
+    env:
+      TARGET: update_user_jwt_button
+- tapOn:
+    id: update_user_jwt_button
+# Prefilled with the external id the SDK asked about.
+- tapOn:
+    id: update_jwt_external_id_input
+- eraseText
+- inputText: ${KEY}
+- tapOn:
+    id: update_jwt_token_input
+- inputText: ${VALUE}
+- tapOn:
+    id: singlepair_confirm_button
