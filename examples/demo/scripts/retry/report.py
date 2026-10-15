@@ -13,9 +13,9 @@ the same window (two logins, a session update and a tag) share one series.
 A foreground or network return ends an executor backoff early, so short gaps after those are fine.
 Only 200, 201 and 202 are success. 400, 402, 404, 409 and 410 end a request, so the same body sent
 again is unexpected. A 401 or 403 on a request signed with a Bearer token holds it, with its retry
-counts, until a new JWT is set; an unsigned one ends it. Identify User is the exception: it ends on
-a 401 even when signed, and shares its route with Add Aliases, so this can't tell them apart.
-After a hold, a different body is taken as a new request and resets the counts. That is a guess
+counts, until a new JWT is set; an unsigned one ends it. Create User never ends: after any of these
+it pauses the repo and resends the same request, with its counts, on the next session.
+After a hold or Create User pause, a different body is taken as a new request and resets the counts. That is a guess
 from the body hash, which is all the log has to tell requests apart.
 """
 
@@ -33,8 +33,20 @@ NOT_RETRYABLE = (400, 401, 402, 403, 404, 409, 410)
 HELD = (401, 403)
 
 
+CREATE_USER = re.compile(r"^POST apps/[^/]+/users$")
+
+
 def is_hold(entry):
     return entry["status"] in HELD and bool(entry.get("bearer"))
+
+
+def is_session_resend(entry):
+    return entry["status"] in NOT_RETRYABLE and bool(CREATE_USER.search(f"{entry['method']} {entry['path']}"))
+
+
+def keeps_request(entry):
+    return is_hold(entry) or is_session_resend(entry)
+
 # Login's Identify User shares PATCH .../identity with Add Aliases, so it is labeled a repo executor.
 USER_EXECUTOR = re.compile(r"^POST apps/[^/]+/users$|^GET apps/[^/]+/users/by/[^/]+/[^/]+$|^GET apps/[^/]+/subscriptions/[^/]+/user/identity$")
 # Leaves out the in-app message fetch under users/by/, which has retries of its own.
@@ -110,6 +122,8 @@ def main():
                     note = kind
             elif ended and is_hold(ended) and entry.get("body") == ended["body"]:
                 note = f"resend after held {ended['status']}; fine once a new JWT is set"
+            elif ended and is_session_resend(ended) and entry.get("body") == ended["body"]:
+                note = f"resend after {ended['status']}; fine if on a new session"
             elif ended and entry.get("body") == ended["body"]:
                 note = f"UNEXPECTED resend after {ended['status']}"
             elif ended:
@@ -122,10 +136,10 @@ def main():
             print(f"  {i + 1:>3} {entry['t'] - start:>7.1f}s {entry['status']:>5}{mark} {entry.get('body', ''):>8} {gap_text:>8} {expected_text:>16}  {note}")
 
             status = entry["status"]
-            if ended and is_hold(ended) and entry.get("body") != ended["body"]:
+            if ended and keeps_request(ended) and entry.get("body") != ended["body"]:
                 client_retries = executor_failures = 0
             ended = entry if status in NOT_RETRYABLE else None
-            if is_hold(entry):
+            if keeps_request(entry):
                 expected = None
             elif status in SUCCESS or status in NOT_RETRYABLE:
                 client_retries = executor_failures = 0

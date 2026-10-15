@@ -124,5 +124,5 @@ and nothing should need a relaunch.
     `tap login <id> "$(./retry-test.sh jwt <id> l=i email:e)"`. To see a token rejected in the middle of
     retries, `fail create-user 408 --times 2` and log in with a token signed by another key. After
     the 401 nothing is sent until `tap update-jwt <id>`. `report` treats a 401 or 403 as holding the
-    request, with its retry counts, only when the request carried a Bearer token, and can't tell
-    Identify User, which ends on a 401, from Add Aliases on the same route.
+    request, with its retry counts, only when the request carried a Bearer token. Create User keeps
+    its counts after any 4xx, since the SDK resends it on the next session.
