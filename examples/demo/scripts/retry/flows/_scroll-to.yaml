@@ -1,0 +1,11 @@
+appId: ${APP_ID}
+---
+- scrollUntilVisible:
+    element:
+      id: app_section
+    direction: UP
+    speed: 100
+- scrollUntilVisible:
+    element:
+      id: ${TARGET}
+    centerElement: true

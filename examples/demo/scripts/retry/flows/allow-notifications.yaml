@@ -1,0 +1,6 @@
+appId: ${APP_ID}
+---
+- launchApp
+- tapOn:
+    text: Allow
+    optional: true
