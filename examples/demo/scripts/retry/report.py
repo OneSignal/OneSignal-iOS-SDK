@@ -11,8 +11,9 @@ Expected gaps model the SDK's two retry layers:
 Attempts are grouped by method and path with IDs stripped, so separate requests on one route in
 the same window (two logins, a session update and a tag) share one series.
 A foreground or network return ends an executor backoff early, so short gaps after those are fine.
-Only 200, 201 and 202 are success. 400, 401, 402, 403, 404, 409 and 410 end a request, so the same
-body sent again is unexpected, except after a 401 or 403 once a new JWT is set.
+Only 200, 201 and 202 are success. 400, 402, 404, 409 and 410 end a request, so the same body sent
+again is unexpected. With Identity Verification a 401 or 403 holds the request, and its retry
+counts, until a new JWT is set; without it the request ends.
 """
 
 import json
@@ -26,6 +27,7 @@ POLL_SLACK = 5.5
 CLOCK_SLACK = 1.0
 SUCCESS = (200, 201, 202)
 NOT_RETRYABLE = (400, 401, 402, 403, 404, 409, 410)
+HELD = (401, 403)
 # Login's Identify User shares PATCH .../identity with Add Aliases, so it is labeled a repo executor.
 USER_EXECUTOR = re.compile(r"^POST apps/[^/]+/users$|^GET apps/[^/]+/users/by/[^/]+/[^/]+$|^GET apps/[^/]+/subscriptions/[^/]+/user/identity$")
 # Leaves out the in-app message fetch under users/by/, which has retries of its own.
@@ -101,7 +103,7 @@ def main():
                     note = kind
             elif ended and entry.get("body") == ended["body"]:
                 note = f"UNEXPECTED resend after {ended['status']}"
-                if ended["status"] in (401, 403):
+                if ended["status"] in HELD:
                     note += "; fine once a new JWT is set"
             elif ended:
                 note = f"new request after {ended['status']}"
@@ -113,12 +115,14 @@ def main():
             print(f"  {i + 1:>3} {entry['t'] - start:>7.1f}s {entry['status']:>5}{mark} {entry.get('body', ''):>8} {gap_text:>8} {expected_text:>16}  {note}")
 
             status = entry["status"]
-            ended = None
-            if status in SUCCESS or status in NOT_RETRYABLE:
+            if ended and ended["status"] in HELD and entry.get("body") != ended["body"]:
+                client_retries = executor_failures = 0
+            ended = entry if status in NOT_RETRYABLE else None
+            if status in HELD:
+                expected = None
+            elif status in SUCCESS or status in NOT_RETRYABLE:
                 client_retries = executor_failures = 0
                 expected = None
-                if status in NOT_RETRYABLE:
-                    ended = entry
             elif (status >= 500 or status == 0) and client_retries < len(CLIENT_DELAYS):
                 delay = CLIENT_DELAYS[client_retries]
                 client_retries += 1
