@@ -123,4 +123,6 @@ and nothing should need a relaunch.
     Repeat 1, 2, 6 and 9. In 6, log in first with a JWT that claims the alias and email:
     `tap login <id> "$(./retry-test.sh jwt <id> l=i email:e)"`. To see a token rejected in the middle of
     retries, `fail create-user 408 --times 2` and log in with a token signed by another key. After
-    the 401 nothing is sent until `tap update-jwt <id>`.
+    the 401 nothing is sent until `tap update-jwt <id>`. `report` treats a 401 or 403 as holding the
+    request, with its retry counts, only when the request carried a Bearer token, and can't tell
+    Identify User, which ends on a 401, from Add Aliases on the same route.
