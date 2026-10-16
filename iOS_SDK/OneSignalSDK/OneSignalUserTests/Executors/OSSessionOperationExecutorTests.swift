@@ -105,23 +105,12 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         return delta(OS_CREATE_SESSION_DELTA, session: session, value: value, identityModel: identityModel)
     }
 
-    /// A `serverSessionId` stands for a session record its create already filled, so it comes with the
-    /// create's IDs.
-    private func updateDelta(
-        session: String = "session-1",
-        duration: TimeInterval,
-        endTime: TimeInterval? = nil,
-        serverSessionId: String? = nil,
-        subscriptionId: String = testPushSubId
-    ) -> OSDelta {
+    private func updateDelta(session: String = "session-1", duration: TimeInterval, endTime: TimeInterval? = nil) -> OSDelta {
         var value: [String: Any] = [
             OSSessionDeltaKey.appId: "test-app-id",
-            OSSessionDeltaKey.activeDuration: duration,
-            OSSessionDeltaKey.onesignalId: onesignalId,
-            OSSessionDeltaKey.subscriptionId: subscriptionId
+            OSSessionDeltaKey.activeDuration: duration
         ]
         value[OSSessionDeltaKey.endTime] = endTime
-        value[OSSessionDeltaKey.serverSessionId] = serverSessionId
         return delta(OS_UPDATE_SESSION_DELTA, session: session, value: value, identityModel: nil)
     }
 
@@ -141,6 +130,12 @@ final class OSSessionOperationExecutorTests: XCTestCase {
     private func createSucceeds(_ executor: OSSessionOperationExecutor, serverSessionId: String = "server-1") {
         client.succeedLast(["data": ["session_id": serverSessionId]])
         _ = executor.queuedRequests
+    }
+
+    /// Sends the session's create and lets it succeed, leaving nothing queued.
+    private func createSession(_ executor: OSSessionOperationExecutor) {
+        flush(executor, createDelta())
+        createSucceeds(executor)
     }
 
     private func fail(_ executor: OSSessionOperationExecutor, code: Int, headers: [String: String]? = nil) {
@@ -216,21 +211,16 @@ final class OSSessionOperationExecutorTests: XCTestCase {
     }
 
     func testUpdatesCarryTheIdsTheCreateSent() throws {
-        OSSessionService.shared.startNewSession(userProvider: OneSignalUserManagerImpl.sharedInstance)
-        let sessionId = try XCTUnwrap(OSSessionService.shared.currentRecord?.sessionId)
         let executor = makeExecutor()
-        flush(executor, createDelta(session: sessionId), updateDelta(session: sessionId, duration: 10, subscriptionId: "other-subscription-id"))
+        flush(executor, createDelta(), updateDelta(duration: 10))
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = "new-subscription-id"
 
         createSucceeds(executor)
-        flush(executor, updateDelta(session: sessionId, duration: 20, subscriptionId: "other-subscription-id"))
+        flush(executor, updateDelta(duration: 20))
 
         let update = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
         XCTAssertEqual(update.parameters?["onesignal_id"] as? String, onesignalId)
         XCTAssertEqual(update.parameters?["subscription_id"] as? String, testPushSubId)
-        let record = try XCTUnwrap(OSSessionService.shared.currentRecord)
-        XCTAssertEqual(record.serverSessionId, "server-1")
-        XCTAssertEqual(record.subscriptionId, testPushSubId)
     }
 
     func testNothingIsSentBeforePrivacyConsent() {
@@ -246,8 +236,7 @@ final class OSSessionOperationExecutorTests: XCTestCase {
             usesSessionsApi: true,
             identityModelId: user.identityModel.modelId,
             onesignalId: nil,
-            subscriptionId: nil,
-            serverSessionId: nil
+            subscriptionId: nil
         ))
         manager.operationRepo.dispatchQueue.sync {}
 
@@ -268,13 +257,14 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
     func testUpdateAfterASentEndIsDiscarded() {
         let executor = makeExecutor()
-        flush(executor, updateDelta(duration: 20, endTime: 1_700_000_100, serverSessionId: "server-1"))
+        createSession(executor)
+        flush(executor, updateDelta(duration: 20, endTime: 1_700_000_100))
         client.succeedLast()
 
-        let queued = flush(executor, updateDelta(duration: 30, serverSessionId: "server-1"))
+        let queued = flush(executor, updateDelta(duration: 30))
 
         XCTAssertTrue(queued.isEmpty)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests.count, 2)
     }
 
     func testEndReplacesQueuedUpdatesAndLaterUpdatesAreDiscarded() {
@@ -290,8 +280,9 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
     func testUpdateInFlightCountsTowardTheHighestDuration() {
         let executor = makeExecutor()
-        flush(executor, updateDelta(duration: 30, serverSessionId: "server-1"))
-        XCTAssertEqual(client.requests.count, 1)
+        createSession(executor)
+        flush(executor, updateDelta(duration: 30))
+        XCTAssertEqual(client.requests.count, 2)
 
         let queued = flush(executor, updateDelta(duration: 20))
 
@@ -375,11 +366,12 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
     func testReplacingAnUpdateKeepsItsBackoff() {
         let executor = makeExecutor()
-        flush(executor, updateDelta(duration: 10, serverSessionId: "server-1"))
+        createSession(executor)
+        flush(executor, updateDelta(duration: 10))
         fail(executor, code: 500)
 
         flush(executor, updateDelta(duration: 20))
-        XCTAssertEqual(client.requests.count, 1, "The replacement skipped the backoff")
+        XCTAssertEqual(client.requests.count, 2, "The replacement skipped the backoff")
 
         uptime += OSRequestRetryBackoff.baseDelaySeconds
         flush(executor)
@@ -427,7 +419,8 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
     func testUpdateWithAnUnparsableSuccessBodyCompletes() {
         let executor = makeExecutor()
-        flush(executor, updateDelta(duration: 10, serverSessionId: "server-1"))
+        createSession(executor)
+        flush(executor, updateDelta(duration: 10))
 
         fail(executor, code: 202)
 
@@ -538,6 +531,25 @@ extension OSSessionOperationExecutorTests {
         XCTAssertEqual(update.path, "apps/test-app-id/sessions/server-1")
     }
 
+    func testUpdateAfterARestartUsesTheCreateFromBefore() throws {
+        createSession(makeExecutor())
+
+        flush(makeExecutor(), updateDelta(duration: 10))
+
+        let update = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
+        XCTAssertEqual(update.path, "apps/test-app-id/sessions/server-1")
+    }
+
+    func testUpdateAfterASentEndIsDiscardedAfterARestart() {
+        let executor = makeExecutor()
+        createSession(executor)
+        flush(executor, updateDelta(duration: 20, endTime: 1_700_000_100))
+        client.succeedLast()
+        _ = executor.queuedRequests
+
+        XCTAssertTrue(flush(makeExecutor(), updateDelta(duration: 30)).isEmpty)
+    }
+
     func testCurrentUsersRequestIsDroppedPastTheSessionAgeLimit() {
         user.identityModel.removeAliases([OS_ONESIGNAL_ID])
         flush(makeExecutor(), createDelta())
@@ -595,8 +607,7 @@ extension OSSessionOperationExecutorTests {
                 usesSessionsApi: usesSessionsApi,
                 identityModelId: self.user.identityModel.modelId,
                 onesignalId: nil,
-                subscriptionId: nil,
-                serverSessionId: nil
+                subscriptionId: nil
             )
         }
 

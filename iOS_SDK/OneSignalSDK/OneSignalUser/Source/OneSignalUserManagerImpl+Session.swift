@@ -71,6 +71,8 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
     func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
         var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
         value[OSSessionDeltaKey.directAttributionId] = directAttributionId
+        value[OSSessionDeltaKey.onesignalId] = record.onesignalId
+        value[OSSessionDeltaKey.subscriptionId] = record.subscriptionId
         enqueueSessionDelta(OS_CREATE_SESSION_DELTA, record: record, value: value)
     }
 
@@ -78,7 +80,6 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
     func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
         var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
         value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
-        value[OSSessionDeltaKey.serverSessionId] = record.serverSessionId
         enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
     }
 
@@ -96,8 +97,6 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         }
         var value = value
         value[OSSessionDeltaKey.appId] = appId
-        value[OSSessionDeltaKey.onesignalId] = record.onesignalId
-        value[OSSessionDeltaKey.subscriptionId] = record.subscriptionId
         let delta = OSDelta(
             name: name,
             identityModelId: identityModelId,

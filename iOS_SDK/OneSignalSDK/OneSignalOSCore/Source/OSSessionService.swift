@@ -65,8 +65,6 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Pinned at session start, so it stays the same after a login or user switch.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
-    /// Nil until the sessions API creates this session.
-    public internal(set) var serverSessionId: String?
 }
 
 /// Owns the persisted record of the current session. Nothing reads the record while
@@ -168,8 +166,7 @@ public final class OSSessionService: NSObject {
             usesSessionsApi: featureManager().isEnabled(featureKey: FeatureFlag.sdkSessionsV2ApiCutover.key),
             identityModelId: user.identityModelId,
             onesignalId: user.onesignalId,
-            subscriptionId: user.pushSubscriptionId,
-            serverSessionId: nil
+            subscriptionId: user.pushSubscriptionId
         )
         stateLock.withLock {
             self.userProvider = userProvider
@@ -246,21 +243,6 @@ public final class OSSessionService: NSObject {
         }
         record = current
         persist()
-    }
-
-    /// Set once the sessions API creates the session, if it is still the current one. Records the IDs
-    /// the create sent, which the session's updates must repeat.
-    public func setCreatedSession(forSessionId sessionId: String, serverSessionId: String, onesignalId: String, subscriptionId: String) {
-        stateLock.withLock {
-            loadIfNeeded()
-            guard record?.sessionId == sessionId, record?.serverSessionId == nil else {
-                return
-            }
-            record?.serverSessionId = serverSessionId
-            record?.onesignalId = onesignalId
-            record?.subscriptionId = subscriptionId
-            persist()
-        }
     }
 
     private func loadIfNeeded() {

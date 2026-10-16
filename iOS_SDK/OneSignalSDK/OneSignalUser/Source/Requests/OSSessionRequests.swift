@@ -38,7 +38,6 @@ enum OSSessionDeltaKey {
     static let endTime = "end_time"
     static let onesignalId = "onesignal_id"
     static let subscriptionId = "subscription_id"
-    static let serverSessionId = "server_session_id"
 }
 
 /// What a session's create sent and got back. Its updates must carry exactly these IDs.
@@ -183,7 +182,7 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     var sentToClient = false
     let appId: String
     let localSessionId: String
-    /// Set once the session's create succeeds. Until then the update waits.
+    /// Set by the executor from its session state before each send, so it is not persisted.
     var createdSession: OSCreatedSession?
     /// Cumulative for the whole session, so a retried or reordered update cannot double count.
     var activeDuration: TimeInterval
@@ -249,9 +248,6 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
     func encode(with coder: NSCoder) {
         coder.encode(appId, forKey: "appId")
         coder.encode(localSessionId, forKey: "localSessionId")
-        coder.encode(createdSession?.serverSessionId, forKey: "serverSessionId")
-        coder.encode(createdSession?.onesignalId, forKey: "onesignalId")
-        coder.encode(createdSession?.subscriptionId, forKey: "subscriptionId")
         coder.encode(activeDuration, forKey: "activeDuration")
         coder.encode(endTime, forKey: "endTime")
         coder.encode(identityModel, forKey: "identityModel")
@@ -271,11 +267,6 @@ final class OSRequestUpdateSession: OneSignalRequest, OSSessionRequest {
         }
         self.appId = appId
         self.localSessionId = localSessionId
-        if let serverSessionId = coder.decodeObject(forKey: "serverSessionId") as? String,
-           let onesignalId = coder.decodeObject(forKey: "onesignalId") as? String,
-           let subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String {
-            self.createdSession = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
-        }
         self.activeDuration = coder.decodeDouble(forKey: "activeDuration")
         self.endTime = coder.decodeObject(forKey: "endTime") as? Date
         self.identityModel = identityModel

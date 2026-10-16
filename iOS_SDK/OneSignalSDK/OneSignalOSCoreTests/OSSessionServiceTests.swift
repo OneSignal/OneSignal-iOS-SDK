@@ -124,7 +124,7 @@ final class OSSessionServiceTests: XCTestCase {
 
     // MARK: - Record
 
-    func testNewSessionPinsIdsAndHasNoServerSessionId() {
+    func testNewSessionPinsIds() {
         let service = makeForegroundSession()
 
         let record = service.currentRecord
@@ -132,7 +132,6 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.subscriptionId, "subscription-a")
         XCTAssertEqual(record?.startTime, 5_000)
         XCTAssertEqual(record?.activeDuration, 0)
-        XCTAssertNil(record?.serverSessionId)
     }
 
     func testEachNewSessionGetsANewSessionId() {
@@ -190,7 +189,6 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.usesSessionsApi, true)
         XCTAssertEqual(record?.onesignalId, "onesignal-a")
         XCTAssertEqual(record?.subscriptionId, "subscription-a")
-        XCTAssertNil(record?.serverSessionId)
     }
 
     func testClearingTheStoredRecordDropsIt() {

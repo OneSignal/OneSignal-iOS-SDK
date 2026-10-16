@@ -390,7 +390,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // Session Executor
 #define OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY                                 @"OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY                               @"OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY"
-#define OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY                            @"OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY"
+#define OS_SESSION_EXECUTOR_SESSIONS_KEY                                    @"OS_SESSION_EXECUTOR_SESSIONS_KEY"
 
 // A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
 // decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.

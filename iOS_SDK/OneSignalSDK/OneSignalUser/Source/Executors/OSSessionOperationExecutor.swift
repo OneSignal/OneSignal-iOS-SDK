@@ -41,11 +41,9 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_CREATE_SESSION_DELTA, OS_UPDATE_SESSION_DELTA]
     private var deltaQueue: [OSDelta] = []
     private var requestQueue: [OSSessionRequest] = []
-    /// By local session ID, oldest first, for an update built after its create already succeeded.
-    /// Persisted, since that update may still be a Delta when the process is killed.
-    private var createdSessions: [(localSessionId: String, session: OSCreatedSession)] = []
-    /// By local session ID. An end leaves the queue once sent or dropped, but its session stays ended.
-    private var endedSessions: Set<String> = []
+    /// The one place that knows whether a session was created and whether it ended, oldest first and
+    /// persisted. A session's requests can leave the queue while more of its updates are still coming.
+    private var sessions: [SessionState] = []
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
     private let retryBackoff: OSRequestRetryBackoff
@@ -64,23 +62,14 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         self.auth = auth
         self.retryBackoff = retryBackoff
         self.nowProvider = nowProvider
-        uncacheCreatedSessions()
+        uncacheSessions()
         uncacheDeltas()
         uncacheRequests()
     }
 
-    private func uncacheCreatedSessions() {
-        let cached = OneSignalUserDefaults.initShared().getSavedObject(forKey: OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY, defaultValue: []) as? [[String: String]] ?? []
-        createdSessions = cached.compactMap { entry in
-            guard let localSessionId = entry["localSessionId"],
-                  let serverSessionId = entry["serverSessionId"],
-                  let onesignalId = entry["onesignalId"],
-                  let subscriptionId = entry["subscriptionId"]
-            else {
-                return nil
-            }
-            return (localSessionId, OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId))
-        }
+    private func uncacheSessions() {
+        let cached = OneSignalUserDefaults.initShared().getSavedObject(forKey: OS_SESSION_EXECUTOR_SESSIONS_KEY, defaultValue: []) as? [[String: Any]] ?? []
+        sessions = cached.compactMap(SessionState.init(entry:))
     }
 
     private func uncacheDeltas() {
@@ -187,16 +176,8 @@ class OSSessionOperationExecutor: OSOperationExecutor {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: requestQueue)
     }
 
-    private func cacheCreatedSessions() {
-        let entries = createdSessions.map { entry in
-            [
-                "localSessionId": entry.localSessionId,
-                "serverSessionId": entry.session.serverSessionId,
-                "onesignalId": entry.session.onesignalId,
-                "subscriptionId": entry.session.subscriptionId
-            ]
-        }
-        OneSignalUserDefaults.initShared().saveObject(forKey: OS_SESSION_EXECUTOR_CREATED_SESSIONS_KEY, withValue: entries)
+    private func cacheSessions() {
+        OneSignalUserDefaults.initShared().saveObject(forKey: OS_SESSION_EXECUTOR_SESSIONS_KEY, withValue: sessions.map(\.entry))
     }
 }
 
@@ -212,8 +193,6 @@ private extension OSSessionOperationExecutor {
             return nil
         }
         let localSessionId = delta.property
-        let onesignalId = value[OSSessionDeltaKey.onesignalId] as? String
-        let subscriptionId = value[OSSessionDeltaKey.subscriptionId] as? String
         if delta.name == OS_CREATE_SESSION_DELTA {
             return OSRequestCreateSession(
                 appId: appId,
@@ -222,11 +201,11 @@ private extension OSSessionOperationExecutor {
                 directAttributionId: value[OSSessionDeltaKey.directAttributionId] as? String,
                 identityModel: identityModel,
                 ownerExternalId: delta.externalId,
-                onesignalId: onesignalId,
-                subscriptionId: subscriptionId
+                onesignalId: value[OSSessionDeltaKey.onesignalId] as? String,
+                subscriptionId: value[OSSessionDeltaKey.subscriptionId] as? String
             )
         }
-        let update = OSRequestUpdateSession(
+        return OSRequestUpdateSession(
             appId: appId,
             localSessionId: localSessionId,
             activeDuration: value[OSSessionDeltaKey.activeDuration] as? TimeInterval ?? 0,
@@ -234,29 +213,6 @@ private extension OSSessionOperationExecutor {
             identityModel: identityModel,
             ownerExternalId: delta.externalId
         )
-        if let created = createdSession(forSession: localSessionId) {
-            update.createdSession = created
-        } else if let serverSessionId = value[OSSessionDeltaKey.serverSessionId] as? String, let onesignalId, let subscriptionId {
-            // The session record holds what the create sent once it succeeded, possibly in an earlier process.
-            let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
-            recordCreated(created, forSession: localSessionId)
-            update.createdSession = created
-        }
-        return update
-    }
-
-    func createdSession(forSession sessionId: String) -> OSCreatedSession? {
-        createdSessions.last { $0.localSessionId == sessionId }?.session
-    }
-
-    func recordCreated(_ created: OSCreatedSession, forSession sessionId: String) {
-        createdSessions.removeAll { $0.localSessionId == sessionId }
-        createdSessions.append((sessionId, created))
-        // Only updates built while the create was in flight need this, so the newest are enough.
-        if createdSessions.count > Self.maxQueuedRequests {
-            createdSessions.removeFirst(createdSessions.count - Self.maxQueuedRequests)
-        }
-        cacheCreatedSessions()
     }
 
     func admit(_ request: OSSessionRequest) {
@@ -278,11 +234,11 @@ private extension OSSessionOperationExecutor {
     func admitUpdate(_ update: OSRequestUpdateSession) -> Bool {
         let sessionId = update.localSessionId
         let queuedUpdates = requestQueue.compactMap { $0 as? OSRequestUpdateSession }.filter { $0.localSessionId == sessionId }
-        guard !endedSessions.contains(sessionId), !queuedUpdates.contains(where: \.isEnd) else {
+        guard state(forSession: sessionId)?.ended != true, !queuedUpdates.contains(where: \.isEnd) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor discarding \(update), the session already ended")
             return false
         }
-        guard update.createdSession != nil || hasCreate(forSession: sessionId) else {
+        guard createdSession(forSession: sessionId) != nil || hasCreate(forSession: sessionId) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor discarding \(update), its session has no create or server session ID")
             return false
         }
@@ -310,7 +266,7 @@ private extension OSSessionOperationExecutor {
 
     func markEndedIfEnd(_ request: OSSessionRequest) {
         if let update = request as? OSRequestUpdateSession, update.isEnd {
-            endedSessions.insert(update.localSessionId)
+            updateState(forSession: update.localSessionId) { $0.ended = true }
         }
     }
 
@@ -318,12 +274,85 @@ private extension OSSessionOperationExecutor {
         let sessionsWithCreate = Set(requestQueue.filter { $0 is OSRequestCreateSession }.map(\.localSessionId))
         requestQueue.removeAll { request in
             guard let update = request as? OSRequestUpdateSession,
-                  update.createdSession == nil,
+                  createdSession(forSession: update.localSessionId) == nil,
                   !sessionsWithCreate.contains(update.localSessionId)
             else {
                 return false
             }
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(update), its session has no create")
+            return true
+        }
+    }
+}
+
+// MARK: - Session state
+
+private extension OSSessionOperationExecutor {
+    struct SessionState {
+        let localSessionId: String
+        /// What the create sent and got back. Every update of the session repeats it.
+        var created: OSCreatedSession?
+        /// An end leaves the queue once sent or dropped, but its session stays ended.
+        var ended = false
+
+        init(localSessionId: String) {
+            self.localSessionId = localSessionId
+        }
+
+        init?(entry: [String: Any]) {
+            guard let localSessionId = entry["localSessionId"] as? String else {
+                return nil
+            }
+            self.localSessionId = localSessionId
+            if let serverSessionId = entry["serverSessionId"] as? String,
+               let onesignalId = entry["onesignalId"] as? String,
+               let subscriptionId = entry["subscriptionId"] as? String {
+                created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
+            }
+            ended = entry["ended"] as? Bool ?? false
+        }
+
+        var entry: [String: Any] {
+            var entry: [String: Any] = ["localSessionId": localSessionId, "ended": ended]
+            entry["serverSessionId"] = created?.serverSessionId
+            entry["onesignalId"] = created?.onesignalId
+            entry["subscriptionId"] = created?.subscriptionId
+            return entry
+        }
+    }
+
+    func state(forSession sessionId: String) -> SessionState? {
+        sessions.first { $0.localSessionId == sessionId }
+    }
+
+    func createdSession(forSession sessionId: String) -> OSCreatedSession? {
+        state(forSession: sessionId)?.created
+    }
+
+    func updateState(forSession sessionId: String, _ change: (inout SessionState) -> Void) {
+        if let index = sessions.firstIndex(where: { $0.localSessionId == sessionId }) {
+            change(&sessions[index])
+        } else {
+            var state = SessionState(localSessionId: sessionId)
+            change(&state)
+            sessions.append(state)
+        }
+        trimSessions()
+        cacheSessions()
+    }
+
+    /// Drops the oldest sessions past the cap, but never one with Requests still queued, which need its state.
+    func trimSessions() {
+        var excess = sessions.count - Self.maxQueuedRequests
+        guard excess > 0 else {
+            return
+        }
+        let queuedSessions = Set(requestQueue.map(\.localSessionId))
+        sessions.removeAll { state in
+            guard excess > 0, !queuedSessions.contains(state.localSessionId) else {
+                return false
+            }
+            excess -= 1
             return true
         }
     }
@@ -344,6 +373,9 @@ private extension OSSessionOperationExecutor {
         var sessionsSeen = Set<String>()
         var sentCreate = false
         for request in requestQueue {
+            if let update = request as? OSRequestUpdateSession {
+                update.createdSession = createdSession(forSession: update.localSessionId)
+            }
             guard sessionsSeen.insert(request.localSessionId).inserted,
                   !request.sentToClient,
                   !retryBackoff.isWaiting(request),
@@ -421,18 +453,9 @@ private extension OSSessionOperationExecutor {
         }
         requestQueue.removeAll { $0 === request }
         let created = OSCreatedSession(serverSessionId: serverSessionId, onesignalId: onesignalId, subscriptionId: subscriptionId)
-        recordCreated(created, forSession: create.localSessionId)
-        for case let update as OSRequestUpdateSession in requestQueue where update.localSessionId == create.localSessionId {
-            update.createdSession = created
-        }
+        updateState(forSession: create.localSessionId) { $0.created = created }
         // Updates wait out the post-create delay, so the backend has the session first.
         newRecordsState.add(serverSessionId)
-        OSSessionService.shared.setCreatedSession(
-            forSessionId: create.localSessionId,
-            serverSessionId: serverSessionId,
-            onesignalId: onesignalId,
-            subscriptionId: subscriptionId
-        )
         cacheRequests()
     }
 
@@ -475,7 +498,7 @@ private extension OSSessionOperationExecutor {
         case let create as OSRequestCreateSession:
             return [create.onesignalId, create.subscriptionId].contains { $0.map(newRecordsState.isInMissingRetryWindow) ?? false }
         case let update as OSRequestUpdateSession:
-            return update.createdSession.map { newRecordsState.isInMissingRetryWindow($0.serverSessionId) } ?? false
+            return createdSession(forSession: update.localSessionId).map { newRecordsState.isInMissingRetryWindow($0.serverSessionId) } ?? false
         default:
             return false
         }
