@@ -219,6 +219,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     var identityExecutor: OSIdentityOperationExecutor?
     var subscriptionExecutor: OSSubscriptionOperationExecutor?
     var customEventsExecutor: OSCustomEventsExecutor?
+    var sessionExecutor: OSSessionOperationExecutor?
 
     private override init() {
         let identityVerificationService = OSIdentityVerificationService(featureManager: featureManager, jwtConfig: jwtConfig)
@@ -334,14 +335,17 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             let identityExecutor = OSIdentityOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             let subscriptionExecutor = OSSubscriptionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             let customEventsExecutor = OSCustomEventsExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
+            let sessionExecutor = OSSessionOperationExecutor(newRecordsState: newRecordsState, auth: requestAuth, retryBackoff: retryBackoff)
             self.propertyExecutor = propertyExecutor
             self.identityExecutor = identityExecutor
             self.subscriptionExecutor = subscriptionExecutor
             self.customEventsExecutor = customEventsExecutor
+            self.sessionExecutor = sessionExecutor
             operationRepo.addExecutor(identityExecutor)
             operationRepo.addExecutor(propertyExecutor)
             operationRepo.addExecutor(subscriptionExecutor)
             operationRepo.addExecutor(customEventsExecutor)
+            operationRepo.addExecutor(sessionExecutor)
 
             // After the executors: a cached requirement makes `start()` flush right away, and the
             // Deltas restored at launch can only route once the map above is populated.
@@ -692,29 +696,6 @@ extension OneSignalUserManagerImpl {
 // MARK: - Sessions
 
 extension OneSignalUserManagerImpl {
-    @objc
-    public func startNewSession() {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl starting new session")
-        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "_startNewSession") else {
-            return
-        }
-        start()
-
-        userExecutor!.executePendingRequestsOnNewSession()
-        operationRepo.paused = false
-        updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
-        OSSessionService.shared.startNewSession(userProvider: self)
-
-        // Fetch the user's data if there is a onesignal_id
-        if let onesignalId = onesignalId {
-            userExecutor!.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
-        } else {
-            // It is possible to init a user from cache who is missing the onesignalId
-            // This can happen if any createUser or identifyUser requests are cached
-            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignalUserManagerImpl.startNewSession() is unable to fetch user with External ID \(externalId ?? "nil") due to null OneSignal ID")
-        }
-    }
-
     /// This method accepts properties updates that not driven by model changes.
     /// It enqueues an OSDelta to the Operation Repo.
     /// 

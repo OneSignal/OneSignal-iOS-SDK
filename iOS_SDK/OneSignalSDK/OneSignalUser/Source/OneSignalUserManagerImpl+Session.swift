@@ -28,6 +28,31 @@
 import OneSignalCore
 import OneSignalOSCore
 
+extension OneSignalUserManagerImpl {
+    @objc
+    public func startNewSession() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl starting new session")
+        guard !OneSignalConfig.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "_startNewSession") else {
+            return
+        }
+        start()
+
+        userExecutor!.executePendingRequestsOnNewSession()
+        operationRepo.paused = false
+        updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
+        OSSessionService.shared.startNewSession(userProvider: self)
+
+        // Fetch the user's data if there is a onesignal_id
+        if let onesignalId = onesignalId {
+            userExecutor!.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel, onNewSession: true)
+        } else {
+            // It is possible to init a user from cache who is missing the onesignalId
+            // This can happen if any createUser or identifyUser requests are cached
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignalUserManagerImpl.startNewSession() is unable to fetch user with External ID \(externalId ?? "nil") due to null OneSignal ID")
+        }
+    }
+}
+
 extension OneSignalUserManagerImpl: OSSessionUserProvider {
     public var sessionCurrentUser: OSSessionUser {
         let user = _user
@@ -40,5 +65,46 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
 
     public func sessionOnesignalId(identityModelId: String) -> String? {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
+    }
+
+    /// Queues the session's create. Does nothing unless the session uses the sessions API.
+    func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
+        var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
+        value[OSSessionDeltaKey.directAttributionId] = directAttributionId
+        value[OSSessionDeltaKey.onesignalId] = record.onesignalId
+        value[OSSessionDeltaKey.subscriptionId] = record.subscriptionId
+        enqueueSessionDelta(OS_CREATE_SESSION_DELTA, record: record, value: value)
+    }
+
+    /// Queues the session's cumulative foreground time, ending the session when `endTime` is set.
+    func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
+        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
+        value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
+        enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
+    }
+
+    private func enqueueSessionDelta(_ name: String, record: OSSessionRecord, value: [String: Any]) {
+        guard record.usesSessionsApi else { return }
+        guard let identityModelId = record.identityModelId,
+              let identityModel = identityModelRepo.get(modelId: identityModelId)
+        else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManagerImpl dropped \(name) for session \(record.sessionId), no identity model")
+            return
+        }
+        guard let appId = OneSignalIdentifiers.currentAppId else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManagerImpl dropped \(name) for session \(record.sessionId), no app ID")
+            return
+        }
+        var value = value
+        value[OSSessionDeltaKey.appId] = appId
+        let delta = OSDelta(
+            name: name,
+            identityModelId: identityModelId,
+            externalId: identityModel.externalId,
+            model: identityModel,
+            property: record.sessionId,
+            value: value
+        )
+        operationRepo.enqueueDelta(delta)
     }
 }

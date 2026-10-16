@@ -35,6 +35,7 @@ enum OSRequestAging {
     static let propertyRequestMaxAge: TimeInterval = 60 * 60 * 24 * 90 // 90 days
     static let nonCurrentUserRequestMaxAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
     static let customEventRequestMaxAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
+    static let sessionRequestMaxAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
 
     /// The `external_id` of the current user, nil while there is none. Reads `_user`, since `user` calls
     /// `start()` and would deadlock at uncache.
