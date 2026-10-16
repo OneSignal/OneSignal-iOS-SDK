@@ -123,7 +123,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
             successBlock(result);
         }
     } onFailure:^(OneSignalClientError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes failed"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignalOutcomeEventsController:sendSessionEndOutcomes failed"];
         if (failureBlock) {
             failureBlock(error.underlyingError);
         }
@@ -361,7 +361,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
 
 - (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
     if (!name || [name length] == 0) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Outcome name must not be null or empty"];
         return false;
     }
 
@@ -370,7 +370,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
 
 - (BOOL)isValidOutcomeValue:(NSNumber *)value {
     if (!value || value.intValue <= 0) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Outcome value must not be null or 0"];
         return false;
     }
 

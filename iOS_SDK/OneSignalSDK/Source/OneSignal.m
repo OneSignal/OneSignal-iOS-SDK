@@ -227,7 +227,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     if (oneSignalInAppMessages != nil && [oneSignalInAppMessages respondsToSelector:@selector(InAppMessages)]) {
         return [oneSignalInAppMessages performSelector:@selector(InAppMessages)];
     } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalInAppMessages not found. In order to use OneSignal's In App Messaging features the OneSignalInAppMessages module must be added."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignalInAppMessages not found. In order to use OneSignal's In App Messaging features the OneSignalInAppMessages module must be added."];
         return [OSStubInAppMessages InAppMessages];
     }
 }
@@ -240,7 +240,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(liveActivities)]) {
         return [oneSignalLiveActivities performSelector:@selector(liveActivities)];
     } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
         return [OSStubLiveActivities liveActivities];
     }
 #endif
@@ -493,7 +493,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     if (oneSignalLiveActivities != nil && [oneSignalLiveActivities respondsToSelector:@selector(start)]) {
         [oneSignalLiveActivities performSelector:@selector(start)];
     } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"oneSignalLiveActivities not found. In order to use OneSignal's LiveActivities features the OneSignalLiveActivities module must be added."];
+        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"OneSignalLiveActivities module not found, Live Activities will not start. Add the module to use OneSignal's LiveActivities features."];
     }
 #endif
 }
@@ -943,7 +943,7 @@ static BOOL ComputeInitialStorageReadable(void) {
 
 + (void)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params onSuccess:(OSResultSuccessBlock _Nonnull)successBlock onFailure:(OSFailureBlock _Nonnull)failureBlock {
     if (![OSOutcomes sharedController]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Make sure OneSignal init is called first"];
         if (failureBlock) {
             failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : @"Missing outcomes controller."}]);
         }
