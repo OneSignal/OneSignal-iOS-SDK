@@ -83,11 +83,15 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
     }
 
     private func enqueueSessionDelta(_ name: String, record: OSSessionRecord, value: [String: Any]) {
-        guard record.usesSessionsApi,
-              let identityModelId = record.identityModelId,
-              let identityModel = identityModelRepo.get(modelId: identityModelId),
-              let appId = OneSignalIdentifiers.currentAppId
+        guard record.usesSessionsApi else { return }
+        guard let identityModelId = record.identityModelId,
+              let identityModel = identityModelRepo.get(modelId: identityModelId)
         else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManagerImpl dropped \(name) for session \(record.sessionId), no identity model")
+            return
+        }
+        guard let appId = OneSignalIdentifiers.currentAppId else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManagerImpl dropped \(name) for session \(record.sessionId), no app ID")
             return
         }
         var value = value
