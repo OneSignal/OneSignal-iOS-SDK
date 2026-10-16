@@ -92,7 +92,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
               !aliases.values.contains("")
         else {
             // log error
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User addAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label. Or, cannot use empty string as an alias ID.")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignal.User addAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label. Or, cannot use empty string as an alias ID.")
             return
         }
         identityModel.addAliases(aliases)
@@ -107,7 +107,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
               !labels.contains(OS_EXTERNAL_ID)
         else {
             // log error
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User removeAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label.")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignal.User removeAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label.")
             return
         }
         identityModel.removeAliases(labels)

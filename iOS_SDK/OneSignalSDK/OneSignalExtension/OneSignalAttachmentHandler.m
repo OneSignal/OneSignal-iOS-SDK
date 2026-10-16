@@ -49,7 +49,7 @@
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     NSError *fileHandleError;
     if (![outputHandle writeData:data error:&fileHandleError]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError]];
     }
 }
 
@@ -271,7 +271,7 @@
         let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:&error];
         
         if (error) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
 
@@ -286,7 +286,7 @@
         [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
         
         if (error) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
 
@@ -304,7 +304,7 @@
         [standardUserDefaults saveObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA withValue:appendedCache];
         return name;
     } @catch (NSException *exception) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
         
         return nil;
     }

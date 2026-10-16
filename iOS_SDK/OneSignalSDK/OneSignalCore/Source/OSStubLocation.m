@@ -36,16 +36,16 @@
 }
 
 + (BOOL)isShared {
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
     return false;
 }
 
 + (void)requestPermission {
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
 }
 
 + (void)setShared:(BOOL)enable {
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignalLocation not found. In order to use OneSignal's location features the OneSignalLocation module must be added."];
 }
 
 @end
