@@ -46,10 +46,10 @@ open class OSDelta: NSObject, NSCoding {
         return "<OSDelta \(name) with property: \(property) value: \(value)>"
     }
 
-    public init(name: String, identityModelId: String, externalId: String?, model: OSModel, property: String, value: Any) {
+    public init(name: String, identityModelId: String, externalId: String?, model: OSModel, property: String, value: Any, timestamp: Date = Date()) {
         self.name = name
         self.deltaId = UUID().uuidString
-        self.timestamp = Date()
+        self.timestamp = timestamp
         self.identityModelId = identityModelId
         self.externalId = externalId
         self.model = model

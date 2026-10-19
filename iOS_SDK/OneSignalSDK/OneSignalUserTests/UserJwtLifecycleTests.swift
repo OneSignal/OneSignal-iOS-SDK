@@ -328,9 +328,12 @@ final class UserJwtLifecycleTests: XCTestCase {
         )
 
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+        // Unsent again only once the 401 is handled; the mock records the send before it answers.
         OneSignalCoreMocks.waitUntil("The rejected Create User was not parked") {
             self.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1)
-                && self.queuedCreateUserExternalIds().contains(userA_EUID)
+                && self.queuedUserRequests().contains {
+                    ($0 as? OSRequestCreateUser)?.identityModel.externalId == userA_EUID && !$0.sentToClient
+                }
         }
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
 
