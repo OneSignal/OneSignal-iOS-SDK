@@ -157,7 +157,8 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
-    public func startNewSession(userProvider: OSSessionUserProvider) {
+    @discardableResult
+    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionRecord {
         let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
@@ -174,6 +175,7 @@ public final class OSSessionService: NSObject {
             record = newRecord
             persist()
         }
+        return newRecord
     }
 
     func onFocus() {
