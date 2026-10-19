@@ -559,6 +559,13 @@ extension OSSessionOperationExecutorTests {
         XCTAssertTrue(flush(makeExecutor(now: { later })).isEmpty)
     }
 
+    func testRequestIsAgedFromItsDelta() {
+        user.identityModel.removeAliases([OS_ONESIGNAL_ID])
+        let delta = createDelta()
+
+        XCTAssertEqual(flush(makeExecutor(), delta).first?.timestamp, delta.timestamp)
+    }
+
     func testRequestForAnotherAppIsDropped() {
         user.identityModel.removeAliases([OS_ONESIGNAL_ID])
         let executor = makeExecutor()

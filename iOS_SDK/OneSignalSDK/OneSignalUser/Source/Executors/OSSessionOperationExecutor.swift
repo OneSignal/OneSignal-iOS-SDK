@@ -151,7 +151,7 @@ class OSSessionOperationExecutor: OSOperationExecutor {
             if !self.deltaQueue.isEmpty {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSessionOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
                 for delta in self.deltaQueue {
-                    if let request = self.makeRequest(from: delta) {
+                    if let request = self.makeRequest(from: delta), !self.dropIfStale(request) {
                         self.admit(request)
                     }
                 }
@@ -193,8 +193,9 @@ private extension OSSessionOperationExecutor {
             return nil
         }
         let localSessionId = delta.property
+        let request: OSSessionRequest
         if delta.name == OS_CREATE_SESSION_DELTA {
-            return OSRequestCreateSession(
+            request = OSRequestCreateSession(
                 appId: appId,
                 localSessionId: localSessionId,
                 startTime: Date(timeIntervalSince1970: value[OSSessionDeltaKey.startTime] as? TimeInterval ?? 0),
@@ -204,15 +205,32 @@ private extension OSSessionOperationExecutor {
                 onesignalId: value[OSSessionDeltaKey.onesignalId] as? String,
                 subscriptionId: value[OSSessionDeltaKey.subscriptionId] as? String
             )
+        } else {
+            request = OSRequestUpdateSession(
+                appId: appId,
+                localSessionId: localSessionId,
+                activeDuration: value[OSSessionDeltaKey.activeDuration] as? TimeInterval ?? 0,
+                endTime: (value[OSSessionDeltaKey.endTime] as? TimeInterval).map { Date(timeIntervalSince1970: $0) },
+                identityModel: identityModel,
+                ownerExternalId: delta.externalId
+            )
         }
-        return OSRequestUpdateSession(
-            appId: appId,
-            localSessionId: localSessionId,
-            activeDuration: value[OSSessionDeltaKey.activeDuration] as? TimeInterval ?? 0,
-            endTime: (value[OSSessionDeltaKey.endTime] as? TimeInterval).map { Date(timeIntervalSince1970: $0) },
-            identityModel: identityModel,
-            ownerExternalId: delta.externalId
-        )
+        // Aged from when the session reported it, since the delta can outlive a kill.
+        request.timestamp = delta.timestamp
+        return request
+    }
+
+    /// Checked before admitting, so a stale Request cannot evict a queued one.
+    func dropIfStale(_ request: OSSessionRequest) -> Bool {
+        guard let age = staleAge(of: request) else {
+            return false
+        }
+        OSRequestAging.logDrop(of: "\(type(of: request))", owner: request.ownerExternalId, age: age, executor: "OSSessionOperationExecutor")
+        return true
+    }
+
+    func staleAge(of request: OSSessionRequest) -> TimeInterval? {
+        OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: OSRequestAging.sessionRequestMaxAge, now: nowProvider(), currentExternalId: OSRequestAging.currentExternalId)
     }
 
     func admit(_ request: OSSessionRequest) {
@@ -396,14 +414,11 @@ private extension OSSessionOperationExecutor {
     func removeUnsendableRequests() -> Bool {
         let countBefore = requestQueue.count
         let currentAppId = OneSignalIdentifiers.currentAppId
-        let now = nowProvider()
-        let currentExternalId = OSRequestAging.currentExternalId
         for request in requestQueue {
             if let currentAppId, request.appId != currentAppId {
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped \(request), it belongs to another app")
                 drop(request)
-            } else if let age = OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: OSRequestAging.sessionRequestMaxAge, now: now, currentExternalId: currentExternalId) {
-                OSRequestAging.logDrop(of: "\(type(of: request))", owner: request.ownerExternalId, age: age, executor: "OSSessionOperationExecutor")
+            } else if dropIfStale(request) {
                 drop(request)
             }
         }
