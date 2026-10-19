@@ -96,13 +96,18 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         )
     }
 
-    private func createDelta(session: String = "session-1", directAttributionId: String? = nil, identityModel: OSIdentityModel? = nil) -> OSDelta {
+    private func createDelta(
+        session: String = "session-1",
+        directAttributionId: String? = nil,
+        identityModel: OSIdentityModel? = nil,
+        timestamp: Date = Date()
+    ) -> OSDelta {
         var value: [String: Any] = [
             OSSessionDeltaKey.appId: "test-app-id",
             OSSessionDeltaKey.startTime: 1_700_000_000.0
         ]
         value[OSSessionDeltaKey.directAttributionId] = directAttributionId
-        return delta(OS_CREATE_SESSION_DELTA, session: session, value: value, identityModel: identityModel)
+        return delta(OS_CREATE_SESSION_DELTA, session: session, value: value, identityModel: identityModel, timestamp: timestamp)
     }
 
     private func updateDelta(session: String = "session-1", duration: TimeInterval, endTime: TimeInterval? = nil) -> OSDelta {
@@ -114,9 +119,17 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         return delta(OS_UPDATE_SESSION_DELTA, session: session, value: value, identityModel: nil)
     }
 
-    private func delta(_ name: String, session: String, value: [String: Any], identityModel: OSIdentityModel?) -> OSDelta {
+    private func delta(_ name: String, session: String, value: [String: Any], identityModel: OSIdentityModel?, timestamp: Date = Date()) -> OSDelta {
         let identityModel = identityModel ?? user.identityModel
-        return OSDelta(name: name, identityModelId: identityModel.modelId, externalId: identityModel.externalId, model: identityModel, property: session, value: value)
+        return OSDelta(
+            name: name,
+            identityModelId: identityModel.modelId,
+            externalId: identityModel.externalId,
+            model: identityModel,
+            property: session,
+            value: value,
+            timestamp: timestamp
+        )
     }
 
     /// Enqueues the Deltas, runs one flush, and waits for it.
@@ -564,6 +577,18 @@ extension OSSessionOperationExecutorTests {
         let delta = createDelta()
 
         XCTAssertEqual(flush(makeExecutor(), delta).first?.timestamp, delta.timestamp)
+    }
+
+    func testStaleDeltaDoesNotEvictAQueuedRequest() {
+        user.identityModel.removeAliases([OS_ONESIGNAL_ID])
+        let executor = makeExecutor()
+        let queued = (0..<OSSessionOperationExecutor.maxQueuedRequests).map { createDelta(session: "queued-\($0)") }
+        queued.forEach(executor.enqueueDelta)
+        let staleTime = Date().addingTimeInterval(-OSRequestAging.sessionRequestMaxAge - 1)
+
+        let requests = flush(executor, createDelta(session: "stale", timestamp: staleTime))
+
+        XCTAssertEqual(requests.map(\.localSessionId), queued.map(\.property))
     }
 
     func testRequestForAnotherAppIsDropped() {
