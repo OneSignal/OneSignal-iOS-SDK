@@ -186,6 +186,15 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
     }
 
+    /// The update token last sent or queued for this activityId, which is the one the backend has or will have.
+    func cachedUpdateToken(_ activityId: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            self.requestDispatch.async {
+                continuation.resume(returning: (self.updateTokens.items[activityId] as? OSRequestSetUpdateToken)?.token)
+            }
+        }
+    }
+
     func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
 
