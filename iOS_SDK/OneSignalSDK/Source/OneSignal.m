@@ -105,9 +105,6 @@ static NSDictionary* appSettings;
 // Called after successfully calling setAppId and setLaunchOptions
 static BOOL initDone = false;
 
-// Used to track last time SDK was initialized, for whether or not to start a new session
-static NSTimeInterval initializationTime;
-
 //// Set when the app is launched
 //static NSDate *sessionLaunchTime;
 
@@ -366,18 +363,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
         return false;
     }
     
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
-
-    // Make sure last time we closed app was more than 30 secs ago
-    const int minTimeThreshold = 30;
-    NSTimeInterval timeSinceLastClosed = now - lastTimeClosed;
-    NSTimeInterval timeSinceInitialization = now - initializationTime;
-
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceLastClosed: %f", timeSinceLastClosed]];
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceInitialization: %f", timeSinceInitialization]];
-
-    return MIN(timeSinceLastClosed, timeSinceInitialization) >= minTimeThreshold;
+    return [OSSessionStartGate.shared shouldStartNewSession];
 }
 
 + (void)startNewSession:(BOOL)fromInit {
@@ -391,15 +377,26 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     // Run on the main queue as it is possible for this to be called from multiple queues.
     // Also some of the code in the method is not thread safe such as _outcomeEventsController.
     [OneSignalHelper dispatch_async_on_main_queue:^{
-        [self startNewSessionInternal];
+        [self startNewSessionInternal:!fromInit];
     }];
 }
 
-+ (void)startNewSessionInternal {
+/// Starts the session init deferred during a prewarm, without the 30 second gate: the init start
+/// it replaces never ran.
++ (void)startDeferredSession {
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [self startNewSessionInternal:YES];
+    }];
+}
+
++ (void)startNewSessionInternal:(BOOL)deduplicate {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignal.startNewSessionInternal"];
 
     // return if the user has not granted consent, or device-protected storage isn't readable yet
     if ([OneSignalConfig shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:nil])
+        return;
+
+    if (![OSSessionStartGate.shared beginSessionStartWithDeduplicate:deduplicate])
         return;
 
     // A new session is a fresh chance at params after the launch attempt exhausted its retries
@@ -621,7 +618,7 @@ static BOOL ComputeInitialStorageReadable(void) {
             [OneSignal startInAppMessages];
             StartFeatureFlagsRefresh();
             [OSDeviceGestureDetector start];
-            [OneSignal startNewSession:YES];
+            [OneSignal startDeferredSession];
         };
 
         // Authoritative signal: the OS says protected data just became available.
@@ -726,7 +723,7 @@ static BOOL ComputeInitialStorageReadable(void) {
     }
     [self startNewSession:YES];
     
-    initializationTime = [[NSDate date] timeIntervalSince1970];
+    [OSSessionStartGate.shared recordInitialization];
     initDone = true;
 }
 

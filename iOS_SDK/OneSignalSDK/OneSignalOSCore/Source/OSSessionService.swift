@@ -269,3 +269,54 @@ public final class OSSessionService: NSObject {
         storage.saveObject(forKey: OSUD_SESSION_RECORD, withValue: data)
     }
 }
+
+/// Decides whether a foreground starts a new session: the app must have been closed, and the SDK
+/// initialized, at least `threshold` seconds ago.
+@objc(OSSessionStartGate)
+public final class OSSessionStartGate: NSObject {
+    @objc public static let shared = OSSessionStartGate()
+    static let threshold: TimeInterval = 30
+
+    private let storage: OneSignalUserDefaults
+    private let now: () -> TimeInterval
+    private let lock = NSLock()
+    private var initializationTime: TimeInterval = 0
+    private var lastStartTime: TimeInterval?
+
+    init(
+        storage: OneSignalUserDefaults = .initStandard(),
+        now: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 }
+    ) {
+        self.storage = storage
+        self.now = now
+        super.init()
+    }
+
+    @objc public func recordInitialization() {
+        let now = now()
+        lock.withLock { initializationTime = now }
+    }
+
+    @objc public func shouldStartNewSession() -> Bool {
+        let now = now()
+        let lastClosedTime = storage.getSavedDouble(forKey: OSUD_APP_LAST_CLOSED_TIME, defaultValue: 0)
+        let initializationTime = lock.withLock { self.initializationTime }
+        let elapsed = min(now - lastClosedTime, now - initializationTime)
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionStartGate seconds since last closed or initialized: \(elapsed)")
+        return elapsed >= Self.threshold
+    }
+
+    /// Records a session start, unless `deduplicate` is set and a session started within the threshold.
+    /// Recovery from a prewarm and the foreground that triggered it each start a session, in either
+    /// order, so both pass `deduplicate` and the later one is skipped. Returns whether to start.
+    @objc public func beginSessionStart(deduplicate: Bool) -> Bool {
+        let now = now()
+        return lock.withLock {
+            if deduplicate, let lastStartTime, now - lastStartTime < Self.threshold {
+                return false
+            }
+            lastStartTime = now
+            return true
+        }
+    }
+}
