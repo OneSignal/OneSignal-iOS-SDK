@@ -419,7 +419,6 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
     }
 
     func testCachedUpdateTokenReturnsTheSetTokenForTheActivityId() async throws {
-        /* Setup */
         let mockDispatchQueue = MockDispatchQueue()
         let mockClient = setUpSubscribedUser()
 
@@ -430,7 +429,6 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         executor.append(request)
         mockDispatchQueue.waitForDispatches(2)
 
-        /* Then */
         let cachedToken = await executor.cachedUpdateToken("my-activity-id")
         let otherToken = await executor.cachedUpdateToken("other-activity-id")
         XCTAssertEqual(cachedToken, "my-token")
@@ -438,12 +436,10 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
     }
 
     func testCachedUpdateTokenIsNilWhenARemoveIsPending() async throws {
-        /* Setup */
         let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
         executor.updateTokens.add(OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token"))
         executor.updateTokens.add(OSRequestRemoveUpdateToken(key: "my-activity-id"))
 
-        /* Then */
         let cachedToken = await executor.cachedUpdateToken("my-activity-id")
         XCTAssertNil(cachedToken)
     }

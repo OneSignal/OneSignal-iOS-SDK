@@ -254,11 +254,12 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         if #available(iOS 16.2, *) {
             duplicates = duplicateGroups(activities)
         }
+        // If a duplicate that we end gets listeners, its token replaces the
+        // kept activity's token.
         for activity in activities where duplicates[activity.oneSignalActivityId] == nil {
             listenForActivityEvents(activityType, activity: activity, options: options)
         }
 
-        // Duplicates share one update token registration, so only the kept activity gets listeners.
         if #available(iOS 16.2, *), !duplicates.isEmpty {
             Task {
                 for activity in await endDuplicateActivities(duplicates, cachedUpdateToken: _executor.cachedUpdateToken) {
@@ -304,7 +305,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             for await activityState in activity.activityStateUpdates {
                 switch activityState {
                 case .dismissed:
-                    // The update token registration is per activityId, so a duplicate still on screen is using it.
+                    // If a live duplicate exists, `exit` can stop its updates.
                     if hasLiveDuplicate(activity, in: Activity<Attributes>.activities) {
                         OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities keeping update token for: \(activityType):\(activity.attributes.onesignal.activityId), a duplicate is still live")
                     } else {

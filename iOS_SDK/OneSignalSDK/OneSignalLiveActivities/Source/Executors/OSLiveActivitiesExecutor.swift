@@ -186,7 +186,6 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
     }
 
-    /// The update token last sent or queued for this activityId, which is the one the backend has or will have.
     func cachedUpdateToken(_ activityId: String) async -> String? {
         await withCheckedContinuation { continuation in
             self.requestDispatch.async {

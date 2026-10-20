@@ -31,7 +31,7 @@
 import OneSignalCore
 import ActivityKit
 
-/// The parts of an `Activity` that duplicate handling reads, so it can be tested without ActivityKit.
+/// Tests cannot create an `Activity`, so the helpers below take this protocol.
 protocol OSLiveActivityInstance {
     var id: String { get }
     var oneSignalActivityId: String { get }
@@ -47,19 +47,18 @@ extension Activity: OSLiveActivityInstance where Attributes: OneSignalLiveActivi
 }
 
 extension OneSignalLiveActivitiesManagerImpl {
-    /// Live activities that share a OneSignal activityId with another live activity, keyed by that activityId.
     static func duplicateGroups<T: OSLiveActivityInstance>(_ activities: [T]) -> [String: [T]] {
         Dictionary(grouping: activities.filter { $0.isLive }, by: { $0.oneSignalActivityId }).filter { $0.value.count > 1 }
     }
 
-    /// Prefers the activity whose token the backend already has, so no re-registration is needed.
+    /// The backend sends updates to the cached update token, so we prefer the
+    /// activity that has that token.
     static func activityToKeep<T: OSLiveActivityInstance>(_ group: [T], cachedUpdateToken: String?) -> T? {
         group.first { $0.pushTokenString != nil && $0.pushTokenString == cachedUpdateToken }
             ?? group.first { $0.pushTokenString != nil }
             ?? group.first
     }
 
-    /// Ends all but one activity in each group and returns the kept ones.
     static func endDuplicates<T: OSLiveActivityInstance>(
         _ groups: [String: [T]],
         cachedUpdateToken: (String) async -> String?,
