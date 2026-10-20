@@ -168,6 +168,8 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual(request.method, POST)
         XCTAssertEqual(request.parameters?["onesignal_id"] as? String, onesignalId)
         XCTAssertEqual(request.parameters?["subscription_id"] as? String, testPushSubId)
+        XCTAssertEqual(request.parameters?["subscription_type"] as? String, "iOSPush")
+        XCTAssertNil(request.parameters?["device_type"])
         XCTAssertEqual(request.parameters?["start_time"] as? String, "2023-11-14T22:13:20.000Z")
         XCTAssertEqual(request.parameters?["idempotency_key"] as? String, "session-1")
         XCTAssertEqual(request.parameters?["direct_attribution_id"] as? String, "notification-id")

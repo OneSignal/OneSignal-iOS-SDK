@@ -337,3 +337,63 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
     }
 }
+
+final class OSSessionStartGateTests: XCTestCase {
+    private var now: TimeInterval = 10_000
+    private var gate: OSSessionStartGate!
+
+    override func setUp() {
+        super.setUp()
+        now = 10_000
+        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_APP_LAST_CLOSED_TIME)
+        gate = OSSessionStartGate(now: { [unowned self] in self.now })
+    }
+
+    override func tearDown() {
+        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_APP_LAST_CLOSED_TIME)
+        super.tearDown()
+    }
+
+    private func closeApp() {
+        OneSignalUserDefaults.initStandard().saveDouble(forKey: OSUD_APP_LAST_CLOSED_TIME, withValue: now)
+    }
+
+    func testResumingWithinTheThresholdDoesNotStartASession() {
+        gate.recordInitialization()
+        now += 60
+        closeApp()
+
+        now += 29
+        XCTAssertFalse(gate.shouldStartNewSession())
+
+        now += 1
+        XCTAssertTrue(gate.shouldStartNewSession())
+    }
+
+    func testForegroundWithinTheThresholdOfInitializationDoesNotStartASession() {
+        closeApp()
+        now += 60
+        gate.recordInitialization()
+
+        now += 29
+        XCTAssertFalse(gate.shouldStartNewSession())
+
+        now += 1
+        XCTAssertTrue(gate.shouldStartNewSession())
+    }
+
+    /// A prewarm's init start does nothing, so recovery and the foreground's gated start can both run.
+    func testOnlyOneOfTwoDeduplicatedStartsWithinTheThresholdRuns() {
+        XCTAssertTrue(gate.beginSessionStart(deduplicate: true))
+        XCTAssertFalse(gate.beginSessionStart(deduplicate: true))
+
+        now += 30
+        XCTAssertTrue(gate.beginSessionStart(deduplicate: true))
+    }
+
+    func testStartFromInitIsNeverDeduplicated() {
+        XCTAssertTrue(gate.beginSessionStart(deduplicate: false))
+        XCTAssertTrue(gate.beginSessionStart(deduplicate: false))
+        XCTAssertFalse(gate.beginSessionStart(deduplicate: true))
+    }
+}
