@@ -129,7 +129,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         var parameters: [String: Any] = [
             "onesignal_id": onesignalId,
             "subscription_id": subscriptionId,
-            "device_type": DEVICE_TYPE_PUSH,
+            "subscription_type": OSSubscriptionType.push.rawValue,
             "start_time": OSSessionTimestamp.string(from: startTime),
             // The local session ID, so a create replayed from any process returns the same session.
             "idempotency_key": localSessionId
