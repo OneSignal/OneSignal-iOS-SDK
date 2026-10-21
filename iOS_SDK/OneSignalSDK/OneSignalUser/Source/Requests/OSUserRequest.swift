@@ -89,8 +89,7 @@ internal extension OneSignalRequest {
 }
 
 extension OneSignalLog {
-    /// A failure the executor retries is INFO and one it handles without retry is WARN; an executor
-    /// that pauses the Operation Repo on a failure logs that case itself.
+    /// Callers that pause the Operation Repo on a failure log ERROR instead.
     static func logRequestFailure(_ message: String, statusCode: Int) {
         let responseType = OSNetworkingUtils.getResponseStatusType(statusCode)
         onesignalLog(responseType == .retryable ? .LL_INFO : .LL_WARN, message: message)

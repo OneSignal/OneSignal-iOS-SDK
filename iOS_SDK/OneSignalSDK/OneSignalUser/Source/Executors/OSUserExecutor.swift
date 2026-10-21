@@ -547,7 +547,6 @@ extension OSUserExecutor {
                 // re-enter so that token is used now rather than waiting on another wake.
                 self.executePendingRequests()
             } else if responseType != .retryable {
-                // Stays ERROR: the pause below holds until a new session, which the SDK cannot work around on its own.
                 OneSignalLog.onesignalLog(.LL_ERROR, message: message)
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
