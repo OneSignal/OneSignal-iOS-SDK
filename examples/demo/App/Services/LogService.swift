@@ -75,12 +75,19 @@ final class LogService: ObservableObject {
 
     private func addToView(_ message: String) {
         let time = timeFormatter.string(from: Date())
-        DispatchQueue.main.async {
-            self.entries.append(LogEntry(id: self.nextId, time: time, message: message))
-            self.nextId += 1
-            if self.entries.count > Self.maxEntries {
-                self.entries.removeFirst(self.entries.count - Self.maxEntries)
-            }
+        // Append inline on main so a queued append can't land after a later clear().
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { self.append(time: time, message: message) }
+            return
+        }
+        append(time: time, message: message)
+    }
+
+    private func append(time: String, message: String) {
+        entries.append(LogEntry(id: nextId, time: time, message: message))
+        nextId += 1
+        if entries.count > Self.maxEntries {
+            entries.removeFirst(entries.count - Self.maxEntries)
         }
     }
 }
