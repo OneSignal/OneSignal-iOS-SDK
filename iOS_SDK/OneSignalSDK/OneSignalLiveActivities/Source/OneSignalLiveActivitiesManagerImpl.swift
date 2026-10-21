@@ -307,7 +307,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                 case .dismissed:
                     // If a live duplicate exists, `exit` can stop its updates.
                     if hasLiveDuplicate(activity, in: Activity<Attributes>.activities) {
-                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities keeping update token for: \(activityType):\(activity.attributes.onesignal.activityId), a duplicate is still live")
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities keeping update token for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id), a duplicate is still live")
                     } else {
                         OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
                     }

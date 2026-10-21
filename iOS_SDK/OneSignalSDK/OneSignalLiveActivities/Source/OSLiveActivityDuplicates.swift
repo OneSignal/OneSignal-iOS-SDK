@@ -65,17 +65,19 @@ extension OneSignalLiveActivitiesManagerImpl {
         end: (T) async -> Void
     ) async -> [T] {
         var kept = [T]()
+        // An activity can end during any await below, so we read isLive again
+        // before we keep or end an activity.
         for (activityId, group) in groups {
             let cachedToken = await cachedUpdateToken(activityId)
-            guard let keeper = activityToKeep(group, cachedUpdateToken: cachedToken) else {
+            guard let keeper = activityToKeep(group.filter { $0.isLive }, cachedUpdateToken: cachedToken) else {
                 continue
             }
             kept.append(keeper)
-            for duplicate in group where duplicate.id != keeper.id {
+            for duplicate in group where duplicate.id != keeper.id && duplicate.isLive {
                 await end(duplicate)
             }
         }
-        return kept
+        return kept.filter { $0.isLive }
     }
 
     @available(iOS 16.2, *)
