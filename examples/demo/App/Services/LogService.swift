@@ -33,7 +33,10 @@ struct LogEntry: Identifiable, Equatable {
     let message: String
 }
 
-/// Backs the in-app Log View, which the shared Appium suite reads.
+/// Demo logging that marks every console line with `[OneSignal]`.
+///
+/// `show` and `error` also append to the in-app Log View, which the shared Appium suite reads.
+/// All methods are safe to call from any thread.
 final class LogService: ObservableObject {
     static let shared = LogService()
 
@@ -52,9 +55,25 @@ final class LogService: ObservableObject {
 
     private init() {}
 
-    /// Prints `[OneSignal] {message}` and appends it to the Log View. Safe to call from any thread.
-    func log(_ message: String) {
+    static func info(_ message: String) {
         print("[OneSignal] \(message)")
+    }
+
+    static func show(_ message: String) {
+        info(message)
+        shared.addToView(message)
+    }
+
+    static func error(_ message: String) {
+        FileHandle.standardError.write(Data("[OneSignal] \(message)\n".utf8))
+        shared.addToView(message)
+    }
+
+    func clear() {
+        entries.removeAll()
+    }
+
+    private func addToView(_ message: String) {
         let time = timeFormatter.string(from: Date())
         DispatchQueue.main.async {
             self.entries.append(LogEntry(id: self.nextId, time: time, message: message))
@@ -63,9 +82,5 @@ final class LogService: ObservableObject {
                 self.entries.removeFirst(self.entries.count - Self.maxEntries)
             }
         }
-    }
-
-    func clear() {
-        entries.removeAll()
     }
 }

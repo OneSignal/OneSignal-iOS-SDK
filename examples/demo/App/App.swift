@@ -94,7 +94,7 @@ class NotificationLifecycleHandler: NSObject, OSNotificationLifecycleListener {
 
     func onWillDisplay(event: OSNotificationWillDisplayEvent) {
         let notification = event.notification
-        LogService.shared.log(
+        LogService.show(
             "Notification foregroundWillDisplay: \(notification.notificationId ?? "null") \(notification.title ?? "")"
         )
         // Optionally modify display behavior
@@ -108,7 +108,7 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
 
     func onClick(event: OSNotificationClickEvent) {
         let notification = event.notification
-        LogService.shared.log(
+        LogService.show(
             "Notification click: \(notification.notificationId ?? "null") \(notification.title ?? "")"
         )
     }
@@ -120,19 +120,19 @@ class InAppMessageLifecycleHandler: NSObject, OSInAppMessageLifecycleListener {
     static let shared = InAppMessageLifecycleHandler()
 
     func onWillDisplay(event: OSInAppMessageWillDisplayEvent) {
-        LogService.shared.log("IAM willDisplay: \(event.message.messageId)")
+        LogService.show("IAM willDisplay: \(event.message.messageId)")
     }
 
     func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
-        LogService.shared.log("IAM didDisplay: \(event.message.messageId)")
+        LogService.show("IAM didDisplay: \(event.message.messageId)")
     }
 
     func onWillDismiss(event: OSInAppMessageWillDismissEvent) {
-        LogService.shared.log("IAM willDismiss: \(event.message.messageId)")
+        LogService.show("IAM willDismiss: \(event.message.messageId)")
     }
 
     func onDidDismiss(event: OSInAppMessageDidDismissEvent) {
-        LogService.shared.log("IAM didDismiss: \(event.message.messageId)")
+        LogService.show("IAM didDismiss: \(event.message.messageId)")
     }
 }
 
@@ -140,6 +140,6 @@ class InAppMessageClickHandler: NSObject, OSInAppMessageClickListener {
     static let shared = InAppMessageClickHandler()
 
     func onClick(event: OSInAppMessageClickEvent) {
-        LogService.shared.log("IAM click: \(event.message.messageId)")
+        LogService.show("IAM click: \(event.message.messageId)")
     }
 }

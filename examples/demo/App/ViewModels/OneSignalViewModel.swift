@@ -185,7 +185,7 @@ final class OneSignalViewModel: ObservableObject {
             userFetchStatus = "OK"
         case .failure(let error):
             userFetchStatus = "\(aliasLabel) fetch failed: \(error)"
-            print("[OneSignal] /users fetch by \(aliasLabel) failed: \(error)")
+            LogService.info("/users fetch by \(aliasLabel) failed: \(error)")
         }
         isLoading = false
     }
@@ -236,7 +236,7 @@ final class OneSignalViewModel: ObservableObject {
         if jwtAskExternalId == trimmedId {
             jwtAskExternalId = nil
         }
-        print("[OneSignal] Updated JWT for: \(trimmedId)")
+        LogService.info("Updated JWT for: \(trimmedId)")
         if currentUser {
             // The demo now holds a fresh bearer for this user, and no user-state
             // event is guaranteed, so refetch instead of leaving the stale failure.
@@ -248,7 +248,7 @@ final class OneSignalViewModel: ObservableObject {
     func handleJwtInvalidated(externalId: String) {
         service.clearSessionJwtToken()
         jwtAskExternalId = externalId
-        print("[OneSignal] JWT invalidated for externalId: \(externalId)")
+        LogService.info("JWT invalidated for externalId: \(externalId)")
     }
 
     func logout() {
@@ -267,7 +267,7 @@ final class OneSignalViewModel: ObservableObject {
     func setUseIdentityVerification(_ enabled: Bool) {
         useIdentityVerification = enabled
         service.useIdentityVerification = enabled
-        print("[OneSignal] Fetch by external_id \(enabled ? "enabled" : "disabled")")
+        LogService.info("Fetch by external_id \(enabled ? "enabled" : "disabled")")
         Task { await fetchUserDataFromApi() }
     }
 
@@ -387,7 +387,7 @@ final class OneSignalViewModel: ObservableObject {
 
     func checkLocationShared() -> Bool {
         let shared = service.isLocationShared
-        print("[OneSignal] Location shared: \(shared)")
+        LogService.info("Location shared: \(shared)")
         return shared
     }
 
@@ -425,17 +425,17 @@ extension OneSignalViewModel {
 
     func sendOutcome(_ name: String) {
         service.sendOutcome(name)
-        print("[OneSignal] Outcome sent: \(name)")
+        LogService.info("Outcome sent: \(name)")
     }
 
     func sendUniqueOutcome(_ name: String) {
         service.sendUniqueOutcome(name)
-        print("[OneSignal] Unique outcome sent: \(name)")
+        LogService.info("Unique outcome sent: \(name)")
     }
 
     func sendOutcome(_ name: String, value: Double) {
         service.sendOutcome(name, value: NSNumber(value: value))
-        print("[OneSignal] Outcome sent: \(name) = \(value)")
+        LogService.info("Outcome sent: \(name) = \(value)")
     }
 
     // MARK: - In-App
@@ -488,7 +488,7 @@ extension OneSignalViewModel {
 
     func trackEvent(name: String, properties: [String: Any]?) {
         service.trackEvent(name: name, properties: properties)
-        print("[OneSignal] Event tracked: \(name)")
+        LogService.info("Event tracked: \(name)")
     }
 
     // MARK: - Notifications
@@ -559,7 +559,7 @@ private final class Observers: NSObject,
     func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
         let previous = state.previous
         let current = state.current
-        LogService.shared.log(
+        LogService.show(
             "Push subscription changed: id=\(previous.id ?? "null") → \(current.id ?? "null"), "
                 + "optedIn=\(previous.optedIn) → \(current.optedIn), "
                 + "token=\(Self.truncatedToken(previous.token)) → \(Self.truncatedToken(current.token))"
@@ -571,7 +571,7 @@ private final class Observers: NSObject,
     }
 
     func onUserStateDidChange(state: OSUserChangedState) {
-        LogService.shared.log(
+        LogService.show(
             "User changed: onesignalId=\(state.current.onesignalId ?? "null"), "
                 + "externalId=\(state.current.externalId ?? "null")"
         )
@@ -581,7 +581,7 @@ private final class Observers: NSObject,
     }
 
     func onNotificationPermissionDidChange(_ permission: Bool) {
-        LogService.shared.log("Permission changed: \(permission)")
+        LogService.show("Permission changed: \(permission)")
         Task { @MainActor in
             viewModel?.hasNotificationPermission = permission
             viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
