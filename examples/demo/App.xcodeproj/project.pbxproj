@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00B9E4C45782A6AD1CD3FE48 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2F82BD207897EB78739182A /* OneSignalExtension.framework */; };
+		06E5B0ABA65D52900ECE8DE8 /* LogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B360D269E2338137D6FD023 /* LogService.swift */; };
 		08C5E83ABC14EC2FC88276B9 /* OneSignalLiveActivities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F5EBC48D807036E572D97F0E /* OneSignalLiveActivities.framework */; };
 		0BC1978B56970258E20C24C4 /* SendPushSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B81D7E1A7EB9BB4466C768F /* SendPushSection.swift */; };
 		0C4F40193331204CC2E05743 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 283B132CEE12D26D1FA1AADF /* OneSignalNotifications.framework */; };
@@ -73,6 +74,7 @@
 		B3AE701075398C6A369DBBE0 /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C0EE23773C63B6EC3FB563A /* LocationSection.swift */; };
 		C31F603E294D69E30CE65EA3 /* OneSignalInAppMessages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 919F0D129D0FA271E24F0BBD /* OneSignalInAppMessages.framework */; };
 		C6E9E2C6716059856A1AC571 /* OneSignalInAppMessages.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 919F0D129D0FA271E24F0BBD /* OneSignalInAppMessages.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C7A9A815CF43E7216A29908D /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F7899AD7E97A0FABAF6E533 /* LogView.swift */; };
 		CAB90AEC123A57B401881DBC /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1636BCBAB444EAC7BB34CEDE /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CE2C54D552E42C2538FB95C4 /* UserSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2383E8AA63BF04ADA2CF0D /* UserSection.swift */; };
 		D154E0266C8AB372F928D42A /* OneSignalLocation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE9834773C437CC373607693 /* OneSignalLocation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -314,11 +316,13 @@
 		1155DE423DAA8B5396948C9B /* TriggersSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggersSection.swift; sourceTree = "<group>"; };
 		1892E9B40F0E8FB23DD64206 /* EmailsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailsSection.swift; sourceTree = "<group>"; };
 		1EE449E8308FCB038408D7CF /* vine_boom.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = vine_boom.wav; sourceTree = "<group>"; };
+		1F7899AD7E97A0FABAF6E533 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		225DEBDFE699D266D5BDE7ED /* AliasesSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AliasesSection.swift; sourceTree = "<group>"; };
 		24CBCBDE9F48219D7EC827C3 /* App-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "App-Bridging-Header.h"; sourceTree = "<group>"; };
 		27856D76807C31B23CD10CFD /* LiveActivitySection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivitySection.swift; sourceTree = "<group>"; };
 		280B23B41935EAB89C8C6FCB /* ListWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListWidgets.swift; sourceTree = "<group>"; };
 		291D83300C20BA3831824AFD /* OneSignalSDK */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OneSignalSDK; path = ../../iOS_SDK/OneSignalSDK/OneSignal.xcodeproj; sourceTree = "<group>"; };
+		2B360D269E2338137D6FD023 /* LogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogService.swift; sourceTree = "<group>"; };
 		2D959B1636916DAEE5FE6278 /* CustomNotificationDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNotificationDialog.swift; sourceTree = "<group>"; };
 		35F726E64F9B6817F917227C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		38067B9DDA25E12809D9A245 /* TooltipDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TooltipDialog.swift; sourceTree = "<group>"; };
@@ -366,7 +370,7 @@
 		E194A3F19072CB17A8F1A12E /* SmsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmsSection.swift; sourceTree = "<group>"; };
 		ECAC7EF0B67920F9FEC4F129 /* TagsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSection.swift; sourceTree = "<group>"; };
 		F46DFACB9F304B9374F3C570 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
-		"TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
+		"TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Build.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -496,6 +500,7 @@
 			isa = PBXGroup;
 			children = (
 				0542854462194E28D9E4638D /* LiveActivityController.swift */,
+				2B360D269E2338137D6FD023 /* LogService.swift */,
 				38138523A8A81A60A77800CA /* NotificationSender.swift */,
 				5E0F5CBE80CF861238E1A9AA /* OneSignalService.swift */,
 				C76153AD2F6C6EB8F77138B9 /* PreferencesService.swift */,
@@ -515,6 +520,7 @@
 				5984B93007C6B85AFE09045A /* KeyValueRow.swift */,
 				280B23B41935EAB89C8C6FCB /* ListWidgets.swift */,
 				3DD26AED9EA84B0308C1BFE8 /* LoginUserDialog.swift */,
+				1F7899AD7E97A0FABAF6E533 /* LogView.swift */,
 				4072202943CA64D2CBC38CB5 /* MultiPairInputDialog.swift */,
 				D261D46C404E325CBA87A9E0 /* OSDialog.swift */,
 				D54B9DAAEDBE67B73893C522 /* OutcomeDialog.swift */,
@@ -585,10 +591,10 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
-		"TEMP_17E43425-D1F7-4A88-B0A0-C0368CB0E171" /* demo */ = {
+		"TEMP_E4189068-428D-4392-AD3B-9896A0DA0EF6" /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */,
+				"TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */,
 			);
 			path = demo;
 			sourceTree = "<group>";
@@ -831,6 +837,8 @@
 				7D2BA9022E77B00205453467 /* LiveActivityController.swift in Sources */,
 				DBDA727D6317A3CCC73A1699 /* LiveActivitySection.swift in Sources */,
 				B3AE701075398C6A369DBBE0 /* LocationSection.swift in Sources */,
+				06E5B0ABA65D52900ECE8DE8 /* LogService.swift in Sources */,
+				C7A9A815CF43E7216A29908D /* LogView.swift in Sources */,
 				673E0146B4B27EB81FCF50DA /* LoginUserDialog.swift in Sources */,
 				E3725231A3FD5F5A88BAA758 /* MultiPairInputDialog.swift in Sources */,
 				4C18E3D284BB28BD846162F3 /* NotificationSender.swift in Sources */,
@@ -960,7 +968,7 @@
 /* Begin XCBuildConfiguration section */
 		0D2EF3911CA89837C30DB0D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -978,7 +986,7 @@
 		};
 		4A0C935808978B5A7673E412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1061,7 +1069,7 @@
 		};
 		D0E56A85F1C385808720F94B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -1083,7 +1091,7 @@
 		};
 		EB1CC3A930E09FEBECF9195D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App.entitlements;
@@ -1107,7 +1115,7 @@
 		};
 		F305A3E63851EE49DA2D190E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
@@ -1130,7 +1138,7 @@
 		};
 		F5FD25168D9B32A08A468069 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_DEC528CA-1E47-4B0F-AAAF-071417BC60C5" /* Build.xcconfig */;
+			baseConfigurationReference = "TEMP_64692E9D-0F84-41DA-A3A9-F421E026C289" /* Build.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;

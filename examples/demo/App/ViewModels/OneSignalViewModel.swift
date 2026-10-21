@@ -557,6 +557,13 @@ private final class Observers: NSObject,
     weak var viewModel: OneSignalViewModel?
 
     func onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState) {
+        let previous = state.previous
+        let current = state.current
+        LogService.shared.log(
+            "Push subscription changed: id=\(previous.id ?? "null") → \(current.id ?? "null"), "
+                + "optedIn=\(previous.optedIn) → \(current.optedIn), "
+                + "token=\(Self.truncatedToken(previous.token)) → \(Self.truncatedToken(current.token))"
+        )
         Task { @MainActor in
             viewModel?.pushSubscriptionId = state.current.id
             viewModel?.isPushEnabled = state.current.optedIn
@@ -564,12 +571,17 @@ private final class Observers: NSObject,
     }
 
     func onUserStateDidChange(state: OSUserChangedState) {
+        LogService.shared.log(
+            "User changed: onesignalId=\(state.current.onesignalId ?? "null"), "
+                + "externalId=\(state.current.externalId ?? "null")"
+        )
         Task { @MainActor in
             await viewModel?.fetchUserDataFromApi()
         }
     }
 
     func onNotificationPermissionDidChange(_ permission: Bool) {
+        LogService.shared.log("Permission changed: \(permission)")
         Task { @MainActor in
             viewModel?.hasNotificationPermission = permission
             viewModel?.isPushEnabled = OneSignal.User.pushSubscription.optedIn
@@ -580,5 +592,10 @@ private final class Observers: NSObject,
         Task { @MainActor in
             viewModel?.handleJwtInvalidated(externalId: event.externalId)
         }
+    }
+
+    private static func truncatedToken(_ token: String?) -> String {
+        guard let token, !token.isEmpty else { return "null" }
+        return "\(token.prefix(8))…"
     }
 }

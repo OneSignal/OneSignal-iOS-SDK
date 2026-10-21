@@ -93,7 +93,10 @@ class NotificationLifecycleHandler: NSObject, OSNotificationLifecycleListener {
     static let shared = NotificationLifecycleHandler()
 
     func onWillDisplay(event: OSNotificationWillDisplayEvent) {
-        print("[OneSignal] Notification will display: \(event.notification.title ?? "No title")")
+        let notification = event.notification
+        LogService.shared.log(
+            "Notification foregroundWillDisplay: \(notification.notificationId ?? "null") \(notification.title ?? "")"
+        )
         // Optionally modify display behavior
         // event.preventDefault() // Prevent automatic display
         // event.notification.display() // Manually display later
@@ -104,8 +107,10 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
     static let shared = NotificationClickHandler()
 
     func onClick(event: OSNotificationClickEvent) {
-        print("[OneSignal] Notification clicked: \(event.notification.title ?? "No title")")
-        // Handle notification click - navigate to specific screen, etc.
+        let notification = event.notification
+        LogService.shared.log(
+            "Notification click: \(notification.notificationId ?? "null") \(notification.title ?? "")"
+        )
     }
 }
 
@@ -115,19 +120,19 @@ class InAppMessageLifecycleHandler: NSObject, OSInAppMessageLifecycleListener {
     static let shared = InAppMessageLifecycleHandler()
 
     func onWillDisplay(event: OSInAppMessageWillDisplayEvent) {
-        print("[OneSignal] IAM will display: \(event.message.messageId)")
+        LogService.shared.log("IAM willDisplay: \(event.message.messageId)")
     }
 
     func onDidDisplay(event: OSInAppMessageDidDisplayEvent) {
-        print("[OneSignal] IAM did display: \(event.message.messageId)")
+        LogService.shared.log("IAM didDisplay: \(event.message.messageId)")
     }
 
     func onWillDismiss(event: OSInAppMessageWillDismissEvent) {
-        print("[OneSignal] IAM will dismiss: \(event.message.messageId)")
+        LogService.shared.log("IAM willDismiss: \(event.message.messageId)")
     }
 
     func onDidDismiss(event: OSInAppMessageDidDismissEvent) {
-        print("[OneSignal] IAM did dismiss: \(event.message.messageId)")
+        LogService.shared.log("IAM didDismiss: \(event.message.messageId)")
     }
 }
 
@@ -135,7 +140,6 @@ class InAppMessageClickHandler: NSObject, OSInAppMessageClickListener {
     static let shared = InAppMessageClickHandler()
 
     func onClick(event: OSInAppMessageClickEvent) {
-        print("[OneSignal] IAM clicked: \(event.result.actionId ?? "No action ID")")
-        // Handle IAM click - navigate, track event, etc.
+        LogService.shared.log("IAM click: \(event.message.messageId)")
     }
 }

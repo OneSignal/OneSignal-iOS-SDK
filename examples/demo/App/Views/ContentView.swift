@@ -35,47 +35,50 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: OS.Spacing.sectionGap) {
-                    AppSection()
-                    UserSection()
-                    PushSection()
-                    SendPushSection()
-                    InAppSection()
-                    SendIamSection()
-                    AliasesSection()
-                    EmailsSection()
-                    SmsSection()
-                    TagsSection()
-                    OutcomesSection()
-                    TriggersSection()
-                    CustomEventsSection()
-                    LocationSection()
-                    #if !targetEnvironment(macCatalyst)
-                    LiveActivitySection()
-                    #endif
-                    ActionButton(
-                        "NEXT SCREEN",
-                        accessibilityID: "next_screen_button"
-                    ) {
-                        showSecondary = true
+            VStack(spacing: 0) {
+                LogView()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: OS.Spacing.sectionGap) {
+                        AppSection()
+                        UserSection()
+                        PushSection()
+                        SendPushSection()
+                        InAppSection()
+                        SendIamSection()
+                        AliasesSection()
+                        EmailsSection()
+                        SmsSection()
+                        TagsSection()
+                        OutcomesSection()
+                        TriggersSection()
+                        CustomEventsSection()
+                        LocationSection()
+                        #if !targetEnvironment(macCatalyst)
+                        LiveActivitySection()
+                        #endif
+                        ActionButton(
+                            "NEXT SCREEN",
+                            accessibilityID: "next_screen_button"
+                        ) {
+                            showSecondary = true
+                        }
                     }
+                    .padding(.horizontal, OS.Spacing.pagePadding)
+                    .padding(.top, OS.Spacing.pagePadding)
+                    .padding(.bottom, OS.Spacing.sectionGap)
                 }
-                .padding(.horizontal, OS.Spacing.pagePadding)
-                .padding(.top, OS.Spacing.pagePadding)
-                .padding(.bottom, OS.Spacing.sectionGap)
+                // `main_scroll_view` is anchored to the SwiftUI `ScrollView` (not
+                // the inner `VStack`) so XCUITest exposes it as
+                // `XCUIElementTypeScrollView` with the visible viewport's rect.
+                // Anchoring on the inner `VStack` reported the full content rect
+                // (multiple screens tall), causing WDIO `swipe` to compute
+                // gesture coordinates outside the viewport — iOS clipped those
+                // to the visible region and the swipe registered as a tap on
+                // whatever button sat there (e.g. `send_sound_button`). The
+                // ScrollView identifier is read by `waitForAppReady` and by
+                // Android's `scrollIntoView` `scrollableElement` param.
+                .accessibilityIdentifier("main_scroll_view")
             }
-            // `main_scroll_view` is anchored to the SwiftUI `ScrollView` (not
-            // the inner `VStack`) so XCUITest exposes it as
-            // `XCUIElementTypeScrollView` with the visible viewport's rect.
-            // Anchoring on the inner `VStack` reported the full content rect
-            // (multiple screens tall), causing WDIO `swipe` to compute
-            // gesture coordinates outside the viewport — iOS clipped those
-            // to the visible region and the swipe registered as a tap on
-            // whatever button sat there (e.g. `send_sound_button`). The
-            // ScrollView identifier is read by `waitForAppReady` and by
-            // Android's `scrollIntoView` `scrollableElement` param.
-            .accessibilityIdentifier("main_scroll_view")
             .background(OS.Color.lightBackground.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(OS.Color.primary, for: .navigationBar)

@@ -47,6 +47,8 @@ enum OS {
         static let warningBackground = SwiftUI.Color(red: 0xFF/255, green: 0xF8/255, blue: 0xE1/255)
         static let backdrop          = SwiftUI.Color.black.opacity(0.54)
         static let bodyText          = SwiftUI.Color(red: 0x21/255, green: 0x21/255, blue: 0x21/255)
+        static let logBackground     = SwiftUI.Color(red: 0x1E/255, green: 0x1E/255, blue: 0x1E/255)
+        static let logText           = SwiftUI.Color(red: 0xD4/255, green: 0xD4/255, blue: 0xD4/255)
     }
 
     // MARK: Spacing
