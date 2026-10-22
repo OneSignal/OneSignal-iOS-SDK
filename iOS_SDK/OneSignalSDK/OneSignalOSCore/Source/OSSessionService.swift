@@ -65,6 +65,20 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Pinned at session start, so it stays the same after a login or user switch.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
+    /// Seconds since 1970 when the app last left the foreground. Nil until then.
+    public internal(set) var lastUnfocusTime: TimeInterval?
+
+    /// Seconds since 1970. A session killed before its first unfocus ends at its start, since its
+    /// foreground time was never added to the duration either.
+    public var endTime: TimeInterval {
+        lastUnfocusTime ?? startTime
+    }
+}
+
+public struct OSSessionStart {
+    public let started: OSSessionRecord
+    /// The session the new one replaced, which has now ended.
+    public let ended: OSSessionRecord?
 }
 
 /// Owns the persisted record of the current session. Nothing reads the record while
@@ -157,8 +171,10 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
+    /// The replaced record is returned rather than lost, so its session can be ended.
     @discardableResult
-    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionRecord {
+    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionStart {
+        let previousIds = pinnableIds()
         let user = userProvider.sessionCurrentUser
         let newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
@@ -169,13 +185,17 @@ public final class OSSessionService: NSObject {
             onesignalId: user.onesignalId,
             subscriptionId: user.pushSubscriptionId
         )
-        stateLock.withLock {
+        let ended: OSSessionRecord? = stateLock.withLock {
+            loadIfNeeded()
+            // Last chance to fill the replaced record's IDs while it is still the current one.
+            fillPinnedIds(previousIds)
+            let ended = record
             self.userProvider = userProvider
-            loaded = true
             record = newRecord
             persist()
+            return ended
         }
-        return newRecord
+        return OSSessionStart(started: newRecord, ended: ended)
     }
 
     func onFocus() {
@@ -185,6 +205,7 @@ public final class OSSessionService: NSObject {
 
     func onUnfocus() {
         let now = monotonicNow()
+        let wallNow = wallNow()
         let ids = pinnableIds()
         stateLock.withLock {
             guard let start = focusedAt else {
@@ -196,6 +217,7 @@ public final class OSSessionService: NSObject {
                 return
             }
             record?.activeDuration += max(0, now - start)
+            record?.lastUnfocusTime = wallNow
             fillPinnedIds(ids)
             persist()
         }

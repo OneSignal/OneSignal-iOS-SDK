@@ -196,6 +196,69 @@ extension SessionRecordUserTests {
         client.releaseHeldResponses()
     }
 
+    private func queuedSessionUpdates() -> [OSRequestUpdateSession] {
+        let queued = OneSignalUserManagerImpl.sharedInstance.sessionExecutor?.queuedRequests ?? []
+        return queued.compactMap { $0 as? OSRequestUpdateSession }
+    }
+
+    func testNewSessionQueuesThePreviousSessionsEndBeforeItsCreate() {
+        enableSessionsApi()
+        client.holdResponses = true
+        let manager = OneSignalUserManagerImpl.sharedInstance
+
+        manager.startNewSession()
+        let first = OSSessionService.shared.currentRecord
+        manager.startNewSession()
+        let second = OSSessionService.shared.currentRecord
+
+        let creates = queuedSessionCreates()
+        let queued = manager.sessionExecutor?.queuedRequests.map(\.localSessionId)
+        XCTAssertEqual(queued, [first?.sessionId, first?.sessionId, second?.sessionId].compactMap { $0 })
+        XCTAssertEqual(creates.count, 2)
+        let end = queuedSessionUpdates().first
+        XCTAssertEqual(end?.localSessionId, first?.sessionId)
+        XCTAssertEqual(end?.endTime?.timeIntervalSince1970, first?.startTime)
+        client.releaseHeldResponses()
+    }
+
+    func testLegacySessionQueuesNoEnd() {
+        client.holdResponses = true
+        let manager = OneSignalUserManagerImpl.sharedInstance
+
+        manager.startNewSession()
+        enableSessionsApi()
+        manager.startNewSession()
+
+        XCTAssertEqual(queuedSessionCreates().count, 1)
+        XCTAssertTrue(queuedSessionUpdates().isEmpty)
+        client.releaseHeldResponses()
+    }
+
+    /// The session's user was replaced by a login in an earlier process, so its model is not loaded.
+    func testEndOfASessionWhoseUserIsNoLongerLoadedIsQueuedForItsPinnedUser() throws {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let record = { (onesignalId: String?) in
+            OSSessionRecord(
+                sessionId: onesignalId ?? "never-created",
+                startTime: 1_700_000_000,
+                activeDuration: 12,
+                usesSessionsApi: true,
+                identityModelId: "unloaded-model",
+                onesignalId: onesignalId,
+                subscriptionId: nil
+            )
+        }
+
+        manager.enqueueSessionUpdate(record("pinned-onesignal-id"), endTime: Date(timeIntervalSince1970: 1_700_000_100))
+        manager.enqueueSessionUpdate(record(nil), endTime: Date(timeIntervalSince1970: 1_700_000_100))
+        manager.operationRepo.dispatchQueue.sync {}
+
+        let sessionDeltas = manager.operationRepo.deltaQueue.filter { $0.name == OS_UPDATE_SESSION_DELTA }
+        XCTAssertEqual(sessionDeltas.map(\.property), ["pinned-onesignal-id"])
+        let identityModel = try XCTUnwrap(manager.getIdentityModel(sessionDeltas[0].identityModelId))
+        XCTAssertEqual(identityModel.onesignalId, "pinned-onesignal-id")
+    }
+
     func testNewSessionQueuesNoCreateWhenTheFlagIsOff() {
         client.holdResponses = true
 
