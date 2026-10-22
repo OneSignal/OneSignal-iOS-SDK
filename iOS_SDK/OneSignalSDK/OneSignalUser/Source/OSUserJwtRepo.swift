@@ -86,7 +86,7 @@ final class OSUserJwtRepo: OSUserJwtProviding {
     @discardableResult
     func updateJwt(externalId: String, token: String) -> Bool {
         guard !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserJwtRepo.updateJwt ignored an unusable token for \(externalId)")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserJwtRepo.updateJwt ignored an unusable token for \(externalId)")
             return false
         }
         guard identityModelRepo.updateJwtToken(externalId: externalId, token: token) else {

@@ -67,7 +67,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     delta.model = modelInStore
                 } else {
                     // The model does not exist, drop this Delta
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(delta)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -129,7 +129,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 } else if !auth.keepUncachedOwned(request),
                           !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                     // 3. The model does not exist AND no token can arrive to make this sendable, drop it
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
                     continue
                 }
@@ -153,7 +153,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                     request.subscriptionModel = subscriptionModel
                 } else if !request.prepareForExecution(newRecordsState: newRecordsState, auth: auth) {
                     // 3. The models do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.init dropped \(request)")
                     updateRequestQueue.remove(at: index)
                     continue
                 }
@@ -265,7 +265,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                         )
                         self.addRequestQueue.append(request)
                     } else {
-                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
+                        OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionOperationExecutor.processDeltaQueue dropped \(delta)")
                     }
                 case OS_REMOVE_SUBSCRIPTION_DELTA:
                     let request = OSRequestDeleteSubscription(
@@ -389,7 +389,7 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .missing {
@@ -450,7 +450,7 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 // No token handling: the delete is never signed, so a 401 here is not about the user's JWT.
@@ -513,7 +513,7 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType != .retryable {

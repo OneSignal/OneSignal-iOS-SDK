@@ -63,7 +63,7 @@ public class OSBackgroundTaskManager: NSObject {
     @objc
     public static func setTaskInvalid(_ taskIdentifier: String) {
         guard let delegate = taskHandler else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSBackgroundTaskManager:setTaskInvalid \(taskIdentifier) cannot be executed due to no task handler.")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSBackgroundTaskManager:setTaskInvalid \(taskIdentifier) cannot be executed due to no task handler.")
             // But not necessarily an error because this task won't exist
             // Can be called in initialization of services before delegate is set
             return
