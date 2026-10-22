@@ -67,11 +67,13 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var subscriptionId: String?
     /// Seconds since 1970 when the app last left the foreground. Nil until then.
     public internal(set) var lastUnfocusTime: TimeInterval?
+    /// Seconds since 1970 when the app last entered the foreground during this session.
+    public internal(set) var lastFocusTime: TimeInterval?
 
-    /// Seconds since 1970. A session killed before its first unfocus ends at its start, since its
-    /// foreground time was never added to the duration either.
+    /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
+    /// last focus. The visit the kill cut short is not in the duration either.
     public var endTime: TimeInterval {
-        lastUnfocusTime ?? startTime
+        max(startTime, lastUnfocusTime ?? startTime, lastFocusTime ?? startTime)
     }
 }
 
@@ -110,6 +112,9 @@ public final class OSSessionService: NSObject {
     private var record: OSSessionRecord?
     /// In memory only: a stamp from another process may predate a reboot.
     private var focusedAt: TimeInterval?
+    /// The open visit's wall-clock focus time, and the record's focus time it replaced. A visit open
+    /// when a session starts belongs to the new session, so the ended one gets its earlier focus back.
+    private var openVisit: (focusTime: TimeInterval, replacedFocusTime: TimeInterval?)?
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -176,7 +181,7 @@ public final class OSSessionService: NSObject {
     public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionStart {
         let previousIds = pinnableIds()
         let user = userProvider.sessionCurrentUser
-        let newRecord = OSSessionRecord(
+        var newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
             startTime: wallNow(),
             activeDuration: 0,
@@ -189,7 +194,12 @@ public final class OSSessionService: NSObject {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
             fillPinnedIds(previousIds)
-            let ended = record
+            var ended = record
+            if let visit = openVisit {
+                ended?.lastFocusTime = visit.replacedFocusTime
+                newRecord.lastFocusTime = visit.focusTime
+                openVisit = (visit.focusTime, nil)
+            }
             self.userProvider = userProvider
             record = newRecord
             persist()
@@ -200,7 +210,19 @@ public final class OSSessionService: NSObject {
 
     func onFocus() {
         let now = monotonicNow()
-        stateLock.withLock { focusedAt = now }
+        let wallNow = wallNow()
+        stateLock.withLock {
+            focusedAt = now
+            loadIfNeeded()
+            let replacedFocusTime = openVisit.map(\.replacedFocusTime) ?? record?.lastFocusTime
+            openVisit = (wallNow, replacedFocusTime)
+            guard record != nil else {
+                return
+            }
+            // Saved now, since a kill leaves no unfocus to record when the session was last active.
+            record?.lastFocusTime = wallNow
+            persist()
+        }
     }
 
     func onUnfocus() {
@@ -212,6 +234,7 @@ public final class OSSessionService: NSObject {
                 return
             }
             focusedAt = nil
+            openVisit = nil
             loadIfNeeded()
             guard record != nil else {
                 return
