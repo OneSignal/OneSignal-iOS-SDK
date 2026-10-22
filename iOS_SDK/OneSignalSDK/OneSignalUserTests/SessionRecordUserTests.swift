@@ -50,6 +50,10 @@ final class SessionRecordUserTests: XCTestCase {
 
     override func tearDownWithError() throws {
         OneSignalCoreMocks.waitUntil("A Request was still in flight at teardown") { self.client.isIdle }
+        // A polled session executor re-caches its queue, which the next test's executor would uncache.
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.operationRepo.reset()
+        _ = manager.sessionExecutor?.queuedRequests
         OSSessionService.reset()
         OneSignalCoreMocks.clearUserDefaults()
         OSFeatureFlagsStore.shared.clear()
