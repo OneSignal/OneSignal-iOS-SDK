@@ -211,6 +211,8 @@ extension SessionRecordUserTests {
         let manager = OneSignalUserManagerImpl.sharedInstance
 
         manager.startNewSession()
+        OSSessionService.onFocus()
+        OSSessionService.onUnfocus()
         let first = OSSessionService.shared.currentRecord
         manager.startNewSession()
         let second = OSSessionService.shared.currentRecord
@@ -221,7 +223,10 @@ extension SessionRecordUserTests {
         XCTAssertEqual(creates.count, 2)
         let end = queuedSessionUpdates().first
         XCTAssertEqual(end?.localSessionId, first?.sessionId)
-        XCTAssertEqual(end?.endTime?.timeIntervalSince1970, first?.startTime)
+        XCTAssertNotNil(first?.lastUnfocusTime)
+        XCTAssertEqual(end?.endTime?.timeIntervalSince1970, first?.lastUnfocusTime)
+        XCTAssertGreaterThan(first?.activeDuration ?? 0, 0)
+        XCTAssertEqual(end?.activeDuration, first?.activeDuration)
         client.releaseHeldResponses()
     }
 
