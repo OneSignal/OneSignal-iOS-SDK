@@ -249,11 +249,22 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
          */
 
         // Establish listeners for activity (if any exist)
-        for activity in Activity<Attributes>.activities {
-            listenForActivityStateUpdates(activityType, activity: activity, options: options)
-            listenForActivityPushToUpdate(activityType, activity: activity, options: options)
-            if #available(iOS 16.2, *) {
-                listenForContentUpdates(activityType, activity: activity)
+        let activities = Activity<Attributes>.activities
+        var duplicates = [String: [Activity<Attributes>]]()
+        if #available(iOS 16.2, *) {
+            duplicates = duplicateGroups(activities)
+        }
+        // If a duplicate that we end gets listeners, its token replaces the
+        // kept activity's token.
+        for activity in activities where duplicates[activity.oneSignalActivityId] == nil {
+            listenForActivityEvents(activityType, activity: activity, options: options)
+        }
+
+        if #available(iOS 16.2, *), !duplicates.isEmpty {
+            Task {
+                for activity in await endDuplicateActivities(duplicates, cachedUpdateToken: _executor.cachedUpdateToken) {
+                    listenForActivityEvents(activityType, activity: activity, options: options)
+                }
             }
         }
 
@@ -272,12 +283,17 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
                     }
                 }
 
-                listenForActivityStateUpdates(activityType, activity: activity, options: options)
-                listenForActivityPushToUpdate(activityType, activity: activity, options: options)
-                if #available(iOS 16.2, *) {
-                    listenForContentUpdates(activityType, activity: activity)
-                }
+                listenForActivityEvents(activityType, activity: activity, options: options)
             }
+        }
+    }
+
+    @available(iOS 16.1, *)
+    private static func listenForActivityEvents<Attributes: OneSignalLiveActivityAttributes>(_ activityType: Attributes.Type, activity: Activity<Attributes>, options: LiveActivitySetupOptions? = nil) {
+        listenForActivityStateUpdates(activityType, activity: activity, options: options)
+        listenForActivityPushToUpdate(activityType, activity: activity, options: options)
+        if #available(iOS 16.2, *) {
+            listenForContentUpdates(activityType, activity: activity)
         }
     }
 
@@ -289,7 +305,12 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             for await activityState in activity.activityStateUpdates {
                 switch activityState {
                 case .dismissed:
-                    OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
+                    // If a live duplicate exists, `exit` can stop its updates.
+                    if hasLiveDuplicate(activity, in: Activity<Attributes>.activities) {
+                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities keeping update token for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id), a duplicate is still live")
+                    } else {
+                        OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
+                    }
                 case .active: break
                 case .ended: break
                 case .stale: break
