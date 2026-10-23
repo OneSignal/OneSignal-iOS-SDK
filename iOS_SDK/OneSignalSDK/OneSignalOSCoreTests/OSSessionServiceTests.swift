@@ -401,7 +401,7 @@ extension OSSessionServiceTests {
         let service = makeService()
         let first = service.startNewSession(userProvider: user).started
         visit(service, duration: 30, unfocusAt: 6_000)
-        wallNow = 7_000
+        wallNow = 6_020
         service.onFocus()
         monotonicNow += 60
 
@@ -410,7 +410,31 @@ extension OSSessionServiceTests {
 
         XCTAssertEqual(ended?.sessionId, first.sessionId)
         XCTAssertEqual(ended?.activeDuration, 30)
-        XCTAssertEqual(ended?.endTime, 7_000)
+        XCTAssertEqual(ended?.endTime, 6_020)
+    }
+
+    func testKillBetweenAResumePastTheThresholdAndItsSessionDoesNotMoveTheEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+        wallNow = 9_000
+        service.onFocus()
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.endTime, 6_000)
+    }
+
+    func testKillBetweenAColdStartFocusAndItsSessionDoesNotMoveTheEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+        wallNow = 9_000
+        makeService().onFocus()
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.endTime, 6_000)
     }
 
     /// The tracker reports the focus that starts a new session before the session starts.

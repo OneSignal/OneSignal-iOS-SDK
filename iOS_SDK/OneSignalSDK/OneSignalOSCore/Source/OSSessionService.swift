@@ -112,9 +112,10 @@ public final class OSSessionService: NSObject {
     private var record: OSSessionRecord?
     /// In memory only: a stamp from another process may predate a reboot.
     private var focusedAt: TimeInterval?
-    /// The open visit's wall-clock focus time, and the record's focus time it replaced. A visit open
-    /// when a session starts belongs to the new session, so the ended one gets its earlier focus back.
-    private var openVisit: (focusTime: TimeInterval, replacedFocusTime: TimeInterval?)?
+    /// Wall-clock time of the open visit's focus. A visit open when a session starts belongs to it.
+    private var openFocusTime: TimeInterval?
+    /// A record loaded from disk belongs to an earlier process, so the next focus always replaces it.
+    private var recordStartedInThisProcess = false
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -194,14 +195,11 @@ public final class OSSessionService: NSObject {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
             fillPinnedIds(previousIds)
-            var ended = record
-            if let visit = openVisit {
-                ended?.lastFocusTime = visit.replacedFocusTime
-                newRecord.lastFocusTime = visit.focusTime
-                openVisit = (visit.focusTime, nil)
-            }
+            let ended = record
+            newRecord.lastFocusTime = openFocusTime
             self.userProvider = userProvider
             record = newRecord
+            recordStartedInThisProcess = true
             persist()
             return ended
         }
@@ -214,15 +212,23 @@ public final class OSSessionService: NSObject {
         stateLock.withLock {
             focusedAt = now
             loadIfNeeded()
-            let replacedFocusTime = openVisit.map(\.replacedFocusTime) ?? record?.lastFocusTime
-            openVisit = (wallNow, replacedFocusTime)
-            guard record != nil else {
+            openFocusTime = wallNow
+            guard record != nil, focusContinuesRecord(at: wallNow) else {
                 return
             }
             // Saved now, since a kill leaves no unfocus to record when the session was last active.
             record?.lastFocusTime = wallNow
             persist()
         }
+    }
+
+    /// A focus that will start a new session is not saved on the current record, or a kill before
+    /// that session starts would move the current session's end past its last unfocus.
+    private func focusContinuesRecord(at time: TimeInterval) -> Bool {
+        guard recordStartedInThisProcess, let lastUnfocusTime = record?.lastUnfocusTime else {
+            return recordStartedInThisProcess
+        }
+        return time - lastUnfocusTime < OSSessionStartGate.threshold
     }
 
     func onUnfocus() {
@@ -234,7 +240,7 @@ public final class OSSessionService: NSObject {
                 return
             }
             focusedAt = nil
-            openVisit = nil
+            openFocusTime = nil
             loadIfNeeded()
             guard record != nil else {
                 return
