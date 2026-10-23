@@ -65,6 +65,22 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Pinned at session start, so it stays the same after a login or user switch.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
+    /// Seconds since 1970 when the app last left the foreground. Nil until then.
+    public internal(set) var lastUnfocusTime: TimeInterval?
+    /// Seconds since 1970 when the app last entered the foreground during this session.
+    public internal(set) var lastFocusTime: TimeInterval?
+
+    /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
+    /// last focus. The visit the kill cut short is not in the duration either.
+    public var endTime: TimeInterval {
+        max(startTime, lastUnfocusTime ?? startTime, lastFocusTime ?? startTime)
+    }
+}
+
+public struct OSSessionStart {
+    public let started: OSSessionRecord
+    /// The session the new one replaced, which has now ended.
+    public let ended: OSSessionRecord?
 }
 
 /// Owns the persisted record of the current session. Nothing reads the record while
@@ -96,6 +112,10 @@ public final class OSSessionService: NSObject {
     private var record: OSSessionRecord?
     /// In memory only: a stamp from another process may predate a reboot.
     private var focusedAt: TimeInterval?
+    /// Wall-clock time of the open visit's focus. A visit open when a session starts belongs to it.
+    private var openFocusTime: TimeInterval?
+    /// A record loaded from disk belongs to an earlier process, so the next focus always replaces it.
+    private var recordStartedInThisProcess = false
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -157,10 +177,12 @@ public final class OSSessionService: NSObject {
     /// Leaves any open foreground interval running: the tracker reports focus before the session
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
+    /// The replaced record is returned rather than lost, so its session can be ended.
     @discardableResult
-    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionRecord {
+    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionStart {
+        let previousIds = pinnableIds()
         let user = userProvider.sessionCurrentUser
-        let newRecord = OSSessionRecord(
+        var newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
             startTime: wallNow(),
             activeDuration: 0,
@@ -169,33 +191,62 @@ public final class OSSessionService: NSObject {
             onesignalId: user.onesignalId,
             subscriptionId: user.pushSubscriptionId
         )
-        stateLock.withLock {
+        let ended: OSSessionRecord? = stateLock.withLock {
+            loadIfNeeded()
+            // Last chance to fill the replaced record's IDs while it is still the current one.
+            fillPinnedIds(previousIds)
+            let ended = record
+            newRecord.lastFocusTime = openFocusTime
             self.userProvider = userProvider
-            loaded = true
             record = newRecord
+            recordStartedInThisProcess = true
             persist()
+            return ended
         }
-        return newRecord
+        return OSSessionStart(started: newRecord, ended: ended)
     }
 
     func onFocus() {
         let now = monotonicNow()
-        stateLock.withLock { focusedAt = now }
+        let wallNow = wallNow()
+        stateLock.withLock {
+            focusedAt = now
+            loadIfNeeded()
+            openFocusTime = wallNow
+            guard record != nil, focusContinuesRecord(at: wallNow) else {
+                return
+            }
+            // Saved now, since a kill leaves no unfocus to record when the session was last active.
+            record?.lastFocusTime = wallNow
+            persist()
+        }
+    }
+
+    /// A focus that will start a new session is not saved on the current record, or a kill before
+    /// that session starts would move the current session's end past its last unfocus.
+    private func focusContinuesRecord(at time: TimeInterval) -> Bool {
+        guard recordStartedInThisProcess, let lastUnfocusTime = record?.lastUnfocusTime else {
+            return recordStartedInThisProcess
+        }
+        return time - lastUnfocusTime < OSSessionStartGate.threshold
     }
 
     func onUnfocus() {
         let now = monotonicNow()
+        let wallNow = wallNow()
         let ids = pinnableIds()
         stateLock.withLock {
             guard let start = focusedAt else {
                 return
             }
             focusedAt = nil
+            openFocusTime = nil
             loadIfNeeded()
             guard record != nil else {
                 return
             }
             record?.activeDuration += max(0, now - start)
+            record?.lastUnfocusTime = wallNow
             fillPinnedIds(ids)
             persist()
         }

@@ -54,6 +54,7 @@ final class OSSessionServiceTests: XCTestCase {
     private var flagsStore: OSFeatureFlagsStore!
     private var featureManager: OSFeatureManager!
     private var monotonicNow: TimeInterval = 1_000
+    private var wallNow: TimeInterval = 5_000
     private var user: FakeUserProvider!
 
     override func setUp() {
@@ -63,6 +64,7 @@ final class OSSessionServiceTests: XCTestCase {
         flagsStore = OSFeatureFlagsStore()
         featureManager = nil
         monotonicNow = 1_000
+        wallNow = 5_000
         user = FakeUserProvider()
         user.identityModelId = "model-a"
         user.onesignalIds = ["model-a": "onesignal-a"]
@@ -82,7 +84,7 @@ final class OSSessionServiceTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { 5_000 }
+            wallNow: { [unowned self] in self.wallNow }
         )
     }
 
@@ -189,6 +191,8 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(record?.usesSessionsApi, true)
         XCTAssertEqual(record?.onesignalId, "onesignal-a")
         XCTAssertEqual(record?.subscriptionId, "subscription-a")
+        XCTAssertNil(record?.lastUnfocusTime)
+        XCTAssertNil(record?.lastFocusTime)
     }
 
     func testClearingTheStoredRecordDropsIt() {
@@ -285,6 +289,16 @@ final class OSSessionServiceTests: XCTestCase {
         XCTAssertEqual(service.currentRecord?.activeDuration, 15)
     }
 
+    func testUnfocusRecordsTheWallClockTime() {
+        let service = makeForegroundSession()
+        wallNow = 6_000
+        service.onUnfocus()
+        wallNow = 7_000
+
+        XCTAssertEqual(service.currentRecord?.lastUnfocusTime, 6_000)
+        XCTAssertEqual(service.currentRecord?.endTime, 6_000)
+    }
+
     /// Resuming past the new-session threshold: the visit that started the session counts from
     /// focus, not from when the session start ran on the main queue.
     func testNewSessionStartedAfterFocusCountsFromFocus() {
@@ -335,6 +349,144 @@ final class OSSessionServiceTests: XCTestCase {
         restarted.onUnfocus()
 
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
+        XCTAssertNil(restarted.currentRecord?.lastUnfocusTime)
+    }
+}
+
+// MARK: - Session end
+
+extension OSSessionServiceTests {
+
+    /// A foreground visit of `duration` seconds that leaves the foreground at `unfocusAt`.
+    private func visit(_ service: OSSessionService, duration: TimeInterval, unfocusAt: TimeInterval) {
+        service.onFocus()
+        monotonicNow += duration
+        wallNow = unfocusAt
+        service.onUnfocus()
+    }
+
+    func testFirstSessionEndsNothing() {
+        XCTAssertNil(makeService().startNewSession(userProvider: user).ended)
+    }
+
+    func testNewSessionReturnsThePreviousOneWithItsFinalDurationAndLastUnfocus() {
+        let service = makeService()
+        let first = service.startNewSession(userProvider: user).started
+        visit(service, duration: 30, unfocusAt: 6_000)
+        visit(service, duration: 12, unfocusAt: 7_000)
+
+        wallNow = 9_000
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.sessionId, first.sessionId)
+        XCTAssertEqual(start.ended?.activeDuration, 42)
+        XCTAssertEqual(start.ended?.endTime, 7_000)
+        XCTAssertEqual(start.started.startTime, 9_000)
+        XCTAssertEqual(service.currentRecord, start.started)
+    }
+
+    func testSessionKilledInTheForegroundEndsAtItsStartTime() {
+        let first = makeForegroundSession().currentRecord
+        monotonicNow += 30
+
+        wallNow = 9_000
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.sessionId, first?.sessionId)
+        XCTAssertEqual(ended?.activeDuration, 0)
+        XCTAssertEqual(ended?.endTime, first?.startTime)
+    }
+
+    func testSessionKilledAfterReturningToTheForegroundEndsAtItsLastFocus() {
+        let service = makeService()
+        let first = service.startNewSession(userProvider: user).started
+        visit(service, duration: 30, unfocusAt: 6_000)
+        wallNow = 6_020
+        service.onFocus()
+        monotonicNow += 60
+
+        wallNow = 9_000
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.sessionId, first.sessionId)
+        XCTAssertEqual(ended?.activeDuration, 30)
+        XCTAssertEqual(ended?.endTime, 6_020)
+    }
+
+    func testKillBetweenAResumePastTheThresholdAndItsSessionDoesNotMoveTheEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+        wallNow = 9_000
+        service.onFocus()
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.endTime, 6_000)
+    }
+
+    func testKillBetweenAColdStartFocusAndItsSessionDoesNotMoveTheEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+        wallNow = 9_000
+        makeService().onFocus()
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.endTime, 6_000)
+    }
+
+    /// The tracker reports the focus that starts a new session before the session starts.
+    func testResumePastTheThresholdDoesNotMoveThePreviousSessionsEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+
+        wallNow = 9_000
+        service.onFocus()
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.endTime, 6_000)
+        XCTAssertEqual(start.started.lastFocusTime, 9_000)
+        XCTAssertEqual(service.currentRecord?.lastFocusTime, 9_000)
+    }
+
+    func testColdStartDoesNotMoveThePreviousSessionsEnd() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        visit(service, duration: 30, unfocusAt: 6_000)
+
+        wallNow = 9_000
+        let restarted = makeService()
+        restarted.onFocus()
+        let start = restarted.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.endTime, 6_000)
+        XCTAssertEqual(start.started.lastFocusTime, 9_000)
+    }
+
+    func testSessionStartedInTheBackgroundRecordsItsFirstFocus() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+
+        wallNow = 6_000
+        service.onFocus()
+
+        XCTAssertEqual(service.currentRecord?.lastFocusTime, 6_000)
+    }
+
+    /// The previous process ended before the user was created.
+    func testSessionFromAnEarlierProcessEndsWithTheIdsAssignedSince() {
+        user.onesignalIds = [:]
+        makeService().startNewSession(userProvider: user)
+
+        user.onesignalIds = ["model-a": "onesignal-a"]
+        let restarted = makeService()
+        restarted.setUserProvider(user)
+        let ended = restarted.startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.onesignalId, "onesignal-a")
     }
 }
 
