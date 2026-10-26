@@ -466,14 +466,26 @@ extension OSSessionServiceTests {
         XCTAssertEqual(start.started.lastFocusTime, 9_000)
     }
 
-    func testSessionStartedInTheBackgroundRecordsItsFirstFocus() {
+    func testSessionStartedInTheBackgroundRecordsAFocusWithinTheThreshold() {
         let service = makeService()
         service.startNewSession(userProvider: user)
 
-        wallNow = 6_000
+        wallNow = 5_020
         service.onFocus()
 
-        XCTAssertEqual(service.currentRecord?.lastFocusTime, 6_000)
+        XCTAssertEqual(service.currentRecord?.lastFocusTime, 5_020)
+    }
+
+    func testFirstForegroundPastTheThresholdDoesNotMoveABackgroundSessionsEnd() {
+        let service = makeService()
+        let background = service.startNewSession(userProvider: user).started
+
+        wallNow = 6_000
+        service.onFocus()
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.endTime, background.startTime)
+        XCTAssertEqual(start.started.lastFocusTime, 6_000)
     }
 
     /// The previous process ended before the user was created.

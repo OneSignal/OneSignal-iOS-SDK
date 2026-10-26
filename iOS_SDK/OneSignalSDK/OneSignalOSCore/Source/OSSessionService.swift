@@ -225,10 +225,10 @@ public final class OSSessionService: NSObject {
     /// A focus that will start a new session is not saved on the current record, or a kill before
     /// that session starts would move the current session's end past its last unfocus.
     private func focusContinuesRecord(at time: TimeInterval) -> Bool {
-        guard recordStartedInThisProcess, let lastUnfocusTime = record?.lastUnfocusTime else {
-            return recordStartedInThisProcess
+        guard recordStartedInThisProcess, let record else {
+            return false
         }
-        return time - lastUnfocusTime < OSSessionStartGate.threshold
+        return time - (record.lastUnfocusTime ?? record.startTime) < OSSessionStartGate.threshold
     }
 
     func onUnfocus() {
