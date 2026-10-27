@@ -47,6 +47,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionOnesignalId(identityModelId: String) -> String? {
         onesignalIds[identityModelId]
     }
+    func sessionHeartbeat(_ record: OSSessionRecord) {}
 }
 
 final class OSSessionServiceTests: XCTestCase {

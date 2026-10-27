@@ -71,6 +71,10 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
     }
 
+    public func sessionHeartbeat(_ record: OSSessionRecord) {
+        enqueueSessionUpdate(record)
+    }
+
     /// Queues the session's create. Does nothing unless the session uses the sessions API.
     func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
         var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
@@ -82,7 +86,7 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
 
     /// Queues the session's cumulative foreground time, ending the session when `endTime` is set.
     func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
-        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
+        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.reportedDuration]
         value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
         enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
     }

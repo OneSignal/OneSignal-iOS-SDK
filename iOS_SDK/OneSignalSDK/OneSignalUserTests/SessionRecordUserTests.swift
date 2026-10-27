@@ -268,6 +268,31 @@ extension SessionRecordUserTests {
         XCTAssertEqual(identityModel.onesignalId, "pinned-onesignal-id")
     }
 
+    func testHeartbeatAndEndReportAtLeastTheLastHeartbeatsDuration() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.setNewInternalUser(externalId: nil, pushSubscriptionModel: nil)
+        var record = OSSessionRecord(
+            sessionId: "session-1",
+            startTime: 1_700_000_000,
+            activeDuration: 12,
+            usesSessionsApi: true,
+            identityModelId: manager.user.identityModel.modelId,
+            onesignalId: nil,
+            subscriptionId: nil
+        )
+        record.lastHeartbeatDuration = 1_800
+
+        manager.sessionHeartbeat(record)
+        manager.enqueueSessionUpdate(record, endTime: Date(timeIntervalSince1970: record.endTime))
+        manager.operationRepo.dispatchQueue.sync {}
+
+        let updates = manager.operationRepo.deltaQueue.filter { $0.name == OS_UPDATE_SESSION_DELTA }
+        let values = updates.compactMap { $0.value as? [String: Any] }
+        XCTAssertEqual(values.map { $0[OSSessionDeltaKey.activeDuration] as? TimeInterval }, [1_800, 1_800])
+        XCTAssertNil(values.first?[OSSessionDeltaKey.endTime])
+        XCTAssertNotNil(values.last?[OSSessionDeltaKey.endTime])
+    }
+
     func testNewSessionQueuesNoCreateWhenTheFlagIsOff() {
         client.holdResponses = true
 
