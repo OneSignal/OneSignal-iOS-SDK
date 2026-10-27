@@ -221,6 +221,7 @@ final class OneSignalViewModel: ObservableObject {
         isLoading = true
         service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
+        resetLanguagePicker()
         if jwtToken != nil, jwtAskExternalId == trimmed {
             jwtAskExternalId = nil
         }
@@ -261,13 +262,20 @@ final class OneSignalViewModel: ObservableObject {
         service.logout()
         externalUserId = nil
         jwtAskExternalId = nil
-        setLanguage("")
+        resetLanguagePicker()
         clearUserData()
     }
 
     func setLanguage(_ language: String) {
         service.setLanguage(language)
         self.language = language
+    }
+
+    /// Clears only the cached choice. `setLanguage("")` would send the device
+    /// language and overwrite the user's backend value.
+    private func resetLanguagePicker() {
+        prefs.setLanguage("")
+        language = ""
     }
 
     func setUseIdentityVerification(_ enabled: Bool) {
