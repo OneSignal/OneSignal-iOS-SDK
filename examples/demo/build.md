@@ -58,7 +58,7 @@ The only manual step is running `xcodegen generate` after editing `project.yml`.
 
 Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as the central state manager. There is no repository wrapper -- the view-model calls the OneSignal SDK directly through a thin `OneSignalService` singleton (`App/Services/OneSignalService.swift`).
 
-- `@MainActor final class OneSignalViewModel: ObservableObject` with `@Published` properties for reactive state (app id, push subscription id, aliases, tags, emails, SMS, triggers, consent, location, IAM paused, `isLoading`)
+- `@MainActor final class OneSignalViewModel: ObservableObject` with `@Published` properties for reactive state (app id, push subscription id and token, aliases, tags, emails, SMS, triggers, consent, location, IAM paused, `isLoading`)
 - The only `@Published` UI overlay state is `activeTooltip: TooltipData?`. Action dialogs are NOT in the view-model -- each section owns its own `@State` boolean and binds `.osCenteredDialog(isPresented:)` locally
 - `init` calls `refreshState()` and the private `setupObservers()`, which registers `OSPushSubscriptionObserver`, `OSUserStateObserver`, and `OSNotificationPermissionObserver`. SwiftUI keeps the view-model alive for the app lifetime via `@StateObject` in `App.swift`, so no manual teardown is needed
 - `OneSignalService` (singleton, `App/Services/OneSignalService.swift`) funnels every SDK call through one entry point and mirrors any setters the SDK doesn't expose as getters (consent flags) into `UserDefaults`
@@ -103,6 +103,7 @@ Push subscription id, opt-in, notification permission, and the live `OneSignal.U
 - `OneSignalViewModel` exposes `promptPushPermission()` (no `isReady` gate, no separate `promptPush()` method)
 - `ContentView` auto-prompts on first appear via an unconditional `.task { viewModel.promptPushPermission() }` modifier on the root view -- this races the OneSignal iOS-params response so the standard alert shows before the SDK can register provisional auth
 - `PushSection` renders a conditional `PROMPT PUSH` button that calls `viewModel.promptPushPermission()`. The button is hidden once `hasNotificationPermission == true`
+- `PushSection` rows, in order: `Push ID`, a read-only `Status` (`Subscribed` when `isPushSubscribed`, i.e. opted in AND permission granted AND a push token is present; otherwise `Unsubscribed`), and the `Opted In` toggle
 
 ### Loading State
 
