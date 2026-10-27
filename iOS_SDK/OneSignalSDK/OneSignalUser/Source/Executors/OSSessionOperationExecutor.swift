@@ -78,7 +78,7 @@ class OSSessionOperationExecutor: OSOperationExecutor {
             return
         }
         deltaQueue.removeAll { delta in
-            guard OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId) == nil else {
+            guard identityModel(for: delta) == nil else {
                 return false
             }
             OneSignalLog.onesignalLog(.LL_WARN, message: "OSSessionOperationExecutor.init dropped: \(delta)")
@@ -184,10 +184,23 @@ class OSSessionOperationExecutor: OSOperationExecutor {
 // MARK: - Queueing
 
 private extension OSSessionOperationExecutor {
+    /// A session can end for a user that is no longer loaded, whose model only the Delta still holds.
+    func identityModel(for delta: OSDelta) -> OSIdentityModel? {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        if let identityModel = manager.getIdentityModel(delta.identityModelId) {
+            return identityModel
+        }
+        guard let identityModel = delta.model as? OSIdentityModel, identityModel.onesignalId != nil else {
+            return nil
+        }
+        manager.addIdentityModelToRepo(identityModel)
+        return identityModel
+    }
+
     func makeRequest(from delta: OSDelta) -> OSSessionRequest? {
         guard let value = delta.value as? [String: Any],
               let appId = value[OSSessionDeltaKey.appId] as? String,
-              let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
+              let identityModel = identityModel(for: delta)
         else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSessionOperationExecutor.processDeltaQueue dropped: \(delta)")
             return nil

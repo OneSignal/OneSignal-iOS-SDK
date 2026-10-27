@@ -40,7 +40,11 @@ extension OneSignalUserManagerImpl {
         userExecutor!.executePendingRequestsOnNewSession()
         operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
-        enqueueSessionCreate(OSSessionService.shared.startNewSession(userProvider: self))
+        let start = OSSessionService.shared.startNewSession(userProvider: self)
+        if let ended = start.ended {
+            enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
+        }
+        enqueueSessionCreate(start.started)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -85,9 +89,7 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
 
     private func enqueueSessionDelta(_ name: String, record: OSSessionRecord, value: [String: Any]) {
         guard record.usesSessionsApi else { return }
-        guard let identityModelId = record.identityModelId,
-              let identityModel = identityModelRepo.get(modelId: identityModelId)
-        else {
+        guard let identityModel = sessionIdentityModel(for: record) else {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignalUserManagerImpl dropped \(name) for session \(record.sessionId), no identity model")
             return
         }
@@ -99,12 +101,26 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         value[OSSessionDeltaKey.appId] = appId
         let delta = OSDelta(
             name: name,
-            identityModelId: identityModelId,
+            identityModelId: identityModel.modelId,
             externalId: identityModel.externalId,
             model: identityModel,
             property: record.sessionId,
             value: value
         )
         operationRepo.enqueueDelta(delta)
+    }
+
+    /// Identity models are not cached across launches, so the user of a session that ended before a
+    /// login in an earlier process is gone. It is restored from the session's pinned `onesignal_id`.
+    private func sessionIdentityModel(for record: OSSessionRecord) -> OSIdentityModel? {
+        if let identityModelId = record.identityModelId, let identityModel = identityModelRepo.get(modelId: identityModelId) {
+            return identityModel
+        }
+        guard let onesignalId = record.onesignalId else {
+            return nil
+        }
+        let identityModel = OSIdentityModel(aliases: [OS_ONESIGNAL_ID: onesignalId], changeNotifier: OSEventProducer())
+        addIdentityModelToRepo(identityModel)
+        return identityModel
     }
 }

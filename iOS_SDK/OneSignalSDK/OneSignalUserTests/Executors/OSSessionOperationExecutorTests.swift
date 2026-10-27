@@ -546,6 +546,30 @@ extension OSSessionOperationExecutorTests {
         XCTAssertEqual(update.path, "apps/test-app-id/sessions/server-1")
     }
 
+    func testEndForAUserNoLongerLoadedSurvivesAKill() throws {
+        let executor = makeExecutor()
+        createSession(executor)
+        executor.enqueueDelta(updateDelta(duration: 10, endTime: 1_700_000_100))
+        executor.cacheDeltaQueue()
+        _ = executor.queuedRequests
+        OneSignalUserManagerImpl.sharedInstance.identityModelRepo.models = [:]
+
+        flush(makeExecutor())
+
+        let end = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
+        XCTAssertEqual(end.path, "apps/test-app-id/sessions/server-1")
+    }
+
+    func testEndForAUserNoLongerLoadedIsSentAfterARestart() throws {
+        createSession(makeExecutor())
+        OneSignalUserManagerImpl.sharedInstance.identityModelRepo.models = [:]
+
+        flush(makeExecutor(), updateDelta(duration: 10, endTime: 1_700_000_100))
+
+        let end = try XCTUnwrap(client.requests.last as? OSRequestUpdateSession)
+        XCTAssertEqual(end.path, "apps/test-app-id/sessions/server-1")
+    }
+
     func testUpdateAfterARestartUsesTheCreateFromBefore() throws {
         createSession(makeExecutor())
 
