@@ -40,12 +40,12 @@ extension OneSignalUserManagerImpl {
         userExecutor!.executePendingRequestsOnNewSession()
         operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
-        let start = OSSessionService.shared.startNewSession(userProvider: self)
-        if let ended = start.ended {
-            enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
+        OSSessionService.shared.startNewSession(userProvider: self) { start in
+            if let ended = start.ended {
+                self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
+            }
+            self.enqueueSessionCreate(start.started)
         }
-        enqueueSessionCreate(start.started)
-        OSSessionService.shared.startHeartbeat()
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {

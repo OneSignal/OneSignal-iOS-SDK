@@ -91,13 +91,11 @@ final class OSSessionHeartbeatTests: XCTestCase {
         )
     }
 
-    /// The tracker reports focus, then the session starts and its create is queued.
+    /// The tracker reports focus, then the session starts.
     @discardableResult
     private func startForegroundSession() -> OSSessionRecord {
         service.onFocus()
-        let started = service.startNewSession(userProvider: user).started
-        service.startHeartbeat()
-        return started
+        return service.startNewSession(userProvider: user).started
     }
 
     /// Advances both clocks, running each scheduled check when it comes due.
@@ -150,6 +148,32 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(heartbeatDurations(for: record), [interval])
     }
 
+    /// Each stale check is left pending and runs after its heartbeat stopped.
+    func testUnfocusStopsAPendingCheck() {
+        startForegroundSession()
+        advance(by: 20 * 60)
+        service.onUnfocus()
+        XCTAssertFalse(pending.isEmpty)
+
+        advance(by: 2 * interval)
+
+        XCTAssertTrue(user.heartbeats.isEmpty)
+        XCTAssertTrue(pending.isEmpty)
+    }
+
+    /// The scheduler's clock pauses through device sleep, so a check can fire after more foreground
+    /// time than it waited for.
+    func testCheckThatFiresLateReportsTheFullDurationAndWaitsAFullInterval() {
+        let record = startForegroundSession()
+
+        let check = pending.removeFirst()
+        monotonicNow = check.fireAt + 600
+        check.block()
+
+        XCTAssertEqual(heartbeatDurations(for: record), [interval + 600])
+        XCTAssertEqual(pending.map(\.fireAt), [monotonicNow + interval])
+    }
+
     func testNewSessionRestartsTheInterval() {
         let first = startForegroundSession()
         advance(by: interval)
@@ -178,16 +202,17 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertTrue(user.heartbeats.isEmpty)
     }
 
-    /// An update queued before its session's create is discarded.
-    func testNewSessionStopsTheOldHeartbeatAndWaitsToStartItsOwn() {
+    /// An update queued before its session's create is discarded. The visit open when the new
+    /// session starts carries over to it, so its first heartbeat counts that whole visit.
+    func testNewSessionStopsTheOldHeartbeatAndStartsItsOwnAfterEnqueueing() {
         let first = startForegroundSession()
         advance(by: interval - 60)
 
-        let second = service.startNewSession(userProvider: user).started
-        advance(by: 2 * interval)
-        XCTAssertTrue(user.heartbeats.isEmpty)
+        let second = service.startNewSession(userProvider: user) { _ in
+            advance(by: 2 * interval)
+            XCTAssertTrue(user.heartbeats.isEmpty)
+        }.started
 
-        service.startHeartbeat()
         XCTAssertEqual(heartbeatDurations(for: first), [])
         XCTAssertEqual(heartbeatDurations(for: second), [3 * interval - 60])
     }
@@ -205,6 +230,18 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(ended?.sessionId, first.sessionId)
         XCTAssertNil(ended?.lastHeartbeatTime)
         XCTAssertEqual(ended?.endTime, wallStart + interval + 60)
+    }
+
+    func testSessionKilledAfterAClockJumpedHeartbeatEndsAtItsForegroundTime() {
+        let first = startForegroundSession()
+        wallClockJump = 3_600
+        advance(by: interval)
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.sessionId, first.sessionId)
+        XCTAssertEqual(ended?.lastHeartbeatTime, wallStart + interval)
+        XCTAssertEqual(ended?.endTime, wallStart + interval)
     }
 
     func testNoHeartbeatWhenFlagIsOff() {
