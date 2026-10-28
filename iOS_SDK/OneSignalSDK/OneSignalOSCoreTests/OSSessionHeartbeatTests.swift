@@ -53,6 +53,8 @@ final class OSSessionHeartbeatTests: XCTestCase {
     private var user: HeartbeatRecorder!
     private var flagsStore: OSFeatureFlagsStore!
     private var monotonicNow: TimeInterval = 0
+    /// Moves the wall clock without moving the monotonic one.
+    private var wallClockJump: TimeInterval = 0
     private var pending: [(fireAt: TimeInterval, block: () -> Void)] = []
     private var service: OSSessionService!
 
@@ -63,6 +65,7 @@ final class OSSessionHeartbeatTests: XCTestCase {
         flagsStore = OSFeatureFlagsStore()
         flagsStore.applyRemoteFlags([FeatureFlag.sdkSessionsV2ApiCutover.key], metadata: nil)
         monotonicNow = 0
+        wallClockJump = 0
         pending = []
         service = makeService()
     }
@@ -83,16 +86,18 @@ final class OSSessionHeartbeatTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { [unowned self] in self.wallStart + self.monotonicNow },
+            wallNow: { [unowned self] in self.wallStart + self.monotonicNow + self.wallClockJump },
             schedule: { [unowned self] delay, block in self.pending.append((self.monotonicNow + delay, block)) }
         )
     }
 
-    /// The tracker reports focus, then the session starts.
+    /// The tracker reports focus, then the session starts and its create is queued.
     @discardableResult
     private func startForegroundSession() -> OSSessionRecord {
         service.onFocus()
-        return service.startNewSession(userProvider: user).started
+        let started = service.startNewSession(userProvider: user).started
+        service.startHeartbeat()
+        return started
     }
 
     /// Advances both clocks, running each scheduled check when it comes due.
@@ -171,6 +176,35 @@ final class OSSessionHeartbeatTests: XCTestCase {
         advance(by: 2 * interval)
 
         XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
+    /// An update queued before its session's create is discarded.
+    func testNewSessionStopsTheOldHeartbeatAndWaitsToStartItsOwn() {
+        let first = startForegroundSession()
+        advance(by: interval - 60)
+
+        let second = service.startNewSession(userProvider: user).started
+        advance(by: 2 * interval)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+
+        service.startHeartbeat()
+        XCTAssertEqual(heartbeatDurations(for: first), [])
+        XCTAssertEqual(heartbeatDurations(for: second), [3 * interval - 60])
+    }
+
+    func testSessionThatLeftTheForegroundAfterAHeartbeatEndsAtItsUnfocus() {
+        let first = startForegroundSession()
+        wallClockJump = 3_600
+        advance(by: interval)
+        wallClockJump = 0
+        advance(by: 60)
+        service.onUnfocus()
+
+        let ended = makeService().startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.sessionId, first.sessionId)
+        XCTAssertNil(ended?.lastHeartbeatTime)
+        XCTAssertEqual(ended?.endTime, wallStart + interval + 60)
     }
 
     func testNoHeartbeatWhenFlagIsOff() {

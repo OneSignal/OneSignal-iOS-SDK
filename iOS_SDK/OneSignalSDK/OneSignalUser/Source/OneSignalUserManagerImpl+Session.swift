@@ -45,6 +45,7 @@ extension OneSignalUserManagerImpl {
             enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
         }
         enqueueSessionCreate(start.started)
+        OSSessionService.shared.startHeartbeat()
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {

@@ -48,7 +48,7 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
-    /// Called off the main thread with the record whose `reportedDuration` is due to be sent.
+    /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
 }
 
@@ -74,7 +74,8 @@ public struct OSSessionRecord: Codable, Equatable {
     /// The foreground time the last heartbeat reported, which can exceed `activeDuration` until the
     /// visit it was sent in ends.
     public internal(set) var lastHeartbeatDuration: TimeInterval?
-    /// Seconds since 1970 when the last heartbeat was sent.
+    /// Seconds since 1970 when the last heartbeat was sent. Cleared on unfocus, which then marks the
+    /// end, so a wall-clock jump on the heartbeat cannot move the end past it.
     public internal(set) var lastHeartbeatTime: TimeInterval?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
@@ -165,7 +166,12 @@ public final class OSSessionService: NSObject {
     }
 
     @objc public static func reset() {
-        lock.withLock { _shared = nil }
+        let retired = lock.withLock {
+            let existing = _shared
+            _shared = nil
+            return existing
+        }
+        retired?.stopHeartbeat()
     }
 
     /// The stored record belongs to the previous app, so it must not outlive an app-id change.
@@ -224,11 +230,18 @@ public final class OSSessionService: NSObject {
             self.userProvider = userProvider
             record = newRecord
             recordStartedInThisProcess = true
+            // The replaced session's heartbeat stops here. The new one's waits for `startHeartbeat`.
+            heartbeatGeneration += 1
             persist()
             return ended
         }
-        restartHeartbeat(continuesRecord: true)
         return OSSessionStart(started: newRecord, ended: ended)
+    }
+
+    /// Starts the heartbeat of the session `startNewSession` just started. Called once that session's
+    /// create is queued, since an update queued before its create is discarded.
+    public func startHeartbeat() {
+        restartHeartbeat(continuesRecord: true)
     }
 
     func onFocus() {
@@ -276,6 +289,7 @@ public final class OSSessionService: NSObject {
             }
             record?.activeDuration += max(0, now - start)
             record?.lastUnfocusTime = wallNow
+            record?.lastHeartbeatTime = nil
             fillPinnedIds(ids)
             persist()
         }
@@ -353,6 +367,10 @@ public final class OSSessionService: NSObject {
 // MARK: - Heartbeat
 
 extension OSSessionService {
+    private func stopHeartbeat() {
+        stateLock.withLock { heartbeatGeneration += 1 }
+    }
+
     /// Counts only foreground time: the interval resumes from the last heartbeat's duration.
     private func restartHeartbeat(continuesRecord: Bool) {
         let generation: Int? = stateLock.withLock {
