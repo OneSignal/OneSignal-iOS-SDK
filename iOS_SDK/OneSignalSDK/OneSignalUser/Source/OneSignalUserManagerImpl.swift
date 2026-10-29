@@ -961,7 +961,7 @@ extension OneSignalUserManagerImpl: OSUser {
 
         // Make sure the properties are serializable as JSON object
         guard JSONSerialization.isValidJSONObject(processedProperties) else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "trackEvent called with invalid properties \(processedProperties), dropping this event.")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "trackEvent called with invalid properties \(processedProperties), dropping this event.")
             return
         }
 

@@ -153,7 +153,7 @@
                 dispatch_semaphore_signal(semaphore);
             }
         } failureBlock:^(NSError *error) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Failed for playerId: %@ error: %@", playerId, error]];
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Failed for playerId: %@ error: %@", playerId, error]];
             if (semaphore) {
                 dispatch_semaphore_signal(semaphore);
             }

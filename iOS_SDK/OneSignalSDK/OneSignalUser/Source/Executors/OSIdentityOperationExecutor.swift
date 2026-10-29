@@ -67,7 +67,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     delta.model = modelInStore
                 } else {
                     // The model does not exist, drop this Delta
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(delta)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSIdentityOperationExecutor.init dropped \(delta)")
                     deltaQueue.remove(at: index)
                 }
             }
@@ -92,7 +92,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model do not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSIdentityOperationExecutor.init dropped \(request)")
                     addRequestQueue.remove(at: index)
                 }
             }
@@ -117,7 +117,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(request.identityModel)
                 } else {
                     // 3. The model does not exist AND this request cannot be sent, drop this Request
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor.init dropped \(request)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSIdentityOperationExecutor.init dropped \(request)")
                     removeRequestQueue.remove(at: index)
                 }
             }
@@ -273,7 +273,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSIdentityOperationExecutor add aliases request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .missing {
@@ -335,7 +335,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSIdentityOperationExecutor remove alias request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
