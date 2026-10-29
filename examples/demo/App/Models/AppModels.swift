@@ -56,6 +56,10 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
     case bottomBanner = "Bottom Banner"
     case centerModal = "Center Modal"
     case fullScreen = "Full Screen"
+    case fullBleed = "Full Screen (No Margin)"
+    case carousel = "Carousel"
+    case carouselBleed = "Carousel (No Margin)"
+    case html = "HTML"
 
     var id: String { rawValue }
 
@@ -66,6 +70,10 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
         case .bottomBanner: return "bottom_banner"
         case .centerModal: return "center_modal"
         case .fullScreen: return "full_screen"
+        case .fullBleed: return "full_bleed"
+        case .carousel: return "carousel"
+        case .carouselBleed: return "carousel_bleed"
+        case .html: return "html"
         }
     }
 }
