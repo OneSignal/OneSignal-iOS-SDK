@@ -121,6 +121,7 @@
 		3C30FE362F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */; };
 		3C8B41D82F7E9A6C001B9C25 /* TriggerThreadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8B41D72F7E9A6C001B9C25 /* TriggerThreadingTests.swift */; };
 		3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */; };
+		E5195D813B9499A01F9A102A /* OSLiveActivityDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B90FBD16038D378B54330A /* OSLiveActivityDuplicates.swift */; };
 		3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */; };
 		3C427AC9301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */; };
 		B5481A0100000000000000A8 /* OSRequestRetryBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */; };
@@ -1444,6 +1445,7 @@
 		3C30FE352F21FBE1001B9C25 /* EarlyTriggerTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EarlyTriggerTrackingTests.swift; sourceTree = "<group>"; };
 		3C8B41D72F7E9A6C001B9C25 /* TriggerThreadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriggerThreadingTests.swift; sourceTree = "<group>"; };
 		3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityConstants.swift; sourceTree = "<group>"; };
+		06B90FBD16038D378B54330A /* OSLiveActivityDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityDuplicates.swift; sourceTree = "<group>"; };
 		3C3D8D772E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLiveActivityViewExtensions.swift; sourceTree = "<group>"; };
 		3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepoFlushTests.swift; sourceTree = "<group>"; };
 		B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRetryBackoffTests.swift; sourceTree = "<group>"; };
@@ -2640,6 +2642,7 @@
 				3CFA8F4D2E9087DB00201FE5 /* OSLiveActivitiesExtension.swift */,
 				3CFA8F492E9087DB00201FE5 /* AnyCodable.swift */,
 				3C3D34E82E95EAA5006A2924 /* LiveActivityConstants.swift */,
+				06B90FBD16038D378B54330A /* OSLiveActivityDuplicates.swift */,
 				3CFA8F4A2E9087DB00201FE5 /* DefaultLiveActivityAttributes.swift */,
 			);
 			path = Source;
@@ -4842,6 +4845,7 @@
 				3CFA8F4F2E9087DB00201FE5 /* AnyCodable.swift in Sources */,
 				3C3D8D782E92DB7500C3E977 /* OSLiveActivityViewExtensions.swift in Sources */,
 				3C3D34E92E95EAA5006A2924 /* LiveActivityConstants.swift in Sources */,
+				E5195D813B9499A01F9A102A /* OSLiveActivityDuplicates.swift in Sources */,
 				3CFA8F502E9087DB00201FE5 /* OSLiveActivitiesExecutor.swift in Sources */,
 				3CFA8F512E9087DB00201FE5 /* DefaultLiveActivityAttributes.swift in Sources */,
 				3CFA8F522E9087DB00201FE5 /* OSRequestSetStartToken.swift in Sources */,
