@@ -53,6 +53,7 @@ final class OneSignalViewModel: ObservableObject {
     // MARK: - Push
 
     @Published var pushSubscriptionId: String?
+    @Published var pushSubscriptionToken: String?
     @Published var isPushEnabled: Bool = false
     @Published var hasNotificationPermission: Bool = false
 
@@ -85,6 +86,10 @@ final class OneSignalViewModel: ObservableObject {
     }
 
     var loginButtonTitle: String { isLoggedIn ? "SWITCH USER" : "LOGIN USER" }
+
+    var isPushSubscribed: Bool {
+        isPushEnabled && hasNotificationPermission && !(pushSubscriptionToken ?? "").isEmpty
+    }
 
     // MARK: - Private
 
@@ -128,6 +133,7 @@ final class OneSignalViewModel: ObservableObject {
 
     func refreshState() {
         pushSubscriptionId = service.pushSubscriptionId
+        pushSubscriptionToken = service.pushSubscriptionToken
         isPushEnabled = service.isPushEnabled
         isInAppMessagesPaused = service.isInAppMessagesPaused
         isLocationShared = service.isLocationShared
@@ -215,6 +221,7 @@ final class OneSignalViewModel: ObservableObject {
         isLoading = true
         service.login(externalId: trimmed, jwtToken: jwtToken)
         externalUserId = trimmed
+        resetLanguagePicker()
         if jwtToken != nil, jwtAskExternalId == trimmed {
             jwtAskExternalId = nil
         }
@@ -255,13 +262,20 @@ final class OneSignalViewModel: ObservableObject {
         service.logout()
         externalUserId = nil
         jwtAskExternalId = nil
-        setLanguage("")
+        resetLanguagePicker()
         clearUserData()
     }
 
     func setLanguage(_ language: String) {
         service.setLanguage(language)
         self.language = language
+    }
+
+    /// Clears only the cached choice. `setLanguage("")` would send the device
+    /// language and overwrite the user's backend value.
+    private func resetLanguagePicker() {
+        prefs.setLanguage("")
+        language = ""
     }
 
     func setUseIdentityVerification(_ enabled: Bool) {
@@ -566,6 +580,7 @@ private final class Observers: NSObject,
         )
         Task { @MainActor in
             viewModel?.pushSubscriptionId = state.current.id
+            viewModel?.pushSubscriptionToken = state.current.token
             viewModel?.isPushEnabled = state.current.optedIn
         }
     }

@@ -8,7 +8,7 @@ The demo covers all major OneSignal SDK capabilities:
 
 - **App / Consent**: App ID display, `consent_required` and `privacy_consent` toggles
 - **User**: Login / logout with external user ID
-- **Push Subscription**: Push subscription ID, opt-in toggle, prompt for permission
+- **Push Subscription**: Push subscription ID, subscription status, opt-in toggle, prompt for permission
 - **Send Push Notification**: Simple / image / sound / custom notifications via the OneSignal REST API
 - **In-App Messaging**: Pause / resume IAM display, send IAM trigger to surface dashboard messages
 - **Aliases / Emails / SMS / Tags**: Add (single or multiple), remove (single or selected)
