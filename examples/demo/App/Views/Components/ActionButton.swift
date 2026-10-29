@@ -72,7 +72,9 @@ struct ActionButton: View {
                 Text(title)
                     .font(OS.Font.bodyMedium.weight(.semibold))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .padding(.horizontal, 8)
             .frame(maxWidth: .infinity)
             .frame(height: OS.Layout.buttonHeight)
             .foregroundColor(foregroundColor)
