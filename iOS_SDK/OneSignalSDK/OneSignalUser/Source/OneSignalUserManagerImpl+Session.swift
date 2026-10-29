@@ -40,11 +40,12 @@ extension OneSignalUserManagerImpl {
         userExecutor!.executePendingRequestsOnNewSession()
         operationRepo.paused = false
         updatePropertiesDeltas(property: .session_count, value: 1, flush: true)
-        let start = OSSessionService.shared.startNewSession(userProvider: self)
-        if let ended = start.ended {
-            enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
+        OSSessionService.shared.startNewSession(userProvider: self) { start in
+            if let ended = start.ended {
+                self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
+            }
+            self.enqueueSessionCreate(start.started)
         }
-        enqueueSessionCreate(start.started)
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {
@@ -71,6 +72,10 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         identityModelRepo.get(modelId: identityModelId)?.onesignalId
     }
 
+    public func sessionHeartbeat(_ record: OSSessionRecord) {
+        enqueueSessionUpdate(record)
+    }
+
     /// Queues the session's create. Does nothing unless the session uses the sessions API.
     func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
         var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
@@ -82,7 +87,7 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
 
     /// Queues the session's cumulative foreground time, ending the session when `endTime` is set.
     func enqueueSessionUpdate(_ record: OSSessionRecord, endTime: Date? = nil) {
-        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.activeDuration]
+        var value: [String: Any] = [OSSessionDeltaKey.activeDuration: record.reportedDuration]
         value[OSSessionDeltaKey.endTime] = endTime?.timeIntervalSince1970
         enqueueSessionDelta(OS_UPDATE_SESSION_DELTA, record: record, value: value)
     }

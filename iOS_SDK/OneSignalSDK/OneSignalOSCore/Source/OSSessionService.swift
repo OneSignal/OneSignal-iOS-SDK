@@ -43,11 +43,13 @@ public struct OSSessionUser {
     }
 }
 
-/// The user a session belongs to, supplied by the User module.
+/// The user a session belongs to, supplied by the User module, which also sends its heartbeats.
 public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
+    /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
+    func sessionHeartbeat(_ record: OSSessionRecord)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -69,11 +71,24 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var lastUnfocusTime: TimeInterval?
     /// Seconds since 1970 when the app last entered the foreground during this session.
     public internal(set) var lastFocusTime: TimeInterval?
+    /// The foreground time the last heartbeat reported, which can exceed `activeDuration` until the
+    /// visit it was sent in ends.
+    public internal(set) var lastHeartbeatDuration: TimeInterval?
+    /// Seconds since 1970 when the last heartbeat was sent, measured from the visit's focus on the
+    /// monotonic clock so a wall-clock jump mid-visit cannot move a killed session's end. Cleared on
+    /// unfocus, which then marks the end.
+    public internal(set) var lastHeartbeatTime: TimeInterval?
+
+    /// Cumulative foreground time to report. A session killed in the foreground never added its last
+    /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
+    public var reportedDuration: TimeInterval {
+        max(activeDuration, lastHeartbeatDuration ?? 0)
+    }
 
     /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
-    /// last focus. The visit the kill cut short is not in the duration either.
+    /// last focus or heartbeat, whichever is later.
     public var endTime: TimeInterval {
-        max(startTime, lastUnfocusTime ?? startTime, lastFocusTime ?? startTime)
+        max(startTime, lastUnfocusTime ?? startTime, lastFocusTime ?? startTime, lastHeartbeatTime ?? startTime)
     }
 }
 
@@ -85,8 +100,12 @@ public struct OSSessionStart {
 
 /// Owns the persisted record of the current session. Nothing reads the record while
 /// `usesSessionsApi` is false, so with the flag off session behavior is unchanged.
+/// While in the foreground, a sessions API session reports its duration every `heartbeatInterval`
+/// of foreground time, so the backend keeps it open and a crash loses little of it.
 @objc(OSSessionService)
 public final class OSSessionService: NSObject {
+    static let heartbeatInterval: TimeInterval = 30 * 60
+
     private static let lock = NSLock()
     private static var _shared: OSSessionService?
 
@@ -105,6 +124,7 @@ public final class OSSessionService: NSObject {
     private let featureManager: () -> OSFeatureManager
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
+    private let schedule: (TimeInterval, @escaping () -> Void) -> Void
 
     private let stateLock = NSLock()
     private weak var userProvider: OSSessionUserProvider?
@@ -116,6 +136,8 @@ public final class OSSessionService: NSObject {
     private var openFocusTime: TimeInterval?
     /// A record loaded from disk belongs to an earlier process, so the next focus always replaces it.
     private var recordStartedInThisProcess = false
+    /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
+    private var heartbeatGeneration = 0
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -123,12 +145,16 @@ public final class OSSessionService: NSObject {
         monotonicNow: @escaping () -> TimeInterval = {
             TimeInterval(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / TimeInterval(NSEC_PER_SEC)
         },
-        wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 }
+        wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 },
+        schedule: @escaping (TimeInterval, @escaping () -> Void) -> Void = { delay, block in
+            DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: block)
+        }
     ) {
         self.storage = storage
         self.featureManager = featureManager
         self.monotonicNow = monotonicNow
         self.wallNow = wallNow
+        self.schedule = schedule
         super.init()
     }
 
@@ -141,7 +167,12 @@ public final class OSSessionService: NSObject {
     }
 
     @objc public static func reset() {
-        lock.withLock { _shared = nil }
+        let retired = lock.withLock {
+            let existing = _shared
+            _shared = nil
+            return existing
+        }
+        retired?.stopHeartbeat()
     }
 
     /// The stored record belongs to the previous app, so it must not outlive an app-id change.
@@ -178,8 +209,13 @@ public final class OSSessionService: NSObject {
     /// starts asynchronously, and that visit belongs to the new session. A launch in the
     /// background has no interval open, so nothing counts until the app becomes active.
     /// The replaced record is returned rather than lost, so its session can be ended.
+    /// `enqueue` queues the sessions' end and create. The heartbeat starts after it returns, since an
+    /// update queued before its session's create is discarded.
     @discardableResult
-    public func startNewSession(userProvider: OSSessionUserProvider) -> OSSessionStart {
+    public func startNewSession(
+        userProvider: OSSessionUserProvider,
+        enqueue: (OSSessionStart) -> Void = { _ in }
+    ) -> OSSessionStart {
         let previousIds = pinnableIds()
         let user = userProvider.sessionCurrentUser
         var newRecord = OSSessionRecord(
@@ -200,26 +236,34 @@ public final class OSSessionService: NSObject {
             self.userProvider = userProvider
             record = newRecord
             recordStartedInThisProcess = true
+            // The replaced session's heartbeat stops here, before its record is gone.
+            heartbeatGeneration += 1
             persist()
             return ended
         }
-        return OSSessionStart(started: newRecord, ended: ended)
+        let start = OSSessionStart(started: newRecord, ended: ended)
+        enqueue(start)
+        restartHeartbeat(continuesRecord: true)
+        return start
     }
 
     func onFocus() {
         let now = monotonicNow()
         let wallNow = wallNow()
-        stateLock.withLock {
+        let continuesRecord: Bool = stateLock.withLock {
             focusedAt = now
             loadIfNeeded()
             openFocusTime = wallNow
             guard record != nil, focusContinuesRecord(at: wallNow) else {
-                return
+                return false
             }
             // Saved now, since a kill leaves no unfocus to record when the session was last active.
             record?.lastFocusTime = wallNow
             persist()
+            return true
         }
+        // A focus that starts a new session leaves the heartbeat to that session's start.
+        restartHeartbeat(continuesRecord: continuesRecord)
     }
 
     /// A focus that will start a new session is not saved on the current record, or a kill before
@@ -241,12 +285,14 @@ public final class OSSessionService: NSObject {
             }
             focusedAt = nil
             openFocusTime = nil
+            heartbeatGeneration += 1
             loadIfNeeded()
             guard record != nil else {
                 return
             }
             record?.activeDuration += max(0, now - start)
             record?.lastUnfocusTime = wallNow
+            record?.lastHeartbeatTime = nil
             fillPinnedIds(ids)
             persist()
         }
@@ -318,6 +364,67 @@ public final class OSSessionService: NSObject {
             return
         }
         storage.saveObject(forKey: OSUD_SESSION_RECORD, withValue: data)
+    }
+}
+
+// MARK: - Heartbeat
+
+extension OSSessionService {
+    private func stopHeartbeat() {
+        stateLock.withLock { heartbeatGeneration += 1 }
+    }
+
+    /// Counts only foreground time: the interval resumes from the last heartbeat's duration.
+    private func restartHeartbeat(continuesRecord: Bool) {
+        let armed: (generation: Int, sessionId: String)? = stateLock.withLock {
+            heartbeatGeneration += 1
+            guard continuesRecord, focusedAt != nil, let record, record.usesSessionsApi else {
+                return nil
+            }
+            return (heartbeatGeneration, record.sessionId)
+        }
+        guard let armed else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService starting heartbeat for session \(armed.sessionId)")
+        checkHeartbeat(generation: armed.generation)
+    }
+
+    /// Rechecks the duration after every wait. The scheduler's clock pauses through device sleep and
+    /// `monotonicNow` doesn't, so a check can fire late but never early.
+    private func checkHeartbeat(generation: Int) {
+        let now = monotonicNow()
+        let ids = pinnableIds()
+        let next: (due: (record: OSSessionRecord, provider: OSSessionUserProvider?)?, wait: TimeInterval)? = stateLock.withLock {
+            guard generation == heartbeatGeneration, let start = focusedAt, let focusTime = openFocusTime,
+                  let current = record, current.usesSessionsApi else {
+                return nil
+            }
+            let focusDuration = max(0, now - start)
+            let duration = current.activeDuration + focusDuration
+            let remaining = (current.lastHeartbeatDuration ?? 0) + Self.heartbeatInterval - duration
+            guard remaining <= 0 else {
+                return (nil, remaining)
+            }
+            fillPinnedIds(ids)
+            record?.lastHeartbeatDuration = duration
+            record?.lastHeartbeatTime = focusTime + focusDuration
+            persist()
+            return (record.map { ($0, userProvider) }, Self.heartbeatInterval)
+        }
+        guard let next else {
+            return
+        }
+        if let (record, provider) = next.due {
+            OneSignalLog.onesignalLog(
+                .LL_DEBUG,
+                message: "OSSessionService heartbeat for session \(record.sessionId) with duration \(record.reportedDuration)"
+            )
+            provider?.sessionHeartbeat(record)
+        }
+        schedule(next.wait) { [weak self] in
+            self?.checkHeartbeat(generation: generation)
+        }
     }
 }
 
