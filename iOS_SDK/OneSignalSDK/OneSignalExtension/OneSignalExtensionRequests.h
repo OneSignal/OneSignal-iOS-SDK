@@ -30,5 +30,5 @@
 #import <OneSignalCore/OneSignalCore.h>
 
 @interface OSRequestReceiveReceipts : OneSignalRequest
-+ (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId;
++ (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId onesignalId:(NSString * _Nullable)onesignalId;
 @end

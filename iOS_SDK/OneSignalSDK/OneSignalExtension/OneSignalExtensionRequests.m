@@ -31,12 +31,16 @@
 
 @implementation OSRequestReceiveReceipts
 
-+ (instancetype _Nonnull)withPlayerId:(NSString *)playerId notificationId:(NSString *)notificationId appId:(NSString *)appId {
++ (instancetype _Nonnull)withPlayerId:(NSString *)playerId notificationId:(NSString *)notificationId appId:(NSString *)appId onesignalId:(NSString *)onesignalId {
     let request = [OSRequestReceiveReceipts new];
     
-    request.parameters = @{@"app_id": appId,
-                           @"player_id": playerId ?: [NSNull null],
-                           @"device_type": @0};
+    let parameters = [NSMutableDictionary dictionaryWithDictionary:@{@"app_id": appId,
+                                                                     @"player_id": playerId ?: [NSNull null],
+                                                                     @"device_type": @0}];
+    if (onesignalId.length > 0) {
+        parameters[@"onesignal_id"] = onesignalId;
+    }
+    request.parameters = parameters;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@/report_received", notificationId];
 
