@@ -282,8 +282,7 @@ final class OneSignalService {
 // MARK: - JWT ask
 
 /// The SDK's pending ask for a JWT. App-scoped so an event caught by the listener `AppDelegate`
-/// registers at launch still reaches the UI, however late the view model starts. The SDK doesn't
-/// replay the event.
+/// registers at launch still reaches the UI, however late the view model starts.
 @MainActor
 final class JwtAskStore: ObservableObject {
 

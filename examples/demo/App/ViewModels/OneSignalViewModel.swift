@@ -148,6 +148,10 @@ final class OneSignalViewModel: ObservableObject {
     }
 
     func fetchUserDataFromApi() async {
+        // Bumped before the guards, so a fetch still in flight is dropped even when this call returns early.
+        requestSequence &+= 1
+        let captured = requestSequence
+
         let aliasLabel: String
         let aliasValue: String
         let jwt: String?
@@ -170,8 +174,6 @@ final class OneSignalViewModel: ObservableObject {
             jwt = nil
         }
 
-        requestSequence &+= 1
-        let captured = requestSequence
         isLoading = true
 
         let result = await UserFetchService.shared.fetchUser(

@@ -54,8 +54,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Initialize OneSignal
         OneSignalService.shared.initialize(launchOptions: launchOptions)
 
-        // Here rather than in the view model. The SDK doesn't replay this event, so a
-        // listener added later misses a 401 at launch.
+        // One registration for the app. The SDK replays a pending ask to a listener added later.
         OneSignalService.shared.addUserJwtInvalidatedListener(JwtInvalidatedHandler.shared)
 
         // Set up notification lifecycle listeners
