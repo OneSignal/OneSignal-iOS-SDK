@@ -54,6 +54,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Initialize OneSignal
         OneSignalService.shared.initialize(launchOptions: launchOptions)
 
+        // Here rather than in the view model. The SDK doesn't replay this event, so a
+        // listener added later misses a 401 at launch.
+        OneSignalService.shared.addUserJwtInvalidatedListener(JwtInvalidatedHandler.shared)
+
         // Set up notification lifecycle listeners
         setupNotificationListeners()
 
@@ -111,6 +115,20 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
         LogService.show(
             "Notification click: \(notification.notificationId ?? "null") \(notification.title ?? "")"
         )
+    }
+}
+
+// MARK: - JWT Handler
+
+class JwtInvalidatedHandler: NSObject, OSUserJwtInvalidatedListener {
+    static let shared = JwtInvalidatedHandler()
+
+    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
+        let externalId = event.externalId
+        LogService.info("JWT invalidated for externalId: \(externalId)")
+        Task { @MainActor in
+            JwtAskStore.shared.invalidated(externalId: externalId)
+        }
     }
 }
 
