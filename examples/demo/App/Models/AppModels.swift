@@ -52,14 +52,14 @@ enum NotificationType: String, CaseIterable, Identifiable {
 
 /// Sample in-app message layouts triggered by the iam_type trigger
 enum InAppMessageType: String, CaseIterable, Identifiable {
-    case topBanner = "Top Banner"
-    case bottomBanner = "Bottom Banner"
-    case centerModal = "Center Modal"
-    case fullScreen = "Full Screen"
-    case fullBleed = "Full Screen (No Margin)"
-    case carousel = "Carousel"
-    case carouselBleed = "Carousel (No Margin)"
+    case topBanner = "Top"
+    case bottomBanner = "Bottom"
+    case centerModal = "Center"
     case html = "HTML"
+    case fullScreen = "Full"
+    case fullBleed = "Full Bleed"
+    case carousel = "Carousel"
+    case carouselBleed = "Carousel Bleed"
 
     var id: String { rawValue }
 
@@ -69,11 +69,11 @@ enum InAppMessageType: String, CaseIterable, Identifiable {
         case .topBanner: return "top_banner"
         case .bottomBanner: return "bottom_banner"
         case .centerModal: return "center_modal"
+        case .html: return "html"
         case .fullScreen: return "full_screen"
         case .fullBleed: return "full_bleed"
         case .carousel: return "carousel"
         case .carouselBleed: return "carousel_bleed"
-        case .html: return "html"
         }
     }
 }
