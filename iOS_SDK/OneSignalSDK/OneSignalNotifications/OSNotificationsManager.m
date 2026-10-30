@@ -714,7 +714,8 @@ static NSString *_lastnonActiveMessageId;
     NSString* messageId = [customDict objectForKey:@"i"];
     [self submitNotificationOpened:messageId];
     
-    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+    let applicationState = [UIApplication sharedApplication].applicationState;
+    let isActive = applicationState == UIApplicationStateActive;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
                                      isActive ? @"YES" : @"NO", messageId]];
@@ -738,6 +739,9 @@ static NSString *_lastnonActiveMessageId;
     if (!isActive) {
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
+        // A background action runs with the app in the background and never brings it forward.
+        if (messageId.length > 0 && applicationState == UIApplicationStateInactive)
+            [OSSessionService onNotificationOpened:messageId];
     }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];

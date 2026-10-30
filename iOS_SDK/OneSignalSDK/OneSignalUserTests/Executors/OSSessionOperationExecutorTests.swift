@@ -119,6 +119,14 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         return delta(OS_UPDATE_SESSION_DELTA, session: session, value: value, identityModel: nil)
     }
 
+    private func attributeDelta(session: String = "session-1", notificationId: String) -> OSDelta {
+        let value: [String: Any] = [
+            OSSessionDeltaKey.appId: "test-app-id",
+            OSSessionDeltaKey.directAttributionId: notificationId
+        ]
+        return delta(OS_ATTRIBUTE_SESSION_DELTA, session: session, value: value, identityModel: nil)
+    }
+
     private func delta(_ name: String, session: String, value: [String: Any], identityModel: OSIdentityModel?, timestamp: Date = Date()) -> OSDelta {
         let identityModel = identityModel ?? user.identityModel
         return OSDelta(
@@ -185,6 +193,48 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         user.identityModel.addAliases([OS_ONESIGNAL_ID: onesignalId])
         flush(executor)
         XCTAssertEqual((client.requests.last as? OSRequestCreateSession)?.parameters?["onesignal_id"] as? String, onesignalId)
+    }
+
+    func testAttributionIsFoldedIntoTheQueuedCreate() throws {
+        user.identityModel.removeAliases([OS_ONESIGNAL_ID])
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+
+        flush(executor, attributeDelta(notificationId: "notification-id"))
+        user.identityModel.addAliases([OS_ONESIGNAL_ID: onesignalId])
+        flush(executor)
+
+        let request = try XCTUnwrap(client.requests.last as? OSRequestCreateSession)
+        XCTAssertEqual(request.parameters?["direct_attribution_id"] as? String, "notification-id")
+        XCTAssertEqual(executor.queuedRequests.count, 1)
+    }
+
+    func testAttributionInTheSameFlushAsTheCreateIsSent() {
+        let executor = makeExecutor()
+
+        flush(executor, createDelta(), attributeDelta(notificationId: "notification-id"))
+
+        XCTAssertEqual((client.requests.last as? OSRequestCreateSession)?.parameters?["direct_attribution_id"] as? String, "notification-id")
+    }
+
+    /// The create's retry must send the same body as the attempt that may have reached the backend.
+    func testAttributionAfterTheCreateWasSentIsDropped() {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+        fail(executor, code: 500)
+
+        uptime += OSRequestRetryBackoff.baseDelaySeconds
+        flush(executor, attributeDelta(notificationId: "notification-id"))
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNil((client.requests.last as? OSRequestCreateSession)?.parameters?["direct_attribution_id"])
+    }
+
+    func testAttributionWithoutACreateIsDropped() {
+        let executor = makeExecutor()
+
+        XCTAssertTrue(flush(executor, attributeDelta(notificationId: "notification-id")).isEmpty)
+        XCTAssertTrue(client.requests.isEmpty)
     }
 
     func testUpdateWaitsForTheCreateThenUsesItsServerSessionId() throws {
@@ -521,6 +571,16 @@ extension OSSessionOperationExecutorTests {
         XCTAssertEqual((restored.last as? OSRequestUpdateSession)?.idempotencyKey, key)
     }
 
+    func testAttributionFoldedIntoAWaitingCreateSurvivesAKill() throws {
+        user.identityModel.removeAliases([OS_ONESIGNAL_ID])
+        let executor = makeExecutor()
+        flush(executor, createDelta(), attributeDelta(notificationId: "notification-id"))
+
+        let restored = try XCTUnwrap(makeExecutor().queuedRequests.first as? OSRequestCreateSession)
+
+        XCTAssertEqual(restored.directAttributionId, "notification-id")
+    }
+
     func testACreateKeepsItsSentIdsAcrossAKillBeforeTheResponse() throws {
         let executor = makeExecutor()
         flush(executor, createDelta())
@@ -531,6 +591,18 @@ extension OSSessionOperationExecutorTests {
 
         XCTAssertEqual(restored.onesignalId, onesignalId)
         XCTAssertEqual(restored.subscriptionId, testPushSubId)
+    }
+
+    func testAttributionAfterAKillDoesNotChangeASentCreate() throws {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+
+        let restored = makeExecutor()
+        flush(restored, attributeDelta(notificationId: "notification-id"))
+
+        XCTAssertEqual(client.requests.count, 2)
+        let replay = try XCTUnwrap(client.requests.last as? OSRequestCreateSession)
+        XCTAssertNil(replay.parameters?["direct_attribution_id"])
     }
 
     func testUpdateBuiltBeforeItsCreateSucceededSurvivesAKill() throws {
