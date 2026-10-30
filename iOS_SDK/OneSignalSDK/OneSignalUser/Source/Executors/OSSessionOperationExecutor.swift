@@ -38,7 +38,7 @@ class OSSessionOperationExecutor: OSOperationExecutor {
     /// A create answered without a `session_id` is retried this many times, then dropped.
     static let maxMissingSessionIdAttempts = 3
 
-    var supportedDeltas: [String] = [OS_CREATE_SESSION_DELTA, OS_UPDATE_SESSION_DELTA]
+    var supportedDeltas: [String] = [OS_CREATE_SESSION_DELTA, OS_UPDATE_SESSION_DELTA, OS_ATTRIBUTE_SESSION_DELTA]
     private var deltaQueue: [OSDelta] = []
     private var requestQueue: [OSSessionRequest] = []
     /// The one place that knows whether a session was created and whether it ended, oldest first and
@@ -151,7 +151,9 @@ class OSSessionOperationExecutor: OSOperationExecutor {
             if !self.deltaQueue.isEmpty {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSessionOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
                 for delta in self.deltaQueue {
-                    if let request = self.makeRequest(from: delta), !self.dropIfStale(request) {
+                    if delta.name == OS_ATTRIBUTE_SESSION_DELTA {
+                        self.attribute(delta)
+                    } else if let request = self.makeRequest(from: delta), !self.dropIfStale(request) {
                         self.admit(request)
                     }
                 }
@@ -281,6 +283,17 @@ private extension OSSessionOperationExecutor {
         // Carry a backoff over, or the replacement would skip it.
         pending.last.map { retryBackoff.transferWait(from: $0, to: update) }
         return true
+    }
+
+    /// Deltas arrive in order, so the session's create is already queued unless it was dropped.
+    func attribute(_ delta: OSDelta) {
+        guard let notificationId = (delta.value as? [String: Any])?[OSSessionDeltaKey.directAttributionId] as? String,
+              let create = requestQueue.lazy.compactMap({ $0 as? OSRequestCreateSession }).first(where: { $0.localSessionId == delta.property }),
+              create.attribute(to: notificationId)
+        else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped attribution for \(delta.property)")
+            return
+        }
     }
 
     func hasCreate(forSession sessionId: String) -> Bool {
