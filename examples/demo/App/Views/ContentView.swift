@@ -128,6 +128,14 @@ struct ContentView: View {
             }
             .accessibilityIdentifier("brand_title")
         }
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            Button {} label: { Image(systemName: "chevron.left") }
+            Button {} label: { Image(systemName: "ellipsis") }
+            Button {} label: { Image(systemName: "square.and.arrow.up") }
+            Button {} label: { Image(systemName: "heart") }
+            Button {} label: { Image(systemName: "bookmark") }
+            Button {} label: { Image(systemName: "trash") }
+        }
     }
 }
 

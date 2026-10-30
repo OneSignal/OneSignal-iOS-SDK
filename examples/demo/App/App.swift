@@ -36,9 +36,16 @@ struct App: SwiftUI.App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(viewModel)
-                .environmentObject(toastPresenter)
+            TabView {
+                ContentView()
+                    .environmentObject(viewModel)
+                    .environmentObject(toastPresenter)
+                    .tabItem { Label("Home", systemImage: "photo.on.rectangle") }
+                Color.clear
+                    .tabItem { Label("Library", systemImage: "square.stack.fill") }
+                Color.clear
+                    .tabItem { Label("Search", systemImage: "magnifyingglass") }
+            }
         }
     }
 }
