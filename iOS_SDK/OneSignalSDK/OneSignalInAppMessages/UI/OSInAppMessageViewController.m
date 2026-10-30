@@ -350,6 +350,15 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     [self updateHorizontalInsets];
+    if (self.message.position == OSInAppMessageDisplayPositionBottom && self.finalYConstraint.constant != -[self bottomInset]) {
+        self.finalYConstraint.constant = -[self bottomInset];
+    }
+}
+
+// Like the sides, bottom banners use the larger of the margin and the bottom safe area rather than their sum
+- (CGFloat)bottomInset {
+    CGFloat margin = self.useHeightMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
+    return self.isFullscreen ? margin : MAX(margin, self.view.safeAreaInsets.bottom);
 }
 
 // The app's full screen window. Its safe area and reserved regions cover the whole scene and stay
@@ -493,10 +502,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
-            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                  constant:(self.useHeightMargin ? -marginSpacing : 0)];
-            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                       constant:(self.useHeightMargin ? -marginSpacing : 0)];
+            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-[self bottomInset]];
+            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:-[self bottomInset]];
             break;
         }
         case OSInAppMessageDisplayPositionFullScreen:
