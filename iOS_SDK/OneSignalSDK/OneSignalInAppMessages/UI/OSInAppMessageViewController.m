@@ -365,10 +365,20 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     CGFloat right = MAX(margin, safeArea.right);
 #if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
     if (@available(iOS 27.1, *)) {
+        // Regions are only reported within a view's bounds, so query a full screen app window
+        // since banner windows may not cover the hardware.
+        UIView *regionView = self.view;
+        for (UIWindow *window in self.view.window.windowScene.windows) {
+            if (window != self.view.window && CGRectEqualToRect(window.frame, window.windowScene.coordinateSpace.bounds)) {
+                regionView = window;
+                break;
+            }
+        }
         CGFloat width = self.view.bounds.size.width;
-        for (UIViewReservedRegion *region in [self.view reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
-            CGFloat minX = CGRectGetMinX(region.frame);
-            CGFloat maxX = CGRectGetMaxX(region.frame);
+        for (UIViewReservedRegion *region in [regionView reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+            CGRect frame = [regionView convertRect:region.frame toView:self.view];
+            CGFloat minX = CGRectGetMinX(frame);
+            CGFloat maxX = CGRectGetMaxX(frame);
             if (minX >= 1 && maxX <= safeArea.left + 1) {
                 left = MAX(left, maxX + margin);
             } else if (maxX <= width - 1 && minX >= width - safeArea.right - 1) {
