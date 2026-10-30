@@ -593,6 +593,18 @@ extension OSSessionOperationExecutorTests {
         XCTAssertEqual(restored.subscriptionId, testPushSubId)
     }
 
+    func testAttributionAfterAKillDoesNotChangeASentCreate() throws {
+        let executor = makeExecutor()
+        flush(executor, createDelta())
+
+        let restored = makeExecutor()
+        flush(restored, attributeDelta(notificationId: "notification-id"))
+
+        XCTAssertEqual(client.requests.count, 2)
+        let replay = try XCTUnwrap(client.requests.last as? OSRequestCreateSession)
+        XCTAssertNil(replay.parameters?["direct_attribution_id"])
+    }
+
     func testUpdateBuiltBeforeItsCreateSucceededSurvivesAKill() throws {
         let executor = makeExecutor()
         flush(executor, createDelta())

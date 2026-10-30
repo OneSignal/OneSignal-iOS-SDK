@@ -84,7 +84,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     private(set) var onesignalId: String?
     private(set) var subscriptionId: String?
     var missingSessionIdAttempts = 0
-    /// In memory only. Only a session started in this process is attributed after its create is queued.
+    /// Persisted, since an attribution queued before a kill can arrive after the create was sent.
     private var prepared = false
 
     /// The sessions API takes no user JWT.
@@ -163,6 +163,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         coder.encode(onesignalId, forKey: "onesignalId")
         coder.encode(subscriptionId, forKey: "subscriptionId")
         coder.encode(missingSessionIdAttempts, forKey: "missingSessionIdAttempts")
+        coder.encode(prepared, forKey: "prepared")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
@@ -184,6 +185,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         self.onesignalId = coder.decodeObject(forKey: "onesignalId") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
         self.missingSessionIdAttempts = coder.decodeInteger(forKey: "missingSessionIdAttempts")
+        self.prepared = coder.decodeBool(forKey: "prepared")
         super.init()
         self.method = POST
         self.timestamp = timestamp
