@@ -39,4 +39,14 @@
     return [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 }
 
+// UIScreen bounds can differ from the window scene, e.g. on foldables where the screen
+// reports a single panel, and UIKit forces windows to their scene's size.
++ (CGRect)displayBounds {
+    UIWindowScene *scene = UIApplication.sharedApplication.keyWindow.windowScene;
+    if (scene) {
+        return scene.coordinateSpace.bounds;
+    }
+    return UIScreen.mainScreen.bounds;
+}
+
 @end

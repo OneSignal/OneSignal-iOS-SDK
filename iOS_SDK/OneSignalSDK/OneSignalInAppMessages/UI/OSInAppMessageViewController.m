@@ -32,6 +32,7 @@
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSMacros.h"
 #import "OSSessionManager.h"
+#import "UIApplication+OneSignal.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
@@ -375,7 +376,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         height = safeArea.heightAnchor;
     }
     
-    CGRect mainBounds = [OneSignalCoreHelper getScreenBounds];
+    CGRect mainBounds = [UIApplication displayBounds];
     CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
     
     let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
@@ -413,9 +414,11 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     double bannerWidth = mainBounds.size.width;
     double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
+    // Use the view's insets, which the safe area constraints use. The window's insets shrink once
+    // it is banner-sized, so relayouts (e.g. after a size transition) would collapse the message.
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop: {
-            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
             bannerHeight += statusBarHeight;
@@ -429,7 +432,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             break;
         }
         case OSInAppMessageDisplayPositionBottom: {
-            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             bannerMessageY = mainBounds.size.height - bannerHeight;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);

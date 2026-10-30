@@ -30,6 +30,7 @@
 #import "OSInAppMessageClickResult.h"
 #import <OneSignalUser/OneSignalUser.h>
 #import "OSMacros.h"
+#import "UIApplication+OneSignal.h"
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
@@ -101,7 +102,7 @@
     
     // WebView should use mainBounds as frame since we need to make sure it spans full possible screen size
     // to prevent text wrapping while obtaining true height of message from JS
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    CGRect mainBounds = [UIApplication displayBounds];
     mainBounds.size.width -= (2.0 * marginSpacing);
     
     // Setup WebView, delegates, and disable scrolling inside of the WebView
@@ -132,7 +133,7 @@
 }
 
 - (void)setWebviewFrame {
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    CGRect mainBounds = [UIApplication displayBounds];
     if (!self.isFullscreen) {
         CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
         mainBounds.size.width -= (2.0 * marginSpacing);
