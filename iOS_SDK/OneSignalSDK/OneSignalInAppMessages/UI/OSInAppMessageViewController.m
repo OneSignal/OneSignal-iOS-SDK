@@ -352,6 +352,17 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [self updateHorizontalInsets];
 }
 
+// The app's full screen window. Its safe area and reserved regions cover the whole scene and stay
+// stable during size transitions, unlike the banner sized window this message is shown in.
+- (UIView *)sceneView {
+    for (UIWindow *window in self.view.window.windowScene.windows) {
+        if (window != self.view.window && CGRectEqualToRect(window.frame, window.windowScene.coordinateSpace.bounds)) {
+            return window;
+        }
+    }
+    return self.view;
+}
+
 // Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
 // from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
 // Regions flush with the edge, like a status bar column, are already covered by the safe area.
@@ -365,15 +376,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     CGFloat right = MAX(margin, safeArea.right);
 #if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
     if (@available(iOS 27.1, *)) {
-        // Regions are only reported within a view's bounds, so query a full screen app window
-        // since banner windows may not cover the hardware.
-        UIView *regionView = self.view;
-        for (UIWindow *window in self.view.window.windowScene.windows) {
-            if (window != self.view.window && CGRectEqualToRect(window.frame, window.windowScene.coordinateSpace.bounds)) {
-                regionView = window;
-                break;
-            }
-        }
+        // Regions are only reported within a view's bounds, which banner windows may not cover
+        UIView *regionView = [self sceneView];
         CGFloat width = self.view.bounds.size.width;
         for (UIViewReservedRegion *region in [regionView reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
             CGRect frame = [regionView convertRect:region.frame toView:self.view];
@@ -465,11 +469,11 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     double bannerWidth = mainBounds.size.width;
     double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
-    // Use the view's insets, which the safe area constraints use. The window's insets shrink once
-    // it is banner-sized, so relayouts (e.g. after a size transition) would collapse the message.
+    // Size banner windows from the scene's insets. This window's own insets shrink once it is banner
+    // sized and change mid transition, so relayouts would collapse or clip the message.
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop: {
-            UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = [self sceneView].safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
             bannerHeight += statusBarHeight;
@@ -483,7 +487,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             break;
         }
         case OSInAppMessageDisplayPositionBottom: {
-            UIEdgeInsets safeAreaInsets = self.view.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = [self sceneView].safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             bannerMessageY = mainBounds.size.height - bannerHeight;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
