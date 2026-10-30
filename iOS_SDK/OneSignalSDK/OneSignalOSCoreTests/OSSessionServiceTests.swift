@@ -48,6 +48,11 @@ private final class FakeUserProvider: OSSessionUserProvider {
         onesignalIds[identityModelId]
     }
     func sessionHeartbeat(_ record: OSSessionRecord) {}
+
+    private(set) var attributions: [(sessionId: String, notificationId: String)] = []
+    func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String) {
+        attributions.append((record.sessionId, directAttributionId))
+    }
 }
 
 final class OSSessionServiceTests: XCTestCase {
@@ -351,6 +356,113 @@ final class OSSessionServiceTests: XCTestCase {
 
         XCTAssertEqual(restarted.currentRecord?.activeDuration, 0)
         XCTAssertNil(restarted.currentRecord?.lastUnfocusTime)
+    }
+}
+
+// MARK: - Notification attribution
+
+extension OSSessionServiceTests {
+    /// The app returns from the background past the threshold: the open comes before the focus, and
+    /// the session starts after both.
+    func testOpenFromTheBackgroundAttributesTheSessionItStarts() {
+        let service = makeForegroundSession()
+        service.onUnfocus()
+        wallNow += 60
+
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.directAttributionId, "notification-1")
+        XCTAssertTrue(user.attributions.isEmpty)
+    }
+
+    func testNormalOpenIsNotAttributed() {
+        let service = makeForegroundSession()
+        service.onUnfocus()
+        wallNow += 60
+
+        service.onFocus()
+
+        XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
+    }
+
+    func testOpenWithinTheThresholdDoesNotChangeTheSessionOrCarryOver() {
+        let service = makeForegroundSession()
+        let sessionId = service.currentRecord?.sessionId
+        service.onUnfocus()
+        wallNow += 10
+
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+
+        XCTAssertEqual(service.currentRecord?.sessionId, sessionId)
+        XCTAssertTrue(user.attributions.isEmpty)
+
+        service.onUnfocus()
+        wallNow += 60
+        service.onFocus()
+        XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
+    }
+
+    func testOpenThatNeverFocusesIsNotAttributedToALaterSession() {
+        let service = makeForegroundSession()
+        service.onUnfocus()
+        wallNow += 60
+
+        service.onNotificationOpened("notification-1")
+        service.onUnfocus()
+        service.onFocus()
+
+        XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
+    }
+
+    /// Init starts the launch's session on the main queue before iOS delivers the open.
+    func testColdStartOpenAfterTheSessionStartsAttributesIt() {
+        let service = makeService()
+        let start = service.startNewSession(userProvider: user)
+
+        wallNow += 1
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+
+        XCTAssertEqual(user.attributions.map(\.sessionId), [start.started.sessionId])
+        XCTAssertEqual(user.attributions.map(\.notificationId), ["notification-1"])
+        XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
+    }
+
+    func testColdStartOpenBeforeTheSessionStartsAttributesIt() {
+        let service = makeService()
+
+        service.onNotificationOpened("notification-1")
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.directAttributionId, "notification-1")
+        XCTAssertTrue(user.attributions.isEmpty)
+    }
+
+    /// The focus past the threshold starts a new session, which the open belongs to.
+    func testOpenPastTheThresholdOfABackgroundSessionAttributesTheNextSession() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+        wallNow += 60
+
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+
+        XCTAssertTrue(user.attributions.isEmpty)
+        XCTAssertEqual(service.startNewSession(userProvider: user).directAttributionId, "notification-1")
+    }
+
+    func testOpenForASessionFromAnEarlierProcessAttributesTheNextSession() {
+        _ = makeService().startNewSession(userProvider: user)
+        let restarted = makeService()
+        restarted.setUserProvider(user)
+
+        restarted.onNotificationOpened("notification-1")
+
+        XCTAssertTrue(user.attributions.isEmpty)
+        XCTAssertEqual(restarted.startNewSession(userProvider: user).directAttributionId, "notification-1")
     }
 }
 

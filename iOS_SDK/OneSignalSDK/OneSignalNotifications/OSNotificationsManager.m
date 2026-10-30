@@ -738,6 +738,8 @@ static NSString *_lastnonActiveMessageId;
     if (!isActive) {
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
+        if (messageId.length > 0)
+            [OSSessionService onNotificationOpened:messageId];
     }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];

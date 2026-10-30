@@ -28,7 +28,7 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-/// Keys of the value an `OS_CREATE_SESSION_DELTA` or `OS_UPDATE_SESSION_DELTA` carries. The Delta's
+/// Keys of the value a session Delta carries. The Delta's
 /// `property` is the local session ID.
 enum OSSessionDeltaKey {
     static let appId = "app_id"
@@ -75,7 +75,8 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     let appId: String
     let localSessionId: String
     let startTime: Date
-    let directAttributionId: String?
+    /// Fixed by the first send, like the IDs.
+    private(set) var directAttributionId: String?
     var identityModel: OSIdentityModel
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
@@ -83,6 +84,8 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     private(set) var onesignalId: String?
     private(set) var subscriptionId: String?
     var missingSessionIdAttempts = 0
+    /// In memory only. Only a session started in this process is attributed after its create is queued.
+    private var prepared = false
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }
@@ -126,6 +129,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         }
         self.onesignalId = onesignalId
         self.subscriptionId = subscriptionId
+        prepared = true
         var parameters: [String: Any] = [
             "onesignal_id": onesignalId,
             "subscription_id": subscriptionId,
@@ -137,6 +141,15 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         parameters["direct_attribution_id"] = directAttributionId
         self.parameters = parameters
         self.path = "apps/\(appId)/sessions"
+        return true
+    }
+
+    /// Returns false once the create was sent, since a replay must send the same body.
+    func attribute(to notificationId: String) -> Bool {
+        guard !prepared else {
+            return false
+        }
+        directAttributionId = notificationId
         return true
     }
 
