@@ -54,6 +54,10 @@
 // This constraint enforces an aspect ratio for the given message type (ie. banner)
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *heightConstraint;
 
+// These pin the message view to the left & right, updated as the safe area changes
+@property (strong, nonatomic, nullable) NSLayoutConstraint *leftConstraint;
+@property (strong, nonatomic, nullable) NSLayoutConstraint *rightConstraint;
+
 // This recognizer lets the user pan (swipe) the message up and down
 @property (weak, nonatomic, nullable) UIPanGestureRecognizer *panGestureRecognizer;
 
@@ -343,6 +347,45 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:message];
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self updateHorizontalInsets];
+}
+
+// Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
+// from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
+// Regions flush with the edge, like a status bar column, are already covered by the safe area.
+- (void)updateHorizontalInsets {
+    if (!self.leftConstraint || !self.rightConstraint) {
+        return;
+    }
+    CGFloat margin = self.useWidthMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
+    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : self.view.safeAreaInsets;
+    CGFloat left = MAX(margin, safeArea.left);
+    CGFloat right = MAX(margin, safeArea.right);
+#if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
+    if (@available(iOS 27.1, *)) {
+        CGFloat width = self.view.bounds.size.width;
+        for (UIViewReservedRegion *region in [self.view reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+            CGFloat minX = CGRectGetMinX(region.frame);
+            CGFloat maxX = CGRectGetMaxX(region.frame);
+            if (minX >= 1 && maxX <= safeArea.left + 1) {
+                left = MAX(left, maxX + margin);
+            } else if (maxX <= width - 1 && minX >= width - safeArea.right - 1) {
+                right = MAX(right, width - minX + margin);
+            }
+        }
+    }
+#endif
+    // Only assign changes, since this runs on every layout pass
+    if (self.leftConstraint.constant != left) {
+        self.leftConstraint.constant = left;
+    }
+    if (self.rightConstraint.constant != right) {
+        self.rightConstraint.constant = right;
+    }
+}
+
 /*
  Sets up the message view in its initial (hidden) position
  Adds constraints so that the message view has the correct size
@@ -355,13 +398,16 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"addConstraintsForMessage: messageView is not a subview of OSInAppMessageViewController"];
         [self.view addSubview:self.messageView];
     }
-    
+
+    // Size transitions call this again, possibly before the appearance animation lowers the initial
+    // Y constraint, so remove the previous constraints or a stale one keeps the message offscreen.
+    let previousConstraints = [self.view.constraints filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"firstItem == %@ OR secondItem == %@", self.messageView, self.messageView]];
+    [NSLayoutConstraint deactivateConstraints:previousConstraints];
+    self.heightConstraint.active = false;
+
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
     NSLayoutAnchor *top = self.view.topAnchor,
-                   *bottom = self.view.bottomAnchor,
-                   *leading = self.view.leadingAnchor,
-                   *trailing = self.view.trailingAnchor,
-                   *center = self.view.centerXAnchor;
+                   *bottom = self.view.bottomAnchor;
     NSLayoutDimension *height = self.view.heightAnchor;
     
     // The safe area represents the anchors that are not obscurable by  UI such
@@ -370,9 +416,6 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         let safeArea = self.view.safeAreaLayoutGuide;
         top = safeArea.topAnchor;
         bottom = safeArea.bottomAnchor;
-        leading = safeArea.leadingAnchor;
-        trailing = safeArea.trailingAnchor;
-        center = safeArea.centerXAnchor;
         height = safeArea.heightAnchor;
     }
     
@@ -401,11 +444,9 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:(self.useHeightMargin ? (2*-marginSpacing) : 0)].active = true;
 
     // Pins the message view to the left & right
-    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:(self.useWidthMargin ? marginSpacing : 0)];
-    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:(self.useWidthMargin ? -marginSpacing : 0)];
-    
-    // Ensure the message view is always centered horizontally
-    [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
+    self.leftConstraint = [self.messageView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor];
+    self.rightConstraint = [self.view.rightAnchor constraintEqualToAnchor:self.messageView.rightAnchor];
+    [self updateHorizontalInsets];
     
     // Set Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
@@ -469,8 +510,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.finalYConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
     self.panVerticalConstraint.priority = HIGHEST_CONSTRAINT_PRIORITY;
-    leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
-    rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    self.leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    self.rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
     
     // Constraints should all be active except for the panVerticalConstraint, which
     // is only active when the user is panning (swiping)
@@ -478,8 +519,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     self.heightConstraint.active = true;
     self.initialYConstraint.active = true;
     self.finalYConstraint.active = true;
-    leftConstraint.active = true;
-    rightConstraint.active = true;
+    self.leftConstraint.active = true;
+    self.rightConstraint.active = true;
     
     // Adding all of these constraints has caused the view's needsLayout property
     // to become true, so when we call layoutIfNeeded, it causes the view
