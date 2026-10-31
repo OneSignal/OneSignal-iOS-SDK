@@ -298,6 +298,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     if (self.isFullscreen) {
         self.pendingHTMLContent = [self setContentInsetsInHTML:self.pendingHTMLContent];
     }
+    self.messageView.horizontalInsets = [self horizontalInsets];
     [self.messageView setIsFullscreen:self.isFullscreen];
 }
 
@@ -372,8 +373,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 // The app's full screen window. Its safe area and reserved regions cover the whole scene and stay
 // stable during size transitions, unlike the banner sized window this message is shown in.
 - (UIView *)sceneView {
-    for (UIWindow *window in self.view.window.windowScene.windows) {
-        if (window != self.view.window && CGRectEqualToRect(window.frame, window.windowScene.coordinateSpace.bounds)) {
+    // Content loads before this message has a window
+    UIWindowScene *scene = self.view.window.windowScene ?: UIApplication.sharedApplication.keyWindow.windowScene;
+    for (UIWindow *window in scene.windows) {
+        if (window != self.view.window && CGRectEqualToRect(window.frame, scene.coordinateSpace.bounds)) {
             return window;
         }
     }
@@ -383,23 +386,18 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 // Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
 // from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
 // Regions flush with the edge, like a status bar column, are already covered by the safe area.
-- (void)updateHorizontalInsets {
-    if (!self.leftConstraint || !self.rightConstraint) {
-        return;
-    }
+- (UIEdgeInsets)horizontalInsets {
+    UIView *sceneView = [self sceneView];
     CGFloat margin = self.useWidthMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
-    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : self.view.safeAreaInsets;
+    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : sceneView.safeAreaInsets;
     CGFloat left = MAX(margin, safeArea.left);
     CGFloat right = MAX(margin, safeArea.right);
 #if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
     if (@available(iOS 27.1, *)) {
-        // Regions are only reported within a view's bounds, which banner windows may not cover
-        UIView *regionView = [self sceneView];
-        CGFloat width = self.view.bounds.size.width;
-        for (UIViewReservedRegion *region in [regionView reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
-            CGRect frame = [regionView convertRect:region.frame toView:self.view];
-            CGFloat minX = CGRectGetMinX(frame);
-            CGFloat maxX = CGRectGetMaxX(frame);
+        CGFloat width = sceneView.bounds.size.width;
+        for (UIViewReservedRegion *region in [sceneView reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+            CGFloat minX = CGRectGetMinX(region.frame);
+            CGFloat maxX = CGRectGetMaxX(region.frame);
             if (minX >= 1 && maxX <= safeArea.left + 1) {
                 left = MAX(left, maxX + margin);
             } else if (maxX <= width - 1 && minX >= width - safeArea.right - 1) {
@@ -408,12 +406,20 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         }
     }
 #endif
-    // Only assign changes, since this runs on every layout pass
-    if (self.leftConstraint.constant != left) {
-        self.leftConstraint.constant = left;
+    return UIEdgeInsetsMake(0, left, 0, right);
+}
+
+- (void)updateHorizontalInsets {
+    if (!self.leftConstraint || !self.rightConstraint) {
+        return;
     }
-    if (self.rightConstraint.constant != right) {
-        self.rightConstraint.constant = right;
+    UIEdgeInsets insets = [self horizontalInsets];
+    // Only assign changes, since this runs on every layout pass
+    if (self.leftConstraint.constant != insets.left) {
+        self.leftConstraint.constant = insets.left;
+    }
+    if (self.rightConstraint.constant != insets.right) {
+        self.rightConstraint.constant = insets.right;
     }
 }
 
@@ -937,6 +943,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
         
         // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
+        self.messageView.horizontalInsets = [self horizontalInsets];
         [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             

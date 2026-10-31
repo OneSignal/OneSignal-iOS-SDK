@@ -134,10 +134,7 @@
 
 - (void)setWebviewFrame {
     CGRect mainBounds = [UIApplication displayBounds];
-    if (!self.isFullscreen) {
-        CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
-        mainBounds.size.width -= (2.0 * marginSpacing);
-    }
+    mainBounds.size.width -= self.horizontalInsets.left + self.horizontalInsets.right;
     [self.webView setFrame:mainBounds];
 }
 
