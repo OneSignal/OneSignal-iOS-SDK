@@ -37,6 +37,7 @@
 #import "UNUserNotificationCenter+OneSignalNotifications.h"
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import <OneSignalOutcomes/OSSessionManager.h>
+#import <OneSignalOutcomes/OSInfluenceDataRepository.h>
 
 @implementation OSNotificationClickEvent
 @synthesize notification = _notification, result = _result;
@@ -740,7 +741,8 @@ static NSString *_lastnonActiveMessageId;
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
         // A background action runs with the app in the background and never brings it forward.
-        if (messageId.length > 0 && applicationState == UIApplicationStateInactive)
+        if (messageId.length > 0 && applicationState == UIApplicationStateInactive
+            && OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
             [OSSessionService onNotificationOpened:messageId];
     }
 
