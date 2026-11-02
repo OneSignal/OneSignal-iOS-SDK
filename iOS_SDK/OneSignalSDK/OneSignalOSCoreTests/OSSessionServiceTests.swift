@@ -417,6 +417,19 @@ extension OSSessionServiceTests {
         XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
     }
 
+    /// A background action from Notification Center arrives after the unfocus, with no focus after it.
+    func testOpenWithNoFocusAfterItExpires() {
+        let service = makeForegroundSession()
+        service.onUnfocus()
+
+        service.onNotificationOpened("notification-1")
+        wallNow += 60
+        monotonicNow += 60
+        service.onFocus()
+
+        XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
+    }
+
     /// Init starts the launch's session on the main queue before iOS delivers the open.
     func testColdStartOpenAfterTheSessionStartsAttributesIt() {
         let service = makeService()
