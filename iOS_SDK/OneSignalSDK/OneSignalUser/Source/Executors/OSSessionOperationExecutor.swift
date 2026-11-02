@@ -287,13 +287,12 @@ private extension OSSessionOperationExecutor {
 
     /// Deltas arrive in order, so the session's create is already queued unless it was dropped.
     func attribute(_ delta: OSDelta) {
-        guard let notificationId = (delta.value as? [String: Any])?[OSSessionDeltaKey.directAttributionId] as? String,
-              let create = requestQueue.lazy.compactMap({ $0 as? OSRequestCreateSession }).first(where: { $0.localSessionId == delta.property }),
-              create.attribute(to: notificationId)
-        else {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped attribution for \(delta.property)")
+        if let notificationId = (delta.value as? [String: Any])?[OSSessionDeltaKey.directAttributionId] as? String,
+           let create = requestQueue.lazy.compactMap({ $0 as? OSRequestCreateSession }).first(where: { $0.localSessionId == delta.property }),
+           create.attribute(to: notificationId) {
             return
         }
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionOperationExecutor dropped attribution for \(delta.property)")
     }
 
     func hasCreate(forSession sessionId: String) -> Bool {
