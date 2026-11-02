@@ -740,13 +740,24 @@ static NSString *_lastnonActiveMessageId;
     if (!isActive) {
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
-        // A background action runs with the app in the background and never brings it forward.
+        // Only an open that brings the app forward starts or continues a session because of it.
         if (messageId.length > 0 && applicationState == UIApplicationStateInactive
+            && [self openBringsAppForward:notification actionID:actionID]
             && OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
             [OSSessionService onNotificationOpened:messageId];
     }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];
+}
+
++ (BOOL)openBringsAppForward:(OSNotification *)notification actionID:(NSString *)actionID {
+    if (!actionID)
+        return true;
+    for (NSDictionary *button in notification.actionButtons) {
+        if ([actionID isEqualToString:button[@"id"]])
+            return true;
+    }
+    return false;
 }
 
 + (void)submitNotificationOpened:(NSString*)messageId {
