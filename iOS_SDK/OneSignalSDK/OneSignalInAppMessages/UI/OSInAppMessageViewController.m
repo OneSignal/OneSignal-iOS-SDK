@@ -162,7 +162,9 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     // Resizable scenes (e.g. an unfolded display) don't re-query prefersStatusBarHidden when this window becomes key
-    [self setNeedsStatusBarAppearanceUpdate];
+    if (self.isFullscreen) {
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
