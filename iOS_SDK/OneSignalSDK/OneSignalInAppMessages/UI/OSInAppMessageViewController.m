@@ -34,7 +34,8 @@
 #import "OSSessionManager.h"
 #import "UIApplication+OneSignal.h"
 
-// iOS 27.1 reserved region API, declared here because release binaries are built with an older SDK
+// iOS 27.1 reserved region API, declared here because release binaries are built with an older SDK.
+// Remove these and call the UIKit API directly once releases build with the iOS 27.1 SDK.
 @protocol OSReservedRegionKindClass
 - (id)occlusionRegionKind;
 @end
