@@ -27,6 +27,7 @@
 
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
+#import "OSInAppMessageInsets.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -440,34 +441,26 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     return self.view;
 }
 
-// Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
-// from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
-// Regions flush with the edge, like a status bar column, are already covered by the safe area.
-// Region frames already include UIKit's interactive margins; the message margin is added on top.
+// On iOS 27.1+ the message also keeps clear of hardware inside a side safe area (e.g. a foldable's camera),
+// matching system notification banners.
 - (UIEdgeInsets)horizontalInsets {
     UIView *sceneView = [self sceneView];
     CGFloat margin = self.useWidthMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
-    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : sceneView.safeAreaInsets;
-    CGFloat left = MAX(margin, safeArea.left);
-    CGFloat right = MAX(margin, safeArea.right);
+    NSMutableArray<NSValue *> *regionFrames = [NSMutableArray new];
     // Full screen content clears hardware itself, using the insets passed through setSafeAreaInsets
-    if (self.isFullscreen) {
-        return UIEdgeInsetsMake(0, left, 0, right);
-    }
-    if (@available(iOS 27.1, *)) {
-        CGFloat width = sceneView.bounds.size.width;
-        id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
-        for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
-            CGFloat minX = CGRectGetMinX(region.frame);
-            CGFloat maxX = CGRectGetMaxX(region.frame);
-            if (minX >= 1 && maxX <= safeArea.left + 1) {
-                left = MAX(left, maxX + margin);
-            } else if (maxX <= width - 1 && minX >= width - safeArea.right - 1) {
-                right = MAX(right, width - minX + margin);
+    if (!self.isFullscreen) {
+        if (@available(iOS 27.1, *)) {
+            id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
+            for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
+                [regionFrames addObject:[NSValue valueWithCGRect:region.frame]];
             }
         }
     }
-    return UIEdgeInsetsMake(0, left, 0, right);
+    return [OSInAppMessageInsets horizontalInsetsWithMargin:margin
+                                                   safeArea:sceneView.safeAreaInsets
+                                                      width:sceneView.bounds.size.width
+                                               regionFrames:regionFrames
+                                               isFullscreen:self.isFullscreen];
 }
 
 - (void)updateHorizontalInsets {
