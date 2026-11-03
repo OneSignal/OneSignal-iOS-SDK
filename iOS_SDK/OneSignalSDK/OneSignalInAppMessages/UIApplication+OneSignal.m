@@ -28,6 +28,7 @@
 #import "UIApplication+OneSignal.h"
 #import <OneSignalCore/OneSignalCommonDefines.h>
 #import <OneSignalCore/OSBundleUtils.h>
+#import <OneSignalCore/OneSignalLog.h>
 
 @implementation UIApplication (OneSignal)
 
@@ -46,6 +47,7 @@
     if (scene) {
         return scene.coordinateSpace.bounds;
     }
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"No key window scene; sizing in-app message to the screen, which may not match the app's window"];
     return UIScreen.mainScreen.bounds;
 }
 
