@@ -77,6 +77,8 @@
 // This recognizer lets the user pan (swipe) the message up and down
 @property (weak, nonatomic, nullable) UIPanGestureRecognizer *panGestureRecognizer;
 
+@property (nonatomic) BOOL didWarnSceneViewFallback;
+
 // This tap recognizer lets us dismiss the message if the user taps the background
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
 
@@ -392,10 +394,23 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 - (UIView *)sceneView {
     // Content loads before this message has a window
     UIWindowScene *scene = self.view.window.windowScene ?: UIApplication.sharedApplication.keyWindow.windowScene;
+    // Lowest level wins so the app's own window is preferred over alerts and other overlays
+    UIWindow *match;
     for (UIWindow *window in scene.windows) {
-        if (window != self.view.window && CGRectEqualToRect(window.frame, scene.coordinateSpace.bounds)) {
-            return window;
+        if (window == self.view.window || window.hidden || !CGRectEqualToRect(window.frame, scene.coordinateSpace.bounds)) {
+            continue;
         }
+        if (!match || window.windowLevel < match.windowLevel) {
+            match = window;
+        }
+    }
+    if (match) {
+        return match;
+    }
+    // Runs on every layout pass, so warn only once per message
+    if (!self.didWarnSceneViewFallback) {
+        self.didWarnSceneViewFallback = true;
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"In-app message found no full screen app window; using its own window's insets"];
     }
     return self.view;
 }
