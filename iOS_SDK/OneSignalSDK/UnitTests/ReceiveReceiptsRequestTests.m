@@ -29,7 +29,6 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalExtension/OneSignalExtension.h>
 
-/// Keeps the one request the controller hands to the shared client and answers it with an empty body.
 @interface OSReceiveReceiptsRecordingClient : NSObject <IOneSignalClient>
 @property (strong, nonatomic, nullable) OneSignalRequest *lastRequest;
 @property (strong, nonatomic, nullable) XCTestExpectation *executed;

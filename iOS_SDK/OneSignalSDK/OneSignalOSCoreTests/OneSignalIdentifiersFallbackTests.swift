@@ -105,7 +105,7 @@ final class OneSignalIdentifiersFallbackTests: XCTestCase {
         XCTAssertNil(OneSignalIdentifiers.subscriptionId)
     }
 
-    // MARK: - onesignalId (shared UserDefaults only, no mirror)
+    // MARK: - onesignalId
 
     func testOnesignalId_returnsUserDefaultsValue_whenUDPopulated() {
         OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: "onesignal_id_ud")
