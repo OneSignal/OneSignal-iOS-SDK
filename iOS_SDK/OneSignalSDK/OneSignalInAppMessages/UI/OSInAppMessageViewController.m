@@ -424,6 +424,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : sceneView.safeAreaInsets;
     CGFloat left = MAX(margin, safeArea.left);
     CGFloat right = MAX(margin, safeArea.right);
+    // Full screen content clears hardware itself, using the insets passed through setSafeAreaInsets
+    if (self.isFullscreen) {
+        return UIEdgeInsetsMake(0, left, 0, right);
+    }
     if (@available(iOS 27.1, *)) {
         CGFloat width = sceneView.bounds.size.width;
         id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
