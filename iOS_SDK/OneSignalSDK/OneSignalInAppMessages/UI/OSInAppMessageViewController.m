@@ -34,6 +34,17 @@
 #import "OSSessionManager.h"
 #import "UIApplication+OneSignal.h"
 
+// iOS 27.1 reserved region API, declared here because release binaries are built with an older SDK
+@protocol OSReservedRegionKindClass
+- (id)occlusionRegionKind;
+@end
+@protocol OSReservedRegionQuerying
+- (NSArray *)reservedRegionsOfKind:(id)kind;
+@end
+@protocol OSReservedRegion
+@property (nonatomic, readonly) CGRect frame;
+@end
+
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
 #define MEDIUM_CONSTRAINT_PRIORITY 950.0f
@@ -398,10 +409,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : sceneView.safeAreaInsets;
     CGFloat left = MAX(margin, safeArea.left);
     CGFloat right = MAX(margin, safeArea.right);
-#if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
     if (@available(iOS 27.1, *)) {
         CGFloat width = sceneView.bounds.size.width;
-        for (UIViewReservedRegion *region in [sceneView reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+        id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
+        for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
             CGFloat minX = CGRectGetMinX(region.frame);
             CGFloat maxX = CGRectGetMaxX(region.frame);
             if (minX >= 1 && maxX <= safeArea.left + 1) {
@@ -411,7 +422,6 @@ OSInAppMessageInternal *_dismissingMessage = nil;
             }
         }
     }
-#endif
     return UIEdgeInsetsMake(0, left, 0, right);
 }
 
