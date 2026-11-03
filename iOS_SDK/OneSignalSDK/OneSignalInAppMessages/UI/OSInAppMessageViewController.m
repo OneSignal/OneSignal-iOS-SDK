@@ -420,6 +420,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 // Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
 // from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
 // Regions flush with the edge, like a status bar column, are already covered by the safe area.
+// Region frames already include UIKit's interactive margins; the message margin is added on top.
 - (UIEdgeInsets)horizontalInsets {
     UIView *sceneView = [self sceneView];
     CGFloat margin = self.useWidthMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
@@ -451,6 +452,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         return;
     }
     UIEdgeInsets insets = [self horizontalInsets];
+    self.messageView.horizontalInsets = insets;
     // Only assign changes, since this runs on every layout pass
     if (self.leftConstraint.constant != insets.left) {
         self.leftConstraint.constant = insets.left;
@@ -505,6 +507,11 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenScale];
     let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:heightMessage];
+    UIView *sceneView = [self sceneView];
+    let layoutMessage = [NSString stringWithFormat:@"In App Message layout: scene view %@ (level %.0f) bounds %@ safe area %@ horizontal insets %@",
+                         NSStringFromClass(sceneView.class), sceneView.window.windowLevel, NSStringFromCGRect(sceneView.bounds),
+                         NSStringFromUIEdgeInsets(sceneView.safeAreaInsets), NSStringFromUIEdgeInsets([self horizontalInsets])];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:layoutMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
@@ -984,8 +991,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             
-            // Assign new height to message
-            self.message.height = newHeight;
+            // Keep the previous height if JS couldn't measure the page
+            if (newHeight) {
+                self.message.height = newHeight;
+            }
             
             // Add all of the constraints using the new message height obtained from JS code
             [self addConstraintsForMessage];

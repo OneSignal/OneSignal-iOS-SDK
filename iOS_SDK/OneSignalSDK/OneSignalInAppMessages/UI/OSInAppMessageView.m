@@ -155,6 +155,9 @@
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+            // Still complete so a rotation or fold re-shows the message at its previous height
+            [self setupWebViewConstraints];
+            completion(nil);
             return;
         }
         NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
