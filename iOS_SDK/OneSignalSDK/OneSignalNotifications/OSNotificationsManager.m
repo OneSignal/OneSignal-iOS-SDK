@@ -742,9 +742,12 @@ static NSString *_lastnonActiveMessageId;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
         // Only an open that brings the app forward starts or continues a session because of it.
         if (messageId.length > 0 && applicationState == UIApplicationStateInactive
-            && [self openBringsAppForward:notification actionID:actionID]
-            && OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
-            [OSSessionService onNotificationOpened:messageId];
+            && [self openBringsAppForward:notification actionID:actionID]) {
+            if (OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
+                [OSSessionService onNotificationOpened:messageId];
+            else
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Notification open not attributed to a session, direct influence is disabled"];
+        }
     }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];
