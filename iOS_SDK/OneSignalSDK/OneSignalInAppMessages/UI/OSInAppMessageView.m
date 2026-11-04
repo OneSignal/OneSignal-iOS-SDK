@@ -171,13 +171,8 @@
     }];
 }
 
-- (void)updateSafeAreaInsets {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGFloat top = keyWindow.safeAreaInsets.top;
-    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-    CGFloat right = keyWindow.safeAreaInsets.right;
-    CGFloat left = keyWindow.safeAreaInsets.left;
-    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+- (void)updateSafeAreaInsets:(UIEdgeInsets)insets {
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ, insets.top, insets.bottom, insets.right, insets.left];
 
     NSString *setInsetsString = [NSString stringWithFormat:OS_SET_SAFE_AREA_INSETS_METHOD, safeAreaInsetsObjectString];
     [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {

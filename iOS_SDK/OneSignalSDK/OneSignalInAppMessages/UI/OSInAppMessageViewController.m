@@ -168,6 +168,14 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     }
 }
 
+// The HTML was given the app's insets, and a page resize doesn't always follow to correct them
+- (void)viewSafeAreaInsetsDidChange {
+    [super viewSafeAreaInsetsDidChange];
+    if (self.isFullscreen && self.didPageRenderingComplete) {
+        [self updateContentInsets];
+    }
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
@@ -326,21 +334,31 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 
 - (NSString *)setContentInsetsInHTML:(NSString *)html {
     NSMutableString *newHTML = [[NSMutableString alloc] initWithString:html];
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    if (!keyWindow) {
+    UIWindow *window = [self contentInsetsWindow];
+    if (!window) {
         return newHTML;
     }
-    CGFloat top = keyWindow.safeAreaInsets.top;
-    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-    CGFloat right = keyWindow.safeAreaInsets.right;
-    CGFloat left = keyWindow.safeAreaInsets.left;
-    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+    UIEdgeInsets insets = window.safeAreaInsets;
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ, insets.top, insets.bottom, insets.right, insets.left];
     NSString *insetsString = [NSString stringWithFormat:@"\n\n\
                              <script> \
                                 setSafeAreaInsets(%@);\
                              </script>",safeAreaInsetsObjectString];
     [newHTML appendString: insetsString];
     return newHTML;
+}
+
+// This message's own window hides the status bar, so its insets can differ from the app's.
+// Content loads before that window exists, so the app's insets stand in until it does.
+- (UIWindow *)contentInsetsWindow {
+    return self.viewIfLoaded.window ?: UIApplication.sharedApplication.keyWindow;
+}
+
+- (void)updateContentInsets {
+    UIWindow *window = [self contentInsetsWindow];
+    if (window) {
+        [self.messageView updateSafeAreaInsets:window.safeAreaInsets];
+    }
 }
 
 - (void)setWaitForTags:(BOOL)waitForTags {
@@ -876,7 +894,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
                 // Currently used for fullscreen IAMs to account for safe area changes
                 // self.message.height = event.resize.height;
                 if (self.isFullscreen) {
-                    [self.messageView updateSafeAreaInsets];
+                    [self updateContentInsets];
                 }
                 break;
             }
