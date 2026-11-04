@@ -360,6 +360,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_CREATE_SESSION_DELTA                                             @"OS_CREATE_SESSION_DELTA"
 #define OS_UPDATE_SESSION_DELTA                                             @"OS_UPDATE_SESSION_DELTA"
+#define OS_ATTRIBUTE_SESSION_DELTA                                          @"OS_ATTRIBUTE_SESSION_DELTA"
 
 // Operation Repo
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"

@@ -28,7 +28,7 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-/// Keys of the value an `OS_CREATE_SESSION_DELTA` or `OS_UPDATE_SESSION_DELTA` carries. The Delta's
+/// Keys of the value a session Delta carries. The Delta's
 /// `property` is the local session ID.
 enum OSSessionDeltaKey {
     static let appId = "app_id"
@@ -75,7 +75,8 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     let appId: String
     let localSessionId: String
     let startTime: Date
-    let directAttributionId: String?
+    /// Fixed by the first send, like the IDs.
+    private(set) var directAttributionId: String?
     var identityModel: OSIdentityModel
     /// See the ownership convention in `OSUserRequest.swift`.
     let ownerExternalId: String?
@@ -83,6 +84,8 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
     private(set) var onesignalId: String?
     private(set) var subscriptionId: String?
     var missingSessionIdAttempts = 0
+    /// Persisted, since an attribution queued before a kill can arrive after the create was sent.
+    private var prepared = false
 
     /// The sessions API takes no user JWT.
     var sendsUnsigned: Bool { true }
@@ -126,6 +129,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         }
         self.onesignalId = onesignalId
         self.subscriptionId = subscriptionId
+        prepared = true
         var parameters: [String: Any] = [
             "onesignal_id": onesignalId,
             "subscription_id": subscriptionId,
@@ -140,6 +144,15 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         return true
     }
 
+    /// Returns false once the create was sent, since a replay must send the same body.
+    func attribute(to notificationId: String) -> Bool {
+        guard !prepared else {
+            return false
+        }
+        directAttributionId = notificationId
+        return true
+    }
+
     func encode(with coder: NSCoder) {
         coder.encode(appId, forKey: "appId")
         coder.encode(localSessionId, forKey: "localSessionId")
@@ -150,6 +163,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         coder.encode(onesignalId, forKey: "onesignalId")
         coder.encode(subscriptionId, forKey: "subscriptionId")
         coder.encode(missingSessionIdAttempts, forKey: "missingSessionIdAttempts")
+        coder.encode(prepared, forKey: "prepared")
         coder.encode(timestamp, forKey: "timestamp")
     }
 
@@ -171,6 +185,7 @@ final class OSRequestCreateSession: OneSignalRequest, OSSessionRequest {
         self.onesignalId = coder.decodeObject(forKey: "onesignalId") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
         self.missingSessionIdAttempts = coder.decodeInteger(forKey: "missingSessionIdAttempts")
+        self.prepared = coder.decodeBool(forKey: "prepared")
         super.init()
         self.method = POST
         self.timestamp = timestamp

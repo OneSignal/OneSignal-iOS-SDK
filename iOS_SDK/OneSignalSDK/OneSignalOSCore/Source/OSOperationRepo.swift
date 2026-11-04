@@ -252,7 +252,8 @@ public class OSOperationRepo: NSObject {
     private static let deltasExemptFromIdentityVerification: Set<String> = [
         OS_UPDATE_SUBSCRIPTION_DELTA,
         OS_CREATE_SESSION_DELTA,
-        OS_UPDATE_SESSION_DELTA
+        OS_UPDATE_SESSION_DELTA,
+        OS_ATTRIBUTE_SESSION_DELTA
     ]
 
     private func flushDeltaQueue(inBackground: Bool = false) {

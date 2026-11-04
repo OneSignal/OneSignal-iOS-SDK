@@ -186,6 +186,40 @@ extension SessionRecordUserTests {
         client.releaseHeldResponses()
     }
 
+    func testOpenBeforeTheSessionStartsIsOnItsCreate() {
+        enableSessionsApi()
+        client.holdResponses = true
+
+        OSSessionService.onNotificationOpened("notification-id")
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+
+        XCTAssertEqual(queuedSessionCreates().first?.directAttributionId, "notification-id")
+        client.releaseHeldResponses()
+    }
+
+    func testOpenAfterTheLaunchSessionStartsIsFoldedIntoItsCreate() {
+        enableSessionsApi()
+        client.holdResponses = true
+
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        OSSessionService.onNotificationOpened("notification-id")
+
+        let creates = queuedSessionCreates()
+        XCTAssertEqual(creates.count, 1)
+        XCTAssertEqual(creates.first?.directAttributionId, "notification-id")
+        client.releaseHeldResponses()
+    }
+
+    func testNormalStartHasNoAttribution() {
+        enableSessionsApi()
+        client.holdResponses = true
+
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+
+        XCTAssertNil(queuedSessionCreates().first?.directAttributionId)
+        client.releaseHeldResponses()
+    }
+
     func testEachNewSessionQueuesItsOwnCreate() {
         enableSessionsApi()
         client.holdResponses = true
