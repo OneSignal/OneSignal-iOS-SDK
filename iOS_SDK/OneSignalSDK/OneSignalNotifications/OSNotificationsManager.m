@@ -715,8 +715,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* messageId = [customDict objectForKey:@"i"];
     [self submitNotificationOpened:messageId];
     
-    let applicationState = [UIApplication sharedApplication].applicationState;
-    let isActive = applicationState == UIApplicationStateActive;
+    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
                                      isActive ? @"YES" : @"NO", messageId]];
@@ -741,8 +740,7 @@ static NSString *_lastnonActiveMessageId;
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
         // Only an open that brings the app forward starts or continues a session because of it.
-        if (messageId.length > 0 && applicationState == UIApplicationStateInactive
-            && [self openBringsAppForward:notification actionID:actionID]) {
+        if (messageId.length > 0 && [self openBringsAppForward:notification actionID:actionID]) {
             if (OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
                 [OSSessionService onNotificationOpened:messageId];
             else
