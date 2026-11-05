@@ -32,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Each side is the larger of the margin and its safe area inset. Region frames are in the scene
 // view's coordinates; one sitting inside a side safe area, not flush with the edge, adds clearance.
+// Both checks allow 1pt of slack: within 1pt of the screen edge counts as flush, and up to 1pt past
+// the safe area edge still counts as inside.
 // Full screen messages ignore the safe area and regions.
 + (UIEdgeInsets)horizontalInsetsWithMargin:(CGFloat)margin
                                   safeArea:(UIEdgeInsets)safeArea

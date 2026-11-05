@@ -104,6 +104,28 @@ final class OSInAppMessageInsetsTests: XCTestCase {
 
     func testRegionWithinOnePointOfSafeAreaEdge_addsClearance() {
         let region = CGRect(x: 10, y: 100, width: 50, height: 80)
-        XCTAssertEqual(insets(regions: [region]).left, 84)
+        XCTAssertEqual(insets(regions: [region]), UIEdgeInsets(top: 0, left: 84, bottom: 0, right: 47))
+    }
+
+    func testRightRegionWithinOnePointOfSafeAreaEdge_addsClearance() {
+        let region = CGRect(x: 752, y: 100, width: 30, height: 80)
+        XCTAssertEqual(insets(regions: [region]), UIEdgeInsets(top: 0, left: 59, bottom: 0, right: 72))
+    }
+
+    func testRegionStartingAtOnePoint_addsClearance() {
+        let region = CGRect(x: 1, y: 100, width: 40, height: 80)
+        XCTAssertEqual(insets(regions: [region]), UIEdgeInsets(top: 0, left: 65, bottom: 0, right: 47))
+    }
+
+    func testTwoRegionsOnLeftSide_keepLargerClearance() {
+        let regions = [CGRect(x: 10, y: 100, width: 40, height: 80), CGRect(x: 10, y: 200, width: 30, height: 80)]
+        XCTAssertEqual(insets(regions: regions), UIEdgeInsets(top: 0, left: 74, bottom: 0, right: 47))
+        XCTAssertEqual(insets(regions: regions.reversed()), UIEdgeInsets(top: 0, left: 74, bottom: 0, right: 47))
+    }
+
+    func testTwoRegionsOnRightSide_keepLargerClearance() {
+        let regions = [CGRect(x: 760, y: 100, width: 30, height: 80), CGRect(x: 790, y: 100, width: 5, height: 80)]
+        XCTAssertEqual(insets(regions: regions), UIEdgeInsets(top: 0, left: 59, bottom: 0, right: 64))
+        XCTAssertEqual(insets(regions: regions.reversed()), UIEdgeInsets(top: 0, left: 59, bottom: 0, right: 64))
     }
 }
