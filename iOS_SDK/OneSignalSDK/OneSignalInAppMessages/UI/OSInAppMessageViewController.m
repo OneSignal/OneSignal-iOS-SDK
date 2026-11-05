@@ -32,6 +32,19 @@
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSMacros.h"
 #import "OSSessionManager.h"
+#import "UIApplication+OneSignal.h"
+
+// iOS 27.1 reserved region API, declared here because release binaries are built with an older SDK.
+// Remove these and call the UIKit API directly once releases build with the iOS 27.1 SDK.
+@protocol OSReservedRegionKindClass
+- (id)occlusionRegionKind;
+@end
+@protocol OSReservedRegionQuerying
+- (NSArray *)reservedRegionsOfKind:(id)kind;
+@end
+@protocol OSReservedRegion
+@property (nonatomic, readonly) CGRect frame;
+@end
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
@@ -53,8 +66,19 @@
 // This constraint enforces an aspect ratio for the given message type (ie. banner)
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *heightConstraint;
 
+// These pin the message view to the left & right, updated as the safe area changes
+@property (strong, nonatomic, nullable) NSLayoutConstraint *leftConstraint;
+@property (strong, nonatomic, nullable) NSLayoutConstraint *rightConstraint;
+
+// Area the message is laid out in vertically, inset by the larger of the margin and the safe area
+@property (strong, nonatomic, nullable) UILayoutGuide *verticalGuide;
+@property (strong, nonatomic, nullable) NSLayoutConstraint *verticalGuideTopConstraint;
+@property (strong, nonatomic, nullable) NSLayoutConstraint *verticalGuideBottomConstraint;
+
 // This recognizer lets the user pan (swipe) the message up and down
 @property (weak, nonatomic, nullable) UIPanGestureRecognizer *panGestureRecognizer;
+
+@property (nonatomic) BOOL didWarnSceneViewFallback;
 
 // This tap recognizer lets us dismiss the message if the user taps the background
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
@@ -134,6 +158,26 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    // Resizable scenes (e.g. an unfolded display) don't re-query prefersStatusBarHidden when this window becomes key
+    if (self.isFullscreen) {
+        [self setNeedsStatusBarAppearanceUpdate];
+        // The insets may have settled before this view had a window, so no change callback follows
+        if (self.didPageRenderingComplete) {
+            [self updateContentInsets];
+        }
+    }
+}
+
+// The HTML was given the app's insets, and a page resize doesn't always follow to correct them
+- (void)viewSafeAreaInsetsDidChange {
+    [super viewSafeAreaInsetsDidChange];
+    if (self.isFullscreen && self.didPageRenderingComplete) {
+        [self updateContentInsets];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -288,26 +332,37 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     if (self.isFullscreen) {
         self.pendingHTMLContent = [self setContentInsetsInHTML:self.pendingHTMLContent];
     }
+    self.messageView.horizontalInsets = [self horizontalInsets];
     [self.messageView setIsFullscreen:self.isFullscreen];
 }
 
 - (NSString *)setContentInsetsInHTML:(NSString *)html {
     NSMutableString *newHTML = [[NSMutableString alloc] initWithString:html];
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    if (!keyWindow) {
+    UIWindow *window = [self contentInsetsWindow];
+    if (!window) {
         return newHTML;
     }
-    CGFloat top = keyWindow.safeAreaInsets.top;
-    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-    CGFloat right = keyWindow.safeAreaInsets.right;
-    CGFloat left = keyWindow.safeAreaInsets.left;
-    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+    UIEdgeInsets insets = window.safeAreaInsets;
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ, insets.top, insets.bottom, insets.right, insets.left];
     NSString *insetsString = [NSString stringWithFormat:@"\n\n\
                              <script> \
                                 setSafeAreaInsets(%@);\
                              </script>",safeAreaInsetsObjectString];
     [newHTML appendString: insetsString];
     return newHTML;
+}
+
+// This message's own window hides the status bar, so its insets can differ from the app's.
+// Content loads before that window exists, so the app's insets stand in until it does.
+- (UIWindow *)contentInsetsWindow {
+    return self.viewIfLoaded.window ?: UIApplication.sharedApplication.keyWindow;
+}
+
+- (void)updateContentInsets {
+    UIWindow *window = [self contentInsetsWindow];
+    if (window) {
+        [self.messageView updateSafeAreaInsets:window.safeAreaInsets];
+    }
 }
 
 - (void)setWaitForTags:(BOOL)waitForTags {
@@ -342,6 +397,94 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:message];
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self updateHorizontalInsets];
+    [self updateVerticalInsets];
+}
+
+// Like the sides, the top and bottom use the larger of the margin and the safe area rather than their sum
+- (void)updateVerticalInsets {
+    if (!self.verticalGuideTopConstraint || !self.verticalGuideBottomConstraint) return;
+    CGFloat margin = self.useHeightMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
+    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : self.view.safeAreaInsets;
+    CGFloat top = MAX(margin, safeArea.top);
+    CGFloat bottom = MAX(margin, safeArea.bottom);
+    if (self.verticalGuideTopConstraint.constant != top) self.verticalGuideTopConstraint.constant = top;
+    if (self.verticalGuideBottomConstraint.constant != bottom) self.verticalGuideBottomConstraint.constant = bottom;
+}
+
+// The app's full screen window. Its safe area and reserved regions cover the whole scene and stay
+// stable during size transitions, unlike the banner sized window this message is shown in.
+- (UIView *)sceneView {
+    // Content loads before this message has a window
+    UIWindowScene *scene = self.view.window.windowScene ?: UIApplication.sharedApplication.keyWindow.windowScene;
+    // Lowest level wins so the app's own window is preferred over alerts and other overlays
+    UIWindow *match;
+    for (UIWindow *window in scene.windows) {
+        if (window == self.view.window || window.hidden || !CGRectEqualToRect(window.frame, scene.coordinateSpace.bounds)) {
+            continue;
+        }
+        if (!match || window.windowLevel < match.windowLevel) {
+            match = window;
+        }
+    }
+    if (match) {
+        return match;
+    }
+    // Runs on every layout pass, so warn only once per message
+    if (!self.didWarnSceneViewFallback) {
+        self.didWarnSceneViewFallback = true;
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"In-app message found no full screen app window; using its own window's insets"];
+    }
+    return self.view;
+}
+
+// Each side uses the larger of the margin and its safe area inset, and on iOS 27.1+ keeps the margin
+// from hardware inside a side safe area (e.g. a foldable's camera), matching system notification banners.
+// Regions flush with the edge, like a status bar column, are already covered by the safe area.
+// Region frames already include UIKit's interactive margins; the message margin is added on top.
+- (UIEdgeInsets)horizontalInsets {
+    UIView *sceneView = [self sceneView];
+    CGFloat margin = self.useWidthMargin ? [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN] : 0;
+    UIEdgeInsets safeArea = self.isFullscreen ? UIEdgeInsetsZero : sceneView.safeAreaInsets;
+    CGFloat left = MAX(margin, safeArea.left);
+    CGFloat right = MAX(margin, safeArea.right);
+    // Full screen content clears hardware itself, using the insets passed through setSafeAreaInsets
+    if (self.isFullscreen) {
+        return UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (@available(iOS 27.1, *)) {
+        CGFloat width = sceneView.bounds.size.width;
+        id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
+        for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
+            CGFloat minX = CGRectGetMinX(region.frame);
+            CGFloat maxX = CGRectGetMaxX(region.frame);
+            if (minX >= 1 && maxX <= safeArea.left + 1) {
+                left = MAX(left, maxX + margin);
+            } else if (maxX <= width - 1 && minX >= width - safeArea.right - 1) {
+                right = MAX(right, width - minX + margin);
+            }
+        }
+    }
+    return UIEdgeInsetsMake(0, left, 0, right);
+}
+
+- (void)updateHorizontalInsets {
+    if (!self.leftConstraint || !self.rightConstraint) {
+        return;
+    }
+    UIEdgeInsets insets = [self horizontalInsets];
+    self.messageView.horizontalInsets = insets;
+    // Only assign changes, since this runs on every layout pass
+    if (self.leftConstraint.constant != insets.left) {
+        self.leftConstraint.constant = insets.left;
+    }
+    if (self.rightConstraint.constant != insets.right) {
+        self.rightConstraint.constant = insets.right;
+    }
+}
+
 /*
  Sets up the message view in its initial (hidden) position
  Adds constraints so that the message view has the correct size
@@ -354,28 +497,29 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"addConstraintsForMessage: messageView is not a subview of OSInAppMessageViewController"];
         [self.view addSubview:self.messageView];
     }
-    
-    // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
-    NSLayoutAnchor *top = self.view.topAnchor,
-                   *bottom = self.view.bottomAnchor,
-                   *leading = self.view.leadingAnchor,
-                   *trailing = self.view.trailingAnchor,
-                   *center = self.view.centerXAnchor;
-    NSLayoutDimension *height = self.view.heightAnchor;
-    
-    // The safe area represents the anchors that are not obscurable by  UI such
-    // as a notch or a rounded corner on newer iOS devices like iPhone X
-    if (!self.isFullscreen) {
-        let safeArea = self.view.safeAreaLayoutGuide;
-        top = safeArea.topAnchor;
-        bottom = safeArea.bottomAnchor;
-        leading = safeArea.leadingAnchor;
-        trailing = safeArea.trailingAnchor;
-        center = safeArea.centerXAnchor;
-        height = safeArea.heightAnchor;
+
+    // Size transitions call this again, possibly before the appearance animation lowers the initial
+    // Y constraint, so remove the previous constraints or a stale one keeps the message offscreen.
+    let previousConstraints = [self.view.constraints filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"firstItem == %@ OR secondItem == %@", self.messageView, self.messageView]];
+    [NSLayoutConstraint deactivateConstraints:previousConstraints];
+    self.heightConstraint.active = false;
+
+    if (!self.verticalGuide) {
+        self.verticalGuide = [UILayoutGuide new];
+        [self.view addLayoutGuide:self.verticalGuide];
+        self.verticalGuideTopConstraint = [self.verticalGuide.topAnchor constraintEqualToAnchor:self.view.topAnchor];
+        self.verticalGuideBottomConstraint = [self.view.bottomAnchor constraintEqualToAnchor:self.verticalGuide.bottomAnchor];
+        [NSLayoutConstraint activateConstraints:@[
+            self.verticalGuideTopConstraint,
+            self.verticalGuideBottomConstraint,
+            [self.verticalGuide.leftAnchor constraintEqualToAnchor:self.view.leftAnchor],
+            [self.verticalGuide.rightAnchor constraintEqualToAnchor:self.view.rightAnchor]
+        ]];
     }
+    [self updateVerticalInsets];
+    NSLayoutDimension *height = self.verticalGuide.heightAnchor;
     
-    CGRect mainBounds = [OneSignalCoreHelper getScreenBounds];
+    CGRect mainBounds = [UIApplication displayBounds];
     CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
     
     let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
@@ -386,25 +530,29 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenScale];
     let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:heightMessage];
+    UIView *sceneView = [self sceneView];
+    let layoutMessage = [NSString stringWithFormat:@"In App Message layout: scene view %@ (level %.0f) bounds %@ safe area %@ horizontal insets %@ vertical insets top %.1f bottom %.1f",
+                         NSStringFromClass(sceneView.class), sceneView.window.windowLevel, NSStringFromCGRect(sceneView.bounds),
+                         NSStringFromUIEdgeInsets(sceneView.safeAreaInsets), NSStringFromUIEdgeInsets([self horizontalInsets]),
+                         self.verticalGuideTopConstraint.constant, self.verticalGuideBottomConstraint.constant];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:layoutMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
     if (self.message.position == OSInAppMessageDisplayPositionFullScreen)
-        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:(self.useHeightMargin ? (2*-marginSpacing) : 0)];
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
     
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
     // Makes sure our webview is never taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:(self.useHeightMargin ? (2*-marginSpacing) : 0)].active = true;
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height].active = true;
 
     // Pins the message view to the left & right
-    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:(self.useWidthMargin ? marginSpacing : 0)];
-    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:(self.useWidthMargin ? -marginSpacing : 0)];
-    
-    // Ensure the message view is always centered horizontally
-    [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
+    self.leftConstraint = [self.messageView.leftAnchor constraintEqualToAnchor:self.view.leftAnchor];
+    self.rightConstraint = [self.view.rightAnchor constraintEqualToAnchor:self.messageView.rightAnchor];
+    [self updateHorizontalInsets];
     
     // Set Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
@@ -413,43 +561,36 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     double bannerWidth = mainBounds.size.width;
     double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
+    // Size banner windows from the scene's insets. This window's own insets shrink once it is banner
+    // sized and change mid transition, so relayouts would collapse or clip the message.
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop: {
-            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = [self sceneView].safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
             bannerHeight += statusBarHeight;
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
-            self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
-                                                                               constant:(self.useHeightMargin ? marginSpacing : 0)];
-            self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
-                                                                                    constant:(self.useHeightMargin ? marginSpacing : 0)];
+            self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.verticalGuide.topAnchor];
+            self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.verticalGuide.topAnchor];
             break;
         }
         case OSInAppMessageDisplayPositionBottom: {
-            UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+            UIEdgeInsets safeAreaInsets = [self sceneView].safeAreaInsets;
             bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
             bannerMessageY = mainBounds.size.height - bannerHeight;
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
-            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                  constant:(self.useHeightMargin ? -marginSpacing : 0)];
-            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                       constant:(self.useHeightMargin ? -marginSpacing : 0)];
+            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.verticalGuide.bottomAnchor];
+            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.verticalGuide.bottomAnchor];
             break;
         }
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
             self.view.window.frame = mainBounds;
-            NSLayoutAnchor *centerYanchor = self.view.centerYAnchor;
-            if (!self.isFullscreen) {
-                let safeArea = self.view.safeAreaLayoutGuide;
-                centerYanchor = safeArea.centerYAnchor;
-            }
-
+            NSLayoutAnchor *centerYanchor = self.verticalGuide.centerYAnchor;
             self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
             self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
             self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
@@ -466,8 +607,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.finalYConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
     self.panVerticalConstraint.priority = HIGHEST_CONSTRAINT_PRIORITY;
-    leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
-    rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    self.leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    self.rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
     
     // Constraints should all be active except for the panVerticalConstraint, which
     // is only active when the user is panning (swiping)
@@ -475,8 +616,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     self.heightConstraint.active = true;
     self.initialYConstraint.active = true;
     self.finalYConstraint.active = true;
-    leftConstraint.active = true;
-    rightConstraint.active = true;
+    self.leftConstraint.active = true;
+    self.rightConstraint.active = true;
     
     // Adding all of these constraints has caused the view's needsLayout property
     // to become true, so when we call layoutIfNeeded, it causes the view
@@ -758,7 +899,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
                 // Currently used for fullscreen IAMs to account for safe area changes
                 // self.message.height = event.resize.height;
                 if (self.isFullscreen) {
-                    [self.messageView updateSafeAreaInsets];
+                    [self updateContentInsets];
                 }
                 break;
             }
@@ -870,11 +1011,14 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
         
         // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
-        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
+        self.messageView.horizontalInsets = [self horizontalInsets];
+        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber * _Nullable newHeight) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             
-            // Assign new height to message
-            self.message.height = newHeight;
+            // Keep the previous height if JS couldn't measure the page
+            if (newHeight) {
+                self.message.height = newHeight;
+            }
             
             // Add all of the constraints using the new message height obtained from JS code
             [self addConstraintsForMessage];
