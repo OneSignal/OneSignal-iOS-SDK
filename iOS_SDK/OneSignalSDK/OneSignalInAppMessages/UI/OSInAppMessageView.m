@@ -30,6 +30,7 @@
 #import "OSInAppMessageClickResult.h"
 #import <OneSignalUser/OneSignalUser.h>
 #import "OSMacros.h"
+#import "UIApplication+OneSignal.h"
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
@@ -101,7 +102,7 @@
     
     // WebView should use mainBounds as frame since we need to make sure it spans full possible screen size
     // to prevent text wrapping while obtaining true height of message from JS
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    CGRect mainBounds = [UIApplication displayBounds];
     mainBounds.size.width -= (2.0 * marginSpacing);
     
     // Setup WebView, delegates, and disable scrolling inside of the WebView
@@ -132,11 +133,8 @@
 }
 
 - (void)setWebviewFrame {
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
-    if (!self.isFullscreen) {
-        CGFloat marginSpacing = [OneSignalCoreHelper sizeToScale:MESSAGE_MARGIN];
-        mainBounds.size.width -= (2.0 * marginSpacing);
-    }
+    CGRect mainBounds = [UIApplication displayBounds];
+    mainBounds.size.width -= self.horizontalInsets.left + self.horizontalInsets.right;
     [self.webView setFrame:mainBounds];
 }
 
@@ -145,7 +143,7 @@
  WebView will have margins accounted for on width, but height just needs to be phone height or larger
  The issue is that text wrapping can cause incorrect height issues so width is the real concern here
  */
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber * _Nullable newHeight)) completion {
     [self.webView removeConstraints:[self.webView constraints]];
     
    
@@ -157,6 +155,9 @@
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+            // Still complete so a rotation or fold re-shows the message at its previous height
+            [self setupWebViewConstraints];
+            completion(nil);
             return;
         }
         NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
@@ -170,13 +171,8 @@
     }];
 }
 
-- (void)updateSafeAreaInsets {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGFloat top = keyWindow.safeAreaInsets.top;
-    CGFloat bottom = keyWindow.safeAreaInsets.bottom;
-    CGFloat right = keyWindow.safeAreaInsets.right;
-    CGFloat left = keyWindow.safeAreaInsets.left;
-    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+- (void)updateSafeAreaInsets:(UIEdgeInsets)insets {
+    NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ, insets.top, insets.bottom, insets.right, insets.left];
 
     NSString *setInsetsString = [NSString stringWithFormat:OS_SET_SAFE_AREA_INSETS_METHOD, safeAreaInsetsObjectString];
     [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {

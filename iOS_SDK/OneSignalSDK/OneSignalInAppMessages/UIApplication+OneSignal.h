@@ -28,4 +28,5 @@
 #import <UIKit/UIKit.h>
 @interface UIApplication (OneSignal)
 + (BOOL)applicationIsActive;
++ (CGRect)displayBounds;
 @end

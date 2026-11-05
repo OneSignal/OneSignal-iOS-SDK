@@ -41,10 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSInAppMessageView : UIView <WKNavigationDelegate>
 
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
+// Left & right space around the message, so content is laid out at the width it is displayed at
+@property (nonatomic) UIEdgeInsets horizontalInsets;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion;
-- (void)updateSafeAreaInsets;
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber * _Nullable newHeight)) completion;
+- (void)updateSafeAreaInsets:(UIEdgeInsets)insets;
 - (void)setupWebViewConstraints;
 - (void)loadReplacementURL:(NSURL *)url;
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
