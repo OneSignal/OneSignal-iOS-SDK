@@ -143,7 +143,7 @@
  WebView will have margins accounted for on width, but height just needs to be phone height or larger
  The issue is that text wrapping can cause incorrect height issues so width is the real concern here
  */
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber * _Nullable newHeight)) completion {
     [self.webView removeConstraints:[self.webView constraints]];
     
    

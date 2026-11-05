@@ -165,6 +165,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // Resizable scenes (e.g. an unfolded display) don't re-query prefersStatusBarHidden when this window becomes key
     if (self.isFullscreen) {
         [self setNeedsStatusBarAppearanceUpdate];
+        // The insets may have settled before this view had a window, so no change callback follows
+        if (self.didPageRenderingComplete) {
+            [self updateContentInsets];
+        }
     }
 }
 
@@ -527,9 +531,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:heightMessage];
     UIView *sceneView = [self sceneView];
-    let layoutMessage = [NSString stringWithFormat:@"In App Message layout: scene view %@ (level %.0f) bounds %@ safe area %@ horizontal insets %@",
+    let layoutMessage = [NSString stringWithFormat:@"In App Message layout: scene view %@ (level %.0f) bounds %@ safe area %@ horizontal insets %@ vertical insets top %.1f bottom %.1f",
                          NSStringFromClass(sceneView.class), sceneView.window.windowLevel, NSStringFromCGRect(sceneView.bounds),
-                         NSStringFromUIEdgeInsets(sceneView.safeAreaInsets), NSStringFromUIEdgeInsets([self horizontalInsets])];
+                         NSStringFromUIEdgeInsets(sceneView.safeAreaInsets), NSStringFromUIEdgeInsets([self horizontalInsets]),
+                         self.verticalGuideTopConstraint.constant, self.verticalGuideBottomConstraint.constant];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:layoutMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
@@ -1007,7 +1012,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         
         // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
         self.messageView.horizontalInsets = [self horizontalInsets];
-        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
+        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber * _Nullable newHeight) {
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             
             // Keep the previous height if JS couldn't measure the page
