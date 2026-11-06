@@ -73,6 +73,7 @@
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_TEMP_CACHED_NOTIFICATION_MEDIA                                 @"OSUD_TEMP_CACHED_NOTIFICATION_MEDIA"                              // OSUD_TEMP_CACHED_NOTIFICATION_MEDIA
+#define OSUD_NSE_PROCESSED_NOTIFICATION_IDS                                 @"OSUD_NSE_PROCESSED_NOTIFICATION_IDS"
 // Remote Params
 #define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
 #define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
@@ -251,6 +252,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define DEVICE_TYPE_SMS 14
 
 #define MAX_NSE_LIFETIME_SECOUNDS 30
+#define MAX_NSE_PROCESSED_NOTIFICATION_IDS 50
 
 #ifndef OS_TEST
     // OneSignal API Client Defines
