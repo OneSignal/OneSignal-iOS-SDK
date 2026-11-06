@@ -414,6 +414,7 @@
 		91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */; };
 		9224347AAE3E092B5743380D /* UserJwtApiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DC5517E6EB5B26CF980CC5 /* UserJwtApiTests.swift */; };
 		AE95DD5B72F1D102F6D6062A /* XCTestCase+AsyncWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FC986DDF6546AB251EA0A7 /* XCTestCase+AsyncWork.swift */; };
+		5663A0010000000000000001 /* OSUserExecutor+Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5663A0010000000000000002 /* OSUserExecutor+Snapshot.swift */; };
 		94D9F5AFE86B16453A36C9A2 /* MockUserJwtInvalidatedListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F214EE6C5FE133672D6622F /* MockUserJwtInvalidatedListener.swift */; };
 		99B1615D0132AFAA981A9AD3 /* DeltaOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3881024646E7F0DE05158442 /* DeltaOwnershipTests.swift */; };
 		9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
@@ -1707,6 +1708,7 @@
 		7AFE856E2368DDC50091D6A5 /* OSFocusCallParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSFocusCallParams.h; sourceTree = "<group>"; };
 		80DC5517E6EB5B26CF980CC5 /* UserJwtApiTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserJwtApiTests.swift; sourceTree = "<group>"; };
 		54FC986DDF6546AB251EA0A7 /* XCTestCase+AsyncWork.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "XCTestCase+AsyncWork.swift"; sourceTree = "<group>"; };
+		5663A0010000000000000002 /* OSUserExecutor+Snapshot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "OSUserExecutor+Snapshot.swift"; sourceTree = "<group>"; };
 		8596A3E728FB90691E43BCA0 /* OSUrlPath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSUrlPath.swift; sourceTree = "<group>"; };
 		89DE5BB0EDD3964C20C5169F /* OSIdentityModelRepoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIdentityModelRepoTests.swift; sourceTree = "<group>"; };
 		911E2CBA1E398AB3003112A4 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2572,6 +2574,7 @@
 				B5809B47EB4F2478099697CE /* OSUserJwtRepoTests.swift */,
 				80DC5517E6EB5B26CF980CC5 /* UserJwtApiTests.swift */,
 				54FC986DDF6546AB251EA0A7 /* XCTestCase+AsyncWork.swift */,
+				5663A0010000000000000002 /* OSUserExecutor+Snapshot.swift */,
 				3881024646E7F0DE05158442 /* DeltaOwnershipTests.swift */,
 				047D8F5E1095A20C9C54FD33 /* OSRequestAuthTests.swift */,
 				3016921C1F6B7B7793F67567 /* RequestPathEncodingTests.swift */,
@@ -4783,6 +4786,7 @@
 				2DB99C76F3532383C3B81D09 /* OSUserJwtRepoTests.swift in Sources */,
 				9224347AAE3E092B5743380D /* UserJwtApiTests.swift in Sources */,
 				AE95DD5B72F1D102F6D6062A /* XCTestCase+AsyncWork.swift in Sources */,
+				5663A0010000000000000001 /* OSUserExecutor+Snapshot.swift in Sources */,
 				99B1615D0132AFAA981A9AD3 /* DeltaOwnershipTests.swift in Sources */,
 				1B7E5A0AEB23050C398E6111 /* ExecutorAnonymousPurgeTests.swift in Sources */,
 				D9F1B3E5A7C2495FC1E6B8D3 /* ExecutorRequestAgingTests.swift in Sources */,

@@ -94,7 +94,7 @@ final class UserJwtLifecycleTests: XCTestCase {
     }
 
     private func queuedUserRequests() -> [OSUserRequest] {
-        return OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue ?? []
+        return OneSignalUserManagerImpl.sharedInstance.userExecutor?.snapshotUserRequestQueue() ?? []
     }
 
     /// The `external_id` of every queued Create User, so a test can tell the anonymous one apart.
@@ -329,8 +329,9 @@ final class UserJwtLifecycleTests: XCTestCase {
 
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
         OneSignalCoreMocks.waitUntil("The rejected Create User was not parked") {
-            self.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1)
+            self.client.hasCompletedRequestOfType(OSRequestCreateUser.self, expectedCount: 1)
                 && self.queuedCreateUserExternalIds().contains(userA_EUID)
+                && OneSignalUserManagerImpl.sharedInstance.userJwtRepo.validJwt(externalId: userA_EUID) == nil
         }
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1))
 

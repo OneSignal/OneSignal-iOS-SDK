@@ -138,80 +138,42 @@ class OSConsistencyManagerTests: XCTestCase {
     }
 
     func testMultipleConditionsWithDifferentKeys() {
-        let expectation1 = self.expectation(description: "UserUpdate condition met")
-        let expectation2 = self.expectation(description: "SubscriptionUpdate condition met")
-
-        // Given
         let id = "test_id"
         let userUpdateKey = OSIamFetchOffsetKey.userUpdate
         let subscriptionUpdateKey = OSIamFetchOffsetKey.subscriptionUpdate
-        let userUpdateRywToken = "123"
-        let userUpdateRywDelay = 1 as NSNumber
-        let userUpdateRywData = OSReadYourWriteData(rywToken: userUpdateRywToken, rywDelay: userUpdateRywDelay)
-        let subscriptionUpdateRywToken = "456"
-        let subscriptionUpdateRywDelay = 1 as NSNumber
-        let subscriptionUpdateRywData = OSReadYourWriteData(rywToken: subscriptionUpdateRywToken, rywDelay: subscriptionUpdateRywDelay)
+        let userUpdateRywData = OSReadYourWriteData(rywToken: "123", rywDelay: 1 as NSNumber)
+        let subscriptionUpdateRywData = OSReadYourWriteData(rywToken: "456", rywDelay: 1 as NSNumber)
+        let userUpdateCondition = TestMetCondition(
+            expectedTokens: [id: [NSNumber(value: userUpdateKey.rawValue): userUpdateRywData]])
+        let subscriptionCondition = TestMetCondition(
+            expectedTokens: [id: [NSNumber(value: subscriptionUpdateKey.rawValue): subscriptionUpdateRywData]])
 
-        // Create a serial queue to prevent race conditions
-        let serialQueue = DispatchQueue(label: "com.consistencyManager.test.serialQueue")
-
-        // Register two conditions for different keys
-        let userUpdateCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: userUpdateKey.rawValue): userUpdateRywData]])
-        let subscriptionCondition = TestMetCondition(expectedTokens: [id: [NSNumber(value: subscriptionUpdateKey.rawValue): subscriptionUpdateRywData]])
-
-        // Set the userUpdate token first and verify its condition
-        serialQueue.async {
-            self.consistencyManager.setRywTokenAndDelay(
-                id: id,
-                key: userUpdateKey,
-                value: userUpdateRywData
-            )
-
-            // Introduce a short delay before checking the condition to ensure the token is set
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
-                let newestUserUpdateToken = self.registerConditionWithTimeout(userUpdateCondition, forId: id)
-                XCTAssertEqual(newestUserUpdateToken, userUpdateRywData)
-                expectation1.fulfill()
-            }
-        }
-
-        // Set the subscriptionUpdate token separately and verify its condition after a short delay
-        serialQueue.asyncAfter(deadline: .now() + 1.0) {
-            self.consistencyManager.setRywTokenAndDelay(
-                id: id,
-                key: subscriptionUpdateKey,
-                value: OSReadYourWriteData(rywToken: subscriptionUpdateRywToken, rywDelay: subscriptionUpdateRywDelay)
-            )
-
-            // Introduce a short delay before checking the condition to ensure the token is set
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
-                let subscriptionRywData = self.registerConditionWithTimeout(subscriptionCondition, forId: id)
-                XCTAssertEqual(subscriptionRywData?.rywToken, subscriptionUpdateRywToken)
-                expectation2.fulfill()
-            }
-        }
-
-        // Wait for both expectations to be fulfilled
-        wait(for: [expectation1, expectation2], timeout: 3.0)
-    }
-
-    private func registerConditionWithTimeout(_ condition: OSCondition, forId id: String) -> OSReadYourWriteData? {
-        // This function wraps the registerCondition method with a timeout for testing
-        let semaphore = DispatchSemaphore(value: 0)
-        var result: OSReadYourWriteData?
-
+        // Each waiter registers before its token arrives, so the token is what releases it.
+        let userUpdateReturned = expectation(description: "UserUpdate waiter returned")
+        var userUpdateResult: OSReadYourWriteData?
         DispatchQueue.global().async {
-            result = self.consistencyManager.getRywTokenFromAwaitableCondition(condition, forId: id)
-            semaphore.signal() // Signal once the condition is met
+            userUpdateResult = self.consistencyManager.getRywTokenFromAwaitableCondition(userUpdateCondition, forId: id)
+            userUpdateReturned.fulfill()
         }
+        OneSignalCoreMocks.waitUntil("UserUpdate waiter registered") { self.consistencyManager.waiterCount == 1 }
 
-        // Wait for up to 2 seconds to prevent hanging in tests
-        if semaphore.wait(timeout: .now() + 2.0) == .timedOut {
-            XCTFail("Condition was not met within the timeout period")
-            return nil
+        let subscriptionReturned = expectation(description: "SubscriptionUpdate waiter returned")
+        var subscriptionResult: OSReadYourWriteData?
+        DispatchQueue.global().async {
+            subscriptionResult = self.consistencyManager.getRywTokenFromAwaitableCondition(subscriptionCondition, forId: id)
+            subscriptionReturned.fulfill()
         }
+        OneSignalCoreMocks.waitUntil("SubscriptionUpdate waiter registered") { self.consistencyManager.waiterCount == 2 }
 
-        return result
+        consistencyManager.setRywTokenAndDelay(id: id, key: userUpdateKey, value: userUpdateRywData)
+        wait(for: [userUpdateReturned], timeout: 5.0)
+        XCTAssertEqual(userUpdateResult, userUpdateRywData)
+        // A token for another key must not release the other waiter.
+        XCTAssertEqual(consistencyManager.waiterCount, 1)
+
+        consistencyManager.setRywTokenAndDelay(id: id, key: subscriptionUpdateKey, value: subscriptionUpdateRywData)
+        wait(for: [subscriptionReturned], timeout: 5.0)
+        XCTAssertEqual(subscriptionResult?.rywToken, "456")
     }
 
     func testConditionMetImmediatelyAfterTokenAlreadySet() {
