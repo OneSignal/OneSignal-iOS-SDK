@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version number of the release (e.g., 5.2.15 or 5.2.3-beta-01)"
+        description: "Override the auto-detected version (e.g., 5.2.15 or 5.2.3-beta-01). Leave blank to auto-detect."
         type: string
-        required: true
+        required: false
       base_branch:
         description: "Target branch for the PR (e.g. main for regular releases, 5.3-main for 5.3.x releases)"
         type: string
@@ -24,24 +24,43 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Step 1: Use reusable workflow to prepare release branch
+  # Step 1: Determine the release version from merged PR titles since the last stable release
+  determine-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ inputs.version || steps.next_version.outputs.version }}
+      release_needed: ${{ inputs.version != '' || steps.next_version.outputs.release-needed == 'true' }}
+
+    steps:
+      - name: Determine next version
+        if: inputs.version == ''
+        id: next_version
+        uses: OneSignal/sdk-shared/.github/actions/determine-next-version@main
+        with:
+          github-token: ${{ github.token }}
+          target-repo: ${{ github.repository }}
+          target-branch: ${{ inputs.base_branch }}
+
+  # Step 2: Use reusable workflow to prepare release branch
   prep:
+    needs: determine-version
+    if: needs.determine-version.outputs.release_needed == 'true'
     uses: OneSignal/sdk-shared/.github/workflows/prep-release.yml@main
     with:
-      version: ${{ github.event.inputs.version }}
-      target_branch: ${{ github.event.inputs.base_branch }}
+      version: ${{ needs.determine-version.outputs.version }}
+      target_branch: ${{ inputs.base_branch }}
 
-  # Step 2: Update iOS-specific files and build binaries
+  # Step 3: Update iOS-specific files and build binaries
   update-and-build:
-    needs: prep
+    needs: [determine-version, prep]
     runs-on: macos-14
 
     outputs:
       version_from: ${{ steps.extract_version.outputs.current_version }}
 
     env:
-      VERSION: ${{ github.event.inputs.version }}
-      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      VERSION: ${{ needs.determine-version.outputs.version }}
+      BASE_BRANCH: ${{ inputs.base_branch }}
       RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Single source of truth for the XCFrameworks the Code Sign and Verify steps
@@ -186,22 +205,22 @@ jobs:
           git commit -m "chore: update Swift package"
           git push origin $RELEASE_BRANCH
 
-  # Step 3: Use reusable workflow to create iOS SDK PR with release notes
+  # Step 4: Use reusable workflow to create iOS SDK PR with release notes
   create-ios-pr:
     needs: [prep, update-and-build]
     uses: OneSignal/sdk-shared/.github/workflows/create-release.yml@main
     with:
       release_branch: ${{ needs.prep.outputs.release_branch }}
-      target_branch: ${{ github.event.inputs.base_branch }}
+      target_branch: ${{ inputs.base_branch }}
 
-  # Step 4: Update XCFramework repository
+  # Step 5: Update XCFramework repository
   update-xcframework:
-    needs: [prep, update-and-build, create-ios-pr]
+    needs: [determine-version, prep, update-and-build, create-ios-pr]
     runs-on: macos-14
 
     env:
-      VERSION: ${{ github.event.inputs.version }}
-      BASE_BRANCH: ${{ github.event.inputs.base_branch }}
+      VERSION: ${{ needs.determine-version.outputs.version }}
+      BASE_BRANCH: ${{ inputs.base_branch }}
       RELEASE_BRANCH: ${{ needs.prep.outputs.release_branch }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
