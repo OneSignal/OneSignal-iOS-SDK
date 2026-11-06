@@ -42,7 +42,7 @@ struct LogView: View {
             entryList
         }
         .frame(maxWidth: .infinity)
-        .background(OS.Color.logBackground)
+        .background(OS.Color.logBackground, ignoresSafeAreaEdges: .horizontal)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("log_view")
     }

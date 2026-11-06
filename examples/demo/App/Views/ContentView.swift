@@ -79,7 +79,8 @@ struct ContentView: View {
                 // Android's `scrollIntoView` `scrollableElement` param.
                 .accessibilityIdentifier("main_scroll_view")
             }
-            .background(OS.Color.lightBackground.ignoresSafeArea())
+            .background(OS.Color.lightBackground.ignoresSafeArea(edges: [.horizontal, .bottom]))
+            .background(OS.Color.primary.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(OS.Color.primary, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
