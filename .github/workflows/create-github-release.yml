@@ -24,7 +24,7 @@ jobs:
   get-version:
     if: |
       github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.title, 'Release')
+      startsWith(github.event.pull_request.head.ref, 'rel/')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract_version.outputs.version }}
