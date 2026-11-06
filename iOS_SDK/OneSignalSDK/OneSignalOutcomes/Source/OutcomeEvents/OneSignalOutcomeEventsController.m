@@ -280,7 +280,14 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
     OSOutcomeSource *source = [[OSOutcomeSource alloc] initWithDirectBody:directSourceBody indirectBody:indirectSourceBody];
     OSOutcomeEventParams *eventParams = [[OSOutcomeEventParams alloc] initWithOutcomeId:name outcomeSource:source weight:weight timestamp:[NSNumber numberWithDouble:timestamp]];
     
-    [_outcomeEventsFactory.repository requestMeasureOutcomeEventWithAppId:appId deviceType:deviceType event:eventParams onSuccess:^(NSDictionary *result) {
+    NSString *pushSubscriptionId = self.pushSubscriptionIdProvider ? self.pushSubscriptionIdProvider() : nil;
+    NSString *onesignalId = self.onesignalIdProvider ? self.onesignalIdProvider() : nil;
+    [_outcomeEventsFactory.repository requestMeasureOutcomeEventWithAppId:appId
+                                                               deviceType:deviceType
+                                                       pushSubscriptionId:pushSubscriptionId
+                                                              onesignalId:onesignalId
+                                                                    event:eventParams
+                                                                onSuccess:^(NSDictionary *result) {
         // Cache unique outcomes
         [self saveUniqueOutcome:eventParams];
 

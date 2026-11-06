@@ -35,6 +35,8 @@ THE SOFTWARE.
 
 - (void)requestMeasureOutcomeEventWithAppId:(NSString *)appId
                         deviceType:(NSNumber *)deviceType
+                pushSubscriptionId:(NSString *)pushSubscriptionId
+                       onesignalId:(NSString *)onesignalId
                              event:(OSOutcomeEventParams *)event
                          onSuccess:(OSResultSuccessBlock)successBlock
                          onFailure:(OSFailureBlock)failureBlock {
@@ -44,20 +46,26 @@ THE SOFTWARE.
         case DIRECT:
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending direct outcome"];
             request = [OSRequestSendOutcomesV1ToServer directWithOutcome:outcome
-                                                                 appId:appId
-                                                            deviceType:deviceType];
+                                                                   appId:appId
+                                                              deviceType:deviceType
+                                                      pushSubscriptionId:pushSubscriptionId
+                                                             onesignalId:onesignalId];
             break;
         case INDIRECT:
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending indirect outcome"];
             request = [OSRequestSendOutcomesV1ToServer indirectWithOutcome:outcome
-                                                                   appId:appId
-                                                              deviceType:deviceType];
+                                                                     appId:appId
+                                                                deviceType:deviceType
+                                                        pushSubscriptionId:pushSubscriptionId
+                                                               onesignalId:onesignalId];
             break;
         case UNATTRIBUTED:
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending unattributed outcome"];
             request = [OSRequestSendOutcomesV1ToServer unattributedWithOutcome:outcome
-                                                                       appId:appId
-                                                                  deviceType:deviceType];
+                                                                         appId:appId
+                                                                    deviceType:deviceType
+                                                            pushSubscriptionId:pushSubscriptionId
+                                                                   onesignalId:onesignalId];
             break;
         case DISABLED:
         default:

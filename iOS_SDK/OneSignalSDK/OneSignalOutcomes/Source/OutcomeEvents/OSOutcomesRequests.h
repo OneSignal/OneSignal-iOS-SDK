@@ -33,15 +33,21 @@
 @interface OSRequestSendOutcomesV1ToServer : OneSignalRequest
 + (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                      appId:(NSString * _Nonnull)appId
-                                deviceType:(NSNumber * _Nonnull)deviceType;
+                                deviceType:(NSNumber * _Nonnull)deviceType
+                        pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                               onesignalId:(NSString * _Nullable)onesignalId;
 
 + (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                        appId:(NSString * _Nonnull)appId
-                                  deviceType:(NSNumber * _Nonnull)deviceType;
+                                  deviceType:(NSNumber * _Nonnull)deviceType
+                          pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                                 onesignalId:(NSString * _Nullable)onesignalId;
 
 + (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                            appId:(NSString * _Nonnull)appId
-                                      deviceType:(NSNumber * _Nonnull)deviceType;
+                                      deviceType:(NSNumber * _Nonnull)deviceType
+                              pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                                     onesignalId:(NSString * _Nullable)onesignalId;
 @end
 
 @interface OSRequestSendOutcomesV2ToServer : OneSignalRequest
