@@ -127,6 +127,8 @@ static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContex
     }
     self.webView.scrollView.scrollEnabled = false;
     self.webView.scrollView.bounces = false;
+    // The HTML draws its own card inside the web view, so a native indicator would not line up with it
+    self.webView.scrollView.showsVerticalScrollIndicator = false;
     [self.webView.scrollView addObserver:self forKeyPath:@"contentSize" options:0 context:OSInAppMessageContentSizeContext];
     [self addSubview:self.webView];
     
