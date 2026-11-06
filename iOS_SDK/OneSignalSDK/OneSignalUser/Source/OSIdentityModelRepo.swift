@@ -71,7 +71,7 @@ class OSIdentityModelRepo {
     func updateJwtToken(externalId: String, token: String) -> Bool {
         let matchingModels = modelsMatching(externalId: externalId)
         guard !matchingModels.isEmpty else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.updateJwtToken called for unknown external ID \(externalId)")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSIdentityModelRepo.updateJwtToken called for unknown external ID \(externalId)")
             return false
         }
         for model in matchingModels {
@@ -97,7 +97,7 @@ class OSIdentityModelRepo {
     func invalidateJwtToken(externalId: String, rejectedToken: String) -> Bool {
         let matchingModels = modelsMatching(externalId: externalId)
         guard !matchingModels.isEmpty else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityModelRepo.invalidateJwtToken called for unknown external ID \(externalId)")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSIdentityModelRepo.invalidateJwtToken called for unknown external ID \(externalId)")
             return false
         }
         for model in matchingModels {

@@ -309,7 +309,7 @@ static OneSignalLocationManager* singleInstance = nil;
             }
             
             else {
-                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions."];
+                [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions."];
                 [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
             }
             
@@ -406,7 +406,7 @@ static OneSignalLocationManager* singleInstance = nil;
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
+    [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
     [OneSignalLocationManager sendAndClearLocationListener:ERROR];
     if ([OneSignalLocationManager backgroundTaskIsActive]) {
         [OneSignalLocationManager endTask];

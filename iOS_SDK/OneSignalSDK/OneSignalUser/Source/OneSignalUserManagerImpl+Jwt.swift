@@ -150,7 +150,7 @@ extension OneSignalUserManagerImpl {
             return
         }
         guard !externalId.isEmpty, !token.isEmpty, token != OS_JWT_TOKEN_INVALID else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.updateUserJwt called with empty externalId or an unusable token. This is not allowed.")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OneSignal.updateUserJwt called with empty externalId or an unusable token. This is not allowed.")
             return
         }
         OneSignalLog.onesignalLog(

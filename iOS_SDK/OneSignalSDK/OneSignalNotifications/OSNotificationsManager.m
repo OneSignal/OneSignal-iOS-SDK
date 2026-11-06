@@ -393,7 +393,7 @@ static NSString *_pushToken;
     if ([[UIApplication sharedApplication] canOpenURL:url]) {
         [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
     } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Unable to open settings for this application"];
     }
 }
 
@@ -471,15 +471,15 @@ static NSString *_pushToken;
     
     if (err.code == 3000) {
         [self setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
     }
     else if (err.code == 3010) {
         [self setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
     }
     else {
         [self setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR];
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
 }
 
@@ -1032,7 +1032,7 @@ static NSString *_lastnonActiveMessageId;
     if (@available(iOS 16.0, *)) {
         [[UNUserNotificationCenter currentNotificationCenter] setBadgeCount:badgeCount withCompletionHandler:^(NSError * _Nullable error) {
             if (error) {
-                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"setBadgeCount encountered error setting badge count: %@", error]];
+                [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"setBadgeCount encountered error setting badge count: %@", error]];
             }
         }];
     } else {

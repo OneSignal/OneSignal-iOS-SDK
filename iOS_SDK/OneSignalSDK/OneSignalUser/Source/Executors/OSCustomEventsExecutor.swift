@@ -352,7 +352,7 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSCustomEventsExecutor request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSCustomEventsExecutor request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .unauthorized, self.auth.handleUnauthorized(request) {

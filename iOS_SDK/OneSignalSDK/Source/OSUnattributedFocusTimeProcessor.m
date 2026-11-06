@@ -110,7 +110,7 @@ static let DELAY_TIME = 30;
             [super saveUnsentActiveTime:0];
             [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         } onFailure:^(NSError *error) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendUnattributed session end outcomes failed, will retry on next open"];
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"sendUnattributed session end outcomes failed, will retry on next open"];
             [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         }];
     });

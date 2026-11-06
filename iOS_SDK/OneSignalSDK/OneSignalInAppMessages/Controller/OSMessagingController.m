@@ -657,7 +657,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)deleteInactiveMessage:(OSInAppMessageInternal *)message {
     let deleteMessage = [NSString stringWithFormat:@"Deleting inactive in-app message from cache: %@", message.messageId];
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:deleteMessage];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:deleteMessage];
     NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
     [newMessagesArray removeObject: message];
     self.messages = newMessagesArray;
@@ -872,7 +872,7 @@ static BOOL _isInAppMessagingPaused = false;
                                        }
                                        onFailure:^(OneSignalClientError *error) {
         NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error.message];
-                                            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+                                            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:errorMessage];
                                             if (message) {
                                                 [self.viewedPageIDs removeObject:messagePrefixedPageId];
                                             }
@@ -912,7 +912,7 @@ static BOOL _isInAppMessagingPaused = false;
                                        }
                                        onFailure:^(OneSignalClientError *error) {
                                            NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error.message];
-                                           [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+                                           [OneSignalLog onesignalLog:ONE_S_LL_INFO message:errorMessage];
                                            
                                            // If the post failed, remove the messageId from the impressionedInAppMessages set
                                            [self.impressionedInAppMessages removeObject:message.messageId];
@@ -1333,7 +1333,7 @@ static BOOL _isInAppMessagingPaused = false;
                                       }
                                       onFailure:^(OneSignalClientError *error) {
                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error.message];
-                                          [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+                                          [OneSignalLog onesignalLog:ONE_S_LL_INFO message:errorMessage];
 
                                           // Remove clickId from local clickedClickIds since click was not tracked
                                           [self.clickedClickIds removeObject:action.clickId];
@@ -1359,7 +1359,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
     if (![OSOutcomes sharedController]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Make sure OneSignal init is called first"];
         return;
     }
 

@@ -52,7 +52,7 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
               let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
               userInstance.propertiesModel.modelId == args.model.modelId
         else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property), no user instance, or a properties model that is not the current user's")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertiesModelStoreListener.getUpdateModelDelta encountered unsupported property: \(args.property), no user instance, or a properties model that is not the current user's")
             return nil
         }
         let identityModel = userInstance.identityModel

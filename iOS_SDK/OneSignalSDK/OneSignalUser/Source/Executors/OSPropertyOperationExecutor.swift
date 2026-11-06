@@ -183,7 +183,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             for delta in self.deltaQueue {
                 guard let identityModel = OneSignalUserManagerImpl.sharedInstance.getIdentityModel(delta.identityModelId)
                 else {
-                    OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
+                    OneSignalLog.onesignalLog(.LL_WARN, message: "OSPropertyOperationExecutor.processDeltaQueue dropped: \(delta)")
                     continue
                 }
                 let combinedSoFar: OSCombinedProperties? = combinedProperties[identityModel.modelId]
@@ -326,7 +326,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 OSConsistencyManager.shared.setRywTokenAndDelay(id: onesignalId, key: OSIamFetchOffsetKey.userUpdate, value: rywData)
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)")
+            OneSignalLog.logRequestFailure("OSPropertyOperationExecutor update properties request failed with error: \(error.debugDescription)", statusCode: error.code)
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .missing {
