@@ -418,6 +418,32 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[1] == request2)
     }
 
+    func testCachedUpdateTokenReturnsTheSetTokenForTheActivityId() async throws {
+        let mockDispatchQueue = MockDispatchQueue()
+        let mockClient = setUpSubscribedUser()
+
+        let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue)
+        executor.append(request)
+        mockDispatchQueue.waitForDispatches(2)
+
+        let cachedToken = await executor.cachedUpdateToken("my-activity-id")
+        let otherToken = await executor.cachedUpdateToken("other-activity-id")
+        XCTAssertEqual(cachedToken, "my-token")
+        XCTAssertNil(otherToken)
+    }
+
+    func testCachedUpdateTokenIsNilWhenARemoveIsPending() async throws {
+        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue())
+        executor.updateTokens.add(OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token"))
+        executor.updateTokens.add(OSRequestRemoveUpdateToken(key: "my-activity-id"))
+
+        let cachedToken = await executor.cachedUpdateToken("my-activity-id")
+        XCTAssertNil(cachedToken)
+    }
+
     func testReceiveReceiptsRequestNotExecutedWithSameNotificationId() throws {
         /* Setup */
         let mockDispatchQueue = MockDispatchQueue()
