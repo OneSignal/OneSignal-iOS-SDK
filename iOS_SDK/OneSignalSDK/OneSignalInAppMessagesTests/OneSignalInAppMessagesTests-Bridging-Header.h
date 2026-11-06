@@ -7,6 +7,7 @@
 #import "OSMessagingController.h"
 #import "OSInAppMessagingRequests.h"
 #import "OSInAppMessageInsets.h"
+#import "OSInAppMessageScroll.h"
 
 // Expose private properties and methods for testing
 @interface OSMessagingController (Testing)

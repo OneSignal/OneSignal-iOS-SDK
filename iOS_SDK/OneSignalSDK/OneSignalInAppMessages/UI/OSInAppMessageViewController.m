@@ -28,6 +28,7 @@
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
 #import "OSInAppMessageInsets.h"
+#import "OSInAppMessageScroll.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -52,7 +53,7 @@
 #define MEDIUM_CONSTRAINT_PRIORITY 950.0f
 #define LOW_CONSTRAINT_PRIORITY 900.0f
 
-@interface OSInAppMessageViewController ()
+@interface OSInAppMessageViewController () <UIGestureRecognizerDelegate>
 
 // The actual message subview
 @property (nonatomic, nullable) OSInAppMessageView *messageView;
@@ -402,6 +403,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [super viewDidLayoutSubviews];
     [self updateHorizontalInsets];
     [self updateVerticalInsets];
+    [self updateContentScrollAllowed];
 }
 
 // Like the sides, the top and bottom use the larger of the margin and the safe area rather than their sum
@@ -616,6 +618,17 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // to become true, so when we call layoutIfNeeded, it causes the view
     // hierarchy to be updated and our constraints get applied.
     [self.view layoutIfNeeded];
+
+    [self updateContentScrollAllowed];
+}
+
+// The vertical guide moves with the safe area after display, so a message that fit can become capped later
+- (void)updateContentScrollAllowed {
+    if (!self.messageView || !self.verticalGuide) return;
+    self.messageView.contentScrollAllowed = [OSInAppMessageScroll isHeightCappedWithMessageHeight:self.message.height.doubleValue
+                                                                                  availableHeight:self.verticalGuide.layoutFrame.size.height
+                                                                                         isBanner:[self.message isBanner]
+                                                                                     isFullscreen:self.message.position == OSInAppMessageDisplayPositionFullScreen];
 }
 
 // Calls dismissCurrentInAppMessage with velocity at 0.0f
@@ -723,6 +736,13 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 }
 
 - (void)beginPanAtLocation:(CGPoint)location {
+    // Cancel the content's scroll so it doesn't move along with the message. A disabled pan means
+    // scrolling is off, and re-enabling it would let the content scroll anyway.
+    UIPanGestureRecognizer *contentPan = self.messageView.contentPanGestureRecognizer;
+    if (contentPan.enabled) {
+        contentPan.enabled = false;
+        contentPan.enabled = true;
+    }
     self.panVerticalConstraint.constant = self.finalYConstraint.constant;
     self.initialGestureRecognizerLocation = location;
     self.panVerticalConstraint.active = true;
@@ -739,9 +759,12 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [self.messageView addGestureRecognizer:recognizer];
         recognizer.maximumNumberOfTouches = 1;
         recognizer.minimumNumberOfTouches = 1;
+        recognizer.delegate = self;
         
         self.panGestureRecognizer = recognizer;
     }
+
+    [self.messageView.contentPanGestureRecognizer addTarget:self action:@selector(contentPanDidMove:)];
     
     // Only center modal and full screen should dismiss on background click
     // Banners will allow interacting with the view behind it still
@@ -755,6 +778,24 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 
         self.tapGestureRecognizer = tapRecognizer;
     }
+}
+
+- (void)contentPanDidMove:(UIPanGestureRecognizer *)sender {
+    // Scrolling counts as interacting with the message, like dragging it
+    if (sender.state == UIGestureRecognizerStateBegan && self.dismissalTimer) {
+        [self.dismissalTimer invalidate];
+    }
+}
+
+#pragma mark UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer != self.panGestureRecognizer) return true;
+    let translationY = [self.panGestureRecognizer translationInView:self.view].y;
+    return [self.messageView shouldDragMessageForTranslationY:translationY];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return gestureRecognizer == self.panGestureRecognizer && otherGestureRecognizer == self.messageView.contentPanGestureRecognizer;
 }
 
 /*

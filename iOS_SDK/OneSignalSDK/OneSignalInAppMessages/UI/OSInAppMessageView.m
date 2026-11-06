@@ -31,6 +31,9 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import "OSMacros.h"
 #import "UIApplication+OneSignal.h"
+#import "OSInAppMessageScroll.h"
+
+static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContext;
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
@@ -122,9 +125,64 @@
             }
         }
     }
+    self.webView.scrollView.scrollEnabled = false;
+    self.webView.scrollView.bounces = false;
+    // The HTML draws its own card inside the web view, so a native indicator would not line up with it
+    self.webView.scrollView.showsVerticalScrollIndicator = false;
+    [self.webView.scrollView addObserver:self forKeyPath:@"contentSize" options:0 context:OSInAppMessageContentSizeContext];
     [self addSubview:self.webView];
     
     [self layoutIfNeeded];
+}
+
+- (void)dealloc {
+    [_webView.scrollView removeObserver:self forKeyPath:@"contentSize" context:OSInAppMessageContentSizeContext];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context {
+    if (context != OSInAppMessageContentSizeContext) {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+        return;
+    }
+    [self updateScrollEnabled];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self updateScrollEnabled];
+}
+
+- (void)setContentScrollAllowed:(BOOL)contentScrollAllowed {
+    _contentScrollAllowed = contentScrollAllowed;
+    [self updateScrollEnabled];
+}
+
+// Scrolling stays off while the content fits, so messages that fit keep today's touch handling.
+- (void)updateScrollEnabled {
+    UIScrollView *scrollView = self.webView.scrollView;
+    BOOL overflows = self.contentScrollAllowed &&
+        [OSInAppMessageScroll contentOverflowsWithContentHeight:scrollView.contentSize.height
+                                                  visibleHeight:scrollView.bounds.size.height];
+    if (scrollView.scrollEnabled == overflows) return;
+    scrollView.scrollEnabled = overflows;
+    if (!overflows) {
+        scrollView.contentOffset = CGPointZero;
+    }
+}
+
+- (BOOL)shouldDragMessageForTranslationY:(CGFloat)translationY {
+    UIScrollView *scrollView = self.webView.scrollView;
+    if (!scrollView.scrollEnabled) {
+        return true;
+    }
+    return [OSInAppMessageScroll shouldDragMessageWithContentOffsetY:scrollView.contentOffset.y
+                                                       contentHeight:scrollView.contentSize.height
+                                                       visibleHeight:scrollView.bounds.size.height
+                                                        translationY:translationY];
+}
+
+- (UIPanGestureRecognizer *)contentPanGestureRecognizer {
+    return self.webView.scrollView.panGestureRecognizer;
 }
 
 - (void)setIsFullscreen:(BOOL)isFullscreen {
@@ -199,7 +257,6 @@
     self.webView.UIDelegate = self;
     self.webView.navigationDelegate = self;
     self.webView.scrollView.delegate = self;
-    self.webView.scrollView.scrollEnabled = false;
     
     self.webView.layer.cornerRadius = 10.0f;
     self.webView.layer.masksToBounds = true;
@@ -212,6 +269,7 @@
     [self.webView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor].active = true;
     
     [self layoutIfNeeded];
+    [self updateScrollEnabled];
 }
 
 /*
@@ -232,6 +290,13 @@
     if (self.loaded)
         return;
     self.loaded = true;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    // Only vertical overflow turns scrolling on; a slightly wide document must not drift sideways
+    if (scrollView.contentOffset.x != 0) {
+        scrollView.contentOffset = CGPointMake(0, scrollView.contentOffset.y);
+    }
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
