@@ -44,7 +44,7 @@
 @protocol OSReservedRegionQuerying
 - (NSArray *)reservedRegionsOfKind:(id)kind;
 @end
-@protocol OSReservedRegion
+@protocol OSReservedRegion <NSObject>
 @property (nonatomic, readonly) CGRect frame;
 @end
 
@@ -424,8 +424,12 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     UIWindowScene *scene = self.view.window.windowScene ?: UIApplication.sharedApplication.keyWindow.windowScene;
     // Lowest level wins so the app's own window is preferred over alerts and other overlays
     UIWindow *match;
+    CGSize sceneSize = scene.coordinateSpace.bounds.size;
     for (UIWindow *window in scene.windows) {
-        if (window == self.view.window || window.hidden || !CGRectEqualToRect(window.frame, scene.coordinateSpace.bounds)) {
+        // Compare with a tolerance so a fractional frame mid resize still matches
+        BOOL fillsScene = fabs(window.bounds.size.width - sceneSize.width) <= 1 &&
+            fabs(window.bounds.size.height - sceneSize.height) <= 1;
+        if (window == self.view.window || window.hidden || !fillsScene) {
             continue;
         }
         if (!match || window.windowLevel < match.windowLevel) {
@@ -452,9 +456,16 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // Full screen content clears hardware itself, using the insets passed through setSafeAreaInsets
     if (!self.isFullscreen) {
         if (@available(iOS 27.1, *)) {
-            id kind = [(id<OSReservedRegionKindClass>)NSClassFromString(@"UIViewReservedRegionKind") occlusionRegionKind];
-            for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
-                [regionFrames addObject:[NSValue valueWithCGRect:region.frame]];
+            // Unchecked by the compiler, so a renamed API is skipped rather than crashing every layout pass
+            Class kindClass = NSClassFromString(@"UIViewReservedRegionKind");
+            if ([kindClass respondsToSelector:@selector(occlusionRegionKind)] &&
+                [sceneView respondsToSelector:@selector(reservedRegionsOfKind:)]) {
+                id kind = [(id<OSReservedRegionKindClass>)kindClass occlusionRegionKind];
+                for (id<OSReservedRegion> region in [(id<OSReservedRegionQuerying>)sceneView reservedRegionsOfKind:kind]) {
+                    if ([region respondsToSelector:@selector(frame)]) {
+                        [regionFrames addObject:[NSValue valueWithCGRect:region.frame]];
+                    }
+                }
             }
         }
     }
