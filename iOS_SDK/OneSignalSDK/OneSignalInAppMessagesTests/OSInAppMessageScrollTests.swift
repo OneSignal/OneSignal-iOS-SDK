@@ -71,6 +71,8 @@ final class OSInAppMessageScrollTests: XCTestCase {
     func testNearEdgeWithinOnePoint_countsAsEdge() {
         XCTAssertTrue(shouldDrag(offset: 0.5, translation: 20))
         XCTAssertTrue(shouldDrag(offset: bottomOffset - 0.5, translation: -20))
+        XCTAssertTrue(shouldDrag(offset: 1, translation: 20))
+        XCTAssertFalse(shouldDrag(offset: 1.5, translation: 20))
     }
 
     func testNoVerticalMovement_scrollsWhenOverflowing() {
@@ -87,6 +89,7 @@ final class OSInAppMessageScrollTests: XCTestCase {
     func testCenterModal_cappedOnlyWhenTallerThanAvailable() {
         XCTAssertFalse(isCapped(height: 300))
         XCTAssertFalse(isCapped(height: 401))
+        XCTAssertTrue(isCapped(height: 401.5))
         XCTAssertTrue(isCapped(height: 600))
     }
 

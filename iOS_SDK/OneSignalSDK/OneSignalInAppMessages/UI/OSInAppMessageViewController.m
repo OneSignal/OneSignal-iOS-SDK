@@ -403,6 +403,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     [super viewDidLayoutSubviews];
     [self updateHorizontalInsets];
     [self updateVerticalInsets];
+    [self updateContentScrollAllowed];
 }
 
 // Like the sides, the top and bottom use the larger of the margin and the safe area rather than their sum
@@ -618,6 +619,12 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // hierarchy to be updated and our constraints get applied.
     [self.view layoutIfNeeded];
 
+    [self updateContentScrollAllowed];
+}
+
+// The vertical guide moves with the safe area after display, so a message that fit can become capped later
+- (void)updateContentScrollAllowed {
+    if (!self.messageView || !self.verticalGuide) return;
     self.messageView.contentScrollAllowed = [OSInAppMessageScroll isHeightCappedWithMessageHeight:self.message.height.doubleValue
                                                                                   availableHeight:self.verticalGuide.layoutFrame.size.height
                                                                                          isBanner:[self.message isBanner]
