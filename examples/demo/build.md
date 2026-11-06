@@ -125,7 +125,7 @@ Push subscription id, opt-in, notification permission, and the live `OneSignal.U
 - Sections declare `@State` booleans for their action dialogs (`@State private var addOpen = false`, `@State private var loginOpen = false`, ...) and attach `.osCenteredDialog(isPresented: $addOpen) { AddItemDialog(...) }` on the section view. Dialog confirm handlers call ViewModel SDK methods and (where applicable) `toast.show(...)`.
 - `OneSignalViewModel` must not hold any action dialog visibility flags or dialog input drafts.
 - `osCenteredDialog` (in `App/Views/Components/OSDialog.swift`) is implemented on top of `.fullScreenCover` with a `ClearBackgroundView` (`UIViewRepresentable`) so the dialog presents at the window level instead of being clipped to the section's frame inside `ScrollView`. The default slide-up animation is suppressed via `.transaction { $0.disablesAnimations = true }` so the dialog's own fade-in is preserved.
-- Shared dialog primitives live in `App/Views/Components/`: `AddItemDialog` (typed via `AddItemType` -- single-field and pair layouts both flow through it), `MultiPairInputDialog`, `RemoveMultiDialog`, `OutcomeDialog`, `CustomNotificationDialog`, `TrackEventDialog`, `TooltipDialog`. Sections import and compose them locally.
+- Shared dialog primitives live in `App/Views/Components/`: `AddItemDialog` (typed via `AddItemType` -- single-field and pair layouts both flow through it), `MultiPairInputDialog`, `RemoveMultiDialog`, `OutcomeDialog`, `CustomNotificationDialog`, `TrackEventDialog`, `TooltipDialog`, plus `LoginUserDialog` and `UpdateJwtDialog` in `LoginUserDialog.swift`. Sections import and compose them locally.
 
 ### Accessibility (Appium)
 
@@ -135,6 +135,23 @@ XCUITest does NOT inherit identifiers from `Button(role:)` automatically -- set 
 
 - `ContentView` anchors `accessibilityIdentifier("main_scroll_view")` on the SwiftUI `ScrollView` itself (not the inner `VStack`) so XCUITest exposes it as `XCUIElementTypeScrollView` with the visible viewport's rect. The shared Appium swipe workaround on iOS depends on this anchoring -- attaching the id to the inner stack reports the full content rect (multiple screens tall) and WDIO `swipe` then computes gestures outside the viewport, which iOS clips to the visible region and registers as taps on whatever button sits there.
 - `ContentView` runs the auto push-permission prompt via `.task { viewModel.promptPushPermission() }` on mount. It races the OneSignal iOS-params response, so the standard alert can show before the SDK registers provisional auth (which would otherwise silently grant permission and skip the prompt entirely).
+
+### Identity Verification controls
+
+The User section's JWT controls match the Android demo in labels, test ids, and behavior. Change both demos together.
+
+- **Fetch by external_id (JWT) toggle** (`identity_verification_toggle`). `PreferencesService` persists it. When ON, `fetchUserDataFromApi` fetches by the current external_id with that user's stored JWT as bearer, or unsigned when there is none. That includes the fetch at launch, even before the user has a onesignal_id. When OFF it fetches by onesignal_id, unsigned, which an app with Identity Verification on rejects with a 401. Flipping it refetches. It only drives the demo's own REST GET and does not turn Identity Verification on for the app.
+- **REST fetch row** (`user_fetch_status_value`). Reads `—`, `OK`, or the failure reason, for example `external_id fetch failed: HTTP 401`, so a rejected fetch under Identity Verification doesn't look like an empty user. A failed fetch doesn't change the lists. A user switch, a logout, or a fetch skipped for lack of an id resets the row to `—`. A switch or logout also bumps `requestSequence`, which drops any fetch still in flight for the previous user.
+- **Stored tokens.** `PreferencesService` keeps every JWT the tester hands the SDK, keyed by external id, as a dictionary under `onesignal.demo.jwtTokens`. A login with a token or an `updateUserJwt` stores it for that id, whoever it is for. A login with the field blank changes nothing, and neither does an invalidation event. Logout clears them all. Plaintext UserDefaults is fine for a demo and not a pattern for real apps.
+- **JWT field in `LoginUserDialog`** (`login_user_jwt_input`). Optional. A same-user login refetches, because the SDK fires no user-state event for it.
+- **UPDATE USER JWT button** (`update_user_jwt_button`). Always enabled. Opens `UpdateJwtDialog`, which stacks the External User Id and JWT Token fields full width, prefills the id from the pending ask and then the current user, and confirms with `Update`. Calls `OneSignal.updateUserJwt` and refetches when the id is the current user's.
+- **JWT ask banner** (`jwt_ask_banner`, with `jwt_ask_external_id_value` and `jwt_ask_provide_button`). `AppDelegate` registers `JwtInvalidatedHandler` right after init, because the SDK doesn't replay the event. The handler hands the asked id to `JwtAskStore`. It leaves the stored token alone, because the SDK also fires this event when requests park without a token, so the event doesn't prove the token is bad. A bad token shows up as a 401 in the REST fetch row. `OneSignalViewModel.jwtAskExternalId` mirrors it, and `UserSection` shows the banner plus a toast once per ask. A token for that id, from `updateUserJwt` or a login, clears the ask, and so does logout. The demo never answers the ask with a stored token on its own. PROVIDE JWT is always enabled.
+
+Some Identity Verification behavior still differs between the demos because the SDKs differ:
+
+- A login without a token parks that user's requests. The iOS SDK asks for a token, so the banner shows. The Android SDK fires nothing until SDK-5476.
+- After a relaunch with a token still owed, the iOS SDK asks again on the first parked request. The Android SDK doesn't, until SDK-5476.
+- If a 401 for an old token lands after PROVIDE JWT, the Android SDK deletes the new token and asks again until SDK-5474. The iOS SDK keeps the new token.
 
 ### Branding assets
 
