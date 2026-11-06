@@ -113,7 +113,7 @@ final class CachedUserWithoutAnIdTests: XCTestCase {
         }
         // A second one would still be queued here: it goes out only after the post-create delay.
         OneSignalCoreMocks.waitUntil("A Create User is still queued") {
-            OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.contains { $0 is OSRequestCreateUser } == false
+            OneSignalUserManagerImpl.sharedInstance.userExecutor?.snapshotUserRequestQueue().contains { $0 is OSRequestCreateUser } == false
         }
         XCTAssertEqual(sentCreateUsers().count, 1)
     }
@@ -147,7 +147,7 @@ final class CachedUserWithoutAnIdTests: XCTestCase {
             self.client.hasCompletedRequestOfType(OSRequestCreateUser.self)
         }
         OneSignalCoreMocks.waitUntil("A Create User is still queued") {
-            OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.contains { $0 is OSRequestCreateUser } == false
+            OneSignalUserManagerImpl.sharedInstance.userExecutor?.snapshotUserRequestQueue().contains { $0 is OSRequestCreateUser } == false
         }
         XCTAssertEqual(sentCreateUsers().count, 1)
     }
@@ -173,7 +173,7 @@ final class CachedUserWithoutAnIdTests: XCTestCase {
             self.client.hasCompletedRequestOfType(OSRequestFetchIdentityBySubscription.self)
         }
         XCTAssertTrue(sentCreateUsers().isEmpty)
-        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.contains { $0 is OSRequestCreateUser } ?? true)
+        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.userExecutor?.snapshotUserRequestQueue().contains { $0 is OSRequestCreateUser } ?? true)
         XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance._user?.identityModel.onesignalId, legacyOnesignalId)
     }
 
@@ -186,6 +186,6 @@ final class CachedUserWithoutAnIdTests: XCTestCase {
         // Nothing positive to wait for: give the executor's queue a turn, then look.
         Thread.sleep(forTimeInterval: 0.2)
         XCTAssertTrue(sentCreateUsers().isEmpty)
-        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.userExecutor?.userRequestQueue.isEmpty, true)
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.userExecutor?.snapshotUserRequestQueue().isEmpty, true)
     }
 }
