@@ -65,4 +65,16 @@ public final class OneSignalIdentifiers: NSObject {
         }
         return OSResilientStorage.string(forKey: OSResilientStorage.keySubscriptionId)
     }
+
+    /// Persisted `onesignal_id` of the current user from shared UserDefaults, written by the user module on hydration.
+    /// After an ordinary `login` or `logout` it keeps the previous user's id until the new Create User response lands,
+    /// with no time limit while an Identity Verification login waits for a JWT. `logout` under Identity Verification
+    /// clears it at once. No `OSResilientStorage` mirror, so nil while UserDefaults is locked.
+    @objc public static var onesignalId: String? {
+        guard let fromUD = OneSignalUserDefaults.initShared().getSavedString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, defaultValue: nil),
+              !fromUD.isEmpty else {
+            return nil
+        }
+        return fromUD
+    }
 }
