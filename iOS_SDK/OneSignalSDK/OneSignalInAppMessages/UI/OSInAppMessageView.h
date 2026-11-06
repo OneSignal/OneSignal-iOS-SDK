@@ -52,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
 - (void)removeScriptMessageHandler;
 - (void)setIsFullscreen:(BOOL)isFullscreen;
+- (BOOL)shouldDragMessageForTranslationY:(CGFloat)translationY;
+@property (nonatomic, readonly) UIPanGestureRecognizer *contentPanGestureRecognizer;
 @end
 
 NS_ASSUME_NONNULL_END

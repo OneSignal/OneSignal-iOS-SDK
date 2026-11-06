@@ -52,7 +52,7 @@
 #define MEDIUM_CONSTRAINT_PRIORITY 950.0f
 #define LOW_CONSTRAINT_PRIORITY 900.0f
 
-@interface OSInAppMessageViewController ()
+@interface OSInAppMessageViewController () <UIGestureRecognizerDelegate>
 
 // The actual message subview
 @property (nonatomic, nullable) OSInAppMessageView *messageView;
@@ -723,6 +723,10 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 }
 
 - (void)beginPanAtLocation:(CGPoint)location {
+    // Cancel the content's scroll so it doesn't move along with the message
+    UIPanGestureRecognizer *contentPan = self.messageView.contentPanGestureRecognizer;
+    contentPan.enabled = false;
+    contentPan.enabled = true;
     self.panVerticalConstraint.constant = self.finalYConstraint.constant;
     self.initialGestureRecognizerLocation = location;
     self.panVerticalConstraint.active = true;
@@ -739,6 +743,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [self.messageView addGestureRecognizer:recognizer];
         recognizer.maximumNumberOfTouches = 1;
         recognizer.minimumNumberOfTouches = 1;
+        recognizer.delegate = self;
         
         self.panGestureRecognizer = recognizer;
     }
@@ -755,6 +760,17 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 
         self.tapGestureRecognizer = tapRecognizer;
     }
+}
+
+#pragma mark UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer != self.panGestureRecognizer) return true;
+    let translationY = [self.panGestureRecognizer translationInView:self.view].y;
+    return [self.messageView shouldDragMessageForTranslationY:translationY];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return gestureRecognizer == self.panGestureRecognizer && otherGestureRecognizer == self.messageView.contentPanGestureRecognizer;
 }
 
 /*
