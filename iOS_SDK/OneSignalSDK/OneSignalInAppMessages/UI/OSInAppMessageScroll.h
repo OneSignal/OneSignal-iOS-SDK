@@ -25,11 +25,17 @@
  * THE SOFTWARE.
  */
 #import <UIKit/UIKit.h>
-#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSInAppMessageScroll : NSObject
+
+// Only content cut off by the screen height cap may scroll. Banners never scroll. Full screen
+// messages report no height, so they are always treated as capped.
++ (BOOL)isHeightCappedWithMessageHeight:(CGFloat)messageHeight
+                        availableHeight:(CGFloat)availableHeight
+                               isBanner:(BOOL)isBanner
+                           isFullscreen:(BOOL)isFullscreen;
 
 // Overflow under 1pt is treated as fitting, so rounding never makes a message scroll.
 + (BOOL)contentOverflowsWithContentHeight:(CGFloat)contentHeight visibleHeight:(CGFloat)visibleHeight;

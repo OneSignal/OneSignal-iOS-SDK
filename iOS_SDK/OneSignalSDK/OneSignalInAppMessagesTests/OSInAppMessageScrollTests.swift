@@ -76,4 +76,25 @@ final class OSInAppMessageScrollTests: XCTestCase {
     func testNoVerticalMovement_scrollsWhenOverflowing() {
         XCTAssertFalse(shouldDrag(offset: 0, translation: 0))
     }
+
+    private func isCapped(height: CGFloat, banner: Bool = false, fullscreen: Bool = false) -> Bool {
+        OSInAppMessageScroll.isHeightCapped(withMessageHeight: height,
+                                            availableHeight: visibleHeight,
+                                            isBanner: banner,
+                                            isFullscreen: fullscreen)
+    }
+
+    func testCenterModal_cappedOnlyWhenTallerThanAvailable() {
+        XCTAssertFalse(isCapped(height: 300))
+        XCTAssertFalse(isCapped(height: 401))
+        XCTAssertTrue(isCapped(height: 600))
+    }
+
+    func testBanner_neverCapped() {
+        XCTAssertFalse(isCapped(height: 600, banner: true))
+    }
+
+    func testFullscreen_alwaysCappedEvenWithoutHeight() {
+        XCTAssertTrue(isCapped(height: 0, fullscreen: true))
+    }
 }

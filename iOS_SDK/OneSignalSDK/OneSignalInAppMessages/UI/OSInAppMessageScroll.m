@@ -24,12 +24,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#import <UIKit/UIKit.h>
 #import "OSInAppMessageScroll.h"
 
 static const CGFloat kEdgeTolerance = 1.0;
 
 @implementation OSInAppMessageScroll
+
++ (BOOL)isHeightCappedWithMessageHeight:(CGFloat)messageHeight
+                        availableHeight:(CGFloat)availableHeight
+                               isBanner:(BOOL)isBanner
+                           isFullscreen:(BOOL)isFullscreen {
+    if (isBanner) return false;
+    if (isFullscreen) return true;
+    return messageHeight - availableHeight > kEdgeTolerance;
+}
 
 + (BOOL)contentOverflowsWithContentHeight:(CGFloat)contentHeight visibleHeight:(CGFloat)visibleHeight {
     return contentHeight - visibleHeight > kEdgeTolerance;

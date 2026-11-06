@@ -28,6 +28,7 @@
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
 #import "OSInAppMessageInsets.h"
+#import "OSInAppMessageScroll.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -616,6 +617,11 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     // to become true, so when we call layoutIfNeeded, it causes the view
     // hierarchy to be updated and our constraints get applied.
     [self.view layoutIfNeeded];
+
+    self.messageView.contentScrollAllowed = [OSInAppMessageScroll isHeightCappedWithMessageHeight:self.message.height.doubleValue
+                                                                                  availableHeight:self.verticalGuide.layoutFrame.size.height
+                                                                                         isBanner:[self.message isBanner]
+                                                                                     isFullscreen:self.message.position == OSInAppMessageDisplayPositionFullScreen];
 }
 
 // Calls dismissCurrentInAppMessage with velocity at 0.0f
@@ -723,10 +729,13 @@ OSInAppMessageInternal *_dismissingMessage = nil;
 }
 
 - (void)beginPanAtLocation:(CGPoint)location {
-    // Cancel the content's scroll so it doesn't move along with the message
+    // Cancel the content's scroll so it doesn't move along with the message. A disabled pan means
+    // scrolling is off, and re-enabling it would let the content scroll anyway.
     UIPanGestureRecognizer *contentPan = self.messageView.contentPanGestureRecognizer;
-    contentPan.enabled = false;
-    contentPan.enabled = true;
+    if (contentPan.enabled) {
+        contentPan.enabled = false;
+        contentPan.enabled = true;
+    }
     self.panVerticalConstraint.constant = self.finalYConstraint.constant;
     self.initialGestureRecognizerLocation = location;
     self.panVerticalConstraint.active = true;
@@ -747,6 +756,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         
         self.panGestureRecognizer = recognizer;
     }
+
+    [self.messageView.contentPanGestureRecognizer addTarget:self action:@selector(contentPanDidMove:)];
     
     // Only center modal and full screen should dismiss on background click
     // Banners will allow interacting with the view behind it still
@@ -759,6 +770,13 @@ OSInAppMessageInternal *_dismissingMessage = nil;
         [self.view addGestureRecognizer:tapRecognizer];
 
         self.tapGestureRecognizer = tapRecognizer;
+    }
+}
+
+- (void)contentPanDidMove:(UIPanGestureRecognizer *)sender {
+    // Scrolling counts as interacting with the message, like dragging it
+    if (sender.state == UIGestureRecognizerStateBegan && self.dismissalTimer) {
+        [self.dismissalTimer invalidate];
     }
 }
 

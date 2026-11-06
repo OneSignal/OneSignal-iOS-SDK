@@ -152,11 +152,17 @@ static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContex
     [self updateScrollEnabled];
 }
 
+- (void)setContentScrollAllowed:(BOOL)contentScrollAllowed {
+    _contentScrollAllowed = contentScrollAllowed;
+    [self updateScrollEnabled];
+}
+
 // Scrolling stays off while the content fits, so messages that fit keep today's touch handling.
 - (void)updateScrollEnabled {
     UIScrollView *scrollView = self.webView.scrollView;
-    BOOL overflows = [OSInAppMessageScroll contentOverflowsWithContentHeight:scrollView.contentSize.height
-                                                               visibleHeight:scrollView.bounds.size.height];
+    BOOL overflows = self.contentScrollAllowed &&
+        [OSInAppMessageScroll contentOverflowsWithContentHeight:scrollView.contentSize.height
+                                                  visibleHeight:scrollView.bounds.size.height];
     if (scrollView.scrollEnabled == overflows) return;
     scrollView.scrollEnabled = overflows;
     if (!overflows) {
@@ -284,6 +290,13 @@ static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContex
     if (self.loaded)
         return;
     self.loaded = true;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    // Only vertical overflow turns scrolling on; a slightly wide document must not drift sideways
+    if (scrollView.contentOffset.x != 0) {
+        scrollView.contentOffset = CGPointMake(0, scrollView.contentOffset.y);
+    }
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {

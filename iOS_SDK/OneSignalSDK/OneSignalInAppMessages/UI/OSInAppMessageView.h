@@ -54,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setIsFullscreen:(BOOL)isFullscreen;
 - (BOOL)shouldDragMessageForTranslationY:(CGFloat)translationY;
 @property (nonatomic, readonly) UIPanGestureRecognizer *contentPanGestureRecognizer;
+// Content may scroll only while this is set, so leftover document height never makes a fitting message scroll
+@property (nonatomic) BOOL contentScrollAllowed;
 @end
 
 NS_ASSUME_NONNULL_END
