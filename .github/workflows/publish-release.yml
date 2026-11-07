@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout OneSignal-iOS-SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.ref }}
           fetch-depth: 0
@@ -136,7 +136,7 @@ jobs:
           echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
 
       - name: Checkout OneSignal-XCFramework
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: OneSignal/OneSignal-XCFramework
           ref: ${{ steps.detect_branch.outputs.branch }}
