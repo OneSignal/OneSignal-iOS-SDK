@@ -46,6 +46,8 @@ jobs:
     needs: determine-version
     if: needs.determine-version.outputs.release_needed == 'true'
     uses: OneSignal/sdk-shared/.github/workflows/prep-release.yml@main
+    secrets:
+      GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
     with:
       version: ${{ needs.determine-version.outputs.version }}
       target_branch: ${{ inputs.base_branch }}
@@ -209,6 +211,9 @@ jobs:
   create-ios-pr:
     needs: [prep, update-and-build]
     uses: OneSignal/sdk-shared/.github/workflows/create-release.yml@main
+    secrets:
+      # PRs opened with GITHUB_TOKEN don't trigger pull_request workflows (E2E)
+      GH_PUSH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
     with:
       release_branch: ${{ needs.prep.outputs.release_branch }}
       target_branch: ${{ inputs.base_branch }}
