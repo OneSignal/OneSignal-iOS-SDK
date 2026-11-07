@@ -254,7 +254,7 @@ jobs:
           repository: OneSignal/OneSignal-XCFramework
           ref: ${{ env.BASE_BRANCH }}
           path: xcframework-repo
-          token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+          token: ${{ secrets.GH_PUSH_TOKEN }}
 
       - name: Update Package.swift in XCFramework Repository
         run: |
@@ -283,11 +283,11 @@ jobs:
           # Push to remote
           git push origin $RELEASE_BRANCH
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+          GH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
 
       - name: Create Pull Request for XCFramework Repository
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+          GH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
         run: |
           cd xcframework-repo
 
