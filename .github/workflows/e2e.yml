@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  KMP_XCFRAMEWORK_PATH: OneSignal-KMP-SDK/kmp/build/XCFrameworks/release/OneSignalKMP.xcframework
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,6 +22,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Create KMP cache key
+        id: kmp
+        run: |
+          kmp_sha="$(git rev-parse HEAD:OneSignal-KMP-SDK)"
+          xcode_hash="$(xcodebuild -version | shasum -a 256 | awk '{print $1}')"
+          echo "cache-key=kmp-xcframework-${{ runner.os }}-${{ runner.arch }}-${xcode_hash}-${kmp_sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore OneSignalKMP XCFramework
+        id: kmp-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ env.KMP_XCFRAMEWORK_PATH }}
+          key: ${{ steps.kmp.outputs.cache-key }}
+
+      - name: Setup JDK 17
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Assemble OneSignalKMP XCFramework
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        run: |
+          iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh \
+            :kmp:assembleOneSignalKMPReleaseXCFramework --quiet
+
+      - name: Save OneSignalKMP XCFramework
+        if: steps.kmp-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ env.KMP_XCFRAMEWORK_PATH }}
+          key: ${{ steps.kmp.outputs.cache-key }}
 
       - name: Set up demo
         uses: ./.github/actions/setup-demo
