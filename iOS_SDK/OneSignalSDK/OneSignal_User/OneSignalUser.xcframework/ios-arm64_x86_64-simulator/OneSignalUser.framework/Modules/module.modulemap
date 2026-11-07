@@ -7,5 +7,4 @@ framework module OneSignalUser {
 
 module OneSignalUser.Swift {
   header "OneSignalUser-Swift.h"
-  requires objc
 }
