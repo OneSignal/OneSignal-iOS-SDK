@@ -205,6 +205,18 @@ jobs:
           git commit -m "chore: update Swift package"
           git push origin $RELEASE_BRANCH
 
+  # Pushes made with GITHUB_TOKEN don't trigger push workflows, so start E2E explicitly
+  run-e2e:
+    needs: [prep, update-and-build]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Trigger E2E Tests on release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run e2e.yml --repo "${{ github.repository }}" --ref "${{ needs.prep.outputs.release_branch }}"
+
   # Step 4: Use reusable workflow to create iOS SDK PR with release notes
   create-ios-pr:
     needs: [prep, update-and-build]
