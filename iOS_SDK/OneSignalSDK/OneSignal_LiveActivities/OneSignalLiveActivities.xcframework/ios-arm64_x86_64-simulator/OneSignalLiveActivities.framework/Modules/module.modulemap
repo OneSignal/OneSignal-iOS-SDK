@@ -7,5 +7,4 @@ framework module OneSignalLiveActivities {
 
 module OneSignalLiveActivities.Swift {
   header "OneSignalLiveActivities-Swift.h"
-  requires objc
 }
