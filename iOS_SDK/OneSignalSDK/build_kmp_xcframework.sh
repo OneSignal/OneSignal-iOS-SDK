@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KMP_REPO="$SCRIPT_DIR/../../OneSignal-KMP-SDK"
 KMP_TASK="${1:-:kmp:verifyOneSignalKMPXCFramework}"
+shift || true
 
 if [[ ! -f "$KMP_REPO/gradlew" ]]; then
   echo "OneSignal-KMP-SDK is missing. Run: git submodule update --init --recursive" >&2
@@ -22,4 +23,5 @@ esac
 "$KMP_REPO/gradlew" \
   -p "$KMP_REPO" \
   "$KMP_TASK" \
-  --console=plain
+  --console=plain \
+  ${@+"$@"}
