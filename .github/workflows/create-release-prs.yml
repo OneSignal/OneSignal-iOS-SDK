@@ -119,7 +119,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Build OneSignalKMP XCFramework
-        run: iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh
+        run: iOS_SDK/OneSignalSDK/build_kmp_xcframework.sh :kmp:verifyOneSignalKMPXCFramework --quiet
 
       - name: Install the Apple distribution certificate (OneSignal)
         uses: apple-actions/import-codesign-certs@v7
