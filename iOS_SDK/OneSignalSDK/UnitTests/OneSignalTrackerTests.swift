@@ -43,10 +43,12 @@ final class OneSignalTrackerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        OneSignalTracker.reset()
         OSSessionService.resetAndClearStoredRecord()
     }
 
     override func tearDown() {
+        OneSignalTracker.reset()
         OSSessionService.resetAndClearStoredRecord()
         UIApplicationOverrider.setCurrentUIApplicationState(.active)
         super.tearDown()
@@ -54,6 +56,17 @@ final class OneSignalTrackerTests: XCTestCase {
 
     func testInitWhileActiveIsTheSessionsFirstFocus() {
         UIApplicationOverrider.setCurrentUIApplicationState(.active)
+
+        OneSignalTracker.onInitWhileActive()
+        let start = OSSessionService.shared.startNewSession(userProvider: userProvider)
+
+        XCTAssertNil(start.started.awaitingFocus)
+    }
+
+    func testInitAfterAnAppIdChangeWhileActiveIsTheNewSessionsFirstFocus() {
+        UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OneSignalTracker.onInitWhileActive()
+        OSSessionService.resetAndClearStoredRecord()
 
         OneSignalTracker.onInitWhileActive()
         let start = OSSessionService.shared.startNewSession(userProvider: userProvider)

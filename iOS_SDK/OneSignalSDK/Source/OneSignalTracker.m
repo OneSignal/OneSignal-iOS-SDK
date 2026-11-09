@@ -72,16 +72,24 @@ static BOOL lastOnFocusWasToBackground = YES;
     }
 }
 
++ (void)reset {
+    lastOnFocusWasToBackground = YES;
+}
+
 /// `initialize` can run after the app became active (a wrapper's JS or Dart init, delayed consent),
 /// so that activation was never observed. Must run on the main queue. `.inactive` is excluded:
 /// during `didFinishLaunching` a launching notification tap is not delivered yet, and the session's
 /// first focus must come after it.
 + (void)onInitWhileActive {
     UIApplication *app = UIApplication.sharedApplication;
-    if (!app || app.applicationState != UIApplicationStateActive || !lastOnFocusWasToBackground)
+    if (!app || app.applicationState != UIApplicationStateActive)
+        return;
+    // Each init has a new session service, including the one after an app-id change, which the
+    // tracker may already have seen focused.
+    [OSSessionService onFocus];
+    if (!lastOnFocusWasToBackground)
         return;
     lastOnFocusWasToBackground = NO;
-    [OSSessionService onFocus];
     [OneSignalUserManagerImpl.sharedInstance onFocus];
 }
 

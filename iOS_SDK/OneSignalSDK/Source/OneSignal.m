@@ -150,6 +150,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSFeatureFlagsRefreshService reset];
     [OSDeviceGestureDetector reset];
     [OSSessionService reset];
+    [OneSignalTracker reset];
     [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
