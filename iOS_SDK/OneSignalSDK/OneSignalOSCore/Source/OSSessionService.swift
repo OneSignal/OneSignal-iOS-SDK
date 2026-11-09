@@ -50,6 +50,8 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
+    /// Called when a notification open brings a session to the foreground after its create was queued.
+    func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -94,6 +96,8 @@ public struct OSSessionRecord: Codable, Equatable {
 
 public struct OSSessionStart {
     public let started: OSSessionRecord
+    /// The notification whose open started the session.
+    public let directAttributionId: String?
     /// The session the new one replaced, which has now ended.
     public let ended: OSSessionRecord?
 }
@@ -138,6 +142,10 @@ public final class OSSessionService: NSObject {
     private var recordStartedInThisProcess = false
     /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
     private var heartbeatGeneration = 0
+    /// A notification opened from the background, for the session its focus starts. A focus that
+    /// continues the current session, or a later unfocus, discards it. A background action from
+    /// Notification Center arrives after the unfocus and brings no focus, so it expires after the threshold.
+    private var pendingAttribution: (notificationId: String, openedAt: TimeInterval)?
 
     init(
         storage: OneSignalUserDefaults = .initStandard(),
@@ -164,6 +172,10 @@ public final class OSSessionService: NSObject {
 
     @objc public static func onUnfocus() {
         shared.onUnfocus()
+    }
+
+    @objc public static func onNotificationOpened(_ notificationId: String) {
+        shared.onNotificationOpened(notificationId)
     }
 
     @objc public static func reset() {
@@ -217,6 +229,7 @@ public final class OSSessionService: NSObject {
         enqueue: (OSSessionStart) -> Void = { _ in }
     ) -> OSSessionStart {
         let previousIds = pinnableIds()
+        let now = monotonicNow()
         let user = userProvider.sessionCurrentUser
         var newRecord = OSSessionRecord(
             sessionId: UUID().uuidString,
@@ -227,11 +240,15 @@ public final class OSSessionService: NSObject {
             onesignalId: user.onesignalId,
             subscriptionId: user.pushSubscriptionId
         )
-        let ended: OSSessionRecord? = stateLock.withLock {
+        let (ended, directAttributionId): (OSSessionRecord?, String?) = stateLock.withLock {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
             fillPinnedIds(previousIds)
             let ended = record
+            let directAttributionId = pendingAttribution.flatMap { pending in
+                now - pending.openedAt < OSSessionStartGate.threshold ? pending.notificationId : nil
+            }
+            pendingAttribution = nil
             newRecord.lastFocusTime = openFocusTime
             self.userProvider = userProvider
             record = newRecord
@@ -239,9 +256,9 @@ public final class OSSessionService: NSObject {
             // The replaced session's heartbeat stops here, before its record is gone.
             heartbeatGeneration += 1
             persist()
-            return ended
+            return (ended, directAttributionId)
         }
-        let start = OSSessionStart(started: newRecord, ended: ended)
+        let start = OSSessionStart(started: newRecord, directAttributionId: directAttributionId, ended: ended)
         enqueue(start)
         restartHeartbeat(continuesRecord: true)
         return start
@@ -257,6 +274,7 @@ public final class OSSessionService: NSObject {
             guard record != nil, focusContinuesRecord(at: wallNow) else {
                 return false
             }
+            pendingAttribution = nil
             // Saved now, since a kill leaves no unfocus to record when the session was last active.
             record?.lastFocusTime = wallNow
             persist()
@@ -280,6 +298,7 @@ public final class OSSessionService: NSObject {
         let wallNow = wallNow()
         let ids = pinnableIds()
         stateLock.withLock {
+            pendingAttribution = nil
             guard let start = focusedAt else {
                 return
             }
@@ -296,6 +315,35 @@ public final class OSSessionService: NSObject {
             fillPinnedIds(ids)
             persist()
         }
+    }
+
+    /// Called for an open from the background, before the app's focus. The session that focus starts
+    /// is attributed to it. On a cold start the launch's session usually starts first, before any
+    /// focus, and is the one the open brings to the foreground, so it is attributed instead.
+    func onNotificationOpened(_ notificationId: String) {
+        let now = monotonicNow()
+        let attributed: (record: OSSessionRecord, provider: OSSessionUserProvider)? = stateLock.withLock {
+            loadIfNeeded()
+            guard let record, let userProvider, opensUnfocusedRecord(at: wallNow()) else {
+                pendingAttribution = (notificationId, now)
+                return nil
+            }
+            return (record, userProvider)
+        }
+        guard let attributed else {
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService attributing session \(attributed.record.sessionId) to \(notificationId)")
+        attributed.provider.sessionAttributed(attributed.record, directAttributionId: notificationId)
+    }
+
+    /// A session started in the background and never focused continues on the next focus only within
+    /// the threshold, as in `focusContinuesRecord`.
+    private func opensUnfocusedRecord(at time: TimeInterval) -> Bool {
+        guard recordStartedInThisProcess, focusedAt == nil, let record, record.lastFocusTime == nil else {
+            return false
+        }
+        return time - record.startTime < OSSessionStartGate.threshold
     }
 
     private struct PinnableIds {
