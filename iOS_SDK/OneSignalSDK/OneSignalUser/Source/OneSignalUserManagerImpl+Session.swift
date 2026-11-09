@@ -44,7 +44,9 @@ extension OneSignalUserManagerImpl {
             if let ended = start.ended {
                 self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
             }
-            self.enqueueSessionCreate(start.started, directAttributionId: start.directAttributionId)
+            if start.started.awaitingFocus != true {
+                self.enqueueSessionCreate(start.started, directAttributionId: start.directAttributionId)
+            }
         }
 
         // Fetch the user's data if there is a onesignal_id
@@ -76,9 +78,8 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         enqueueSessionUpdate(record)
     }
 
-    /// The executor folds this into the session's queued create, or drops it if the create was sent.
-    public func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String) {
-        enqueueSessionDelta(OS_ATTRIBUTE_SESSION_DELTA, record: record, value: [OSSessionDeltaKey.directAttributionId: directAttributionId])
+    public func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
+        enqueueSessionCreate(record, directAttributionId: directAttributionId)
     }
 
     /// Queues the session's create. Does nothing unless the session uses the sessions API.

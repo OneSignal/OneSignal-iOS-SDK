@@ -49,9 +49,9 @@ private final class FakeUserProvider: OSSessionUserProvider {
     }
     func sessionHeartbeat(_ record: OSSessionRecord) {}
 
-    private(set) var attributions: [(sessionId: String, notificationId: String)] = []
-    func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String) {
-        attributions.append((record.sessionId, directAttributionId))
+    private(set) var firstFocuses: [(sessionId: String, directAttributionId: String?)] = []
+    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
+        firstFocuses.append((record.sessionId, directAttributionId))
     }
 }
 
@@ -359,6 +359,62 @@ final class OSSessionServiceTests: XCTestCase {
     }
 }
 
+// MARK: - Held create
+
+extension OSSessionServiceTests {
+    func testSessionStartedInTheForegroundDoesNotHoldItsCreate() {
+        let service = makeForegroundSession()
+
+        XCTAssertNil(service.currentRecord?.awaitingFocus)
+        service.onUnfocus()
+        service.onFocus()
+        XCTAssertTrue(user.firstFocuses.isEmpty)
+    }
+
+    func testSessionStartedInTheBackgroundHoldsItsCreateUntilItsFirstFocus() {
+        let service = makeService()
+        let start = service.startNewSession(userProvider: user)
+        XCTAssertEqual(start.started.awaitingFocus, true)
+        XCTAssertTrue(user.firstFocuses.isEmpty)
+
+        wallNow += 10
+        service.onFocus()
+        service.onUnfocus()
+        service.onFocus()
+
+        XCTAssertEqual(user.firstFocuses.map(\.sessionId), [start.started.sessionId])
+        XCTAssertNil(user.firstFocuses.first?.directAttributionId)
+        XCTAssertNil(service.currentRecord?.awaitingFocus)
+    }
+
+    func testBackgroundSessionThatNeverFocusesEndsNothing() {
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+
+        wallNow = 6_000
+        service.onFocus()
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertNil(start.ended)
+        XCTAssertNil(start.started.awaitingFocus)
+        XCTAssertEqual(start.started.lastFocusTime, 6_000)
+        XCTAssertTrue(user.firstFocuses.isEmpty)
+    }
+
+    /// A kill during a background launch must not send the session later.
+    func testBackgroundSessionKilledBeforeItsFocusEndsNothing() {
+        makeService().startNewSession(userProvider: user)
+
+        let restarted = makeService()
+        restarted.setUserProvider(user)
+        XCTAssertEqual(restarted.currentRecord?.awaitingFocus, true)
+        restarted.onFocus()
+
+        XCTAssertNil(restarted.startNewSession(userProvider: user).ended)
+        XCTAssertTrue(user.firstFocuses.isEmpty)
+    }
+}
+
 // MARK: - Notification attribution
 
 extension OSSessionServiceTests {
@@ -374,7 +430,6 @@ extension OSSessionServiceTests {
         let start = service.startNewSession(userProvider: user)
 
         XCTAssertEqual(start.directAttributionId, "notification-1")
-        XCTAssertTrue(user.attributions.isEmpty)
     }
 
     func testNormalOpenIsNotAttributed() {
@@ -397,7 +452,6 @@ extension OSSessionServiceTests {
         service.onFocus()
 
         XCTAssertEqual(service.currentRecord?.sessionId, sessionId)
-        XCTAssertTrue(user.attributions.isEmpty)
 
         service.onUnfocus()
         wallNow += 60
@@ -430,28 +484,33 @@ extension OSSessionServiceTests {
         XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
     }
 
-    /// Init starts the launch's session on the main queue before iOS delivers the open.
-    func testColdStartOpenAfterTheSessionStartsAttributesIt() {
+    /// A cold start from a tap, or a tap after a background launch: init starts the session in the
+    /// background, and iOS delivers the open before the focus it causes.
+    func testOpenAfterABackgroundSessionStartsIsOnItsHeldCreate() {
         let service = makeService()
         let start = service.startNewSession(userProvider: user)
 
-        wallNow += 1
+        wallNow += 20
         service.onNotificationOpened("notification-1")
         service.onFocus()
 
-        XCTAssertEqual(user.attributions.map(\.sessionId), [start.started.sessionId])
-        XCTAssertEqual(user.attributions.map(\.notificationId), ["notification-1"])
+        XCTAssertEqual(user.firstFocuses.map(\.sessionId), [start.started.sessionId])
+        XCTAssertEqual(user.firstFocuses.map(\.directAttributionId), ["notification-1"])
+        service.onUnfocus()
+        wallNow += 60
+        service.onFocus()
         XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
     }
 
-    func testColdStartOpenBeforeTheSessionStartsAttributesIt() {
+    func testOpenBeforeABackgroundSessionStartsIsOnItsHeldCreate() {
         let service = makeService()
 
         service.onNotificationOpened("notification-1")
         let start = service.startNewSession(userProvider: user)
+        service.onFocus()
 
-        XCTAssertEqual(start.directAttributionId, "notification-1")
-        XCTAssertTrue(user.attributions.isEmpty)
+        XCTAssertNil(start.directAttributionId)
+        XCTAssertEqual(user.firstFocuses.map(\.directAttributionId), ["notification-1"])
     }
 
     /// The focus past the threshold starts a new session, which the open belongs to.
@@ -463,18 +522,18 @@ extension OSSessionServiceTests {
         service.onNotificationOpened("notification-1")
         service.onFocus()
 
-        XCTAssertTrue(user.attributions.isEmpty)
+        XCTAssertTrue(user.firstFocuses.isEmpty)
         XCTAssertEqual(service.startNewSession(userProvider: user).directAttributionId, "notification-1")
     }
 
     func testOpenForASessionFromAnEarlierProcessAttributesTheNextSession() {
-        _ = makeService().startNewSession(userProvider: user)
+        _ = makeForegroundSession()
         let restarted = makeService()
         restarted.setUserProvider(user)
 
         restarted.onNotificationOpened("notification-1")
+        restarted.onFocus()
 
-        XCTAssertTrue(user.attributions.isEmpty)
         XCTAssertEqual(restarted.startNewSession(userProvider: user).directAttributionId, "notification-1")
     }
 }
@@ -602,22 +661,10 @@ extension OSSessionServiceTests {
         XCTAssertEqual(service.currentRecord?.lastFocusTime, 5_020)
     }
 
-    func testFirstForegroundPastTheThresholdDoesNotMoveABackgroundSessionsEnd() {
-        let service = makeService()
-        let background = service.startNewSession(userProvider: user).started
-
-        wallNow = 6_000
-        service.onFocus()
-        let start = service.startNewSession(userProvider: user)
-
-        XCTAssertEqual(start.ended?.endTime, background.startTime)
-        XCTAssertEqual(start.started.lastFocusTime, 6_000)
-    }
-
     /// The previous process ended before the user was created.
     func testSessionFromAnEarlierProcessEndsWithTheIdsAssignedSince() {
         user.onesignalIds = [:]
-        makeService().startNewSession(userProvider: user)
+        _ = makeForegroundSession()
 
         user.onesignalIds = ["model-a": "onesignal-a"]
         let restarted = makeService()
