@@ -48,8 +48,15 @@ class ChannelTrackerAttributionWindowTests: XCTestCase {
     override func tearDown() {
         repository.saveNotifications(nil)
         repository.saveIAMs(nil)
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_NOTIFICATION_ATTRIBUTION_WINDOW)
-        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_IAM_ATTRIBUTION_WINDOW)
+        for key in [
+            OSUD_INDIRECT_SESSION_ENABLED,
+            OSUD_NOTIFICATION_LIMIT,
+            OSUD_IAM_LIMIT,
+            OSUD_NOTIFICATION_ATTRIBUTION_WINDOW,
+            OSUD_IAM_ATTRIBUTION_WINDOW
+        ] {
+            OneSignalUserDefaults.initShared().removeValue(forKey: key)
+        }
         super.tearDown()
     }
 
@@ -90,6 +97,15 @@ class ChannelTrackerAttributionWindowTests: XCTestCase {
         let ids = trackerFactory.notificationChannelTracker().lastReceivedIds() as? [String]
 
         XCTAssertEqual(ids, ["notif-new"])
+    }
+
+    func testNotificationAtWindowBoundaryIsIndirect() {
+        saveAttributionWindow(minutes: 60)
+        repository.saveNotifications([influence("notif-edge", channel: "notification_id", secondsAgo: 60 * 60)])
+
+        let ids = trackerFactory.notificationChannelTracker().lastReceivedIds() as? [String]
+
+        XCTAssertEqual(ids, ["notif-edge"])
     }
 
     func testIAMWithinWindowMinutesIsIndirect() {
