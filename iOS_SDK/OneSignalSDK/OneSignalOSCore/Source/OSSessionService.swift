@@ -50,8 +50,9 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
-    /// Called when a notification open brings a session to the foreground after its create was queued.
-    func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String)
+    /// Called when a session that started in the background first comes to the foreground, to queue
+    /// its held create.
+    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -80,6 +81,10 @@ public struct OSSessionRecord: Codable, Equatable {
     /// monotonic clock so a wall-clock jump mid-visit cannot move a killed session's end. Cleared on
     /// unfocus, which then marks the end.
     public internal(set) var lastHeartbeatTime: TimeInterval?
+    /// Set on a session that started in the background. Its create is held until its first focus, so
+    /// an open delivered before that focus is on the create, and a session that never focuses sends
+    /// neither a create nor an end. Persisted, so a kill before the focus does not send it later.
+    public internal(set) var awaitingFocus: Bool?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
     /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
@@ -98,7 +103,8 @@ public struct OSSessionStart {
     public let started: OSSessionRecord
     /// The notification whose open started the session.
     public let directAttributionId: String?
-    /// The session the new one replaced, which has now ended.
+    /// The session the new one replaced, which has now ended. Nil when it never focused, since its
+    /// create was never queued.
     public let ended: OSSessionRecord?
 }
 
@@ -142,9 +148,10 @@ public final class OSSessionService: NSObject {
     private var recordStartedInThisProcess = false
     /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
     private var heartbeatGeneration = 0
-    /// A notification opened from the background, for the session its focus starts. A focus that
-    /// continues the current session, or a later unfocus, discards it. A background action from
-    /// Notification Center arrives after the unfocus and brings no focus, so it expires after the threshold.
+    /// A notification opened from the background, for the session its focus starts or first brings to
+    /// the foreground. A focus that continues a focused session, or a later unfocus, discards it. A
+    /// background action from Notification Center arrives after the unfocus and brings no focus, so it
+    /// expires after the threshold.
     private var pendingAttribution: (notificationId: String, openedAt: TimeInterval)?
 
     init(
@@ -244,12 +251,18 @@ public final class OSSessionService: NSObject {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
             fillPinnedIds(previousIds)
-            let ended = record
-            let directAttributionId = pendingAttribution.flatMap { pending in
-                now - pending.openedAt < OSSessionStartGate.threshold ? pending.notificationId : nil
+            let ended = record?.awaitingFocus == true ? nil : record
+            if let record, ended == nil {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService discarding session \(record.sessionId), it never focused")
             }
-            pendingAttribution = nil
             newRecord.lastFocusTime = openFocusTime
+            var directAttributionId: String?
+            if openFocusTime == nil {
+                // The open that brings this session forward is consumed by its first focus.
+                newRecord.awaitingFocus = true
+            } else {
+                directAttributionId = takePendingAttribution(at: now)
+            }
             self.userProvider = userProvider
             record = newRecord
             recordStartedInThisProcess = true
@@ -267,20 +280,31 @@ public final class OSSessionService: NSObject {
     func onFocus() {
         let now = monotonicNow()
         let wallNow = wallNow()
-        let continuesRecord: Bool = stateLock.withLock {
+        let (continuesRecord, firstFocus): (Bool, FirstFocus?) = stateLock.withLock {
             focusedAt = now
             loadIfNeeded()
             openFocusTime = wallNow
-            guard record != nil, focusContinuesRecord(at: wallNow) else {
-                return false
+            guard var current = record, focusContinuesRecord(at: wallNow) else {
+                return (false, nil)
             }
-            pendingAttribution = nil
+            let directAttributionId = takePendingAttribution(at: now)
             // Saved now, since a kill leaves no unfocus to record when the session was last active.
-            record?.lastFocusTime = wallNow
+            current.lastFocusTime = wallNow
+            let wasAwaitingFocus = current.awaitingFocus == true
+            current.awaitingFocus = nil
+            record = current
             persist()
-            return true
+            guard wasAwaitingFocus, let record, let userProvider else {
+                return (true, nil)
+            }
+            return (true, FirstFocus(record: record, directAttributionId: directAttributionId, provider: userProvider))
         }
-        // A focus that starts a new session leaves the heartbeat to that session's start.
+        if let firstFocus {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService releasing the create of session \(firstFocus.record.sessionId)")
+            firstFocus.provider.sessionFirstFocused(firstFocus.record, directAttributionId: firstFocus.directAttributionId)
+        }
+        // A focus that starts a new session leaves the heartbeat to that session's start. A held
+        // create is queued above, before the heartbeat whose updates need it.
         restartHeartbeat(continuesRecord: continuesRecord)
     }
 
@@ -315,35 +339,6 @@ public final class OSSessionService: NSObject {
             fillPinnedIds(ids)
             persist()
         }
-    }
-
-    /// Called for an open from the background, before the app's focus. The session that focus starts
-    /// is attributed to it. On a cold start the launch's session usually starts first, before any
-    /// focus, and is the one the open brings to the foreground, so it is attributed instead.
-    func onNotificationOpened(_ notificationId: String) {
-        let now = monotonicNow()
-        let attributed: (record: OSSessionRecord, provider: OSSessionUserProvider)? = stateLock.withLock {
-            loadIfNeeded()
-            guard let record, let userProvider, opensUnfocusedRecord(at: wallNow()) else {
-                pendingAttribution = (notificationId, now)
-                return nil
-            }
-            return (record, userProvider)
-        }
-        guard let attributed else {
-            return
-        }
-        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService attributing session \(attributed.record.sessionId) to \(notificationId)")
-        attributed.provider.sessionAttributed(attributed.record, directAttributionId: notificationId)
-    }
-
-    /// A session started in the background and never focused continues on the next focus only within
-    /// the threshold, as in `focusContinuesRecord`.
-    private func opensUnfocusedRecord(at time: TimeInterval) -> Bool {
-        guard recordStartedInThisProcess, focusedAt == nil, let record, record.lastFocusTime == nil else {
-            return false
-        }
-        return time - record.startTime < OSSessionStartGate.threshold
     }
 
     private struct PinnableIds {
@@ -412,6 +407,32 @@ public final class OSSessionService: NSObject {
             return
         }
         storage.saveObject(forKey: OSUD_SESSION_RECORD, withValue: data)
+    }
+}
+
+// MARK: - Notification attribution
+
+extension OSSessionService {
+    /// Called for an open from the background. iOS delivers it before the focus it causes, on a cold
+    /// start too, so the session that focus starts or first brings to the foreground carries it.
+    func onNotificationOpened(_ notificationId: String) {
+        let now = monotonicNow()
+        stateLock.withLock { pendingAttribution = (notificationId, now) }
+    }
+
+    private struct FirstFocus {
+        let record: OSSessionRecord
+        let directAttributionId: String?
+        let provider: OSSessionUserProvider
+    }
+
+    /// Clears the open in every case, so it never carries over to a later session.
+    private func takePendingAttribution(at now: TimeInterval) -> String? {
+        defer { pendingAttribution = nil }
+        guard let pending = pendingAttribution, now - pending.openedAt < OSSessionStartGate.threshold else {
+            return nil
+        }
+        return pending.notificationId
     }
 }
 

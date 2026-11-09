@@ -150,6 +150,7 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
     [OSFeatureFlagsRefreshService reset];
     [OSDeviceGestureDetector reset];
     [OSSessionService reset];
+    [OneSignalTracker reset];
     [OSFeatureManager reset];
     [OneSignalIdentifiers setCurrentAppId:nil];
     launchOptions = false;
@@ -721,6 +722,10 @@ static BOOL ComputeInitialStorageReadable(void) {
         StartFeatureFlagsRefresh();
         [OSDeviceGestureDetector start];
     }
+    // Queued ahead of the session start, which also runs on the main queue.
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [OneSignalTracker onInitWhileActive];
+    }];
     [self startNewSession:YES];
     
     [OSSessionStartGate.shared recordInitialization];

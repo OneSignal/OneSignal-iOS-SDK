@@ -46,7 +46,7 @@ private final class HeartbeatRecorder: OSSessionUserProvider {
         heartbeats.append(record)
     }
 
-    func sessionAttributed(_ record: OSSessionRecord, directAttributionId: String) {}
+    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
 }
 
 final class OSSessionHeartbeatTests: XCTestCase {

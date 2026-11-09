@@ -4,3 +4,5 @@
 
 #import "OneSignalFramework.h"
 #import "OSOutcomesRequests.h"
+#import "OneSignalTracker.h"
+#import "UIApplicationOverrider.h"
