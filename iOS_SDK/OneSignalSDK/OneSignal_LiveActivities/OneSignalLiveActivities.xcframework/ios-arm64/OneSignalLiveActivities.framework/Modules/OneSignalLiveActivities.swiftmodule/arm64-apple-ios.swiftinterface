@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.9.2 (swiftlang-5.9.2.2.56 clang-1500.1.0.2.5)
-// swift-module-flags: -target arm64-apple-ios15.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalLiveActivities
-// swift-module-flags-ignorable: -enable-bare-slash-regex
+// swift-compiler-version: Apple Swift version 6.3.3 effective-5.10 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)
+// swift-module-flags: -target arm64-apple-ios15.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -O -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name OneSignalLiveActivities
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.3.3
 import ActivityKit
 import Foundation
 import OneSignalCore
@@ -84,17 +84,17 @@ extension WidgetKit.DynamicIsland {
   public func onesignalWidgetURL<T>(_ url: Foundation.URL?, context: WidgetKit.ActivityViewContext<T>) -> WidgetKit.DynamicIsland where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
 }
 @available(iOS 16.1, *)
-extension SwiftUI.View {
-  @_Concurrency.MainActor @preconcurrency public func onesignalWidgetURL<T>(_ url: Foundation.URL?, context: WidgetKit.ActivityViewContext<T>) -> some SwiftUI.View where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
+extension SwiftUICore.View {
+  @_Concurrency.MainActor @preconcurrency public func onesignalWidgetURL<T>(_ url: Foundation.URL?, context: WidgetKit.ActivityViewContext<T>) -> some SwiftUICore.View where T : OneSignalLiveActivities.OneSignalLiveActivityAttributes
   
 }
 public struct DefaultLiveActivityAttributes : OneSignalLiveActivities.OneSignalLiveActivityAttributes {
   public struct ContentState : OneSignalLiveActivities.OneSignalLiveActivityContentState {
     public var data: [Swift.String : OneSignalLiveActivities.AnyCodable]
     public var onesignal: OneSignalLiveActivities.OneSignalLiveActivityContentStateData?
-    public func hash(into hasher: inout Swift.Hasher)
     public static func == (a: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState, b: OneSignalLiveActivities.DefaultLiveActivityAttributes.ContentState) -> Swift.Bool
     public func encode(to encoder: any Swift.Encoder) throws
+    public func hash(into hasher: inout Swift.Hasher)
     public var hashValue: Swift.Int {
       get
     }
@@ -164,9 +164,9 @@ public protocol OneSignalLiveActivityContentState : Swift.Decodable, Swift.Encod
 }
 public struct OneSignalLiveActivityContentStateData : Swift.Decodable, Swift.Encodable, Swift.Hashable {
   public var notificationId: Swift.String
-  public func hash(into hasher: inout Swift.Hasher)
   public static func == (a: OneSignalLiveActivities.OneSignalLiveActivityContentStateData, b: OneSignalLiveActivities.OneSignalLiveActivityContentStateData) -> Swift.Bool
   public func encode(to encoder: any Swift.Encoder) throws
+  public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
   }

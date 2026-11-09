@@ -49,7 +49,8 @@ class OSUserExecutor {
     private let flushDelayMilliseconds = Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200) // TODO: This could come from a config, plist, method, remote params
 
     /// The User executor dispatch queue, serial. This synchronizes access to the request queues.
-    private let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
+    /// Non-private so test helpers can read the queues through it.
+    let dispatchQueue = DispatchQueue(label: "OneSignal.OSUserExecutor", target: .global())
 
     init(
         newRecordsState: OSNewRecordsState,
