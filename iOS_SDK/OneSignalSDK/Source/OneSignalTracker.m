@@ -72,6 +72,19 @@ static BOOL lastOnFocusWasToBackground = YES;
     }
 }
 
+/// `initialize` can run after the app became active (a wrapper's JS or Dart init, delayed consent),
+/// so that activation was never observed. Must run on the main queue. `.inactive` is excluded:
+/// during `didFinishLaunching` a launching notification tap is not delivered yet, and the session's
+/// first focus must come after it.
++ (void)onInitWhileActive {
+    UIApplication *app = UIApplication.sharedApplication;
+    if (!app || app.applicationState != UIApplicationStateActive || !lastOnFocusWasToBackground)
+        return;
+    lastOnFocusWasToBackground = NO;
+    [OSSessionService onFocus];
+    [OneSignalUserManagerImpl.sharedInstance onFocus];
+}
+
 + (void)applicationBecameActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Active started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
@@ -109,7 +122,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     
-    if (timeProcessor)
+    // No open time is recorded for a visit whose activation came before `initialize`.
+    if (timeProcessor && timeElapsed >= 0)
         [timeProcessor sendOnFocusCall:focusCallParams];
     // user module let them know app is backgrounded
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];

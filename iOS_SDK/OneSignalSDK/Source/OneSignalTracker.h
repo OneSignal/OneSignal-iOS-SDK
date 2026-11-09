@@ -30,6 +30,7 @@
 @interface OneSignalTracker : NSObject
 
 + (void)onFocus:(BOOL)toBackground;
++ (void)onInitWhileActive;
 + (void)onSessionEnded:(NSArray<OSInfluence *> *) lastInfluences;
 
 @end
