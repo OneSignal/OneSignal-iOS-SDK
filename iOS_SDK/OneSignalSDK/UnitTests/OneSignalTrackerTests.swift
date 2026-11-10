@@ -27,7 +27,10 @@
 
 import XCTest
 import OneSignalCore
-import OneSignalOSCore
+import OneSignalCoreMocks
+import OneSignalUserMocks
+@testable import OneSignalOSCore
+@testable import OneSignalUser
 import OneSignalOutcomes
 
 private final class FakeUserProvider: OSSessionUserProvider {
@@ -207,5 +210,61 @@ final class OneSignalTrackerTests: XCTestCase {
 
         XCTAssertTrue(sentSessionTime)
         XCTAssertNotEqual(unsentActiveTime, 12)
+    }
+}
+
+/// Drives the SDK's own new-session flow, whose order the tracker relies on.
+final class OneSignalNewSessionTests: XCTestCase {
+    private var client = MockOneSignalClient()
+    private let taskHandler = RecordingTaskHandler()
+    private var originalTaskHandler: OSBackgroundTaskHandler?
+
+    override func setUpWithError() throws {
+        OneSignalCoreMocks.clearUserDefaults()
+        OneSignalUserMocks.reset()
+        OSSessionService.reset()
+        OSSessionManager.resetSharedSessionManager()
+        OneSignalTracker.reset()
+        OneSignalIdentifiers.currentAppId = "test-app-id"
+
+        client = MockOneSignalClient()
+        MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
+        OneSignalCoreImpl.setSharedClient(client)
+        originalTaskHandler = OSBackgroundTaskManager.taskHandler
+        OSBackgroundTaskManager.taskHandler = taskHandler
+    }
+
+    override func tearDownWithError() throws {
+        OneSignalCoreMocks.waitUntil("A Request was still in flight at teardown") { self.client.isIdle }
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.reset()
+        OSFocusTimeProcessorFactory.cancelFocusCall()
+        OSFocusTimeProcessorFactory.resetUnsentActiveTime()
+        OSSessionManager.shared().setLastOpenedTime(0)
+        OSSessionManager.resetSharedSessionManager()
+        OSBackgroundTaskManager.taskHandler = originalTaskHandler
+        NSDateOverrider.reset()
+        OSSessionService.reset()
+        OneSignalCoreMocks.clearUserDefaults()
+        OSFeatureFlagsStore.shared.clear()
+        OSFeatureManager.reset()
+    }
+
+    /// The tracker reads the current session record when a session ends, so the legacy session's end
+    /// must run before the next session replaces that record.
+    func testLegacySessionEndedByASessionsApiSessionStillReportsItsTime() {
+        let sessionManager = OSSessionManager.shared()
+        OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        sessionManager.onDirectInfluence(fromNotificationOpen: NOTIFICATION_CLICK, withNotificationId: "notification-id")
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_sessions_v2_api_cutover"], metadata: nil)
+
+        sessionManager.appEntryState = APP_OPEN
+        NSDateOverrider.advanceSystemTime(by: 1_000)
+        sessionManager.setLastOpenedTime(NSDateOverrider.globalTimeOffset())
+        NSDateOverrider.advanceSystemTime(by: 5)
+        OSTestRouteSessionEndingToOneSignal()
+        OneSignal.startNewSessionInternal(false)
+
+        XCTAssertEqual(OSSessionService.shared.currentRecord?.usesSessionsApi, true)
+        XCTAssertTrue(taskHandler.begunTasks.contains(SESSION_OUTCOMES_TASK))
     }
 }
