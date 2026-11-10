@@ -57,6 +57,7 @@ class ChannelTrackerAttributionWindowTests: XCTestCase {
         ] {
             OneSignalUserDefaults.initShared().removeValue(forKey: key)
         }
+        NSDateOverrider.reset()
         super.tearDown()
     }
 
