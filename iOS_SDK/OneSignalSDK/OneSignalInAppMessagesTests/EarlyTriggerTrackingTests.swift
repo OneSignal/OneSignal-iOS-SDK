@@ -61,6 +61,15 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         OSMessagingController.removeInstance()
     }
 
+    /// Paused so a matching message is never displayed: building its web view on the main queue can outlive
+    /// the test and stall the next test's main-queue observer callbacks past their wait.
+    private func startPausedController() -> OSMessagingController {
+        OSMessagingController.start()
+        let controller = OSMessagingController.sharedInstance()
+        controller.setInAppMessagingPaused(true)
+        return controller
+    }
+
     /**
      Test that hasCompletedFirstFetch is set to true after the first fetch completes.
 
@@ -76,8 +85,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         let client = MockOneSignalClient()
         client.executeInstantaneously = true
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Verify initial state
         XCTAssertFalse(controller.hasCompletedFirstFetch)
@@ -118,8 +126,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Verify initial state
         XCTAssertFalse(controller.hasCompletedFirstFetch)
@@ -149,8 +156,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         /* Execute */
         // Add triggers in multiple calls
@@ -181,8 +187,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Set up mock responses
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client, onesignalId: testOneSignalId, subscriptionId: testSubscriptionId)
@@ -242,8 +247,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Add triggers before first fetch
         controller.addTriggers(["loginAction": "complete", "sessionStart": "true"])
@@ -325,11 +329,11 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         XCTAssertNotNil(receivedMessage3)
 
         // Messages matching early triggers and in redisplayedInAppMessages should have isTriggerChanged = true
-        XCTAssertTrue(receivedMessage1!.isTriggerChanged)
-        XCTAssertTrue(receivedMessage2!.isTriggerChanged)
+        XCTAssertTrue(try XCTUnwrap(receivedMessage1).isTriggerChanged)
+        XCTAssertTrue(try XCTUnwrap(receivedMessage2).isTriggerChanged)
 
         // Message 3 does not match early triggers (even though not in redisplayedInAppMessages anyway)
-        XCTAssertFalse(receivedMessage3!.isTriggerChanged)
+        XCTAssertFalse(try XCTUnwrap(receivedMessage3).isTriggerChanged)
     }
 
     /**
@@ -347,8 +351,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Add triggers before first fetch
         controller.addTriggers(["newTrigger": "value"])
@@ -391,7 +394,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         XCTAssertNotNil(receivedMessage)
 
         // Message should NOT have isTriggerChanged because it's not in redisplayedInAppMessages
-        XCTAssertFalse(receivedMessage!.isTriggerChanged)
+        XCTAssertFalse(try XCTUnwrap(receivedMessage).isTriggerChanged)
     }
 
     /**
@@ -408,8 +411,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Setup */
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
-        OSMessagingController.start()
-        let controller = OSMessagingController.sharedInstance()
+        let controller = startPausedController()
 
         // Add specific triggers before first fetch
         controller.addTriggers(["action_a": "value1"])
@@ -463,7 +465,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         XCTAssertNotNil(receivedMessage2)
 
         // Only message 1 should have isTriggerChanged (it has shared trigger "action_a")
-        XCTAssertTrue(receivedMessage1!.isTriggerChanged)
-        XCTAssertFalse(receivedMessage2!.isTriggerChanged)
+        XCTAssertTrue(try XCTUnwrap(receivedMessage1).isTriggerChanged)
+        XCTAssertFalse(try XCTUnwrap(receivedMessage2).isTriggerChanged)
     }
 }

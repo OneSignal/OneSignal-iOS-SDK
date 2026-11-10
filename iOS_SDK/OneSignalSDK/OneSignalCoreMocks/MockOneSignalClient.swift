@@ -281,6 +281,11 @@ extension MockOneSignalClient {
         }
     }
 
+    /// Selected by type because a late request from an earlier test can reach the shared client first.
+    public func firstExecutedRequest<T: OneSignalRequest>(ofType type: T.Type) -> T? {
+        return executedRequests.lazy.compactMap { $0 as? T }.first
+    }
+
     public func hasCompletedRequestOfType(_ type: AnyClass, expectedCount: Int? = nil) -> Bool {
         let matchingCount = completedRequestCount(ofType: type)
 
