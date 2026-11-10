@@ -120,11 +120,16 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         }
     }
 
+    /// The new subscription id starts a fetch from a main-queue observer, and it reaches the client only after
+    /// the client can already look idle, so the login waits for that fetch to be answered or held too.
     private func login(token: String?) {
+        let answeredBefore = completedFetches().count
         ConsistencyManagerTestHelpers.setDefaultRywToken(id: userA_OSID)
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: token)
         OneSignalCoreMocks.waitUntil("The login did not reach a hydrated user") {
-            OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId != nil && self.clientIsIdle
+            OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId != nil
+                && (self.completedFetches().count > answeredBefore || self.deferredSubscriptionId() != nil)
+                && self.clientIsIdle
         }
     }
 
