@@ -372,6 +372,7 @@ final class SwitchUserIntegrationTests: XCTestCase {
             client.hasCompletedRequestOfType(OSRequestCreateUser.self)
         }
         // A poll firing mid-sequence would split a user's tag and language into separate requests.
+        // Updates queued while the anonymous create is still in flight are not covered here.
         OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
 
         /* When */
