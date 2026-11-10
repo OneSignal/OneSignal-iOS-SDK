@@ -40,13 +40,25 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
 }
 
+private final class RecordingTaskHandler: OSBackgroundTaskHandler {
+    private(set) var begunTasks: [String] = []
+
+    func beginBackgroundTask(_ taskIdentifier: String) { begunTasks.append(taskIdentifier) }
+    func endBackgroundTask(_ taskIdentifier: String) {}
+    func setTaskInvalid(_ taskIdentifier: String) {}
+}
+
 final class OneSignalTrackerTests: XCTestCase {
     private let userProvider = FakeUserProvider()
+    private let taskHandler = RecordingTaskHandler()
+    private var originalTaskHandler: OSBackgroundTaskHandler?
 
     override func setUp() {
         super.setUp()
         OneSignalTracker.reset()
         OSSessionService.resetAndClearStoredRecord()
+        originalTaskHandler = OSBackgroundTaskManager.taskHandler
+        OSBackgroundTaskManager.taskHandler = taskHandler
     }
 
     override func tearDown() {
@@ -55,6 +67,7 @@ final class OneSignalTrackerTests: XCTestCase {
         UIApplicationOverrider.setCurrentUIApplicationState(.active)
         OSSessionManager.shared().setLastOpenedTime(0)
         NSDateOverrider.reset()
+        OSBackgroundTaskManager.taskHandler = originalTaskHandler
         OSFocusTimeProcessorFactory.cancelFocusCall()
         OSFocusTimeProcessorFactory.resetUnsentActiveTime()
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_UNSENT_ACTIVE_TIME)
@@ -112,12 +125,30 @@ final class OneSignalTrackerTests: XCTestCase {
         OSSessionService.reset()
     }
 
-    private func endSessionAfterAVisit() {
-        // `NSDateOverrider` drives the SDK's clock in unit tests.
+    /// `NSDateOverrider` drives the SDK's clock in unit tests.
+    private func visitForFiveSeconds() {
         NSDateOverrider.advanceSystemTime(by: 1_000)
         OSSessionManager.shared().setLastOpenedTime(NSDateOverrider.globalTimeOffset())
         NSDateOverrider.advanceSystemTime(by: 5)
+    }
+
+    private func endSessionAfterAVisit() {
+        visitForFiveSeconds()
         OneSignalTracker.onSessionEnded([])
+    }
+
+    private func backgroundAfterAVisit() {
+        visitForFiveSeconds()
+        OneSignalTracker.applicationBackgrounded()
+    }
+
+    private func storeUnsentActiveTime(_ time: Double) {
+        OneSignalUserDefaults.initShared().saveObject(forKey: OSUD_UNSENT_ACTIVE_TIME, withValue: time)
+    }
+
+    /// The processors begin this task as they send the session's time.
+    private var sentSessionTime: Bool {
+        taskHandler.begunTasks.contains(SESSION_OUTCOMES_TASK)
     }
 
     private var unsentActiveTime: Double? {
@@ -138,5 +169,43 @@ final class OneSignalTrackerTests: XCTestCase {
         endSessionAfterAVisit()
 
         XCTAssertNil(unsentActiveTime)
+    }
+
+    func testBackgroundingALegacySessionAddsTheVisitToItsUnsentTime() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+        storeUnsentActiveTime(7)
+
+        backgroundAfterAVisit()
+
+        XCTAssertEqual(unsentActiveTime ?? 0, 12, accuracy: 1)
+    }
+
+    func testBackgroundingASessionsApiSessionSendsOnlyTheTimeALegacySessionLeftUnsent() throws {
+        try storeSessionRecord(usesSessionsApi: true)
+        storeUnsentActiveTime(7)
+
+        backgroundAfterAVisit()
+
+        XCTAssertTrue(sentSessionTime)
+        XCTAssertEqual(unsentActiveTime, 7)
+    }
+
+    func testBackgroundingASessionsApiSessionWithNothingLeftUnsentSendsNoTime() throws {
+        try storeSessionRecord(usesSessionsApi: true)
+
+        backgroundAfterAVisit()
+
+        XCTAssertFalse(sentSessionTime)
+        XCTAssertNil(unsentActiveTime)
+    }
+
+    func testEndingASessionsApiSessionSendsOnlyTheTimeALegacySessionLeftUnsent() throws {
+        try storeSessionRecord(usesSessionsApi: true)
+        storeUnsentActiveTime(7)
+
+        endSessionAfterAVisit()
+
+        XCTAssertTrue(sentSessionTime)
+        XCTAssertNotEqual(unsentActiveTime, 12)
     }
 }

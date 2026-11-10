@@ -8,3 +8,7 @@
 #import "UIApplicationOverrider.h"
 #import "OSFocusTimeProcessorFactory.h"
 #import "NSDateOverrider.h"
+
+@interface OneSignalTracker (Testing)
++ (void)applicationBackgrounded;
+@end
