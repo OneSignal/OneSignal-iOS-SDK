@@ -35,6 +35,20 @@ import XCTest
 class FileLogStoreTestCase: XCTestCase {
     fileprivate var temporaryDirectory: URL!
 
+    override class func setUp() {
+        super.setUp()
+        // The first store call in a process pays a one-off cold start that has exceeded 30s on CI;
+        // absorbing it here keeps the per-test timeouts meaningful.
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let done = DispatchSemaphore(value: 0)
+        FileLogStore(rootPath: directory.path).listReadable(minAgeMillis: 0) { _, _ in
+            done.signal()
+        }
+        _ = done.wait(timeout: .now() + 120)
+        try? FileManager.default.removeItem(at: directory)
+    }
+
     override func setUpWithError() throws {
         temporaryDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

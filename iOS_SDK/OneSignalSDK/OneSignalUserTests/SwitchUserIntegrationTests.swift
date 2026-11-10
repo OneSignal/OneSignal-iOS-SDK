@@ -344,10 +344,6 @@ final class SwitchUserIntegrationTests: XCTestCase {
         let client = MockOneSignalClient()
         OneSignalCoreImpl.setSharedClient(client)
 
-        // Increase flush interval to allow all the updates to batch
-        OneSignalUserManagerImpl.sharedInstance.operationRepo.pollIntervalMilliseconds = 300
-        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
-
         // 1. Set up mock responses for the first anonymous user
         let tagsUserAnon = ["tag_anon": "value_anon"]
         MockUserRequests.setDefaultCreateAnonUserResponses(with: client)
@@ -371,6 +367,13 @@ final class SwitchUserIntegrationTests: XCTestCase {
         // Returns mocked user data to test hydration
         MockUserRequests.setDefaultFetchUserResponseForHydration(with: client, externalId: userB_EUID)
 
+        OneSignalUserManagerImpl.sharedInstance.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+        // A poll firing mid-sequence would split a user's tag and language into separate requests.
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
+
         /* When */
 
         // 1. Anonymous user
@@ -392,6 +395,9 @@ final class SwitchUserIntegrationTests: XCTestCase {
         OneSignalUserManagerImpl.sharedInstance.setLanguage("lang_b")
         OneSignalUserManagerImpl.sharedInstance.addAlias(label: "alias_b", id: "id_b")
         OneSignalUserManagerImpl.sharedInstance.addEmail("email_b@example.com")
+
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+        OneSignalUserManagerImpl.sharedInstance.operationRepo.flushAndWait()
 
         OneSignalCoreMocks.waitUntil("User B updates and hydration did not complete") {
             self.userUpdatesAndHydrationCompleted(client, tagsUserA, tagsUserB)
