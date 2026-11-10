@@ -126,6 +126,7 @@
 		B5481A0100000000000000A8 /* OSRequestRetryBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */; };
 		B5481A0100000000000000A6 /* OSOperationRetryTriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A5 /* OSOperationRetryTriggerTests.swift */; };
 		3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */; };
+		3CAA00012FB0000100A1B2C3 /* ChannelTrackerAttributionWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CAA00022FB0000100A1B2C3 /* ChannelTrackerAttributionWindowTests.swift */; };
 		3C44673E296D099D0039A49E /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 912411FD1E73342200E41FD7 /* OneSignalMobileProvision.m */; };
 		3C44673F296D09CC0039A49E /* OneSignalMobileProvision.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FC1E73342200E41FD7 /* OneSignalMobileProvision.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */; };
@@ -1456,6 +1457,7 @@
 		B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRetryBackoffTests.swift; sourceTree = "<group>"; };
 		B5481A0100000000000000A5 /* OSOperationRetryTriggerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRetryTriggerTests.swift; sourceTree = "<group>"; };
 		3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionEndOutcomesRequestTests.swift; sourceTree = "<group>"; };
+		3CAA00022FB0000100A1B2C3 /* ChannelTrackerAttributionWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelTrackerAttributionWindowTests.swift; sourceTree = "<group>"; };
 		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskHandlerImpl.h; sourceTree = "<group>"; };
 		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskHandlerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskHandlerImpl.m; sourceTree = "<group>"; };
 		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
@@ -2897,6 +2899,7 @@
 				4746E2AA2B8775C400D6324C /* LiveActivitiesObjcTests.m */,
 				53075307A11C000000000A01 /* OneSignalAttachmentHandlerTests.m */,
 				3C4319082F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift */,
+				3CAA00022FB0000100A1B2C3 /* ChannelTrackerAttributionWindowTests.swift */,
 				658E6E9E6BC6BBF702BCBD33 /* OSRemoteLoggingControllerTests.swift */,
 			);
 			path = UnitTests;
@@ -4947,6 +4950,7 @@
 				CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */,
 				5B58E4F8237CE7B4009401E0 /* UIDeviceOverrider.m in Sources */,
 				3C4319092F4CE9D90075492D /* SessionEndOutcomesRequestTests.swift in Sources */,
+				3CAA00012FB0000100A1B2C3 /* ChannelTrackerAttributionWindowTests.swift in Sources */,
 				ACE2175908241BB46C9F1829 /* OSRemoteLoggingControllerTests.swift in Sources */,
 				CA8E19022193C6B0009DA223 /* InAppMessagingIntegrationTests.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
