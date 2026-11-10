@@ -131,7 +131,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     
     // No open time is recorded for a visit whose activation came before `initialize`.
-    if (timeProcessor && timeElapsed >= 0)
+    if (timeProcessor && timeElapsed >= 0 && !OSSessionService.currentSessionUsesSessionsApi)
         [timeProcessor sendOnFocusCall:focusCallParams];
     // user module let them know app is backgrounded
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
@@ -147,6 +147,12 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     if (!timeProcessor) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
+        return;
+    }
+
+    // Runs before a new session starts, so the record is still the ending session's.
+    if (OSSessionService.currentSessionUsesSessionsApi) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded the sessions API reports this session's time"];
         return;
     }
     

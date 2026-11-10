@@ -26,7 +26,9 @@
  */
 
 import XCTest
+import OneSignalCore
 import OneSignalOSCore
+import OneSignalOutcomes
 
 private final class FakeUserProvider: OSSessionUserProvider {
     var sessionCurrentUser: OSSessionUser {
@@ -51,6 +53,11 @@ final class OneSignalTrackerTests: XCTestCase {
         OneSignalTracker.reset()
         OSSessionService.resetAndClearStoredRecord()
         UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OSSessionManager.shared().setLastOpenedTime(0)
+        NSDateOverrider.reset()
+        OSFocusTimeProcessorFactory.cancelFocusCall()
+        OSFocusTimeProcessorFactory.resetUnsentActiveTime()
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_UNSENT_ACTIVE_TIME)
         super.tearDown()
     }
 
@@ -90,5 +97,46 @@ final class OneSignalTrackerTests: XCTestCase {
         let start = OSSessionService.shared.startNewSession(userProvider: userProvider)
 
         XCTAssertEqual(start.started.awaitingFocus, true)
+    }
+
+    /// A record from the previous process, as on a launch that ends it.
+    private func storeSessionRecord(usesSessionsApi: Bool) throws {
+        let record: [String: Any] = [
+            "sessionId": "session-1",
+            "startTime": Date().timeIntervalSince1970 - 10,
+            "activeDuration": 0,
+            "usesSessionsApi": usesSessionsApi
+        ]
+        let data = try JSONSerialization.data(withJSONObject: record)
+        OneSignalUserDefaults.initStandard().saveObject(forKey: OSUD_SESSION_RECORD, withValue: data)
+        OSSessionService.reset()
+    }
+
+    private func endSessionAfterAVisit() {
+        // `NSDateOverrider` drives the SDK's clock in unit tests.
+        NSDateOverrider.advanceSystemTime(by: 1_000)
+        OSSessionManager.shared().setLastOpenedTime(NSDateOverrider.globalTimeOffset())
+        NSDateOverrider.advanceSystemTime(by: 5)
+        OneSignalTracker.onSessionEnded([])
+    }
+
+    private var unsentActiveTime: Double? {
+        OneSignalUserDefaults.initShared().getSavedObject(forKey: OSUD_UNSENT_ACTIVE_TIME, defaultValue: nil) as? Double
+    }
+
+    func testEndingALegacySessionReportsItsTime() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+
+        endSessionAfterAVisit()
+
+        XCTAssertGreaterThan(unsentActiveTime ?? 0, 0)
+    }
+
+    func testEndingASessionsApiSessionLeavesItsTimeToTheSessionsApi() throws {
+        try storeSessionRecord(usesSessionsApi: true)
+
+        endSessionAfterAVisit()
+
+        XCTAssertNil(unsentActiveTime)
     }
 }
