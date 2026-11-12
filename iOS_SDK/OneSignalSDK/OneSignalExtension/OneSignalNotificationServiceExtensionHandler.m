@@ -136,6 +136,15 @@
         // If update was made without app being initialized/launched before -> migrate
         [OneSignalCoreImpl migrate];
         [OSOutcomes migrate];
+
+        if (![self addProcessedNotificationId:receivedNotificationId]) {
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"NSE request for already processed notificationId: %@, not sending another confirmed delivery", receivedNotificationId]];
+            if (semaphore) {
+                dispatch_semaphore_signal(semaphore);
+            }
+            return;
+        }
+
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OSSessionManager sharedSessionManager]]];
         // Save received notification id
         [[OSSessionManager sharedSessionManager] onNotificationReceived:receivedNotificationId];
@@ -159,6 +168,39 @@
             }
         }];
    }
+}
+
+/*
+ Returns NO if the extension already processed this notification ID.
+ The extension can run more than once for one notification.
+ The in-process list covers repeat runs before first unlock, when shared UserDefaults reads return nothing.
+ */
++ (BOOL)addProcessedNotificationId:(NSString *)notificationId {
+    static NSMutableArray<NSString *> *processedInThisProcess;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        processedInThisProcess = [NSMutableArray new];
+    });
+
+    @synchronized (processedInThisProcess) {
+        let sharedUserDefaults = OneSignalUserDefaults.initShared;
+        NSMutableArray<NSString *> *savedIds = [[sharedUserDefaults getSavedObjectForKey:OSUD_NSE_PROCESSED_NOTIFICATION_IDS defaultValue:[NSArray new]] mutableCopy];
+        if ([processedInThisProcess containsObject:notificationId] || [savedIds containsObject:notificationId]) {
+            return NO;
+        }
+
+        [self appendNotificationId:notificationId toProcessedIds:processedInThisProcess];
+        [self appendNotificationId:notificationId toProcessedIds:savedIds];
+        [sharedUserDefaults saveObjectForKey:OSUD_NSE_PROCESSED_NOTIFICATION_IDS withValue:savedIds];
+        return YES;
+    }
+}
+
++ (void)appendNotificationId:(NSString *)notificationId toProcessedIds:(NSMutableArray<NSString *> *)processedIds {
+    [processedIds addObject:notificationId];
+    if (processedIds.count > MAX_NSE_PROCESSED_NOTIFICATION_IDS) {
+        [processedIds removeObjectsInRange:NSMakeRange(0, processedIds.count - MAX_NSE_PROCESSED_NOTIFICATION_IDS)];
+    }
 }
 
 @end
