@@ -44,6 +44,8 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     var identityModel: OSIdentityModel
     var pushSubscriptionModel: OSSubscriptionModel?
     var originalPushToken: String?
+    /// Non-retryable failures so far. Persisted, so the count carries across launches.
+    var rejectionCount = 0
 
     /**
      Whether the response's IDs should enter `newRecordsState`.
@@ -137,6 +139,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
         coder.encode(originalPushToken, forKey: "originalPushToken")
         coder.encode(addsNewRecords, forKey: "addsNewRecords")
+        coder.encode(rejectionCount, forKey: "rejectionCount")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
         coder.encode(timestamp, forKey: "timestamp")
@@ -159,6 +162,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         self.addsNewRecords = coder.containsValue(forKey: "addsNewRecords")
             ? coder.decodeBool(forKey: "addsNewRecords")
             : true
+        self.rejectionCount = coder.decodeInteger(forKey: "rejectionCount")
         self.stringDescription = "<OSRequestCreateUser with external_id: \(identityModel.externalId ?? "nil")>"
         super.init()
         self.parameters = parameters

@@ -352,8 +352,8 @@ final class UserJwtLifecycleTests: XCTestCase {
         XCTAssertFalse(queuedCreateUserExternalIds().contains(userA_EUID))
     }
 
-    /// A failure the token cannot fix still stops the queue, since the user will never exist this session.
-    func testACreateUserThatFailsForAnotherReasonStillPausesTheRepo() {
+    /// Only this user's Requests wait on the Create User, so the rest of the queue keeps flowing.
+    func testACreateUserThatFailsForAnotherReasonDoesNotPauseTheRepo() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         client.setMockFailureResponseForRequest(
             request: "<OSRequestCreateUser with external_id: \(userA_EUID)>",
@@ -361,11 +361,12 @@ final class UserJwtLifecycleTests: XCTestCase {
         )
 
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
-        OneSignalCoreMocks.waitUntil("The failure did not pause the Repo") {
-            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused
+        OneSignalCoreMocks.waitUntil("The Create User was not rejected") {
+            self.client.hasExecutedRequestOfType(OSRequestCreateUser.self, expectedCount: 1)
         }
+        allowAsyncWorkToRun(seconds: 0.3)
 
-        XCTAssertTrue(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
+        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
     }
 
     // MARK: - logout

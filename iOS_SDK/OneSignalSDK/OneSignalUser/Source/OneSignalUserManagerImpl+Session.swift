@@ -38,7 +38,6 @@ extension OneSignalUserManagerImpl {
         start()
 
         userExecutor!.executePendingRequestsOnNewSession()
-        operationRepo.paused = false
         let start = OSSessionService.shared.startNewSession(userProvider: self) { start in
             if let ended = start.ended {
                 self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
