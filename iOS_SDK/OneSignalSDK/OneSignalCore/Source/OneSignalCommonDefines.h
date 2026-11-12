@@ -112,6 +112,7 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
+#define OSUD_SESSION_RECORD                                                 @"OSUD_SESSION_RECORD"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
@@ -207,6 +208,7 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define PROPERTIES_EXECUTOR_BACKGROUND_TASK     @"PROPERTIES_EXECUTOR_BACKGROUND_TASK_"
 #define SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK   @"SUBSCRIPTION_EXECUTOR_BACKGROUND_TASK_"
 #define CUSTOM_EVENTS_EXECUTOR_BACKGROUND_TASK  @"CUSTOM_EVENTS_EXECUTOR_BACKGROUND_TASK_"
+#define SESSION_EXECUTOR_BACKGROUND_TASK        @"SESSION_EXECUTOR_BACKGROUND_TASK_"
 
 // OneSignal constants
 #define OS_PUSH @"push"
@@ -277,6 +279,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
      incorrectlyget a 404 when attempting a GET or PATCH REST API call on something just after it is created.
      */
     #define OP_REPO_POST_CREATE_DELAY_SECONDS 3
+
+    // How long after a record is created a 404 on it is treated as replication lag and retried.
+    #define OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS 60
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -299,6 +304,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
     // Reduce delay in tests
     #define OP_REPO_POST_CREATE_DELAY_SECONDS 0
+    #define OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS 60
 #endif
 
 // A max timeout for a request, which might include multiple reattempts
@@ -352,6 +358,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_CUSTOM_EVENT_DELTA                                               @"OS_CUSTOM_EVENT_DELTA"
 
+#define OS_CREATE_SESSION_DELTA                                             @"OS_CREATE_SESSION_DELTA"
+#define OS_UPDATE_SESSION_DELTA                                             @"OS_UPDATE_SESSION_DELTA"
+
 // Operation Repo
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
@@ -377,6 +386,11 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // Custom Events Executor
 #define OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY                           @"OS_CUSTOM_EVENTS_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY                         @"OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY"
+
+// Session Executor
+#define OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY                                 @"OS_SESSION_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY                               @"OS_SESSION_EXECUTOR_REQUEST_QUEUE_KEY"
+#define OS_SESSION_EXECUTOR_SESSIONS_KEY                                    @"OS_SESSION_EXECUTOR_SESSIONS_KEY"
 
 // A codeable value larger than this is not written, and a cached queue blob larger than it is dropped without
 // decoding it. Real queues are a few KB. CFPreferences rejects a value of 4 MB or more on iOS.

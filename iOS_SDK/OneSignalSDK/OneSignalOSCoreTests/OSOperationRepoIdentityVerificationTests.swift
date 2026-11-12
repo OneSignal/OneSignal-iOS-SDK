@@ -178,6 +178,21 @@ final class OSOperationRepoIdentityVerificationTests: XCTestCase {
         XCTAssertEqual(executor.enqueued.map(\.property), ["token"])
     }
 
+    /// The sessions API takes no user JWT, so session Deltas survive the enqueue drop.
+    func testAnonymousSessionDeltasAreExemptFromTheEnqueueDrop() {
+        jwtConfig.hydrate(requiresUserAuth: true)
+        let repo = makeRepo()
+        repo.paused = true
+
+        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_CREATE_SESSION_DELTA, externalId: nil, property: "create"))
+        repo.enqueueDelta(OSOperationRepoTestEnvironment.makeDelta(name: OS_UPDATE_SESSION_DELTA, externalId: nil, property: "update"))
+        repo.enqueueDelta(makeDelta(externalId: nil, property: "anonymous"))
+        repo.enqueueDelta(makeDelta(externalId: "user-1", property: "identified"))
+
+        OneSignalCoreMocks.waitUntil("identified delta enqueued") { repo.snapshotDeltaQueue().count == 3 }
+        XCTAssertEqual(repo.snapshotDeltaQueue().map(\.property), ["create", "update", "identified"])
+    }
+
     /// The rollout flag alone must not suppress; only `jwt_required` turns it on.
     func testAnonymousDeltasSurviveWhenTheFlagIsOnButTheAppDoesNotRequireAuth() {
         flagsStore.applyRemoteFlags([FeatureFlag.sdkIdentityVerification.key], metadata: nil)

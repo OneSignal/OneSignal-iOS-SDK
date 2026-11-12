@@ -226,6 +226,9 @@ class OSSubscriptionModel: OSModel {
                 .subscriptionId(oldValue, remoteDisabledReason: previousRemoteDisabledReason),
                 generateEnabledDelta: false
             )
+            if newValue != nil {
+                OSSessionService.shared.refreshPinnedIds()
+            }
         }
     }
 
