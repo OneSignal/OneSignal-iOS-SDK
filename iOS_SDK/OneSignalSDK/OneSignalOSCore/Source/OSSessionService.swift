@@ -200,6 +200,12 @@ public final class OSSessionService: NSObject {
         OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_SESSION_RECORD)
     }
 
+    /// A sessions API session reports its duration and attribution itself, so the legacy session
+    /// duration outcome and `session_time` are not sent for it.
+    @objc public static var currentSessionUsesSessionsApi: Bool {
+        shared.currentRecord?.usesSessionsApi ?? false
+    }
+
     public var currentRecord: OSSessionRecord? {
         let ids = pinnableIds()
         return stateLock.withLock {

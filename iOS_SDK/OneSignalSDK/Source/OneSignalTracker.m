@@ -130,9 +130,13 @@ static BOOL lastOnFocusWasToBackground = YES;
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     
+    // The sessions API reports this visit, so only time a legacy session left unsent is sent.
     // No open time is recorded for a visit whose activation came before `initialize`.
-    if (timeProcessor && timeElapsed >= 0)
+    if (OSSessionService.currentSessionUsesSessionsApi) {
+        [timeProcessor sendUnsentActiveTime:focusCallParams];
+    } else if (timeProcessor && timeElapsed >= 0) {
         [timeProcessor sendOnFocusCall:focusCallParams];
+    }
     // user module let them know app is backgrounded
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
@@ -149,9 +153,10 @@ static BOOL lastOnFocusWasToBackground = YES;
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
-    
-    if (timeElapsed < -1)
-        // If there is no in focus time to be added we just need to send the time from the last session that just ended.
+
+    // Runs before a new session starts, so the record is still the ending session's. The sessions API
+    // reports its visits, so only time a legacy session left unsent is sent.
+    if (OSSessionService.currentSessionUsesSessionsApi || timeElapsed < -1)
         [timeProcessor sendUnsentActiveTime:focusCallParams];
     else
         [timeProcessor sendOnFocusCall:focusCallParams];

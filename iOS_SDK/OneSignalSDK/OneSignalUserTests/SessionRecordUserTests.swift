@@ -362,3 +362,39 @@ extension SessionRecordUserTests {
         client.releaseHeldResponses()
     }
 }
+
+// MARK: - Legacy session reporting
+
+extension SessionRecordUserTests {
+    private func sessionStartUserUpdate() -> [String: Any]? {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.start()
+        OneSignalCoreMocks.waitUntil("Anonymous user creation did not complete") {
+            self.client.hasCompletedRequestOfType(OSRequestCreateUser.self)
+        }
+
+        startForegroundSession()
+        manager.operationRepo.flushAndWait()
+        OneSignalCoreMocks.waitUntil("Session start user update was not sent") {
+            self.client.hasExecutedRequestOfType(OSRequestUpdateProperties.self)
+        }
+        let update = client.executedRequests.compactMap { $0 as? OSRequestUpdateProperties }.last
+        return update?.parameters as? [String: Any]
+    }
+
+    func testLegacySessionStartCountsTheSession() {
+        let params = sessionStartUserUpdate()
+
+        XCTAssertEqual(params?["refresh_device_metadata"] as? Bool, true)
+        XCTAssertEqual((params?["deltas"] as? [String: Any])?["session_count"] as? Int, 1)
+    }
+
+    func testSessionsApiSessionStartRefreshesDeviceMetadataWithoutCountingTheSession() {
+        enableSessionsApi()
+
+        let params = sessionStartUserUpdate()
+
+        XCTAssertEqual(params?["refresh_device_metadata"] as? Bool, true)
+        XCTAssertNil(params?["deltas"])
+    }
+}
