@@ -68,3 +68,58 @@ struct LoginUserDialog: View {
         !externalId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
+
+/// Update User JWT dialog. Fields are stacked full width like `LoginUserDialog` because a JWT
+/// runs to several hundred characters. `initialExternalId` prefills the id and stays editable.
+struct UpdateJwtDialog: View {
+    let onUpdate: (String, String) -> Void
+    let onCancel: () -> Void
+
+    @State private var externalId: String
+    @State private var jwtToken: String = ""
+
+    init(
+        initialExternalId: String,
+        onUpdate: @escaping (String, String) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.onUpdate = onUpdate
+        self.onCancel = onCancel
+        _externalId = State(initialValue: initialExternalId)
+    }
+
+    var body: some View {
+        OSDialog(
+            title: "Update User JWT",
+            confirmLabel: "Update",
+            isConfirmEnabled: isValid,
+            confirmAccessibilityID: "singlepair_confirm_button",
+            cancelAccessibilityID: "singlepair_cancel_button",
+            onConfirm: {
+                onUpdate(
+                    externalId.trimmingCharacters(in: .whitespacesAndNewlines),
+                    jwtToken.trimmingCharacters(in: .whitespacesAndNewlines)
+                )
+            },
+            onCancel: onCancel
+        ) {
+            VStack(spacing: 12) {
+                OSTextField(
+                    placeholder: "External User Id",
+                    text: $externalId,
+                    accessibilityID: "update_jwt_external_id_input"
+                )
+                OSTextField(
+                    placeholder: "JWT Token",
+                    text: $jwtToken,
+                    accessibilityID: "update_jwt_token_input"
+                )
+            }
+        }
+    }
+
+    private var isValid: Bool {
+        !externalId.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !jwtToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+}

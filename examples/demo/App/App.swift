@@ -54,6 +54,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // Initialize OneSignal
         OneSignalService.shared.initialize(launchOptions: launchOptions)
 
+        // One registration for the app. The SDK replays a pending ask to a listener added later.
+        OneSignalService.shared.addUserJwtInvalidatedListener(JwtInvalidatedHandler.shared)
+
         // Set up notification lifecycle listeners
         setupNotificationListeners()
 
@@ -111,6 +114,22 @@ class NotificationClickHandler: NSObject, OSNotificationClickListener {
         LogService.show(
             "Notification click: \(notification.notificationId ?? "null") \(notification.title ?? "")"
         )
+    }
+}
+
+// MARK: - JWT Handler
+
+class JwtInvalidatedHandler: NSObject, OSUserJwtInvalidatedListener {
+    static let shared = JwtInvalidatedHandler()
+
+    func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
+        let externalId = event.externalId
+        LogService.info("JWT invalidated for externalId: \(externalId)")
+        // The SDK calls this on the main queue. A later hop could land after a logout or an
+        // Update and bring the ask back.
+        MainActor.assumeIsolated {
+            JwtAskStore.shared.invalidated(externalId: externalId)
+        }
     }
 }
 
