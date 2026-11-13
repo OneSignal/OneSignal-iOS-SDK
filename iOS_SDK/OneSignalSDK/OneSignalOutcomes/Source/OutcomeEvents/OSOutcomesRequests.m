@@ -35,10 +35,21 @@ NSString * const OUTCOME_ID = @"id";
 NSString * const WEIGHT = @"weight";
 NSString * const IS_DIRECT = @"direct";
 NSString * const NOTIFICATION_IDS = @"notification_ids";
+static NSString * const SUBSCRIPTION = @"subscription";
+
+// The server reads subscription.id as a UUID, so an empty or missing id has to leave the whole key out.
+static void addUserIdentifiers(NSMutableDictionary *params, NSString *pushSubscriptionId, NSString *onesignalId) {
+    if (pushSubscriptionId.length > 0)
+        params[SUBSCRIPTION] = @{@"id": pushSubscriptionId, @"type": @"iOSPush"};
+    if (onesignalId.length > 0)
+        params[OS_ONESIGNAL_ID] = onesignalId;
+}
 
 + (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                      appId:(NSString * _Nonnull)appId
-                                deviceType:(NSNumber * _Nonnull)deviceType {
+                                deviceType:(NSNumber * _Nonnull)deviceType
+                        pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                               onesignalId:(NSString * _Nullable)onesignalId {
     let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
@@ -53,6 +64,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 
+    addUserIdentifiers(params, pushSubscriptionId, onesignalId);
     request.parameters = params;
     request.method = POST;
     request.path = @"outcomes/measure";
@@ -62,7 +74,9 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                        appId:(NSString * _Nonnull)appId
-                                  deviceType:(NSNumber * _Nonnull)deviceType {
+                                  deviceType:(NSNumber * _Nonnull)deviceType
+                          pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                                 onesignalId:(NSString * _Nullable)onesignalId {
     let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
@@ -77,6 +91,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 
+    addUserIdentifiers(params, pushSubscriptionId, onesignalId);
     request.parameters = params;
     request.method = POST;
     request.path = @"outcomes/measure";
@@ -86,7 +101,9 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                            appId:(NSString * _Nonnull)appId
-                                      deviceType:(NSNumber * _Nonnull)deviceType {
+                                      deviceType:(NSNumber * _Nonnull)deviceType
+                              pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                                     onesignalId:(NSString * _Nullable)onesignalId {
     let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
@@ -98,6 +115,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 
+    addUserIdentifiers(params, pushSubscriptionId, onesignalId);
     request.parameters = params;
     request.method = POST;
     request.path = @"outcomes/measure";

@@ -454,6 +454,12 @@ static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 
 + (void)startOutcomes {
     [OSOutcomes start];
+    OSOutcomes.sharedController.pushSubscriptionIdProvider = ^NSString * _Nullable {
+        return OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    };
+    OSOutcomes.sharedController.onesignalIdProvider = ^NSString * _Nullable {
+        return OneSignalUserManagerImpl.sharedInstance.onesignalId;
+    };
     [OSOutcomes.sharedController cleanUniqueOutcomeNotifications]; // TODO: should this actually be in new session instead of init
 }
 
