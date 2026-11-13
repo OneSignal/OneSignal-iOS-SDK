@@ -143,10 +143,18 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
     // The live activities request dispatch queue, serial.  This synchronizes access to `updateTokens` and `startTokens`.
     private var requestDispatch: OSDispatchQueue
     private var pollIntervalSeconds: Int
+    private let retryBackoff: OSRequestRetryBackoff
+    private let retryTrigger = OSOperationRetryTrigger()
+    /// Only touched on `requestDispatch`.
+    private var requestsInFlight = Set<ObjectIdentifier>()
 
-    init(requestDispatch: OSDispatchQueue, pollIntervalSeconds: Int = 30) {
+    init(requestDispatch: OSDispatchQueue, pollIntervalSeconds: Int = 30, retryBackoff: OSRequestRetryBackoff = OSRequestRetryBackoff()) {
         self.requestDispatch = requestDispatch
         self.pollIntervalSeconds = pollIntervalSeconds
+        self.retryBackoff = retryBackoff
+        retryTrigger.onRetry = { [weak self] in
+            self?.retryNow()
+        }
     }
 
     func start() {
@@ -157,6 +165,14 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         self.pollPendingRequests()
     }
 
+    func onFocus() {
+        retryTrigger.onFocus()
+    }
+
+    func onUnfocus() {
+        retryTrigger.onUnfocus()
+    }
+
     func onPushSubscriptionDidChange(state: OneSignalUser.OSPushSubscriptionChangedState) {
         if state.previous.id == state.current.id {
             return
@@ -164,9 +180,8 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
         // when a push subscription id changes, we need to re-send up all update and start tokens with the new ID.
         self.requestDispatch.async {
-            self.caches { _ in
-                self.startTokens.markAllUnsuccessful()
-            }
+            self.startTokens.markAllUnsuccessful()
+            self.updateTokens.markAllUnsuccessful()
 
             self.pollPendingRequests()
         }
@@ -180,6 +195,9 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
             if existingRequest == nil || request.supersedes(existingRequest!) {
                 cache.add(request)
                 self.executeRequest(cache, request: request)
+            } else if let existingRequest, self.isDue(existingRequest) {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities re-sending unsent request: \(existingRequest)")
+                self.executeRequest(cache, request: existingRequest)
             } else {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities superseded request not saved/executed: \(request)")
             }
@@ -191,13 +209,39 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
 
         self.requestDispatch.asyncAfterTime(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing outstanding requests")
+            self?.executeDueRequests()
+        }
+    }
 
-            // execute any request that hasn't been successfully executed.
-            self?.caches { cache in
-                for request in cache.items.values.filter({ !$0.requestSuccessful }) {
-                    self?.executeRequest(cache, request: request)
-                }
+    private func retryNow() {
+        retryBackoff.retryNow()
+        requestDispatch.async {
+            self.executeDueRequests()
+        }
+    }
+
+    private func executeDueRequests() {
+        caches { cache in
+            for request in cache.items.values where isDue(request) {
+                executeRequest(cache, request: request)
             }
+        }
+    }
+
+    private func isDue(_ request: OSLiveActivityRequest) -> Bool {
+        return !request.requestSuccessful
+            && !requestsInFlight.contains(ObjectIdentifier(request))
+            && !retryBackoff.isWaiting(request)
+    }
+
+    private func retryLater(_ cache: RequestCache, request: OSLiveActivityRequest, error: OneSignalClientError) {
+        let delay = retryBackoff.recordFailure(request, error: error)
+        requestDispatch.asyncAfterTime(deadline: .now() + delay) { [weak self] in
+            // A superseded request carries an old token, which must not be bound again.
+            guard let self, cache.items[request.key] === request, self.isDue(request) else {
+                return
+            }
+            self.executeRequest(cache, request: request)
         }
     }
 
@@ -231,25 +275,33 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
             return
         }
 
+        let requestId = ObjectIdentifier(request)
+        let backgroundTaskIdentifier = LIVE_ACTIVITIES_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
+        requestsInFlight.insert(requestId)
+        OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
+
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities executing request: \(request)")
         OneSignalCoreImpl.sharedClient().execute(request) { _ in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request succeeded: \(request)")
             self.requestDispatch.async {
+                self.requestsInFlight.remove(requestId)
                 cache.markSuccessful(request)
+                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
         } onFailure: { error in
             // NOTE: No longer running under `requestDispatch` DispatchQueue!
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities request failed with error \(error.debugDescription)")
-            let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
-            if responseType != .retryable {
-                self.requestDispatch.async {
+            self.requestDispatch.async {
+                self.requestsInFlight.remove(requestId)
+                if OSNetworkingUtils.getResponseStatusType(error.code) == .retryable {
+                    self.retryLater(cache, request: request, error: error)
+                } else {
                     // Failed, no retry. Remove the key from the cache entirely so we don't try again.
                     cache.remove(request)
                 }
-                return
+                OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
             }
-            // retryable failures will stay in the cache, and will retry the next time the app starts
         }
     }
 }

@@ -51,6 +51,16 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
     }
 
     @objc
+    public static func onFocus() {
+        _executor.onFocus()
+    }
+
+    @objc
+    public static func onUnfocus() {
+        _executor.onUnfocus()
+    }
+
+    @objc
     public static func enter(_ activityId: String, withToken: String) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities enter called with activityId: \(activityId) token: \(withToken)")
         _executor.append(OSRequestSetUpdateToken(key: activityId, token: withToken))
