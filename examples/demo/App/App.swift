@@ -125,7 +125,9 @@ class JwtInvalidatedHandler: NSObject, OSUserJwtInvalidatedListener {
     func onUserJwtInvalidated(event: OSUserJwtInvalidatedEvent) {
         let externalId = event.externalId
         LogService.info("JWT invalidated for externalId: \(externalId)")
-        Task { @MainActor in
+        // The SDK calls this on the main queue. A later hop could land after a logout or an
+        // Update and bring the ask back.
+        MainActor.assumeIsolated {
             JwtAskStore.shared.invalidated(externalId: externalId)
         }
     }
