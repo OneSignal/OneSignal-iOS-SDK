@@ -65,6 +65,15 @@
       reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
 }
 
+/// Without consent a send fails and keeps the time for a later one, so the time is dropped instead.
+- (BOOL)dropUnsentActiveTimeIfConsentMissing {
+    if (![OSPrivacyConsentController requiresUserPrivacyConsent])
+        return NO;
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Dropping unsent active time without privacy consent"];
+    [self saveUnsentActiveTime:0];
+    return YES;
+}
+
 - (NSTimeInterval)getUnsentActiveTime {
     if (!unsentActiveTime)
         unsentActiveTime = [OneSignalUserDefaults.initShared getSavedObjectForKey:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];

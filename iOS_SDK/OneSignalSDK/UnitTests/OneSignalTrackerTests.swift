@@ -74,6 +74,8 @@ final class OneSignalTrackerTests: XCTestCase {
         OSFocusTimeProcessorFactory.cancelFocusCall()
         OSFocusTimeProcessorFactory.resetUnsentActiveTime()
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_UNSENT_ACTIVE_TIME)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_REQUIRES_USER_PRIVACY_CONSENT)
+        OneSignalUserDefaults.initShared().removeValue(forKey: GDPR_CONSENT_GRANTED)
         super.tearDown()
     }
 
@@ -210,6 +212,77 @@ final class OneSignalTrackerTests: XCTestCase {
 
         XCTAssertTrue(sentSessionTime)
         XCTAssertNotEqual(unsentActiveTime, 12)
+    }
+
+    // MARK: - Privacy consent
+
+    private func setConsentGiven(_ granted: Bool) {
+        OneSignalUserDefaults.initShared().saveBool(forKey: OSUD_REQUIRES_USER_PRIVACY_CONSENT, withValue: true)
+        OSPrivacyConsentController.consentGranted(granted)
+        OneSignalTracker.onConsentChanged()
+    }
+
+    /// Focused in a legacy session whose open time is set, so a background records the visit.
+    private func focusALegacySession() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+        UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OneSignalTracker.onInitWhileActive()
+        visitForFiveSeconds()
+    }
+
+    func testRevokingConsentWhileFocusedClosesTheSessionsVisit() {
+        UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OneSignalTracker.onInitWhileActive()
+        _ = OSSessionService.shared.startNewSession(userProvider: userProvider)
+
+        setConsentGiven(false)
+
+        XCTAssertNotNil(OSSessionService.shared.currentRecord?.lastUnfocusTime)
+    }
+
+    func testRevokingConsentWhileFocusedDropsTheLegacyTimeInsteadOfKeepingIt() throws {
+        storeUnsentActiveTime(7)
+        try focusALegacySession()
+
+        setConsentGiven(false)
+
+        XCTAssertFalse(sentSessionTime)
+        XCTAssertEqual(unsentActiveTime, 0)
+    }
+
+    func testFocusChangesWithoutConsentAreNotTracked() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+
+        OneSignalTracker.onFocus(false)
+        visitForFiveSeconds()
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime, 0)
+    }
+
+    func testGrantingConsentWhileActiveReturnsToTheForeground() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+
+        NSDateOverrider.advanceSystemTime(by: 1_000)
+        setConsentGiven(true)
+        NSDateOverrider.advanceSystemTime(by: 5)
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
+    }
+
+    func testGrantingConsentInTheBackgroundWaitsForTheNextForeground() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+        UIApplicationOverrider.setCurrentUIApplicationState(.background)
+
+        setConsentGiven(true)
+        visitForFiveSeconds()
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime, 0)
     }
 }
 

@@ -31,6 +31,7 @@
 
 + (void)onFocus:(BOOL)toBackground;
 + (void)onInitWhileActive;
++ (void)onConsentChanged;
 + (void)reset;
 + (void)onSessionEnded:(NSArray<OSInfluence *> *) lastInfluences;
 
