@@ -191,7 +191,7 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         uptime += OSRequestRetryBackoff.baseDelaySeconds
         OneSignalCoreMocks.waitUntil("The Fetch User was not retried until it succeeded") {
             executor.retryIfDue()
-            return self.count(OSRequestFetchUser.self) == 2 && executor.userRequestQueue.isEmpty
+            return self.count(OSRequestFetchUser.self) == 2 && executor.snapshotUserRequestQueue().isEmpty
         }
         allowAsyncWorkToRun()
     }
@@ -244,7 +244,7 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The current user's Create User was held behind the logged out one") {
             self.count(OSRequestCreateUser.self) == 2
         }
-        XCTAssertFalse(executor.userRequestQueue.contains { ($0 as? OSRequestCreateUser)?.identityModel === loggedOut })
+        XCTAssertFalse(executor.snapshotUserRequestQueue().contains { ($0 as? OSRequestCreateUser)?.identityModel === loggedOut })
         XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
     }
 

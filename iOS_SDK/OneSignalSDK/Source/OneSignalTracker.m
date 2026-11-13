@@ -72,6 +72,27 @@ static BOOL lastOnFocusWasToBackground = YES;
     }
 }
 
++ (void)reset {
+    lastOnFocusWasToBackground = YES;
+}
+
+/// `initialize` can run after the app became active (a wrapper's JS or Dart init, delayed consent),
+/// so that activation was never observed. Must run on the main queue. `.inactive` is excluded:
+/// during `didFinishLaunching` a launching notification tap is not delivered yet, and the session's
+/// first focus must come after it.
++ (void)onInitWhileActive {
+    UIApplication *app = UIApplication.sharedApplication;
+    if (!app || app.applicationState != UIApplicationStateActive)
+        return;
+    // Each init has a new session service, including the one after an app-id change, which the
+    // tracker may already have seen focused.
+    [OSSessionService onFocus];
+    if (!lastOnFocusWasToBackground)
+        return;
+    lastOnFocusWasToBackground = NO;
+    [OneSignalUserManagerImpl.sharedInstance onFocus];
+}
+
 + (void)applicationBecameActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Active started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
@@ -80,6 +101,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         OSSessionManager.sharedSessionManager.appEntryState = APP_OPEN;
    
     [OSSessionManager.sharedSessionManager setLastOpenedTime:[[NSDate date] timeIntervalSince1970]];
+    [OSSessionService onFocus];
     [OneSignalUserManagerImpl.sharedInstance onFocus];
     
     // on_session tracking when resumming app.
@@ -96,6 +118,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [OneSignalUserManagerImpl.sharedInstance onUnfocus];
     [self updateLastClosedTime];
+    [OSSessionService onUnfocus];
     
     let timeElapsed = [OSSessionManager.sharedSessionManager getTimeFocusedElapsed];
     if (timeElapsed < -1)
@@ -107,8 +130,13 @@ static BOOL lastOnFocusWasToBackground = YES;
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     
-    if (timeProcessor)
+    // The sessions API reports this visit, so only time a legacy session left unsent is sent.
+    // No open time is recorded for a visit whose activation came before `initialize`.
+    if (OSSessionService.currentSessionUsesSessionsApi) {
+        [timeProcessor sendUnsentActiveTime:focusCallParams];
+    } else if (timeProcessor && timeElapsed >= 0) {
         [timeProcessor sendOnFocusCall:focusCallParams];
+    }
     // user module let them know app is backgrounded
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
@@ -125,9 +153,10 @@ static BOOL lastOnFocusWasToBackground = YES;
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
-    
-    if (timeElapsed < -1)
-        // If there is no in focus time to be added we just need to send the time from the last session that just ended.
+
+    // Runs before a new session starts, so the record is still the ending session's. The sessions API
+    // reports its visits, so only time a legacy session left unsent is sent.
+    if (OSSessionService.currentSessionUsesSessionsApi || timeElapsed < -1)
         [timeProcessor sendUnsentActiveTime:focusCallParams];
     else
         [timeProcessor sendOnFocusCall:focusCallParams];

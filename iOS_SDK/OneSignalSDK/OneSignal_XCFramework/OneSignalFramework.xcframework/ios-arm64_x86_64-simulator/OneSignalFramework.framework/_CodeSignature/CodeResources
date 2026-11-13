@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignalFramework-Swift.h</key>
 		<data>
-		X31p2CJpCY14RgKjJNEROHmqIS0=
+		eFDO9jE5QvmX7J2F34IWGJaWNeo=
 		</data>
 		<key>Headers/OneSignalFramework.h</key>
 		<data>
@@ -14,43 +14,43 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		8y85k7KAQ8HLcgucGIbmti7Bfvw=
+		VMtCKFLJXVurPYCwu/77YQaRalI=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		0mxQjfrz9B0MH0OPZ4zadvcH+M8=
+		wyHAr5JjjJx6FB8HsgnUwl9qpog=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		07yXk1dVp+Oq9q2z4ThTr1AKrXE=
+		XyT0e3UeLpzGhGFy2OYsdYP77Rk=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		noBQSnZX1kAdi2PRFPhyd8hhHeI=
+		UfTe2M8MJXM1Ih3Bczb0fYXZ2H0=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		CEkWRTwcaZ4Yv7R9Dvr4cm0Js/M=
+		6gX6FLEzgxoUOiA/XnpNNuiQjz0=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
-		0mxQjfrz9B0MH0OPZ4zadvcH+M8=
+		wyHAr5JjjJx6FB8HsgnUwl9qpog=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		JN+yIDDT9qYueM/Xs22glyAXZ1U=
+		4oIqyaJdBXgMijfAp9zFbd9iao4=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		0C2kdZGD9QBefjR8gjaVzmE5aOU=
+		u9PbX5VhsiwoSRBfxvR52iBoXbI=
 		</data>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		iAvBvhEnvDALxqqu8Af/W7f9fkE=
+		zv/4Ku8N8rwHcVIx+60/mfjFr6U=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		xi2p24eCkijPgI9WN4hg0s+9kgE=
+		w427n8I+UFvGHZ4KA7hFhRdg158=
 		</data>
 		<key>PrivacyInfo.xcprivacy</key>
 		<data>
@@ -63,7 +63,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			CZAQiZ3sYQhOggsMPf/CKvwGx0hbEaw+kc8/j7ftTMI=
+			THZ3kITeQJgcOwTFscZk29rsmAlQDuNE2rRe9eV5D6E=
 			</data>
 		</dict>
 		<key>Headers/OneSignalFramework.h</key>
@@ -77,63 +77,63 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OcCIphsiIJi359SCUNSw0qBqU3n3owpgQxWNRVX8OmI=
+			JB8Zze/tkw622lamTcJthfgmWYVpnGJ+Pvnt5BSJYm4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0D9QmDPzF8BjOUnnzofUWqvER5cj4aAut7iIlYruggs=
+			dFpAUUMlcQUNjnNm5KehPNwNcPL8MUaUFC6UN37rF+w=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3fPiSmh32oE4HWpkONO8TFa0QHm0qqhWGoTzTMzzavM=
+			pQVwDTFVsGCLdZWftuXdXOkamKyU20+qv/EX9JzZ3TM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			MLP0nHt1mizrIyCsdHAewHthTQ8nLp+rqWR0lAm1uWI=
+			cbsuGIS1+l+PMgKLAl8R2yFZZqL+8piOoZN9v8Nrkw0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OcCIphsiIJi359SCUNSw0qBqU3n3owpgQxWNRVX8OmI=
+			JB8Zze/tkw622lamTcJthfgmWYVpnGJ+Pvnt5BSJYm4=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			tTWqyKyuetVOTyGQTTkiCn0Sk1vWREXY/z5dCYiVg+0=
+			00pl0sNDcYJ3ljBWScM5y6Cs2WHXGLX8Uhn1AFWEWQM=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			QH94DoQF4cYlJNGknDWkrZGI7eQoTpQOpXFg44lZpiY=
+			pSnhZX7RmfhDWR7te58wGzdrKGDOHXG+nNlFP1HkFs0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalFramework.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Nrj3TKKBoJKENP4lhpbTR/e/aDMY/tyYezIlxWYbRBQ=
+			7UlnPWj+sEVocLWf/Ex9Eaq3eV29YN9JVJgprWh0lII=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			TXTft7FGSGnc6SWAEsFgBTP5HG9kagDTWJoys37Z72g=
+			+z1XvhrNCkmxAexb0cNZgpWbPNiU4bvXBjAHziXnv+I=
 			</data>
 		</dict>
 		<key>PrivacyInfo.xcprivacy</key>

@@ -31,18 +31,25 @@ import SwiftUI
 struct SendIamSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: OS.Spacing.cardGap),
+        count: 2
+    )
+
     var body: some View {
         SectionCard(
             title: "SEND IN-APP MESSAGE",
             sectionKey: "send_iam",
             onInfoTap: { viewModel.showTooltip(for: "sendInAppMessage") }
         ) {
-            ForEach(InAppMessageType.allCases) { type in
-                ActionButton(
-                    type.rawValue.uppercased(),
-                    accessibilityID: "send_iam_\(type.triggerValue)_button"
-                ) {
-                    viewModel.sendIamTrigger(type)
+            LazyVGrid(columns: columns, spacing: OS.Spacing.cardGap) {
+                ForEach(InAppMessageType.allCases) { type in
+                    ActionButton(
+                        type.rawValue.uppercased(),
+                        accessibilityID: "send_iam_\(type.triggerValue)_button"
+                    ) {
+                        viewModel.sendIamTrigger(type)
+                    }
                 }
             }
         }
