@@ -43,6 +43,6 @@
 
 - (NSTimeInterval)getUnsentActiveTime;
 - (void)saveUnsentActiveTime:(NSTimeInterval)time;
-- (BOOL)dropUnsentActiveTimeIfConsentMissing;
+- (BOOL)deferSendIfConsentMissing;
 
 @end

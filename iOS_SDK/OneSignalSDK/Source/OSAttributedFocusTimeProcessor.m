@@ -71,7 +71,7 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if ([super dropUnsentActiveTimeIfConsentMissing])
+    if ([super deferSendIfConsentMissing])
         return;
     // Don't send influenced session with time < 1 seconds
     if (totalTimeActive < 1) {
@@ -102,7 +102,7 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
-    if ([super dropUnsentActiveTimeIfConsentMissing]) {
+    if ([super deferSendIfConsentMissing]) {
         [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
         return;
     }

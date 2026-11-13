@@ -240,14 +240,14 @@ final class OneSignalTrackerTests: XCTestCase {
         XCTAssertNotNil(OSSessionService.shared.currentRecord?.lastUnfocusTime)
     }
 
-    func testRevokingConsentWhileFocusedDropsTheLegacyTimeInsteadOfKeepingIt() throws {
+    func testRevokingConsentWhileFocusedKeepsTheLegacyTimeUnsent() throws {
         storeUnsentActiveTime(7)
         try focusALegacySession()
 
         setConsentGiven(false)
 
         XCTAssertFalse(sentSessionTime)
-        XCTAssertEqual(unsentActiveTime, 0)
+        XCTAssertEqual(unsentActiveTime ?? 0, 12, accuracy: 1)
     }
 
     func testFocusChangesWithoutConsentAreNotTracked() throws {
@@ -258,7 +258,7 @@ final class OneSignalTrackerTests: XCTestCase {
         visitForFiveSeconds()
         OneSignalTracker.onFocus(true)
 
-        XCTAssertEqual(unsentActiveTime, 0)
+        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
     }
 
     func testGrantingConsentWhileActiveReturnsToTheForeground() throws {
@@ -270,7 +270,8 @@ final class OneSignalTrackerTests: XCTestCase {
         NSDateOverrider.advanceSystemTime(by: 5)
         OneSignalTracker.onFocus(true)
 
-        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
+        // The visit before the revoke plus the one after the grant, without the time between.
+        XCTAssertEqual(unsentActiveTime ?? 0, 10, accuracy: 1)
     }
 
     func testGrantingConsentInTheBackgroundWaitsForTheNextForeground() throws {
@@ -282,7 +283,7 @@ final class OneSignalTrackerTests: XCTestCase {
         visitForFiveSeconds()
         OneSignalTracker.onFocus(true)
 
-        XCTAssertEqual(unsentActiveTime, 0)
+        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
     }
 }
 
