@@ -74,6 +74,7 @@ Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as
 
 ```swift
 OneSignalService.shared.initialize(launchOptions: launchOptions)
+OneSignalService.shared.addUserJwtInvalidatedListener(JwtInvalidatedHandler.shared)
 setupNotificationListeners()
 setupInAppMessageListeners()
 if #available(iOS 16.1, *) { LiveActivityController.setup() }
@@ -86,9 +87,9 @@ if #available(iOS 16.1, *) { LiveActivityController.setup() }
   4. `OneSignal.initialize(appId, withLaunchOptions:)`
   5. `OneSignal.InAppMessages.paused = prefs.getIamPaused()`
   6. `OneSignal.Location.isShared = prefs.getLocationShared()`
-  7. If `prefs.getExternalUserId()` is non-nil: `OneSignal.login(storedExternalId)`
 - `LiveActivityController.setup()` wraps `OneSignal.LiveActivities.setupDefault()` (iOS 16.1+ guard lives in the controller, not inline)
 - The four SDK listeners (`NotificationLifecycleHandler`, `NotificationClickHandler`, `InAppMessageLifecycleHandler`, `InAppMessageClickHandler`) are registered via `OneSignal.Notifications.add*Listener(...)` / `OneSignal.InAppMessages.add*Listener(...)` from the `setupNotificationListeners` / `setupInAppMessageListeners` helpers
+- `JwtInvalidatedHandler` is registered right after `initialize`. See the JWT ask banner under Identity Verification controls
 
 `PreferencesService` (`App/Services/PreferencesService.swift`) is the demo's UserDefaults-backed cache, keyed under `onesignal.demo.*`. It's the single source of truth for any state the demo needs to restore on a fresh launch: consent flags, IAM-paused, location-shared, and the last-logged-in external user id. Setters on `OneSignalService` read-through and write-through this cache (in addition to forwarding to the SDK), so the view model's `@Published` props can hydrate from `service.consentRequired` / `service.consentGiven` / `service.isInAppMessagesPaused` / `service.isLocationShared` and get cached values on cold launch.
 
@@ -153,6 +154,8 @@ Some Identity Verification behavior still differs between the demos because the 
 - After a relaunch with a token still owed, the iOS SDK asks again on the first parked request. The Android SDK doesn't, until SDK-5476.
 - The iOS SDK replays a pending ask to a listener added later. The Android SDK doesn't.
 - If a 401 for an old token lands after PROVIDE JWT, the Android SDK deletes the new token and asks again until SDK-5474. The iOS SDK keeps the new token.
+
+One difference is in the demos, not the SDKs. The Android User section shows its snackbar for an ask that is already pending when the section first appears. `UserSection` shows its toast only for an ask that arrives while it is on screen.
 
 ### Branding assets
 
@@ -271,7 +274,8 @@ examples/demo/
 │   │                                              # registers NotificationLifecycleHandler /
 │   │                                              # NotificationClickHandler /
 │   │                                              # InAppMessageLifecycleHandler /
-│   │                                              # InAppMessageClickHandler, runs
+│   │                                              # InAppMessageClickHandler /
+│   │                                              # JwtInvalidatedHandler, runs
 │   │                                              # LiveActivityController.setup() on iOS 16.1+
 │   ├── Info.plist
 │   ├── Secrets.plist                              # gitignored optional; ONESIGNAL_APP_ID +
