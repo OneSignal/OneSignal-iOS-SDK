@@ -222,15 +222,18 @@ final class LiveActivitiesManagerTests: XCTestCase {
         ]
         let cachedTokens = ["x": "token-x3"]
         var ended = [String]()
+        var exited = [String]()
 
         let kept = await OneSignalLiveActivitiesManagerImpl.endDuplicates(
             OneSignalLiveActivitiesManagerImpl.duplicateGroups(activities),
             cachedUpdateToken: { cachedTokens[$0] },
-            end: { ended.append($0.id) }
+            end: { ended.append($0.id) },
+            exit: { exited.append($0) }
         )
 
         XCTAssertEqual(Set(kept.map(\.id)), ["x3", "y2"])
         XCTAssertEqual(Set(ended), ["x1", "x2", "y1"])
+        XCTAssertEqual(exited, [])
     }
 
     func testEndDuplicates_whenTheCachedTokenActivityHasEnded_keepsTheLiveOne() async throws {
@@ -241,35 +244,68 @@ final class LiveActivitiesManagerTests: XCTestCase {
         let kept = await OneSignalLiveActivitiesManagerImpl.endDuplicates(
             ["x": [endedActivity, liveActivity]],
             cachedUpdateToken: { _ in "token-x1" },
-            end: { ended.append($0.id) }
+            end: { ended.append($0.id) },
+            exit: { _ in }
         )
 
         XCTAssertEqual(kept.map(\.id), ["x2"])
         XCTAssertEqual(ended, [])
     }
 
-    func testEndDuplicates_whenTheKeeperEndsDuringTheAwaits_returnsNothing() async throws {
+    func testEndDuplicates_whenTheKeeperEndsDuringTheAwaits_keepsAnotherLiveActivity() async throws {
+        let keeper = FakeActivity(id: "x1", oneSignalActivityId: "x", pushTokenString: "token-x1")
+        let group = [
+            keeper,
+            FakeActivity(id: "x2", oneSignalActivityId: "x", pushTokenString: "token-x2"),
+            FakeActivity(id: "x3", oneSignalActivityId: "x", pushTokenString: "token-x3")
+        ]
+        var ended = [String]()
+        var exited = [String]()
+
+        let kept = await OneSignalLiveActivitiesManagerImpl.endDuplicates(
+            ["x": group],
+            cachedUpdateToken: { _ in "token-x1" },
+            end: { activity in
+                ended.append(activity.id)
+                activity.isLive = false
+                // The user dismisses the keeper while this call waits.
+                keeper.isLive = false
+            },
+            exit: { exited.append($0) }
+        )
+
+        XCTAssertEqual(kept.map(\.id), ["x3"])
+        XCTAssertEqual(ended, ["x2"])
+        XCTAssertEqual(exited, [])
+    }
+
+    func testEndDuplicates_whenNoActivityStaysLive_exitsTheActivityId() async throws {
         let keeper = FakeActivity(id: "x1", oneSignalActivityId: "x", pushTokenString: "token-x1")
         let duplicate = FakeActivity(id: "x2", oneSignalActivityId: "x", pushTokenString: "token-x2")
+        var exited = [String]()
 
         let kept = await OneSignalLiveActivitiesManagerImpl.endDuplicates(
             ["x": [keeper, duplicate]],
             cachedUpdateToken: { _ in "token-x1" },
-            // A new activity with the same activityId ends the keeper while this call waits.
-            end: { _ in keeper.isLive = false }
+            end: { activity in
+                activity.isLive = false
+                keeper.isLive = false
+            },
+            exit: { exited.append($0) }
         )
 
         XCTAssertTrue(kept.isEmpty)
+        XCTAssertEqual(exited, ["x"])
     }
 
-    func testHasLiveDuplicate_whenAnotherLiveActivityHasTheSameActivityId_returnsTrue() throws {
+    func testLiveDuplicate_whenAnotherLiveActivityHasTheSameActivityId_returnsIt() throws {
         let dismissed = FakeActivity(id: "a1", oneSignalActivityId: "a", isLive: false)
         let activities = [dismissed, FakeActivity(id: "a2", oneSignalActivityId: "a")]
 
-        XCTAssertTrue(OneSignalLiveActivitiesManagerImpl.hasLiveDuplicate(dismissed, in: activities))
+        XCTAssertEqual(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: dismissed, in: activities)?.id, "a2")
     }
 
-    func testHasLiveDuplicate_withoutAnotherLiveActivityForTheActivityId_returnsFalse() throws {
+    func testLiveDuplicate_withoutAnotherLiveActivityForTheActivityId_returnsNil() throws {
         let dismissed = FakeActivity(id: "a1", oneSignalActivityId: "a", isLive: false)
         let activities = [
             dismissed,
@@ -277,14 +313,14 @@ final class LiveActivitiesManagerTests: XCTestCase {
             FakeActivity(id: "b1", oneSignalActivityId: "b")
         ]
 
-        XCTAssertFalse(OneSignalLiveActivitiesManagerImpl.hasLiveDuplicate(dismissed, in: activities))
-        XCTAssertFalse(OneSignalLiveActivitiesManagerImpl.hasLiveDuplicate(dismissed, in: []))
+        XCTAssertNil(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: dismissed, in: activities))
+        XCTAssertNil(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: dismissed, in: []))
     }
 
-    func testHasLiveDuplicate_forALiveActivityWithoutAnotherForItsActivityId_returnsFalse() throws {
+    func testLiveDuplicate_forALiveActivityWithoutAnotherForItsActivityId_returnsNil() throws {
         let live = FakeActivity(id: "a1", oneSignalActivityId: "a")
         let activities = [live, FakeActivity(id: "b1", oneSignalActivityId: "b")]
 
-        XCTAssertFalse(OneSignalLiveActivitiesManagerImpl.hasLiveDuplicate(live, in: activities))
+        XCTAssertNil(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: live, in: activities))
     }
 }

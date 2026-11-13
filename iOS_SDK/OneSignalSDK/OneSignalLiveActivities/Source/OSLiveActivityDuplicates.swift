@@ -62,22 +62,31 @@ extension OneSignalLiveActivitiesManagerImpl {
     static func endDuplicates<T: OSLiveActivityInstance>(
         _ groups: [String: [T]],
         cachedUpdateToken: (String) async -> String?,
-        end: (T) async -> Void
+        end: (T) async -> Void,
+        exit: (String) -> Void
     ) async -> [T] {
         var kept = [T]()
         // An activity can end during any await below, so we read isLive again
         // before we keep or end an activity.
         for (activityId, group) in groups {
             let cachedToken = await cachedUpdateToken(activityId)
-            guard let keeper = activityToKeep(group.filter { $0.isLive }, cachedUpdateToken: cachedToken) else {
-                continue
-            }
-            kept.append(keeper)
-            for duplicate in group where duplicate.id != keeper.id && duplicate.isLive {
-                await end(duplicate)
+            while let keeper = activityToKeep(group.filter { $0.isLive }, cachedUpdateToken: cachedToken) {
+                for duplicate in group where duplicate.id != keeper.id && duplicate.isLive {
+                    guard keeper.isLive else { break }
+                    await end(duplicate)
+                }
+                if keeper.isLive {
+                    kept.append(keeper)
+                    break
+                }
             }
         }
-        return kept.filter { $0.isLive }
+        kept = kept.filter { $0.isLive }
+        // Only kept activities get listeners, so nothing else calls `exit` for these groups.
+        for activityId in groups.keys where !kept.contains(where: { $0.oneSignalActivityId == activityId }) {
+            exit(activityId)
+        }
+        return kept
     }
 
     @available(iOS 16.2, *)
@@ -85,14 +94,34 @@ extension OneSignalLiveActivitiesManagerImpl {
         _ groups: [String: [Activity<Attributes>]],
         cachedUpdateToken: (String) async -> String?
     ) async -> [Activity<Attributes>] {
-        await endDuplicates(groups, cachedUpdateToken: cachedUpdateToken) { duplicate in
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities ending duplicate activity: \(Attributes.self):\(duplicate.oneSignalActivityId):\(duplicate.id)")
-            await duplicate.end(nil, dismissalPolicy: ActivityUIDismissalPolicy.immediate)
-        }
+        await endDuplicates(
+            groups,
+            cachedUpdateToken: cachedUpdateToken,
+            end: { duplicate in
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities ending duplicate activity: \(Attributes.self):\(duplicate.oneSignalActivityId):\(duplicate.id)")
+                await duplicate.end(nil, dismissalPolicy: ActivityUIDismissalPolicy.immediate)
+            },
+            exit: { OneSignalLiveActivitiesManagerImpl.exit($0) }
+        )
     }
 
-    static func hasLiveDuplicate<T: OSLiveActivityInstance>(_ activity: T, in activities: [T]) -> Bool {
-        activities.contains { $0.id != activity.id && $0.oneSignalActivityId == activity.oneSignalActivityId && $0.isLive }
+    static func liveDuplicate<T: OSLiveActivityInstance>(of activity: T, in activities: [T]) -> T? {
+        activities.first { $0.id != activity.id && $0.oneSignalActivityId == activity.oneSignalActivityId && $0.isLive }
+    }
+
+    @available(iOS 16.1, *)
+    static func handleDismissal<Attributes: OneSignalLiveActivityAttributes>(of activity: Activity<Attributes>, options: LiveActivitySetupOptions?) {
+        let activityId = activity.oneSignalActivityId
+        // `exit` would stop a live duplicate's updates. The dismissed activity may
+        // hold the registered token, because the last `enter` for an activityId wins.
+        guard let duplicate = liveDuplicate(of: activity, in: Activity<Attributes>.activities) else {
+            OneSignalLiveActivitiesManagerImpl.exit(activityId)
+            return
+        }
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities \(Attributes.self):\(activityId):\(activity.id) dismissed, keeping duplicate \(duplicate.id)")
+        if options == nil || options!.enablePushToUpdate, let token = duplicate.pushTokenString {
+            OneSignalLiveActivitiesManagerImpl.enter(activityId, withToken: token)
+        }
     }
 }
 #endif

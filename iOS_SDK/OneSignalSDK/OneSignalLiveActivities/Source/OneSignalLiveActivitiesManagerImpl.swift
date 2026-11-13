@@ -260,8 +260,8 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             listenForActivityEvents(activityType, activity: activity, options: options)
         }
 
-        if #available(iOS 16.2, *), !duplicates.isEmpty {
-            Task {
+        let setupDedupe = Task {
+            if #available(iOS 16.2, *), !duplicates.isEmpty {
                 for activity in await endDuplicateActivities(duplicates, cachedUpdateToken: _executor.cachedUpdateToken) {
                     listenForActivityEvents(activityType, activity: activity, options: options)
                 }
@@ -272,6 +272,11 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
         Task {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities listening for activity on: \(activityType)")
             for await activity in Activity<Attributes>.activityUpdates {
+                // The setup dedupe and this loop can keep different activities,
+                // so if both run at once they can end every duplicate.
+                await setupDedupe.value
+                // The stream may yield an activity that setup or this loop already ended.
+                guard activity.isLive else { continue }
                 if #available(iOS 16.2, *) {
                     // if there's already an activity with the same OneSignal activityId, dismiss it before
                     // listening for the new activity's events.
@@ -305,12 +310,7 @@ public class OneSignalLiveActivitiesManagerImpl: NSObject, OSLiveActivities {
             for await activityState in activity.activityStateUpdates {
                 switch activityState {
                 case .dismissed:
-                    // If a live duplicate exists, `exit` can stop its updates.
-                    if hasLiveDuplicate(activity, in: Activity<Attributes>.activities) {
-                        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OneSignal.LiveActivities keeping update token for: \(activityType):\(activity.attributes.onesignal.activityId):\(activity.id), a duplicate is still live")
-                    } else {
-                        OneSignalLiveActivitiesManagerImpl.exit(activity.attributes.onesignal.activityId)
-                    }
+                    handleDismissal(of: activity, options: options)
                 case .active: break
                 case .ended: break
                 case .stale: break
