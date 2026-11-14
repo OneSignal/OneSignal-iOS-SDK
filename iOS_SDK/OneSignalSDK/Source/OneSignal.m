@@ -801,17 +801,29 @@ static BOOL ComputeInitialStorageReadable(void) {
 
 + (void)setConsentRequired:(BOOL)required {
     [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+    [self notifyTrackerOfConsentChange];
 }
 
 + (void)setConsentGiven:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
     
-    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
+    if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil) {
+        [self notifyTrackerOfConsentChange];
         return;
+    }
     // Try to init again using delayed params
     [self initialize:_delayedInitParameters.appId withLaunchOptions:_delayedInitParameters.launchOptions];
     delayedInitializationForPrivacyConsent = false;
     _delayedInitParameters = nil;
+}
+
+/// A delayed `initialize` reports its own first focus, so only an initialized SDK is notified.
++ (void)notifyTrackerOfConsentChange {
+    if (!initDone)
+        return;
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [OneSignalTracker onConsentChanged];
+    }];
 }
 
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
@@ -860,6 +872,7 @@ static BOOL ComputeInitialStorageReadable(void) {
             BOOL required = [result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
             [[OSRemoteParamController sharedController] savePrivacyConsentRequired:required];
             [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+            [self notifyTrackerOfConsentChange];
         }
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])

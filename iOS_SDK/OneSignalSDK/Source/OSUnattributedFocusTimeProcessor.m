@@ -71,6 +71,8 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
+    if ([super deferSendIfConsentMissing])
+        return;
     if (totalTimeActive < 1) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %f", totalTimeActive]];
         return;
@@ -99,6 +101,10 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendBackgroundUnattributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
+    if ([super deferSendIfConsentMissing]) {
+        [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+        return;
+    }
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSUnattributedFocusTimeProcessor:sendBackgroundUnattributedSessionTimeWithParams start"];
 
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:sendSessionTime of %@", totalTimeActive]];

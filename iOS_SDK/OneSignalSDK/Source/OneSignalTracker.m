@@ -93,6 +93,24 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignalUserManagerImpl.sharedInstance onFocus];
 }
 
+/// Time without consent is not tracked, so losing consent while focused counts as leaving the
+/// foreground and regaining it while active counts as returning. Focus changes are ignored while
+/// consent is missing. Must run on the main queue.
++ (void)onConsentChanged {
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent]) {
+        if (lastOnFocusWasToBackground)
+            return;
+        lastOnFocusWasToBackground = YES;
+        [self applicationBackgrounded];
+        return;
+    }
+    UIApplication *app = UIApplication.sharedApplication;
+    if (!lastOnFocusWasToBackground || !app || app.applicationState != UIApplicationStateActive)
+        return;
+    lastOnFocusWasToBackground = NO;
+    [self applicationBecameActive];
+}
+
 + (void)applicationBecameActive {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Active started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];

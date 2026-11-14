@@ -194,6 +194,15 @@ public final class OSSessionService: NSObject {
         retired?.stopHeartbeat()
     }
 
+    static func setSharedForTesting(_ service: OSSessionService) {
+        let retired = lock.withLock {
+            let existing = _shared
+            _shared = service
+            return existing
+        }
+        retired?.stopHeartbeat()
+    }
+
     /// The stored record belongs to the previous app, so it must not outlive an app-id change.
     @objc public static func resetAndClearStoredRecord() {
         reset()

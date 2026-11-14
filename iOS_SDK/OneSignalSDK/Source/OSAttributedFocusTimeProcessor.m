@@ -71,6 +71,8 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
+    if ([super deferSendIfConsentMissing])
+        return;
     // Don't send influenced session with time < 1 seconds
     if (totalTimeActive < 1) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendSessionEndOutcomes not sending active time %f", totalTimeActive]];
@@ -100,6 +102,10 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
+    if ([super deferSendIfConsentMissing]) {
+        [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+        return;
+    }
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedSessionTimeWithParams start"];
 
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", totalTimeActive]];

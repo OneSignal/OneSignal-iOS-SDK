@@ -74,6 +74,11 @@ final class OneSignalTrackerTests: XCTestCase {
         OSFocusTimeProcessorFactory.cancelFocusCall()
         OSFocusTimeProcessorFactory.resetUnsentActiveTime()
         OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_UNSENT_ACTIVE_TIME)
+        OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_REQUIRES_USER_PRIVACY_CONSENT)
+        OneSignalUserDefaults.initShared().removeValue(forKey: GDPR_CONSENT_GRANTED)
+        OneSignalUserDefaults.initStandard().removeValue(forKey: OSUD_APP_LAST_CLOSED_TIME)
+        OSFeatureFlagsStore.shared.clear()
+        OSFeatureManager.reset()
         super.tearDown()
     }
 
@@ -210,6 +215,131 @@ final class OneSignalTrackerTests: XCTestCase {
 
         XCTAssertTrue(sentSessionTime)
         XCTAssertNotEqual(unsentActiveTime, 12)
+    }
+
+    // MARK: - Privacy consent
+
+    private func setConsentGiven(_ granted: Bool) {
+        OneSignalUserDefaults.initShared().saveBool(forKey: OSUD_REQUIRES_USER_PRIVACY_CONSENT, withValue: true)
+        OSPrivacyConsentController.consentGranted(granted)
+        OneSignalTracker.onConsentChanged()
+    }
+
+    /// Focused in a legacy session whose open time is set, so a background records the visit.
+    private func focusALegacySession() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+        UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OneSignalTracker.onInitWhileActive()
+        visitForFiveSeconds()
+    }
+
+    private var monotonicNow: TimeInterval = 1_000
+    private var wallNow: TimeInterval = 5_000
+
+    /// Moves the session service's clocks along with the SDK's, which `NSDateOverrider` drives.
+    private func advance(by seconds: TimeInterval) {
+        monotonicNow += seconds
+        wallNow += seconds
+        NSDateOverrider.advanceSystemTime(by: seconds)
+    }
+
+    /// Focused for five seconds in a sessions API session, returning its id.
+    private func focusASessionsApiSessionForFiveSeconds() -> String {
+        OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_sessions_v2_api_cutover"], metadata: nil)
+        OSSessionService.setSharedForTesting(OSSessionService(
+            monotonicNow: { [unowned self] in self.monotonicNow },
+            wallNow: { [unowned self] in self.wallNow }
+        ))
+        UIApplicationOverrider.setCurrentUIApplicationState(.active)
+        OneSignalTracker.onInitWhileActive()
+        let sessionId = OSSessionService.shared.startNewSession(userProvider: userProvider).started.sessionId
+        advance(by: 5)
+        return sessionId
+    }
+
+    func testRevokingConsentWhileFocusedAddsTheVisitSoFarToTheSession() {
+        let sessionId = focusASessionsApiSessionForFiveSeconds()
+
+        setConsentGiven(false)
+        advance(by: 60)
+
+        let record = OSSessionService.shared.currentRecord
+        XCTAssertEqual(record?.sessionId, sessionId)
+        XCTAssertEqual(record?.usesSessionsApi, true)
+        XCTAssertEqual(record?.activeDuration ?? 0, 5, accuracy: 0.1)
+    }
+
+    func testGrantingConsentWithinTheThresholdContinuesTheSessionWithoutThePause() {
+        let sessionId = focusASessionsApiSessionForFiveSeconds()
+        setConsentGiven(false)
+        advance(by: 10)
+
+        setConsentGiven(true)
+        advance(by: 5)
+        OneSignalTracker.onFocus(true)
+
+        let record = OSSessionService.shared.currentRecord
+        XCTAssertEqual(record?.sessionId, sessionId)
+        XCTAssertEqual(record?.activeDuration ?? 0, 10, accuracy: 0.1)
+    }
+
+    func testGrantingConsentPastTheThresholdStartsTheNextSessionWithoutThePause() {
+        let sessionId = focusASessionsApiSessionForFiveSeconds()
+        setConsentGiven(false)
+        advance(by: 60)
+
+        setConsentGiven(true)
+        // `OneSignal.startNewSession` does this past the threshold once initialized, which these tests are not.
+        let start = OSSessionService.shared.startNewSession(userProvider: userProvider)
+
+        XCTAssertEqual(start.ended?.sessionId, sessionId)
+        XCTAssertEqual(start.ended?.activeDuration ?? 0, 5, accuracy: 0.1)
+        XCTAssertNotEqual(start.started.sessionId, sessionId)
+    }
+
+    func testRevokingConsentWhileFocusedKeepsTheLegacyTimeUnsent() throws {
+        storeUnsentActiveTime(7)
+        try focusALegacySession()
+
+        setConsentGiven(false)
+
+        XCTAssertFalse(sentSessionTime)
+        XCTAssertEqual(unsentActiveTime ?? 0, 12, accuracy: 1)
+    }
+
+    func testFocusChangesWithoutConsentAreNotTracked() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+
+        OneSignalTracker.onFocus(false)
+        visitForFiveSeconds()
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
+    }
+
+    func testGrantingConsentWhileActiveReturnsToTheForeground() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+
+        NSDateOverrider.advanceSystemTime(by: 1_000)
+        setConsentGiven(true)
+        NSDateOverrider.advanceSystemTime(by: 5)
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime ?? 0, 10, accuracy: 1)
+    }
+
+    func testGrantingConsentInTheBackgroundWaitsForTheNextForeground() throws {
+        try focusALegacySession()
+        setConsentGiven(false)
+        UIApplicationOverrider.setCurrentUIApplicationState(.background)
+
+        setConsentGiven(true)
+        visitForFiveSeconds()
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(unsentActiveTime ?? 0, 5, accuracy: 1)
     }
 }
 
