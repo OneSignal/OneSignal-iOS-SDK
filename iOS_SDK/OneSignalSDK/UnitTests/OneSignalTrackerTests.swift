@@ -40,6 +40,8 @@ private final class FakeUserProvider: OSSessionUserProvider {
 
     func sessionOnesignalId(identityModelId: String) -> String? { nil }
     func sessionHeartbeat(_ record: OSSessionRecord) {}
+    private(set) var checkpoints: [OSSessionRecord] = []
+    func sessionCheckpoint(_ record: OSSessionRecord) { checkpoints.append(record) }
     func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
 }
 
@@ -255,6 +257,24 @@ final class OneSignalTrackerTests: XCTestCase {
         let sessionId = OSSessionService.shared.startNewSession(userProvider: userProvider).started.sessionId
         advance(by: 5)
         return sessionId
+    }
+
+    func testBackgroundingASessionsApiSessionSendsOneCheckpoint() {
+        let sessionId = focusASessionsApiSessionForFiveSeconds()
+
+        OneSignalTracker.onFocus(true)
+
+        XCTAssertEqual(userProvider.checkpoints.map(\.sessionId), [sessionId])
+        XCTAssertEqual(userProvider.checkpoints.first?.reportedDuration ?? 0, 5, accuracy: 0.1)
+    }
+
+    func testRevokingConsentWhileFocusedSendsNoCheckpoint() {
+        _ = focusASessionsApiSessionForFiveSeconds()
+
+        setConsentGiven(false)
+
+        XCTAssertTrue(userProvider.checkpoints.isEmpty)
+        XCTAssertNil(OSSessionService.shared.currentRecord?.lastHeartbeatDuration)
     }
 
     func testRevokingConsentWhileFocusedAddsTheVisitSoFarToTheSession() {

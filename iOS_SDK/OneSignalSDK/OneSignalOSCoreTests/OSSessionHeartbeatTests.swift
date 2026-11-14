@@ -46,6 +46,11 @@ private final class HeartbeatRecorder: OSSessionUserProvider {
         heartbeats.append(record)
     }
 
+    private(set) var checkpoints: [OSSessionRecord] = []
+    func sessionCheckpoint(_ record: OSSessionRecord) {
+        checkpoints.append(record)
+    }
+
     func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
 }
 
@@ -135,7 +140,8 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(heartbeatDurations(for: record), [interval, 2 * interval])
     }
 
-    /// A return within the new-session threshold continues the session.
+    /// A return within the new-session threshold continues the session. The unfocus checkpoint
+    /// reported the time so far, so the next heartbeat is a full interval of foreground time after it.
     func testBackgroundPausesHeartbeatAndOnlyForegroundTimeCounts() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
@@ -143,11 +149,11 @@ final class OSSessionHeartbeatTests: XCTestCase {
         advance(by: 20)
 
         service.onFocus()
-        advance(by: 10 * 60 - 1)
+        advance(by: interval - 1)
         XCTAssertTrue(user.heartbeats.isEmpty)
 
         advance(by: 1)
-        XCTAssertEqual(heartbeatDurations(for: record), [interval])
+        XCTAssertEqual(heartbeatDurations(for: record), [20 * 60 + interval])
     }
 
     /// Each stale check is left pending and runs after its heartbeat stopped.
@@ -267,5 +273,80 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(ended?.activeDuration, 0)
         XCTAssertEqual(ended?.reportedDuration, interval)
         XCTAssertEqual(ended?.endTime, wallStart + interval)
+    }
+
+    // MARK: - Background checkpoint
+
+    private func checkpointDurations(for record: OSSessionRecord) -> [TimeInterval] {
+        user.checkpoints.filter { $0.sessionId == record.sessionId }.map(\.reportedDuration)
+    }
+
+    func testUnfocusSendsACheckpointThatLeavesTheSessionOpen() {
+        let record = startForegroundSession()
+        advance(by: 20 * 60)
+
+        service.onUnfocus()
+
+        XCTAssertEqual(checkpointDurations(for: record), [20 * 60])
+        XCTAssertEqual(service.currentRecord?.sessionId, record.sessionId)
+        XCTAssertEqual(service.currentRecord?.lastHeartbeatDuration, 20 * 60)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
+    func testResumeWithinTheThresholdContinuesFromTheCheckpoint() {
+        let record = startForegroundSession()
+        advance(by: 20 * 60)
+        service.onUnfocus()
+        advance(by: 20)
+
+        service.onFocus()
+        advance(by: 10)
+        service.onUnfocus()
+
+        XCTAssertEqual(checkpointDurations(for: record), [20 * 60, 20 * 60 + 10])
+    }
+
+    /// The backend takes whole seconds, so a visit too short to add one sends nothing.
+    func testNoCheckpointWhenTheDurationHasNotGrown() {
+        let record = startForegroundSession()
+        advance(by: 20 * 60)
+        service.onUnfocus()
+        advance(by: 5)
+
+        service.onFocus()
+        advance(by: 0.5)
+        service.onUnfocus()
+        service.onUnfocus()
+
+        XCTAssertEqual(checkpointDurations(for: record), [20 * 60])
+    }
+
+    func testNoCheckpointWhenTheLastHeartbeatReportedTheSameDuration() {
+        let record = startForegroundSession()
+        advance(by: interval)
+
+        service.onUnfocus()
+
+        XCTAssertEqual(heartbeatDurations(for: record), [interval])
+        XCTAssertTrue(user.checkpoints.isEmpty)
+    }
+
+    func testCheckpointSurvivesARestart() {
+        startForegroundSession()
+        advance(by: 20 * 60)
+        service.onUnfocus()
+
+        XCTAssertEqual(makeService().currentRecord?.lastHeartbeatDuration, 20 * 60)
+    }
+
+    func testNoCheckpointWhenFlagIsOff() {
+        flagsStore.applyRemoteFlags([], metadata: nil)
+        service = makeService()
+        startForegroundSession()
+        advance(by: 20 * 60)
+
+        service.onUnfocus()
+
+        XCTAssertTrue(user.checkpoints.isEmpty)
     }
 }

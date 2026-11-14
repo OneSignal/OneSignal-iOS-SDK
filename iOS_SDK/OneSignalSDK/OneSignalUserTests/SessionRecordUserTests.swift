@@ -353,6 +353,28 @@ extension SessionRecordUserTests {
         XCTAssertNotNil(values.last?[OSSessionDeltaKey.endTime])
     }
 
+    func testCheckpointQueuesTheDurationWithoutEndingTheSession() {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        manager.setNewInternalUser(externalId: nil, pushSubscriptionModel: nil)
+        let record = OSSessionRecord(
+            sessionId: "session-1",
+            startTime: 1_700_000_000,
+            activeDuration: 42,
+            usesSessionsApi: true,
+            identityModelId: manager.user.identityModel.modelId,
+            onesignalId: nil,
+            subscriptionId: nil
+        )
+
+        manager.sessionCheckpoint(record)
+        manager.operationRepo.dispatchQueue.sync {}
+
+        let updates = manager.operationRepo.deltaQueue.filter { $0.name == OS_UPDATE_SESSION_DELTA }
+        let values = updates.compactMap { $0.value as? [String: Any] }
+        XCTAssertEqual(values.map { $0[OSSessionDeltaKey.activeDuration] as? TimeInterval }, [42])
+        XCTAssertNil(values.first?[OSSessionDeltaKey.endTime])
+    }
+
     func testNewSessionQueuesNoCreateWhenTheFlagIsOff() {
         client.holdResponses = true
 

@@ -48,6 +48,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
         onesignalIds[identityModelId]
     }
     func sessionHeartbeat(_ record: OSSessionRecord) {}
+    func sessionCheckpoint(_ record: OSSessionRecord) {}
 
     private(set) var firstFocuses: [(sessionId: String, directAttributionId: String?)] = []
     func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
