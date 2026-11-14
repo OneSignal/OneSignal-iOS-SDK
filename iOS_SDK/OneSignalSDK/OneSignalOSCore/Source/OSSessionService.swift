@@ -50,6 +50,9 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
+    /// Called on unfocus with the record whose `reportedDuration` is due to be sent, without ending
+    /// its session.
+    func sessionCheckpoint(_ record: OSSessionRecord)
     /// Called when a session that started in the background first comes to the foreground, to queue
     /// its held create.
     func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?)
@@ -85,11 +88,19 @@ public struct OSSessionRecord: Codable, Equatable {
     /// an open delivered before that focus is on the create, and a session that never focuses sends
     /// neither a create nor an end. Persisted, so a kill before the focus does not send it later.
     public internal(set) var awaitingFocus: Bool?
+    /// The foreground time the last background checkpoint reported.
+    public internal(set) var lastCheckpointDuration: TimeInterval?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
     /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
     public var reportedDuration: TimeInterval {
         max(activeDuration, lastHeartbeatDuration ?? 0)
+    }
+
+    /// The backend takes whole seconds, so a checkpoint is due only once that value grows.
+    var checkpointDue: Bool {
+        let lastReported = max(lastHeartbeatDuration ?? 0, lastCheckpointDuration ?? 0)
+        return usesSessionsApi && awaitingFocus != true && reportedDuration.rounded(.down) > lastReported.rounded(.down)
     }
 
     /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
@@ -332,30 +343,6 @@ public final class OSSessionService: NSObject {
         return time - (record.lastUnfocusTime ?? record.startTime) < OSSessionStartGate.threshold
     }
 
-    func onUnfocus() {
-        let now = monotonicNow()
-        let wallNow = wallNow()
-        let ids = pinnableIds()
-        stateLock.withLock {
-            pendingAttribution = nil
-            guard let start = focusedAt else {
-                return
-            }
-            focusedAt = nil
-            openFocusTime = nil
-            heartbeatGeneration += 1
-            loadIfNeeded()
-            guard record != nil else {
-                return
-            }
-            record?.activeDuration += max(0, now - start)
-            record?.lastUnfocusTime = wallNow
-            record?.lastHeartbeatTime = nil
-            fillPinnedIds(ids)
-            persist()
-        }
-    }
-
     private struct PinnableIds {
         let identityModelId: String
         let onesignalId: String?
@@ -509,6 +496,64 @@ extension OSSessionService {
         schedule(next.wait) { [weak self] in
             self?.checkHeartbeat(generation: generation)
         }
+    }
+}
+
+// MARK: - Unfocus and background checkpoint
+
+extension OSSessionService {
+    private struct Checkpoint {
+        let record: OSSessionRecord
+        let provider: OSSessionUserProvider?
+    }
+
+    /// Reports the duration so far as a checkpoint that leaves the session open, so a kill in the
+    /// background loses none of it. The tracker flushes the queue in a background task right after.
+    func onUnfocus() {
+        let now = monotonicNow()
+        let wallNow = wallNow()
+        let ids = pinnableIds()
+        let checkpoint: Checkpoint? = stateLock.withLock {
+            pendingAttribution = nil
+            guard let start = focusedAt else {
+                return nil
+            }
+            focusedAt = nil
+            openFocusTime = nil
+            heartbeatGeneration += 1
+            loadIfNeeded()
+            guard record != nil else {
+                return nil
+            }
+            record?.activeDuration += max(0, now - start)
+            record?.lastUnfocusTime = wallNow
+            record?.lastHeartbeatTime = nil
+            fillPinnedIds(ids)
+            let checkpoint = takeCheckpointIfDue()
+            persist()
+            return checkpoint
+        }
+        if let checkpoint {
+            sendCheckpoint(checkpoint)
+        }
+    }
+
+    /// Call with `stateLock` held.
+    private func takeCheckpointIfDue() -> Checkpoint? {
+        guard var current = record, current.checkpointDue else {
+            return nil
+        }
+        current.lastCheckpointDuration = current.reportedDuration
+        record = current
+        return Checkpoint(record: current, provider: userProvider)
+    }
+
+    private func sendCheckpoint(_ checkpoint: Checkpoint) {
+        OneSignalLog.onesignalLog(
+            .LL_DEBUG,
+            message: "OSSessionService checkpoint for session \(checkpoint.record.sessionId) with duration \(checkpoint.record.reportedDuration)"
+        )
+        checkpoint.provider?.sessionCheckpoint(checkpoint.record)
     }
 }
 
