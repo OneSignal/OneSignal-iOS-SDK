@@ -77,8 +77,9 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var lastUnfocusTime: TimeInterval?
     /// Seconds since 1970 when the app last entered the foreground during this session.
     public internal(set) var lastFocusTime: TimeInterval?
-    /// The foreground time the last heartbeat reported, which can exceed `activeDuration` until the
-    /// visit it was sent in ends.
+    /// The foreground time the last heartbeat or background checkpoint reported, which can exceed
+    /// `activeDuration` until the visit a heartbeat was sent in ends. The next heartbeat is a full
+    /// interval after it.
     public internal(set) var lastHeartbeatDuration: TimeInterval?
     /// Seconds since 1970 when the last heartbeat was sent, measured from the visit's focus on the
     /// monotonic clock so a wall-clock jump mid-visit cannot move a killed session's end. Cleared on
@@ -88,8 +89,6 @@ public struct OSSessionRecord: Codable, Equatable {
     /// an open delivered before that focus is on the create, and a session that never focuses sends
     /// neither a create nor an end. Persisted, so a kill before the focus does not send it later.
     public internal(set) var awaitingFocus: Bool?
-    /// The foreground time the last background checkpoint reported.
-    public internal(set) var lastCheckpointDuration: TimeInterval?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
     /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
@@ -99,8 +98,7 @@ public struct OSSessionRecord: Codable, Equatable {
 
     /// The backend takes whole seconds, so a checkpoint is due only once that value grows.
     var checkpointDue: Bool {
-        let lastReported = max(lastHeartbeatDuration ?? 0, lastCheckpointDuration ?? 0)
-        return usesSessionsApi && awaitingFocus != true && reportedDuration.rounded(.down) > lastReported.rounded(.down)
+        usesSessionsApi && awaitingFocus != true && activeDuration.rounded(.down) > (lastHeartbeatDuration ?? 0).rounded(.down)
     }
 
     /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
@@ -538,12 +536,12 @@ extension OSSessionService {
         }
     }
 
-    /// Call with `stateLock` held.
+    /// Call with `stateLock` held. Losing consent counts as an unfocus, but sends nothing.
     private func takeCheckpointIfDue() -> Checkpoint? {
-        guard var current = record, current.checkpointDue else {
+        guard var current = record, current.checkpointDue, !OSPrivacyConsentController.requiresUserPrivacyConsent() else {
             return nil
         }
-        current.lastCheckpointDuration = current.reportedDuration
+        current.lastHeartbeatDuration = current.activeDuration
         record = current
         return Checkpoint(record: current, provider: userProvider)
     }

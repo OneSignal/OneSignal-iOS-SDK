@@ -140,7 +140,8 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(heartbeatDurations(for: record), [interval, 2 * interval])
     }
 
-    /// A return within the new-session threshold continues the session.
+    /// A return within the new-session threshold continues the session. The unfocus checkpoint
+    /// reported the time so far, so the next heartbeat is a full interval of foreground time after it.
     func testBackgroundPausesHeartbeatAndOnlyForegroundTimeCounts() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
@@ -148,11 +149,11 @@ final class OSSessionHeartbeatTests: XCTestCase {
         advance(by: 20)
 
         service.onFocus()
-        advance(by: 10 * 60 - 1)
+        advance(by: interval - 1)
         XCTAssertTrue(user.heartbeats.isEmpty)
 
         advance(by: 1)
-        XCTAssertEqual(heartbeatDurations(for: record), [interval])
+        XCTAssertEqual(heartbeatDurations(for: record), [20 * 60 + interval])
     }
 
     /// Each stale check is left pending and runs after its heartbeat stopped.
@@ -288,7 +289,7 @@ final class OSSessionHeartbeatTests: XCTestCase {
 
         XCTAssertEqual(checkpointDurations(for: record), [20 * 60])
         XCTAssertEqual(service.currentRecord?.sessionId, record.sessionId)
-        XCTAssertEqual(service.currentRecord?.lastCheckpointDuration, 20 * 60)
+        XCTAssertEqual(service.currentRecord?.lastHeartbeatDuration, 20 * 60)
         XCTAssertTrue(user.heartbeats.isEmpty)
     }
 
@@ -330,24 +331,12 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertTrue(user.checkpoints.isEmpty)
     }
 
-    func testCheckpointDoesNotDelayTheNextHeartbeat() {
-        let record = startForegroundSession()
-        advance(by: 20 * 60)
-        service.onUnfocus()
-        advance(by: 20)
-
-        service.onFocus()
-        advance(by: 10 * 60)
-
-        XCTAssertEqual(heartbeatDurations(for: record), [interval])
-    }
-
     func testCheckpointSurvivesARestart() {
         startForegroundSession()
         advance(by: 20 * 60)
         service.onUnfocus()
 
-        XCTAssertEqual(makeService().currentRecord?.lastCheckpointDuration, 20 * 60)
+        XCTAssertEqual(makeService().currentRecord?.lastHeartbeatDuration, 20 * 60)
     }
 
     func testNoCheckpointWhenFlagIsOff() {
