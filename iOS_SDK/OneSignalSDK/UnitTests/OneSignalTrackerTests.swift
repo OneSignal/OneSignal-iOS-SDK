@@ -263,15 +263,18 @@ final class OneSignalTrackerTests: XCTestCase {
         let sessionId = focusASessionsApiSessionForFiveSeconds()
 
         OneSignalTracker.onFocus(true)
+        XCTAssertTrue(userProvider.checkpoints.isEmpty)
+        OneSignalTracker.applicationEnteredBackground()
 
         XCTAssertEqual(userProvider.checkpoints.map(\.sessionId), [sessionId])
         XCTAssertEqual(userProvider.checkpoints.first?.reportedDuration ?? 0, 5, accuracy: 0.1)
     }
 
-    func testRevokingConsentWhileFocusedSendsNoCheckpoint() {
+    func testBackgroundWithoutConsentSendsNoCheckpoint() {
         _ = focusASessionsApiSessionForFiveSeconds()
 
         setConsentGiven(false)
+        OneSignalTracker.applicationEnteredBackground()
 
         XCTAssertTrue(userProvider.checkpoints.isEmpty)
         XCTAssertNil(OSSessionService.shared.currentRecord?.lastHeartbeatDuration)

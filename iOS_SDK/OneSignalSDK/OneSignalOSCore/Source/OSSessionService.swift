@@ -50,8 +50,8 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
-    /// Called on unfocus with the record whose `reportedDuration` is due to be sent, without ending
-    /// its session.
+    /// Called once the app is in the background with the record whose `reportedDuration` is due to
+    /// be sent, without ending its session.
     func sessionCheckpoint(_ record: OSSessionRecord)
     /// Called when a session that started in the background first comes to the foreground, to queue
     /// its held create.
@@ -341,6 +341,30 @@ public final class OSSessionService: NSObject {
         return time - (record.lastUnfocusTime ?? record.startTime) < OSSessionStartGate.threshold
     }
 
+    func onUnfocus() {
+        let now = monotonicNow()
+        let wallNow = wallNow()
+        let ids = pinnableIds()
+        stateLock.withLock {
+            pendingAttribution = nil
+            guard let start = focusedAt else {
+                return
+            }
+            focusedAt = nil
+            openFocusTime = nil
+            heartbeatGeneration += 1
+            loadIfNeeded()
+            guard record != nil else {
+                return
+            }
+            record?.activeDuration += max(0, now - start)
+            record?.lastUnfocusTime = wallNow
+            record?.lastHeartbeatTime = nil
+            fillPinnedIds(ids)
+            persist()
+        }
+    }
+
     private struct PinnableIds {
         let identityModelId: String
         let onesignalId: String?
@@ -497,7 +521,7 @@ extension OSSessionService {
     }
 }
 
-// MARK: - Unfocus and background checkpoint
+// MARK: - Background checkpoint
 
 extension OSSessionService {
     private struct Checkpoint {
@@ -505,38 +529,37 @@ extension OSSessionService {
         let provider: OSSessionUserProvider?
     }
 
-    /// Reports the duration so far as a checkpoint that leaves the session open, so a kill in the
-    /// background loses none of it. The tracker flushes the queue in a background task right after.
-    func onUnfocus() {
-        let now = monotonicNow()
-        let wallNow = wallNow()
-        let ids = pinnableIds()
-        let checkpoint: Checkpoint? = stateLock.withLock {
-            pendingAttribution = nil
-            guard let start = focusedAt else {
-                return nil
-            }
-            focusedAt = nil
-            openFocusTime = nil
-            heartbeatGeneration += 1
-            loadIfNeeded()
-            guard record != nil else {
-                return nil
-            }
-            record?.activeDuration += max(0, now - start)
-            record?.lastUnfocusTime = wallNow
-            record?.lastHeartbeatTime = nil
-            fillPinnedIds(ids)
-            let checkpoint = takeCheckpointIfDue()
-            persist()
-            return checkpoint
-        }
-        if let checkpoint {
-            sendCheckpoint(checkpoint)
-        }
+    /// Called once the app is in the background. Leaving the foreground for Control Center, the
+    /// notification shade, or a system prompt unfocuses too, but must not send a checkpoint or move
+    /// the next heartbeat. Returns whether a checkpoint was queued, for the caller to flush.
+    @objc public static func onEnteredBackground() -> Bool {
+        shared.onEnteredBackground()
     }
 
-    /// Call with `stateLock` held. Losing consent counts as an unfocus, but sends nothing.
+    /// Reports the duration so far as a checkpoint that leaves the session open, so a kill in the
+    /// background loses none of it.
+    func onEnteredBackground() -> Bool {
+        let ids = pinnableIds()
+        let checkpoint: Checkpoint? = stateLock.withLock {
+            loadIfNeeded()
+            guard focusedAt == nil else {
+                return nil
+            }
+            fillPinnedIds(ids)
+            let checkpoint = takeCheckpointIfDue()
+            if checkpoint != nil {
+                persist()
+            }
+            return checkpoint
+        }
+        guard let checkpoint else {
+            return false
+        }
+        sendCheckpoint(checkpoint)
+        return true
+    }
+
+    /// Call with `stateLock` held.
     private func takeCheckpointIfDue() -> Checkpoint? {
         guard var current = record, current.checkpointDue, !OSPrivacyConsentController.requiresUserPrivacyConsent() else {
             return nil

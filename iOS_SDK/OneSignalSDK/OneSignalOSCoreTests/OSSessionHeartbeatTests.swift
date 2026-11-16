@@ -140,12 +140,12 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(heartbeatDurations(for: record), [interval, 2 * interval])
     }
 
-    /// A return within the new-session threshold continues the session. The unfocus checkpoint
+    /// A return within the new-session threshold continues the session. The background checkpoint
     /// reported the time so far, so the next heartbeat is a full interval of foreground time after it.
     func testBackgroundPausesHeartbeatAndOnlyForegroundTimeCounts() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
-        service.onUnfocus()
+        background()
         advance(by: 20)
 
         service.onFocus()
@@ -281,11 +281,17 @@ final class OSSessionHeartbeatTests: XCTestCase {
         user.checkpoints.filter { $0.sessionId == record.sessionId }.map(\.reportedDuration)
     }
 
-    func testUnfocusSendsACheckpointThatLeavesTheSessionOpen() {
+    /// The app resigns active, then enters the background.
+    private func background() {
+        service.onUnfocus()
+        _ = service.onEnteredBackground()
+    }
+
+    func testBackgroundSendsACheckpointThatLeavesTheSessionOpen() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
 
-        service.onUnfocus()
+        background()
 
         XCTAssertEqual(checkpointDurations(for: record), [20 * 60])
         XCTAssertEqual(service.currentRecord?.sessionId, record.sessionId)
@@ -296,12 +302,12 @@ final class OSSessionHeartbeatTests: XCTestCase {
     func testResumeWithinTheThresholdContinuesFromTheCheckpoint() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
-        service.onUnfocus()
+        background()
         advance(by: 20)
 
         service.onFocus()
         advance(by: 10)
-        service.onUnfocus()
+        background()
 
         XCTAssertEqual(checkpointDurations(for: record), [20 * 60, 20 * 60 + 10])
     }
@@ -310,13 +316,13 @@ final class OSSessionHeartbeatTests: XCTestCase {
     func testNoCheckpointWhenTheDurationHasNotGrown() {
         let record = startForegroundSession()
         advance(by: 20 * 60)
-        service.onUnfocus()
+        background()
         advance(by: 5)
 
         service.onFocus()
         advance(by: 0.5)
-        service.onUnfocus()
-        service.onUnfocus()
+        background()
+        _ = service.onEnteredBackground()
 
         XCTAssertEqual(checkpointDurations(for: record), [20 * 60])
     }
@@ -325,7 +331,7 @@ final class OSSessionHeartbeatTests: XCTestCase {
         let record = startForegroundSession()
         advance(by: interval)
 
-        service.onUnfocus()
+        background()
 
         XCTAssertEqual(heartbeatDurations(for: record), [interval])
         XCTAssertTrue(user.checkpoints.isEmpty)
@@ -334,9 +340,32 @@ final class OSSessionHeartbeatTests: XCTestCase {
     func testCheckpointSurvivesARestart() {
         startForegroundSession()
         advance(by: 20 * 60)
-        service.onUnfocus()
+        background()
 
         XCTAssertEqual(makeService().currentRecord?.lastHeartbeatDuration, 20 * 60)
+    }
+
+    /// Control Center, the notification shade, and system prompts resign active without a background.
+    func testUnfocusWithoutABackgroundSendsNoCheckpointAndKeepsTheHeartbeatInterval() {
+        let record = startForegroundSession()
+        advance(by: 20 * 60)
+        service.onUnfocus()
+        advance(by: 5)
+
+        service.onFocus()
+        advance(by: 10 * 60)
+
+        XCTAssertTrue(user.checkpoints.isEmpty)
+        XCTAssertEqual(heartbeatDurations(for: record), [interval])
+    }
+
+    func testEnteringTheBackgroundWhileFocusedSendsNoCheckpoint() {
+        startForegroundSession()
+        advance(by: 20 * 60)
+
+        XCTAssertFalse(service.onEnteredBackground())
+
+        XCTAssertTrue(user.checkpoints.isEmpty)
     }
 
     func testNoCheckpointWhenFlagIsOff() {
@@ -345,7 +374,7 @@ final class OSSessionHeartbeatTests: XCTestCase {
         startForegroundSession()
         advance(by: 20 * 60)
 
-        service.onUnfocus()
+        background()
 
         XCTAssertTrue(user.checkpoints.isEmpty)
     }
