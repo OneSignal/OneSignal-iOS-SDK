@@ -152,7 +152,7 @@ class OSSessionOperationExecutor: OSOperationExecutor {
                 OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSessionOperationExecutor processDeltaQueue with queue: \(self.deltaQueue)")
                 for delta in self.deltaQueue {
                     if let request = self.makeRequest(from: delta), !self.dropIfStale(request) {
-                        self.admit(request)
+                        self.admit(request, inBackground: inBackground)
                     }
                 }
                 self.deltaQueue.removeAll()
@@ -246,8 +246,8 @@ private extension OSSessionOperationExecutor {
         OSRequestAging.staleAge(timestamp: request.timestamp, owner: request.ownerExternalId, typeLimit: OSRequestAging.sessionRequestMaxAge, now: nowProvider(), currentExternalId: OSRequestAging.currentExternalId)
     }
 
-    func admit(_ request: OSSessionRequest) {
-        if let update = request as? OSRequestUpdateSession, !admitUpdate(update) {
+    func admit(_ request: OSSessionRequest, inBackground: Bool = false) {
+        if let update = request as? OSRequestUpdateSession, !admitUpdate(update, inBackground: inBackground) {
             return
         }
         requestQueue.append(request)
@@ -262,7 +262,7 @@ private extension OSSessionOperationExecutor {
      Folds an update into its session's queued ones, which are all cumulative. Returns false when the
      update should not be queued: its session already ended, or it can never get a server session ID.
      */
-    func admitUpdate(_ update: OSRequestUpdateSession) -> Bool {
+    func admitUpdate(_ update: OSRequestUpdateSession, inBackground: Bool = false) -> Bool {
         let sessionId = update.localSessionId
         let queuedUpdates = requestQueue.compactMap { $0 as? OSRequestUpdateSession }.filter { $0.localSessionId == sessionId }
         guard state(forSession: sessionId)?.ended != true, !queuedUpdates.contains(where: \.isEnd) else {
@@ -278,8 +278,9 @@ private extension OSSessionOperationExecutor {
 
         let pending = queuedUpdates.filter { !$0.sentToClient }
         requestQueue.removeAll { request in pending.contains { $0 === request } }
-        // Carry a backoff over, or the replacement would skip it.
-        pending.last.map { retryBackoff.transferWait(from: $0, to: update) }
+        // Carry a backoff over, or the replacement would skip it. An update admitted by a background flush
+        // must send before the app is suspended, so it keeps only the failure count and any `Retry-After`.
+        pending.last.map { retryBackoff.transferWait(from: $0, to: update, endingBackoff: inBackground) }
         return true
     }
 

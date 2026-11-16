@@ -98,11 +98,21 @@ public final class OSRequestRetryBackoff {
     }
 
     /// Moves `old`'s wait onto `new`, so replacing a Request that is backing off does not skip its wait.
-    public func transferWait(from old: AnyObject, to new: AnyObject) {
+    /// With `endingBackoff`, `new` keeps the failure count and waits out only a server's `Retry-After`.
+    public func transferWait(from old: AnyObject, to new: AnyObject, endingBackoff: Bool = false) {
         lock.withLock {
-            if let entry = entries.object(forKey: old) {
-                entries.setObject(entry, forKey: new)
+            guard let entry = entries.object(forKey: old) else {
+                return
             }
+            guard endingBackoff else {
+                entries.setObject(entry, forKey: new)
+                return
+            }
+            let ended = Entry()
+            ended.failures = entry.failures
+            ended.retryAfterAt = entry.retryAfterAt
+            ended.retryAt = entry.retryAfterAt
+            entries.setObject(ended, forKey: new)
         }
     }
 

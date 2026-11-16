@@ -393,6 +393,21 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 20)
     }
 
+    /// A background flush has until suspension to send, so a checkpoint doesn't wait out a heartbeat's backoff.
+    func testUpdateAdmittedInTheBackgroundSkipsTheBackoffOfTheUpdateItReplaces() {
+        let executor = makeExecutor()
+        createSession(executor)
+        flush(executor, updateDelta(duration: 10))
+        fail(executor, code: 500)
+
+        executor.enqueueDelta(updateDelta(duration: 20))
+        executor.processDeltaQueue(inBackground: true)
+        _ = executor.queuedRequests
+
+        XCTAssertEqual(client.requests.count, 3)
+        XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 20)
+    }
+
     func testOther4xxDropsTheCreateWithItsUpdates() {
         let executor = makeExecutor()
         flush(executor, createDelta(), updateDelta(duration: 10))
