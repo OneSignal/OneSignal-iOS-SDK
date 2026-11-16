@@ -173,7 +173,7 @@ override func serviceExtensionTimeWillExpire() {
 }
 ```
 
-The NSE entitlements file (`OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements`) **must** declare the same `com.apple.security.application-groups` value as the main app — both ship with `group.com.onesignal.example.onesignal`. If you change the group to install on a real device under your own team, change it in BOTH files to the same string.
+The NSE entitlements file (`OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements`) **must** declare the same `com.apple.security.application-groups` value as the main app — both ship with `group.com.onesignal.sdkdemo.onesignal`. If you change the group to install on a real device under your own team, change it in BOTH files to the same string.
 
 ### Widget Extension (Live Activities)
 
@@ -194,7 +194,7 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 <string>development</string>
 <key>com.apple.security.application-groups</key>
 <array>
-    <string>group.com.onesignal.example.onesignal</string>
+    <string>group.com.onesignal.sdkdemo.onesignal</string>
 </array>
 ```
 
