@@ -159,6 +159,15 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
 
+/// Runs after `applicationBackgrounded`, which also runs for Control Center, the notification shade,
+/// and system prompts, where the app does not leave the screen.
++ (void)applicationEnteredBackground {
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent])
+        return;
+    if ([OSSessionService onEnteredBackground])
+        [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
+}
+
 // Note: This is not from app backgrounding
 // The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {

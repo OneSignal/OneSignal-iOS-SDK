@@ -80,6 +80,10 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         enqueueSessionUpdate(record)
     }
 
+    public func sessionCheckpoint(_ record: OSSessionRecord) {
+        enqueueSessionUpdate(record)
+    }
+
     public func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
         enqueueSessionCreate(record, directAttributionId: directAttributionId)
     }

@@ -104,6 +104,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)didEnterBackground {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
     if (OneSignalIdentifiers.currentAppId) {
+        [OneSignalTracker applicationEnteredBackground];
         let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
         if (oneSignalLocation != nil && [oneSignalLocation respondsToSelector:@selector(onFocus:)]) {
             [OneSignalCoreHelper callSelector:@selector(onFocus:) onObject:oneSignalLocation withArg:NO];
