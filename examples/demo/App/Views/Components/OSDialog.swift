@@ -231,9 +231,12 @@ private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
                 // Top-anchored and keyboard-insensitive so the dialog never moves
                 // while open. When it slid up for the keyboard, XCUITest kept
                 // reporting the pre-keyboard frames, so Appium taps on dialog
-                // buttons landed on empty space.
+                // buttons landed on empty space. `fixedSize` keeps flexible content
+                // (e.g. TextEditor) at its natural height so the action buttons
+                // stay above the keyboard instead of being pushed under it.
                 VStack(spacing: 0) {
                     dialog()
+                        .fixedSize(horizontal: false, vertical: true)
                         .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
                         .padding(.horizontal, 16)
                         .padding(.vertical, 24)
