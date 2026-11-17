@@ -51,7 +51,7 @@ struct LiveActivitySection: View {
 
             ButtonGrid {
                 ActionButton(
-                    "START LIVE ACTIVITY",
+                    "START ACTIVITY",
                     isDisabled: trimmedActivityId.isEmpty,
                     accessibilityID: "start_live_activity_button"
                 ) {
@@ -77,7 +77,7 @@ struct LiveActivitySection: View {
                 }
 
                 ActionButton(
-                    "END LIVE ACTIVITY",
+                    "END ACTIVITY",
                     style: .outline,
                     isDisabled: trimmedActivityId.isEmpty || !LiveActivityController.hasApiKey,
                     accessibilityID: "end_live_activity_button"
