@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Centered dialog for sending an outcome (normal, unique, or with value).
+/// Dialog for sending an outcome (normal, unique, or with value).
 struct OutcomeDialog: View {
     let onSend: (String, OutcomeMode, Double?) -> Void
     let onCancel: () -> Void

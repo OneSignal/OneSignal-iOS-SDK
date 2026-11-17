@@ -159,32 +159,34 @@ struct UserSection: View {
                 .accessibilityIdentifier("jwt_ask_banner")
             }
 
-            ActionButton(
-                viewModel.loginButtonTitle,
-                accessibilityID: "login_user_button"
-            ) {
-                loginOpen = true
-            }
-
-            if viewModel.isLoggedIn {
+            ButtonGrid {
                 ActionButton(
-                    "LOGOUT USER",
-                    style: .outline,
-                    accessibilityID: "logout_user_button"
+                    viewModel.loginButtonTitle,
+                    accessibilityID: "login_user_button"
                 ) {
-                    viewModel.logout()
+                    loginOpen = true
+                }
+
+                if viewModel.isLoggedIn {
+                    ActionButton(
+                        "LOGOUT USER",
+                        style: .outline,
+                        accessibilityID: "logout_user_button"
+                    ) {
+                        viewModel.logout()
+                    }
+                }
+
+                ActionButton(
+                    "UPDATE USER JWT",
+                    style: .outline,
+                    accessibilityID: "update_user_jwt_button"
+                ) {
+                    updateJwtOpen = true
                 }
             }
-
-            ActionButton(
-                "UPDATE USER JWT",
-                style: .outline,
-                accessibilityID: "update_user_jwt_button"
-            ) {
-                updateJwtOpen = true
-            }
         }
-        .osCenteredDialog(isPresented: $loginOpen) {
+        .osDialog(isPresented: $loginOpen) {
             LoginUserDialog(
                 onLogin: { externalId, jwt in
                     viewModel.login(externalId: externalId, jwtToken: jwt)
@@ -193,7 +195,7 @@ struct UserSection: View {
                 onCancel: { loginOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $updateJwtOpen) {
+        .osDialog(isPresented: $updateJwtOpen) {
             AddItemDialog(
                 itemType: .updateUserJwt,
                 initialKey: viewModel.jwtAskExternalId ?? viewModel.externalUserId ?? "",

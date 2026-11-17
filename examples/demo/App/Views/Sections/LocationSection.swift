@@ -47,13 +47,15 @@ struct LocationSection: View {
                 accessibilityID: "location_shared_toggle"
             )
 
-            ActionButton("PROMPT LOCATION", accessibilityID: "prompt_location_button") {
-                viewModel.promptLocation()
-            }
+            ButtonGrid {
+                ActionButton("PROMPT LOCATION", accessibilityID: "prompt_location_button") {
+                    viewModel.promptLocation()
+                }
 
-            ActionButton("CHECK LOCATION", accessibilityID: "check_location_button") {
-                let shared = viewModel.checkLocationShared()
-                toast.show("Location shared: \(shared)")
+                ActionButton("CHECK LOCATION", accessibilityID: "check_location_button") {
+                    let shared = viewModel.checkLocationShared()
+                    toast.show("Location shared: \(shared)")
+                }
             }
         }
     }

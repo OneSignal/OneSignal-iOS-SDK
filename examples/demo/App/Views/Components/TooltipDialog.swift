@@ -28,8 +28,8 @@
 import SwiftUI
 
 /// Tooltip dialog body shown when the user taps a section's info icon.
-/// Single OK action — no Cancel. Presented as a centered modal via
-/// `osCenteredDialog`, so this view renders only the card chrome.
+/// Single OK action — no Cancel. Presented as a modal via
+/// `osDialog`, so this view renders only the card chrome.
 struct TooltipDialog: View {
     let tooltip: TooltipData
     let onClose: () -> Void
