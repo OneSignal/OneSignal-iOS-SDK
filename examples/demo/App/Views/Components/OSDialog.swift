@@ -196,7 +196,7 @@ struct OSTextEditor: View {
 // MARK: - Centered dialog presentation
 
 extension View {
-    /// Presents `content` as a centered modal dialog over the entire screen,
+    /// Presents `content` as a modal dialog near the top of the screen,
     /// matching the styles.md "Dialogs" spec: 54% black backdrop, 16pt
     /// horizontal / 24pt vertical insets, 28pt corner radius, white card.
     /// Tapping the backdrop dismisses.
@@ -228,10 +228,18 @@ private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
                     .contentShape(Rectangle())
                     .onTapGesture { isPresented = false }
 
-                dialog()
-                    .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 24)
+                // Top-anchored and keyboard-insensitive so the dialog never moves
+                // while open. When it slid up for the keyboard, XCUITest kept
+                // reporting the pre-keyboard frames, so Appium taps on dialog
+                // buttons landed on empty space.
+                VStack(spacing: 0) {
+                    dialog()
+                        .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 24)
+                    Spacer(minLength: 0)
+                }
+                .ignoresSafeArea(.keyboard)
             }
             .background(ClearBackgroundView())
         }
