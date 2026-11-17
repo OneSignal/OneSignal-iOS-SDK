@@ -54,7 +54,7 @@ struct TriggersSection: View {
                 ActionButton("ADD TRIGGER", accessibilityID: "add_trigger_button") {
                     addOpen = true
                 }
-                ActionButton("ADD MULTIPLE TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
+                ActionButton("ADD TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
                     addMultipleOpen = true
                 }
                 if !viewModel.triggers.isEmpty {
@@ -66,7 +66,7 @@ struct TriggersSection: View {
                         removeOpen = true
                     }
                     ActionButton(
-                        "CLEAR ALL TRIGGERS",
+                        "CLEAR ALL",
                         style: .outline,
                         accessibilityID: "clear_triggers_button"
                     ) {

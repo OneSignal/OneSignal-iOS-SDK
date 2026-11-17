@@ -48,7 +48,7 @@ struct AliasesSection: View {
                 ActionButton("ADD ALIAS", accessibilityID: "add_alias_button") {
                     addOpen = true
                 }
-                ActionButton("ADD MULTIPLE ALIASES", accessibilityID: "add_multiple_aliases_button") {
+                ActionButton("ADD ALIASES", accessibilityID: "add_multiple_aliases_button") {
                     addMultipleOpen = true
                 }
             }

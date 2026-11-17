@@ -54,7 +54,7 @@ struct TagsSection: View {
                 ActionButton("ADD TAG", accessibilityID: "add_tag_button") {
                     addOpen = true
                 }
-                ActionButton("ADD MULTIPLE TAGS", accessibilityID: "add_multiple_tags_button") {
+                ActionButton("ADD TAGS", accessibilityID: "add_multiple_tags_button") {
                     addMultipleOpen = true
                 }
                 if !viewModel.tags.isEmpty {
