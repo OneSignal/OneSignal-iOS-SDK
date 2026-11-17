@@ -351,7 +351,8 @@ final class OSLoggerAdaptersTests: XCTestCase {
             threadName: "test",
             exceptionType: "TestError",
             exceptionMessage: "test message",
-            stacktrace: "test stack"
+            stacktrace: "test stack",
+            attributed: true
         )
 
         _ = try reporter.saveNonFatal(crash: crash)
