@@ -31,18 +31,13 @@ import SwiftUI
 struct SendIamSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
-    private let columns = Array(
-        repeating: GridItem(.flexible(), spacing: OS.Spacing.cardGap),
-        count: 2
-    )
-
     var body: some View {
         SectionCard(
             title: "SEND IN-APP MESSAGE",
             sectionKey: "send_iam",
             onInfoTap: { viewModel.showTooltip(for: "sendInAppMessage") }
         ) {
-            LazyVGrid(columns: columns, spacing: OS.Spacing.cardGap) {
+            ButtonGrid {
                 ForEach(InAppMessageType.allCases) { type in
                     ActionButton(
                         type.rawValue.uppercased(),

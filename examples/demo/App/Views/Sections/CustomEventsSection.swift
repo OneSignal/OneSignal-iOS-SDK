@@ -42,7 +42,7 @@ struct CustomEventsSection: View {
                 open = true
             }
         }
-        .osCenteredDialog(isPresented: $open) {
+        .osDialog(isPresented: $open) {
             TrackEventDialog(
                 onTrack: { name, properties in
                     viewModel.trackEvent(name: name, properties: properties)

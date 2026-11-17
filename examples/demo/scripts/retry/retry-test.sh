@@ -16,7 +16,7 @@ PORT="${RETRY_TEST_PORT:-8899}"
 # network extension approved once, but leaves the Mac's proxy alone.
 # `manual` only listens; point a physical device's Wi-Fi proxy at this Mac yourself.
 PROXY_MODE="${RETRY_TEST_PROXY_MODE:-system}"
-BUNDLE_ID="${RETRY_TEST_BUNDLE_ID:-com.onesignal.example}"
+BUNDLE_ID="${RETRY_TEST_BUNDLE_ID:-com.onesignal.sdkdemo}"
 # Other demos (Cordova, Capacitor, ...) share the bundle ID, so give the harness its own simulator.
 DEVICE_NAME="${RETRY_TEST_DEVICE:-OneSignal Retry Test}"
 IV_APP_ID="${RETRY_TEST_IV_APP_ID:-}"

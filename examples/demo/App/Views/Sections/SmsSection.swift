@@ -48,7 +48,7 @@ struct SmsSection: View {
                 addOpen = true
             }
         }
-        .osCenteredDialog(isPresented: $addOpen) {
+        .osDialog(isPresented: $addOpen) {
             AddItemDialog(
                 itemType: .sms,
                 onAdd: { _, value in

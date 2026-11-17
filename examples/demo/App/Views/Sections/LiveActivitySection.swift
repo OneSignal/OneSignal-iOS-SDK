@@ -49,40 +49,42 @@ struct LiveActivitySection: View {
         ) {
             inputCard
 
-            ActionButton(
-                "START LIVE ACTIVITY",
-                isDisabled: trimmedActivityId.isEmpty,
-                accessibilityID: "start_live_activity_button"
-            ) {
-                statusIndex = 0
-                viewModel.startLiveActivity(
-                    activityId: trimmedActivityId,
-                    orderNumber: orderNumber.trimmingCharacters(in: .whitespacesAndNewlines),
-                    status: statuses[0]
-                )
-            }
+            ButtonGrid {
+                ActionButton(
+                    "START ACTIVITY",
+                    isDisabled: trimmedActivityId.isEmpty,
+                    accessibilityID: "start_live_activity_button"
+                ) {
+                    statusIndex = 0
+                    viewModel.startLiveActivity(
+                        activityId: trimmedActivityId,
+                        orderNumber: orderNumber.trimmingCharacters(in: .whitespacesAndNewlines),
+                        status: statuses[0]
+                    )
+                }
 
-            ActionButton(
-                updateButtonTitle,
-                isDisabled: trimmedActivityId.isEmpty || !LiveActivityController.hasApiKey,
-                accessibilityID: "update_live_activity_button"
-            ) {
-                let nextIndex = (statusIndex + 1) % statuses.count
-                viewModel.updateLiveActivity(
-                    activityId: trimmedActivityId,
-                    status: statuses[nextIndex]
-                )
-                statusIndex = nextIndex
-            }
+                ActionButton(
+                    updateButtonTitle,
+                    isDisabled: trimmedActivityId.isEmpty || !LiveActivityController.hasApiKey,
+                    accessibilityID: "update_live_activity_button"
+                ) {
+                    let nextIndex = (statusIndex + 1) % statuses.count
+                    viewModel.updateLiveActivity(
+                        activityId: trimmedActivityId,
+                        status: statuses[nextIndex]
+                    )
+                    statusIndex = nextIndex
+                }
 
-            ActionButton(
-                "END LIVE ACTIVITY",
-                style: .outline,
-                isDisabled: trimmedActivityId.isEmpty || !LiveActivityController.hasApiKey,
-                accessibilityID: "end_live_activity_button"
-            ) {
-                viewModel.endLiveActivity(activityId: trimmedActivityId)
-            }
+                ActionButton(
+                    "END ACTIVITY",
+                    style: .outline,
+                    isDisabled: trimmedActivityId.isEmpty || !LiveActivityController.hasApiKey,
+                    accessibilityID: "end_live_activity_button"
+                ) {
+                    viewModel.endLiveActivity(activityId: trimmedActivityId)
+                }
+}
 
             if !LiveActivityController.hasApiKey {
                 Text("Set ONESIGNAL_API_KEY in Secrets.plist to enable update & end")

@@ -38,27 +38,29 @@ struct SendPushSection: View {
             sectionKey: "send_push",
             onInfoTap: { viewModel.showTooltip(for: "sendPushNotification") }
         ) {
-            ActionButton("SIMPLE", accessibilityID: "send_simple_button") {
-                viewModel.sendNotification(.simple)
-            }
-            ActionButton("WITH IMAGE", accessibilityID: "send_image_button") {
-                viewModel.sendNotification(.withImage)
-            }
-            ActionButton("WITH SOUND", accessibilityID: "send_sound_button") {
-                viewModel.sendNotification(.withSound)
-            }
-            ActionButton("CUSTOM", accessibilityID: "send_custom_button") {
-                customOpen = true
-            }
-            ActionButton(
-                "CLEAR ALL",
-                style: .outline,
-                accessibilityID: "clear_all_button"
-            ) {
-                viewModel.clearAllNotifications()
+            ButtonGrid {
+                ActionButton("SIMPLE", accessibilityID: "send_simple_button") {
+                    viewModel.sendNotification(.simple)
+                }
+                ActionButton("WITH IMAGE", accessibilityID: "send_image_button") {
+                    viewModel.sendNotification(.withImage)
+                }
+                ActionButton("WITH SOUND", accessibilityID: "send_sound_button") {
+                    viewModel.sendNotification(.withSound)
+                }
+                ActionButton("CUSTOM", accessibilityID: "send_custom_button") {
+                    customOpen = true
+                }
+                ActionButton(
+                    "CLEAR ALL",
+                    style: .outline,
+                    accessibilityID: "clear_all_button"
+                ) {
+                    viewModel.clearAllNotifications()
+                }
             }
         }
-        .osCenteredDialog(isPresented: $customOpen) {
+        .osDialog(isPresented: $customOpen) {
             CustomNotificationDialog(
                 onSend: { title, body in
                     viewModel.sendCustomNotification(title: title, body: body)

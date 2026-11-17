@@ -90,7 +90,7 @@ struct ContentView: View {
                 SecondaryView()
             }
         }
-        .osCenteredDialog(
+        .osDialog(
             isPresented: Binding(
                 get: { viewModel.activeTooltip != nil },
                 set: { isPresented in if !isPresented { viewModel.dismissTooltip() } }
