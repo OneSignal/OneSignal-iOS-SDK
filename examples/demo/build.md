@@ -37,7 +37,7 @@ Open `iOS_SDK/OneSignalSDK.xcworkspace`, select the **App** scheme, and run. The
 
 Per-developer build settings and OneSignal credentials are split across two layers, both wired into XcodeGen via `project.yml`:
 
-- `Build.xcconfig` -- root xcconfig referenced by every target's `configFiles: { Debug, Release }`. It only does `#include? "Local.xcconfig"`, so a fresh clone builds with no extra setup.
+- `Build.xcconfig` -- root xcconfig referenced by every target's `configFiles: { Debug, Release }`. It sets the default Debug `DEVELOPMENT_TEAM` (`DL8TF3X4K3`) and then does `#include? "Local.xcconfig"`, so a fresh clone builds with no extra setup.
 - `Local.xcconfig` (gitignored) -- per-developer overrides such as `DEVELOPMENT_TEAM`, `CODE_SIGN_STYLE`, and `PROVISIONING_PROFILE_SPECIFIER`. Anything set here survives `xcodegen generate`. See `Local.xcconfig.example` for the template.
 - `App/Secrets.plist` (gitignored, `optional: true` in `project.yml`) -- `<dict>` with `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` strings. Parsed at runtime by `App/Services/SecretsConfig.swift`. Bundled via an explicit `buildPhase: resources` source entry because XcodeGen otherwise treats `.plist` files as Info.plist-like and skips Copy Bundle Resources.
 - `App/vine_boom.wav` (gitignored optional) -- bundled custom notification sound; XcodeGen picks it up automatically from the `App/` source path.
@@ -59,7 +59,7 @@ The only manual step is running `xcodegen generate` after editing `project.yml`.
 Use a single `OneSignalViewModel` (`App/ViewModels/OneSignalViewModel.swift`) as the central state manager. There is no repository wrapper -- the view-model calls the OneSignal SDK directly through a thin `OneSignalService` singleton (`App/Services/OneSignalService.swift`).
 
 - `@MainActor final class OneSignalViewModel: ObservableObject` with `@Published` properties for reactive state (app id, push subscription id and token, aliases, tags, emails, SMS, triggers, consent, location, IAM paused, `isLoading`)
-- The only `@Published` UI overlay state is `activeTooltip: TooltipData?`. Action dialogs are NOT in the view-model -- each section owns its own `@State` boolean and binds `.osCenteredDialog(isPresented:)` locally
+- The only `@Published` UI overlay state is `activeTooltip: TooltipData?`. Action dialogs are NOT in the view-model -- each section owns its own `@State` boolean and binds `.osDialog(isPresented:)` locally
 - `init` calls `refreshState()` and the private `setupObservers()`, which registers `OSPushSubscriptionObserver`, `OSUserStateObserver`, and `OSNotificationPermissionObserver`. SwiftUI keeps the view-model alive for the app lifetime via `@StateObject` in `App.swift`, so no manual teardown is needed
 - `OneSignalService` (singleton, `App/Services/OneSignalService.swift`) funnels every SDK call through one entry point and mirrors any setters the SDK doesn't expose as getters (consent flags) into `UserDefaults`
 - `NotificationSender` (singleton, `App/Services/NotificationSender.swift`) wraps the `/notifications` REST endpoint with `URLSession` and retries with exponential backoff when the API returns 200 with empty `id` / `recipients == 0` / a non-empty `errors` payload (transient race between subscription create and notification fan-out)
@@ -121,10 +121,10 @@ Push subscription id, opt-in, notification permission, and the live `OneSignal.U
 
 ### Dialogs
 
-- Tooltip state lives on the view model as `@Published var activeTooltip: TooltipData?`. `ContentView` owns layout only and binds the tooltip dialog via `viewModel.activeTooltip` / `viewModel.dismissTooltip()` attached with `.osCenteredDialog`. Sections call `viewModel.showTooltip(for:)` from info icons.
-- Sections declare `@State` booleans for their action dialogs (`@State private var addOpen = false`, `@State private var loginOpen = false`, ...) and attach `.osCenteredDialog(isPresented: $addOpen) { AddItemDialog(...) }` on the section view. Dialog confirm handlers call ViewModel SDK methods and (where applicable) `toast.show(...)`.
+- Tooltip state lives on the view model as `@Published var activeTooltip: TooltipData?`. `ContentView` owns layout only and binds the tooltip dialog via `viewModel.activeTooltip` / `viewModel.dismissTooltip()` attached with `.osDialog`. Sections call `viewModel.showTooltip(for:)` from info icons.
+- Sections declare `@State` booleans for their action dialogs (`@State private var addOpen = false`, `@State private var loginOpen = false`, ...) and attach `.osDialog(isPresented: $addOpen) { AddItemDialog(...) }` on the section view. Dialog confirm handlers call ViewModel SDK methods and (where applicable) `toast.show(...)`.
 - `OneSignalViewModel` must not hold any action dialog visibility flags or dialog input drafts.
-- `osCenteredDialog` (in `App/Views/Components/OSDialog.swift`) is implemented on top of `.fullScreenCover` with a `ClearBackgroundView` (`UIViewRepresentable`) so the dialog presents at the window level instead of being clipped to the section's frame inside `ScrollView`. The default slide-up animation is suppressed via `.transaction { $0.disablesAnimations = true }` so the dialog's own fade-in is preserved.
+- `osDialog` (in `App/Views/Components/OSDialog.swift`) is implemented on top of `.fullScreenCover` with a `ClearBackgroundView` (`UIViewRepresentable`) so the dialog presents at the window level instead of being clipped to the section's frame inside `ScrollView`. The card is top-anchored and ignores the keyboard so it never moves while open (XCUITest otherwise reports stale frames). Dialog content must have a bounded height (fixed-height `OSTextEditor`, `ScrollView` + `maxHeight` for lists) so the action row stays on screen. The default slide-up animation is suppressed via `.transaction { $0.disablesAnimations = true }` so the dialog's own fade-in is preserved.
 - Shared dialog primitives live in `App/Views/Components/`: `AddItemDialog` (typed via `AddItemType` -- single-field and pair layouts both flow through it), `MultiPairInputDialog`, `RemoveMultiDialog`, `OutcomeDialog`, `CustomNotificationDialog`, `TrackEventDialog`, `TooltipDialog`. Sections import and compose them locally.
 
 ### Accessibility (Appium)
@@ -191,14 +191,25 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 
 ```xml
 <key>aps-environment</key>
-<string>development</string>
+<string>$(APS_ENVIRONMENT)</string>
 <key>com.apple.security.application-groups</key>
 <array>
     <string>group.com.onesignal.sdkdemo.onesignal</string>
 </array>
 ```
 
+`APS_ENVIRONMENT` is set per configuration in `project.yml`: `development` for Debug, `production` for Release (In House profiles only carry production).
+
 `OneSignalNotificationServiceExtension.entitlements` mirrors the same app group. Both must match or rich pushes fail silently.
+
+### Release signing
+
+Release builds are signed for enterprise (In House) distribution so the Appium suite can run push tests on BrowserStack real devices.
+
+- Team `DL8TF3X4K3` (OneSignal, Inc. Apple Developer Enterprise Program), identity `iPhone Distribution`, manual signing. All Release signing settings are scoped to `[sdk=iphoneos*]`.
+- Provisioning profiles (type In House, created at developer.apple.com > Profiles with the in-house distribution certificate): `Appium Demo - Main` (`com.onesignal.sdkdemo`), `Appium Demo - NSE` (`com.onesignal.sdkdemo.NSE`), `Appium Demo - Live Activity` (`com.onesignal.sdkdemo.LA`). In House profiles need no registered devices.
+- `ExportOptions.plist` exports with method `enterprise` and maps each bundle id to its profile.
+- When uploading to BrowserStack App Automate, set `resignApp: false`; BrowserStack re-signing breaks push delivery.
 
 ### Info.plist
 
@@ -240,9 +251,10 @@ The iOS demo does NOT use a `.env` file. Instead, `App/Services/SecretsConfig.sw
 examples/demo/
 ├── App.xcodeproj                                  # Generated by `xcodegen generate`
 ├── project.yml                                    # XcodeGen project definition
+├── ExportOptions.plist                            # Enterprise export (In House profiles)
 ├── App.entitlements                               # aps-environment + app group
 ├── Build.xcconfig                                 # Root xcconfig wired into every target;
-│                                                  # only does `#include? "Local.xcconfig"`
+│                                                  # Debug team + `#include? "Local.xcconfig"`
 ├── Local.xcconfig.example                         # Per-developer overrides template
 │                                                  # (DEVELOPMENT_TEAM, CODE_SIGN_STYLE, ...)
 ├── build.md                                       # This file
@@ -316,7 +328,7 @@ examples/demo/
 │           │                                      # MoreLink. No LoadingState / CollapsibleList
 │           ├── KeyValueRow.swift                  # Filename vs type name differ -- type is
 │           │                                      # `InfoRow` (currently unused in demo)
-│           ├── OSDialog.swift                    # osCenteredDialog modifier + ClearBackgroundView
+│           ├── OSDialog.swift                    # osDialog modifier + ClearBackgroundView
 │           ├── AddItemDialog.swift                # Single + Pair input dialogs (typed via AddItemType)
 │           ├── MultiPairInputDialog.swift        # Bulk add (aliases / tags / triggers)
 │           ├── RemoveMultiDialog.swift           # Bulk remove (tags / triggers)

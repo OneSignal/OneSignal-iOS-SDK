@@ -64,9 +64,10 @@ targets:
         SWIFT_OBJC_BRIDGING_HEADER: App/App-Bridging-Header.h
       configs:
         Debug:
-          DEVELOPMENT_TEAM: DL8TF3X4K3
+          APS_ENVIRONMENT: development
         Release:
-          CODE_SIGN_IDENTITY: "iPhone Distribution"
+          APS_ENVIRONMENT: production
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
           DEVELOPMENT_TEAM: ""
           "DEVELOPMENT_TEAM[sdk=iphoneos*]": DL8TF3X4K3
@@ -137,8 +138,6 @@ targets:
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
         SKIP_INSTALL: YES
       configs:
-        Debug:
-          DEVELOPMENT_TEAM: DL8TF3X4K3
         Release:
           "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
@@ -180,8 +179,6 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
       configs:
-        Debug:
-          DEVELOPMENT_TEAM: DL8TF3X4K3
         Release:
           "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
