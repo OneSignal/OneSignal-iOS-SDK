@@ -141,6 +141,33 @@ final class OSLogCrashAttributionTests: XCTestCase {
         )
     }
 
+    /// Our image names us only while it is ours alone. Once it is the host binary every frame
+    /// matches it, which would tag crashes we cannot attribute as if we had.
+    func testIgnoresHostFramesWhenSdkSharesTheHostImage() {
+        XCTAssertFalse(isOneSignal([frame(appPath)]))
+    }
+    func testRecognizesRepackagedFrameworkByOwnImage() {
+        let repackaged = OSOwnImage(path: frameworkPath("VendorWrapper"), sharesHostExecutable: false)
+        XCTAssertTrue(
+            isOneSignal([frame(frameworkPath("VendorWrapper"))], ownImage: repackaged)
+        )
+    }
+    func testIgnoresThirdPartyOSPrefixedClass() {
+        XCTAssertFalse(
+            isOneSignal([
+                frame(frameworkPath("AliyunOSS"), symbol: "-[OSSClient putObject:]")
+            ])
+        )
+    }
+    func testIgnoresOSPrefixedClassOutsideTheSharedHostImage() {
+        XCTAssertFalse(
+            isOneSignal(
+                [frame(appPath, symbol: "-[OSNotificationsManager handleNotificationAction:]")],
+                ownImage: dynamicallyLinked
+            )
+        )
+    }
+
     func testIgnoresUnresolvedAndEmptyStacks() {
         XCTAssertFalse(
             isOneSignal([OSResolvedStackFrame(imagePath: nil, symbolName: "onesignal_Log")])
@@ -148,10 +175,12 @@ final class OSLogCrashAttributionTests: XCTestCase {
         XCTAssertFalse(isOneSignal([]))
     }
 
-    private let appPath = "/private/var/containers/Bundle/Application/App/ExampleApp"
-
-    private func isOneSignal(_ frames: [OSResolvedStackFrame]) -> Bool {
-        OSLogCrashHandler.isOneSignalAtFault(frames)
+    /// Every `appPath` case above models static linking, where our code sits in the host binary.
+    private func isOneSignal(
+        _ frames: [OSResolvedStackFrame],
+        ownImage: OSOwnImage = staticallyLinked
+    ) -> Bool {
+        OSLogCrashHandler.isOneSignalAtFault(frames, ownImage: ownImage)
     }
 
     private func frame(_ imagePath: String, symbol: String? = nil) -> OSResolvedStackFrame {
@@ -159,10 +188,21 @@ final class OSLogCrashAttributionTests: XCTestCase {
     }
 
     private func dynamicFrame(_ module: String, symbol: String? = nil) -> OSResolvedStackFrame {
-        frame(
-            "/private/var/containers/Bundle/Application/App/Frameworks/"
-                + "\(module).framework/\(module)",
-            symbol: symbol
-        )
+        frame(frameworkPath(module), symbol: symbol)
     }
 }
+
+private let appPath = "/private/var/containers/Bundle/Application/App/ExampleApp"
+
+private func frameworkPath(_ module: String) -> String {
+    "/private/var/containers/Bundle/Application/App/Frameworks/\(module).framework/\(module)"
+}
+
+/// SDK compiled into the host binary, so no frame's image can tell our code from the app's.
+private let staticallyLinked = OSOwnImage(path: appPath, sharesHostExecutable: true)
+
+/// SDK shipped as its own framework, the shape every current integration uses.
+private let dynamicallyLinked = OSOwnImage(
+    path: frameworkPath("OneSignalOSCore"),
+    sharesHostExecutable: false
+)

@@ -27,7 +27,7 @@
 
 #import "OneSignalOSCoreTests-Bridging-Header.h"
 
-@implementation OSCrashHandlerExceptionRaiser
+@implementation CrashTestExceptionRaiser
 
 + (nullable NSException *)exceptionRaisedBy:(void (^)(void))block {
     @try {

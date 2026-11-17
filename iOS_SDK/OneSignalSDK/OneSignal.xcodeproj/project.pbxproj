@@ -738,7 +738,7 @@
 		DEFB3E672BB735B500E65DAD /* OSStubLiveActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */; };
 		ECD9DF65FB98056806A43541 /* OSIdentityVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4EAEA1BC62D8FC57927511 /* OSIdentityVerificationService.swift */; };
 		FD1F1FCA05D555623DD53B54 /* OSUserJwtRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */; };
-		3C5059A12FD0000000000003 /* OSCrashHandlerExceptionRaiser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C5059A12FD0000000000001 /* OSCrashHandlerExceptionRaiser.m */; };
+		3C5059A12FD0000000000003 /* CrashTestExceptionRaiser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */; };
 		3C5059A12FD0000000000005 /* OSLogCrashAttributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -2015,7 +2015,7 @@
 		C3E5A1D7F2B9461EB8D4A6C2 /* ExecutorRequestAgingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExecutorRequestAgingTests.swift; sourceTree = "<group>"; };
 		FF4B19D1EC31C0750F13065A /* OSIamFetchReadyConditionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIamFetchReadyConditionTests.swift; sourceTree = "<group>"; };
 		FFBB451F692A15639A1A08AE /* OSOperationRepoIdentityVerificationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSOperationRepoIdentityVerificationTests.swift; sourceTree = "<group>"; };
-		3C5059A12FD0000000000001 /* OSCrashHandlerExceptionRaiser.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = OSCrashHandlerExceptionRaiser.m; sourceTree = "<group>"; };
+		3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CrashTestExceptionRaiser.m; sourceTree = "<group>"; };
 		3C5059A12FD0000000000002 /* OneSignalOSCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "OneSignalOSCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSLogCrashAttributionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2792,7 +2792,7 @@
 			isa = PBXGroup;
 			children = (
 				3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */,
-				3C5059A12FD0000000000001 /* OSCrashHandlerExceptionRaiser.m */,
+				3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */,
 				3C5059A12FD0000000000002 /* OneSignalOSCoreTests-Bridging-Header.h */,
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
@@ -4929,7 +4929,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C5059A12FD0000000000005 /* OSLogCrashAttributionTests.swift in Sources */,
-				3C5059A12FD0000000000003 /* OSCrashHandlerExceptionRaiser.m in Sources */,
+				3C5059A12FD0000000000003 /* CrashTestExceptionRaiser.m in Sources */,
 				5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */,
 				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,

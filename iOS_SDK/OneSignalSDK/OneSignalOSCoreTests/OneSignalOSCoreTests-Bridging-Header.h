@@ -6,7 +6,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSCrashHandlerExceptionRaiser : NSObject
+@interface CrashTestExceptionRaiser : NSObject
 
 /// Returns the exception `block` raised, with the return addresses the runtime captured at the
 /// throw. Swift cannot catch an `NSException`, so the `@try` has to live here.

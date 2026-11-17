@@ -94,14 +94,31 @@ final class OSLogCrashHandlerTests: XCTestCase {
     }
 
     /// Where SDK code shares the host executable, no frame can name us, so dropping would hide
-    /// every one of our crashes behind a stack that looks like the host's.
-    func testCapturesHostFramesWhenSdkSharesTheHostImage() throws {
+    /// every one of our crashes behind a stack that looks like the host's. The real image path
+    /// matters here: matching on it would tag these as ours and defeat the server-side filter.
+    func testCapturesHostFramesUnattributedWhenSdkSharesTheHostImage() throws {
+        let reporter = RecordingCrashReporter()
         try assertCapture(
             1,
             for: raisedInHostFrame(),
-            ownImage: OSOwnImage(path: nil, sharesHostExecutable: true)
+            ownImage: OSOwnImage(path: Self.testBundleImagePath, sharesHostExecutable: true),
+            reporter: reporter
         )
+
+        XCTAssertEqual(reporter.saved.map(\.attributed), [false])
     }
+
+    func testCapturesExceptionThroughOneSignalFrameAsAttributed() throws {
+        let reporter = RecordingCrashReporter()
+        try assertCapture(1, for: raisedThroughOneSignalFrame(), reporter: reporter)
+
+        XCTAssertEqual(reporter.saved.map(\.attributed), [true])
+    }
+
+    /// The image the raised frames resolve to, standing in for a host binary the SDK was
+    /// linked into.
+    private static let testBundleImagePath: String? =
+        class_getImageName(CrashTestExceptionRaiser.self).map { String(cString: $0) }
 
     /// `OSConsoleLogger` hands `write` a frame inside OneSignalOSCore, which is the only seam
     /// here that puts SDK code between the throw and the test bundle.
@@ -112,11 +129,11 @@ final class OSLogCrashHandlerTests: XCTestCase {
                 NSException(name: NSExceptionName("RaisedException"), reason: "boom").raise()
             }
         )
-        return OSCrashHandlerExceptionRaiser.exceptionRaised { logger.error(message: "boom") }
+        return CrashTestExceptionRaiser.exceptionRaised { logger.error(message: "boom") }
     }
 
     private func raisedInHostFrame() -> NSException? {
-        OSCrashHandlerExceptionRaiser.exceptionRaised {
+        CrashTestExceptionRaiser.exceptionRaised {
             NSException(name: NSExceptionName("RaisedException"), reason: "boom").raise()
         }
     }
@@ -125,13 +142,14 @@ final class OSLogCrashHandlerTests: XCTestCase {
         _ expected: Int,
         for raised: NSException?,
         ownImage: OSOwnImage = .resolved,
+        reporter: RecordingCrashReporter? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
         let exception = try XCTUnwrap(raised, file: file, line: line)
         XCTAssertFalse(exception.callStackReturnAddresses.isEmpty, file: file, line: line)
 
-        let handler = makeCrashHandler(ownImage: ownImage)
+        let handler = makeCrashHandler(ownImage: ownImage, reporter: reporter)
         let originalHandler = NSGetUncaughtExceptionHandler()
         NSSetUncaughtExceptionHandler(osLogCrashTestExceptionHandler)
         defer { NSSetUncaughtExceptionHandler(originalHandler) }
@@ -140,14 +158,11 @@ final class OSLogCrashHandlerTests: XCTestCase {
 
         OSLogCrashHandler.handleActive(exception)
 
-        XCTAssertEqual(
-            try FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
+        let captured = try reporter?.saved.count
+            ?? FileManager.default.contentsOfDirectory(atPath: temporaryDirectory.path)
                 .filter { $0.hasSuffix(".otlp") }
-                .count,
-            expected,
-            file: file,
-            line: line
-        )
+                .count
+        XCTAssertEqual(captured, expected, file: file, line: line)
     }
 
     private func frame(_ imagePath: String, symbol: String? = nil) -> OSResolvedStackFrame {
@@ -290,7 +305,13 @@ extension OSLogCrashHandlerTests {
         XCTAssertEqual(started, ["first", "second"])
     }
 
-    private func makeCrashHandler(ownImage: OSOwnImage = .resolved) -> OSLogCrashHandler {
+    private func makeCrashHandler(
+        ownImage: OSOwnImage = .resolved,
+        reporter recording: RecordingCrashReporter? = nil
+    ) -> OSLogCrashHandler {
+        if let recording {
+            return OSLogCrashHandler(reporter: recording, ownImage: ownImage)
+        }
         let store = FileLogStore(rootPath: temporaryDirectory.path)
         let telemetry = LoggerFactory.shared.createCrashLocalTelemetry(
             platformProvider: makePlatformProvider(),
@@ -315,6 +336,20 @@ extension OSLogCrashHandlerTests {
         )
     }
 
+}
+
+/// Captures the `CrashData` the handler builds, so tests can read the attribution tag without
+/// decoding an OTLP payload.
+private final class RecordingCrashReporter: NSObject, ILogCrashReporter {
+    private(set) var saved: [CrashData] = []
+
+    func saveCrash(crash: CrashData) throws {
+        saved.append(crash)
+    }
+
+    func saveNonFatal(crash: CrashData) throws {
+        saved.append(crash)
+    }
 }
 
 private typealias TestSignalHandler = @convention(c) (Int32) -> Void

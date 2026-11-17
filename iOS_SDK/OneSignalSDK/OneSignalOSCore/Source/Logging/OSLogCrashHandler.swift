@@ -62,8 +62,13 @@ struct OSOwnImage: Equatable {
             // the drop this guards against, and a lookup inside our own image does not fail.
             return OSOwnImage(path: nil, sharesHostExecutable: false)
         }
-        // Image 0 is always the host's main executable.
-        let mainExecutable = _dyld_get_image_header(0).map { UnsafeRawPointer($0) }
+        // Find the executable by filetype, not by index. Inserted libraries take the low
+        // indices: XCTest, Main Thread Checker and the simulator shims all land ahead of it.
+        let mainExecutable = (0..<_dyld_image_count())
+            .lazy
+            .compactMap { _dyld_get_image_header($0) }
+            .first { $0.pointee.filetype == UInt32(MH_EXECUTE) }
+            .map { UnsafeRawPointer($0) }
         return OSOwnImage(
             path: info.dli_fname.map { String(cString: $0) },
             sharesHostExecutable: UnsafeRawPointer(ownBase) == mainExecutable
@@ -197,7 +202,7 @@ final class OSLogCrashHandler: ILogCrashHandler {
         stackSymbols: [String],
         resolvedFrames: [OSResolvedStackFrame]
     ) {
-        let isAtFault = Self.isOneSignalAtFault(resolvedFrames, ownImagePath: ownImage.path)
+        let isAtFault = Self.isOneSignalAtFault(resolvedFrames, ownImage: ownImage)
         // Dropping is only safe where a OneSignal frame would have been recognizable. Where it
         // would not, a false negative is indistinguishable from "no crashes happened".
         guard isAtFault || ownImage.sharesHostExecutable else {
@@ -273,22 +278,29 @@ final class OSLogCrashHandler: ILogCrashHandler {
 
     static func isOneSignalAtFault(
         _ frames: [OSResolvedStackFrame],
-        ownImagePath: String? = OSOwnImage.resolved.path
+        ownImage: OSOwnImage = .resolved
     ) -> Bool {
         frames.contains { frame in
             guard let imagePath = frame.imagePath,
                   !isSystemImage(imagePath) else {
                 return false
             }
-            // Matching our own image covers wrappers that repackage or rename the frameworks,
-            // which the fixed module list cannot see.
-            if imagePath == ownImagePath || oneSignalModules.contains(imageName(from: imagePath)) {
+            if oneSignalModules.contains(imageName(from: imagePath)) {
+                return true
+            }
+            let isOwnImage = imagePath == ownImage.path
+            // Our image identifies us only while it is ours alone. Shared with the host, every
+            // frame matches it and the attribution tag would always read true.
+            if isOwnImage, !ownImage.sharesHostExecutable {
                 return true
             }
             guard let symbolName = frame.symbolName else {
                 return false
             }
-            return isOneSignalSymbol(symbolName)
+            return isOneSignalSymbol(
+                symbolName,
+                allowsClassPrefix: isOwnImage && ownImage.sharesHostExecutable
+            )
         }
     }
 
@@ -316,11 +328,14 @@ final class OSLogCrashHandler: ILogCrashHandler {
         path.contains("/System/Library/") || path.contains("/usr/lib/")
     }
 
-    private static func isOneSignalSymbol(_ symbol: String) -> Bool {
+    private static func isOneSignalSymbol(_ symbol: String, allowsClassPrefix: Bool) -> Bool {
         let symbolWithoutLeadingUnderscores = symbol.drop(while: { $0 == "_" })
         if symbolWithoutLeadingUnderscores.hasPrefix("onesignal_")
             || symbolWithoutLeadingUnderscores.contains("kfun:com.onesignal.")
-            || isOneSignalObjCMethod(symbolWithoutLeadingUnderscores) {
+            || isOneSignalObjCMethod(
+                symbolWithoutLeadingUnderscores,
+                allowsClassPrefix: allowsClassPrefix
+            ) {
             return true
         }
         guard let module = swiftModuleName(from: String(symbolWithoutLeadingUnderscores)) else {
@@ -332,13 +347,21 @@ final class OSLogCrashHandler: ILogCrashHandler {
     /// Both halves of an `-[Class selector]` symbol can identify us: most of the ObjC surface
     /// uses the `OS` prefix rather than `OneSignal`, and swizzled categories land on system
     /// classes where only the selector names us (`-[UIApplication setOneSignalDelegate:]`).
-    private static func isOneSignalObjCMethod(_ symbol: Substring) -> Bool {
+    ///
+    /// `allowsClassPrefix` is false outside the image we share with the host, where a bare `OS`
+    /// would claim unrelated classes such as Aliyun's `-[OSSClient ...]`.
+    private static func isOneSignalObjCMethod(
+        _ symbol: Substring,
+        allowsClassPrefix: Bool
+    ) -> Bool {
         guard symbol.hasPrefix("-[") || symbol.hasPrefix("+[") else {
             return false
         }
         let method = symbol.dropFirst(2)
-        return method.hasPrefix("OS")
-            || method.range(of: "onesignal", options: .caseInsensitive) != nil
+        if method.range(of: "onesignal", options: .caseInsensitive) != nil {
+            return true
+        }
+        return allowsClassPrefix && method.hasPrefix("OS")
     }
 
     private static func swiftModuleName(from symbol: String) -> String? {
