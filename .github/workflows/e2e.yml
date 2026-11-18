@@ -85,6 +85,8 @@ jobs:
           widget-profile-base64: ${{ secrets.APPIUM_IOS_PROFILE_LA_BASE64 }}
 
       - name: Build signed IPA
+        # CI only has the in-house distribution cert, so pin the identity for
+        # every target, including the SDK frameworks built from source.
         run: |
           xcodebuild archive \
             -workspace iOS_SDK/OneSignalSDK.xcworkspace \
@@ -97,6 +99,7 @@ jobs:
             -quiet \
             -hideShellScriptEnvironment \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
             COMPILER_INDEX_STORE_ENABLE=NO
           xcodebuild -exportArchive \
             -archivePath examples/demo/build/App.xcarchive \
