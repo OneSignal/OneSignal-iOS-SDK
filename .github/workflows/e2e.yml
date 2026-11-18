@@ -85,6 +85,9 @@ jobs:
           asc-private-key: ${{ secrets.APPIUM_APP_STORE_CONNECT_PRIVATE_KEY }}
 
       - name: Build signed IPA
+        # CI only has the in-house distribution cert, so pin its identity and
+        # team for every target, including the SDK frameworks built from source
+        # (OneSignal.xcodeproj keeps the SDK release team).
         run: |
           xcodebuild archive \
             -workspace iOS_SDK/OneSignalSDK.xcworkspace \
@@ -97,6 +100,8 @@ jobs:
             -quiet \
             -hideShellScriptEnvironment \
             CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            DEVELOPMENT_TEAM=DL8TF3X4K3 \
             COMPILER_INDEX_STORE_ENABLE=NO
           xcodebuild -exportArchive \
             -archivePath examples/demo/build/App.xcarchive \
