@@ -80,9 +80,9 @@ jobs:
         with:
           p12-base64: ${{ secrets.APPIUM_IOS_DEV_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.APPIUM_IOS_DEV_CERT_PASSWORD }}
-          asc-key-id: ${{ secrets.APPIUM_APP_STORE_CONNECT_KEY_ID }}
-          asc-issuer-id: ${{ secrets.APPIUM_APP_STORE_CONNECT_ISSUER_ID }}
-          asc-private-key: ${{ secrets.APPIUM_APP_STORE_CONNECT_PRIVATE_KEY }}
+          main-profile-base64: ${{ secrets.APPIUM_IOS_PROFILE_MAIN_BASE64 }}
+          nse-profile-base64: ${{ secrets.APPIUM_IOS_PROFILE_NSE_BASE64 }}
+          widget-profile-base64: ${{ secrets.APPIUM_IOS_PROFILE_LA_BASE64 }}
 
       - name: Build signed IPA
         run: |
