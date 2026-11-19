@@ -615,13 +615,15 @@ extension OSUserExecutor {
                 self.removeFromQueue(request)
             }
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType != .retryable {
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // Fail, no retry, remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 self.removeFromQueue(request)
             } else {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.retryLater(request, error: error)
             }
             self.executePendingRequests()
@@ -764,9 +766,10 @@ extension OSUserExecutor {
             }
             self.executePendingRequests()
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .missing {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.removeFromQueue(request)
                 // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
@@ -777,11 +780,14 @@ extension OSUserExecutor {
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
             } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
             } else if responseType != .retryable {
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)
             } else {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.retryLater(request, error: error)
             }
             self.executePendingRequests()

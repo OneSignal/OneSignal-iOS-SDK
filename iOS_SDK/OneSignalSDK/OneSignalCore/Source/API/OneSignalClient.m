@@ -225,6 +225,9 @@
 
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
         if (jsonError) {
+            if (statusCode >= 200 && statusCode < 300) {
+                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Response to %@ with status %ld is not valid JSON: %@", NSStringFromClass([request class]), (long)statusCode, jsonError]];
+            }
             if (failureBlock != nil)
                 failureBlock([[OneSignalClientError alloc] initWithCode:statusCode message:@"Error parsing JSON" responseHeaders:headers response:nil underlyingError:jsonError]);
             return;

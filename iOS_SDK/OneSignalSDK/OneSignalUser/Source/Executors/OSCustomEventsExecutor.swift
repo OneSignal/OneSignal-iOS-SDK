@@ -352,16 +352,19 @@ class OSCustomEventsExecutor: OSOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSCustomEventsExecutor request failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSCustomEventsExecutor request failed with error: \(error.debugDescription)"
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSCustomEventsExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
+                    OneSignalLog.onesignalLog(.LL_WARN, message: message)
                     // Fail, no retry, remove from cache and queue
                     self.requestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_CUSTOM_EVENTS_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
                 } else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     self.retryBackoff.recordFailure(request, error: error)
                     request.sentToClient = false
                 }

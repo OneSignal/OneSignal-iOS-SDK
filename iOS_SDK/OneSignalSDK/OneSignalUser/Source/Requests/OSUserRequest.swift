@@ -87,11 +87,3 @@ internal extension OneSignalRequest {
         }
     }
 }
-
-extension OneSignalLog {
-    /// Callers that pause the Operation Repo on a failure log ERROR instead.
-    static func logRequestFailure(_ message: String, statusCode: Int) {
-        let responseType = OSNetworkingUtils.getResponseStatusType(statusCode)
-        onesignalLog(responseType == .retryable ? .LL_INFO : .LL_WARN, message: message)
-    }
-}

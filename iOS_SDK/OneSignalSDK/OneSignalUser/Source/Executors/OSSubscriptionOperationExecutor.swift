@@ -389,10 +389,11 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSSubscriptionOperationExecutor create subscription request failed with error: \(error.debugDescription)"
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType == .missing {
+                    OneSignalLog.onesignalLog(.LL_WARN, message: message)
                     self.addRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                     // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
@@ -407,12 +408,15 @@ extension OSSubscriptionOperationExecutor {
                     OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                     OneSignalUserManagerImpl.sharedInstance._logout()
                 } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor holding \(request) for a new token")
                 } else if responseType != .retryable {
+                    OneSignalLog.onesignalLog(.LL_WARN, message: message)
                     // Fail, no retry, remove from cache and queue
                     self.addRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
                 } else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     self.retryBackoff.recordFailure(request, error: error)
                     request.sentToClient = false
                 }
@@ -450,16 +454,18 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSSubscriptionOperationExecutor delete subscription request failed with error: \(error.debugDescription)"
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 // No token handling: the delete is never signed, so a 401 here is not about the user's JWT.
                 if responseType != .retryable {
                     // Fail, no retry, remove from cache and queue
                     // If this request returns a missing status, that is ok as this is a delete request
+                    OneSignalLog.onesignalLog(responseType == .missing ? .LL_INFO : .LL_WARN, message: message)
                     self.removeRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
                 } else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     self.retryBackoff.recordFailure(request, error: error)
                     request.sentToClient = false
                 }
@@ -513,15 +519,17 @@ extension OSSubscriptionOperationExecutor {
                 }
             }
         } onFailure: { error in
-            OneSignalLog.logRequestFailure("OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)", statusCode: error.code)
+            let message = "OSSubscriptionOperationExecutor update subscription request failed with error: \(error.debugDescription)"
             self.dispatchQueue.async {
                 let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
                 if responseType != .retryable {
+                    OneSignalLog.onesignalLog(.LL_WARN, message: message)
                     // Fail, no retry, remove from cache and queue
                     self.updateRequestQueue.removeAll(where: { $0 == request})
                     OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
                     self.executeNextPendingUpdateSubscription(for: modelId, inBackground: inBackground)
                 } else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     self.retryBackoff.recordFailure(request, error: error)
                     request.sentToClient = false
                 }
