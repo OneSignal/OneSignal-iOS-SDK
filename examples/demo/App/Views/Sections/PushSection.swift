@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Push subscription ID, opt-in toggle, and prompt-for-permission CTA
+/// Push subscription ID, subscription status, opt-in toggle, and prompt-for-permission CTA
 struct PushSection: View {
     @EnvironmentObject var viewModel: OneSignalViewModel
 
@@ -39,6 +39,11 @@ struct PushSection: View {
         ) {
             VStack(spacing: 0) {
                 pushIdRow
+                Rectangle()
+                    .fill(OS.Color.divider)
+                    .frame(height: OS.Layout.dividerHeight)
+                    .padding(.vertical, 4)
+                pushStatusRow
                 Rectangle()
                     .fill(OS.Color.divider)
                     .frame(height: OS.Layout.dividerHeight)
@@ -74,9 +79,23 @@ struct PushSection: View {
         .padding(.vertical, 4)
     }
 
+    private var pushStatusRow: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Text("Status")
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+            Spacer(minLength: 0)
+            Text(viewModel.isPushSubscribed ? "Subscribed" : "Unsubscribed")
+                .font(OS.Font.bodyMedium)
+                .foregroundColor(OS.Color.bodyText)
+                .accessibilityIdentifier("push_subscription_status")
+        }
+        .padding(.vertical, 4)
+    }
+
     private var pushEnabledRow: some View {
         HStack(alignment: .center, spacing: 12) {
-            Text("Push Enabled")
+            Text("Opted In")
                 .font(OS.Font.bodyMedium)
                 .foregroundColor(OS.Color.bodyText)
             Spacer(minLength: 0)

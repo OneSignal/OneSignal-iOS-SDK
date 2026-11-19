@@ -50,30 +50,32 @@ struct TriggersSection: View {
                 }
             )
 
-            ActionButton("ADD TRIGGER", accessibilityID: "add_trigger_button") {
-                addOpen = true
-            }
-            ActionButton("ADD MULTIPLE TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
-                addMultipleOpen = true
-            }
-            if !viewModel.triggers.isEmpty {
-                ActionButton(
-                    "REMOVE TRIGGERS",
-                    style: .outline,
-                    accessibilityID: "remove_triggers_button"
-                ) {
-                    removeOpen = true
+            ButtonGrid {
+                ActionButton("ADD TRIGGER", accessibilityID: "add_trigger_button") {
+                    addOpen = true
                 }
-                ActionButton(
-                    "CLEAR ALL TRIGGERS",
-                    style: .outline,
-                    accessibilityID: "clear_triggers_button"
-                ) {
-                    viewModel.clearTriggers()
+                ActionButton("ADD TRIGGERS", accessibilityID: "add_multiple_triggers_button") {
+                    addMultipleOpen = true
+                }
+                if !viewModel.triggers.isEmpty {
+                    ActionButton(
+                        "REMOVE TRIGGERS",
+                        style: .outline,
+                        accessibilityID: "remove_triggers_button"
+                    ) {
+                        removeOpen = true
+                    }
+                    ActionButton(
+                        "CLEAR ALL",
+                        style: .outline,
+                        accessibilityID: "clear_triggers_button"
+                    ) {
+                        viewModel.clearTriggers()
+                    }
                 }
             }
         }
-        .osCenteredDialog(isPresented: $addOpen) {
+        .osDialog(isPresented: $addOpen) {
             AddItemDialog(
                 itemType: .trigger,
                 onAdd: { key, value in
@@ -83,7 +85,7 @@ struct TriggersSection: View {
                 onCancel: { addOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $addMultipleOpen) {
+        .osDialog(isPresented: $addMultipleOpen) {
             MultiPairInputDialog(
                 type: .triggers,
                 onAdd: { pairs in
@@ -93,7 +95,7 @@ struct TriggersSection: View {
                 onCancel: { addMultipleOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $removeOpen) {
+        .osDialog(isPresented: $removeOpen) {
             RemoveMultiDialog(
                 type: .triggers,
                 items: viewModel.triggers,

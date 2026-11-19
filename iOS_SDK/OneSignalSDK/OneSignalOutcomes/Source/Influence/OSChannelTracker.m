@@ -85,7 +85,8 @@ THE SOFTWARE.
     if (!lastChannelObjectReceived || lastChannelObjectReceived.count == 0)
         return ids; // Unattributed session
      
-    NSInteger attributionWindowInSeconds = [self indirectAttributionWindow];
+    // The attribution window is configured in minutes
+    NSInteger attributionWindowInSeconds = [self indirectAttributionWindow] * 60;
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
     
     // Add only valid indirectInfluences within the attribution window

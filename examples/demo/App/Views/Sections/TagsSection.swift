@@ -50,23 +50,25 @@ struct TagsSection: View {
                 }
             )
 
-            ActionButton("ADD TAG", accessibilityID: "add_tag_button") {
-                addOpen = true
-            }
-            ActionButton("ADD MULTIPLE TAGS", accessibilityID: "add_multiple_tags_button") {
-                addMultipleOpen = true
-            }
-            if !viewModel.tags.isEmpty {
-                ActionButton(
-                    "REMOVE TAGS",
-                    style: .outline,
-                    accessibilityID: "remove_tags_button"
-                ) {
-                    removeOpen = true
+            ButtonGrid {
+                ActionButton("ADD TAG", accessibilityID: "add_tag_button") {
+                    addOpen = true
+                }
+                ActionButton("ADD TAGS", accessibilityID: "add_multiple_tags_button") {
+                    addMultipleOpen = true
+                }
+                if !viewModel.tags.isEmpty {
+                    ActionButton(
+                        "REMOVE TAGS",
+                        style: .outline,
+                        accessibilityID: "remove_tags_button"
+                    ) {
+                        removeOpen = true
+                    }
                 }
             }
         }
-        .osCenteredDialog(isPresented: $addOpen) {
+        .osDialog(isPresented: $addOpen) {
             AddItemDialog(
                 itemType: .tag,
                 onAdd: { key, value in
@@ -76,7 +78,7 @@ struct TagsSection: View {
                 onCancel: { addOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $addMultipleOpen) {
+        .osDialog(isPresented: $addMultipleOpen) {
             MultiPairInputDialog(
                 type: .tags,
                 onAdd: { pairs in
@@ -86,7 +88,7 @@ struct TagsSection: View {
                 onCancel: { addMultipleOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $removeOpen) {
+        .osDialog(isPresented: $removeOpen) {
             RemoveMultiDialog(
                 type: .tags,
                 items: viewModel.tags,

@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		/tXXDHnEkY86+pxxIxW2bl8r6zQ=
+		revxGIOUkQlC8iT2IIYn1sXywVo=
 		</data>
 		<key>Resources/PrivacyInfo.xcprivacy</key>
 		<data>
@@ -19,7 +19,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PQwNRDUvzervoo99Xw+6YdZ/F4A0K9rO3OONSjTwbNc=
+			OuAJAvp7yPrQBVHWQzLGriG/M86ALscEKVRDGnnQfIQ=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUser.h</key>
@@ -33,70 +33,70 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			TqMQ5jdUI3xgX44GEKXfwqVPVER5b57dAms2jGJsyQo=
+			F/pc3cZGB7JaSzYHJBcZqQ4Ugfv3Ada2PcDh5HW2rN0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			SmvPNQ3sMEB9KP5Dk5QdYhpRyrdjjPtDwUFxxV5Jx44=
+			xwhmuaw6lRd/cMZZgjFENc4hBLaHAuw337vuEKmHVDo=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vzBwDYpMcF54w4cLd05hOAXOu+6vyP9ys3o5PQWVo98=
+			athcnj0OKx4aXLxvuBxwd9s6pHONoxLirbRfWpp2RHc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/arm64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			EK2dXl1oA2omidSdIva82V50xu+CddfV4oiNte1/fuM=
+			4PtkENVhyjjPKkqnS/r8b2FTXV6AM1eogbuaEYa0noI=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.abi.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			TqMQ5jdUI3xgX44GEKXfwqVPVER5b57dAms2jGJsyQo=
+			F/pc3cZGB7JaSzYHJBcZqQ4Ugfv3Ada2PcDh5HW2rN0=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			C7r+tXU/zjVGTtCU5BnbWaDm5fjyUrKrt4luzaPrRrI=
+			ofXWy6wZ/x1sikIdroiD3YoOa7gmz3Iy+xWbNA0qGXs=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			y6kihD6MNozhMHfbxn90yLurj+fg1yY7qqmyn00WBRs=
+			X4ImeY6oAszsc4+5NorLuiHSexGuWXNhWCZTJzRLikk=
 			</data>
 		</dict>
 		<key>Modules/OneSignalUser.swiftmodule/x86_64-apple-ios-macabi.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			rNekvzoENCEiFU34/bs3f5uHci79jJrOB9iqrkcQ8bc=
+			dGOXCWP3g35sc3vwk7tmhYRlx9YxXjowsT0lq8dV3hk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1GbEwnTxreiPN96l/26+nj4DtxyA6nT44bkvKUA4Fcs=
+			ANwQ2M83dHt6mS7ZLFmzJmyleKg9STszwuZPI9Pv0kI=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kwc9SJfastCSKLI9n2qTEY1vxCWU6NVONRiHfOU9tOk=
+			U75bCAM2cb+RwgOqoPghyC9CbZwLszo5SggA5RLSzkM=
 			</data>
 		</dict>
 		<key>Resources/PrivacyInfo.xcprivacy</key>

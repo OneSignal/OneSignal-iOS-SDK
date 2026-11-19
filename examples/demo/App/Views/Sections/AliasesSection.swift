@@ -44,14 +44,16 @@ struct AliasesSection: View {
                 sectionKey: "aliases"
             )
 
-            ActionButton("ADD ALIAS", accessibilityID: "add_alias_button") {
-                addOpen = true
-            }
-            ActionButton("ADD MULTIPLE ALIASES", accessibilityID: "add_multiple_aliases_button") {
-                addMultipleOpen = true
+            ButtonGrid {
+                ActionButton("ADD ALIAS", accessibilityID: "add_alias_button") {
+                    addOpen = true
+                }
+                ActionButton("ADD ALIASES", accessibilityID: "add_multiple_aliases_button") {
+                    addMultipleOpen = true
+                }
             }
         }
-        .osCenteredDialog(isPresented: $addOpen) {
+        .osDialog(isPresented: $addOpen) {
             AddItemDialog(
                 itemType: .alias,
                 onAdd: { key, value in
@@ -61,7 +63,7 @@ struct AliasesSection: View {
                 onCancel: { addOpen = false }
             )
         }
-        .osCenteredDialog(isPresented: $addMultipleOpen) {
+        .osDialog(isPresented: $addMultipleOpen) {
             MultiPairInputDialog(
                 type: .aliases,
                 onAdd: { pairs in

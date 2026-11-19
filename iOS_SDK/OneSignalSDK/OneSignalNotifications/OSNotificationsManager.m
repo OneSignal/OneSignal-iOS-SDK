@@ -37,6 +37,7 @@
 #import "UNUserNotificationCenter+OneSignalNotifications.h"
 #import "UIApplicationDelegate+OneSignalNotifications.h"
 #import <OneSignalOutcomes/OSSessionManager.h>
+#import <OneSignalOutcomes/OSInfluenceDataRepository.h>
 
 @implementation OSNotificationClickEvent
 @synthesize notification = _notification, result = _result;
@@ -738,9 +739,26 @@ static NSString *_lastnonActiveMessageId;
     if (!isActive) {
         OSSessionManager.sharedSessionManager.appEntryState = NOTIFICATION_CLICK;
         [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:messageId];
+        // Only an open that brings the app forward starts or continues a session because of it.
+        if (messageId.length > 0 && [self openBringsAppForward:notification actionID:actionID]) {
+            if (OSInfluenceDataRepository.sharedInfluenceDataRepository.isDirectInfluenceEnabled)
+                [OSSessionService onNotificationOpened:messageId];
+            else
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Notification open not attributed to a session, direct influence is disabled"];
+        }
     }
 
     [self handleNotificationActionWithUrl:notification.launchURL actionID:actionID];
+}
+
++ (BOOL)openBringsAppForward:(OSNotification *)notification actionID:(NSString *)actionID {
+    if (!actionID)
+        return true;
+    for (NSDictionary *button in notification.actionButtons) {
+        if ([actionID isEqualToString:button[@"id"]])
+            return true;
+    }
+    return false;
 }
 
 + (void)submitNotificationOpened:(NSString*)messageId {

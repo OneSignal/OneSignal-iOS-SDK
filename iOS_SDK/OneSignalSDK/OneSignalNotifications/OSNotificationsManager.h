@@ -103,6 +103,10 @@ NS_SWIFT_NAME(onClick(event:));
 
 + (void)clearStatics; // Used by Unit Tests
 
+/// A tap on the notification, or one of its OneSignal buttons, which always open the app. An action
+/// from an app-defined category may run in the background without bringing the app forward.
++ (BOOL)openBringsAppForward:(OSNotification *_Nonnull)notification actionID:(NSString *_Nullable)actionID;
+
 // Indicates if the app provides its own custom Notification customization settings UI
 // To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
 + (BOOL)providesAppNotificationSettings;

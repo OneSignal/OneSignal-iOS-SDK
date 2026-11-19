@@ -24,13 +24,13 @@ jobs:
   get-version:
     if: |
       github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.title, 'Release')
+      startsWith(github.event.pull_request.head.ref, 'rel/')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract_version.outputs.version }}
     steps:
       - name: Checkout OneSignal-iOS-SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout OneSignal-iOS-SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 

@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Centered dialog that lets the user pick multiple keys to remove
+/// Dialog that lets the user pick multiple keys to remove
 /// (Remove Tags / Remove Triggers).
 struct RemoveMultiDialog: View {
     let type: RemoveMultiItemType

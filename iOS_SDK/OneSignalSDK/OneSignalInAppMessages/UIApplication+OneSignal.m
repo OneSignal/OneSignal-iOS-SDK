@@ -28,6 +28,7 @@
 #import "UIApplication+OneSignal.h"
 #import <OneSignalCore/OneSignalCommonDefines.h>
 #import <OneSignalCore/OSBundleUtils.h>
+#import <OneSignalCore/OneSignalLog.h>
 
 @implementation UIApplication (OneSignal)
 
@@ -37,6 +38,17 @@
         return keyWindow.windowScene.activationState == UISceneActivationStateForegroundActive;
     }
     return [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+}
+
+// UIScreen bounds can differ from the window scene, e.g. on foldables where the screen
+// reports a single panel, and UIKit forces windows to their scene's size.
++ (CGRect)displayBounds {
+    UIWindowScene *scene = UIApplication.sharedApplication.keyWindow.windowScene;
+    if (scene) {
+        return scene.coordinateSpace.bounds;
+    }
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"No key window scene; sizing in-app message to the screen, which may not match the app's window"];
+    return UIScreen.mainScreen.bounds;
 }
 
 @end

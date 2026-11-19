@@ -37,12 +37,14 @@ struct SendIamSection: View {
             sectionKey: "send_iam",
             onInfoTap: { viewModel.showTooltip(for: "sendInAppMessage") }
         ) {
-            ForEach(InAppMessageType.allCases) { type in
-                ActionButton(
-                    type.rawValue.uppercased(),
-                    accessibilityID: "send_iam_\(type.triggerValue)_button"
-                ) {
-                    viewModel.sendIamTrigger(type)
+            ButtonGrid {
+                ForEach(InAppMessageType.allCases) { type in
+                    ActionButton(
+                        type.rawValue.uppercased(),
+                        accessibilityID: "send_iam_\(type.triggerValue)_button"
+                    ) {
+                        viewModel.sendIamTrigger(type)
+                    }
                 }
             }
         }

@@ -147,3 +147,25 @@ extension OneSignalNotificationsTests: OneSignalNotificationsDelegate {
         self.token = pushToken
     }
 }
+
+// MARK: - Session attribution
+
+extension OneSignalNotificationsTests {
+    private func notification(buttonIds: [String]) throws -> OSNotification {
+        let buttons = buttonIds.map { ["i": $0, "n": $0] }
+        return try XCTUnwrap(OSNotification.parse(withApns: ["aps": ["alert": "body"], "custom": ["i": "notification-id"], "buttons": buttons]))
+    }
+
+    func testTapOnTheNotificationBringsTheAppForward() throws {
+        XCTAssertTrue(OSNotificationsManager.openBringsAppForward(try notification(buttonIds: []), actionID: nil))
+    }
+
+    func testOneSignalButtonBringsTheAppForward() throws {
+        XCTAssertTrue(OSNotificationsManager.openBringsAppForward(try notification(buttonIds: ["reply"]), actionID: "reply"))
+    }
+
+    /// An action from an app-defined category may run in the background.
+    func testAppDefinedActionDoesNotBringTheAppForward() throws {
+        XCTAssertFalse(OSNotificationsManager.openBringsAppForward(try notification(buttonIds: ["reply"]), actionID: "archive"))
+    }
+}

@@ -94,7 +94,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
         XCTAssertEqual(mocks.client.executedRequests.count, 1)
 
-        guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents else {
+        guard let request = mocks.client.firstExecutedRequest(ofType: OSRequestCustomEvents.self) else {
             XCTFail("Expected OSRequestCustomEvents")
             return
         }
@@ -161,7 +161,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
 
-        guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = mocks.client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters!["events"] as? [[String: Any]],
               let event = events.first,
               let payload = event["payload"] as? [String: Any] else {
@@ -203,7 +203,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
         XCTAssertEqual(mocks.client.executedRequests.count, 1)
 
-        guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = mocks.client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters!["events"] as? [[String: Any]],
               let event = events.first,
               let payload = event["payload"] as? [String: Any],
@@ -399,7 +399,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         /* Then */
         XCTAssertTrue(mocks.client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
 
-        guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = mocks.client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters?["events"] as? [[String: Any]],
               let event = events.first else {
             XCTFail("Expected valid request")
@@ -428,7 +428,7 @@ final class OSCustomEventsExecutorTests: XCTestCase {
         }
 
         /* Then */
-        guard let request = mocks.client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = mocks.client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters!["events"] as? [[String: Any]],
               let event = events.first,
               let payload = event["payload"] as? [String: Any],

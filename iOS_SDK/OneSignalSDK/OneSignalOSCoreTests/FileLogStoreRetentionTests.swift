@@ -31,11 +31,34 @@ import OneSignalKMP
 @testable import OneSignalOSCore
 import XCTest
 
+private struct ColdStartTimeout: LocalizedError {
+    var errorDescription: String? { "FileLogStore's first call did not finish within the 120s warm-up" }
+}
+
 /// A scratch crash directory and the staging every file-store suite needs.
 class FileLogStoreTestCase: XCTestCase {
     fileprivate var temporaryDirectory: URL!
 
+    private static var coldStartAbsorbed = false
+
+    override class func setUp() {
+        super.setUp()
+        // The first store call in a process pays a one-off cold start that has exceeded 30s on CI;
+        // absorbing it here keeps the per-test timeouts meaningful.
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let done = DispatchSemaphore(value: 0)
+        FileLogStore(rootPath: directory.path).listReadable(minAgeMillis: 0) { _, _ in
+            try? FileManager.default.removeItem(at: directory)
+            done.signal()
+        }
+        coldStartAbsorbed = done.wait(timeout: .now() + 120) == .success
+    }
+
     override func setUpWithError() throws {
+        guard Self.coldStartAbsorbed else {
+            throw ColdStartTimeout()
+        }
         temporaryDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)

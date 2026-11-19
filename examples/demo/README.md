@@ -8,7 +8,7 @@ The demo covers all major OneSignal SDK capabilities:
 
 - **App / Consent**: App ID display, `consent_required` and `privacy_consent` toggles
 - **User**: Login / logout with external user ID
-- **Push Subscription**: Push subscription ID, opt-in toggle, prompt for permission
+- **Push Subscription**: Push subscription ID, subscription status, opt-in toggle, prompt for permission
 - **Send Push Notification**: Simple / image / sound / custom notifications via the OneSignal REST API
 - **In-App Messaging**: Pause / resume IAM display, send IAM trigger to surface dashboard messages
 - **Aliases / Emails / SMS / Tags**: Add (single or multiple), remove (single or selected)
@@ -92,7 +92,7 @@ xcodegen generate               # rewrites App.xcodeproj
 
 ### 3. Capabilities & App Group
 
-The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.example.onesignal`. Both targets also set `OneSignal_app_groups_key` to this value because Catalyst derives a `maccatalyst.*` bundle identifier that would otherwise produce a different default group name. If you need a different group (for example to install on a real device under your own team), change the value in both entitlements and both Info.plists to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
+The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.sdkdemo.onesignal`. Both targets also set `OneSignal_app_groups_key` to this value because Catalyst derives a `maccatalyst.*` bundle identifier that would otherwise produce a different default group name. If you need a different group (for example to install on a real device under your own team), change the value in both entitlements and both Info.plists to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
 
 ### 4. Configure your OneSignal credentials
 

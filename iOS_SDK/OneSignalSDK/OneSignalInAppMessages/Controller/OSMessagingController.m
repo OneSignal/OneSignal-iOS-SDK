@@ -1382,7 +1382,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (!self.window) {
         self.window = [[UIWindow alloc] init];
         self.window.windowLevel = UIWindowLevelAlert;
-        self.window.frame = [[UIScreen mainScreen] bounds];
+        self.window.frame = [UIApplication displayBounds];
     }
     
     self.window.rootViewController = _viewController;

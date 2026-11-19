@@ -167,7 +167,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
 
-        guard let request = client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters!["events"] as? [[String: Any]],
               let event = events.first,
               let payload = event["payload"] as? [String: Any] else {
@@ -235,7 +235,7 @@ final class CustomEventsIntegrationTests: XCTestCase {
         /* Then */
         XCTAssertTrue(client.hasExecutedRequestOfType(OSRequestCustomEvents.self))
 
-        guard let request = client.executedRequests.first as? OSRequestCustomEvents,
+        guard let request = client.firstExecutedRequest(ofType: OSRequestCustomEvents.self),
               let events = request.parameters!["events"] as? [[String: Any]],
               let event = events.first,
               let payload = event["payload"] as? [String: Any] else {

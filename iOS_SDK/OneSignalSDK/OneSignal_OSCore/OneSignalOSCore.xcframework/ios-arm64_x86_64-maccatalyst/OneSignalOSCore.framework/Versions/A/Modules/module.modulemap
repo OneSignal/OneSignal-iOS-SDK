@@ -7,5 +7,4 @@ framework module OneSignalOSCore {
 
 module OneSignalOSCore.Swift {
   header "OneSignalOSCore-Swift.h"
-  requires objc
 }

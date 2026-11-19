@@ -25,7 +25,7 @@ jobs:
   publish:
     outputs:
       sdk_version: ${{ steps.extract_version.outputs.version }}
-    runs-on: macos-14
+    runs-on: macos-latest
 
     env:
       COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout OneSignal-iOS-SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.ref }}
           fetch-depth: 0
@@ -136,13 +136,13 @@ jobs:
           echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
 
       - name: Checkout OneSignal-XCFramework
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: OneSignal/OneSignal-XCFramework
           ref: ${{ steps.detect_branch.outputs.branch }}
           path: xcframework-repo
           fetch-depth: 0
-          token: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+          token: ${{ secrets.GH_PUSH_TOKEN }}
 
       - name: Get iOS SDK Release Body
         id: get_ios_release
@@ -161,7 +161,7 @@ jobs:
 
       - name: Create GitHub Release for OneSignal-XCFramework
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN_ONESIGNAL_XCFRAMEWORK }}
+          GH_TOKEN: ${{ secrets.GH_PUSH_TOKEN }}
         run: |
           VERSION="${{ steps.extract_version.outputs.version }}"
           BRANCH="${{ steps.detect_branch.outputs.branch }}"

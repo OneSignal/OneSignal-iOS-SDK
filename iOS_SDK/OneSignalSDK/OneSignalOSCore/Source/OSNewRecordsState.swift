@@ -40,6 +40,8 @@ public class OSNewRecordsState {
      */
     private var records: [String: Date] = [:]
     private let lock = NSRecursiveLock()
+    /// Overridden by tests to move past the retry window.
+    var now: () -> Date = { Date() }
 
     public init() { }
 
@@ -62,7 +64,17 @@ public class OSNewRecordsState {
 
             let minimumTime = timeLastMovedOrCreated.addingTimeInterval(TimeInterval(OP_REPO_POST_CREATE_DELAY_SECONDS))
 
-            return Date() >= minimumTime
+            return now() >= minimumTime
+        }
+    }
+
+    /// Whether `key` was created recently enough that a 404 on it may be backend replication lag.
+    public func isInMissingRetryWindow(_ key: String) -> Bool {
+        lock.withLock {
+            guard let timeLastMovedOrCreated = records[key] else {
+                return false
+            }
+            return now().timeIntervalSince(timeLastMovedOrCreated) <= TimeInterval(OP_REPO_POST_CREATE_RETRY_UP_TO_SECONDS)
         }
     }
 }

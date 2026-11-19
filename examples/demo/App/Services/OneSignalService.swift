@@ -155,6 +155,7 @@ final class OneSignalService {
     // MARK: - Push Subscription
 
     var pushSubscriptionId: String? { OneSignal.User.pushSubscription.id }
+    var pushSubscriptionToken: String? { OneSignal.User.pushSubscription.token }
     var isPushEnabled: Bool { OneSignal.User.pushSubscription.optedIn }
     var hasNotificationPermission: Bool { OneSignal.Notifications.permission }
 

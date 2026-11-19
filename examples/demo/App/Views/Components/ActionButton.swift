@@ -72,7 +72,9 @@ struct ActionButton: View {
                 Text(title)
                     .font(OS.Font.bodyMedium.weight(.semibold))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
+            .padding(.horizontal, 8)
             .frame(maxWidth: .infinity)
             .frame(height: OS.Layout.buttonHeight)
             .foregroundColor(foregroundColor)
@@ -106,5 +108,50 @@ struct ActionButton: View {
             RoundedRectangle(cornerRadius: OS.Radius.button)
                 .strokeBorder(OS.Color.primary, lineWidth: 1)
         }
+    }
+}
+
+/// Lays out section buttons two per row. An odd last button spans both
+/// columns. Conditionally hidden buttons drop out, so the grid reflows.
+struct ButtonGrid: Layout {
+    var spacing: CGFloat = OS.Spacing.cardGap
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.replacingUnspecifiedDimensions().width
+        let heights = rowHeights(width: width, subviews: subviews)
+        let gaps = spacing * CGFloat(max(heights.count - 1, 0))
+        return CGSize(width: width, height: heights.reduce(0, +) + gaps)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let heights = rowHeights(width: bounds.width, subviews: subviews)
+        var rowTop = bounds.minY
+        for (row, height) in heights.enumerated() {
+            for (column, frame) in cellFrames(row: row, width: bounds.width, count: subviews.count).enumerated() {
+                subviews[row * 2 + column].place(
+                    at: CGPoint(x: bounds.minX + frame.minX, y: rowTop),
+                    proposal: ProposedViewSize(width: frame.width, height: height)
+                )
+            }
+            rowTop += height + spacing
+        }
+    }
+
+    private func rowHeights(width: CGFloat, subviews: Subviews) -> [CGFloat] {
+        stride(from: 0, to: subviews.count, by: 2).map { first in
+            cellFrames(row: first / 2, width: width, count: subviews.count)
+                .enumerated()
+                .map { column, frame in
+                    subviews[first + column].sizeThatFits(ProposedViewSize(width: frame.width, height: nil)).height
+                }
+                .max() ?? 0
+        }
+    }
+
+    /// Horizontal extent of each cell in `row`; one full-width cell for an odd last button.
+    private func cellFrames(row: Int, width: CGFloat, count: Int) -> [(minX: CGFloat, width: CGFloat)] {
+        if row * 2 + 1 == count { return [(0, width)] }
+        let half = (width - spacing) / 2
+        return [(0, half), (half + spacing, half)]
     }
 }
