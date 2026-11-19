@@ -119,12 +119,11 @@ public struct OSSessionStart {
 
 /// Owns the persisted record of the current session. Nothing reads the record while
 /// `usesSessionsApi` is false, so with the flag off session behavior is unchanged.
-/// While in the foreground, a sessions API session reports its duration every `heartbeatInterval`
-/// of foreground time, so the backend keeps it open and a crash loses little of it.
+/// While in the foreground, a sessions API session reports its duration every heartbeat interval of
+/// foreground time, so the backend keeps it open and a crash loses little of it. The interval comes
+/// from the params' `sessions.heartbeat_interval_seconds`.
 @objc(OSSessionService)
 public final class OSSessionService: NSObject {
-    static let heartbeatInterval: TimeInterval = 30 * 60
-
     private static let lock = NSLock()
     private static var _shared: OSSessionService?
 
@@ -144,6 +143,8 @@ public final class OSSessionService: NSObject {
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
     private let schedule: (TimeInterval, @escaping () -> Void) -> Void
+    /// Read on every check, so a later params fetch applies once the current wait ends.
+    private let heartbeatInterval: () -> TimeInterval
 
     private let stateLock = NSLock()
     private weak var userProvider: OSSessionUserProvider?
@@ -172,6 +173,9 @@ public final class OSSessionService: NSObject {
         wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 },
         schedule: @escaping (TimeInterval, @escaping () -> Void) -> Void = { delay, block in
             DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: block)
+        },
+        heartbeatInterval: @escaping () -> TimeInterval = {
+            OSSessionService.heartbeatInterval(remoteParams: OSRemoteParamController.shared().remoteParams)
         }
     ) {
         self.storage = storage
@@ -179,6 +183,7 @@ public final class OSSessionService: NSObject {
         self.monotonicNow = monotonicNow
         self.wallNow = wallNow
         self.schedule = schedule
+        self.heartbeatInterval = heartbeatInterval
         super.init()
     }
 
@@ -463,6 +468,17 @@ extension OSSessionService {
 // MARK: - Heartbeat
 
 extension OSSessionService {
+    static let defaultHeartbeatInterval: TimeInterval = 30 * 60
+
+    /// A missing or non-positive value falls back to the default.
+    static func heartbeatInterval(remoteParams: [AnyHashable: Any]) -> TimeInterval {
+        let sessions = remoteParams["sessions"] as? [AnyHashable: Any]
+        guard let seconds = (sessions?["heartbeat_interval_seconds"] as? NSNumber)?.doubleValue, seconds > 0 else {
+            return defaultHeartbeatInterval
+        }
+        return seconds
+    }
+
     private func stopHeartbeat() {
         stateLock.withLock { heartbeatGeneration += 1 }
     }
@@ -488,6 +504,7 @@ extension OSSessionService {
     private func checkHeartbeat(generation: Int) {
         let now = monotonicNow()
         let ids = pinnableIds()
+        let interval = heartbeatInterval()
         let next: (due: (record: OSSessionRecord, provider: OSSessionUserProvider?)?, wait: TimeInterval)? = stateLock.withLock {
             guard generation == heartbeatGeneration, let start = focusedAt, let focusTime = openFocusTime,
                   let current = record, current.usesSessionsApi else {
@@ -495,7 +512,7 @@ extension OSSessionService {
             }
             let focusDuration = max(0, now - start)
             let duration = current.activeDuration + focusDuration
-            let remaining = (current.lastHeartbeatDuration ?? 0) + Self.heartbeatInterval - duration
+            let remaining = (current.lastHeartbeatDuration ?? 0) + interval - duration
             guard remaining <= 0 else {
                 return (nil, remaining)
             }
@@ -503,7 +520,7 @@ extension OSSessionService {
             record?.lastHeartbeatDuration = duration
             record?.lastHeartbeatTime = focusTime + focusDuration
             persist()
-            return (record.map { ($0, userProvider) }, Self.heartbeatInterval)
+            return (record.map { ($0, userProvider) }, interval)
         }
         guard let next else {
             return

@@ -55,7 +55,7 @@ private final class HeartbeatRecorder: OSSessionUserProvider {
 }
 
 final class OSSessionHeartbeatTests: XCTestCase {
-    private let interval = OSSessionService.heartbeatInterval
+    private var interval = OSSessionService.defaultHeartbeatInterval
     private let wallStart: TimeInterval = 1_700_000_000
     private var user: HeartbeatRecorder!
     private var flagsStore: OSFeatureFlagsStore!
@@ -94,7 +94,8 @@ final class OSSessionHeartbeatTests: XCTestCase {
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
             wallNow: { [unowned self] in self.wallStart + self.monotonicNow + self.wallClockJump },
-            schedule: { [unowned self] delay, block in self.pending.append((self.monotonicNow + delay, block)) }
+            schedule: { [unowned self] delay, block in self.pending.append((self.monotonicNow + delay, block)) },
+            heartbeatInterval: { [unowned self] in self.interval }
         )
     }
 
@@ -138,6 +139,50 @@ final class OSSessionHeartbeatTests: XCTestCase {
         advance(by: 2 * interval)
 
         XCTAssertEqual(heartbeatDurations(for: record), [interval, 2 * interval])
+    }
+
+    func testHeartbeatUsesTheConfiguredInterval() {
+        interval = 5 * 60
+        let record = startForegroundSession()
+
+        advance(by: interval - 1)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+
+        advance(by: interval + 1)
+        XCTAssertEqual(heartbeatDurations(for: record), [5 * 60, 10 * 60])
+    }
+
+    func testIntervalChangeAppliesAfterTheCurrentWait() {
+        let record = startForegroundSession()
+        advance(by: 60)
+        interval = 5 * 60
+
+        advance(by: 30 * 60 - 61)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+
+        advance(by: 1)
+        XCTAssertEqual(heartbeatDurations(for: record), [30 * 60])
+
+        advance(by: 5 * 60)
+        XCTAssertEqual(heartbeatDurations(for: record), [30 * 60, 35 * 60])
+    }
+
+    func testHeartbeatIntervalParsesFromRemoteParams() {
+        XCTAssertEqual(OSSessionService.heartbeatInterval(remoteParams: ["sessions": ["heartbeat_interval_seconds": 300]]), 300)
+    }
+
+    func testMissingOrInvalidHeartbeatIntervalFallsBackToTheDefault() {
+        let payloads: [[AnyHashable: Any]] = [
+            [:],
+            ["sessions": [:] as [String: Any]],
+            ["sessions": ["heartbeat_interval_seconds": 0]],
+            ["sessions": ["heartbeat_interval_seconds": -60]],
+            ["sessions": ["heartbeat_interval_seconds": "abc"]],
+            ["sessions": "abc"]
+        ]
+        for payload in payloads {
+            XCTAssertEqual(OSSessionService.heartbeatInterval(remoteParams: payload), OSSessionService.defaultHeartbeatInterval)
+        }
     }
 
     /// A return within the new-session threshold continues the session. The background checkpoint
