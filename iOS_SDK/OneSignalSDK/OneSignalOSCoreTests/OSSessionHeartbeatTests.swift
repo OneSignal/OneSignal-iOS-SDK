@@ -171,6 +171,18 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(OSSessionService.heartbeatInterval(remoteParams: ["sessions": ["heartbeat_interval_seconds": 300]]), 300)
     }
 
+    func testHeartbeatIntervalIsClampedToBetweenOneMinuteAndOneDay() {
+        let cases: [(seconds: Any, expected: TimeInterval)] = [
+            (1, 60),
+            (0.5, 60),
+            (86_401, 86_400),
+            (Int64.max, 86_400)
+        ]
+        for (seconds, expected) in cases {
+            XCTAssertEqual(OSSessionService.heartbeatInterval(remoteParams: ["sessions": ["heartbeat_interval_seconds": seconds]]), expected)
+        }
+    }
+
     func testMissingOrInvalidHeartbeatIntervalFallsBackToTheDefault() {
         let payloads: [[AnyHashable: Any]] = [
             [:],

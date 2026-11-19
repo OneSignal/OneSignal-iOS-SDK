@@ -469,6 +469,9 @@ extension OSSessionService {
 
 extension OSSessionService {
     static let defaultHeartbeatInterval: TimeInterval = 30 * 60
+    // Bounds a misconfigured value so it can neither flood requests nor stop heartbeats.
+    static let minHeartbeatInterval: TimeInterval = 60
+    static let maxHeartbeatInterval: TimeInterval = 24 * 60 * 60
 
     /// A missing, non-positive, or non-numeric value falls back to the default. A JSON boolean
     /// bridges to an `NSNumber` of 1, so it is rejected explicitly.
@@ -479,7 +482,7 @@ extension OSSessionService {
               number.doubleValue > 0 else {
             return defaultHeartbeatInterval
         }
-        return number.doubleValue
+        return min(max(number.doubleValue, minHeartbeatInterval), maxHeartbeatInterval)
     }
 
     private func stopHeartbeat() {
