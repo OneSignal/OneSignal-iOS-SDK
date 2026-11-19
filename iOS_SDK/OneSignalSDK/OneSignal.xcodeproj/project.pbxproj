@@ -738,6 +738,8 @@
 		DEFB3E672BB735B500E65DAD /* OSStubLiveActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFB3E662BB735B500E65DAD /* OSStubLiveActivities.swift */; };
 		ECD9DF65FB98056806A43541 /* OSIdentityVerificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4EAEA1BC62D8FC57927511 /* OSIdentityVerificationService.swift */; };
 		FD1F1FCA05D555623DD53B54 /* OSUserJwtRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8BBA843AFC81A4940CF7CC /* OSUserJwtRepo.swift */; };
+		3C5059A12FD0000000000003 /* CrashTestExceptionRaiser.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */; };
+		3C5059A12FD0000000000005 /* OSLogCrashAttributionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2013,6 +2015,9 @@
 		C3E5A1D7F2B9461EB8D4A6C2 /* ExecutorRequestAgingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExecutorRequestAgingTests.swift; sourceTree = "<group>"; };
 		FF4B19D1EC31C0750F13065A /* OSIamFetchReadyConditionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSIamFetchReadyConditionTests.swift; sourceTree = "<group>"; };
 		FFBB451F692A15639A1A08AE /* OSOperationRepoIdentityVerificationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSOperationRepoIdentityVerificationTests.swift; sourceTree = "<group>"; };
+		3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CrashTestExceptionRaiser.m; sourceTree = "<group>"; };
+		3C5059A12FD0000000000002 /* OneSignalOSCoreTests-Bridging-Header.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "OneSignalOSCoreTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OSLogCrashAttributionTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2786,6 +2791,9 @@
 		5B053FB92CAE07EB002F30C4 /* OneSignalOSCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				3C5059A12FD0000000000004 /* OSLogCrashAttributionTests.swift */,
+				3C5059A12FD0000000000001 /* CrashTestExceptionRaiser.m */,
+				3C5059A12FD0000000000002 /* OneSignalOSCoreTests-Bridging-Header.h */,
 				5BC1DE672C90C23E00CA8807 /* OSConsistencyManagerTests.swift */,
 				3C427AC8301BB28A0059B8B7 /* OSOperationRepoFlushTests.swift */,
 				B5481A0100000000000000A7 /* OSRequestRetryBackoffTests.swift */,
@@ -4920,6 +4928,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C5059A12FD0000000000005 /* OSLogCrashAttributionTests.swift in Sources */,
+				3C5059A12FD0000000000003 /* CrashTestExceptionRaiser.m in Sources */,
 				5B053FC32CAE0843002F30C4 /* OSConsistencyManagerTests.swift in Sources */,
 				3C23A21F2FCE0AA1001D32E3 /* OSResilientStorageTests.swift in Sources */,
 				3C23A21D2FCE0A83001D32E3 /* OSModelStoreRefreshTests.swift in Sources */,
@@ -5844,7 +5854,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -5924,7 +5934,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -7204,6 +7214,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "$(inherited) -fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLiveActivities;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -7278,6 +7289,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "$(inherited) -fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLiveActivities;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -7346,6 +7358,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "$(inherited) -fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLiveActivities;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -7408,6 +7421,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalOSCoreTests/OneSignalOSCoreTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
@@ -7469,6 +7483,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalOSCoreTests/OneSignalOSCoreTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -7524,6 +7539,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalOSCoreTests/OneSignalOSCoreTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/UnitTestApp";
@@ -7603,7 +7619,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = (
+					"-fembed-bitcode",
+					"-fno-optimize-sibling-calls",
+				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
@@ -7649,7 +7668,7 @@
 				);
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
@@ -7807,7 +7826,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = (
+					"-fembed-bitcode",
+					"-fno-optimize-sibling-calls",
+				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
@@ -7855,7 +7877,7 @@
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
@@ -8013,7 +8035,10 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = (
+					"-fembed-bitcode",
+					"-fno-optimize-sibling-calls",
+				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
@@ -8061,7 +8086,7 @@
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
@@ -8275,7 +8300,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -8354,7 +8379,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -8418,7 +8443,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8480,7 +8505,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUser;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8540,7 +8565,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUser;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8607,7 +8632,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalUser;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -8679,7 +8704,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -8771,7 +8796,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
 					"$(inherited)",
@@ -8846,7 +8871,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -8913,7 +8938,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				OTHER_CPLUSPLUSFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -8973,7 +8998,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9039,7 +9064,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9245,7 +9270,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLocation;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9313,7 +9338,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLocation;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9375,7 +9400,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalLocation;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9435,7 +9460,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessages;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9503,7 +9528,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessages;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9565,7 +9590,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalInAppMessages;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9638,7 +9663,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = OneSignalOSCore;
 				SKIP_INSTALL = YES;
@@ -9801,7 +9826,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotifications;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9867,7 +9892,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotifications;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -9928,7 +9953,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-fno-optimize-sibling-calls";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalNotifications;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

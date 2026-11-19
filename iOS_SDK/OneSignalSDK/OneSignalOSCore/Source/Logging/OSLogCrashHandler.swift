@@ -27,6 +27,7 @@
 
 import Darwin
 import Foundation
+import MachO
 import OneSignalCore
 @_implementationOnly import OneSignalKMP
 
@@ -39,6 +40,40 @@ private func osLogUncaughtExceptionHandler(_ exception: NSException) {
 struct OSResolvedStackFrame: Equatable {
     let imagePath: String?
     let symbolName: String?
+}
+
+/// The Mach-O image this framework's own code was linked into.
+struct OSOwnImage: Equatable {
+    let path: String?
+
+    /// True once SDK code sits in the host's main executable. Every frame then reports that
+    /// same image, and the symbol fallback cannot stand in: release builds strip the local
+    /// symbols that name our ObjC methods and Swift functions, so `dladdr` reports none.
+    let sharesHostExecutable: Bool
+
+    static let resolved: OSOwnImage = {
+        var info = Dl_info()
+        let selfAddress = unsafeBitCast(
+            osLogUncaughtExceptionHandler as OSExceptionHandler,
+            to: UnsafeRawPointer.self
+        )
+        guard dladdr(selfAddress, &info) != 0, let ownBase = info.dli_fbase else {
+            // Keep the narrower behavior: capturing every host crash is a worse failure than
+            // the drop this guards against, and a lookup inside our own image does not fail.
+            return OSOwnImage(path: nil, sharesHostExecutable: false)
+        }
+        // Find the executable by filetype, not by index. Inserted libraries take the low
+        // indices: XCTest, Main Thread Checker and the simulator shims all land ahead of it.
+        let mainExecutable = (0..<_dyld_image_count())
+            .lazy
+            .compactMap { _dyld_get_image_header($0) }
+            .first { $0.pointee.filetype == UInt32(MH_EXECUTE) }
+            .map { UnsafeRawPointer($0) }
+        return OSOwnImage(
+            path: info.dli_fname.map { String(cString: $0) },
+            sharesHostExecutable: UnsafeRawPointer(ownBase) == mainExecutable
+        )
+    }()
 }
 
 /// Prints KMP diagnostics with `NSLog`, honoring the console log level without going through
@@ -110,11 +145,13 @@ final class OSLogCrashHandler: ILogCrashHandler {
     private static var inactivePreviousHandler: OSExceptionHandler?
 
     private let reporter: ILogCrashReporter
+    private let ownImage: OSOwnImage
     private var previousExceptionHandler: OSExceptionHandler?
     private var isInitialized = false
 
-    init(reporter: ILogCrashReporter) {
+    init(reporter: ILogCrashReporter, ownImage: OSOwnImage = .resolved) {
         self.reporter = reporter
+        self.ownImage = ownImage
     }
 
     func initialize() {
@@ -165,14 +202,18 @@ final class OSLogCrashHandler: ILogCrashHandler {
         stackSymbols: [String],
         resolvedFrames: [OSResolvedStackFrame]
     ) {
-        guard Self.isOneSignalAtFault(resolvedFrames) else {
+        let isAtFault = Self.isOneSignalAtFault(resolvedFrames, ownImage: ownImage)
+        // Dropping is only safe where a OneSignal frame would have been recognizable. Where it
+        // would not, a false negative is indistinguishable from "no crashes happened".
+        guard isAtFault || ownImage.sharesHostExecutable else {
             previousExceptionHandler?(exception)
             return
         }
         capture(
             exceptionType: exception.name.rawValue,
             exceptionMessage: exception.reason ?? exception.description,
-            stacktrace: stackSymbols.joined(separator: "\n")
+            stacktrace: stackSymbols.joined(separator: "\n"),
+            attributed: isAtFault
         )
         previousExceptionHandler?(exception)
     }
@@ -180,13 +221,15 @@ final class OSLogCrashHandler: ILogCrashHandler {
     private func capture(
         exceptionType: String,
         exceptionMessage: String,
-        stacktrace: String
+        stacktrace: String,
+        attributed: Bool
     ) {
         let crash = CrashData(
             threadName: Self.currentThreadName,
             exceptionType: exceptionType,
             exceptionMessage: exceptionMessage,
-            stacktrace: stacktrace
+            stacktrace: stacktrace,
+            attributed: attributed
         )
         do {
             try reporter.saveCrash(crash: crash)
@@ -233,7 +276,10 @@ final class OSLogCrashHandler: ILogCrashHandler {
         }
     }
 
-    static func isOneSignalAtFault(_ frames: [OSResolvedStackFrame]) -> Bool {
+    static func isOneSignalAtFault(
+        _ frames: [OSResolvedStackFrame],
+        ownImage: OSOwnImage = .resolved
+    ) -> Bool {
         frames.contains { frame in
             guard let imagePath = frame.imagePath,
                   !isSystemImage(imagePath) else {
@@ -242,10 +288,19 @@ final class OSLogCrashHandler: ILogCrashHandler {
             if oneSignalModules.contains(imageName(from: imagePath)) {
                 return true
             }
+            let isOwnImage = imagePath == ownImage.path
+            // Our image identifies us only while it is ours alone. Shared with the host, every
+            // frame matches it and the attribution tag would always read true.
+            if isOwnImage, !ownImage.sharesHostExecutable {
+                return true
+            }
             guard let symbolName = frame.symbolName else {
                 return false
             }
-            return isOneSignalSymbol(symbolName)
+            return isOneSignalSymbol(
+                symbolName,
+                allowsClassPrefix: isOwnImage && ownImage.sharesHostExecutable
+            )
         }
     }
 
@@ -273,18 +328,40 @@ final class OSLogCrashHandler: ILogCrashHandler {
         path.contains("/System/Library/") || path.contains("/usr/lib/")
     }
 
-    private static func isOneSignalSymbol(_ symbol: String) -> Bool {
+    private static func isOneSignalSymbol(_ symbol: String, allowsClassPrefix: Bool) -> Bool {
         let symbolWithoutLeadingUnderscores = symbol.drop(while: { $0 == "_" })
-        if symbolWithoutLeadingUnderscores.hasPrefix("-[OneSignal")
-            || symbolWithoutLeadingUnderscores.hasPrefix("+[OneSignal")
-            || symbolWithoutLeadingUnderscores.hasPrefix("onesignal_")
-            || symbolWithoutLeadingUnderscores.contains("kfun:com.onesignal.") {
+        if symbolWithoutLeadingUnderscores.hasPrefix("onesignal_")
+            || symbolWithoutLeadingUnderscores.contains("kfun:com.onesignal.")
+            || isOneSignalObjCMethod(
+                symbolWithoutLeadingUnderscores,
+                allowsClassPrefix: allowsClassPrefix
+            ) {
             return true
         }
         guard let module = swiftModuleName(from: String(symbolWithoutLeadingUnderscores)) else {
             return false
         }
         return oneSignalModules.contains(module)
+    }
+
+    /// Both halves of an `-[Class selector]` symbol can identify us: most of the ObjC surface
+    /// uses the `OS` prefix rather than `OneSignal`, and swizzled categories land on system
+    /// classes where only the selector names us (`-[UIApplication setOneSignalDelegate:]`).
+    ///
+    /// `allowsClassPrefix` is false outside the image we share with the host, where a bare `OS`
+    /// would claim unrelated classes such as Aliyun's `-[OSSClient ...]`.
+    private static func isOneSignalObjCMethod(
+        _ symbol: Substring,
+        allowsClassPrefix: Bool
+    ) -> Bool {
+        guard symbol.hasPrefix("-[") || symbol.hasPrefix("+[") else {
+            return false
+        }
+        let method = symbol.dropFirst(2)
+        if method.range(of: "onesignal", options: .caseInsensitive) != nil {
+            return true
+        }
+        return allowsClassPrefix && method.hasPrefix("OS")
     }
 
     private static func swiftModuleName(from symbol: String) -> String? {
