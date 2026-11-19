@@ -759,6 +759,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         // within a process, so both the cache and the latch have to go.
         [OSFeatureManager resetAndClearCachedFlags];
         [OSSessionService resetAndClearStoredRecord];
+        [[OSRemoteParamController sharedController] saveRemoteParams:@{}];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 

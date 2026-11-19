@@ -470,13 +470,16 @@ extension OSSessionService {
 extension OSSessionService {
     static let defaultHeartbeatInterval: TimeInterval = 30 * 60
 
-    /// A missing or non-positive value falls back to the default.
+    /// A missing, non-positive, or non-numeric value falls back to the default. A JSON boolean
+    /// bridges to an `NSNumber` of 1, so it is rejected explicitly.
     static func heartbeatInterval(remoteParams: [AnyHashable: Any]) -> TimeInterval {
         let sessions = remoteParams["sessions"] as? [AnyHashable: Any]
-        guard let seconds = (sessions?["heartbeat_interval_seconds"] as? NSNumber)?.doubleValue, seconds > 0 else {
+        guard let number = sessions?["heartbeat_interval_seconds"] as? NSNumber,
+              CFGetTypeID(number) != CFBooleanGetTypeID(),
+              number.doubleValue > 0 else {
             return defaultHeartbeatInterval
         }
-        return seconds
+        return number.doubleValue
     }
 
     private func stopHeartbeat() {

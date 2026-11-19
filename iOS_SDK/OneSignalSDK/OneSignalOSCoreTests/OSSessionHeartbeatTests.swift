@@ -178,6 +178,8 @@ final class OSSessionHeartbeatTests: XCTestCase {
             ["sessions": ["heartbeat_interval_seconds": 0]],
             ["sessions": ["heartbeat_interval_seconds": -60]],
             ["sessions": ["heartbeat_interval_seconds": "abc"]],
+            ["sessions": ["heartbeat_interval_seconds": true]],
+            ["sessions": ["heartbeat_interval_seconds": NSNull()]],
             ["sessions": "abc"]
         ]
         for payload in payloads {
