@@ -61,12 +61,11 @@ final class OneSignalNotificationsTests: XCTestCase {
         }
     }
 
+    /// The swizzled setter caches the count before calling the system, whose completion can take
+    /// seconds on a freshly booted simulator, so this waits on the cache rather than the completion.
     private func setBadgeCountAndWait(_ count: Int) {
-        let badgeSet = expectation(description: "Badge set")
-        setBadgeCount(count) {
-            badgeSet.fulfill()
-        }
-        wait(for: [badgeSet], timeout: 5)
+        setBadgeCount(count)
+        waitForCachedBadgeCount(count)
     }
 
     private func waitForCachedBadgeCount(_ count: Int) {

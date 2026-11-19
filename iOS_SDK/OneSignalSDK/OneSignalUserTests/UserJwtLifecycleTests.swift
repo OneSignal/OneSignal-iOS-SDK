@@ -270,11 +270,12 @@ final class UserJwtLifecycleTests: XCTestCase {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         let jwtRepo = OneSignalUserManagerImpl.sharedInstance.userJwtRepo
 
-        // The Create User parks for want of a token, which asks the app once. Asking is what the
-        // assertion reads, so it cannot be polled: the first poll would consume the pending ask.
+        // The Create User parks for want of a token, which asks the app once. `pendingTokenAsks` reads
+        // the ask without consuming it, unlike `askForToken`.
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
-        allowAsyncWorkToRun()
-        XCTAssertFalse(jwtRepo.askForToken(externalId: userA_EUID))
+        OneSignalCoreMocks.waitUntil("The parked Create User did not ask for a token") {
+            jwtRepo.pendingTokenAsks().contains(userA_EUID)
+        }
 
         // Log back in as the same user, which builds a new Identity Model rather than reusing the parked one.
         OneSignalUserManagerImpl.sharedInstance.logout()
