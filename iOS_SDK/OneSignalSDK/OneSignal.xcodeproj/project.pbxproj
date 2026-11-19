@@ -274,6 +274,7 @@
 		3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */; };
 		354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */; };
 		B5481A0100000000000000AA /* ExecutorRetryBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */; };
+		B5537A0100000000000000AA /* RequestFailureLogLevelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5537A0100000000000000A9 /* RequestFailureLogLevelTests.swift */; };
 		3CF11E402C6E6DE2002856F5 /* MockNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */; };
 		3CF1A5632C669EA40056B3AA /* OSNewRecordsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */; };
 		B5481A0100000000000000A4 /* OSRequestRetryBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5481A0100000000000000A3 /* OSRequestRetryBackoff.swift */; };
@@ -1570,6 +1571,7 @@
 		3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorTests.swift; sourceTree = "<group>"; };
 		6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserExecutorRetryTests.swift; sourceTree = "<group>"; };
 		B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutorRetryBackoffTests.swift; sourceTree = "<group>"; };
+		B5537A0100000000000000A9 /* RequestFailureLogLevelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestFailureLogLevelTests.swift; sourceTree = "<group>"; };
 		3CF11E3F2C6E6DE2002856F5 /* MockNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNewRecordsState.swift; sourceTree = "<group>"; };
 		3CF1A5622C669EA40056B3AA /* OSNewRecordsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSNewRecordsState.swift; sourceTree = "<group>"; };
 		B5481A0100000000000000A3 /* OSRequestRetryBackoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSRequestRetryBackoff.swift; sourceTree = "<group>"; };
@@ -2643,6 +2645,7 @@
 				3CF11E3C2C6D6155002856F5 /* UserExecutorTests.swift */,
 				6C310B6C569E96C204F8CD68 /* UserExecutorRetryTests.swift */,
 				B5481A0100000000000000A9 /* ExecutorRetryBackoffTests.swift */,
+				B5537A0100000000000000A9 /* RequestFailureLogLevelTests.swift */,
 				3CA93BC3300AEFFA000724B3 /* SubscriptionUpdateRaceTests.swift */,
 				C95B2AD05FFF9FC12C9D5878 /* ExecutorReadYourWriteTests.swift */,
 				3C5181A1B2C3D4E5F6A7B801 /* SubscriptionCreateResponseTests.swift */,
@@ -4832,6 +4835,7 @@
 				3CF11E3D2C6D6155002856F5 /* UserExecutorTests.swift in Sources */,
 				354E0C59BA9B18437C36215B /* UserExecutorRetryTests.swift in Sources */,
 				B5481A0100000000000000AA /* ExecutorRetryBackoffTests.swift in Sources */,
+				B5537A0100000000000000AA /* RequestFailureLogLevelTests.swift in Sources */,
 				3C67F77A2BEB2B710085A0F0 /* SwitchUserIntegrationTests.swift in Sources */,
 				3CC063EE2B6D7FE8002BB07F /* OneSignalUserTests.swift in Sources */,
 				A5426001A1B2C3D4E5F60006 /* InputGuardUserTests.swift in Sources */,
