@@ -158,6 +158,8 @@ public final class OSSessionService: NSObject {
     private var recordStartedInThisProcess = false
     /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
     private var heartbeatGeneration = 0
+    /// The generation a running heartbeat was armed with. Stale once the generation moves on.
+    private var armedHeartbeatGeneration: Int?
     /// A notification opened from the background, for the session its focus starts or first brings to
     /// the foreground. A focus that continues a focused session, or a later unfocus, discards it. A
     /// background action from Notification Center arrives after the unfocus and brings no focus, so it
@@ -485,6 +487,28 @@ extension OSSessionService {
         return min(max(number.doubleValue, minHeartbeatInterval), maxHeartbeatInterval)
     }
 
+    /// A cold launch arms the heartbeat before params arrive, so the wait is re-armed with the new
+    /// interval. Only a running heartbeat is re-armed: a focus that is about to start a new session
+    /// must not send one for the record it replaces.
+    @objc public static func onRemoteParamsUpdated() {
+        shared.rescheduleHeartbeat()
+    }
+
+    func rescheduleHeartbeat() {
+        let generation: Int? = stateLock.withLock {
+            guard let armed = armedHeartbeatGeneration, armed == heartbeatGeneration else {
+                return nil
+            }
+            heartbeatGeneration += 1
+            armedHeartbeatGeneration = heartbeatGeneration
+            return heartbeatGeneration
+        }
+        guard let generation else {
+            return
+        }
+        checkHeartbeat(generation: generation)
+    }
+
     private func stopHeartbeat() {
         stateLock.withLock { heartbeatGeneration += 1 }
     }
@@ -496,6 +520,7 @@ extension OSSessionService {
             guard continuesRecord, focusedAt != nil, let record, record.usesSessionsApi else {
                 return nil
             }
+            armedHeartbeatGeneration = heartbeatGeneration
             return (heartbeatGeneration, record.sessionId)
         }
         guard let armed else {

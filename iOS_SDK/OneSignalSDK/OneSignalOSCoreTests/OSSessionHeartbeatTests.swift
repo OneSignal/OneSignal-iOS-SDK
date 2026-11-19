@@ -167,6 +167,58 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(heartbeatDurations(for: record), [30 * 60, 35 * 60])
     }
 
+    func testParamsUpdateReArmsARunningHeartbeatWithTheNewInterval() {
+        let record = startForegroundSession()
+        advance(by: 60)
+        interval = 5 * 60
+
+        service.rescheduleHeartbeat()
+        advance(by: 4 * 60 - 1)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+
+        advance(by: 1)
+        XCTAssertEqual(heartbeatDurations(for: record), [5 * 60])
+
+        advance(by: 30 * 60)
+        XCTAssertEqual(heartbeatDurations(for: record), (1...7).map { TimeInterval($0) * 5 * 60 })
+    }
+
+    func testParamsUpdateSendsAnOverdueHeartbeatImmediately() {
+        let record = startForegroundSession()
+        advance(by: 10 * 60)
+        interval = 5 * 60
+
+        service.rescheduleHeartbeat()
+
+        XCTAssertEqual(heartbeatDurations(for: record), [10 * 60])
+    }
+
+    func testParamsUpdateDoesNotStartAStoppedHeartbeat() {
+        startForegroundSession()
+        service.onUnfocus()
+        pending.removeAll()
+
+        service.rescheduleHeartbeat()
+
+        XCTAssertTrue(pending.isEmpty)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
+    /// The focus that starts a new session leaves the heartbeat to that session's start, so params
+    /// arriving in between must not heartbeat the record it replaces.
+    func testParamsUpdateBeforeTheSessionStartsDoesNotStartAHeartbeat() {
+        startForegroundSession()
+        service.onUnfocus()
+        advance(by: 60 * 60)
+        pending.removeAll()
+        service.onFocus()
+
+        service.rescheduleHeartbeat()
+
+        XCTAssertTrue(pending.isEmpty)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
     func testHeartbeatIntervalParsesFromRemoteParams() {
         XCTAssertEqual(OSSessionService.heartbeatInterval(remoteParams: ["sessions": ["heartbeat_interval_seconds": 300]]), 300)
     }

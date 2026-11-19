@@ -861,6 +861,7 @@ static BOOL ComputeInitialStorageReadable(void) {
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         [OSRemoteLoggingController configure];
+        [OSSessionService onRemoteParamsUpdated];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
             let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);
