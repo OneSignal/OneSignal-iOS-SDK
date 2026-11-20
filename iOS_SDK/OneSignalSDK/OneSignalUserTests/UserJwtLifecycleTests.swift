@@ -41,6 +41,31 @@ private class MockUserStateObserver: NSObject, OSUserStateObserver {
     }
 }
 
+/// Forwards to the store's own listener, which the producer's single subscriber slot would otherwise drop.
+private class IdentityModelAddRecorder: OSModelStoreChangedHandler {
+    private let forwardee: OSModelStoreChangedHandler?
+    var tokensWhenAdded: [String?] = []
+
+    init(forwardingTo forwardee: OSModelStoreChangedHandler?) {
+        self.forwardee = forwardee
+    }
+
+    func onAdded(_ model: OSModel) {
+        if let identityModel = model as? OSIdentityModel, identityModel.externalId == userA_EUID {
+            tokensWhenAdded.append(identityModel.jwtBearerToken)
+        }
+        forwardee?.onAdded(model)
+    }
+
+    func onUpdated(_ args: OSModelChangedArgs) {
+        forwardee?.onUpdated(args)
+    }
+
+    func onRemoved(_ model: OSModel) {
+        forwardee?.onRemoved(model)
+    }
+}
+
 /**
  What `login` and `logout` do differently under Identity Verification: no anonymous user is ever sent to
  the server, so login creates rather than promotes and logout has to silence the push subscription itself.
@@ -297,15 +322,6 @@ final class UserJwtLifecycleTests: XCTestCase {
         XCTAssertTrue(jwtRepo.invalidateJwt(externalId: externalId, rejectedToken: "token-a"))
     }
 
-    /// Another queue, like the in-app message fetch, can read the current user at any point during `login`,
-    /// so the user has to carry its token from the moment it is published or that reader asks the app for one.
-    func testANewUserIsPublishedWithTheTokenItLoggedInWith() {
-        let user = OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
-            externalId: userA_EUID, pushSubscriptionModel: nil, jwtBearerToken: "token-a")
-
-        XCTAssertEqual(user.identityModel.jwtBearerToken, "token-a")
-    }
-
     // MARK: - a rejected token on the first Create User
 
     /**
@@ -550,6 +566,27 @@ final class UserJwtLifecycleTests: XCTestCase {
         waitForThePushSubscriptionToReportAgain()
 
         XCTAssertEqual(pushSubscriptionPayload()["notification_types"] as? Int, optedInNotificationTypes)
+    }
+}
+
+extension UserJwtLifecycleTests {
+    /// Another queue, like the in-app message fetch, can read the current user at any point during `login`,
+    /// so the user has to carry its token from the moment it is published or that reader asks the app for one.
+    /// The Identity Model enters the store just before the user is published, and the token `login` stores
+    /// afterwards would land too late to show up here.
+    func testLoginPublishesTheNewUserWithTheTokenItLoggedInWith() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        // `start` subscribes the store's own listener, which would replace the recorder.
+        OneSignalUserManagerImpl.sharedInstance.start()
+        let changeSubscription = OneSignalUserManagerImpl.sharedInstance.identityModelStore.changeSubscription
+        let storeListener = changeSubscription.subscriber
+        let recorder = IdentityModelAddRecorder(forwardingTo: storeListener)
+        changeSubscription.subscriber = recorder
+        defer { changeSubscription.subscriber = storeListener }
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+
+        XCTAssertEqual(recorder.tokensWhenAdded, ["token-a"])
     }
 }
 

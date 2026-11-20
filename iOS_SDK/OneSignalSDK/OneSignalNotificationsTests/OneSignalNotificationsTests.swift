@@ -46,18 +46,14 @@ final class OneSignalNotificationsTests: XCTestCase {
     }
 
     /// Helper to set badge count
-    private func setBadgeCount(_ count: Int, completion: @escaping () -> Void = {}) {
+    /// Nothing waits for the system's completion, so it must not assert: a late error would fail whichever
+    /// test is running by then.
+    private func setBadgeCount(_ count: Int) {
         if #available(iOS 16.0, *) {
-            UNUserNotificationCenter.current().setBadgeCount(count) { error in
-                if let error = error {
-                    XCTFail("Failed to set badge count: \(error)")
-                }
-                completion()
-            }
+            UNUserNotificationCenter.current().setBadgeCount(count, withCompletionHandler: nil)
         } else {
             // Fallback for iOS 15 and earlier
             UIApplication.shared.applicationIconBadgeNumber = count
-            completion()
         }
     }
 
