@@ -269,28 +269,32 @@ final class UserJwtLifecycleTests: XCTestCase {
     func testLoggingInWithATokenAnswersAPendingAskForThatUser() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         let jwtRepo = OneSignalUserManagerImpl.sharedInstance.userJwtRepo
+        // A user no other test logs in as: an earlier test's executors can still be persisting user A's
+        // Requests after teardown, and the next `start` uncaches them along with user A's token.
+        let externalId = "pending-ask-user"
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: externalId)
 
         // The Create User parks for want of a token, which asks the app once. `pendingTokenAsks` reads
         // the ask without consuming it, unlike `askForToken`.
-        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: externalId, token: nil)
         let asked = OneSignalCoreMocks.waitUntilForObjC(timeout: 5) {
-            jwtRepo.pendingTokenAsks().contains(userA_EUID)
+            jwtRepo.pendingTokenAsks().contains(externalId)
         }
         XCTAssertTrue(asked, "The parked Create User did not ask for a token. \(describeTokenState())")
 
         // Log back in as the same user, which builds a new Identity Model rather than reusing the parked one.
         OneSignalUserManagerImpl.sharedInstance.logout()
-        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: externalId, token: "token-a")
         // Rejecting the token reads the Identity Model the login hydrates, so let the login finish
         // rather than stopping at the point the token is merely stored.
         waitForTheLoginToSettle()
         OneSignalCoreMocks.waitUntil("The replacement token was not stored") {
-            jwtRepo.validJwt(externalId: userA_EUID) == "token-a"
+            jwtRepo.validJwt(externalId: externalId) == "token-a"
         }
 
-        XCTAssertEqual(jwtRepo.validJwt(externalId: userA_EUID), "token-a")
+        XCTAssertEqual(jwtRepo.validJwt(externalId: externalId), "token-a")
         // `true` means this rejection reached the app, which only happens once the earlier ask was answered.
-        XCTAssertTrue(jwtRepo.invalidateJwt(externalId: userA_EUID, rejectedToken: "token-a"))
+        XCTAssertTrue(jwtRepo.invalidateJwt(externalId: externalId, rejectedToken: "token-a"))
     }
 
     /// Another queue, like the in-app message fetch, can read the current user at any point during `login`,
