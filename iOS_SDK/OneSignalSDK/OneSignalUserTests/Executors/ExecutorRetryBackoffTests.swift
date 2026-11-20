@@ -228,16 +228,62 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The Create User was not resent on the new session") {
             self.count(OSRequestCreateUser.self) == 2
         }
-        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
+    }
+
+    func testARejectedCreateUserDoesNotPauseTheOperationRepo() {
+        let executor = userExecutor()
+        createUserRejected(executor, for: identityModel, externalId: userA_EUID)
+        OneSignalCoreMocks.waitUntil("The rejection was not handled") {
+            self.cachedCreateUsers().first?.rejectionCount == 1
+        }
+
+        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
+    }
+
+    func testACreateUserIsDroppedOnceItHasBeenRejectedTheMaxNumberOfTimes() {
+        let executor = userExecutor()
+        createUserRejected(executor, for: identityModel, externalId: userA_EUID)
+
+        for attempt in 2...OSUserExecutor.maxCreateUserRejections {
+            OneSignalCoreMocks.waitUntil("Rejection \(attempt - 1) was not persisted") {
+                self.cachedCreateUsers().first?.rejectionCount == attempt - 1
+            }
+            executor.executePendingRequestsOnNewSession()
+            OneSignalCoreMocks.waitUntil("Attempt \(attempt) was not sent") {
+                self.count(OSRequestCreateUser.self) == attempt
+            }
+        }
+        OneSignalCoreMocks.waitUntil("The Create User was not dropped") {
+            executor.snapshotUserRequestQueue().isEmpty && self.cachedCreateUsers().isEmpty
+        }
+
+        executor.executePendingRequestsOnNewSession()
+        allowAsyncWorkToRun(seconds: 0.3)
+        XCTAssertEqual(count(OSRequestCreateUser.self), OSUserExecutor.maxCreateUserRejections)
+    }
+
+    func testTheRejectionCountCarriesAcrossLaunches() {
+        createUserRejected(userExecutor(), for: identityModel, externalId: userA_EUID)
+        OneSignalCoreMocks.waitUntil("The rejection was not persisted") {
+            self.cachedCreateUsers().first?.rejectionCount == 1
+        }
+
+        let relaunched = userExecutor()
+        OneSignalCoreMocks.waitUntil("The restored Create User was not rejected again") {
+            self.cachedCreateUsers().first?.rejectionCount == 2
+        }
+        XCTAssertEqual(relaunched.snapshotUserRequestQueue().count, 1)
+    }
+
+    private func cachedCreateUsers() -> [OSRequestCreateUser] {
+        let cached = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest]
+        return (cached ?? []).compactMap { $0 as? OSRequestCreateUser }
     }
 
     func testARejectedCreateUserOfALoggedOutUserDoesNotHoldTheNextUser() {
         let executor = userExecutor()
         let loggedOut = OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer())
         createUserRejected(executor, for: loggedOut, externalId: userB_EUID)
-        OneSignalCoreMocks.waitUntil("The repo was not paused") {
-            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused
-        }
 
         client.setMockResponseForRequest(request: "<OSRequestCreateUser with external_id: \(userA_EUID)>", response: [:])
         executor.createUser(aliasLabel: OS_EXTERNAL_ID, aliasId: userA_EUID, identityModel: identityModel)
@@ -245,7 +291,6 @@ final class ExecutorRetryBackoffTests: XCTestCase {
             self.count(OSRequestCreateUser.self) == 2
         }
         XCTAssertFalse(executor.snapshotUserRequestQueue().contains { ($0 as? OSRequestCreateUser)?.identityModel === loggedOut })
-        XCTAssertFalse(OneSignalUserManagerImpl.sharedInstance.operationRepo.paused)
     }
 
     func testALoginWhileTheRejectedCreateUserIsInFlightIsNotHeldBehindIt() {
@@ -260,9 +305,6 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The current user's Create User was held behind the in-flight logged out one") {
             self.count(OSRequestCreateUser.self) == 2
         }
-        OneSignalCoreMocks.waitUntil("The repo was left paused") {
-            !OneSignalUserManagerImpl.sharedInstance.operationRepo.paused
-        }
     }
 
     func testACreateUserRejectedAfterANewSessionStartedIsResentRightAway() {
@@ -275,6 +317,5 @@ final class ExecutorRetryBackoffTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The Create User was not resent for the session that started while it was in flight") {
             self.count(OSRequestCreateUser.self) == 2
         }
-        OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
     }
 }

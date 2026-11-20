@@ -43,6 +43,8 @@ class OSUserExecutor {
     private var awaitingRetry = false
     /// A Create User the server rejected, held until a new session. Only touched on `dispatchQueue`.
     private var rejectedCreateUsers: [OSRequestCreateUser] = []
+    /// A payload the server keeps rejecting will not start passing, so the Create User is dropped after this many.
+    static let maxCreateUserRejections = 3
     /// Only touched on `dispatchQueue`.
     private var sessionCount = 0
     /// Delay by the "cool down" period plus a buffer of a set amount of milliseconds
@@ -311,6 +313,10 @@ class OSUserExecutor {
         OneSignalUserManagerImpl.sharedInstance.addIdentityModelToRepo(model)
     }
 
+    private func saveUserRequestQueue() {
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
+    }
+
     func appendToQueue(_ request: OSUserRequest) {
         self.dispatchQueue.async {
             self.userRequestQueue.append(request)
@@ -386,9 +392,6 @@ class OSUserExecutor {
         rejectedCreateUsers.removeAll(where: isPastUser)
         userRequestQueue.removeAll(where: isPastUser)
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_USER_REQUEST_QUEUE_KEY, withValue: userRequestQueue)
-        if rejectedCreateUsers.isEmpty {
-            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
-        }
     }
 
     private func _executePendingRequests() {
@@ -535,7 +538,6 @@ extension OSUserExecutor {
             } else {
                 self.removeFromQueue(request)
             }
-            OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
@@ -547,12 +549,18 @@ extension OSUserExecutor {
                 // re-enter so that token is used now rather than waiting on another wake.
                 self.executePendingRequests()
             } else if responseType != .retryable {
-                // A failed create user request would leave the SDK in a bad state
-                // Don't remove the request from cache and pause the operation repo
-                // We will retry this request on a new session. Stays marked as sent until then, so other
-                // flushes in this run skip it.
-                OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = true
+                // Retried on a new session. Stays marked as sent until then, so other flushes in this run
+                // skip it. Requests for this user wait on its `onesignal_id`; everything else keeps flowing.
                 self.dispatchQueue.async {
+                    request.rejectionCount += 1
+                    if request.rejectionCount >= OSUserExecutor.maxCreateUserRejections {
+                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor dropped \(request), rejected \(request.rejectionCount) times")
+                        self.userRequestQueue.removeAll(where: { $0 === request })
+                        self.saveUserRequestQueue()
+                        self._executePendingRequests()
+                        return
+                    }
+                    self.saveUserRequestQueue()
                     if self.sessionCount != sentInSession {
                         // A session started while this was in flight, so this is that session's retry.
                         request.sentToClient = false
