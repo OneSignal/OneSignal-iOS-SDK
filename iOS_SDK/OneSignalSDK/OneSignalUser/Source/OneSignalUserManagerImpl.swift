@@ -468,7 +468,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             prepareForNewUser()
         }
 
-        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
+        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel, jwtBearerToken: token)
         if let externalId = externalId {
             storeJwtOrRearmAsk(externalId: externalId, token: token)
         }
@@ -494,7 +494,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Immediately drop the old user and set a new user in the SDK
         let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
-        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
+        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel, jwtBearerToken: token)
         // The token belongs on the model that carries `external_id`: the Fetch User this leads to is signed
         // with it, as is the Create User this becomes if the requirement turns out to be on.
         storeJwtOrRearmAsk(externalId: externalId, token: token)
@@ -608,7 +608,7 @@ extension OneSignalUserManagerImpl {
     /**
      Creates and sets a blank new SDK user with the provided externalId, if any.
      */
-    func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
+    func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?, jwtBearerToken: String? = nil) -> OSUserInternal {
         let aliases: [String: String]?
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
@@ -617,6 +617,11 @@ extension OneSignalUserManagerImpl {
         }
 
         let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+        // Set before `_user` publishes the model: a caller on another queue that reads the current
+        // user in between would otherwise find it without a token and ask the app for one.
+        if let token = jwtBearerToken, !token.isEmpty, token != OS_JWT_TOKEN_INVALID {
+            identityModel.jwtBearerToken = token
+        }
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
         self.addIdentityModelToRepo(identityModel)
 
