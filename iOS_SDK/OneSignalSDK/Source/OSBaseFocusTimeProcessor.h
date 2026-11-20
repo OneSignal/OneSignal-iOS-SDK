@@ -29,6 +29,10 @@
 #import "OneSignalCommonDefines.h"
 #import "OSFocusCallParams.h"
 
+// iOS allows a backgrounded app about 30 seconds, so the wait and the send have to fit inside that together.
+static const NSTimeInterval FOCUS_SEND_DELAY = 20;
+static const NSTimeInterval FOCUS_SEND_TIME_LIMIT = 5;
+
 // This is an abstract class
 @interface OSBaseFocusTimeProcessor : NSObject
 
@@ -40,6 +44,15 @@
 - (void)sendOnFocusCall:(OSFocusCallParams *)params;
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params;
 - (void)cancelDelayedJob;
+
+/// Begins a background task and returns its name. The task ends at `timeLimit` if nothing ends it
+/// sooner. iOS terminates an app whose task outlives its allowance, and the expiration handler that
+/// would end it only runs on the main thread.
+- (NSString *)beginTaskWithTimeLimit:(NSTimeInterval)timeLimit;
+
+/// Runs `send` off the main thread after `delay`, unless `cancelDelayedJob` is called first. The
+/// task passed to `send` covers the wait and `timeLimit` more for the send.
+- (void)sendAfterDelay:(NSTimeInterval)delay timeLimit:(NSTimeInterval)timeLimit send:(void (^)(NSString *task))send;
 
 - (NSTimeInterval)getUnsentActiveTime;
 - (void)saveUnsentActiveTime:(NSTimeInterval)time;

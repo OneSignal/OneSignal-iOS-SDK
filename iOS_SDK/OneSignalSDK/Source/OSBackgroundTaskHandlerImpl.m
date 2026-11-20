@@ -30,13 +30,14 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <UIKit/UIKit.h>
 
-@implementation OSBackgroundTaskHandlerImpl
-
-NSMutableDictionary<NSString*, NSNumber*> *tasks;
+@implementation OSBackgroundTaskHandlerImpl {
+    // A name can be begun again before its earlier task ends, so each name keeps every task still open.
+    NSMutableDictionary<NSString *, NSMutableArray<NSNumber *> *> *_tasks;
+}
 
 - (instancetype)init {
     self = [super init];
-    tasks = [NSMutableDictionary new];
+    _tasks = [NSMutableDictionary new];
     return self;
 }
 
@@ -44,36 +45,55 @@ NSMutableDictionary<NSString*, NSNumber*> *tasks;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:
                               @"OSBackgroundTaskManagerImpl:beginBackgroundTask: %@", taskIdentifier]];
-    UIBackgroundTaskIdentifier uiIdentifier = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
+    __block UIBackgroundTaskIdentifier uiIdentifier = UIBackgroundTaskInvalid;
+    uiIdentifier = [UIApplication.sharedApplication beginBackgroundTaskWithName:taskIdentifier expirationHandler:^{
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                          message:[NSString stringWithFormat:
                                   @"OSBackgroundTaskManagerImpl: expirationHandler called for %@", taskIdentifier]];
-        [self endBackgroundTask:taskIdentifier];
+        [self endExpiredTask:uiIdentifier named:taskIdentifier];
     }];
-    @synchronized (tasks) {
-        tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:uiIdentifier];
+    if (uiIdentifier == UIBackgroundTaskInvalid) {
+        return;
+    }
+    @synchronized (_tasks) {
+        NSMutableArray<NSNumber *> *uiIdentifiers = _tasks[taskIdentifier];
+        if (!uiIdentifiers) {
+            uiIdentifiers = [NSMutableArray new];
+            _tasks[taskIdentifier] = uiIdentifiers;
+        }
+        [uiIdentifiers addObject:@(uiIdentifier)];
     }
 }
 
 - (void)endBackgroundTask:(NSString * _Nonnull)taskIdentifier {
-    @synchronized (tasks) {
-        UIBackgroundTaskIdentifier uiIdentifier = [[tasks objectForKey:taskIdentifier] unsignedLongValue];
+    NSArray<NSNumber *> *uiIdentifiers;
+    @synchronized (_tasks) {
+        uiIdentifiers = _tasks[taskIdentifier];
+        [_tasks removeObjectForKey:taskIdentifier];
+    }
+    for (NSNumber *uiIdentifier in uiIdentifiers) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                          message:[NSString stringWithFormat:
-                                  @"OSBackgroundTaskManagerImpl:endBackgroundTask: %@ with UIBackgroundTaskIdentifier %lu",
-                                  taskIdentifier, (unsigned long)uiIdentifier]];
-        [UIApplication.sharedApplication endBackgroundTask:uiIdentifier];
+                                  @"OSBackgroundTaskManagerImpl:endBackgroundTask: %@ with UIBackgroundTaskIdentifier %@",
+                                  taskIdentifier, uiIdentifier]];
+        [UIApplication.sharedApplication endBackgroundTask:uiIdentifier.unsignedIntegerValue];
     }
-    [self setTaskInvalid:taskIdentifier];
 }
 
-/**
- This method is called when the background task ends or directly by other services within the SDK
- */
-- (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier {
-    @synchronized (tasks) {
-        tasks[taskIdentifier] = [NSNumber numberWithUnsignedLong:UIBackgroundTaskInvalid];
+- (void)endExpiredTask:(UIBackgroundTaskIdentifier)uiIdentifier named:(NSString *)taskIdentifier {
+    @synchronized (_tasks) {
+        NSMutableArray<NSNumber *> *uiIdentifiers = _tasks[taskIdentifier];
+        [uiIdentifiers removeObject:@(uiIdentifier)];
+        if (uiIdentifiers.count == 0) {
+            [_tasks removeObjectForKey:taskIdentifier];
+        }
     }
+    [UIApplication.sharedApplication endBackgroundTask:uiIdentifier];
+}
+
+// A task that is forgotten while open can never be ended, so this ends it.
+- (void)setTaskInvalid:(NSString * _Nonnull)taskIdentifier {
+    [self endBackgroundTask:taskIdentifier];
 }
 
 @end
