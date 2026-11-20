@@ -100,11 +100,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         ))
         executor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitUntil("Blocked subscription update was not cached") {
-            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
-                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
-                defaultValue: []
-            ) as? [OSRequestUpdateSubscription]
-            return requests?.count == 1
+            executor.snapshotUpdateRequestQueue().count == 1
         }
 
         XCTAssertTrue(client.executedRequests.isEmpty, "Update should still be pending without subscriptionId")
@@ -141,7 +137,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         XCTAssertFalse(sentMinus19, "Must not send stale enabled:false / notification_types:-19 after grant")
         XCTAssertTrue(allSubscribed, "All executed UpdateSubscription payloads should reflect the live subscribed model")
         XCTAssertEqual(updateRequests.count, 1, "Unsent updates for the same subscription should be coalesced")
-        waitForUpdateRequestQueueToDrain()
+        waitForUpdateRequestQueueToDrain(executor)
     }
 
     /**
@@ -192,11 +188,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         ))
         executor.processDeltaQueue(inBackground: false)
         OneSignalCoreMocks.waitUntil("Follow-up subscription update was not queued") {
-            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
-                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
-                defaultValue: []
-            ) as? [OSRequestUpdateSubscription]
-            return requests?.count == 2
+            executor.snapshotUpdateRequestQueue().count == 2
         }
 
         XCTAssertEqual(client.startedRequests.count, 1, "Follow-up must wait for in-flight UpdateSubscription")
@@ -209,7 +201,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         XCTAssertEqual(client.startedRequests.count, 2, "Pending follow-up should send after in-flight completes")
         try assertSubscribedPayload(client.startedRequests[1])
         waitForCompletedUpdateRequests(client, expectedCount: 2)
-        waitForUpdateRequestQueueToDrain()
+        waitForUpdateRequestQueueToDrain(executor)
     }
 
     /**
@@ -280,7 +272,7 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         let lastPayload = try XCTUnwrap(updateRequests.last?.parameters?["subscription"] as? [String: Any])
         XCTAssertEqual(lastPayload["notification_types"] as? Int, subscribedNotificationTypes)
         XCTAssertEqual(lastPayload["enabled"] as? Bool, true)
-        waitForUpdateRequestQueueToDrain()
+        waitForUpdateRequestQueueToDrain(executor)
     }
 
     // MARK: - Helpers
@@ -298,13 +290,9 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         return model
     }
 
-    private func waitForUpdateRequestQueueToDrain() {
+    private func waitForUpdateRequestQueueToDrain(_ executor: OSSubscriptionOperationExecutor) {
         OneSignalCoreMocks.waitUntil("Subscription executor cleanup did not complete") {
-            let requests = OneSignalUserDefaults.initShared().getSavedCodeableData(
-                forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY,
-                defaultValue: []
-            ) as? [OSRequestUpdateSubscription]
-            return requests?.isEmpty == true
+            executor.snapshotUpdateRequestQueue().isEmpty
         }
     }
 
@@ -320,5 +308,13 @@ final class SubscriptionUpdateRaceTests: XCTestCase {
         )
         XCTAssertEqual(payload["notification_types"] as? Int, subscribedNotificationTypes)
         XCTAssertEqual(payload["enabled"] as? Bool, true)
+    }
+}
+
+private extension OSSubscriptionOperationExecutor {
+    /// This executor's queue. The persisted copy is shared with every other executor, including ones
+    /// earlier tests left running, so a test cannot rely on it naming this executor's requests.
+    func snapshotUpdateRequestQueue() -> [OSRequestUpdateSubscription] {
+        return dispatchQueue.sync { updateRequestQueue }
     }
 }
