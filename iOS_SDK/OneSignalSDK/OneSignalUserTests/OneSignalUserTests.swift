@@ -205,7 +205,13 @@ final class OneSignalUserTests: XCTestCase {
 
         // This adds a `session_count` property with value of 1
         // It also sets `refresh_device_metadata` to `true`
+        // It unpauses the repo before enqueueing that Delta, so a poll in between would split the batch.
+        // Suspending the repo's queue keeps the poll from running until the repo is paused again.
+        let operationRepo = OneSignalUserManagerImpl.sharedInstance.operationRepo
+        operationRepo.dispatchQueue.suspend()
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        operationRepo.paused = true
+        operationRepo.dispatchQueue.resume()
 
         /* Then */
 

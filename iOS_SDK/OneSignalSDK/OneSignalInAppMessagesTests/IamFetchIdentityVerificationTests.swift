@@ -172,6 +172,14 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         return executedFetches().last?.additionalHeaders?["Authorization"]
     }
 
+    /// The current user and what was sent, for a failure that only reproduces in CI.
+    private func describeCurrentUser() -> String {
+        let model = OneSignalUserManagerImpl.sharedInstance._user?.identityModel
+        let sent = client.executedRequests.map { "\($0) auth: \($0.additionalHeaders?["Authorization"] ?? "nil")" }
+        return "user: \(model?.externalId ?? "nil") \(model?.modelId ?? "nil") token: \(model?.jwtBearerToken ?? "nil"), "
+            + "pending asks: \(OneSignalUserManagerImpl.sharedInstance.userJwtRepo.pendingTokenAsks()), sent: \(sent)"
+    }
+
     private func deferredSubscriptionId() -> String? {
         return OSMessagingController.sharedInstance().deferredFetchSubscriptionId
     }
@@ -257,6 +265,8 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
     /// The fetch is not a source of truth for whether a token is good, because the server can refuse it
     /// over a user and subscription it does not have paired. It parks, and the next token releases it.
     func testARejectedFetchParksWithoutReportingTheTokenItUsed() {
+        var whenAsked: [String] = []
+        jwtListener.setCallback { whenAsked.append(self.describeCurrentUser()) }
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         login(token: "token-a")
         rejectFetch(from: identifiedUserPath)
@@ -265,7 +275,7 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         fetch()
 
         XCTAssertEqual(executedFetches().count, fetchesBefore + 1)
-        XCTAssertEqual(jwtListener.invalidatedExternalIds, [])
+        XCTAssertEqual(jwtListener.invalidatedExternalIds, [], "when asked: \(whenAsked), now: \(describeCurrentUser())")
         XCTAssertEqual(deferredSubscriptionId(), testPushSubId)
 
         // A token the app supplies for its own reasons, since the fetch never asked for one.

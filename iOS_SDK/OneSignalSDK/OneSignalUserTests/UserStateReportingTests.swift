@@ -131,13 +131,15 @@ final class UserStateReportingTests: XCTestCase {
         OneSignalCoreMocks.waitUntil("The Identify User was not started") {
             self.client.startedRequestCount(ofType: OSRequestIdentifyUser.self) == 1
         }
+        let modelA = OneSignalUserManagerImpl.sharedInstance.user.identityModel
         // B becomes current while A's Identify User is in flight.
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
         client.releaseHeldResponses()
         waitForTheLoginToSettle()
 
         // Still hydrated, for anything queued behind it.
-        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.identityModelRepo.get(externalId: userA_EUID)?.onesignalId, anonUserOSID)
+        XCTAssertEqual(OneSignalUserManagerImpl.sharedInstance.identityModelRepo.get(externalId: userA_EUID)?.onesignalId, anonUserOSID,
+                       describeModels(for: userA_EUID, loggedIn: modelA))
         XCTAssertFalse(observer.states.contains { $0.externalId == userA_EUID }, "the app must not hear about A: \(observer.states)")
         XCTAssertEqual(observer.states.last?.externalId, userB_EUID)
         assertPersistedSnapshotNames(externalId: userB_EUID, onesignalId: userB_OSID)
@@ -198,6 +200,13 @@ final class UserStateReportingTests: XCTestCase {
      User starts. A fetch landing later would re-report the current user and hide a wrong report made in
      between.
      */
+    /// Which models the repo holds for this user, and what was sent, for a failure that only reproduces in CI.
+    private func describeModels(for externalId: String, loggedIn: OSIdentityModel) -> String {
+        let models = OneSignalUserManagerImpl.sharedInstance.identityModelRepo.models.values.filter { $0.externalId == externalId }
+        let described = models.map { "\($0.modelId == loggedIn.modelId ? "login" : "other"): \($0.onesignalId ?? "nil")" }
+        return "models: \(described), executed: \(client.executedRequests)"
+    }
+
     private func waitForTheLoginToSettle() {
         OneSignalCoreMocks.waitUntil("The login did not reach a reported user") {
             OneSignalUserManagerImpl.sharedInstance.user.identityModel.onesignalId != nil
