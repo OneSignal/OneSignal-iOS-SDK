@@ -273,9 +273,10 @@ final class UserJwtLifecycleTests: XCTestCase {
         // The Create User parks for want of a token, which asks the app once. `pendingTokenAsks` reads
         // the ask without consuming it, unlike `askForToken`.
         OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
-        OneSignalCoreMocks.waitUntil("The parked Create User did not ask for a token") {
+        let asked = OneSignalCoreMocks.waitUntilForObjC(timeout: 5) {
             jwtRepo.pendingTokenAsks().contains(userA_EUID)
         }
+        XCTAssertTrue(asked, "The parked Create User did not ask for a token. \(describeTokenState())")
 
         // Log back in as the same user, which builds a new Identity Model rather than reusing the parked one.
         OneSignalUserManagerImpl.sharedInstance.logout()
@@ -545,5 +546,18 @@ final class UserJwtLifecycleTests: XCTestCase {
         waitForThePushSubscriptionToReportAgain()
 
         XCTAssertEqual(pushSubscriptionPayload()["notification_types"] as? Int, optedInNotificationTypes)
+    }
+}
+
+private extension UserJwtLifecycleTests {
+    func describeTokenState() -> String {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let model = manager._user?.identityModel
+        let queued = queuedUserRequests().map { "\($0) sent: \($0.sentToClient)" }
+        let sent = client.executedRequests.map { "\($0) auth: \($0.additionalHeaders?["Authorization"] ?? "nil")" }
+        return "requirement: \(manager.identityVerificationService.requirement), "
+            + "user: \(model?.externalId ?? "nil") \(model?.modelId ?? "nil") token: \(model?.jwtBearerToken ?? "nil"), "
+            + "pending asks: \(manager.userJwtRepo.pendingTokenAsks()), repo paused: \(manager.operationRepo.paused), "
+            + "queued: \(queued), sent: \(sent)"
     }
 }
