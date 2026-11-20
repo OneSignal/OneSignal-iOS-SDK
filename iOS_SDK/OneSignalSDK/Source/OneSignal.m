@@ -759,6 +759,7 @@ static BOOL ComputeInitialStorageReadable(void) {
         // within a process, so both the cache and the latch have to go.
         [OSFeatureManager resetAndClearCachedFlags];
         [OSSessionService resetAndClearStoredRecord];
+        [[OSRemoteParamController sharedController] saveRemoteParams:@{}];
 
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
 
@@ -860,6 +861,7 @@ static BOOL ComputeInitialStorageReadable(void) {
 
         [[OSRemoteParamController sharedController] saveRemoteParams:result];
         [OSRemoteLoggingController configure];
+        [OSSessionService onRemoteParamsUpdated];
         if ([[OSRemoteParamController sharedController] hasLocationKey]) {
             BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
             let oneSignalLocation = NSClassFromString(ONE_SIGNAL_LOCATION_CLASS_NAME);

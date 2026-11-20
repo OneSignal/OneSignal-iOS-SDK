@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 + (OSRemoteParamController *)sharedController;
 
-@property (strong, nonatomic, readonly, nonnull) NSDictionary *remoteParams;
+@property (strong, atomic, readonly, nonnull) NSDictionary *remoteParams;
 
 - (void)saveRemoteParams:(NSDictionary *_Nonnull)params;
 - (BOOL)hasLocationKey;

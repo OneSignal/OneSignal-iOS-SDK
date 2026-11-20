@@ -31,25 +31,38 @@ THE SOFTWARE.
 #import "OneSignalUserDefaults.h"
 #import "OSPrivacyConsentController.h"
 
-@implementation OSRemoteParamController
+@implementation OSRemoteParamController {
+    NSDictionary *_remoteParams;
+}
 
-static OSRemoteParamController *_sharedController;
 + (OSRemoteParamController *)sharedController {
-    if (!_sharedController)
-        _sharedController = [OSRemoteParamController new];
-    return _sharedController;
+    static OSRemoteParamController *sharedController;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedController = [OSRemoteParamController new];
+    });
+    return sharedController;
+}
+
+// Read from background queues while a params fetch replaces it.
+- (NSDictionary *)remoteParams {
+    @synchronized (self) {
+        return _remoteParams ?: @{};
+    }
 }
 
 - (void)saveRemoteParams:(NSDictionary *)params {
-    _remoteParams = params;
+    @synchronized (self) {
+        _remoteParams = params;
+    }
 }
 
 - (BOOL)hasLocationKey {
-    return _remoteParams && _remoteParams[IOS_LOCATION_SHARED];
+    return self.remoteParams[IOS_LOCATION_SHARED] != nil;
 }
 
 - (BOOL)hasPrivacyConsentKey {
-    return _remoteParams && _remoteParams[IOS_REQUIRES_USER_PRIVACY_CONSENT];
+    return self.remoteParams[IOS_REQUIRES_USER_PRIVACY_CONSENT] != nil;
 }
 
 - (BOOL)isLocationShared {

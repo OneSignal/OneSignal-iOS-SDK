@@ -119,12 +119,11 @@ public struct OSSessionStart {
 
 /// Owns the persisted record of the current session. Nothing reads the record while
 /// `usesSessionsApi` is false, so with the flag off session behavior is unchanged.
-/// While in the foreground, a sessions API session reports its duration every `heartbeatInterval`
-/// of foreground time, so the backend keeps it open and a crash loses little of it.
+/// While in the foreground, a sessions API session reports its duration every heartbeat interval of
+/// foreground time, so the backend keeps it open and a crash loses little of it. The interval comes
+/// from the params' `sessions.heartbeat_interval_seconds`.
 @objc(OSSessionService)
 public final class OSSessionService: NSObject {
-    static let heartbeatInterval: TimeInterval = 30 * 60
-
     private static let lock = NSLock()
     private static var _shared: OSSessionService?
 
@@ -144,6 +143,8 @@ public final class OSSessionService: NSObject {
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
     private let schedule: (TimeInterval, @escaping () -> Void) -> Void
+    /// Read on every check, so a later params fetch applies once the current wait ends.
+    private let heartbeatInterval: () -> TimeInterval
 
     private let stateLock = NSLock()
     private weak var userProvider: OSSessionUserProvider?
@@ -157,6 +158,8 @@ public final class OSSessionService: NSObject {
     private var recordStartedInThisProcess = false
     /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
     private var heartbeatGeneration = 0
+    /// The generation a running heartbeat was armed with. Stale once the generation moves on.
+    private var armedHeartbeatGeneration: Int?
     /// A notification opened from the background, for the session its focus starts or first brings to
     /// the foreground. A focus that continues a focused session, or a later unfocus, discards it. A
     /// background action from Notification Center arrives after the unfocus and brings no focus, so it
@@ -172,6 +175,9 @@ public final class OSSessionService: NSObject {
         wallNow: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 },
         schedule: @escaping (TimeInterval, @escaping () -> Void) -> Void = { delay, block in
             DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: block)
+        },
+        heartbeatInterval: @escaping () -> TimeInterval = {
+            OSSessionService.heartbeatInterval(remoteParams: OSRemoteParamController.shared().remoteParams)
         }
     ) {
         self.storage = storage
@@ -179,6 +185,7 @@ public final class OSSessionService: NSObject {
         self.monotonicNow = monotonicNow
         self.wallNow = wallNow
         self.schedule = schedule
+        self.heartbeatInterval = heartbeatInterval
         super.init()
     }
 
@@ -463,6 +470,45 @@ extension OSSessionService {
 // MARK: - Heartbeat
 
 extension OSSessionService {
+    static let defaultHeartbeatInterval: TimeInterval = 30 * 60
+    // Bounds a misconfigured value so it can neither flood requests nor stop heartbeats.
+    static let minHeartbeatInterval: TimeInterval = 60
+    static let maxHeartbeatInterval: TimeInterval = 24 * 60 * 60
+
+    /// A missing, non-positive, or non-numeric value falls back to the default. A JSON boolean
+    /// bridges to an `NSNumber` of 1, so it is rejected explicitly.
+    static func heartbeatInterval(remoteParams: [AnyHashable: Any]) -> TimeInterval {
+        let sessions = remoteParams["sessions"] as? [AnyHashable: Any]
+        guard let number = sessions?["heartbeat_interval_seconds"] as? NSNumber,
+              CFGetTypeID(number) != CFBooleanGetTypeID(),
+              number.doubleValue > 0 else {
+            return defaultHeartbeatInterval
+        }
+        return min(max(number.doubleValue, minHeartbeatInterval), maxHeartbeatInterval)
+    }
+
+    /// A cold launch arms the heartbeat before params arrive, so the wait is re-armed with the new
+    /// interval. Only a running heartbeat is re-armed: a focus that is about to start a new session
+    /// must not send one for the record it replaces.
+    @objc public static func onRemoteParamsUpdated() {
+        shared.rescheduleHeartbeat()
+    }
+
+    func rescheduleHeartbeat() {
+        let generation: Int? = stateLock.withLock {
+            guard let armed = armedHeartbeatGeneration, armed == heartbeatGeneration else {
+                return nil
+            }
+            heartbeatGeneration += 1
+            armedHeartbeatGeneration = heartbeatGeneration
+            return heartbeatGeneration
+        }
+        guard let generation else {
+            return
+        }
+        checkHeartbeat(generation: generation)
+    }
+
     private func stopHeartbeat() {
         stateLock.withLock { heartbeatGeneration += 1 }
     }
@@ -474,6 +520,7 @@ extension OSSessionService {
             guard continuesRecord, focusedAt != nil, let record, record.usesSessionsApi else {
                 return nil
             }
+            armedHeartbeatGeneration = heartbeatGeneration
             return (heartbeatGeneration, record.sessionId)
         }
         guard let armed else {
@@ -488,6 +535,7 @@ extension OSSessionService {
     private func checkHeartbeat(generation: Int) {
         let now = monotonicNow()
         let ids = pinnableIds()
+        let interval = heartbeatInterval()
         let next: (due: (record: OSSessionRecord, provider: OSSessionUserProvider?)?, wait: TimeInterval)? = stateLock.withLock {
             guard generation == heartbeatGeneration, let start = focusedAt, let focusTime = openFocusTime,
                   let current = record, current.usesSessionsApi else {
@@ -495,7 +543,7 @@ extension OSSessionService {
             }
             let focusDuration = max(0, now - start)
             let duration = current.activeDuration + focusDuration
-            let remaining = (current.lastHeartbeatDuration ?? 0) + Self.heartbeatInterval - duration
+            let remaining = (current.lastHeartbeatDuration ?? 0) + interval - duration
             guard remaining <= 0 else {
                 return (nil, remaining)
             }
@@ -503,7 +551,7 @@ extension OSSessionService {
             record?.lastHeartbeatDuration = duration
             record?.lastHeartbeatTime = focusTime + focusDuration
             persist()
-            return (record.map { ($0, userProvider) }, Self.heartbeatInterval)
+            return (record.map { ($0, userProvider) }, interval)
         }
         guard let next else {
             return
