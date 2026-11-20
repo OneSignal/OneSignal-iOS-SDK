@@ -26,8 +26,22 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <OneSignalOSCore/OneSignalOSCore-Swift.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface OSBackgroundTaskHandlerImpl : NSObject <OSBackgroundTaskHandler>
 
+- (instancetype)init;
+- (instancetype)initWithTimeLimit:(NSTimeInterval)timeLimit
+                        beginTask:(UIBackgroundTaskIdentifier (^)(NSString *taskIdentifier, void (^expirationHandler)(void)))beginTask
+                          endTask:(void (^)(UIBackgroundTaskIdentifier uiIdentifier))endTask NS_DESIGNATED_INITIALIZER;
+
+- (void)beginBackgroundTask:(NSString *)taskIdentifier;
+- (void)endBackgroundTask:(NSString *)taskIdentifier;
+- (void)setTaskInvalid:(NSString *)taskIdentifier;
+
 @end
+
+NS_ASSUME_NONNULL_END
