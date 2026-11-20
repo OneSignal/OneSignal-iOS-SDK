@@ -44,10 +44,16 @@ private final class FakeUserProvider: OSSessionUserProvider {
 }
 
 private final class RecordingTaskHandler: OSBackgroundTaskHandler {
-    private(set) var begunTasks: [String] = []
+    private let lock = NSLock()
+    private var begun: [String] = []
+    private var ended: [String] = []
 
-    func beginBackgroundTask(_ taskIdentifier: String) { begunTasks.append(taskIdentifier) }
-    func endBackgroundTask(_ taskIdentifier: String) {}
+    var begunTasks: [String] { lock.withLock { begun } }
+    var endedTasks: [String] { lock.withLock { ended } }
+    var begunSessionTasks: [String] { begunTasks.filter { $0.hasPrefix(SESSION_OUTCOMES_TASK) } }
+
+    func beginBackgroundTask(_ taskIdentifier: String) { lock.withLock { begun.append(taskIdentifier) } }
+    func endBackgroundTask(_ taskIdentifier: String) { lock.withLock { ended.append(taskIdentifier) } }
     func setTaskInvalid(_ taskIdentifier: String) {}
 }
 
@@ -151,7 +157,7 @@ final class OneSignalTrackerTests: XCTestCase {
 
     /// The processors begin this task as they send the session's time.
     private var sentSessionTime: Bool {
-        taskHandler.begunTasks.contains(SESSION_OUTCOMES_TASK)
+        !taskHandler.begunSessionTasks.isEmpty
     }
 
     private var unsentActiveTime: Double? {
@@ -211,6 +217,64 @@ final class OneSignalTrackerTests: XCTestCase {
         XCTAssertTrue(sentSessionTime)
         XCTAssertNotEqual(unsentActiveTime, 12)
     }
+
+    func testBackgroundingBeginsATaskOfItsOwnWhileASessionEndSendHasOne() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+
+        endSessionAfterAVisit()
+        backgroundAfterAVisit()
+
+        XCTAssertEqual(Set(taskHandler.begunSessionTasks).count, 2)
+    }
+
+    func testForegroundingEndsTheTaskOfASendThatIsStillWaiting() throws {
+        try storeSessionRecord(usesSessionsApi: false)
+        backgroundAfterAVisit()
+        let task = try XCTUnwrap(taskHandler.begunSessionTasks.last)
+
+        OSFocusTimeProcessorFactory.cancelFocusCall()
+
+        XCTAssertTrue(taskHandler.endedTasks.contains(task))
+    }
+
+    func testATaskEndsAtItsTimeLimit() throws {
+        let task = try XCTUnwrap(OSBaseFocusTimeProcessor().beginTask(withTimeLimit: 0.05))
+
+        OneSignalCoreMocks.waitUntil("The task was still open after its time limit") {
+            self.taskHandler.endedTasks.contains(task)
+        }
+    }
+
+    func testADelayedSendRunsOffTheMainThreadWithItsTaskStillOpen() throws {
+        let sent = expectation(description: "send ran")
+        var sentTask: String?
+        var sentOnMainThread: Bool?
+
+        OSBaseFocusTimeProcessor().send(afterDelay: 0.05, timeLimit: 60) { task in
+            sentTask = task
+            sentOnMainThread = Thread.isMainThread
+            sent.fulfill()
+        }
+
+        wait(for: [sent], timeout: 5)
+        let task = try XCTUnwrap(sentTask)
+        XCTAssertEqual(taskHandler.begunSessionTasks, [task])
+        XCTAssertEqual(sentOnMainThread, false)
+        XCTAssertFalse(taskHandler.endedTasks.contains(task))
+    }
+
+    func testACancelledSendNeverRuns() throws {
+        let processor = OSBaseFocusTimeProcessor()
+        let sent = expectation(description: "send ran")
+        sent.isInverted = true
+        processor.send(afterDelay: 0.05, timeLimit: 60) { _ in sent.fulfill() }
+
+        processor.cancelDelayedJob()
+
+        wait(for: [sent], timeout: 0.3)
+        let task = try XCTUnwrap(taskHandler.begunSessionTasks.last)
+        XCTAssertTrue(taskHandler.endedTasks.contains(task))
+    }
 }
 
 /// Drives the SDK's own new-session flow, whose order the tracker relies on.
@@ -265,6 +329,6 @@ final class OneSignalNewSessionTests: XCTestCase {
         OneSignal.startNewSessionInternal(false)
 
         XCTAssertEqual(OSSessionService.shared.currentRecord?.usesSessionsApi, true)
-        XCTAssertTrue(taskHandler.begunTasks.contains(SESSION_OUTCOMES_TASK))
+        XCTAssertFalse(taskHandler.begunSessionTasks.isEmpty)
     }
 }

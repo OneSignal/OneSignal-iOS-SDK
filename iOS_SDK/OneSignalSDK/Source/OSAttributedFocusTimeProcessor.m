@@ -35,17 +35,7 @@
 + (void)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params onSuccess:(OSResultSuccessBlock _Nonnull)successBlock onFailure:(OSFailureBlock _Nonnull)failureBlock;
 @end
 
-@implementation OSAttributedFocusTimeProcessor {
-    NSTimer* restCallTimer;
-}
-
-static let DELAY_TIME = 30;
-
-- (instancetype)init {
-    self = [super init];
-    [OSBackgroundTaskManager setTaskInvalid:SESSION_OUTCOMES_TASK];
-    return self;
-}
+@implementation OSAttributedFocusTimeProcessor
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
     return OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED;
@@ -77,29 +67,18 @@ static let DELAY_TIME = 30;
         return;
     }
     
-    [OSBackgroundTaskManager beginBackgroundTask:SESSION_OUTCOMES_TASK];
-
     if (params.onSessionEnded) {
-        [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:@(totalTimeActive)];
+        NSString *task = [self beginTaskWithTimeLimit:FOCUS_SEND_TIME_LIMIT];
+        [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:@(totalTimeActive) task:task];
         return;
     }
-    
-    restCallTimer = [NSTimer
-        scheduledTimerWithTimeInterval:DELAY_TIME
-                               target:self
-                             selector:@selector(sendBackgroundAttributedSessionTimeWithNSTimer:)
-                             userInfo:@{@"params": params, @"time": @(totalTimeActive)}
-                              repeats:false];
+
+    [self sendAfterDelay:FOCUS_SEND_DELAY timeLimit:FOCUS_SEND_TIME_LIMIT send:^(NSString *task) {
+        [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:@(totalTimeActive) task:task];
+    }];
 }
 
-- (void)sendBackgroundAttributedSessionTimeWithNSTimer:(NSTimer*)timer {
-    let userInfo = (NSDictionary<NSString*, id>*)timer.userInfo;
-    let params = (OSFocusCallParams*)userInfo[@"params"];
-    let totalTimeActive = (NSNumber*)userInfo[@"time"];
-    [self sendBackgroundAttributedSessionTimeWithParams:params withTotalTimeActive:totalTimeActive];
-}
-
-- (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
+- (void)sendBackgroundAttributedSessionTimeWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive task:(NSString *)task {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedSessionTimeWithParams start"];
 
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:sendSessionTime of %@", totalTimeActive]];
@@ -109,21 +88,12 @@ static let DELAY_TIME = 30;
         [OneSignal sendSessionEndOutcomes:totalTimeActive params:params onSuccess:^(NSDictionary *result) {
             [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendBackgroundAttributed succeed"];
             [super saveUnsentActiveTime:0];
-            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:task];
         } onFailure:^(NSError *error) {
             [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"sendBackgroundAttributed failed, will retry on next open"];
-            [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
+            [OSBackgroundTaskManager endBackgroundTask:task];
         }];
     });
-}
-
-- (void)cancelDelayedJob {
-    if (!restCallTimer)
-        return;
-    
-    [restCallTimer invalidate];
-    restCallTimer = nil;
-    [OSBackgroundTaskManager endBackgroundTask:SESSION_OUTCOMES_TASK];
 }
 
 @end

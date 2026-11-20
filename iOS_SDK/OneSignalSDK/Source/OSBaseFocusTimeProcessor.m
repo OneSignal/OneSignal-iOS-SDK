@@ -27,10 +27,13 @@
 
 #import "OSBaseFocusTimeProcessor.h"
 #import "OneSignalInternal.h"
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 
 // This is an abstract class
 @implementation OSBaseFocusTimeProcessor {
     NSNumber* unsentActiveTime;
+    // The task of a send that is still waiting out its delay.
+    NSString* delayedTask;
 }
 
 - (void)resetUnsentActiveTime {
@@ -59,10 +62,45 @@
       reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
 }
 
-// Must override
+- (NSString *)beginTaskWithTimeLimit:(NSTimeInterval)timeLimit {
+    NSString *task = [NSString stringWithFormat:@"%@_%@", SESSION_OUTCOMES_TASK, NSUUID.UUID.UUIDString];
+    [OSBackgroundTaskManager beginBackgroundTask:task];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeLimit * NSEC_PER_SEC)), dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        [OSBackgroundTaskManager endBackgroundTask:task];
+    });
+    return task;
+}
+
+- (void)sendAfterDelay:(NSTimeInterval)delay timeLimit:(NSTimeInterval)timeLimit send:(void (^)(NSString *task))send {
+    NSString *task = [self beginTaskWithTimeLimit:delay + timeLimit];
+    NSString *replacedTask;
+    @synchronized (self) {
+        replacedTask = delayedTask;
+        delayedTask = task;
+    }
+    if (replacedTask) {
+        [OSBackgroundTaskManager endBackgroundTask:replacedTask];
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        @synchronized (self) {
+            if (self->delayedTask != task) {
+                return;
+            }
+            self->delayedTask = nil;
+        }
+        send(task);
+    });
+}
+
 - (void)cancelDelayedJob {
-    @throw [NSException exceptionWithName:NSInternalInconsistencyException
-      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
+    NSString *task;
+    @synchronized (self) {
+        task = delayedTask;
+        delayedTask = nil;
+    }
+    if (task) {
+        [OSBackgroundTaskManager endBackgroundTask:task];
+    }
 }
 
 - (NSTimeInterval)getUnsentActiveTime {
