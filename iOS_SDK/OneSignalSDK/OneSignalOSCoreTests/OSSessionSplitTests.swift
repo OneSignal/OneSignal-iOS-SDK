@@ -154,7 +154,7 @@ final class OSSessionSplitTests: XCTestCase {
         let switchTime = wallNow
         switchToUserB()
 
-        service.splitSession()
+        service.onUserSwitched()
 
         let next = try XCTUnwrap(service.currentRecord)
         XCTAssertNotEqual(next.sessionId, first.sessionId)
@@ -175,7 +175,7 @@ final class OSSessionSplitTests: XCTestCase {
         advance(by: 60)
         user.switchUser(identityModelId: "model-b", onesignalId: nil, externalId: nil)
 
-        service.splitSession()
+        service.onUserSwitched()
 
         XCTAssertEqual(user.events, [.end(sessionId: first.sessionId, duration: 60, endTime: wallNow)])
         XCTAssertEqual(service.currentRecord?.createHeld, true)
@@ -185,7 +185,7 @@ final class OSSessionSplitTests: XCTestCase {
         startForegroundSession()
         advance(by: 20 * 60)
         switchToUserB()
-        service.splitSession()
+        service.onUserSwitched()
         let next = try XCTUnwrap(service.currentRecord)
 
         advance(by: interval)
@@ -194,18 +194,71 @@ final class OSSessionSplitTests: XCTestCase {
         XCTAssertEqual(user.events.filter { if case .heartbeat = $0 { return true } else { return false } }.count, 1)
     }
 
-    func testSplitOfAnAnonymousSessionQueuesItsHeldCreateBeforeItsEnd() {
+    // MARK: - Anonymous
+
+    func testLoginWhileTheCreateIsHeldMovesTheSessionAndQueuesItsCreate() throws {
         user.externalId = nil
+        service.onNotificationOpened("notification-1")
         let first = startForegroundSession()
         advance(by: 60)
-        switchToUserB()
+        user.switchUser(identityModelId: "model-b", onesignalId: nil, externalId: "external-b")
 
-        service.splitSession()
+        service.onUserSwitched()
 
-        XCTAssertEqual(Array(user.events.prefix(2)), [
-            .create(sessionId: first.sessionId, directAttributionId: nil),
-            .end(sessionId: first.sessionId, duration: 60, endTime: wallNow)
-        ])
+        let record = try XCTUnwrap(service.currentRecord)
+        XCTAssertEqual(record.sessionId, first.sessionId)
+        XCTAssertEqual(record.startTime, first.startTime)
+        XCTAssertEqual(record.identityModelId, "model-b")
+        XCTAssertEqual(record.externalId, "external-b")
+        XCTAssertNil(record.createHeld)
+        XCTAssertEqual(user.events, [.create(sessionId: first.sessionId, directAttributionId: "notification-1")])
+    }
+
+    func testLoginUnderIdentityVerificationMovesAHeldCreateThatCouldNotBeSent() {
+        user.sessionRequiresIdentityVerification = true
+        user.externalId = nil
+        user.onesignalId = nil
+        let first = startForegroundSession()
+        background()
+        XCTAssertTrue(user.events.isEmpty)
+        user.switchUser(identityModelId: "model-b", onesignalId: nil, externalId: "external-b")
+
+        service.onUserSwitched()
+
+        XCTAssertEqual(user.events, [.create(sessionId: first.sessionId, directAttributionId: nil)])
+    }
+
+    func testSwitchToAnotherAnonymousUserWhileHeldKeepsHolding() {
+        user.externalId = nil
+        startForegroundSession()
+        user.switchUser(identityModelId: "model-b", onesignalId: nil, externalId: nil)
+
+        service.onUserSwitched()
+
+        XCTAssertTrue(user.events.isEmpty)
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+        XCTAssertEqual(service.currentRecord?.identityModelId, "model-b")
+    }
+
+    func testLoginAfterAnAnonymousCreateWasSentKeepsTheSessionAndALaterSwitchSplits() {
+        user.externalId = nil
+        let first = startForegroundSession()
+        background()
+        service.onFocus()
+        user.switchUser(identityModelId: "model-b", onesignalId: "onesignal-b", externalId: "external-b")
+
+        service.onUserSwitched()
+
+        XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
+        XCTAssertEqual(service.currentRecord?.identityModelId, "model-a")
+        XCTAssertEqual(service.currentRecord?.externalId, "external-b")
+        XCTAssertEqual(user.events, [.create(sessionId: first.sessionId, directAttributionId: nil)])
+
+        user.switchUser(identityModelId: "model-c", onesignalId: "onesignal-c", externalId: "external-c")
+        service.onUserSwitched()
+
+        XCTAssertNotEqual(service.currentRecord?.sessionId, first.sessionId)
+        XCTAssertEqual(user.events.dropFirst().first, .end(sessionId: first.sessionId, duration: 0, endTime: wallNow))
     }
 
     // MARK: - Background
@@ -218,7 +271,7 @@ final class OSSessionSplitTests: XCTestCase {
         advance(by: 10)
         switchToUserB()
 
-        service.splitSession()
+        service.onUserSwitched()
 
         XCTAssertEqual(user.events.last, .end(sessionId: first.sessionId, duration: 60, endTime: unfocusTime))
         XCTAssertEqual(service.currentRecord?.splitPending, true)
@@ -243,7 +296,7 @@ final class OSSessionSplitTests: XCTestCase {
         startForegroundSession()
         background()
         switchToUserB()
-        service.splitSession()
+        service.onUserSwitched()
 
         advance(by: 60)
         service.onFocus()
@@ -256,7 +309,7 @@ final class OSSessionSplitTests: XCTestCase {
         startForegroundSession()
         background()
         switchToUserB()
-        service.splitSession()
+        service.onUserSwitched()
 
         service = makeService()
         service.onFocus()
@@ -269,15 +322,43 @@ final class OSSessionSplitTests: XCTestCase {
         startForegroundSession()
         background()
         switchToUserB()
-        service.splitSession()
+        service.onUserSwitched()
         let events = user.events
 
         user.switchUser(identityModelId: "model-c", onesignalId: "onesignal-c", externalId: "external-c")
-        service.splitSession()
+        service.onUserSwitched()
         service.onFocus()
 
         XCTAssertEqual(user.events.count, events.count + 1)
         XCTAssertEqual(service.currentRecord?.identityModelId, "model-c")
+    }
+
+    // MARK: - Record about to be replaced
+
+    func testSwitchAfterAFocusThatWillStartANewSessionChangesNothing() {
+        let first = startForegroundSession()
+        background()
+        advance(by: 60)
+        service.onFocus()
+        switchToUserB()
+
+        service.onUserSwitched()
+
+        XCTAssertTrue(user.events.isEmpty)
+        XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
+        XCTAssertEqual(service.startNewSession(userProvider: user).ended?.endTime, first.startTime)
+    }
+
+    func testSwitchBeforeTheFirstSessionOfALaunchChangesNothing() {
+        let first = startForegroundSession()
+        service = makeService()
+        service.setUserProvider(user)
+        switchToUserB()
+
+        service.onUserSwitched()
+
+        XCTAssertTrue(user.events.isEmpty)
+        XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
     }
 
     // MARK: - Legacy
@@ -288,7 +369,7 @@ final class OSSessionSplitTests: XCTestCase {
         let first = startForegroundSession()
         switchToUserB()
 
-        service.splitSession()
+        service.onUserSwitched()
 
         XCTAssertTrue(user.events.isEmpty)
         XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
