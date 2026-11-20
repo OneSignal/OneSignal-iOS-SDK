@@ -292,6 +292,15 @@ final class UserJwtLifecycleTests: XCTestCase {
         XCTAssertTrue(jwtRepo.invalidateJwt(externalId: userA_EUID, rejectedToken: "token-a"))
     }
 
+    /// Another queue, like the in-app message fetch, can read the current user at any point during `login`,
+    /// so the user has to carry its token from the moment it is published or that reader asks the app for one.
+    func testANewUserIsPublishedWithTheTokenItLoggedInWith() {
+        let user = OneSignalUserManagerImpl.sharedInstance.setNewInternalUser(
+            externalId: userA_EUID, pushSubscriptionModel: nil, jwtBearerToken: "token-a")
+
+        XCTAssertEqual(user.identityModel.jwtBearerToken, "token-a")
+    }
+
     // MARK: - a rejected token on the first Create User
 
     /**
@@ -536,39 +545,5 @@ final class UserJwtLifecycleTests: XCTestCase {
         waitForThePushSubscriptionToReportAgain()
 
         XCTAssertEqual(pushSubscriptionPayload()["notification_types"] as? Int, optedInNotificationTypes)
-    }
-}
-
-// MARK: - a login racing a reader on another queue
-
-extension UserJwtLifecycleTests {
-    /// A reader on another queue, like the in-app message fetch, can catch the new user mid-login. It has to
-    /// find the token already there rather than ask the app for the one it just supplied. The gap is narrow,
-    /// so this logs in many times to give the reader a chance at it.
-    func testALoginWithATokenIsNeverCaughtWithoutOneFromAnotherQueue() {
-        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
-        let manager = OneSignalUserManagerImpl.sharedInstance
-        let listener = MockUserJwtInvalidatedListener()
-        manager.addUserJwtInvalidatedListener(listener)
-        defer { manager.removeUserJwtInvalidatedListener(listener) }
-
-        let lock = NSLock()
-        var reading = true
-        let readerFinished = expectation(description: "The reader stopped")
-        DispatchQueue.global().async {
-            while lock.withLock({ reading }) {
-                _ = manager.authorizationForCurrentUser()
-            }
-            readerFinished.fulfill()
-        }
-
-        for i in 0..<200 {
-            manager.login(externalId: i % 2 == 0 ? userA_EUID : userB_EUID, token: "token-\(i)")
-        }
-        lock.withLock { reading = false }
-        wait(for: [readerFinished], timeout: 5)
-        allowAsyncWorkToRun(seconds: 0.5)
-
-        XCTAssertEqual(listener.invalidatedExternalIds, [])
     }
 }
