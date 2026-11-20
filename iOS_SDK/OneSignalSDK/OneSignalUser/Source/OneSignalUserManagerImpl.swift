@@ -407,6 +407,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Identity Verification has since been turned off.
         pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)?.clearDisabledInternallyForLogin()
 
+        let previousIdentityModelId = _user?.identityModel.modelId
         // Logging into an identified user from an anonymous user
         if let user = _user, user.isAnonymous, canPromoteAnonymousUser {
             identifyUser(externalId: externalId, currentUser: user, token: token)
@@ -414,7 +415,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Logging into identified -> anon, identified -> identified, or nil -> identified
             _ = createNewUser(externalId: externalId, token: token)
         }
-
+        if _user?.identityModel.modelId != previousIdentityModelId {
+            OSSessionService.shared.onUserSwitched()
+        }
     }
 
     /**
@@ -575,6 +578,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         prepareForNewUser()
         _user = nil
         createUserIfNil()
+        OSSessionService.shared.onUserSwitched()
     }
 }
 

@@ -424,6 +424,75 @@ extension SessionRecordUserTests {
         client.releaseHeldResponses()
     }
 
+    func testLoginWhileTheCreateIsHeldQueuesItForTheNewUser() {
+        enableSessionsApi()
+        client.holdResponses = true
+        startForegroundSession()
+        let sessionId = OSSessionService.shared.currentRecord?.sessionId
+
+        loginUserA()
+
+        let creates = queuedSessionCreates()
+        XCTAssertEqual(creates.map(\.localSessionId), [sessionId].compactMap { $0 })
+        XCTAssertEqual(creates.first?.ownerExternalId, userA_EUID)
+        XCTAssertEqual(OSSessionService.shared.currentRecord?.sessionId, sessionId)
+        client.releaseHeldResponses()
+    }
+
+    func testLoginAsAnotherUserSplitsTheSession() {
+        enableSessionsApi()
+        client.holdResponses = true
+        loginUserA()
+        startForegroundSession()
+        let first = OSSessionService.shared.currentRecord?.sessionId
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userB_EUID, token: nil)
+
+        let second = OSSessionService.shared.currentRecord?.sessionId
+        XCTAssertNotEqual(second, first)
+        let creates = queuedSessionCreates()
+        XCTAssertEqual(creates.map(\.localSessionId), [first, second].compactMap { $0 })
+        XCTAssertEqual(creates.map(\.ownerExternalId), [userA_EUID, userB_EUID])
+        XCTAssertEqual(queuedSessionUpdates().map(\.localSessionId), [first].compactMap { $0 })
+        XCTAssertEqual(queuedSessionUpdates().first?.isEnd, true)
+        client.releaseHeldResponses()
+        // Creating user B goes on after the client is idle, and would leak into the next test.
+        OneSignalCoreMocks.waitUntil("User B was not created") {
+            OneSignalUserManagerImpl.sharedInstance.onesignalId == userB_OSID
+        }
+    }
+
+    func testLogoutSplitsTheSessionAndHoldsTheNextCreate() {
+        enableSessionsApi()
+        client.holdResponses = true
+        loginUserA()
+        startForegroundSession()
+        let first = OSSessionService.shared.currentRecord?.sessionId
+
+        OneSignalUserManagerImpl.sharedInstance.logout()
+
+        XCTAssertEqual(queuedSessionCreates().map(\.localSessionId), [first].compactMap { $0 })
+        XCTAssertEqual(queuedSessionUpdates().first?.isEnd, true)
+        XCTAssertNotEqual(OSSessionService.shared.currentRecord?.sessionId, first)
+        XCTAssertEqual(OSSessionService.shared.currentRecord?.createHeld, true)
+        client.releaseHeldResponses()
+    }
+
+    func testLoginAsTheSameUserDoesNotSplit() {
+        enableSessionsApi()
+        client.holdResponses = true
+        loginUserA()
+        startForegroundSession()
+        let first = OSSessionService.shared.currentRecord?.sessionId
+
+        loginUserA()
+
+        XCTAssertEqual(OSSessionService.shared.currentRecord?.sessionId, first)
+        XCTAssertEqual(queuedSessionCreates().count, 1)
+        XCTAssertTrue(queuedSessionUpdates().isEmpty)
+        client.releaseHeldResponses()
+    }
+
     func testNewSessionQueuesNoCreateWhenTheFlagIsOff() {
         client.holdResponses = true
 
