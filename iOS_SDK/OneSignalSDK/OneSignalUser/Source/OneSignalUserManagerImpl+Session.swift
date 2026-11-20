@@ -98,6 +98,10 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         enqueueSessionCreate(record, directAttributionId: record.directAttributionId)
     }
 
+    public func sessionEnd(_ record: OSSessionRecord) {
+        enqueueSessionUpdate(record, endTime: Date(timeIntervalSince1970: record.endTime))
+    }
+
     /// Queues the session's create. Does nothing unless the session uses the sessions API.
     func enqueueSessionCreate(_ record: OSSessionRecord, directAttributionId: String? = nil) {
         var value: [String: Any] = [OSSessionDeltaKey.startTime: record.startTime]
