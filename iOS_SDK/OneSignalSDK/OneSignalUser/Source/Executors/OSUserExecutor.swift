@@ -769,13 +769,14 @@ extension OSUserExecutor {
             let message = "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .missing {
-                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.removeFromQueue(request)
                 // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                 else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     return
                 }
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()

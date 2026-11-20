@@ -502,16 +502,18 @@ private extension OSSessionOperationExecutor {
     }
 
     func handleFailure(_ request: OSSessionRequest, error: OneSignalClientError) {
-        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSessionOperationExecutor \(request) failed with status \(error.code)")
+        let message = "OSSessionOperationExecutor \(request) failed with status \(error.code)"
         let code = error.code
         if (200..<300).contains(code) {
             // `OneSignalClient` reports a 2xx whose body failed to parse as a failure.
             handleSuccess(request, response: nil)
         } else if code == 0 || code == 408 || code == 429 || code >= 500 {
             // 0 means no HTTP response: no network or a timeout.
+            OneSignalLog.onesignalLog(.LL_INFO, message: message)
             retry(request, error: error)
         } else if code == 404 && isInMissingRetryWindow(request) {
             // The backend may not have the just-created record yet.
+            OneSignalLog.onesignalLog(.LL_INFO, message: message)
             retry(request, error: error)
         } else {
             // Any other 4xx, or a missing app ID, which the client reports as a negative code.

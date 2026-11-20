@@ -139,6 +139,20 @@ final class RequestFailureLogLevelTests: XCTestCase {
         XCTAssertEqual(loggedLevels(mentioning: fetchUserFailure), [.LL_INFO])
     }
 
+    func testAFetchThatLogsOutTheCurrentUserLogsWarn() {
+        let identityModel = OneSignalUserMocks.setUserManagerInternalUser(externalId: userA_EUID, onesignalId: userA_OSID).identityModel
+        client.setMockFailureResponseForRequest(request: "<OSRequestFetchUser with onesignal_id: \(userA_OSID)>", error: error(404))
+        let executor = OSUserExecutor(
+            newRecordsState: MockNewRecordsState(),
+            identityVerificationService: OneSignalUserManagerImpl.sharedInstance.identityVerificationService,
+            auth: OneSignalUserManagerImpl.sharedInstance.requestAuth
+        )
+
+        executor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: userA_OSID, identityModel: identityModel, onNewSession: false)
+
+        XCTAssertEqual(loggedLevels(mentioning: fetchUserFailure), [.LL_WARN])
+    }
+
     func testACreateUserFailureThatPausesTheRepoLogsError() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         client.setMockFailureResponseForRequest(request: "<OSRequestCreateUser with external_id: \(userA_EUID)>", error: error(400))

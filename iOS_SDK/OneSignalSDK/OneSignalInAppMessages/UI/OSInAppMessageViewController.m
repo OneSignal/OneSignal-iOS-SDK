@@ -395,10 +395,8 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     let message = [NSString stringWithFormat:@"An error occurred while attempting to load message content: %@", error.description ?: @"Unknown Error"];
     if (error.code == 410 || error.code == 404) {
         [self.delegate messageIsNotActive:self.message];
-        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:message];
-    } else {
-        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:message];
     }
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:message];
 }
 
 - (void)viewDidLayoutSubviews {
