@@ -305,6 +305,17 @@ final class LiveActivitiesManagerTests: XCTestCase {
         XCTAssertEqual(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: dismissed, in: activities)?.id, "a2")
     }
 
+    func testLiveDuplicate_prefersALiveActivityThatHasAToken() throws {
+        let dismissed = FakeActivity(id: "a1", oneSignalActivityId: "a", pushTokenString: "token-1", isLive: false)
+        let activities = [
+            dismissed,
+            FakeActivity(id: "a2", oneSignalActivityId: "a"),
+            FakeActivity(id: "a3", oneSignalActivityId: "a", pushTokenString: "token-3")
+        ]
+
+        XCTAssertEqual(OneSignalLiveActivitiesManagerImpl.liveDuplicate(of: dismissed, in: activities)?.id, "a3")
+    }
+
     func testLiveDuplicate_withoutAnotherLiveActivityForTheActivityId_returnsNil() throws {
         let dismissed = FakeActivity(id: "a1", oneSignalActivityId: "a", isLive: false)
         let activities = [

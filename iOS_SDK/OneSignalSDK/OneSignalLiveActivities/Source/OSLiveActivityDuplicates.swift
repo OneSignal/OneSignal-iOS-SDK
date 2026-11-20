@@ -106,7 +106,8 @@ extension OneSignalLiveActivitiesManagerImpl {
     }
 
     static func liveDuplicate<T: OSLiveActivityInstance>(of activity: T, in activities: [T]) -> T? {
-        activities.first { $0.id != activity.id && $0.oneSignalActivityId == activity.oneSignalActivityId && $0.isLive }
+        let duplicates = activities.filter { $0.id != activity.id && $0.oneSignalActivityId == activity.oneSignalActivityId && $0.isLive }
+        return duplicates.first { $0.pushTokenString != nil } ?? duplicates.first
     }
 
     @available(iOS 16.1, *)
