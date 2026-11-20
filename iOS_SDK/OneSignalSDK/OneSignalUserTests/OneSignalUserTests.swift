@@ -245,7 +245,8 @@ final class OneSignalUserTests: XCTestCase {
         // Assert there is an update user request with the expected payload
         XCTAssertTrue(client.onlyOneRequest(
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: expectedPayload)
+            contains: expectedPayload),
+            describePropertyUpdates(client)
         )
     }
 
@@ -608,6 +609,17 @@ final class OneSignalUserTests: XCTestCase {
         let subscriptions = try XCTUnwrap(createUserBRequest()?.parameters?["subscriptions"] as? [[String: Any]])
         XCTAssertEqual(subscriptions.first?["enabled"] as? Bool, false)
         XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -22)
+    }
+}
+
+private extension OneSignalUserTests {
+    /// Whether the batch split or carried something else, and the flag that changes what `startNewSession` counts.
+    func describePropertyUpdates(_ client: MockOneSignalClient) -> String {
+        let updates = client.executedRequests
+            .filter { $0 is OSRequestUpdateProperties }
+            .map { "\($0.path): \($0.parameters ?? [:])" }
+        let sessionsApi = OSFeatureManager.shared.isEnabled(featureKey: "sdk_sessions_v2_api_cutover")
+        return "sessions API flag: \(sessionsApi), property updates: \(updates)"
     }
 }
 
