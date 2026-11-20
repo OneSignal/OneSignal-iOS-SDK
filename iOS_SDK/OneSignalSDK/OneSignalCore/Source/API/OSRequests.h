@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface OSRequestSubmitNotificationOpened : OneSignalRequest
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(NSNumber *)deviceType;
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId onesignalId:(nullable NSString *)onesignalId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(NSNumber *)deviceType;
 @end
 
 NS_ASSUME_NONNULL_END

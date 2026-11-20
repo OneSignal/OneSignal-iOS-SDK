@@ -32,10 +32,17 @@
 #import "OSOutcomeEvent.h"
 #import "OSFocusInfluenceParam.h"
 
+typedef NSString * _Nullable (^OSOutcomeIdProvider)(void);
+
 @interface OneSignalOutcomeEventsController : NSObject
 
 - (instancetype _Nonnull)initWithSessionManager:(OSSessionManager * _Nonnull)sessionManager
                            outcomeEventsFactory:(OSOutcomeEventsFactory *_Nonnull)outcomeEventsFactory;
+
+// Read when a custom outcome is sent. This module does not link the user module, so the framework
+// that does sets these; while they are nil the request carries neither id.
+@property (copy, nonatomic, nullable) OSOutcomeIdProvider pushSubscriptionIdProvider;
+@property (copy, nonatomic, nullable) OSOutcomeIdProvider onesignalIdProvider;
 
 - (void)clearOutcomes;
 - (void)cleanUniqueOutcomeNotifications;

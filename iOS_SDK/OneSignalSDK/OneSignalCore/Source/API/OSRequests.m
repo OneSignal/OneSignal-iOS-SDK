@@ -78,10 +78,14 @@
 @end
 
 @implementation OSRequestSubmitNotificationOpened
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(nonnull NSNumber *)deviceType{
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId onesignalId:(NSString *)onesignalId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(nonnull NSNumber *)deviceType {
     let request = [OSRequestSubmitNotificationOpened new];
     
-    request.parameters = @{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened), @"device_type": deviceType};
+    let parameters = [NSMutableDictionary dictionaryWithDictionary:@{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened), @"device_type": deviceType}];
+    if (onesignalId.length > 0) {
+        parameters[@"onesignal_id"] = onesignalId;
+    }
+    request.parameters = parameters;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@", messageId];
     

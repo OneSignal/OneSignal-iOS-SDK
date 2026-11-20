@@ -40,6 +40,7 @@ final class OneSignalIdentifiersFallbackTests: XCTestCase {
         super.setUp()
         clearUserDefaultsKey(OSUD_APP_ID)
         clearUserDefaultsKey(OSUD_PUSH_SUBSCRIPTION_ID)
+        clearUserDefaultsKey(OS_SNAPSHOT_ONESIGNAL_ID)
         OSResilientStorage.setString(nil, forKey: OSResilientStorage.keyAppId)
         OSResilientStorage.setString(nil, forKey: OSResilientStorage.keySubscriptionId)
         // Force the async OSResilientStorage write queue to drain before the next test step.
@@ -49,6 +50,7 @@ final class OneSignalIdentifiersFallbackTests: XCTestCase {
     override func tearDown() {
         clearUserDefaultsKey(OSUD_APP_ID)
         clearUserDefaultsKey(OSUD_PUSH_SUBSCRIPTION_ID)
+        clearUserDefaultsKey(OS_SNAPSHOT_ONESIGNAL_ID)
         OSResilientStorage.setString(nil, forKey: OSResilientStorage.keyAppId)
         OSResilientStorage.setString(nil, forKey: OSResilientStorage.keySubscriptionId)
         _ = OSResilientStorage.snapshot()
@@ -101,5 +103,23 @@ final class OneSignalIdentifiersFallbackTests: XCTestCase {
 
     func testSubscriptionId_returnsNil_whenBothEmpty() {
         XCTAssertNil(OneSignalIdentifiers.subscriptionId)
+    }
+
+    // MARK: - onesignalId
+
+    func testOnesignalId_returnsUserDefaultsValue_whenUDPopulated() {
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: "onesignal_id_ud")
+
+        XCTAssertEqual(OneSignalIdentifiers.onesignalId, "onesignal_id_ud")
+    }
+
+    func testOnesignalId_returnsNil_whenUDAbsent() {
+        XCTAssertNil(OneSignalIdentifiers.onesignalId)
+    }
+
+    func testOnesignalId_returnsNil_whenUDEmptyString() {
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: "")
+
+        XCTAssertNil(OneSignalIdentifiers.onesignalId)
     }
 }

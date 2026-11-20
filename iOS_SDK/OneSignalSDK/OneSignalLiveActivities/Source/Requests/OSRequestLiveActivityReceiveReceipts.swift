@@ -51,13 +51,17 @@ class OSRequestLiveActivityReceiveReceipts: OneSignalRequest, OSLiveActivityRequ
         }
 
         self.path = "notifications/\(key)/report_received"
-        self.parameters = [
+        var parameters: [String: Any] = [
             "app_id": appId,
             "player_id": subscriptionId,
             "device_type": 0,
             "live_activity_id": activityId,
             "live_activity_type": activityType
         ]
+        if let onesignalId = OneSignalIdentifiers.onesignalId {
+            parameters["onesignal_id"] = onesignalId
+        }
+        self.parameters = parameters
         self.method = PUT
 
         return true

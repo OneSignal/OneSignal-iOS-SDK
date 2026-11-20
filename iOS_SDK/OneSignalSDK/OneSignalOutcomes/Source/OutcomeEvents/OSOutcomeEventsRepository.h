@@ -40,6 +40,8 @@ THE SOFTWARE.
 - (id _Nonnull)initWithCache:(OSOutcomeEventsCache * _Nonnull)outcomeEventsCache;
 - (void)requestMeasureOutcomeEventWithAppId:(NSString * _Nonnull)appId
                                  deviceType:(NSNumber * _Nonnull)deviceType
+                         pushSubscriptionId:(NSString * _Nullable)pushSubscriptionId
+                                onesignalId:(NSString * _Nullable)onesignalId
                                       event:(OSOutcomeEventParams * _Nonnull)event
                                   onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
                                   onFailure:(OSFailureBlock _Nonnull)failureBlock;
