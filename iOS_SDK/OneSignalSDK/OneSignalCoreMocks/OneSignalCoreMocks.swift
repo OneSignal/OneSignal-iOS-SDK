@@ -43,9 +43,11 @@ public class OneSignalCoreMocks: NSObject {
         }
     }
 
+    /// The timeout only bounds a failure: a met condition returns at once. CI runners can stall for
+    /// several seconds at a time, so it is generous.
     public static func waitUntil(
         _ description: String,
-        timeout: TimeInterval = 5,
+        timeout: TimeInterval = 15,
         file: StaticString = #filePath,
         line: UInt = #line,
         condition: @escaping () -> Bool
