@@ -44,6 +44,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionCheckpoint(_ record: OSSessionRecord) { checkpoints.append(record) }
     var sessionIdentityVerification: OSRequiresUserAuth { .off }
     func sessionCreate(_ record: OSSessionRecord) {}
+    func sessionEnd(_ record: OSSessionRecord) {}
 }
 
 private final class RecordingTaskHandler: OSBackgroundTaskHandler {
