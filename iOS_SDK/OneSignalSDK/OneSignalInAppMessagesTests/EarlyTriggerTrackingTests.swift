@@ -101,11 +101,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         /* Execute */
         OneSignalUserManagerImpl.sharedInstance.start()
-        let fetchCompleted = XCTNSPredicateExpectation(
-            predicate: NSPredicate { _, _ in controller.hasCompletedFirstFetch },
-            object: nil
-        )
-        XCTAssertEqual(XCTWaiter.wait(for: [fetchCompleted], timeout: 5), .completed)
+        waitForFirstFetch(controller, client)
 
         /* Verify */
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -201,9 +197,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitUntil("Initial IAM fetch did not complete") {
-            controller.hasCompletedFirstFetch
-        }
+        waitForFirstFetch(controller, client)
 
         // Verify first fetch completed
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -304,9 +298,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Execute */
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitUntil("IAM messages were not loaded") {
-            controller.hasCompletedFirstFetch && controller.messages.count == 3
-        }
+        waitForFirstFetch(controller, client, messageCount: 3)
 
         /* Verify */
         // First fetch should have completed
@@ -381,9 +373,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         /* Execute */
         // Start the SDK and trigger first fetch
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitUntil("IAM message was not loaded") {
-            controller.hasCompletedFirstFetch && controller.messages.count == 1
-        }
+        waitForFirstFetch(controller, client, messageCount: 1)
 
         /* Verify */
         XCTAssertTrue(controller.hasCompletedFirstFetch)
@@ -452,9 +442,7 @@ final class EarlyTriggerTrackingTests: XCTestCase {
 
         /* Execute */
         OneSignalUserManagerImpl.sharedInstance.start()
-        OneSignalCoreMocks.waitUntil("IAM messages were not loaded") {
-            controller.hasCompletedFirstFetch && controller.messages.count == 2
-        }
+        waitForFirstFetch(controller, client, messageCount: 2)
 
         /* Verify */
         let messages = controller.messages as! [OSInAppMessageInternal]
@@ -467,5 +455,31 @@ final class EarlyTriggerTrackingTests: XCTestCase {
         // Only message 1 should have isTriggerChanged (it has shared trigger "action_a")
         XCTAssertTrue(try XCTUnwrap(receivedMessage1).isTriggerChanged)
         XCTAssertFalse(try XCTUnwrap(receivedMessage2).isTriggerChanged)
+    }
+}
+
+private extension EarlyTriggerTrackingTests {
+    /// The failure reports where the fetch stopped, since CI keeps no SDK logs.
+    func waitForFirstFetch(
+        _ controller: OSMessagingController,
+        _ client: MockOneSignalClient,
+        messageCount: Int? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let fetched = OneSignalCoreMocks.waitUntilForObjC(timeout: 15) {
+            controller.hasCompletedFirstFetch && (messageCount == nil || controller.messages.count == messageCount)
+        }
+        XCTAssertTrue(fetched, "IAM fetch did not complete. \(describeFetchState(controller, client))", file: file, line: line)
+    }
+
+    func describeFetchState(_ controller: OSMessagingController, _ client: MockOneSignalClient) -> String {
+        let user = OneSignalUserManagerImpl.sharedInstance
+        let tokenKeys = OSConsistencyManager.shared.snapshotTokens()[testOneSignalId]?.keys.map(\.intValue).sorted() ?? []
+        let deferredFetch = controller.value(forKey: "deferredFetchSubscriptionId") as? String
+        return "first fetch done: \(controller.hasCompletedFirstFetch), messages: \(controller.messages.count), "
+            + "onesignalId: \(user.onesignalId ?? "nil"), push subscription: \(user.pushSubscriptionId ?? "nil"), "
+            + "deferred fetch: \(deferredFetch ?? "nil"), RYW token keys: \(tokenKeys), "
+            + "started: \(client.startedRequests), completed: \(client.completedRequests)"
     }
 }
