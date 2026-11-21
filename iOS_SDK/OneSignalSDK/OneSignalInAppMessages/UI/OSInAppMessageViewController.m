@@ -396,7 +396,7 @@ OSInAppMessageInternal *_dismissingMessage = nil;
     if (error.code == 410 || error.code == 404) {
         [self.delegate messageIsNotActive:self.message];
     }
-    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:message];
+    [OneSignalLog onesignalLog:ONE_S_LL_WARN message:message];
 }
 
 - (void)viewDidLayoutSubviews {

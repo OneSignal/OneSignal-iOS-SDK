@@ -64,7 +64,7 @@ BOOL _wantsToDisplay = true;
 
 - (void)display {
     if (!_completion) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"OSNotificationWillDisplayEvent.notification.display cannot be called due to timing out or notification was already displayed."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OSNotificationWillDisplayEvent.notification.display cannot be called due to timing out or notification was already displayed."];
     }
     [self complete:self];
 }

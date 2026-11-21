@@ -212,7 +212,7 @@ static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContex
     [self.webView evaluateJavaScript:OS_JS_GET_PAGE_META_DATA_METHOD completionHandler:^(NSDictionary *result, NSError *error) {
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:errorMessage];
             // Still complete so a rotation or fold re-shows the message at its previous height
             [self setupWebViewConstraints];
             completion(nil);
@@ -236,7 +236,7 @@ static void *OSInAppMessageContentSizeContext = &OSInAppMessageContentSizeContex
     [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:errorMessage];
             return;
         }
         NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
