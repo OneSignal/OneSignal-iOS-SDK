@@ -34,14 +34,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     // To simplify uncaching, we maintain separate request queues for each type
     private var addRequestQueue: [OSRequestCreateSubscription] = []
     private var removeRequestQueue: [OSRequestDeleteSubscription] = []
-    private var updateRequestQueue: [OSRequestUpdateSubscription] = []
+    var updateRequestQueue: [OSRequestUpdateSubscription] = [] // non-private for unit test access
     private var subscriptionModels: [String: OSSubscriptionModel] = [:]
     private let newRecordsState: OSNewRecordsState
     private let auth: OSRequestAuthorizing
     private let retryBackoff: OSRequestRetryBackoff
 
     // The Subscription executor dispatch queue, serial. This synchronizes access to the delta and request queues.
-    private let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
+    let dispatchQueue = DispatchQueue(label: "OneSignal.OSSubscriptionOperationExecutor", target: .global())
 
     init(
         newRecordsState: OSNewRecordsState,

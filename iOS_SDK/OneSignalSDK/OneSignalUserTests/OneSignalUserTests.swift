@@ -205,7 +205,13 @@ final class OneSignalUserTests: XCTestCase {
 
         // This adds a `session_count` property with value of 1
         // It also sets `refresh_device_metadata` to `true`
+        // It unpauses the repo before enqueueing that Delta, so a poll in between would split the batch.
+        // Suspending the repo's queue keeps the poll from running until the repo is paused again.
+        let operationRepo = OneSignalUserManagerImpl.sharedInstance.operationRepo
+        operationRepo.dispatchQueue.suspend()
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
+        operationRepo.paused = true
+        operationRepo.dispatchQueue.resume()
 
         /* Then */
 
@@ -239,7 +245,8 @@ final class OneSignalUserTests: XCTestCase {
         // Assert there is an update user request with the expected payload
         XCTAssertTrue(client.onlyOneRequest(
             contains: "apps/test-app-id/users/by/onesignal_id/\(anonUserOSID)",
-            contains: expectedPayload)
+            contains: expectedPayload),
+            describePropertyUpdates(client)
         )
     }
 
@@ -602,6 +609,17 @@ final class OneSignalUserTests: XCTestCase {
         let subscriptions = try XCTUnwrap(createUserBRequest()?.parameters?["subscriptions"] as? [[String: Any]])
         XCTAssertEqual(subscriptions.first?["enabled"] as? Bool, false)
         XCTAssertEqual(subscriptions.first?["notification_types"] as? Int, -22)
+    }
+}
+
+private extension OneSignalUserTests {
+    /// Whether the batch split or carried something else, and the flag that changes what `startNewSession` counts.
+    func describePropertyUpdates(_ client: MockOneSignalClient) -> String {
+        let updates = client.executedRequests
+            .filter { $0 is OSRequestUpdateProperties }
+            .map { "\($0.path): \($0.parameters ?? [:])" }
+        let sessionsApi = OSFeatureManager.shared.isEnabled(featureKey: "sdk_sessions_v2_api_cutover")
+        return "sessions API flag: \(sessionsApi), property updates: \(updates)"
     }
 }
 
