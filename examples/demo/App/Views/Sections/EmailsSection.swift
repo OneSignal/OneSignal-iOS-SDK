@@ -48,7 +48,7 @@ struct EmailsSection: View {
                 addOpen = true
             }
         }
-        .osCenteredDialog(isPresented: $addOpen) {
+        .osDialog(isPresented: $addOpen) {
             AddItemDialog(
                 itemType: .email,
                 onAdd: { _, value in

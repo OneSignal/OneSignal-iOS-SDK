@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Centered dialog that adds multiple key/value pairs at once
+/// Dialog that adds multiple key/value pairs at once
 /// (Add Multiple Aliases / Tags / Triggers).
 struct MultiPairInputDialog: View {
     let type: MultiAddItemType

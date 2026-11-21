@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Centered dialog that captures an event name plus an optional
+/// Dialog that captures an event name plus an optional
 /// JSON properties payload.
 struct TrackEventDialog: View {
     let onTrack: (String, [String: Any]?) -> Void
@@ -61,7 +61,7 @@ struct TrackEventDialog: View {
                 OSTextEditor(
                     placeholder: "{ \"key\": \"value\" }",
                     text: $propertiesText,
-                    minHeight: 120,
+                    height: 120,
                     accessibilityID: "event_properties_input"
                 )
 

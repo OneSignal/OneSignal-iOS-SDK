@@ -41,6 +41,31 @@ private class MockUserStateObserver: NSObject, OSUserStateObserver {
     }
 }
 
+/// Forwards to the store's own listener, which the producer's single subscriber slot would otherwise drop.
+private class IdentityModelAddRecorder: OSModelStoreChangedHandler {
+    private let forwardee: OSModelStoreChangedHandler?
+    var tokensWhenAdded: [String?] = []
+
+    init(forwardingTo forwardee: OSModelStoreChangedHandler?) {
+        self.forwardee = forwardee
+    }
+
+    func onAdded(_ model: OSModel) {
+        if let identityModel = model as? OSIdentityModel, identityModel.externalId == userA_EUID {
+            tokensWhenAdded.append(identityModel.jwtBearerToken)
+        }
+        forwardee?.onAdded(model)
+    }
+
+    func onUpdated(_ args: OSModelChangedArgs) {
+        forwardee?.onUpdated(args)
+    }
+
+    func onRemoved(_ model: OSModel) {
+        forwardee?.onRemoved(model)
+    }
+}
+
 /**
  What `login` and `logout` do differently under Identity Verification: no anonymous user is ever sent to
  the server, so login creates rather than promotes and logout has to silence the push subscription itself.
@@ -269,26 +294,32 @@ final class UserJwtLifecycleTests: XCTestCase {
     func testLoggingInWithATokenAnswersAPendingAskForThatUser() {
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         let jwtRepo = OneSignalUserManagerImpl.sharedInstance.userJwtRepo
+        // A user no other test logs in as: an earlier test's executors can still be persisting user A's
+        // Requests after teardown, and the next `start` uncaches them along with user A's token.
+        let externalId = "pending-ask-user"
+        MockUserRequests.setDefaultCreateUserResponses(with: client, externalId: externalId)
 
-        // The Create User parks for want of a token, which asks the app once. Asking is what the
-        // assertion reads, so it cannot be polled: the first poll would consume the pending ask.
-        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
-        allowAsyncWorkToRun()
-        XCTAssertFalse(jwtRepo.askForToken(externalId: userA_EUID))
+        // The Create User parks for want of a token, which asks the app once. `pendingTokenAsks` reads
+        // the ask without consuming it, unlike `askForToken`.
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: externalId, token: nil)
+        let asked = OneSignalCoreMocks.waitUntilForObjC(timeout: 5) {
+            jwtRepo.pendingTokenAsks().contains(externalId)
+        }
+        XCTAssertTrue(asked, "The parked Create User did not ask for a token. \(describeTokenState())")
 
         // Log back in as the same user, which builds a new Identity Model rather than reusing the parked one.
         OneSignalUserManagerImpl.sharedInstance.logout()
-        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: externalId, token: "token-a")
         // Rejecting the token reads the Identity Model the login hydrates, so let the login finish
         // rather than stopping at the point the token is merely stored.
         waitForTheLoginToSettle()
         OneSignalCoreMocks.waitUntil("The replacement token was not stored") {
-            jwtRepo.validJwt(externalId: userA_EUID) == "token-a"
+            jwtRepo.validJwt(externalId: externalId) == "token-a"
         }
 
-        XCTAssertEqual(jwtRepo.validJwt(externalId: userA_EUID), "token-a")
+        XCTAssertEqual(jwtRepo.validJwt(externalId: externalId), "token-a")
         // `true` means this rejection reached the app, which only happens once the earlier ask was answered.
-        XCTAssertTrue(jwtRepo.invalidateJwt(externalId: userA_EUID, rejectedToken: "token-a"))
+        XCTAssertTrue(jwtRepo.invalidateJwt(externalId: externalId, rejectedToken: "token-a"))
     }
 
     // MARK: - a rejected token on the first Create User
@@ -535,5 +566,39 @@ final class UserJwtLifecycleTests: XCTestCase {
         waitForThePushSubscriptionToReportAgain()
 
         XCTAssertEqual(pushSubscriptionPayload()["notification_types"] as? Int, optedInNotificationTypes)
+    }
+}
+
+extension UserJwtLifecycleTests {
+    /// Another queue, like the in-app message fetch, can read the current user at any point during `login`,
+    /// so the user has to carry its token from the moment it is published or that reader asks the app for one.
+    /// The Identity Model enters the store just before the user is published, and the token `login` stores
+    /// afterwards would land too late to show up here.
+    func testLoginPublishesTheNewUserWithTheTokenItLoggedInWith() {
+        OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
+        // `start` subscribes the store's own listener, which would replace the recorder.
+        OneSignalUserManagerImpl.sharedInstance.start()
+        let changeSubscription = OneSignalUserManagerImpl.sharedInstance.identityModelStore.changeSubscription
+        let storeListener = changeSubscription.subscriber
+        let recorder = IdentityModelAddRecorder(forwardingTo: storeListener)
+        changeSubscription.subscriber = recorder
+        defer { changeSubscription.subscriber = storeListener }
+
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: "token-a")
+
+        XCTAssertEqual(recorder.tokensWhenAdded, ["token-a"])
+    }
+}
+
+private extension UserJwtLifecycleTests {
+    func describeTokenState() -> String {
+        let manager = OneSignalUserManagerImpl.sharedInstance
+        let model = manager._user?.identityModel
+        let queued = queuedUserRequests().map { "\($0) sent: \($0.sentToClient)" }
+        let sent = client.executedRequests.map { "\($0) auth: \($0.additionalHeaders?["Authorization"] ?? "nil")" }
+        return "requirement: \(manager.identityVerificationService.requirement), "
+            + "user: \(model?.externalId ?? "nil") \(model?.modelId ?? "nil") token: \(model?.jwtBearerToken ?? "nil"), "
+            + "pending asks: \(manager.userJwtRepo.pendingTokenAsks()), repo paused: \(manager.operationRepo.paused), "
+            + "queued: \(queued), sent: \(sent)"
     }
 }

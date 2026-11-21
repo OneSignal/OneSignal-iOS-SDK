@@ -152,6 +152,18 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
 
     // MARK: - Assertion helpers
 
+    /**
+     The asks delivered to the listener since `startingAt`, once any already queued for the main queue
+     have arrived. Work an earlier test left running can still ask for the same user's token, so a test
+     counts only what its own step reported.
+     */
+    private func asksDelivered(startingAt baseline: Int = 0) -> [String] {
+        let delivered = expectation(description: "Queued asks were delivered")
+        DispatchQueue.main.async { delivered.fulfill() }
+        wait(for: [delivered], timeout: 15)
+        return Array(jwtListener.invalidatedExternalIds.dropFirst(baseline))
+    }
+
     private func executedFetches() -> [OneSignalRequest] {
         return client.executedRequests.filter { $0 is OSRequestGetInAppMessages }
     }
@@ -170,6 +182,14 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
 
     private func lastFetchAuthorization() -> String? {
         return executedFetches().last?.additionalHeaders?["Authorization"]
+    }
+
+    /// The current user and what was sent, for a failure that only reproduces in CI.
+    private func describeCurrentUser() -> String {
+        let model = OneSignalUserManagerImpl.sharedInstance._user?.identityModel
+        let sent = client.executedRequests.map { "\($0) auth: \($0.additionalHeaders?["Authorization"] ?? "nil")" }
+        return "user: \(model?.externalId ?? "nil") \(model?.modelId ?? "nil") token: \(model?.jwtBearerToken ?? "nil"), "
+            + "pending asks: \(OneSignalUserManagerImpl.sharedInstance.userJwtRepo.pendingTokenAsks()), sent: \(sent)"
     }
 
     private func deferredSubscriptionId() -> String? {
@@ -257,15 +277,18 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
     /// The fetch is not a source of truth for whether a token is good, because the server can refuse it
     /// over a user and subscription it does not have paired. It parks, and the next token releases it.
     func testARejectedFetchParksWithoutReportingTheTokenItUsed() {
+        var whenAsked: [String] = []
+        jwtListener.setCallback { whenAsked.append(self.describeCurrentUser()) }
         OSCoreMocks.hydrateSharedJwtConfig(requiresUserAuth: true)
         login(token: "token-a")
         rejectFetch(from: identifiedUserPath)
         let fetchesBefore = executedFetches().count
+        let asksBefore = asksDelivered().count
 
         fetch()
 
         XCTAssertEqual(executedFetches().count, fetchesBefore + 1)
-        XCTAssertEqual(jwtListener.invalidatedExternalIds, [])
+        XCTAssertEqual(asksDelivered(startingAt: asksBefore), [], "when asked: \(whenAsked), now: \(describeCurrentUser())")
         XCTAssertEqual(deferredSubscriptionId(), testPushSubId)
 
         // A token the app supplies for its own reasons, since the fetch never asked for one.
@@ -287,6 +310,7 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         rejectFetch(from: identifiedUserPath)
         let startedBefore = startedFetches().count
         let executedBefore = executedFetches().count
+        let asksBefore = asksDelivered().count
 
         client.holdResponses = true
         OneSignalInAppMessages.getFromServer(testPushSubId)
@@ -308,7 +332,7 @@ final class IamFetchIdentityVerificationTests: XCTestCase {
         XCTAssertEqual(executedFetches().count, executedBefore + 2)
         XCTAssertEqual(lastFetchAuthorization(), "Bearer token-b")
         XCTAssertNil(deferredSubscriptionId())
-        XCTAssertEqual(jwtListener.invalidatedExternalIds, [])
+        XCTAssertEqual(asksDelivered(startingAt: asksBefore), [])
     }
 
     /// The token the fetch was signed with stays usable, so everything else keeps going out signed.

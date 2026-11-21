@@ -42,7 +42,7 @@ struct OutcomesSection: View {
                 open = true
             }
         }
-        .osCenteredDialog(isPresented: $open) {
+        .osDialog(isPresented: $open) {
             OutcomeDialog(
                 onSend: { name, mode, value in
                     switch mode {

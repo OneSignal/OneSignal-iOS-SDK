@@ -1,6 +1,6 @@
 name: App
 options:
-  bundleIdPrefix: com.onesignal.example
+  bundleIdPrefix: com.onesignal.sdkdemo
   deploymentTarget:
     iOS: "16.0"
   developmentLanguage: en
@@ -55,7 +55,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -64,12 +64,13 @@ targets:
         SWIFT_OBJC_BRIDGING_HEADER: App/App-Bridging-Header.h
       configs:
         Debug:
-          DEVELOPMENT_TEAM: 99SW8E36CT
+          APS_ENVIRONMENT: development
         Release:
-          CODE_SIGN_IDENTITY: "iPhone Developer"
+          APS_ENVIRONMENT: production
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
           DEVELOPMENT_TEAM: ""
-          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": DL8TF3X4K3
           PROVISIONING_PROFILE_SPECIFIER: ""
           "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - Main"
     dependencies:
@@ -130,20 +131,18 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.NSE
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo.NSE
         INFOPLIST_FILE: OneSignalNotificationServiceExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
         SKIP_INSTALL: YES
       configs:
-        Debug:
-          DEVELOPMENT_TEAM: 99SW8E36CT
         Release:
-          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer"
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
           DEVELOPMENT_TEAM: ""
-          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": DL8TF3X4K3
           PROVISIONING_PROFILE_SPECIFIER: ""
           "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - NSE"
     dependencies:
@@ -172,7 +171,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.example.LA
+        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo.LA
         INFOPLIST_FILE: OneSignalWidget/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
@@ -180,13 +179,11 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME: WidgetBackground
       configs:
-        Debug:
-          DEVELOPMENT_TEAM: 99SW8E36CT
         Release:
-          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer"
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Distribution"
           CODE_SIGN_STYLE: Manual
           DEVELOPMENT_TEAM: ""
-          "DEVELOPMENT_TEAM[sdk=iphoneos*]": 99SW8E36CT
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": DL8TF3X4K3
           PROVISIONING_PROFILE_SPECIFIER: ""
           "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": "Appium Demo - Live Activity"
     dependencies:

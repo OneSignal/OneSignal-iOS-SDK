@@ -37,8 +37,6 @@ extension OneSignalUserManagerImpl {
         }
         start()
 
-        userExecutor!.executePendingRequestsOnNewSession()
-        operationRepo.paused = false
         let start = OSSessionService.shared.startNewSession(userProvider: self) { start in
             if let ended = start.ended {
                 self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
@@ -49,7 +47,11 @@ extension OneSignalUserManagerImpl {
         }
         // Sent even when it counts nothing: the update refreshes device metadata, and its RYW token
         // gates the IAM fetch. The backend counts a sessions API session from its session events.
-        updatePropertiesDeltas(property: .session_count, value: start.started.usesSessionsApi ? 0 : 1, flush: true)
+        updatePropertiesDeltas(property: .session_count, value: start.started.usesSessionsApi ? 0 : 1)
+        // Unpaused only after this session's deltas are queued, so a poll cannot send the queue without them.
+        userExecutor!.executePendingRequestsOnNewSession()
+        operationRepo.paused = false
+        operationRepo.addFlushDeltaQueueToDispatchQueue()
 
         // Fetch the user's data if there is a onesignal_id
         if let onesignalId = onesignalId {

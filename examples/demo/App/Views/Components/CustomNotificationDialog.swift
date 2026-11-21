@@ -27,7 +27,7 @@
 
 import SwiftUI
 
-/// Centered dialog for composing a custom push notification (title + body).
+/// Dialog for composing a custom push notification (title + body).
 struct CustomNotificationDialog: View {
     let onSend: (String, String) -> Void
     let onCancel: () -> Void

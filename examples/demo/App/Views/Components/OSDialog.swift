@@ -157,7 +157,7 @@ struct OSTextField: View {
 struct OSTextEditor: View {
     let placeholder: String
     @Binding var text: String
-    var minHeight: CGFloat = 90
+    var height: CGFloat = 90
     var accessibilityID: String
 
     @FocusState private var focused: Bool
@@ -180,7 +180,7 @@ struct OSTextEditor: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
                 .focused($focused)
-                .frame(minHeight: minHeight)
+                .frame(height: height)
                 .accessibilityIdentifier(accessibilityID)
         }
         .background(
@@ -193,12 +193,12 @@ struct OSTextEditor: View {
     }
 }
 
-// MARK: - Centered dialog presentation
+// MARK: - Dialog presentation
 
 extension View {
-    /// Presents `content` as a centered modal dialog over the entire screen,
-    /// matching the styles.md "Dialogs" spec: 54% black backdrop, 16pt
-    /// horizontal / 24pt vertical insets, 28pt corner radius, white card.
+    /// Presents `content` as a modal dialog near the top of the screen,
+    /// with a 54% black backdrop, 16pt horizontal / 24pt vertical insets,
+    /// 28pt corner radius and a white card.
     /// Tapping the backdrop dismisses.
     ///
     /// Uses `.fullScreenCover` rather than `.overlay` so the backdrop and
@@ -208,15 +208,15 @@ extension View {
     /// clear via `ClearBackgroundView` so the dialog's own backdrop is what
     /// the user sees (iOS 16.4+ has `presentationBackground(.clear)`; this
     /// works on the demo's 16.0 deployment target).
-    func osCenteredDialog<DialogContent: View>(
+    func osDialog<DialogContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> DialogContent
     ) -> some View {
-        modifier(OSCenteredDialogModifier(isPresented: isPresented, dialog: content))
+        modifier(OSDialogModifier(isPresented: isPresented, dialog: content))
     }
 }
 
-private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
+private struct OSDialogModifier<DialogContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     @ViewBuilder var dialog: () -> DialogContent
 
@@ -228,10 +228,16 @@ private struct OSCenteredDialogModifier<DialogContent: View>: ViewModifier {
                     .contentShape(Rectangle())
                     .onTapGesture { isPresented = false }
 
-                dialog()
-                    .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 24)
+                // Top-anchored and keyboard-insensitive: a dialog that moves while
+                // open desyncs XCUITest frame reporting from the rendered layout.
+                VStack(spacing: 0) {
+                    dialog()
+                        .clipShape(RoundedRectangle(cornerRadius: OS.Radius.modal))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 24)
+                    Spacer(minLength: 0)
+                }
+                .ignoresSafeArea(.keyboard)
             }
             .background(ClearBackgroundView())
         }
