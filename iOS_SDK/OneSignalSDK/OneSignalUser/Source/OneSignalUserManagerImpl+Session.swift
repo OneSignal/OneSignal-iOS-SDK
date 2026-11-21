@@ -39,9 +39,12 @@ extension OneSignalUserManagerImpl {
 
         let start = OSSessionService.shared.startNewSession(userProvider: self) { start in
             if let ended = start.ended {
+                if start.endedCreateHeld {
+                    self.enqueueSessionCreate(ended, directAttributionId: ended.directAttributionId)
+                }
                 self.enqueueSessionUpdate(ended, endTime: Date(timeIntervalSince1970: ended.endTime))
             }
-            if start.started.awaitingFocus != true {
+            if start.started.createHeld != true {
                 self.enqueueSessionCreate(start.started, directAttributionId: start.directAttributionId)
             }
         }
@@ -70,8 +73,13 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         return OSSessionUser(
             identityModelId: user?.identityModel.modelId,
             onesignalId: user?.identityModel.onesignalId,
-            pushSubscriptionId: user?.pushSubscriptionModel.subscriptionId
+            pushSubscriptionId: user?.pushSubscriptionModel.subscriptionId,
+            externalId: user?.identityModel.externalId
         )
+    }
+
+    public var sessionRequiresIdentityVerification: Bool {
+        identityVerificationService.ivBehaviorActive
     }
 
     public func sessionOnesignalId(identityModelId: String) -> String? {
@@ -86,8 +94,8 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         enqueueSessionUpdate(record)
     }
 
-    public func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
-        enqueueSessionCreate(record, directAttributionId: directAttributionId)
+    public func sessionCreate(_ record: OSSessionRecord) {
+        enqueueSessionCreate(record, directAttributionId: record.directAttributionId)
     }
 
     /// Queues the session's create. Does nothing unless the session uses the sessions API.

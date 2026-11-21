@@ -165,6 +165,11 @@ extension SessionRecordUserTests {
         OSFeatureFlagsStore.shared.applyRemoteFlags(["sdk_sessions_v2_api_cutover"], metadata: nil)
     }
 
+    /// An anonymous user's session holds its create, so tests of when a create is queued log in first.
+    private func loginUserA() {
+        OneSignalUserManagerImpl.sharedInstance.login(externalId: userA_EUID, token: nil)
+    }
+
     /// The tracker reports the focus before the session starts, as on a launch into the foreground.
     private func startForegroundSession() {
         OSSessionService.onFocus()
@@ -181,6 +186,7 @@ extension SessionRecordUserTests {
     func testNewSessionQueuesACreateWithItsStartTime() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         startForegroundSession()
 
@@ -195,6 +201,7 @@ extension SessionRecordUserTests {
     func testOpenBeforeTheSessionStartsIsOnItsCreate() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         OSSessionService.onNotificationOpened("notification-id")
         startForegroundSession()
@@ -206,6 +213,7 @@ extension SessionRecordUserTests {
     func testSessionStartedInTheBackgroundQueuesItsCreateOnItsFirstFocus() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
         XCTAssertTrue(queuedSessionCreates().isEmpty)
@@ -223,6 +231,7 @@ extension SessionRecordUserTests {
     func testBackgroundSessionThatNeverFocusesQueuesNoCreateOrEnd() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         OneSignalUserManagerImpl.sharedInstance.startNewSession()
         OSSessionService.reset()
@@ -238,6 +247,7 @@ extension SessionRecordUserTests {
     func testNormalStartHasNoAttribution() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         startForegroundSession()
 
@@ -248,6 +258,7 @@ extension SessionRecordUserTests {
     func testEachNewSessionQueuesItsOwnCreate() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
 
         startForegroundSession()
         let first = OSSessionService.shared.currentRecord?.sessionId
@@ -267,6 +278,7 @@ extension SessionRecordUserTests {
     func testNewSessionQueuesThePreviousSessionsEndBeforeItsCreate() {
         enableSessionsApi()
         client.holdResponses = true
+        loginUserA()
         let manager = OneSignalUserManagerImpl.sharedInstance
 
         manager.startNewSession()
@@ -292,6 +304,7 @@ extension SessionRecordUserTests {
 
     func testLegacySessionQueuesNoEnd() {
         client.holdResponses = true
+        loginUserA()
         let manager = OneSignalUserManagerImpl.sharedInstance
 
         manager.startNewSession()
@@ -373,6 +386,42 @@ extension SessionRecordUserTests {
         let values = updates.compactMap { $0.value as? [String: Any] }
         XCTAssertEqual(values.map { $0[OSSessionDeltaKey.activeDuration] as? TimeInterval }, [42])
         XCTAssertNil(values.first?[OSSessionDeltaKey.endTime])
+    }
+
+    func testAnonymousSessionQueuesItsHeldCreateOnTheFirstBackground() {
+        enableSessionsApi()
+        client.holdResponses = true
+
+        OSSessionService.onNotificationOpened("notification-id")
+        startForegroundSession()
+        XCTAssertTrue(queuedSessionCreates().isEmpty)
+        OSSessionService.onUnfocus()
+        XCTAssertTrue(OSSessionService.onEnteredBackground())
+
+        let sessionId = OSSessionService.shared.currentRecord?.sessionId
+        let creates = queuedSessionCreates()
+        XCTAssertEqual(creates.map(\.localSessionId), [sessionId].compactMap { $0 })
+        XCTAssertNil(creates.first?.ownerExternalId)
+        XCTAssertEqual(creates.first?.directAttributionId, "notification-id")
+        client.releaseHeldResponses()
+    }
+
+    /// The last process was killed while the create was held.
+    func testHeldCreateIsQueuedBeforeTheEndOnTheNextLaunch() {
+        enableSessionsApi()
+        client.holdResponses = true
+        startForegroundSession()
+        let first = OSSessionService.shared.currentRecord?.sessionId
+        OSSessionService.reset()
+
+        startForegroundSession()
+
+        _ = queuedSessionCreates()
+        let queued = OneSignalUserManagerImpl.sharedInstance.sessionExecutor?.queuedRequests ?? []
+        XCTAssertTrue(queued.first is OSRequestCreateSession)
+        XCTAssertEqual(queued.prefix(2).map(\.localSessionId), [first, first].compactMap { $0 })
+        XCTAssertEqual(queuedSessionUpdates().first?.isEnd, true)
+        client.releaseHeldResponses()
     }
 
     func testNewSessionQueuesNoCreateWhenTheFlagIsOff() {

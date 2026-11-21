@@ -35,14 +35,15 @@ import OneSignalOutcomes
 
 private final class FakeUserProvider: OSSessionUserProvider {
     var sessionCurrentUser: OSSessionUser {
-        OSSessionUser(identityModelId: nil, onesignalId: nil, pushSubscriptionId: nil)
+        OSSessionUser(identityModelId: nil, onesignalId: nil, pushSubscriptionId: nil, externalId: "external-a")
     }
 
     func sessionOnesignalId(identityModelId: String) -> String? { nil }
     func sessionHeartbeat(_ record: OSSessionRecord) {}
     private(set) var checkpoints: [OSSessionRecord] = []
     func sessionCheckpoint(_ record: OSSessionRecord) { checkpoints.append(record) }
-    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
+    var sessionRequiresIdentityVerification: Bool { false }
+    func sessionCreate(_ record: OSSessionRecord) {}
 }
 
 private final class RecordingTaskHandler: OSBackgroundTaskHandler {
