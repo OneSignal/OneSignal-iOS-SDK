@@ -58,6 +58,11 @@ private final class HeartbeatRecorder: OSSessionUserProvider {
     func sessionCreate(_ record: OSSessionRecord) {
         releasedCreates.append(record)
     }
+
+    private(set) var ends: [OSSessionRecord] = []
+    func sessionEnd(_ record: OSSessionRecord) {
+        ends.append(record)
+    }
 }
 
 final class OSSessionHeartbeatTests: XCTestCase {

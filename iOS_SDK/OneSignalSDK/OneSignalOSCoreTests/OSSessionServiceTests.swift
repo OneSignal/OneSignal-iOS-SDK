@@ -57,6 +57,11 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionCreate(_ record: OSSessionRecord) {
         releasedCreates.append((record.sessionId, record.directAttributionId))
     }
+
+    private(set) var ends: [OSSessionRecord] = []
+    func sessionEnd(_ record: OSSessionRecord) {
+        ends.append(record)
+    }
 }
 
 final class OSSessionServiceTests: XCTestCase {

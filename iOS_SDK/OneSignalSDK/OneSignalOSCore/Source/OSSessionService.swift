@@ -62,6 +62,8 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Called to queue a session's create, with the record's `directAttributionId`, before any of its
     /// updates.
     func sessionCreate(_ record: OSSessionRecord)
+    /// Called to end a session at a user switch, with its `reportedDuration` and `endTime`.
+    func sessionEnd(_ record: OSSessionRecord)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -103,6 +105,9 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var createHeld: Bool?
     /// The open that started the session, kept for a held create.
     public internal(set) var directAttributionId: String?
+    /// Set once a user switch in the background has ended the session. The app session goes on, and
+    /// the next session starts on the next focus.
+    public internal(set) var splitPending: Bool?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
     /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
@@ -112,7 +117,8 @@ public struct OSSessionRecord: Codable, Equatable {
 
     /// The backend takes whole seconds, so a checkpoint is due only once that value grows.
     var checkpointDue: Bool {
-        usesSessionsApi && awaitingFocus != true && createHeld != true && activeDuration.rounded(.down) > (lastHeartbeatDuration ?? 0).rounded(.down)
+        usesSessionsApi && awaitingFocus != true && createHeld != true && splitPending != true
+            && activeDuration.rounded(.down) > (lastHeartbeatDuration ?? 0).rounded(.down)
     }
 
     /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
@@ -289,17 +295,11 @@ public final class OSSessionService: NSObject {
         let previousIds = pinnableIds()
         let identityVerificationRequired = userProvider.sessionRequiresIdentityVerification
         let now = monotonicNow()
-        let user = userProvider.sessionCurrentUser
-        var newRecord = OSSessionRecord(
-            sessionId: UUID().uuidString,
+        var newRecord = Self.makeRecord(
+            for: userProvider.sessionCurrentUser,
             startTime: wallNow(),
-            activeDuration: 0,
-            usesSessionsApi: featureManager().isEnabled(featureKey: FeatureFlag.sdkSessionsV2ApiCutover.key),
-            identityModelId: user.identityModelId,
-            onesignalId: user.onesignalId,
-            subscriptionId: user.pushSubscriptionId
+            usesSessionsApi: featureManager().isEnabled(featureKey: FeatureFlag.sdkSessionsV2ApiCutover.key)
         )
-        newRecord.externalId = user.externalId
         let start: OSSessionStart = stateLock.withLock {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
@@ -313,11 +313,7 @@ public final class OSSessionService: NSObject {
             } else {
                 directAttributionId = takePendingAttribution(at: now)
             }
-            if newRecord.usesSessionsApi, newRecord.awaitingFocus == true || newRecord.externalId == nil {
-                newRecord.createHeld = true
-                newRecord.directAttributionId = directAttributionId
-                directAttributionId = nil
-            }
+            directAttributionId = Self.holdCreateIfNeeded(&newRecord, directAttributionId: directAttributionId)
             self.userProvider = userProvider
             record = newRecord
             recordStartedInThisProcess = true
@@ -336,6 +332,7 @@ public final class OSSessionService: NSObject {
     func onFocus() {
         let now = monotonicNow()
         let wallNow = wallNow()
+        let splitUser = userAfterPendingSplit()
         let (continuesRecord, release): (Bool, SessionCreate?) = stateLock.withLock {
             focusedAt = now
             loadIfNeeded()
@@ -344,6 +341,9 @@ public final class OSSessionService: NSObject {
                 return (false, nil)
             }
             let directAttributionId = takePendingAttribution(at: now)
+            if current.splitPending == true, let splitUser {
+                return (true, startNextSession(for: splitUser, at: wallNow, directAttributionId: directAttributionId))
+            }
             // Saved now, since a kill leaves no unfocus to record when the session was last active.
             current.lastFocusTime = wallNow
             let wasAwaitingFocus = current.awaitingFocus == true
@@ -522,6 +522,9 @@ extension OSSessionService {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService discarding session \(record.sessionId), it never focused")
             return nil
         }
+        if record.splitPending == true {
+            return nil
+        }
         if record.createHeld == true, !canSendCreate(of: record, identityVerificationRequired: identityVerificationRequired) {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService session \(record.sessionId) ended with its create held, not reporting it")
             return nil
@@ -541,6 +544,122 @@ extension OSSessionService {
         current.directAttributionId = nil
         record = current
         return SessionCreate(record: held, provider: userProvider)
+    }
+}
+
+// MARK: - Split
+
+extension OSSessionService {
+    static func makeRecord(for user: OSSessionUser, startTime: TimeInterval, usesSessionsApi: Bool) -> OSSessionRecord {
+        var record = OSSessionRecord(
+            sessionId: UUID().uuidString,
+            startTime: startTime,
+            activeDuration: 0,
+            usesSessionsApi: usesSessionsApi,
+            identityModelId: user.identityModelId,
+            onesignalId: user.onesignalId,
+            subscriptionId: user.pushSubscriptionId
+        )
+        record.externalId = user.externalId
+        return record
+    }
+
+    /// Holds the create of a session that has not focused or whose user is anonymous, with its
+    /// attribution. Returns the attribution for a create queued now.
+    static func holdCreateIfNeeded(_ record: inout OSSessionRecord, directAttributionId: String?) -> String? {
+        guard record.usesSessionsApi, record.awaitingFocus == true || record.externalId == nil else {
+            return directAttributionId
+        }
+        record.createHeld = true
+        record.directAttributionId = directAttributionId
+        return nil
+    }
+
+    private struct Split {
+        let heldCreate: SessionCreate?
+        let ended: OSSessionRecord?
+        let next: SessionCreate?
+        let provider: OSSessionUserProvider
+    }
+
+    /// Ends the current sessions API session at a user switch and starts the next one for the new
+    /// user. The app session goes on, so no legacy session start or end is sent. In the background,
+    /// the next session starts on the next focus.
+    func splitSession() {
+        let ids = pinnableIds()
+        let identityVerificationRequired = identityVerificationRequired()
+        guard let provider = stateLock.withLock({ userProvider }) else {
+            return
+        }
+        let user = provider.sessionCurrentUser
+        let now = monotonicNow()
+        let wallNow = wallNow()
+        let split: Split? = stateLock.withLock {
+            loadIfNeeded()
+            fillPinnedIds(ids)
+            guard var current = record, current.usesSessionsApi, current.splitPending != true else {
+                return nil
+            }
+            if let start = focusedAt {
+                current.activeDuration += max(0, now - start)
+                current.lastUnfocusTime = wallNow
+                current.lastHeartbeatTime = nil
+                record = current
+            }
+            let ended = endedRecordToReport(identityVerificationRequired: identityVerificationRequired)
+            let heldCreate = ended == nil ? nil : takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService splitting session \(current.sessionId) at a user switch")
+            var next: SessionCreate?
+            if focusedAt != nil {
+                focusedAt = now
+                openFocusTime = wallNow
+                next = startNextSession(for: user, at: wallNow, directAttributionId: nil)
+            } else {
+                record?.splitPending = true
+            }
+            // The ended session's heartbeat stops here.
+            heartbeatGeneration += 1
+            persist()
+            return Split(heldCreate: heldCreate, ended: ended, next: next, provider: provider)
+        }
+        guard let split else {
+            return
+        }
+        split.heldCreate?.send()
+        if let ended = split.ended {
+            split.provider.sessionEnd(ended)
+        }
+        split.next?.send()
+        restartHeartbeat(continuesRecord: true)
+    }
+
+    /// Read outside `stateLock` because the provider takes the User module's locks.
+    private func userAfterPendingSplit() -> OSSessionUser? {
+        let provider: OSSessionUserProvider? = stateLock.withLock {
+            loadIfNeeded()
+            return record?.splitPending == true ? userProvider : nil
+        }
+        return provider?.sessionCurrentUser
+    }
+
+    /// Call with `stateLock` held. Replaces the record with the next session after a split, which
+    /// keeps the app session's `usesSessionsApi`. Returns its create unless held.
+    private func startNextSession(for user: OSSessionUser, at time: TimeInterval, directAttributionId: String?) -> SessionCreate? {
+        guard let current = record, let userProvider else {
+            return nil
+        }
+        var next = Self.makeRecord(for: user, startTime: time, usesSessionsApi: current.usesSessionsApi)
+        next.lastFocusTime = time
+        let attribution = Self.holdCreateIfNeeded(&next, directAttributionId: directAttributionId)
+        record = next
+        recordStartedInThisProcess = true
+        persist()
+        guard next.createHeld != true else {
+            return nil
+        }
+        var create = next
+        create.directAttributionId = attribution
+        return SessionCreate(record: create, provider: userProvider)
     }
 }
 
