@@ -428,3 +428,38 @@ extension OSSessionSplitTests {
         XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
     }
 }
+
+// MARK: - Concurrent switches
+
+extension OSSessionSplitTests {
+    func testSwitchThatReadsTheSameUserAgainDoesNotSplitTwice() throws {
+        let first = startForegroundSession()
+        advance(by: 60)
+        switchToUserB()
+        service.onUserSwitched()
+        let next = try XCTUnwrap(service.currentRecord)
+
+        service.onUserSwitched()
+
+        XCTAssertEqual(service.currentRecord?.sessionId, next.sessionId)
+        XCTAssertEqual(user.events, [
+            .end(sessionId: first.sessionId, duration: 60, endTime: wallNow),
+            .create(sessionId: next.sessionId, directAttributionId: nil)
+        ])
+    }
+
+    func testSwitchThatReadsTheSameUserAgainKeepsAnAnonymousSessionItFollows() {
+        user.externalId = nil
+        let first = startForegroundSession()
+        background()
+        service.onFocus()
+        switchToUserB()
+        service.onUserSwitched()
+        let events = user.events
+
+        service.onUserSwitched()
+
+        XCTAssertEqual(service.currentRecord?.sessionId, first.sessionId)
+        XCTAssertEqual(user.events, events)
+    }
+}

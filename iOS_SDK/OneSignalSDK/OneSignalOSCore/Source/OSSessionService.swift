@@ -191,6 +191,9 @@ public final class OSSessionService: NSObject {
     /// Bumped at every user switch, before it reads the new user, so a focus that read the user
     /// outside the lock can tell that a switch landed in between.
     private var userSwitchGeneration = 0
+    /// The user the last switch read. Each login gets a new identity model, so a switch reading the
+    /// same one again is a concurrent switch that read the user after the later replace.
+    private var lastSwitchIdentityModelId: String?
     /// The generation a running heartbeat was armed with. Stale once the generation moves on.
     private var armedHeartbeatGeneration: Int?
     /// A notification opened from the background, for the session its focus starts or first brings to
@@ -587,6 +590,7 @@ extension OSSessionService {
         let now = monotonicNow()
         let wallNow = wallNow()
         let change: UserSwitch? = stateLock.withLock {
+            if isRepeatedSwitch(to: user) { return nil }
             loadIfNeeded()
             fillPinnedIds(ids)
             guard var current = record, current.usesSessionsApi, current.splitPending != true, isCurrentSession else {
@@ -621,6 +625,15 @@ extension OSSessionService {
         if change.split {
             restartHeartbeat(continuesRecord: true)
         }
+    }
+
+    /// Call with `stateLock` held. Records the user a switch read, and reports a user already read.
+    private func isRepeatedSwitch(to user: OSSessionUser) -> Bool {
+        guard let identityModelId = user.identityModelId else {
+            return false
+        }
+        defer { lastSwitchIdentityModelId = identityModelId }
+        return identityModelId == lastSwitchIdentityModelId
     }
 
     /// Call with `stateLock` held. False while the record is about to be replaced: it is from an
