@@ -35,11 +35,14 @@ public struct OSSessionUser {
     public let identityModelId: String?
     public let onesignalId: String?
     public let pushSubscriptionId: String?
+    /// Nil while the user is anonymous.
+    public let externalId: String?
 
-    public init(identityModelId: String?, onesignalId: String?, pushSubscriptionId: String?) {
+    public init(identityModelId: String?, onesignalId: String?, pushSubscriptionId: String?, externalId: String?) {
         self.identityModelId = identityModelId
         self.onesignalId = onesignalId
         self.pushSubscriptionId = pushSubscriptionId
+        self.externalId = externalId
     }
 }
 
@@ -48,14 +51,17 @@ public protocol OSSessionUserProvider: AnyObject {
     /// Taken from one read of the current user, so a concurrent login cannot mix two users.
     var sessionCurrentUser: OSSessionUser { get }
     func sessionOnesignalId(identityModelId: String) -> String?
+    /// Under Identity Verification an anonymous user is never created, so its session's create can
+    /// only be sent once a login gives it a user.
+    var sessionIdentityVerification: OSRequiresUserAuth { get }
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
     /// Called once the app is in the background with the record whose `reportedDuration` is due to
     /// be sent, without ending its session.
     func sessionCheckpoint(_ record: OSSessionRecord)
-    /// Called when a session that started in the background first comes to the foreground, to queue
-    /// its held create.
-    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?)
+    /// Called to queue a session's create, with the record's `directAttributionId`, before any of its
+    /// updates.
+    func sessionCreate(_ record: OSSessionRecord)
 }
 
 /// New fields must be Optional. A record stored by an earlier version lacks them, and synthesized
@@ -89,6 +95,14 @@ public struct OSSessionRecord: Codable, Equatable {
     /// an open delivered before that focus is on the create, and a session that never focuses sends
     /// neither a create nor an end. Persisted, so a kill before the focus does not send it later.
     public internal(set) var awaitingFocus: Bool?
+    /// The external ID of the session's user when it started, nil while anonymous.
+    public internal(set) var externalId: String?
+    /// Set while the session's create is not queued: until its first focus, and for an anonymous
+    /// user until the first background, a heartbeat, or the session's end, so a login before then
+    /// can move the session to that user.
+    public internal(set) var createHeld: Bool?
+    /// The open that started the session, kept for a held create.
+    public internal(set) var directAttributionId: String?
 
     /// Cumulative foreground time to report. A session killed in the foreground never added its last
     /// visit to `activeDuration`, so this never reports less than its last heartbeat did.
@@ -98,7 +112,7 @@ public struct OSSessionRecord: Codable, Equatable {
 
     /// The backend takes whole seconds, so a checkpoint is due only once that value grows.
     var checkpointDue: Bool {
-        usesSessionsApi && awaitingFocus != true && activeDuration.rounded(.down) > (lastHeartbeatDuration ?? 0).rounded(.down)
+        usesSessionsApi && awaitingFocus != true && createHeld != true && activeDuration.rounded(.down) > (lastHeartbeatDuration ?? 0).rounded(.down)
     }
 
     /// Seconds since 1970. A session killed in the foreground never unfocused, so it ends at its
@@ -109,12 +123,15 @@ public struct OSSessionRecord: Codable, Equatable {
 }
 
 public struct OSSessionStart {
+    /// Its create is queued now unless `createHeld` is set.
     public let started: OSSessionRecord
     /// The notification whose open started the session.
     public let directAttributionId: String?
-    /// The session the new one replaced, which has now ended. Nil when it never focused, since its
-    /// create was never queued.
+    /// The session the new one replaced, which has now ended. Nil when it is not reported: it never
+    /// focused, or its create could never be sent.
     public let ended: OSSessionRecord?
+    /// The ended session's create was held until now, so it is queued before the end.
+    public let endedCreateHeld: Bool
 }
 
 /// Owns the persisted record of the current session. Nothing reads the record while
@@ -122,6 +139,9 @@ public struct OSSessionStart {
 /// While in the foreground, a sessions API session reports its duration every heartbeat interval of
 /// foreground time, so the backend keeps it open and a crash loses little of it. The interval comes
 /// from the params' `sessions.heartbeat_interval_seconds`.
+/// An anonymous user's session holds its create until the first background, a heartbeat, or the
+/// session's end, so a login before then can move the session to that user. Under Identity
+/// Verification it stays held while its user is not created, since that user never will be.
 @objc(OSSessionService)
 public final class OSSessionService: NSObject {
     private static let lock = NSLock()
@@ -143,6 +163,7 @@ public final class OSSessionService: NSObject {
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
     private let schedule: (TimeInterval, @escaping () -> Void) -> Void
+    private let requiresPrivacyConsent: () -> Bool
     /// Read on every check, so a later params fetch applies once the current wait ends.
     private let heartbeatInterval: () -> TimeInterval
 
@@ -178,7 +199,8 @@ public final class OSSessionService: NSObject {
         },
         heartbeatInterval: @escaping () -> TimeInterval = {
             OSSessionService.heartbeatInterval(remoteParams: OSRemoteParamController.shared().remoteParams)
-        }
+        },
+        requiresPrivacyConsent: @escaping () -> Bool = { OSPrivacyConsentController.requiresUserPrivacyConsent() }
     ) {
         self.storage = storage
         self.featureManager = featureManager
@@ -186,6 +208,7 @@ public final class OSSessionService: NSObject {
         self.wallNow = wallNow
         self.schedule = schedule
         self.heartbeatInterval = heartbeatInterval
+        self.requiresPrivacyConsent = requiresPrivacyConsent
         super.init()
     }
 
@@ -267,6 +290,9 @@ public final class OSSessionService: NSObject {
         enqueue: (OSSessionStart) -> Void = { _ in }
     ) -> OSSessionStart {
         let previousIds = pinnableIds()
+        // An ended session's create goes out while the requirement is unknown: the operation repo
+        // holds it until the requirement is known, and there is no later chance to send it.
+        let identityVerificationRequired = userProvider.sessionIdentityVerification == .on
         let now = monotonicNow()
         let user = userProvider.sessionCurrentUser
         var newRecord = OSSessionRecord(
@@ -278,14 +304,12 @@ public final class OSSessionService: NSObject {
             onesignalId: user.onesignalId,
             subscriptionId: user.pushSubscriptionId
         )
-        let (ended, directAttributionId): (OSSessionRecord?, String?) = stateLock.withLock {
+        newRecord.externalId = user.externalId
+        let start: OSSessionStart = stateLock.withLock {
             loadIfNeeded()
             // Last chance to fill the replaced record's IDs while it is still the current one.
             fillPinnedIds(previousIds)
-            let ended = record?.awaitingFocus == true ? nil : record
-            if let record, ended == nil {
-                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService discarding session \(record.sessionId), it never focused")
-            }
+            let ended = endedRecordToReport(identityVerificationRequired: identityVerificationRequired)
             newRecord.lastFocusTime = openFocusTime
             var directAttributionId: String?
             if openFocusTime == nil {
@@ -294,15 +318,21 @@ public final class OSSessionService: NSObject {
             } else {
                 directAttributionId = takePendingAttribution(at: now)
             }
+            if newRecord.usesSessionsApi, newRecord.awaitingFocus == true || newRecord.externalId == nil {
+                newRecord.createHeld = true
+                newRecord.directAttributionId = directAttributionId
+                directAttributionId = nil
+            }
             self.userProvider = userProvider
             record = newRecord
             recordStartedInThisProcess = true
             // The replaced session's heartbeat stops here, before its record is gone.
             heartbeatGeneration += 1
             persist()
-            return (ended, directAttributionId)
+            return OSSessionStart(
+                started: newRecord, directAttributionId: directAttributionId, ended: ended, endedCreateHeld: ended?.createHeld == true
+            )
         }
-        let start = OSSessionStart(started: newRecord, directAttributionId: directAttributionId, ended: ended)
         enqueue(start)
         restartHeartbeat(continuesRecord: true)
         return start
@@ -311,7 +341,7 @@ public final class OSSessionService: NSObject {
     func onFocus() {
         let now = monotonicNow()
         let wallNow = wallNow()
-        let (continuesRecord, firstFocus): (Bool, FirstFocus?) = stateLock.withLock {
+        let (continuesRecord, release): (Bool, SessionCreate?) = stateLock.withLock {
             focusedAt = now
             loadIfNeeded()
             openFocusTime = wallNow
@@ -323,17 +353,16 @@ public final class OSSessionService: NSObject {
             current.lastFocusTime = wallNow
             let wasAwaitingFocus = current.awaitingFocus == true
             current.awaitingFocus = nil
-            record = current
-            persist()
-            guard wasAwaitingFocus, let record, let userProvider else {
-                return (true, nil)
+            if wasAwaitingFocus {
+                current.directAttributionId = directAttributionId
             }
-            return (true, FirstFocus(record: record, directAttributionId: directAttributionId, provider: userProvider))
+            record = current
+            // An anonymous session's create stays held past its first focus.
+            let release = wasAwaitingFocus && current.externalId != nil ? takeHeldCreate(identityVerificationRequired: false) : nil
+            persist()
+            return (true, release)
         }
-        if let firstFocus {
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService releasing the create of session \(firstFocus.record.sessionId)")
-            firstFocus.provider.sessionFirstFocused(firstFocus.record, directAttributionId: firstFocus.directAttributionId)
-        }
+        release?.send()
         // A focus that starts a new session leaves the heartbeat to that session's start. A held
         // create is queued above, before the heartbeat whose updates need it.
         restartHeartbeat(continuesRecord: continuesRecord)
@@ -451,12 +480,6 @@ extension OSSessionService {
         stateLock.withLock { pendingAttribution = (notificationId, now) }
     }
 
-    private struct FirstFocus {
-        let record: OSSessionRecord
-        let directAttributionId: String?
-        let provider: OSSessionUserProvider
-    }
-
     /// Clears the open in every case, so it never carries over to a later session.
     private func takePendingAttribution(at now: TimeInterval) -> String? {
         defer { pendingAttribution = nil }
@@ -464,6 +487,65 @@ extension OSSessionService {
             return nil
         }
         return pending.notificationId
+    }
+}
+
+// MARK: - Held create
+
+extension OSSessionService {
+    struct SessionCreate {
+        let record: OSSessionRecord
+        let provider: OSSessionUserProvider
+
+        func send() {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService queueing the create of session \(record.sessionId)")
+            provider.sessionCreate(record)
+        }
+    }
+
+    /// Read outside `stateLock` because the provider takes the User module's locks.
+    private func identityVerificationRequirement() -> OSRequiresUserAuth {
+        let provider = stateLock.withLock { userProvider }
+        return provider?.sessionIdentityVerification ?? .off
+    }
+
+    /// Call with `stateLock` held.
+    private func canSendCreate(of record: OSSessionRecord, identityVerificationRequired: Bool) -> Bool {
+        // The executor drops an anonymous create whose user can never be created.
+        let waitsForLogin = identityVerificationRequired && record.externalId == nil
+            && (record.onesignalId == nil || record.subscriptionId == nil)
+        return !waitsForLogin && !requiresPrivacyConsent()
+    }
+
+    /// Call with `stateLock` held. A session that never focused, or whose create can never be sent,
+    /// is not reported.
+    private func endedRecordToReport(identityVerificationRequired: Bool) -> OSSessionRecord? {
+        guard let record else {
+            return nil
+        }
+        if record.awaitingFocus == true {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService discarding session \(record.sessionId), it never focused")
+            return nil
+        }
+        if record.createHeld == true, !canSendCreate(of: record, identityVerificationRequired: identityVerificationRequired) {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService session \(record.sessionId) ended with its create held, not reporting it")
+            return nil
+        }
+        return record
+    }
+
+    /// Call with `stateLock` held. Returns the held create once it can be sent, which the caller must
+    /// send before any update of the session. A session that has not focused keeps it.
+    private func takeHeldCreate(identityVerificationRequired: Bool) -> SessionCreate? {
+        guard var current = record, current.createHeld == true, current.awaitingFocus != true, let userProvider,
+              canSendCreate(of: current, identityVerificationRequired: identityVerificationRequired) else {
+            return nil
+        }
+        let held = current
+        current.createHeld = nil
+        current.directAttributionId = nil
+        record = current
+        return SessionCreate(record: held, provider: userProvider)
     }
 }
 
@@ -530,13 +612,21 @@ extension OSSessionService {
         checkHeartbeat(generation: armed.generation)
     }
 
+    private struct HeartbeatDue {
+        let record: OSSessionRecord
+        let provider: OSSessionUserProvider?
+        let create: SessionCreate?
+    }
+
     /// Rechecks the duration after every wait. The scheduler's clock pauses through device sleep and
     /// `monotonicNow` doesn't, so a check can fire late but never early.
     private func checkHeartbeat(generation: Int) {
         let now = monotonicNow()
         let ids = pinnableIds()
+        // The create of a session still going can wait for the requirement to be known.
+        let identityVerificationRequired = identityVerificationRequirement() != .off
         let interval = heartbeatInterval()
-        let next: (due: (record: OSSessionRecord, provider: OSSessionUserProvider?)?, wait: TimeInterval)? = stateLock.withLock {
+        let next: (due: HeartbeatDue?, wait: TimeInterval)? = stateLock.withLock {
             guard generation == heartbeatGeneration, let start = focusedAt, let focusTime = openFocusTime,
                   let current = record, current.usesSessionsApi else {
                 return nil
@@ -550,18 +640,22 @@ extension OSSessionService {
             fillPinnedIds(ids)
             record?.lastHeartbeatDuration = duration
             record?.lastHeartbeatTime = focusTime + focusDuration
+            let create = takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
             persist()
-            return (record.map { ($0, userProvider) }, interval)
+            // An update queued before its create is discarded.
+            let due = record.flatMap { $0.createHeld == true ? nil : HeartbeatDue(record: $0, provider: userProvider, create: create) }
+            return (due, interval)
         }
         guard let next else {
             return
         }
-        if let (record, provider) = next.due {
+        if let due = next.due {
+            due.create?.send()
             OneSignalLog.onesignalLog(
                 .LL_DEBUG,
-                message: "OSSessionService heartbeat for session \(record.sessionId) with duration \(record.reportedDuration)"
+                message: "OSSessionService heartbeat for session \(due.record.sessionId) with duration \(due.record.reportedDuration)"
             )
-            provider?.sessionHeartbeat(record)
+            due.provider?.sessionHeartbeat(due.record)
         }
         schedule(next.wait) { [weak self] in
             self?.checkHeartbeat(generation: generation)
@@ -588,28 +682,31 @@ extension OSSessionService {
     /// background loses none of it.
     func onEnteredBackground() -> Bool {
         let ids = pinnableIds()
-        let checkpoint: Checkpoint? = stateLock.withLock {
+        // The create of a session still going can wait for the requirement to be known.
+        let identityVerificationRequired = identityVerificationRequirement() != .off
+        let (create, checkpoint): (SessionCreate?, Checkpoint?) = stateLock.withLock {
             loadIfNeeded()
             guard focusedAt == nil else {
-                return nil
+                return (nil, nil)
             }
             fillPinnedIds(ids)
+            let create = takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
             let checkpoint = takeCheckpointIfDue()
-            if checkpoint != nil {
+            if create != nil || checkpoint != nil {
                 persist()
             }
-            return checkpoint
+            return (create, checkpoint)
         }
-        guard let checkpoint else {
-            return false
+        create?.send()
+        if let checkpoint {
+            sendCheckpoint(checkpoint)
         }
-        sendCheckpoint(checkpoint)
-        return true
+        return create != nil || checkpoint != nil
     }
 
     /// Call with `stateLock` held.
     private func takeCheckpointIfDue() -> Checkpoint? {
-        guard var current = record, current.checkpointDue, !OSPrivacyConsentController.requiresUserPrivacyConsent() else {
+        guard var current = record, current.checkpointDue, !requiresPrivacyConsent() else {
             return nil
         }
         current.lastHeartbeatDuration = current.activeDuration

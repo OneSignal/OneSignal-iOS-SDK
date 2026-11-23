@@ -35,12 +35,15 @@ private final class FakeUserProvider: OSSessionUserProvider {
     var identityModelId: String?
     var onesignalIds: [String: String] = [:]
     var pushSubscriptionId: String?
+    var externalId: String? = "external-a"
+    var sessionIdentityVerification: OSRequiresUserAuth = .off
 
     var sessionCurrentUser: OSSessionUser {
         OSSessionUser(
             identityModelId: identityModelId,
             onesignalId: identityModelId.flatMap { onesignalIds[$0] },
-            pushSubscriptionId: pushSubscriptionId
+            pushSubscriptionId: pushSubscriptionId,
+            externalId: externalId
         )
     }
 
@@ -50,9 +53,9 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionHeartbeat(_ record: OSSessionRecord) {}
     func sessionCheckpoint(_ record: OSSessionRecord) {}
 
-    private(set) var firstFocuses: [(sessionId: String, directAttributionId: String?)] = []
-    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {
-        firstFocuses.append((record.sessionId, directAttributionId))
+    private(set) var releasedCreates: [(sessionId: String, directAttributionId: String?)] = []
+    func sessionCreate(_ record: OSSessionRecord) {
+        releasedCreates.append((record.sessionId, record.directAttributionId))
     }
 }
 
@@ -63,6 +66,7 @@ final class OSSessionServiceTests: XCTestCase {
     private var monotonicNow: TimeInterval = 1_000
     private var wallNow: TimeInterval = 5_000
     private var user: FakeUserProvider!
+    private var requiresPrivacyConsent = false
 
     override func setUp() {
         super.setUp()
@@ -72,6 +76,7 @@ final class OSSessionServiceTests: XCTestCase {
         featureManager = nil
         monotonicNow = 1_000
         wallNow = 5_000
+        requiresPrivacyConsent = false
         user = FakeUserProvider()
         user.identityModelId = "model-a"
         user.onesignalIds = ["model-a": "onesignal-a"]
@@ -91,7 +96,8 @@ final class OSSessionServiceTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { [unowned self] in self.wallNow }
+            wallNow: { [unowned self] in self.wallNow },
+            requiresPrivacyConsent: { [unowned self] in self.requiresPrivacyConsent }
         )
     }
 
@@ -369,22 +375,23 @@ extension OSSessionServiceTests {
         XCTAssertNil(service.currentRecord?.awaitingFocus)
         service.onUnfocus()
         service.onFocus()
-        XCTAssertTrue(user.firstFocuses.isEmpty)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
     }
 
     func testSessionStartedInTheBackgroundHoldsItsCreateUntilItsFirstFocus() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
         let service = makeService()
         let start = service.startNewSession(userProvider: user)
         XCTAssertEqual(start.started.awaitingFocus, true)
-        XCTAssertTrue(user.firstFocuses.isEmpty)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
 
         wallNow += 10
         service.onFocus()
         service.onUnfocus()
         service.onFocus()
 
-        XCTAssertEqual(user.firstFocuses.map(\.sessionId), [start.started.sessionId])
-        XCTAssertNil(user.firstFocuses.first?.directAttributionId)
+        XCTAssertEqual(user.releasedCreates.map(\.sessionId), [start.started.sessionId])
+        XCTAssertNil(user.releasedCreates.first?.directAttributionId)
         XCTAssertNil(service.currentRecord?.awaitingFocus)
     }
 
@@ -399,7 +406,7 @@ extension OSSessionServiceTests {
         XCTAssertNil(start.ended)
         XCTAssertNil(start.started.awaitingFocus)
         XCTAssertEqual(start.started.lastFocusTime, 6_000)
-        XCTAssertTrue(user.firstFocuses.isEmpty)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
     }
 
     /// A kill during a background launch must not send the session later.
@@ -412,7 +419,176 @@ extension OSSessionServiceTests {
         restarted.onFocus()
 
         XCTAssertNil(restarted.startNewSession(userProvider: user).ended)
-        XCTAssertTrue(user.firstFocuses.isEmpty)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+    }
+
+    // MARK: Anonymous
+
+    private func makeAnonymousSession() -> OSSessionService {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        user.externalId = nil
+        return makeForegroundSession()
+    }
+
+    func testAnonymousSessionHoldsItsCreateWithItsAttribution() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        user.externalId = nil
+        let service = makeService()
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.started.createHeld, true)
+        XCTAssertNil(start.directAttributionId)
+        XCTAssertEqual(start.started.directAttributionId, "notification-1")
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+    }
+
+    func testIdentifiedSessionDoesNotHoldItsCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+
+        let start = makeForegroundSession().currentRecord
+
+        XCTAssertNil(start?.createHeld)
+    }
+
+    func testAnonymousSessionStartedInTheBackgroundStillHoldsAfterItsFirstFocus() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
+        user.externalId = nil
+        let service = makeService()
+        service.startNewSession(userProvider: user)
+
+        service.onNotificationOpened("notification-1")
+        service.onFocus()
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+        XCTAssertEqual(service.currentRecord?.directAttributionId, "notification-1")
+    }
+
+    func testFirstBackgroundReleasesTheHeldCreateOnce() {
+        let service = makeAnonymousSession()
+        let sessionId = service.currentRecord?.sessionId
+
+        service.onUnfocus()
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertTrue(service.onEnteredBackground())
+        service.onFocus()
+        service.onUnfocus()
+        _ = service.onEnteredBackground()
+
+        XCTAssertEqual(user.releasedCreates.map(\.sessionId), [sessionId].compactMap { $0 })
+        XCTAssertNil(service.currentRecord?.createHeld)
+        XCTAssertNil(service.currentRecord?.directAttributionId)
+    }
+
+    func testEndReleasesTheSessionCreate() {
+        let service = makeAnonymousSession()
+        let first = service.currentRecord
+        service.onUnfocus()
+        wallNow += 60
+        service.onFocus()
+
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.sessionId, first?.sessionId)
+        XCTAssertTrue(start.endedCreateHeld)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+    }
+
+    func testColdStartAfterAKillWhileHeldEndsWithTheCreate() {
+        let first = makeAnonymousSession().currentRecord
+
+        let restarted = makeService()
+        restarted.onFocus()
+        let start = restarted.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.sessionId, first?.sessionId)
+        XCTAssertTrue(start.endedCreateHeld)
+    }
+
+    func testAnonymousSessionUnderIdentityVerificationStaysHeldUntilItsUserIsCreated() {
+        user.sessionIdentityVerification = .on
+        user.onesignalIds = [:]
+        let service = makeAnonymousSession()
+
+        service.onUnfocus()
+        XCTAssertFalse(service.onEnteredBackground())
+        wallNow += 60
+        service.onFocus()
+        let start = service.startNewSession(userProvider: user)
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertNil(start.ended)
+        XCTAssertFalse(start.endedCreateHeld)
+    }
+
+    func testHeldCreateWaitsForConsent() {
+        let service = makeAnonymousSession()
+        service.onUnfocus()
+        requiresPrivacyConsent = true
+
+        XCTAssertFalse(service.onEnteredBackground())
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+    }
+
+    func testHeldCreateWaitsForAnUnknownRequirementThenGoesOutOnceItIsOff() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let service = makeAnonymousSession()
+        service.onUnfocus()
+
+        XCTAssertFalse(service.onEnteredBackground())
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+
+        user.sessionIdentityVerification = .off
+        service.onFocus()
+        service.onUnfocus()
+        XCTAssertTrue(service.onEnteredBackground())
+        XCTAssertEqual(user.releasedCreates.count, 1)
+    }
+
+    func testHeldCreateWaitsForAnUnknownRequirementThenStaysHeldOnceItIsOn() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let service = makeAnonymousSession()
+        service.onUnfocus()
+        _ = service.onEnteredBackground()
+
+        user.sessionIdentityVerification = .on
+        service.onFocus()
+        service.onUnfocus()
+
+        XCTAssertFalse(service.onEnteredBackground())
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+    }
+
+    /// There is no later chance to send it, and the operation repo holds it until the requirement is known.
+    func testSessionEndingWhileTheRequirementIsUnknownReportsItsHeldCreate() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let first = makeAnonymousSession().currentRecord
+
+        let restarted = makeService()
+        restarted.onFocus()
+        let start = restarted.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.sessionId, first?.sessionId)
+        XCTAssertTrue(start.endedCreateHeld)
+    }
+
+    func testAnonymousSessionUnderIdentityVerificationWithBackendIdsIsReleasedOnTheFirstBackground() {
+        user.sessionIdentityVerification = .on
+        let service = makeAnonymousSession()
+
+        service.onUnfocus()
+        _ = service.onEnteredBackground()
+
+        XCTAssertEqual(user.releasedCreates.count, 1)
     }
 }
 
@@ -487,7 +663,8 @@ extension OSSessionServiceTests {
 
     /// A cold start from a tap, or a tap after a background launch: init starts the session in the
     /// background, and iOS delivers the open before the focus it causes.
-    func testOpenAfterABackgroundSessionStartsIsOnItsHeldCreate() {
+    func testOpenAfterABackgroundSessionStartsIsOnItsSessionCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
         let service = makeService()
         let start = service.startNewSession(userProvider: user)
 
@@ -495,15 +672,16 @@ extension OSSessionServiceTests {
         service.onNotificationOpened("notification-1")
         service.onFocus()
 
-        XCTAssertEqual(user.firstFocuses.map(\.sessionId), [start.started.sessionId])
-        XCTAssertEqual(user.firstFocuses.map(\.directAttributionId), ["notification-1"])
+        XCTAssertEqual(user.releasedCreates.map(\.sessionId), [start.started.sessionId])
+        XCTAssertEqual(user.releasedCreates.map(\.directAttributionId), ["notification-1"])
         service.onUnfocus()
         wallNow += 60
         service.onFocus()
         XCTAssertNil(service.startNewSession(userProvider: user).directAttributionId)
     }
 
-    func testOpenBeforeABackgroundSessionStartsIsOnItsHeldCreate() {
+    func testOpenBeforeABackgroundSessionStartsIsOnItsSessionCreate() {
+        flagsStore.applyRemoteFlags([flagKey], metadata: nil)
         let service = makeService()
 
         service.onNotificationOpened("notification-1")
@@ -511,7 +689,7 @@ extension OSSessionServiceTests {
         service.onFocus()
 
         XCTAssertNil(start.directAttributionId)
-        XCTAssertEqual(user.firstFocuses.map(\.directAttributionId), ["notification-1"])
+        XCTAssertEqual(user.releasedCreates.map(\.directAttributionId), ["notification-1"])
     }
 
     /// The focus past the threshold starts a new session, which the open belongs to.
@@ -523,7 +701,7 @@ extension OSSessionServiceTests {
         service.onNotificationOpened("notification-1")
         service.onFocus()
 
-        XCTAssertTrue(user.firstFocuses.isEmpty)
+        XCTAssertTrue(user.releasedCreates.isEmpty)
         XCTAssertEqual(service.startNewSession(userProvider: user).directAttributionId, "notification-1")
     }
 

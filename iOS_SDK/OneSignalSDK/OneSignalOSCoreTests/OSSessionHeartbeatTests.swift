@@ -32,14 +32,17 @@ import OneSignalKMP
 import XCTest
 
 private final class HeartbeatRecorder: OSSessionUserProvider {
+    var externalId: String? = "external-a"
+    var onesignalId: String? = "onesignal-a"
+    var sessionIdentityVerification: OSRequiresUserAuth = .off
     private(set) var heartbeats: [OSSessionRecord] = []
 
     var sessionCurrentUser: OSSessionUser {
-        OSSessionUser(identityModelId: "model-a", onesignalId: "onesignal-a", pushSubscriptionId: "subscription-a")
+        OSSessionUser(identityModelId: "model-a", onesignalId: onesignalId, pushSubscriptionId: "subscription-a", externalId: externalId)
     }
 
     func sessionOnesignalId(identityModelId: String) -> String? {
-        "onesignal-a"
+        onesignalId
     }
 
     func sessionHeartbeat(_ record: OSSessionRecord) {
@@ -51,7 +54,10 @@ private final class HeartbeatRecorder: OSSessionUserProvider {
         checkpoints.append(record)
     }
 
-    func sessionFirstFocused(_ record: OSSessionRecord, directAttributionId: String?) {}
+    private(set) var releasedCreates: [OSSessionRecord] = []
+    func sessionCreate(_ record: OSSessionRecord) {
+        releasedCreates.append(record)
+    }
 }
 
 final class OSSessionHeartbeatTests: XCTestCase {
@@ -361,6 +367,41 @@ final class OSSessionHeartbeatTests: XCTestCase {
         XCTAssertEqual(ended?.sessionId, first.sessionId)
         XCTAssertEqual(ended?.lastHeartbeatTime, wallStart + interval)
         XCTAssertEqual(ended?.endTime, wallStart + interval)
+    }
+
+    func testHeartbeatReleasesAHeldCreateFirst() {
+        user.externalId = nil
+        let record = startForegroundSession()
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+
+        advance(by: interval)
+
+        XCTAssertEqual(user.releasedCreates.map(\.sessionId), [record.sessionId])
+        XCTAssertEqual(heartbeatDurations(for: record), [interval])
+    }
+
+    func testHeartbeatOfACreateThatMustStayHeldSendsNothing() {
+        user.externalId = nil
+        user.sessionIdentityVerification = .on
+        user.onesignalId = nil
+        startForegroundSession()
+
+        advance(by: interval)
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
+    func testHeartbeatKeepsTheCreateHeldWhileTheRequirementIsUnknown() {
+        user.externalId = nil
+        user.sessionIdentityVerification = .unknown
+        user.onesignalId = nil
+        startForegroundSession()
+
+        advance(by: interval)
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertTrue(user.heartbeats.isEmpty)
     }
 
     func testNoHeartbeatWhenFlagIsOff() {
