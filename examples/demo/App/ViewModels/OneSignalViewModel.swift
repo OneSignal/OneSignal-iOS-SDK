@@ -234,7 +234,7 @@ final class OneSignalViewModel: ObservableObject {
         }
         if sameUser {
             // No user-state event fires for the same user, so refetch here instead.
-            Task { await fetchUserDataFromApi() }
+            refetchUser()
         } else {
             resetUserFetch()
             clearUserData()
@@ -251,7 +251,7 @@ final class OneSignalViewModel: ObservableObject {
         if trimmedId == service.externalId {
             // updateUserJwt may not fire a user-state event, so refetch instead of leaving
             // the last failure on screen.
-            Task { await fetchUserDataFromApi() }
+            refetchUser()
         }
     }
 
@@ -272,6 +272,13 @@ final class OneSignalViewModel: ObservableObject {
         userFetchStatus = nil
     }
 
+    /// The task starts later, so the bump here drops a fetch already in flight before it can
+    /// write its result.
+    private func refetchUser() {
+        requestSequence &+= 1
+        Task { await fetchUserDataFromApi() }
+    }
+
     func setLanguage(_ language: String) {
         service.setLanguage(language)
         self.language = language
@@ -288,7 +295,7 @@ final class OneSignalViewModel: ObservableObject {
         useIdentityVerification = enabled
         service.useIdentityVerification = enabled
         LogService.info("Fetch by external_id \(enabled ? "enabled" : "disabled")")
-        Task { await fetchUserDataFromApi() }
+        refetchUser()
     }
 
     private func clearUserData() {
