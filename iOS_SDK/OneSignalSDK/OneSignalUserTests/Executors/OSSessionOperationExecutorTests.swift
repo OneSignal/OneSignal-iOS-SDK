@@ -418,8 +418,9 @@ final class OSSessionOperationExecutorTests: XCTestCase {
 
         createSucceeds(executor)
 
-        let sent = expectation(for: NSPredicate { [client] _, _ in client!.requests.count == 2 }, evaluatedWith: nil)
-        wait(for: [sent], timeout: 1)
+        OneSignalCoreMocks.waitUntil("The update was not sent after the post-create delay", timeout: 5) { [client] in
+            client!.requests.count == 2
+        }
         XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 10)
     }
 
