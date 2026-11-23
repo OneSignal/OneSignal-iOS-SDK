@@ -36,7 +36,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
     var onesignalIds: [String: String] = [:]
     var pushSubscriptionId: String?
     var externalId: String? = "external-a"
-    var sessionRequiresIdentityVerification = false
+    var sessionIdentityVerification: OSRequiresUserAuth = .off
 
     var sessionCurrentUser: OSSessionUser {
         OSSessionUser(
@@ -66,6 +66,7 @@ final class OSSessionServiceTests: XCTestCase {
     private var monotonicNow: TimeInterval = 1_000
     private var wallNow: TimeInterval = 5_000
     private var user: FakeUserProvider!
+    private var requiresPrivacyConsent = false
 
     override func setUp() {
         super.setUp()
@@ -75,6 +76,7 @@ final class OSSessionServiceTests: XCTestCase {
         featureManager = nil
         monotonicNow = 1_000
         wallNow = 5_000
+        requiresPrivacyConsent = false
         user = FakeUserProvider()
         user.identityModelId = "model-a"
         user.onesignalIds = ["model-a": "onesignal-a"]
@@ -94,7 +96,8 @@ final class OSSessionServiceTests: XCTestCase {
         return OSSessionService(
             featureManager: { manager },
             monotonicNow: { [unowned self] in self.monotonicNow },
-            wallNow: { [unowned self] in self.wallNow }
+            wallNow: { [unowned self] in self.wallNow },
+            requiresPrivacyConsent: { [unowned self] in self.requiresPrivacyConsent }
         )
     }
 
@@ -506,7 +509,7 @@ extension OSSessionServiceTests {
     }
 
     func testAnonymousSessionUnderIdentityVerificationStaysHeldUntilItsUserIsCreated() {
-        user.sessionRequiresIdentityVerification = true
+        user.sessionIdentityVerification = .on
         user.onesignalIds = [:]
         let service = makeAnonymousSession()
 
@@ -524,9 +527,7 @@ extension OSSessionServiceTests {
     func testHeldCreateWaitsForConsent() {
         let service = makeAnonymousSession()
         service.onUnfocus()
-        OSPrivacyConsentController.setRequiresPrivacyConsent(true)
-        // It cannot be set back to false.
-        defer { OneSignalUserDefaults.initShared().removeValue(forKey: OSUD_REQUIRES_USER_PRIVACY_CONSENT) }
+        requiresPrivacyConsent = true
 
         XCTAssertFalse(service.onEnteredBackground())
 
@@ -534,8 +535,54 @@ extension OSSessionServiceTests {
         XCTAssertEqual(service.currentRecord?.createHeld, true)
     }
 
+    func testHeldCreateWaitsForAnUnknownRequirementThenGoesOutOnceItIsOff() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let service = makeAnonymousSession()
+        service.onUnfocus()
+
+        XCTAssertFalse(service.onEnteredBackground())
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+
+        user.sessionIdentityVerification = .off
+        service.onFocus()
+        service.onUnfocus()
+        XCTAssertTrue(service.onEnteredBackground())
+        XCTAssertEqual(user.releasedCreates.count, 1)
+    }
+
+    func testHeldCreateWaitsForAnUnknownRequirementThenStaysHeldOnceItIsOn() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let service = makeAnonymousSession()
+        service.onUnfocus()
+        _ = service.onEnteredBackground()
+
+        user.sessionIdentityVerification = .on
+        service.onFocus()
+        service.onUnfocus()
+
+        XCTAssertFalse(service.onEnteredBackground())
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertEqual(service.currentRecord?.createHeld, true)
+    }
+
+    /// There is no later chance to send it, and the operation repo holds it until the requirement is known.
+    func testSessionEndingWhileTheRequirementIsUnknownReportsItsHeldCreate() {
+        user.sessionIdentityVerification = .unknown
+        user.onesignalIds = [:]
+        let first = makeAnonymousSession().currentRecord
+
+        let restarted = makeService()
+        restarted.onFocus()
+        let start = restarted.startNewSession(userProvider: user)
+
+        XCTAssertEqual(start.ended?.sessionId, first?.sessionId)
+        XCTAssertTrue(start.endedCreateHeld)
+    }
+
     func testAnonymousSessionUnderIdentityVerificationWithBackendIdsIsReleasedOnTheFirstBackground() {
-        user.sessionRequiresIdentityVerification = true
+        user.sessionIdentityVerification = .on
         let service = makeAnonymousSession()
 
         service.onUnfocus()

@@ -408,6 +408,21 @@ final class OSSessionOperationExecutorTests: XCTestCase {
         XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 20)
     }
 
+    func testBackgroundCreateSendsItsQueuedUpdateAfterThePostCreateDelay() throws {
+        let executor = makeExecutor()
+        executor.enqueueDelta(createDelta())
+        executor.enqueueDelta(updateDelta(duration: 10))
+        executor.processDeltaQueue(inBackground: true)
+        _ = executor.queuedRequests
+        XCTAssertEqual(client.requests.count, 1)
+
+        createSucceeds(executor)
+
+        let sent = expectation(for: NSPredicate { [client] _, _ in client!.requests.count == 2 }, evaluatedWith: nil)
+        wait(for: [sent], timeout: 1)
+        XCTAssertEqual((client.requests.last as? OSRequestUpdateSession)?.activeDuration, 10)
+    }
+
     func testOther4xxDropsTheCreateWithItsUpdates() {
         let executor = makeExecutor()
         flush(executor, createDelta(), updateDelta(duration: 10))

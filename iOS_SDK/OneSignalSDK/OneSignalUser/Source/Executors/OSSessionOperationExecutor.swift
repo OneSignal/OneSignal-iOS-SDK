@@ -451,6 +451,9 @@ private extension OSSessionOperationExecutor {
             self.dispatchQueue.async {
                 self.handleSuccess(request, response: response)
                 if inBackground {
+                    if let create = request as? OSRequestCreateSession {
+                        self.sendUpdatesAfterPostCreateDelay(of: create)
+                    }
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
@@ -461,6 +464,22 @@ private extension OSSessionOperationExecutor {
                     OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
                 }
             }
+        }
+    }
+
+    /// In the background nothing else runs the queue, so a checkpoint flushed with its create would
+    /// wait for the next foreground, which a killed app never has.
+    func sendUpdatesAfterPostCreateDelay(of create: OSRequestCreateSession) {
+        guard createdSession(forSession: create.localSessionId) != nil,
+              requestQueue.contains(where: { $0.localSessionId == create.localSessionId }) else {
+            return
+        }
+        let backgroundTaskIdentifier = SESSION_EXECUTOR_BACKGROUND_TASK + UUID().uuidString
+        OSBackgroundTaskManager.beginBackgroundTask(backgroundTaskIdentifier)
+        let delay = DispatchTimeInterval.milliseconds(Int(OP_REPO_POST_CREATE_DELAY_SECONDS * 1_000 + 200))
+        dispatchQueue.asyncAfter(deadline: .now() + delay) {
+            self.processRequestQueue(inBackground: true)
+            OSBackgroundTaskManager.endBackgroundTask(backgroundTaskIdentifier)
         }
     }
 

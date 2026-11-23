@@ -53,7 +53,7 @@ public protocol OSSessionUserProvider: AnyObject {
     func sessionOnesignalId(identityModelId: String) -> String?
     /// Under Identity Verification an anonymous user is never created, so its session's create can
     /// only be sent once a login gives it a user.
-    var sessionRequiresIdentityVerification: Bool { get }
+    var sessionIdentityVerification: OSRequiresUserAuth { get }
     /// Called with the record whose `reportedDuration` is due to be sent, on any thread.
     func sessionHeartbeat(_ record: OSSessionRecord)
     /// Called once the app is in the background with the record whose `reportedDuration` is due to
@@ -163,6 +163,7 @@ public final class OSSessionService: NSObject {
     private let monotonicNow: () -> TimeInterval
     private let wallNow: () -> TimeInterval
     private let schedule: (TimeInterval, @escaping () -> Void) -> Void
+    private let requiresPrivacyConsent: () -> Bool
     /// Read on every check, so a later params fetch applies once the current wait ends.
     private let heartbeatInterval: () -> TimeInterval
 
@@ -198,7 +199,8 @@ public final class OSSessionService: NSObject {
         },
         heartbeatInterval: @escaping () -> TimeInterval = {
             OSSessionService.heartbeatInterval(remoteParams: OSRemoteParamController.shared().remoteParams)
-        }
+        },
+        requiresPrivacyConsent: @escaping () -> Bool = { OSPrivacyConsentController.requiresUserPrivacyConsent() }
     ) {
         self.storage = storage
         self.featureManager = featureManager
@@ -206,6 +208,7 @@ public final class OSSessionService: NSObject {
         self.wallNow = wallNow
         self.schedule = schedule
         self.heartbeatInterval = heartbeatInterval
+        self.requiresPrivacyConsent = requiresPrivacyConsent
         super.init()
     }
 
@@ -287,7 +290,9 @@ public final class OSSessionService: NSObject {
         enqueue: (OSSessionStart) -> Void = { _ in }
     ) -> OSSessionStart {
         let previousIds = pinnableIds()
-        let identityVerificationRequired = userProvider.sessionRequiresIdentityVerification
+        // An ended session's create goes out while the requirement is unknown: the operation repo
+        // holds it until the requirement is known, and there is no later chance to send it.
+        let identityVerificationRequired = userProvider.sessionIdentityVerification == .on
         let now = monotonicNow()
         let user = userProvider.sessionCurrentUser
         var newRecord = OSSessionRecord(
@@ -499,9 +504,9 @@ extension OSSessionService {
     }
 
     /// Read outside `stateLock` because the provider takes the User module's locks.
-    private func identityVerificationRequired() -> Bool {
+    private func identityVerificationRequirement() -> OSRequiresUserAuth {
         let provider = stateLock.withLock { userProvider }
-        return provider?.sessionRequiresIdentityVerification ?? false
+        return provider?.sessionIdentityVerification ?? .off
     }
 
     /// Call with `stateLock` held.
@@ -509,7 +514,7 @@ extension OSSessionService {
         // The executor drops an anonymous create whose user can never be created.
         let waitsForLogin = identityVerificationRequired && record.externalId == nil
             && (record.onesignalId == nil || record.subscriptionId == nil)
-        return !waitsForLogin && !OSPrivacyConsentController.requiresUserPrivacyConsent()
+        return !waitsForLogin && !requiresPrivacyConsent()
     }
 
     /// Call with `stateLock` held. A session that never focused, or whose create can never be sent,
@@ -618,7 +623,8 @@ extension OSSessionService {
     private func checkHeartbeat(generation: Int) {
         let now = monotonicNow()
         let ids = pinnableIds()
-        let identityVerificationRequired = identityVerificationRequired()
+        // The create of a session still going can wait for the requirement to be known.
+        let identityVerificationRequired = identityVerificationRequirement() != .off
         let interval = heartbeatInterval()
         let next: (due: HeartbeatDue?, wait: TimeInterval)? = stateLock.withLock {
             guard generation == heartbeatGeneration, let start = focusedAt, let focusTime = openFocusTime,
@@ -676,7 +682,8 @@ extension OSSessionService {
     /// background loses none of it.
     func onEnteredBackground() -> Bool {
         let ids = pinnableIds()
-        let identityVerificationRequired = identityVerificationRequired()
+        // The create of a session still going can wait for the requirement to be known.
+        let identityVerificationRequired = identityVerificationRequirement() != .off
         let (create, checkpoint): (SessionCreate?, Checkpoint?) = stateLock.withLock {
             loadIfNeeded()
             guard focusedAt == nil else {
@@ -699,7 +706,7 @@ extension OSSessionService {
 
     /// Call with `stateLock` held.
     private func takeCheckpointIfDue() -> Checkpoint? {
-        guard var current = record, current.checkpointDue, !OSPrivacyConsentController.requiresUserPrivacyConsent() else {
+        guard var current = record, current.checkpointDue, !requiresPrivacyConsent() else {
             return nil
         }
         current.lastHeartbeatDuration = current.activeDuration

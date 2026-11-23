@@ -78,8 +78,8 @@ extension OneSignalUserManagerImpl: OSSessionUserProvider {
         )
     }
 
-    public var sessionRequiresIdentityVerification: Bool {
-        identityVerificationService.ivBehaviorActive
+    public var sessionIdentityVerification: OSRequiresUserAuth {
+        identityVerificationService.requirement
     }
 
     public func sessionOnesignalId(identityModelId: String) -> String? {

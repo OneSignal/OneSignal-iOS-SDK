@@ -42,7 +42,7 @@ private final class FakeUserProvider: OSSessionUserProvider {
     func sessionHeartbeat(_ record: OSSessionRecord) {}
     private(set) var checkpoints: [OSSessionRecord] = []
     func sessionCheckpoint(_ record: OSSessionRecord) { checkpoints.append(record) }
-    var sessionRequiresIdentityVerification: Bool { false }
+    var sessionIdentityVerification: OSRequiresUserAuth { .off }
     func sessionCreate(_ record: OSSessionRecord) {}
 }
 

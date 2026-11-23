@@ -34,7 +34,7 @@ import XCTest
 private final class HeartbeatRecorder: OSSessionUserProvider {
     var externalId: String? = "external-a"
     var onesignalId: String? = "onesignal-a"
-    var sessionRequiresIdentityVerification = false
+    var sessionIdentityVerification: OSRequiresUserAuth = .off
     private(set) var heartbeats: [OSSessionRecord] = []
 
     var sessionCurrentUser: OSSessionUser {
@@ -382,7 +382,19 @@ final class OSSessionHeartbeatTests: XCTestCase {
 
     func testHeartbeatOfACreateThatMustStayHeldSendsNothing() {
         user.externalId = nil
-        user.sessionRequiresIdentityVerification = true
+        user.sessionIdentityVerification = .on
+        user.onesignalId = nil
+        startForegroundSession()
+
+        advance(by: interval)
+
+        XCTAssertTrue(user.releasedCreates.isEmpty)
+        XCTAssertTrue(user.heartbeats.isEmpty)
+    }
+
+    func testHeartbeatKeepsTheCreateHeldWhileTheRequirementIsUnknown() {
+        user.externalId = nil
+        user.sessionIdentityVerification = .unknown
         user.onesignalId = nil
         startForegroundSession()
 
