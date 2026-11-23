@@ -44,9 +44,17 @@ private final class SplitRecorder: OSSessionUserProvider {
     var externalId: String? = "external-a"
     var sessionIdentityVerification: OSRequiresUserAuth = .off
     private(set) var events: [Event] = []
+    /// Runs once on the next read of the current user, to land a switch right after that read.
+    var onNextRead: (() -> Void)?
 
     var sessionCurrentUser: OSSessionUser {
-        OSSessionUser(identityModelId: identityModelId, onesignalId: onesignalId, pushSubscriptionId: "subscription-a", externalId: externalId)
+        let user = OSSessionUser(
+            identityModelId: identityModelId, onesignalId: onesignalId, pushSubscriptionId: "subscription-a", externalId: externalId
+        )
+        let onNextRead = onNextRead
+        self.onNextRead = nil
+        onNextRead?()
+        return user
     }
 
     func switchUser(identityModelId: String, onesignalId: String?, externalId: String?) {
@@ -170,6 +178,33 @@ final class OSSessionSplitTests: XCTestCase {
         XCTAssertTrue(next.usesSessionsApi)
     }
 
+    func testNextSessionCountsOnlyTheTimeSinceTheSplit() {
+        startForegroundSession()
+        advance(by: 100)
+        switchToUserB()
+        service.splitSession()
+
+        advance(by: 50)
+        service.onUnfocus()
+
+        XCTAssertEqual(service.currentRecord?.activeDuration, 50)
+    }
+
+    func testNextSessionKilledAfterItsFirstHeartbeatEndsAtThatHeartbeat() {
+        startForegroundSession()
+        advance(by: 20 * 60)
+        let switchTime = wallNow
+        switchToUserB()
+        service.splitSession()
+        advance(by: interval)
+
+        service = makeService()
+        service.onFocus()
+        let ended = service.startNewSession(userProvider: user).ended
+
+        XCTAssertEqual(ended?.endTime, switchTime + interval)
+    }
+
     func testSplitToAnAnonymousUserHoldsTheNextCreate() {
         let first = startForegroundSession()
         advance(by: 60)
@@ -278,6 +313,22 @@ final class OSSessionSplitTests: XCTestCase {
 
         XCTAssertEqual(user.events.count, events.count + 1)
         XCTAssertEqual(service.currentRecord?.identityModelId, "model-c")
+    }
+
+    func testSwitchDuringTheFocusAfterABackgroundSplitStartsTheNextSessionForTheLatestUser() {
+        startForegroundSession()
+        background()
+        switchToUserB()
+        service.splitSession()
+
+        user.onNextRead = { [unowned self] in
+            self.user.switchUser(identityModelId: "model-c", onesignalId: "onesignal-c", externalId: "external-c")
+            self.service.splitSession()
+        }
+        service.onFocus()
+
+        XCTAssertEqual(service.currentRecord?.identityModelId, "model-c")
+        XCTAssertNil(service.currentRecord?.splitPending)
     }
 
     // MARK: - Legacy

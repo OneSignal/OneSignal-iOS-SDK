@@ -105,7 +105,7 @@ public struct OSSessionRecord: Codable, Equatable {
     public internal(set) var createHeld: Bool?
     /// The open that started the session, kept for a held create.
     public internal(set) var directAttributionId: String?
-    /// Set once a user switch in the background has ended the session. The app session goes on, and
+    /// Set once a user switch while unfocused has ended the session. The app session goes on, and
     /// the next session starts on the next focus.
     public internal(set) var splitPending: Bool?
 
@@ -185,6 +185,9 @@ public final class OSSessionService: NSObject {
     private var recordStartedInThisProcess = false
     /// Bumped whenever the heartbeat restarts or stops, so a check scheduled before then does nothing.
     private var heartbeatGeneration = 0
+    /// Bumped at every user switch, before it reads the new user, so a focus that read the user
+    /// outside the lock can tell that a switch landed in between.
+    private var userSwitchGeneration = 0
     /// The generation a running heartbeat was armed with. Stale once the generation moves on.
     private var armedHeartbeatGeneration: Int?
     /// A notification opened from the background, for the session its focus starts or first brings to
@@ -337,31 +340,7 @@ public final class OSSessionService: NSObject {
     func onFocus() {
         let now = monotonicNow()
         let wallNow = wallNow()
-        let splitUser = userAfterPendingSplit()
-        let (continuesRecord, release): (Bool, SessionCreate?) = stateLock.withLock {
-            focusedAt = now
-            loadIfNeeded()
-            openFocusTime = wallNow
-            guard var current = record, focusContinuesRecord(at: wallNow) else {
-                return (false, nil)
-            }
-            let directAttributionId = takePendingAttribution(at: now)
-            if current.splitPending == true, let splitUser {
-                return (true, startNextSession(for: splitUser, at: wallNow, directAttributionId: directAttributionId))
-            }
-            // Saved now, since a kill leaves no unfocus to record when the session was last active.
-            current.lastFocusTime = wallNow
-            let wasAwaitingFocus = current.awaitingFocus == true
-            current.awaitingFocus = nil
-            if wasAwaitingFocus {
-                current.directAttributionId = directAttributionId
-            }
-            record = current
-            // An anonymous session's create stays held past its first focus.
-            let release = wasAwaitingFocus && current.externalId != nil ? takeHeldCreate(identityVerificationRequired: false) : nil
-            persist()
-            return (true, release)
-        }
+        let (continuesRecord, release) = focusRecordAfterAnyUserSwitch(now: now, wallNow: wallNow)
         release?.send()
         // A focus that starts a new session leaves the heartbeat to that session's start. A held
         // create is queued above, before the heartbeat whose updates need it.
@@ -588,12 +567,16 @@ extension OSSessionService {
     }
 
     /// Ends the current sessions API session at a user switch and starts the next one for the new
-    /// user. The app session goes on, so no legacy session start or end is sent. In the background,
+    /// user. The app session goes on, so no legacy session start or end is sent. While unfocused,
     /// the next session starts on the next focus.
     func splitSession() {
         let ids = pinnableIds()
         let identityVerificationRequired = identityVerificationRequirement() == .on
-        guard let provider = stateLock.withLock({ userProvider }) else {
+        let provider: OSSessionUserProvider? = stateLock.withLock {
+            userSwitchGeneration += 1
+            return userProvider
+        }
+        guard let provider else {
             return
         }
         let user = provider.sessionCurrentUser
@@ -638,13 +621,56 @@ extension OSSessionService {
         restartHeartbeat(continuesRecord: true)
     }
 
-    /// Read outside `stateLock` because the provider takes the User module's locks.
-    private func userAfterPendingSplit() -> OSSessionUser? {
-        let provider: OSSessionUserProvider? = stateLock.withLock {
-            loadIfNeeded()
-            return record?.splitPending == true ? userProvider : nil
+    /// Retries when a user switch lands between reading the pending split's user and taking the
+    /// lock, since that switch may have ended the record or changed the next user.
+    private func focusRecordAfterAnyUserSwitch(now: TimeInterval, wallNow: TimeInterval) -> (Bool, SessionCreate?) {
+        while true {
+            let pendingSplit = userAfterPendingSplit()
+            let focus: (Bool, SessionCreate?)? = stateLock.withLock {
+                guard pendingSplit.generation == userSwitchGeneration else {
+                    return nil
+                }
+                return focusRecord(now: now, wallNow: wallNow, splitUser: pendingSplit.user)
+            }
+            if let focus {
+                return focus
+            }
         }
-        return provider?.sessionCurrentUser
+    }
+
+    /// Call with `stateLock` held.
+    private func focusRecord(now: TimeInterval, wallNow: TimeInterval, splitUser: OSSessionUser?) -> (Bool, SessionCreate?) {
+        focusedAt = now
+        loadIfNeeded()
+        openFocusTime = wallNow
+        guard var current = record, focusContinuesRecord(at: wallNow) else {
+            return (false, nil)
+        }
+        let directAttributionId = takePendingAttribution(at: now)
+        if current.splitPending == true, let splitUser {
+            return (true, startNextSession(for: splitUser, at: wallNow, directAttributionId: directAttributionId))
+        }
+        // Saved now, since a kill leaves no unfocus to record when the session was last active.
+        current.lastFocusTime = wallNow
+        let wasAwaitingFocus = current.awaitingFocus == true
+        current.awaitingFocus = nil
+        if wasAwaitingFocus {
+            current.directAttributionId = directAttributionId
+        }
+        record = current
+        // An anonymous session's create stays held past its first focus.
+        let release = wasAwaitingFocus && current.externalId != nil ? takeHeldCreate(identityVerificationRequired: false) : nil
+        persist()
+        return (true, release)
+    }
+
+    /// Read outside `stateLock` because the provider takes the User module's locks.
+    private func userAfterPendingSplit() -> (generation: Int, user: OSSessionUser?) {
+        let (generation, provider): (Int, OSSessionUserProvider?) = stateLock.withLock {
+            loadIfNeeded()
+            return (userSwitchGeneration, record?.splitPending == true ? userProvider : nil)
+        }
+        return (generation, provider?.sessionCurrentUser)
     }
 
     /// Call with `stateLock` held. Replaces the record with the next session after a split, which
