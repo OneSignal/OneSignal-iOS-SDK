@@ -1,7 +1,7 @@
-name: Publish Release to CocoaPods and SPM
+name: Publish Release to SPM
 
-# This workflow publishes the OneSignal pods to CocoaPods trunk.
-# And creates the tagged release in the OneSignal-XCFramework repository for SPM.
+# Creates the tagged release in the OneSignal-XCFramework repository for SPM.
+# CocoaPods trunk is read-only since Dec 2, 2026, so podspecs are no longer pushed.
 # Run this AFTER the release PR has been merged and the GitHub release has been created.
 
 on:
@@ -28,7 +28,6 @@ jobs:
     runs-on: macos-latest
 
     env:
-      COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -62,78 +61,6 @@ jobs:
           echo "📦 Release Version: ${{ steps.extract_version.outputs.version }}"
           echo "🌿 Branch: ${{ steps.detect_branch.outputs.branch }}"
           echo "============================================"
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.0"
-
-      - name: Install CocoaPods
-        run: |
-          gem install cocoapods
-          pod --version
-
-      - name: Validate OneSignal.podspec
-        run: |
-          echo "Validating OneSignal.podspec..."
-          pod spec lint OneSignal.podspec --allow-warnings
-
-      - name: Validate OneSignalXCFramework.podspec
-        run: |
-          echo "Validating OneSignalXCFramework.podspec..."
-          pod spec lint OneSignalXCFramework.podspec --allow-warnings
-
-      - name: Publish podspecs to CocoaPods Trunk
-        env:
-          VERSION: ${{ steps.extract_version.outputs.version }}
-        run: |
-          # Trunk returns data_url only after the version's commit to CocoaPods/Specs is imported.
-          is_on_trunk() {
-            local body
-            body=$(curl -s --max-time 30 "https://trunk.cocoapods.org/api/v1/pods/$1/versions/$VERSION") || return 1
-            [[ "$body" == *'"data_url"'* ]]
-          }
-
-          wait_for_trunk() {
-            for _ in {1..12}; do
-              is_on_trunk "$1" && return
-              sleep 10
-            done
-            echo "$1 $VERSION still not listed on Trunk after 2 minutes"
-            return 1
-          }
-
-          push_podspec() {
-            local podspec="$1"
-            local pod="${podspec%.podspec}"
-            if is_on_trunk "$pod"; then
-              echo "::warning::$pod $VERSION already on Trunk, skipped"
-              return
-            fi
-            for attempt in 1 2 3; do
-              echo "Publishing $podspec to CocoaPods Trunk (attempt $attempt)..."
-              pod trunk push "$podspec" --allow-warnings && return
-              # A push that times out on Trunk's side often still lands its Specs commit.
-              if wait_for_trunk "$pod"; then
-                echo "::warning::$pod $VERSION push reported an error but the version is on Trunk"
-                return
-              fi
-            done
-            echo "::error::$pod $VERSION not confirmed on Trunk after 3 push attempts"
-            exit 1
-          }
-
-          push_podspec OneSignal.podspec
-          push_podspec OneSignalXCFramework.podspec
-
-      - name: ✅ CocoaPods Published
-        run: |
-          VERSION="${{ steps.extract_version.outputs.version }}"
-          echo "============================================"
-          echo "✅ Successfully published version $VERSION to CocoaPods!"
-          echo "============================================"
-          echo "📦 OneSignal: https://cocoapods.org/pods/OneSignal"
-          echo "📦 OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
 
       - name: Checkout OneSignal-XCFramework
         uses: actions/checkout@v7
@@ -213,8 +140,6 @@ jobs:
           echo "============================================"
           echo "✅ Successfully completed all release steps for version $VERSION"
           echo "============================================"
-          echo "📦 CocoaPods OneSignal: https://cocoapods.org/pods/OneSignal"
-          echo "📦 CocoaPods OneSignalXCFramework: https://cocoapods.org/pods/OneSignalXCFramework"
           echo "🔗 iOS SDK Release: https://github.com/OneSignal/OneSignal-iOS-SDK/releases/tag/$VERSION"
           echo "🔗 XCFramework Release: https://github.com/OneSignal/OneSignal-XCFramework/releases/tag/$VERSION"
 
