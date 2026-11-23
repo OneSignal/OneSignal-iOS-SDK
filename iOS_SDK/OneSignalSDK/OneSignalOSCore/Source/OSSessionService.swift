@@ -77,8 +77,9 @@ public struct OSSessionRecord: Codable, Equatable {
     /// Fixed for the whole session so it never mixes paths. Read this rather than the feature
     /// manager, whose value can change mid-session.
     public let usesSessionsApi: Bool
-    public let identityModelId: String?
-    /// Pinned at session start, so it stays the same after a login or user switch.
+    /// Pinned at session start. Only a user switch while the create is held moves it.
+    public internal(set) var identityModelId: String?
+    /// Pinned at session start. Only a user switch while the create is held moves it.
     public internal(set) var onesignalId: String?
     public internal(set) var subscriptionId: String?
     /// Seconds since 1970 when the app last left the foreground. Nil until then.
@@ -97,7 +98,9 @@ public struct OSSessionRecord: Codable, Equatable {
     /// an open delivered before that focus is on the create, and a session that never focuses sends
     /// neither a create nor an end. Persisted, so a kill before the focus does not send it later.
     public internal(set) var awaitingFocus: Bool?
-    /// The external ID of the session's user when it started, nil while anonymous.
+    /// The external ID of the user the session follows, nil while anonymous. A login after an
+    /// anonymous session's create was sent sets it without moving the session, so a later switch
+    /// splits.
     public internal(set) var externalId: String?
     /// Set while the session's create is not queued: until its first focus, and for an anonymous
     /// user until the first background, a heartbeat, or the session's end, so a login before then
@@ -188,6 +191,9 @@ public final class OSSessionService: NSObject {
     /// Bumped at every user switch, before it reads the new user, so a focus that read the user
     /// outside the lock can tell that a switch landed in between.
     private var userSwitchGeneration = 0
+    /// The user the last switch read. Each login gets a new identity model, so a switch reading the
+    /// same one again is a concurrent switch that read the user after the later replace.
+    private var lastSwitchIdentityModelId: String?
     /// The generation a running heartbeat was armed with. Stale once the generation moves on.
     private var armedHeartbeatGeneration: Int?
     /// A notification opened from the background, for the session its focus starts or first brings to
@@ -559,17 +565,18 @@ extension OSSessionService {
         return nil
     }
 
-    private struct Split {
+    private struct UserSwitch {
         let heldCreate: SessionCreate?
         let ended: OSSessionRecord?
         let next: SessionCreate?
         let provider: OSSessionUserProvider
+        let split: Bool
     }
 
-    /// Ends the current sessions API session at a user switch and starts the next one for the new
-    /// user. The app session goes on, so no legacy session start or end is sent. While unfocused,
-    /// the next session starts on the next focus.
-    func splitSession() {
+    /// Called after a login or logout replaces the current user. A held create moves to the new user,
+    /// and is queued if that user is identified. Otherwise a logged-in user's switch splits the
+    /// session, and an anonymous user's login keeps it, so it is not counted twice.
+    public func onUserSwitched() {
         let ids = pinnableIds()
         let identityVerificationRequired = identityVerificationRequirement() == .on
         let provider: OSSessionUserProvider? = stateLock.withLock {
@@ -582,43 +589,97 @@ extension OSSessionService {
         let user = provider.sessionCurrentUser
         let now = monotonicNow()
         let wallNow = wallNow()
-        let split: Split? = stateLock.withLock {
+        let change: UserSwitch? = stateLock.withLock {
+            if isRepeatedSwitch(to: user) { return nil }
             loadIfNeeded()
             fillPinnedIds(ids)
-            guard var current = record, current.usesSessionsApi, current.splitPending != true else {
+            guard var current = record, current.usesSessionsApi, current.splitPending != true, isCurrentSession else {
                 return nil
             }
-            if let start = focusedAt {
-                current.activeDuration += max(0, now - start)
-                current.lastUnfocusTime = wallNow
-                current.lastHeartbeatTime = nil
+            if current.createHeld == true {
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService moving session \(current.sessionId) to the new user")
+                current.identityModelId = user.identityModelId
+                current.onesignalId = user.onesignalId
+                current.subscriptionId = user.pushSubscriptionId
+                current.externalId = user.externalId
                 record = current
+                let create = user.externalId == nil ? nil : takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
+                persist()
+                return UserSwitch(heldCreate: create, ended: nil, next: nil, provider: provider, split: false)
             }
-            let ended = endedRecordToReport(identityVerificationRequired: identityVerificationRequired)
-            let heldCreate = ended == nil ? nil : takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
-            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService splitting session \(current.sessionId) at a user switch")
-            var next: SessionCreate?
-            if focusedAt != nil {
-                focusedAt = now
-                openFocusTime = wallNow
-                next = startNextSession(for: user, at: wallNow, directAttributionId: nil)
-            } else {
-                record?.splitPending = true
+            if current.externalId == nil {
+                record?.externalId = user.externalId
+                persist()
+                return nil
             }
-            // The ended session's heartbeat stops here.
-            heartbeatGeneration += 1
-            persist()
-            return Split(heldCreate: heldCreate, ended: ended, next: next, provider: provider)
+            return takeSplit(for: user, now: now, wallNow: wallNow, identityVerificationRequired: identityVerificationRequired, provider: provider)
         }
-        guard let split else {
+        guard let change else {
             return
         }
-        split.heldCreate?.send()
-        if let ended = split.ended {
-            split.provider.sessionEnd(ended)
+        change.heldCreate?.send()
+        if let ended = change.ended {
+            change.provider.sessionEnd(ended)
         }
-        split.next?.send()
-        restartHeartbeat(continuesRecord: true)
+        change.next?.send()
+        if change.split {
+            restartHeartbeat(continuesRecord: true)
+        }
+    }
+
+    /// Call with `stateLock` held. Records the user a switch read, and reports a user already read.
+    private func isRepeatedSwitch(to user: OSSessionUser) -> Bool {
+        guard let identityModelId = user.identityModelId else {
+            return false
+        }
+        defer { lastSwitchIdentityModelId = identityModelId }
+        return identityModelId == lastSwitchIdentityModelId
+    }
+
+    /// Call with `stateLock` held. False while the record is about to be replaced: it is from an
+    /// earlier process, or the open visit's focus will start a new session. That session is ended
+    /// as it was, and the new one starts for the new user.
+    private var isCurrentSession: Bool {
+        guard recordStartedInThisProcess else {
+            return false
+        }
+        return focusedAt == nil || openFocusTime.map(focusContinuesRecord) == true
+    }
+
+    /// Call with `stateLock` held. Ends the current session now and starts the next one for the new
+    /// user. The app session goes on, so no legacy session start or end is sent. While unfocused,
+    /// the next session starts on the next focus.
+    private func takeSplit(
+        for user: OSSessionUser,
+        now: TimeInterval,
+        wallNow: TimeInterval,
+        identityVerificationRequired: Bool,
+        provider: OSSessionUserProvider
+    ) -> UserSwitch? {
+        guard var current = record else {
+            return nil
+        }
+        if let start = focusedAt {
+            current.activeDuration += max(0, now - start)
+            current.lastUnfocusTime = wallNow
+            current.lastHeartbeatTime = nil
+            record = current
+        }
+        let ended = endedRecordToReport(identityVerificationRequired: identityVerificationRequired)
+        let heldCreate = ended == nil ? nil : takeHeldCreate(identityVerificationRequired: identityVerificationRequired)
+        OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSessionService splitting session \(current.sessionId) at a user switch")
+        var next: SessionCreate?
+        if focusedAt != nil {
+            focusedAt = now
+            openFocusTime = wallNow
+            next = startNextSession(for: user, at: wallNow, directAttributionId: nil)
+        } else {
+            record?.splitPending = true
+        }
+        // The ended session's heartbeat stops here.
+        heartbeatGeneration += 1
+        persist()
+        return UserSwitch(heldCreate: heldCreate, ended: ended, next: next, provider: provider, split: true)
     }
 
     /// Retries when a user switch lands between reading the pending split's user and taking the
