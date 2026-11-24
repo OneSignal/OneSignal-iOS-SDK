@@ -196,10 +196,9 @@ struct UserSection: View {
             )
         }
         .osDialog(isPresented: $updateJwtOpen) {
-            AddItemDialog(
-                itemType: .updateUserJwt,
-                initialKey: viewModel.jwtAskExternalId ?? viewModel.externalUserId ?? "",
-                onAdd: { externalId, token in
+            UpdateJwtDialog(
+                initialExternalId: viewModel.jwtAskExternalId ?? viewModel.externalUserId ?? "",
+                onUpdate: { externalId, token in
                     viewModel.updateUserJwt(externalId: externalId, token: token)
                     updateJwtOpen = false
                 },
