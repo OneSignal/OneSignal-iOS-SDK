@@ -43,7 +43,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
         guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user,
               store.getModel(modelId: model.modelId) != nil
         else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance or the model is not in the current store")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionModelStoreListener.getAddModelDelta has no user instance or the model is not in the current store")
             return nil
         }
         let identityModel = userInstance.identityModel
@@ -63,7 +63,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
      */
     func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
         guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getRemoveModelDelta has no user instance")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionModelStoreListener.getRemoveModelDelta has no user instance")
             return nil
         }
         let identityModel = userInstance.identityModel
@@ -85,7 +85,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
         // something like the app_version. If the app_version hasn't changed since the last session, there
         // wouldn't be an update needed (among other system-level properties).
         guard let userInstance = OneSignalUserManagerImpl.sharedInstance._user else {
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionModelStoreListener.getUpdateModelDelta has no user instance")
+            OneSignalLog.onesignalLog(.LL_WARN, message: "OSSubscriptionModelStoreListener.getUpdateModelDelta has no user instance")
             return nil
         }
         let identityModel = userInstance.identityModel

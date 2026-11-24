@@ -76,9 +76,10 @@
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSClientFailureBlock)failureBlock {
     // If privacy consent is required but not yet given, any non-GET request should be blocked.
     if (request.method != GET && [OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent."];
+        OneSignalClientError *consentError = [self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:consentError.message];
         if (failureBlock) {
-            failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);
+            failureBlock(consentError);
         }
         
         return;
@@ -224,6 +225,9 @@
 
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@) with URL %@: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, innerJson]];
         if (jsonError) {
+            if (statusCode >= 200 && statusCode < 300) {
+                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Response to %@ with status %ld is not valid JSON: %@", NSStringFromClass([request class]), (long)statusCode, jsonError]];
+            }
             if (failureBlock != nil)
                 failureBlock([[OneSignalClientError alloc] initWithCode:statusCode message:@"Error parsing JSON" responseHeaders:headers response:nil underlyingError:jsonError]);
             return;

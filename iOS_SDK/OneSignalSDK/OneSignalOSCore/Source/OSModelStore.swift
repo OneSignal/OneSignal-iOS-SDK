@@ -151,7 +151,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
                 // persist the models (with removed model) to storage
                 OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
             } else {
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
+                OneSignalLog.onesignalLog(.LL_WARN, message: "OSModelStore cannot remove \(id) because it doesn't exist in the store.")
                 return
             }
         }
