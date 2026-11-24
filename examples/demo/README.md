@@ -92,7 +92,7 @@ xcodegen generate               # rewrites App.xcodeproj
 
 ### 3. Capabilities & App Group
 
-The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.com.onesignal.sdkdemo.onesignal`. Both targets also set `OneSignal_app_groups_key` to this value because Catalyst derives a `maccatalyst.*` bundle identifier that would otherwise produce a different default group name. If you need a different group (for example to install on a real device under your own team), change the value in both entitlements and both Info.plists to the same string. The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
+The shipped `App.entitlements` and `OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements` use `group.$(DEMO_BUNDLE_ID).onesignal`. Both targets also set `OneSignal_app_groups_key` to this value because Catalyst derives a `maccatalyst.*` bundle identifier that would otherwise produce a different default group name. The demo builds as `com.onesignal.example` on team `99SW8E36CT` by default. To use your own bundle ID or team, set `DEMO_BUNDLE_ID` / `DEMO_TEAM_ID` in `Local.xcconfig` (see `Local.xcconfig.example`). The other capabilities (Push Notifications, Remote notifications background mode, `NSSupportsLiveActivities`) are already declared in the entitlements / `App/Info.plist`.
 
 ### 4. Configure your OneSignal credentials
 
@@ -107,7 +107,7 @@ Both the App ID and (optional) REST API key live in a single `Secrets.plist` nex
 </dict>
 ```
 
-- `ONESIGNAL_APP_ID` — optional. Falls back to the placeholder in `SecretsConfig.defaultAppId` when missing.
+- `ONESIGNAL_APP_ID` — optional. Falls back to the shared example app in `SecretsConfig.defaultAppId` when missing.
 - `ONESIGNAL_API_KEY` — optional, only needed for Live Activity **Update** / **End**. Without it, those buttons disable themselves and the section shows a hint.
 
 > The widget renders `DefaultLiveActivityAttributes` (provided by the SDK), so the Activity ID + Order # you type into the demo flows through to the same widget regardless of whether the update came from `OneSignal.LiveActivities` locally or from the REST `/live_activities/{id}/notifications` endpoint.

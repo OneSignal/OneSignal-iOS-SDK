@@ -5,9 +5,11 @@
 // Anything you set here survives `xcodegen generate`; settings you change
 // only in Xcode's Signing & Capabilities UI are wiped on regeneration.
 
-// Apple Developer team id used by automatic signing. Required to run on a
-// physical device.
-// DEVELOPMENT_TEAM = ABCDE12345
+// Bundle ID and Apple Developer team used by automatic signing. The NSE and
+// widget get `.NSE` / `.LA` suffixes and the App Group becomes
+// `group.<DEMO_BUNDLE_ID>.onesignal`.
+// DEMO_BUNDLE_ID = com.example.mydemo
+// DEMO_TEAM_ID = ABCDE12345
 
 // Switch from automatic to manual signing if you have a specific
 // provisioning profile to attach. Leave on Automatic for most cases.
