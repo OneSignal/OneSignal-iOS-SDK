@@ -6,6 +6,7 @@
 #import "OSOutcomesRequests.h"
 #import "OneSignalTracker.h"
 #import "UIApplicationOverrider.h"
+#import "OSBackgroundTaskHandlerImpl.h"
 #import "OSFocusTimeProcessorFactory.h"
 #import "NSDateOverrider.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
