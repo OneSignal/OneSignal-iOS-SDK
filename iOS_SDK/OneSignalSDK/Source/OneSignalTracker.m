@@ -91,6 +91,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         return;
     lastOnFocusWasToBackground = NO;
     [OneSignalUserManagerImpl.sharedInstance onFocus];
+    [self liveActivitiesOnFocus];
 }
 
 + (void)applicationBecameActive {
@@ -103,6 +104,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OSSessionManager.sharedSessionManager setLastOpenedTime:[[NSDate date] timeIntervalSince1970]];
     [OSSessionService onFocus];
     [OneSignalUserManagerImpl.sharedInstance onFocus];
+    [self liveActivitiesOnFocus];
     
     // on_session tracking when resumming app.
     if ([OneSignal shouldStartNewSession])
@@ -117,6 +119,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 + (void)applicationBackgrounded {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [OneSignalUserManagerImpl.sharedInstance onUnfocus];
+    [self liveActivitiesOnUnfocus];
     [self updateLastClosedTime];
     [OSSessionService onUnfocus];
     
@@ -179,6 +182,18 @@ static BOOL lastOnFocusWasToBackground = YES;
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
+}
+
++ (void)liveActivitiesOnFocus {
+    let liveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if ([liveActivities respondsToSelector:@selector(onFocus)])
+        [liveActivities performSelector:@selector(onFocus)];
+}
+
++ (void)liveActivitiesOnUnfocus {
+    let liveActivities = NSClassFromString(ONE_SIGNAL_LIVE_ACTIVITIES_CLASS_NAME);
+    if ([liveActivities respondsToSelector:@selector(onUnfocus)])
+        [liveActivities performSelector:@selector(onUnfocus)];
 }
 
 + (void)updateLastClosedTime {

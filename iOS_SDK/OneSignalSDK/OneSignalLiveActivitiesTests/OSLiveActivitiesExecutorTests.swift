@@ -27,12 +27,25 @@ with services provided by OneSignal.
 
 import XCTest
 import OneSignalCore
-import OneSignalOSCore
-import OneSignalUser
 import OneSignalCoreMocks
 import OneSignalUserMocks
 
+@testable import OneSignalOSCore
+@testable import OneSignalUser
 @testable import OneSignalLiveActivities
+
+private final class RecordingTaskHandler: OSBackgroundTaskHandler {
+    private let lock = NSLock()
+    private var _begunTasks: [String] = []
+    private var _endedTasks: [String] = []
+
+    var begunTasks: [String] { lock.withLock { _begunTasks } }
+    var endedTasks: [String] { lock.withLock { _endedTasks } }
+
+    func beginBackgroundTask(_ taskIdentifier: String) { lock.withLock { _begunTasks.append(taskIdentifier) } }
+    func endBackgroundTask(_ taskIdentifier: String) { lock.withLock { _endedTasks.append(taskIdentifier) } }
+    func setTaskInvalid(_ taskIdentifier: String) {}
+}
 
 final class OSLiveActivitiesExecutorTests: XCTestCase {
 
@@ -573,5 +586,201 @@ extension OSLiveActivitiesExecutorTests {
         /* Then */
         XCTAssertEqual(mockClient.executedRequests.count, 2, "Receipt should be re-sent after a non-retryable failure")
         XCTAssertTrue(executor.receiveReceipts.items["my-notification-id"]?.requestSuccessful ?? false)
+    }
+}
+
+// Retries in the same run: backoff, focus, a repeated token, a new subscription, and background tasks.
+extension OSLiveActivitiesExecutorTests {
+    private func failure(_ code: Int, headers: [String: String]? = nil) -> OneSignalClientError {
+        return OneSignalClientError(code: code, message: "not-important", responseHeaders: headers, response: nil, underlyingError: nil)
+    }
+
+    /// The clock does not move, so a backoff ends only when `retryNow` ends it.
+    private func backoffWithFixedClock() -> OSRequestRetryBackoff {
+        return OSRequestRetryBackoff(uptime: { 1_000 }, jitter: { 1 })
+    }
+
+    /// Returns after every block already on `queue` has run. Blocks those blocks add are not included.
+    private func drain(_ queue: MockDispatchQueue) {
+        let drained = expectation(description: "The dispatch queue was not drained")
+        queue.async { drained.fulfill() }
+        wait(for: [drained], timeout: 5)
+    }
+
+    func testRetryableFailureIsResentInTheSameRun() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: failure(0))
+        // The first failure waits 0 seconds, so its retry runs at once. The second failure waits.
+        var failures = 0
+        let backoff = OSRequestRetryBackoff(uptime: { 1_000 }, jitter: {
+            failures += 1
+            return failures == 1 ? 0 : 1
+        })
+
+        /* When */
+        let executor = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue(), retryBackoff: backoff)
+        executor.append(request)
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("The failed request was not sent again") {
+            mockClient.executedRequests.count == 2
+        }
+        XCTAssertTrue(mockClient.executedRequests.allSatisfy { $0 === request })
+        XCTAssertTrue(executor.updateTokens.items["my-activity-id"] === request)
+    }
+
+    func testFocusResendsAFailedRequestBeforeItsBackoffEnds() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let mockDispatchQueue = MockDispatchQueue()
+        let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: failure(0))
+        let backoff = backoffWithFixedClock()
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue, retryBackoff: backoff)
+        executor.append(request)
+        OneSignalCoreMocks.waitUntil("The failed request is not backing off") {
+            backoff.isWaiting(request)
+        }
+
+        /* When */
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+        executor.onFocus()
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("Focus did not send the failed request") {
+            request.requestSuccessful
+        }
+        XCTAssertEqual(mockClient.executedRequests.count, 2)
+    }
+
+    func testFocusStillWaitsOutRetryAfter() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let mockDispatchQueue = MockDispatchQueue()
+        let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: failure(429, headers: ["Retry-After": "60"]))
+        let backoff = backoffWithFixedClock()
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue, retryBackoff: backoff)
+        executor.append(request)
+        OneSignalCoreMocks.waitUntil("The rate-limited request is not backing off") {
+            backoff.isWaiting(request)
+        }
+
+        /* When */
+        executor.onFocus()
+        drain(mockDispatchQueue)
+
+        /* Then */
+        XCTAssertEqual(mockClient.executedRequests.count, 1)
+    }
+
+    /**
+     After a relaunch, ActivityKit gives the same token again. The cached request was never sent, so it must be
+     sent now and not dropped as a duplicate.
+     */
+    func testSameTokenSendsTheUnsentRequestAfterRelaunch() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let request = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockFailureResponseForRequest(request: String(describing: request), error: failure(0))
+        let firstLaunch = MockDispatchQueue()
+        let executor1 = OSLiveActivitiesExecutor(requestDispatch: firstLaunch, retryBackoff: backoffWithFixedClock())
+        executor1.append(request)
+        drain(firstLaunch)
+
+        /* When */
+        mockClient.setMockResponseForRequest(request: String(describing: request), response: [String: Any]())
+        let executor2 = OSLiveActivitiesExecutor(requestDispatch: MockDispatchQueue(), retryBackoff: backoffWithFixedClock())
+        let reloaded = try XCTUnwrap(executor2.updateTokens.items["my-activity-id"])
+        executor2.append(OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token"))
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("The reloaded request was not sent") {
+            reloaded.requestSuccessful
+        }
+        XCTAssertEqual(mockClient.executedRequests.count, 2)
+        XCTAssertTrue(mockClient.executedRequests[1] === reloaded)
+    }
+
+    func testSameTokenDoesNotResendARequestInFlight() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        mockClient.holdResponses = true
+        let mockDispatchQueue = MockDispatchQueue()
+        let request1 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        let request2 = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        mockClient.setMockResponseForRequest(request: String(describing: request1), response: [String: Any]())
+
+        /* When */
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue, retryBackoff: backoffWithFixedClock())
+        executor.append(request1)
+        executor.append(request2)
+        drain(mockDispatchQueue)
+        mockClient.releaseHeldResponses()
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("The held request did not finish") {
+            request1.requestSuccessful
+        }
+        XCTAssertEqual(mockClient.executedRequests.count, 1)
+    }
+
+    func testSubscriptionChangeResendsUpdateTokensButNotReceipts() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let mockDispatchQueue = MockDispatchQueue()
+        let updateToken = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        let receipt = OSRequestLiveActivityReceiveReceipts(key: "my-notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+        mockClient.setMockResponseForRequest(request: String(describing: updateToken), response: [String: Any]())
+        mockClient.setMockResponseForRequest(request: String(describing: receipt), response: [String: Any]())
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue, pollIntervalSeconds: 0, retryBackoff: backoffWithFixedClock())
+        executor.append(updateToken)
+        executor.append(receipt)
+        OneSignalCoreMocks.waitUntil("The first requests did not succeed") {
+            updateToken.requestSuccessful && receipt.requestSuccessful
+        }
+
+        /* When */
+        let previous = OSPushSubscriptionState(id: "subscription-1", token: "push-token", optedIn: true)
+        let current = OSPushSubscriptionState(id: "subscription-2", token: "push-token", optedIn: true)
+        executor.onPushSubscriptionDidChange(state: OSPushSubscriptionChangedState(current: current, previous: previous))
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("The update token was not sent again") {
+            mockClient.executedRequests.filter { $0 === updateToken }.count == 2
+        }
+        drain(mockDispatchQueue)
+        XCTAssertEqual(mockClient.executedRequests.filter { $0 === receipt }.count, 1)
+        OneSignalCoreMocks.waitUntil("The update token was not marked successful again") {
+            updateToken.requestSuccessful
+        }
+    }
+
+    func testEachRequestEndsItsBackgroundTask() throws {
+        /* Setup */
+        let mockClient = setUpSubscribedUser()
+        let mockDispatchQueue = MockDispatchQueue()
+        let taskHandler = RecordingTaskHandler()
+        let originalTaskHandler = OSBackgroundTaskManager.taskHandler
+        OSBackgroundTaskManager.taskHandler = taskHandler
+        defer { OSBackgroundTaskManager.taskHandler = originalTaskHandler }
+        let succeeding = OSRequestSetUpdateToken(key: "my-activity-id", token: "my-token")
+        let failing = OSRequestSetStartToken(key: "my-activity-type", token: "my-token")
+        mockClient.setMockResponseForRequest(request: String(describing: succeeding), response: [String: Any]())
+        mockClient.setMockFailureResponseForRequest(request: String(describing: failing), error: failure(500))
+
+        /* When */
+        let executor = OSLiveActivitiesExecutor(requestDispatch: mockDispatchQueue, retryBackoff: backoffWithFixedClock())
+        executor.append(succeeding)
+        executor.append(failing)
+
+        /* Then */
+        OneSignalCoreMocks.waitUntil("A background task did not end") {
+            taskHandler.endedTasks.count == 2
+        }
+        XCTAssertEqual(taskHandler.begunTasks.count, 2)
+        XCTAssertEqual(Set(taskHandler.endedTasks), Set(taskHandler.begunTasks))
     }
 }
