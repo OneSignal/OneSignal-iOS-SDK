@@ -186,6 +186,14 @@ class OSLiveActivitiesExecutor: OSPushSubscriptionObserver {
         }
     }
 
+    func cachedUpdateToken(_ activityId: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            self.requestDispatch.async {
+                continuation.resume(returning: (self.updateTokens.items[activityId] as? OSRequestSetUpdateToken)?.token)
+            }
+        }
+    }
+
     func pollPendingRequests() {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.LiveActivities pollPendingRequests")
 
