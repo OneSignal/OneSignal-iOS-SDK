@@ -158,6 +158,50 @@ final class OSLiveActivitiesExecutorTests: XCTestCase {
         XCTAssertTrue(mockClient.executedRequests[0] == request)
     }
 
+    func testReceiveReceiptsCarriesOnesignalIdWhenKnown() throws {
+        /* Setup */
+        _ = setUpSubscribedUser()
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: "my-onesignal-id")
+        let request = OSRequestLiveActivityReceiveReceipts(key: "notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+
+        /* When */
+        XCTAssertTrue(request.prepareForExecution())
+
+        /* Then */
+        let params = request.parameters as? [String: Any]
+        XCTAssertEqual(params?["onesignal_id"] as? String, "my-onesignal-id")
+        XCTAssertEqual(params?["player_id"] as? String, "my-subscription-id")
+        XCTAssertEqual(params?["app_id"] as? String, "test-app-id")
+    }
+
+    func testReceiveReceiptsOmitsOnesignalIdWhenUnknown() throws {
+        /* Setup */
+        _ = setUpSubscribedUser()
+        let request = OSRequestLiveActivityReceiveReceipts(key: "notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+
+        /* When */
+        XCTAssertTrue(request.prepareForExecution())
+
+        /* Then */
+        let params = request.parameters as? [String: Any]
+        XCTAssertNil(params?["onesignal_id"])
+        XCTAssertEqual(params?["player_id"] as? String, "my-subscription-id")
+    }
+
+    func testReceiveReceiptsOmitsOnesignalIdWhenEmpty() throws {
+        /* Setup */
+        _ = setUpSubscribedUser()
+        OneSignalUserDefaults.initShared().saveString(forKey: OS_SNAPSHOT_ONESIGNAL_ID, withValue: "")
+        let request = OSRequestLiveActivityReceiveReceipts(key: "notification-id", activityType: "my-activity-type", activityId: "my-activity-id")
+
+        /* When */
+        XCTAssertTrue(request.prepareForExecution())
+
+        /* Then */
+        let params = request.parameters as? [String: Any]
+        XCTAssertNil(params?["onesignal_id"])
+    }
+
     func testClickEventWithSuccessfulRequest() throws {
         /* Setup */
         let mockDispatchQueue = MockDispatchQueue()

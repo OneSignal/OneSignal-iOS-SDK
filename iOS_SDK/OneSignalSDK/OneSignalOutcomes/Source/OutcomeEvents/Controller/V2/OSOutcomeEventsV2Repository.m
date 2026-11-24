@@ -35,6 +35,8 @@ THE SOFTWARE.
 
 - (void)requestMeasureOutcomeEventWithAppId:(NSString *)appId
                         deviceType:(NSNumber *)deviceType
+                pushSubscriptionId:(NSString *)pushSubscriptionId
+                       onesignalId:(NSString *)onesignalId
                              event:(OSOutcomeEventParams *)event
                          onSuccess:(OSResultSuccessBlock)successBlock
                          onFailure:(OSFailureBlock)failureBlock {

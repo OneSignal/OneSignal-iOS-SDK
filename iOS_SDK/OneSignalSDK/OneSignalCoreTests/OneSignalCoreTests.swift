@@ -74,6 +74,47 @@ final class OneSignalCoreTests: XCTestCase {
         XCTAssertEqual(templateName, "Template name")
     }
 
+    // MARK: - Notification opened request
+
+    private func notificationOpenedRequest(onesignalId: String?) -> OSRequestSubmitNotificationOpened {
+        return OSRequestSubmitNotificationOpened.withUserId(
+            "test-subscription-id",
+            appId: "test-app-id",
+            onesignalId: onesignalId,
+            wasOpened: true,
+            messageId: "test-message-id",
+            withDeviceType: 0
+        )
+    }
+
+    func testNotificationOpenedCarriesOnesignalIdWhenKnown() {
+        let request = notificationOpenedRequest(onesignalId: "test-onesignal-id")
+
+        XCTAssertEqual(request.path, "notifications/test-message-id")
+        XCTAssertEqual(request.method, PUT)
+        let params = request.parameters as? [String: Any]
+        XCTAssertEqual(params?["onesignal_id"] as? String, "test-onesignal-id")
+        XCTAssertEqual(params?["player_id"] as? String, "test-subscription-id")
+        XCTAssertEqual(params?["app_id"] as? String, "test-app-id")
+        XCTAssertEqual(params?["opened"] as? Bool, true)
+        XCTAssertEqual(params?["device_type"] as? Int, 0)
+    }
+
+    func testNotificationOpenedOmitsOnesignalIdWhenUnknown() {
+        let request = notificationOpenedRequest(onesignalId: nil)
+
+        let params = request.parameters as? [String: Any]
+        XCTAssertNil(params?["onesignal_id"])
+        XCTAssertEqual(params?["player_id"] as? String, "test-subscription-id")
+    }
+
+    func testNotificationOpenedOmitsOnesignalIdWhenEmpty() {
+        let request = notificationOpenedRequest(onesignalId: "")
+
+        let params = request.parameters as? [String: Any]
+        XCTAssertNil(params?["onesignal_id"])
+    }
+
     // MARK: - Codeable data guards
 
     private let guardKey = "OS_CORE_TESTS_CODEABLE_GUARD"

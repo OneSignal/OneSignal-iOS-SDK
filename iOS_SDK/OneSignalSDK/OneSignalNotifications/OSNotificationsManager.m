@@ -774,6 +774,7 @@ static NSString *_lastnonActiveMessageId;
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
         [OneSignalCoreImpl.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:OneSignalIdentifiers.subscriptionId
                                                                                              appId:OneSignalIdentifiers.currentAppId
+                                                                                       onesignalId:OneSignalIdentifiers.onesignalId
                                                                                          wasOpened:YES
                                                                                          messageId:messageId
                                                                                     withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
