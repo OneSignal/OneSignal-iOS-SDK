@@ -37,8 +37,8 @@ Open `iOS_SDK/OneSignalSDK.xcworkspace`, select the **App** scheme, and run. The
 
 Per-developer build settings and OneSignal credentials are split across two layers, both wired into XcodeGen via `project.yml`:
 
-- `Build.xcconfig` -- root xcconfig referenced by every target's `configFiles: { Debug, Release }`. It sets the default Debug `DEVELOPMENT_TEAM` (`DL8TF3X4K3`) and then does `#include? "Local.xcconfig"`, so a fresh clone builds with no extra setup.
-- `Local.xcconfig` (gitignored) -- per-developer overrides such as `DEVELOPMENT_TEAM`, `CODE_SIGN_STYLE`, and `PROVISIONING_PROFILE_SPECIFIER`. Anything set here survives `xcodegen generate`. See `Local.xcconfig.example` for the template.
+- `Build.xcconfig` -- root xcconfig referenced by every target's `configFiles: { Debug, Release }`. It sets `DEMO_BUNDLE_ID` (`com.onesignal.example`) and `DEMO_TEAM_ID` (`99SW8E36CT`), uses the team as the Debug `DEVELOPMENT_TEAM`, and then does `#include? "Local.xcconfig"`, so a fresh clone builds with no extra setup. Every target derives its bundle ID from `DEMO_BUNDLE_ID` (`.NSE` and `.LA` suffixes for the extensions), and the App Group is `group.$(DEMO_BUNDLE_ID).onesignal`. E2E passes `DEMO_BUNDLE_ID=com.onesignal.sdkdemo DEMO_TEAM_ID=DL8TF3X4K3` to `xcodebuild`.
+- `Local.xcconfig` (gitignored) -- per-developer overrides such as `DEMO_BUNDLE_ID`, `DEMO_TEAM_ID`, `CODE_SIGN_STYLE`, and `PROVISIONING_PROFILE_SPECIFIER`. Anything set here survives `xcodegen generate`. See `Local.xcconfig.example` for the template.
 - `App/Secrets.plist` (gitignored, `optional: true` in `project.yml`) -- `<dict>` with `ONESIGNAL_APP_ID` and `ONESIGNAL_API_KEY` strings. Parsed at runtime by `App/Services/SecretsConfig.swift`. Bundled via an explicit `buildPhase: resources` source entry because XcodeGen otherwise treats `.plist` files as Info.plist-like and skips Copy Bundle Resources.
 - `App/vine_boom.wav` (gitignored optional) -- bundled custom notification sound; XcodeGen picks it up automatically from the `App/` source path.
 
@@ -173,7 +173,7 @@ override func serviceExtensionTimeWillExpire() {
 }
 ```
 
-The NSE entitlements file (`OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements`) **must** declare the same `com.apple.security.application-groups` value as the main app — both ship with `group.com.onesignal.sdkdemo.onesignal`. If you change the group to install on a real device under your own team, change it in BOTH files to the same string.
+The NSE entitlements file (`OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements`) **must** declare the same `com.apple.security.application-groups` value as the main app — both use `group.$(DEMO_BUNDLE_ID).onesignal`, so they stay in sync when `DEMO_BUNDLE_ID` changes.
 
 ### Widget Extension (Live Activities)
 
@@ -194,7 +194,7 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 <string>$(APS_ENVIRONMENT)</string>
 <key>com.apple.security.application-groups</key>
 <array>
-    <string>group.com.onesignal.sdkdemo.onesignal</string>
+    <string>group.$(DEMO_BUNDLE_ID).onesignal</string>
 </array>
 ```
 
@@ -204,7 +204,7 @@ The widget target's deployment target is `16.2` (project-wide is `16.0`) because
 
 ### Release signing
 
-Release builds are signed for enterprise (In House) distribution so the Appium suite can run push tests on BrowserStack real devices.
+Release builds are signed for enterprise (In House) distribution so the Appium suite can run push tests on BrowserStack real devices. They require the E2E bundle ID (`DEMO_BUNDLE_ID=com.onesignal.sdkdemo`).
 
 - Team `DL8TF3X4K3` (OneSignal, Inc. Apple Developer Enterprise Program), identity `iPhone Distribution`, manual signing. All Release signing settings are scoped to `[sdk=iphoneos*]`.
 - Provisioning profiles (type In House, created at developer.apple.com > Profiles with the in-house distribution certificate): `Appium Demo - Main` (`com.onesignal.sdkdemo`), `Appium Demo - NSE` (`com.onesignal.sdkdemo.NSE`), `Appium Demo - Live Activity` (`com.onesignal.sdkdemo.LA`). In House profiles need no registered devices.
@@ -256,7 +256,7 @@ examples/demo/
 ├── Build.xcconfig                                 # Root xcconfig wired into every target;
 │                                                  # Debug team + `#include? "Local.xcconfig"`
 ├── Local.xcconfig.example                         # Per-developer overrides template
-│                                                  # (DEVELOPMENT_TEAM, CODE_SIGN_STYLE, ...)
+│                                                  # (DEMO_BUNDLE_ID, DEMO_TEAM_ID, ...)
 ├── build.md                                       # This file
 ├── README.md
 ├── App/                                           # Main app target source

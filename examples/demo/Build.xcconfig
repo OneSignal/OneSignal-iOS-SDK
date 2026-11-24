@@ -5,8 +5,12 @@
 // optional include below is a no-op when the file is missing, so a fresh
 // clone builds without further setup. See `Local.xcconfig.example`.
 
-// Debug signing team. Release pins its own team and In House profiles in
-// project.yml.
-DEVELOPMENT_TEAM = DL8TF3X4K3
+// E2E overrides both on the xcodebuild command line
+// (DEMO_BUNDLE_ID=com.onesignal.sdkdemo DEMO_TEAM_ID=DL8TF3X4K3).
+DEMO_BUNDLE_ID = com.onesignal.example
+DEMO_TEAM_ID = 99SW8E36CT
+
+// Debug signing team. Release pins its own In House profiles in project.yml.
+DEVELOPMENT_TEAM = $(DEMO_TEAM_ID)
 
 #include? "Local.xcconfig"

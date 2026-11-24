@@ -1,6 +1,6 @@
 name: App
 options:
-  bundleIdPrefix: com.onesignal.sdkdemo
+  bundleIdPrefix: com.onesignal.example
   deploymentTarget:
     iOS: "16.0"
   developmentLanguage: en
@@ -52,10 +52,19 @@ targets:
       - path: App/Secrets.plist
         buildPhase: resources
         optional: true
+    preBuildScripts:
+      # Secrets.plist is gitignored; an empty one keeps a fresh clone building
+      # and SecretsConfig falls back to its defaults.
+      - name: Create empty Secrets.plist if missing
+        script: |
+          [ -f "$SRCROOT/App/Secrets.plist" ] || /usr/bin/plutil -create xml1 "$SRCROOT/App/Secrets.plist"
+        outputFiles:
+          - $(SRCROOT)/App/Secrets.plist
+        basedOnDependencyAnalysis: false
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo
+        PRODUCT_BUNDLE_IDENTIFIER: $(DEMO_BUNDLE_ID)
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -131,7 +140,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo.NSE
+        PRODUCT_BUNDLE_IDENTIFIER: $(DEMO_BUNDLE_ID).NSE
         INFOPLIST_FILE: OneSignalNotificationServiceExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -171,7 +180,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "$(TARGET_NAME)"
-        PRODUCT_BUNDLE_IDENTIFIER: com.onesignal.sdkdemo.LA
+        PRODUCT_BUNDLE_IDENTIFIER: $(DEMO_BUNDLE_ID).LA
         INFOPLIST_FILE: OneSignalWidget/Info.plist
         TARGETED_DEVICE_FAMILY: "1,2"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
