@@ -233,7 +233,7 @@ class OSUserExecutor {
                         }
                         userRequestQueue.append(req)
                     } else {
-                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.start() dropped: \(request)")
+                        OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.start() dropped: \(request)")
                     }
                 }
             }
@@ -537,9 +537,10 @@ extension OSUserExecutor {
             }
             OneSignalUserManagerImpl.sharedInstance.operationRepo.paused = false
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
+            let message = "OSUserExecutor create user request failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 // Held rather than paused: `updateUserJwt` resumes work by flushing, which a paused Repo drops.
                 // Ordering does not need the pause — every Request for this user waits on an `onesignal_id`.
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
@@ -547,6 +548,7 @@ extension OSUserExecutor {
                 // re-enter so that token is used now rather than waiting on another wake.
                 self.executePendingRequests()
             } else if responseType != .retryable {
+                OneSignalLog.onesignalLog(.LL_ERROR, message: message)
                 // A failed create user request would leave the SDK in a bad state
                 // Don't remove the request from cache and pause the operation repo
                 // We will retry this request on a new session. Stays marked as sent until then, so other
@@ -564,6 +566,7 @@ extension OSUserExecutor {
                     }
                 }
             } else {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.retryLater(request, error: error)
             }
         }
@@ -612,13 +615,15 @@ extension OSUserExecutor {
                 self.removeFromQueue(request)
             }
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)")
+            let message = "OSUserExecutor executeFetchIdentityBySubscriptionRequest failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType != .retryable {
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // Fail, no retry, remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 self.removeFromQueue(request)
             } else {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.retryLater(request, error: error)
             }
             self.executePendingRequests()
@@ -753,7 +758,7 @@ extension OSUserExecutor {
 
                     if !subscriptionExists {
                         // This subscription probably has been deleted
-                        OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor.executeFetchUserRequest found this device's push subscription gone, now send the push subscription to server.")
+                        OneSignalLog.onesignalLog(.LL_WARN, message: "OSUserExecutor.executeFetchUserRequest found this device's push subscription gone, now send the push subscription to server.")
                         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                         OneSignalUserManagerImpl.sharedInstance.createPushSubscriptionRequest()
                     }
@@ -761,24 +766,29 @@ extension OSUserExecutor {
             }
             self.executePendingRequests()
         } onFailure: { error in
-            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)")
+            let message = "OSUserExecutor executeFetchUserRequest failed with error: \(error.debugDescription)"
             let responseType = OSNetworkingUtils.getResponseStatusType(error.code)
             if responseType == .missing {
                 self.removeFromQueue(request)
                 // Logout only if this request's user is still current, so a concurrent login can't log out the wrong user.
                 guard OneSignalUserManagerImpl.sharedInstance.currentUser(matching: request.identityModel.modelId) != nil
                 else {
+                    OneSignalLog.onesignalLog(.LL_INFO, message: message)
                     return
                 }
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // The subscription has been deleted along with the user, so remove the subscription_id but keep the same push subscription model
                 OneSignalUserManagerImpl.sharedInstance.pushSubscriptionModel?.subscriptionId = nil
                 OneSignalUserManagerImpl.sharedInstance._logout()
             } else if responseType == .unauthorized, self.auth.handleUnauthorized(request) {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor holding \(request) for a new token")
             } else if responseType != .retryable {
+                OneSignalLog.onesignalLog(.LL_WARN, message: message)
                 // If the error is not retryable, remove from cache and queue
                 self.removeFromQueue(request)
             } else {
+                OneSignalLog.onesignalLog(.LL_INFO, message: message)
                 self.retryLater(request, error: error)
             }
             self.executePendingRequests()

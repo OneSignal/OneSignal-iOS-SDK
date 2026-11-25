@@ -102,6 +102,8 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="iPhone Distribution" \
             DEVELOPMENT_TEAM=DL8TF3X4K3 \
+            DEMO_BUNDLE_ID=com.onesignal.sdkdemo \
+            DEMO_TEAM_ID=DL8TF3X4K3 \
             COMPILER_INDEX_STORE_ENABLE=NO
           xcodebuild -exportArchive \
             -archivePath examples/demo/build/App.xcarchive \

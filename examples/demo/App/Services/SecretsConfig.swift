@@ -35,8 +35,8 @@ import Foundation
 enum SecretsConfig {
 
     /// Hard-coded fallback when `ONESIGNAL_APP_ID` is missing or empty in
-    /// `Secrets.plist`. Matches the default in `sdk-shared/demo/build.md`.
-    static let defaultAppId = "77e32082-ea27-42e3-a898-c72e141824ef"
+    /// `Secrets.plist`. Shared example app used by every SDK demo.
+    static let defaultAppId = "1154c350-e715-4b71-a58b-1b84b6745baa"
 
     /// Resolved OneSignal App ID. Reads `ONESIGNAL_APP_ID` from `Secrets.plist`
     /// and falls back to `defaultAppId` when missing or empty.

@@ -96,7 +96,7 @@ static OneSignalOutcomeEventsController *_sharedController;
         return;
     }
     if (!_sharedController) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
         return;
     }
     
@@ -108,7 +108,7 @@ static OneSignalOutcomeEventsController *_sharedController;
         return;
     }
     if (!_sharedController) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
         return;
     }
     
@@ -120,7 +120,7 @@ static OneSignalOutcomeEventsController *_sharedController;
         return;
     }
     if (!_sharedController) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
         return;
     }
     

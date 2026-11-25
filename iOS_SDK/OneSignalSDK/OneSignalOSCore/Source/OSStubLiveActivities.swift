@@ -39,6 +39,6 @@ public class OSStubLiveActivities: NSObject, OSLiveActivities {
     private static func logUnavailable() {
         let message = "OneSignalLiveActivities not found. In order to use OneSignal's " +
             "LiveActivities features the OneSignalLiveActivities module must be added."
-        OneSignalLog.onesignalLog(.LL_ERROR, message: message)
+        OneSignalLog.onesignalLog(.LL_WARN, message: message)
     }
 }
