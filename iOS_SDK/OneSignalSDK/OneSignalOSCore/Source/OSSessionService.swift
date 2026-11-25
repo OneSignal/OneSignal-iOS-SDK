@@ -758,7 +758,7 @@ extension OSSessionService {
 // MARK: - Heartbeat
 
 extension OSSessionService {
-    static let defaultHeartbeatInterval: TimeInterval = 30 * 60
+    static let defaultHeartbeatInterval: TimeInterval = 3 * 60
     // Bounds a misconfigured value so it can neither flood requests nor stop heartbeats.
     static let minHeartbeatInterval: TimeInterval = 60
     static let maxHeartbeatInterval: TimeInterval = 24 * 60 * 60
@@ -766,7 +766,8 @@ extension OSSessionService {
     /// A missing, non-positive, or non-numeric value falls back to the default. A JSON boolean
     /// bridges to an `NSNumber` of 1, so it is rejected explicitly.
     static func heartbeatInterval(remoteParams: [AnyHashable: Any]) -> TimeInterval {
-        let sessions = remoteParams["sessions"] as? [AnyHashable: Any]
+        // Forced to 180 s for heartbeat testing, as if the params sent it.
+        let sessions: [AnyHashable: Any]? = ["heartbeat_interval_seconds": NSNumber(value: 180)]
         guard let number = sessions?["heartbeat_interval_seconds"] as? NSNumber,
               CFGetTypeID(number) != CFBooleanGetTypeID(),
               number.doubleValue > 0 else {
