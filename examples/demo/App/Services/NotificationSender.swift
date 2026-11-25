@@ -46,7 +46,7 @@ final class NotificationSender {
         }
     }
 
-    private let endpoint = URL(string: "https://onesignal.com/api/v1/notifications")!
+    private let endpoint = URL(string: "https://staging.onesignal.com/api/v1/notifications")!
     private let maxAttempts = 5
 
     func sendNotification(

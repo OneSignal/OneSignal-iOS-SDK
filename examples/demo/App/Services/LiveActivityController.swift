@@ -136,7 +136,7 @@ enum LiveActivityController {
 
     private static func postLiveActivity(appId: String, activityId: String, payload: [String: Any]) async -> Bool {
         guard let key = SecretsConfig.apiKey else { return false }
-        let urlString = "https://api.onesignal.com/apps/\(appId)/live_activities/\(activityId)/notifications"
+        let urlString = "https://api.staging.onesignal.com/apps/\(appId)/live_activities/\(activityId)/notifications"
         guard let url = URL(string: urlString) else { return false }
 
         var request = URLRequest(url: url)

@@ -64,7 +64,7 @@ final class UserFetchService {
         allowed.remove(charactersIn: "/")
         guard
             let encodedAlias = aliasValue.addingPercentEncoding(withAllowedCharacters: allowed),
-            let url = URL(string: "https://api.onesignal.com/apps/\(appId)/users/by/\(aliasLabel)/\(encodedAlias)")
+            let url = URL(string: "https://api.staging.onesignal.com/apps/\(appId)/users/by/\(aliasLabel)/\(encodedAlias)")
         else {
             return .failure(.badRequest)
         }
